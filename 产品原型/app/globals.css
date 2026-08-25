@@ -1,0 +1,143 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-panel: var(--panel);
+  --color-panel-foreground: var(--panel-foreground);
+  --color-grid-line: var(--grid-line);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+:root {
+  color-scheme: light;
+  --radius: 0.5rem;
+
+  --font-sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+
+  /* 特变电工官方企业蓝与现代明亮工业底色 (TBEA Official Energy Management System Style) */
+  --background: #f0f2f5;          /* 经典浅灰蓝底色 */
+  --foreground: #1f2937;          /* 高对比度主文本深色 */
+
+  --panel: #ffffff;
+  --panel-foreground: #1f2937;
+
+  --card: #ffffff;
+  --card-foreground: #1f2937;
+
+  --popover: #ffffff;
+  --popover-foreground: #1f2937;
+
+  /* 特变企业主色与业务语义色 */
+  --primary: #1677ff;             /* TBEA 标志性皇家科技蓝 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-foreground: #334155;
+
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+
+  --accent: #e6f4ff;             /* 选中浅蓝底色 */
+  --accent-foreground: #0958d9;
+
+  --destructive: #f5222d;         /* 警报红 */
+  --success: #52c41a;             /* 低碳翡翠绿 / 达标绿 */
+  --warning: #fa8c16;             /* 预警橙 */
+
+  --border: #e2e8f0;             /* 清晰干净的 1px 分割线 */
+  --input: #d9d9d9;
+  --ring: rgba(22, 119, 255, 0.4);
+  --grid-line: #f1f5f9;
+
+  --chart-1: #1677ff;             /* 电力/主负荷 - TBEA蓝 */
+  --chart-2: #52c41a;             /* 绿电/光伏 - 清新绿 */
+  --chart-3: #fa8c16;             /* 储能/天然气 - 暖橙 */
+  --chart-4: #13c2c2;             /* 工业水 - 湖蓝 */
+  --chart-5: #722ed1;             /* 蒸汽/压缩空气 - 优雅紫 */
+
+  --sidebar: #0958d9;             /* 左侧经典深蓝背景 */
+  --sidebar-foreground: #ffffff;
+  --sidebar-accent: #1677ff;
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background-color: var(--background);
+  }
+  button {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
+/* 现代化卡片阴影与边框 */
+.tbea-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.tbea-card:hover {
+  border-color: #91caff;
+  box-shadow: 0 2px 8px 0 rgba(22, 119, 255, 0.12);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
