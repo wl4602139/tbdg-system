@@ -309,8 +309,12 @@ export default function EnergyStructurePage() {
           nodeAlign: 'justify',
           orient: 'horizontal',
           draggable: true,
+          left: '2%',
+          right: '10%',
+          top: '3%',
+          bottom: '3%',
           nodeWidth: 18,
-          nodeGap: 24,
+          nodeGap: 22,
           data: sankeyConfig.nodes,
           links: sankeyConfig.links,
           lineStyle: {
@@ -652,10 +656,11 @@ export default function EnergyStructurePage() {
         </div>
 
         {/* 趋势图表区 */}
-        <div className="h-60 mt-2">
+        <div className="h-[400px] mt-2">
           <LineTrend
             data={multiEnergyTrendData}
             xKey="month"
+            height={400}
             lines={[
               ...(showElec ? [{ key: '电力', color: '#1677ff' }] : []),
               ...(showSteam ? [{ key: '蒸汽', color: '#722ed1' }] : []),
