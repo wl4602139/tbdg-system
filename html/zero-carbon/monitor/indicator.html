@@ -346,156 +346,13 @@ window.toggleNavGroup = function(btn) {
 
         <!-- 树容器 (严格展示到经营单位级别) -->
         <div class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
-          <div class="text-xs">
-            <!-- 集团总部 -->
-            <div class="ind-tree-node">
-              <div id="ind-node-root" onclick="selectIndicatorOrg('特变电工集团 (全量经营单位)', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors bg-[#e6f4ff] font-semibold text-[#1677ff]">
-                <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400">
-                  <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
-                </span>
-                <span class="flex shrink-0 items-center text-[#1677ff]">
-                  <svg class="size-3.5 shrink-0 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 12h4"></path><path d="M10 8h4"></path><path d="M14 21v-3a2 2 0 0 0-4 0v3"></path><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"></path><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"></path></svg>
-                </span>
-                <span class="truncate">特变电工集团 (全量经营单位)</span>
-                <span class="ml-auto shrink-0 pl-2">
-                  <span class="rounded bg-blue-50 px-1.5 py-px text-[10px] text-[#1677ff] font-bold">集团</span>
-                </span>
-              </div>
-
-              <div class="ml-[20px] border-l border-[#e8e8e8]">
-                <!-- 1. 沈变公司 -->
-                <div class="ind-tree-node">
-                  <div onclick="toggleIndicatorTree(this); selectIndicatorOrg('沈变公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 ind-tree-arrow">
-                      <svg class="size-3.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
-                    </span>
-                    <span class="flex shrink-0 items-center text-[#1677ff]">
-                      <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>
-                    </span>
-                    <span class="truncate">沈变公司 (一级经营单位)</span>
-                    <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">5家</span>
-                  </div>
-                  <div class="ml-[20px] border-l border-[#e8e8e8] ind-tree-children">
-                    <div onclick="selectIndicatorOrg('沈变本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="truncate">• 沈变本部</span><span class="ml-auto shrink-0 pl-2"><span class="size-1.5 rounded-full bg-emerald-500 block"></span></span>
-                    </div>
-                    <div onclick="selectIndicatorOrg('智慧能源', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="truncate">• 智慧能源</span>
-                    </div>
-                    <div onclick="selectIndicatorOrg('和新套管公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="truncate">• 和新套管公司</span>
-                    </div>
-                    <div onclick="selectIndicatorOrg('康嘉互感器', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="truncate">• 康嘉互感器</span>
-                    </div>
-                    <div onclick="selectIndicatorOrg('印能公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="truncate">• 印能公司</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 2. 衡变公司 -->
-                <div class="ind-tree-node">
-                  <div onclick="toggleIndicatorTree(this); selectIndicatorOrg('衡变公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 ind-tree-arrow">
-                      <svg class="size-3.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-                    </span>
-                    <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
-                    <span class="truncate">衡变公司 (一级经营单位)</span>
-                    <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">9家</span>
-                  </div>
-                  <div class="ml-[20px] border-l border-[#e8e8e8] ind-tree-children hidden">
-                    <div onclick="selectIndicatorOrg('衡变本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 衡变本部</span></div>
-                    <div onclick="selectIndicatorOrg('南京电研', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 南京电研</span></div>
-                    <div onclick="selectIndicatorOrg('云集电气', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 云集电气</span></div>
-                    <div onclick="selectIndicatorOrg('湖南电气', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 湖南电气</span></div>
-                    <div onclick="selectIndicatorOrg('云集高压开关', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 云集高压开关</span></div>
-                    <div onclick="selectIndicatorOrg('新疆自控', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 新疆自控</span></div>
-                    <div onclick="selectIndicatorOrg('特能建', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 特能建</span></div>
-                    <div onclick="selectIndicatorOrg('合容电气', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 合容电气</span></div>
-                    <div onclick="selectIndicatorOrg('赛杰爱迪', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 赛杰爱迪</span></div>
-                  </div>
-                </div>
-
-                <!-- 3. 新变厂 -->
-                <div class="ind-tree-node">
-                  <div onclick="toggleIndicatorTree(this); selectIndicatorOrg('新变厂', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 ind-tree-arrow"><svg class="size-3.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></span>
-                    <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
-                    <span class="truncate">新变厂 (一级经营单位)</span>
-                    <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">5家</span>
-                  </div>
-                  <div class="ml-[20px] border-l border-[#e8e8e8] ind-tree-children hidden">
-                    <div onclick="selectIndicatorOrg('超高压公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 超高压公司</span></div>
-                    <div onclick="selectIndicatorOrg('天变公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 天变公司</span></div>
-                    <div onclick="selectIndicatorOrg('智能电气公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 智能电气公司</span></div>
-                    <div onclick="selectIndicatorOrg('京津冀公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 京津冀公司</span></div>
-                    <div onclick="selectIndicatorOrg('珠峰硅钢', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 珠峰硅钢</span></div>
-                  </div>
-                </div>
-
-                <!-- 4. 鲁缆公司 -->
-                <div class="ind-tree-node">
-                  <div onclick="toggleIndicatorTree(this); selectIndicatorOrg('鲁缆公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 ind-tree-arrow"><svg class="size-3.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></span>
-                    <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
-                    <span class="truncate">鲁缆公司 (一级经营单位)</span>
-                    <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">4家</span>
-                  </div>
-                  <div class="ml-[20px] border-l border-[#e8e8e8] ind-tree-children hidden">
-                    <div onclick="selectIndicatorOrg('鲁缆本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 鲁缆本部</span></div>
-                    <div onclick="selectIndicatorOrg('智缆公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 智缆公司</span></div>
-                    <div onclick="selectIndicatorOrg('昭和公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 昭和公司</span></div>
-                    <div onclick="selectIndicatorOrg('曙光公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 曙光公司</span></div>
-                  </div>
-                </div>
-
-                <!-- 5. 新缆厂 -->
-                <div class="ind-tree-node">
-                  <div onclick="toggleIndicatorTree(this); selectIndicatorOrg('新缆厂', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 ind-tree-arrow"><svg class="size-3.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></span>
-                    <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
-                    <span class="truncate">新缆厂 (一级经营单位)</span>
-                    <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">2家</span>
-                  </div>
-                  <div class="ml-[20px] border-l border-[#e8e8e8] ind-tree-children hidden">
-                    <div onclick="selectIndicatorOrg('新疆电缆公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 新疆电缆公司</span></div>
-                    <div onclick="selectIndicatorOrg('新疆线缆厂', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 新疆线缆厂</span></div>
-                  </div>
-                </div>
-
-                <!-- 6. 德缆公司 -->
-                <div class="ind-tree-node">
-                  <div onclick="toggleIndicatorTree(this); selectIndicatorOrg('德缆公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 ind-tree-arrow"><svg class="size-3.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></span>
-                    <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
-                    <span class="truncate">德缆公司 (一级经营单位)</span>
-                    <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">1家</span>
-                  </div>
-                  <div class="ml-[20px] border-l border-[#e8e8e8] ind-tree-children hidden">
-                    <div onclick="selectIndicatorOrg('德缆股份公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 德缆股份公司</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div class="text-xs">\n<!-- 树根节点：特变电工集团 -->\n<div class="tree-node-item">\n  <div id="tree-node-root" onclick="selectIndicatorOrg('特变电工集团 (全量经营单位)', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400">\n      <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>\n    </span>\n    <span class="flex shrink-0 items-center text-[#1677ff]">\n      <svg class="size-3.5 shrink-0 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 12h4"></path><path d="M10 8h4"></path><path d="M14 21v-3a2 2 0 0 0-4 0v3"></path><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"></path><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"></path></svg>\n    </span>\n    <span class="truncate font-semibold">特变电工集团 (全量经营单位)</span>\n    <span class="ml-auto shrink-0 pl-2">\n      <span class="rounded bg-blue-50 px-1.5 py-px text-[10px] text-[#1677ff] font-bold">集团</span>\n    </span>\n  </div>\n\n  <!-- 一级经营单位分支 -->\n  <div class="ml-[20px] border-l border-[#e8e8e8]">\n    <div class="tree-node-item">\n      <div onclick="toggleTreeNode(this); selectIndicatorOrg('沈变公司 (一级单位)', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">\n          <svg class="size-3.5 transition-transform" style="transform: rotate(0deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>\n        </span>\n        <span class="flex shrink-0 items-center text-[#1677ff]">\n          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>\n        </span>\n        <span class="truncate">沈变公司 (一级单位)</span>\n        <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">5家</span>\n      </div>\n\n      <!-- 二级工厂/子公司分支 -->\n      <div class="ml-[20px] border-l border-[#e8e8e8] tree-children ">\n        <div onclick="selectIndicatorOrg('沈变本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors bg-[#e6f4ff] font-semibold text-[#1677ff]">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">沈变本部</span>\n          <span class="ml-auto shrink-0 pl-2"><span class="size-1.5 rounded-full bg-emerald-500 block"></span></span>\n        </div>\n        <div onclick="selectIndicatorOrg('智慧能源', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">智慧能源</span>\n        </div>\n        <div onclick="selectIndicatorOrg('和新套管公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">和新套管公司</span>\n        </div>\n        <div onclick="selectIndicatorOrg('康嘉互感器', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">康嘉互感器</span>\n        </div>\n        <div onclick="selectIndicatorOrg('印能公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">印能公司</span>\n        </div>\n      </div>\n    </div>\n    <div class="tree-node-item">\n      <div onclick="toggleTreeNode(this); selectIndicatorOrg('衡变公司 (一级单位)', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">\n          <svg class="size-3.5 transition-transform" style="transform: rotate(-90deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>\n        </span>\n        <span class="flex shrink-0 items-center text-[#1677ff]">\n          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>\n        </span>\n        <span class="truncate">衡变公司 (一级单位)</span>\n        <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">9家</span>\n      </div>\n\n      <!-- 二级工厂/子公司分支 -->\n      <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">\n        <div onclick="selectIndicatorOrg('衡变本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">衡变本部</span>\n        </div>\n        <div onclick="selectIndicatorOrg('南京电研', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">南京电研</span>\n        </div>\n        <div onclick="selectIndicatorOrg('云集电气', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">云集电气</span>\n        </div>\n        <div onclick="selectIndicatorOrg('湖南电气', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">湖南电气</span>\n        </div>\n        <div onclick="selectIndicatorOrg('云集高压开关', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">云集高压开关</span>\n        </div>\n        <div onclick="selectIndicatorOrg('新疆自控', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">新疆自控</span>\n        </div>\n        <div onclick="selectIndicatorOrg('特能建', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">特能建</span>\n        </div>\n        <div onclick="selectIndicatorOrg('合容电气', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">合容电气</span>\n        </div>\n        <div onclick="selectIndicatorOrg('赛杰爱迪', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">赛杰爱迪</span>\n        </div>\n      </div>\n    </div>\n    <div class="tree-node-item">\n      <div onclick="toggleTreeNode(this); selectIndicatorOrg('新变厂 (一级单位)', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">\n          <svg class="size-3.5 transition-transform" style="transform: rotate(-90deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>\n        </span>\n        <span class="flex shrink-0 items-center text-[#1677ff]">\n          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>\n        </span>\n        <span class="truncate">新变厂 (一级单位)</span>\n        <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">5家</span>\n      </div>\n\n      <!-- 二级工厂/子公司分支 -->\n      <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">\n        <div onclick="selectIndicatorOrg('超高压公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">超高压公司</span>\n        </div>\n        <div onclick="selectIndicatorOrg('天变公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">天变公司</span>\n        </div>\n        <div onclick="selectIndicatorOrg('智能电气公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">智能电气公司</span>\n        </div>\n        <div onclick="selectIndicatorOrg('京津冀公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">京津冀公司</span>\n        </div>\n        <div onclick="selectIndicatorOrg('珠峰硅钢', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">珠峰硅钢</span>\n        </div>\n      </div>\n    </div>\n    <div class="tree-node-item">\n      <div onclick="toggleTreeNode(this); selectIndicatorOrg('鲁缆公司 (一级单位)', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">\n          <svg class="size-3.5 transition-transform" style="transform: rotate(-90deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>\n        </span>\n        <span class="flex shrink-0 items-center text-[#1677ff]">\n          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>\n        </span>\n        <span class="truncate">鲁缆公司 (一级单位)</span>\n        <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">4家</span>\n      </div>\n\n      <!-- 二级工厂/子公司分支 -->\n      <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">\n        <div onclick="selectIndicatorOrg('鲁缆本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">鲁缆本部</span>\n        </div>\n        <div onclick="selectIndicatorOrg('智缆公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">智缆公司</span>\n        </div>\n        <div onclick="selectIndicatorOrg('昭和公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">昭和公司</span>\n        </div>\n        <div onclick="selectIndicatorOrg('曙光公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">曙光公司</span>\n        </div>\n      </div>\n    </div>\n    <div class="tree-node-item">\n      <div onclick="toggleTreeNode(this); selectIndicatorOrg('新缆厂 (一级单位)', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">\n          <svg class="size-3.5 transition-transform" style="transform: rotate(-90deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>\n        </span>\n        <span class="flex shrink-0 items-center text-[#1677ff]">\n          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>\n        </span>\n        <span class="truncate">新缆厂 (一级单位)</span>\n        <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">2家</span>\n      </div>\n\n      <!-- 二级工厂/子公司分支 -->\n      <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">\n        <div onclick="selectIndicatorOrg('新疆电缆公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">新疆电缆公司</span>\n        </div>\n        <div onclick="selectIndicatorOrg('新疆线缆厂', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">新疆线缆厂</span>\n        </div>\n      </div>\n    </div>\n    <div class="tree-node-item">\n      <div onclick="toggleTreeNode(this); selectIndicatorOrg('德缆公司 (一级单位)', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">\n          <svg class="size-3.5 transition-transform" style="transform: rotate(-90deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>\n        </span>\n        <span class="flex shrink-0 items-center text-[#1677ff]">\n          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>\n        </span>\n        <span class="truncate">德缆公司 (一级单位)</span>\n        <span class="ml-auto shrink-0 pl-2 text-[10px] text-slate-400">1家</span>\n      </div>\n\n      <!-- 二级工厂/子公司分支 -->\n      <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">\n        <div onclick="selectIndicatorOrg('德缆股份公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">\n          <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>\n          <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>\n          <span class="flex shrink-0 items-center text-slate-400">\n            <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>\n          </span>\n          <span class="truncate">德缆股份公司</span>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>
         </div>
       </div>
 
       <div class="pt-2.5 border-t border-slate-100 text-[11px] text-slate-400 font-mono flex items-center gap-1">
         <svg class="size-3 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path></svg>
-        <span>切换经营单位联动刷新右侧指标</span>
+        <span>点击树节点实时刷新右侧看板</span>
       </div>
     </div>
   </div>
@@ -889,6 +746,315 @@ window.toggleNavGroup = function(btn) {
     </div>
   </div>
 </div>
+
+<script>
+  // 侧边栏折叠
+  window.toggleNavGroup = function(btn) {
+    var subMenu = btn.nextElementSibling;
+    var chevron = btn.querySelector('.tbea-chevron');
+    if (!subMenu) return;
+    if (subMenu.style.display === 'none') {
+      subMenu.style.display = 'block';
+      if (chevron) chevron.style.transform = 'rotate(0deg)';
+    } else {
+      subMenu.style.display = 'none';
+      if (chevron) chevron.style.transform = 'rotate(-90deg)';
+    }
+  };
+
+  // 指标树折叠/展开
+  function toggleTreeNode(element) {
+    var parentNode = element.closest('.tree-node-item');
+    if (!parentNode) return;
+    var children = parentNode.querySelector('.tree-children');
+    var arrow = element.querySelector('.tree-arrow svg');
+    if (children) {
+      if (children.classList.contains('hidden')) {
+        children.classList.remove('hidden');
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+      } else {
+        children.classList.add('hidden');
+        if (arrow) arrow.style.transform = 'rotate(-90deg)';
+      }
+    }
+  }
+
+  // 组织树节点选中
+  function selectIndicatorOrg(name, element) {
+    document.querySelectorAll('.tree-node-item div').forEach(function(el) {
+      el.classList.remove('bg-[#e6f4ff]', 'font-semibold', 'text-[#1677ff]');
+      el.classList.add('text-slate-700');
+    });
+    if (element) {
+      element.classList.add('bg-[#e6f4ff]', 'font-semibold', 'text-[#1677ff]');
+      element.classList.remove('text-slate-700');
+    }
+    var titleEl = document.getElementById('current-unit-name');
+    if (titleEl) titleEl.innerText = name;
+  }
+
+  // 组织树搜索
+  function filterIndicatorTree(keyword) {
+    var kw = (keyword || '').trim().toLowerCase();
+    document.querySelectorAll('.tree-node-item').forEach(function(item) {
+      var text = item.innerText.toLowerCase();
+      if (!kw || text.indexOf(kw) !== -1) {
+        item.style.display = '';
+        var children = item.querySelector('.tree-children');
+        if (children && kw) {
+          children.classList.remove('hidden');
+          var arrow = item.querySelector('.tree-arrow svg');
+          if (arrow) arrow.style.transform = 'rotate(0deg)';
+        }
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  // 指标分类过滤
+  function filterIndicatorCategory(cat) {
+    var sComp = document.getElementById('section-company');
+    var sProd = document.getElementById('section-product');
+    var sProc = document.getElementById('section-process');
+
+    ['all', 'company', 'product', 'process'].forEach(function(c) {
+      var b = document.getElementById('cat-btn-' + c);
+      if (b) {
+        b.className = (c === cat)
+          ? 'px-3 py-1.5 rounded-md font-bold transition-all bg-[#1677ff] text-white shadow-xs'
+          : 'px-3 py-1.5 rounded-md font-bold transition-all text-slate-600 hover:text-slate-900';
+      }
+    });
+
+    if (cat === 'all') {
+      if (sComp) sComp.style.display = 'block';
+      if (sProd) sProd.style.display = 'block';
+      if (sProc) sProc.style.display = 'block';
+    } else if (cat === 'company') {
+      if (sComp) { sComp.style.display = 'block'; sComp.scrollIntoView({ behavior: 'smooth' }); }
+      if (sProd) sProd.style.display = 'none';
+      if (sProc) sProc.style.display = 'none';
+    } else if (cat === 'product') {
+      if (sComp) sComp.style.display = 'none';
+      if (sProd) { sProd.style.display = 'block'; sProd.scrollIntoView({ behavior: 'smooth' }); }
+      if (sProc) sProc.style.display = 'none';
+    } else if (cat === 'process') {
+      if (sComp) sComp.style.display = 'none';
+      if (sProd) sProd.style.display = 'none';
+      if (sProc) { sProc.style.display = 'block'; sProc.scrollIntoView({ behavior: 'smooth' }); }
+    }
+  }
+
+  // 产品卡片搜索
+  function filterProductCards(query) {
+    var q = (query || '').trim().toLowerCase();
+    document.querySelectorAll('.product-item-card').forEach(function(card) {
+      var keywords = (card.getAttribute('data-keywords') || '').toLowerCase();
+      var text = card.innerText.toLowerCase();
+      if (!q || keywords.indexOf(q) !== -1 || text.indexOf(q) !== -1) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // 产品下拉类型选择
+  function selectProductDropdown(type) {
+    var searchInput = document.getElementById('product-search-input');
+    if (searchInput) searchInput.value = '';
+    
+    document.querySelectorAll('.product-item-card').forEach(function(card) {
+      var kw = (card.getAttribute('data-keywords') || '').toLowerCase();
+      if (type === 'all') {
+        card.style.display = '';
+      } else if (type === 'uhv_tf' && kw.indexOf('1000kv') !== -1) {
+        card.style.display = '';
+      } else if (type === 'hv_tf' && kw.indexOf('110kv') !== -1) {
+        card.style.display = '';
+      } else if (type === 'uhv_cable' && kw.indexOf('电缆') !== -1) {
+        card.style.display = '';
+      } else {
+        card.style.display = (type === 'all') ? '' : 'none';
+      }
+    });
+  }
+
+  // 指标元数据字典与弹窗驱动
+  var indicatorMetaMap = {
+    'green_ratio': {
+      title: '绿电占比 (Green Electricity Ratio)',
+      category: '宏观核心指标',
+      formula: '绿电占比 (%) = [ 本地分布式光伏消纳电量 (kWh) + 绿色电力交易电量 (kWh) ] ÷ 全厂总用电量 (kWh) × 100%',
+      source: '园区 SCADA 电表计量网关 + 国网电力交易凭证数据自动汇聚',
+      actual: '38.6 %',
+      target: '35.0 % (年度考核目标)',
+      benchmark: '42.0 % (国家级绿色低碳示范园区标杆)'
+    },
+    'carbon_intensity': {
+      title: '万元产值碳排放强度',
+      category: '宏观核心指标',
+      formula: '碳排放强度 (tCO2/万元) = 企业范围一(直接燃烧) + 范围二(外购电/热) 净碳排放总量 (tCO2) ÷ 工业总产值 (万元)',
+      source: 'ERP 财务产值账期表 + 碳双控核算引擎 (小时级推演)',
+      actual: '0.42 tCO2/万',
+      target: '0.45 tCO2/万 (集团定额控制上限)',
+      benchmark: '0.38 tCO2/万 (行业领跑者水准)'
+    },
+    'gdp_energy': {
+      title: '万元产值综合能耗 (tce/万元)',
+      category: '宏观核心指标',
+      formula: '万元产值综合能耗 = 全厂各类能源折算标准煤总量 (tce) ÷ 工业现价总产值 (万元)',
+      source: 'GB/T 2589-2020 综合能耗计算通则自动折标引擎',
+      actual: '0.138 tce/万',
+      target: '0.150 tce/万 (年度控制定额)',
+      benchmark: '0.125 tce/万 (国际先进同行标杆)'
+    },
+    'carbon_total': {
+      title: '企业碳排放总量 (范围一 + 范围二)',
+      category: '宏观核心指标',
+      formula: '总碳排 (tCO2) = 购入电量 × 区域电网基准线排放因子 (0.5703) + 天然气消耗 × 燃烧排放因子 (2.1622) - 绿电扣减',
+      source: '国家生态环境部最新电网排放因子 + 厂内连续监测 CEMS',
+      actual: '17,431 tCO2',
+      target: '28,500 tCO2 (年度总配额限额)',
+      benchmark: '绿色低碳在控（当前履约进度 61.2%）'
+    },
+    'clean_energy': {
+      title: '清洁能源就地消纳率',
+      category: '宏观核心指标',
+      formula: '消纳率 (%) = 本地光伏实际并网自用量 ÷ 本地光伏总发电量 × 100%',
+      source: '逆变器微电网 EMS 实时遥测采样',
+      actual: '98.5 %',
+      target: '95.0 % (消纳指标)',
+      benchmark: '100% 全额消纳 (0弃光)'
+    },
+    'total_energy': {
+      title: '企业总综合能耗 (Company Total Energy)',
+      category: '公司级指标',
+      formula: '企业总能耗 (tce) = ∑ (各类能源消耗实物量 × 对应折标煤系数)',
+      source: '高压总降变 + 动力站房多介质总表',
+      actual: '1,284.5 tce',
+      target: '1,350.0 tce',
+      benchmark: '1,200.0 tce'
+    },
+    'grid_elec': {
+      title: '市电购电电量 (Grid Electricity)',
+      category: '公司级指标',
+      formula: '市电总电量 (MWh) = 110kV 主变进线关口表有功电度累积',
+      source: '电力调度专线关口表实时数据通信',
+      actual: '8,450.0 MWh',
+      target: '9,000.0 MWh',
+      benchmark: '8,100.0 MWh'
+    },
+    'gas_total': {
+      title: '天然气消耗总量 (Natural Gas)',
+      category: '公司级指标',
+      formula: '燃气量 (m³) = 厂区调压站涡轮流量计累积标况体积',
+      source: '天然气流量计 SCADA 直连',
+      actual: '42,500 m³',
+      target: '48,000 m³',
+      benchmark: '39,000 m³'
+    },
+    'prod_tf_1000': {
+      title: 'ODFPS-1000MVA/1000kV 特高压变压器',
+      category: '产品级指标',
+      formula: '单台能耗 = 制造该台变压器各工序投入电力/蒸汽/气折标煤累计 ÷ 台数 (1台)',
+      source: 'MES 工单能耗批次追溯系统',
+      actual: '4.12 tce/台',
+      target: '4.50 tce/台 (定额)',
+      benchmark: '4.05 tce/台 (行业先进)'
+    },
+    'prod_tf_110': {
+      title: 'SZ11-50000/110 110kV电力变压器',
+      category: '产品级指标',
+      formula: '单台能耗 = 制造该台变压器工序综合能耗 (tce) ÷ 1',
+      source: 'MES 批次生产能耗采集系统',
+      actual: '0.88 tce/台',
+      target: '0.92 tce/台 (定额)',
+      benchmark: '0.82 tce/台'
+    },
+    'prod_cable_500': {
+      title: 'YJLW03-500kV 超高压交联电缆',
+      category: '产品级指标',
+      formula: '每千米单耗 = 生产该批次电缆消耗标煤量 ÷ 生产总长度 (km)',
+      source: '立塔交联生产线 PLC 实时采集系统',
+      actual: '0.33 tce/km',
+      target: '0.35 tce/km (定额)',
+      benchmark: '0.31 tce/km'
+    },
+    'proc_core': {
+      title: '1. 铁芯数控剪切与叠装工序单耗',
+      category: '工序级指标',
+      formula: '工序单耗 (tce/t) = 剪切线及自动叠装设备耗电量折标煤 ÷ 产出合格铁芯硅钢吨数',
+      source: '铁芯车间乔格剪切线数字智能仪表',
+      actual: '0.11 tce/t',
+      target: '0.12 tce/t (工艺定额)',
+      benchmark: '0.10 tce/t'
+    },
+    'proc_wind': {
+      title: '2. 电磁线立式绕制工序单耗',
+      category: '工序级指标',
+      formula: '工序单耗 (tce/t) = 绕线机床与恒温车间电耗 ÷ 产出线圈铜重 (t)',
+      source: '绕线车间能耗分项计量仪表',
+      actual: '0.17 tce/t',
+      target: '0.18 tce/t (工艺定额)',
+      benchmark: '0.15 tce/t'
+    },
+    'proc_dry': {
+      title: '3. 真空干燥与气相烘烤工序 (重点能耗工序)',
+      category: '工序级指标',
+      formula: '单台干燥能耗 (tce/台) = 煤油气相烘房高压蒸汽耗量 + 罗茨真空泵电耗折标煤',
+      source: '干燥罐蒸汽流量计 + 电力物联仪表',
+      actual: '0.48 tce/台',
+      target: '0.45 tce/台 (重点督办定额)',
+      benchmark: '0.42 tce/台 (国际先进烘烤工艺)'
+    },
+    'proc_test': {
+      title: '4. 出厂高压绝缘试验工序单耗',
+      category: '工序级指标',
+      formula: '单台试验能耗 (tce/台) = 发电机组与局放屏蔽大厅耗电折标煤 ÷ 试验合格台数',
+      source: '试验大厅高压测量系统 SCADA',
+      actual: '0.09 tce/台',
+      target: '0.09 tce/台 (定额)',
+      benchmark: '0.08 tce/台'
+    }
+  };
+
+  // 打开指标下钻弹窗
+  function openIndicatorModal(key) {
+    var data = indicatorMetaMap[key] || {
+      title: '能碳指标下钻分析',
+      category: '综合指标',
+      formula: '计算公式: 依据 GB/T 2589 综合能耗计算通则',
+      source: '物联网 SCADA 传感器实时汇聚',
+      actual: '实测在控',
+      target: '满足标准',
+      benchmark: '标杆水准'
+    };
+
+    var modal = document.getElementById('indicator-detail-modal');
+    if (!modal) return;
+
+    document.getElementById('modal-indicator-title').innerText = data.title;
+    document.getElementById('modal-indicator-category').innerText = data.category;
+    document.getElementById('modal-indicator-formula').innerText = data.formula;
+    document.getElementById('modal-indicator-source').innerText = data.source;
+    document.getElementById('modal-indicator-actual').innerText = data.actual;
+    document.getElementById('modal-indicator-target').innerText = data.target;
+    document.getElementById('modal-indicator-benchmark').innerText = data.benchmark;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  // 关闭弹窗
+  function closeIndicatorModal() {
+    var modal = document.getElementById('indicator-detail-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+</script>
 </main></div><div class="fixed bottom-5 right-5 z-40 flex flex-col items-end"><button class="flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl transition-all transform hover:scale-105 active:scale-95 group focus:outline-none ring-2 ring-white bg-gradient-to-r from-[#0958d9] via-[#1677ff] to-[#0284c7] text-white shadow-blue-500/40 hover:shadow-blue-500/60" title="点击打开特变电工 AI助手"><div class="size-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-xs"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles size-3.5 text-white animate-pulse" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg></div><span class="font-bold text-xs tracking-wide">AI助手</span><span class="size-2 rounded-full bg-emerald-400 animate-ping shrink-0"></span></button></div></div><script src="../../_next/static/chunks/2r22ou8x-ji8g.js" id="_R_" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0])</script><script>self.__next_f.push([1,"1:\"$Sreact.fragment\"\n2:I[6304,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"default\"]\n3:I[80528,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"default\"]\n4:I[36818,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\",\"../../_next/static/chunks/3mhx3nrig5vdd.js\",\"../../_next/static/chunks/0spzcbny1vab2.js\"],\"PlatformShell\"]\n5:I[57988,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"ClientPageRoot\"]\n6:I[33755,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\",\"../../_next/static/chunks/3mhx3nrig5vdd.js\",\"../../_next/static/chunks/0spzcbny1vab2.js\",\"../../_next/static/chunks/3_vj3nremshl7.js\",\"../../_next/static/chunks/1jid18eq3l1w1.js\",\"../../_next/static/chunks/3hco2f25c22up.js\"],\"default\"]\n9:I[82118,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"OutletBoundary\"]\na:\"$Sreact.suspense\"\nd:I[82118,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"ViewportBoundary\"]\nf:I[82118,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"MetadataBoundary\"]\n11:I[10590,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"default\",1]\n:HL[\"../../_next/static/chunks/00bi4t_1h5yit.css\",\"style\"]\nc:X\n0:{\"P\":null,\"c\":[\"\",\"zero-carbon\",\"monitor\",\"indicator\"],\"q\":\"\",\"i\":false,\"f\":[[[\"\",{\"children\":[\"zero-carbon\",{\"children\":[\"monitor\",{\"children\":[\"indicator\",{\"children\":[\"__PAGE__\",{},\"$undefined\",\"$undefined\",4608]},\"$undefined\",\"$undefined\",4608]},\"$undefined\",\"$undefined\",4608]},\"$undefined\",\"$undefined\",4608]},\"$undefined\",\"$undefined\",4624],[[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"../../_next/static/chunks/00bi4t_1h5yit.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-0\",{\"src\":\"../../_next/static/chunks/0x-4tyxa32f6n.js\",\"async\":true,\"nonce\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"zh-CN\",\"children\":[\"$\",\"body\",null,{\"className\":\"min-h-screen bg-background text-foreground antialiased font-sans selection:bg-blue-100 selection:text-blue-700\",\"children\":[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":404}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],[]],\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]}]}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"script\",\"script-0\",{\"src\":\"../../_next/static/chunks/3mhx3nrig5vdd.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-1\",{\"src\":\"../../_next/static/chunks/0spzcbny1vab2.js\",\"async\":true,\"nonce\":\"$undefined\"}]],[\"$\",\"$L4\",null,{\"platform\":\"zero-carbon\",\"children\":[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[null,[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[null,[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[[\"$\",\"$L5\",null,{\"Component\":\"$6\",\"serverProvidedParams\":{\"searchParams\":{},\"params\":{},\"promises\":[\"$@7\",\"$@8\"]}}],[[\"$\",\"script\",\"script-0\",{\"src\":\"../../_next/static/chunks/3_vj3nremshl7.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-1\",{\"src\":\"../../_next/static/chunks/1jid18eq3l1w1.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-2\",{\"src\":\"../../_next/static/chunks/3hco2f25c22up.js\",\"async\":true,\"nonce\":\"$undefined\"}]],[\"$\",\"$L9\",null,{\"children\":[\"$\",\"$a\",null,{\"name\":\"Next.MetadataOutlet\",\"children\":\"$@b\"}]}]]}],{},null,false,null]},null,false,\"$c\"]},null,false,\"$c\"]},null,false,null]},null,false,null],[\"$\",\"$1\",\"h\",{\"children\":[null,[\"$\",\"$Ld\",null,{\"children\":\"$Le\"}],[\"$\",\"div\",null,{\"hidden\":true,\"children\":[\"$\",\"$Lf\",null,{\"children\":[\"$\",\"$a\",null,{\"name\":\"Next.Metadata\",\"children\":\"$L10\"}]}]}],null]}],false]],\"m\":\"$undefined\",\"G\":[\"$11\",[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"../../_next/static/chunks/00bi4t_1h5yit.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}]]],\"S\":true,\"h\":null,\"r\":\"$undefined\",\"s\":\"$undefined\",\"a\":\"$undefined\",\"l\":\"$undefined\",\"p\":\"$undefined\",\"d\":\"$undefined\",\"b\":\"6oVrJNDmdqaSMDqxhVdoB\"}\nc:C\n7:{}\n8:\"$0:f:0:1:1:children:1:children:1:children:1:children:0:props:children:0:props:serverProvidedParams:params\"\ne:[[\"$\",\"meta\",\"0\",{\"charSet\":\"utf-8\"}],[\"$\",\"meta\",\"1\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}]]\nb:null\n10:[[\"$\",\"title\",\"0\",{\"children\":\"特变电工（电装集团）· 能源管理与双中心平台 v1.01\"}],[\"$\",\"meta\",\"1\",{\"name\":\"description\",\"content\":\"特变电工（电装集团）零碳园区集控中心与产品碳足迹集采中心高保真产品原型系统 v1.01\"}]]\n"])</script>
 <script id="indicator-tree-interactive-driver">
 function toggleIndicatorTree(element) {
