@@ -385,50 +385,30 @@
 </script>
 
 
-<script id="tbea-sidebar-dynamic-expander">
-document.addEventListener("DOMContentLoaded", function() {
-  // 查找所有侧边栏折叠按钮
-  const menuButtons = document.querySelectorAll("aside button");
-  menuButtons.forEach(btn => {
-    btn.style.cursor = "pointer";
-    btn.addEventListener("click", function(e) {
-      // 查找紧邻的子菜单容器
-      const parent = btn.parentElement;
-      const subMenu = parent.querySelector("div.ml-4") || parent.nextElementSibling;
-      const chevron = btn.querySelector(".lucide-chevron-right, .lucide-chevron-down");
-      if (subMenu && subMenu.classList.contains("ml-4")) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (subMenu.style.display === "none") {
-          subMenu.style.display = "block";
-          if (chevron) chevron.style.transform = "rotate(0deg)";
-        } else {
-          subMenu.style.display = "none";
-          if (chevron) chevron.style.transform = "rotate(-90deg)";
-        }
-      }
-    });
-  });
-});
-</script>
 
 
-<script id="tbea-global-nav-expander">
-function toggleNavGroup(btn) {
-  const group = btn.closest('.tbea-nav-group');
+
+
+
+
+<script id="tbea-sidebar-nav-controller">
+window.toggleNavGroup = function(btn) {
+  if (!btn) return;
+  var group = btn.closest('.tbea-nav-group');
   if (!group) return;
-  const subMenu = group.querySelector('.tbea-sub-menu');
-  const chevron = group.querySelector('.tbea-chevron');
+  var subMenu = group.querySelector('.tbea-sub-menu');
+  var chevron = group.querySelector('.tbea-chevron');
   if (subMenu) {
-    if (subMenu.style.display === 'none' || subMenu.style.display === '') {
-      subMenu.style.display = 'block';
+    var curDisplay = window.getComputedStyle(subMenu).display;
+    if (curDisplay === 'none') {
+      subMenu.style.setProperty('display', 'block', 'important');
       if (chevron) chevron.style.transform = 'rotate(0deg)';
     } else {
-      subMenu.style.display = 'none';
+      subMenu.style.setProperty('display', 'none', 'important');
       if (chevron) chevron.style.transform = 'rotate(-90deg)';
     }
   }
-}
+};
 </script>
 
 </head>
