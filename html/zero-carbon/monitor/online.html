@@ -319,718 +319,556 @@ window.toggleNavGroup = function(btn) {
         </div>
       </div>
     </aside><div class="flex-1 flex flex-col h-screen overflow-hidden min-w-0"><header class="h-14 border-b border-[#e5e7eb] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs"><div class="flex items-center gap-3"><button class="p-1.5 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors" title="折叠/展开侧边栏"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu size-4" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button><div class="flex items-center gap-2"><span class="font-bold text-sm text-slate-800 tracking-wide">能碳管控“双中心”数字化集成平台</span><span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-mono font-bold">v1.01</span></div></div><div class="flex items-center gap-3"><a class="p-1.5 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 text-xs flex items-center gap-1" title="需求与架构规范文档" href="../../docs.html"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text size-4" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span class="hidden xl:inline">开发手册</span></a><a class="p-1.5 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 text-xs flex items-center gap-1" title="系统管理" href="../../system.html"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings size-4" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg><span class="hidden xl:inline">管理配置</span></a><div class="h-4 w-px bg-slate-200 mx-1"></div><div class="flex items-center gap-2 pl-1"><div class="size-7 rounded-full bg-[#1677ff] text-white flex items-center justify-center font-bold text-xs shadow-xs">管</div><div class="hidden sm:block text-left"><span class="text-xs font-semibold text-slate-800 block leading-tight">管理员 (倪总)</span><span class="text-[10px] text-slate-400 block">特变电工电装集团</span></div></div></div></header><main class="flex-1 overflow-y-auto p-3.5 md:p-4 bg-[#f0f2f5] relative">
-<div class="space-y-3 relative">
-  <!-- 🌟 1. 顶部 Header 与 3 大核心监测模式 Tab 切换 -->
-  <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-lg border border-[#e5e7eb] shadow-xs">
-    <div class="flex items-center gap-3">
-      <div class="size-8 rounded-lg bg-blue-50 text-[#1677ff] flex items-center justify-center font-bold">
-        <svg class="size-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path><circle cx="12" cy="12" r="2"></circle><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"></path></svg>
-      </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-sm font-bold text-slate-800">在线监测 · 能源与工艺全景物联看板</h1>
-          <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 font-mono font-bold">SCADA 时序直连</span>
-        </div>
-        <p class="text-[11px] text-slate-500 font-mono mt-0.5">
-          左侧选择 1-2 级组织架构树 · 右侧实时监控宏观平衡、重点设备参量与关键工序能效
-        </p>
-      </div>
-    </div>
-
-    <!-- 3 大模式 Tab 切换胶囊 -->
-    <div class="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
-      <button id="tab-macro" onclick="switchMonitorView('macro')" class="px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 bg-[#1677ff] text-white shadow-xs">
-        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg>
-        1. 经营单位宏观指标监测
-      </button>
-      <button id="tab-equipment" onclick="switchMonitorView('equipment')" class="px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
-        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        2. 重点用能设备在线监测
-      </button>
-      <button id="tab-process" onclick="switchMonitorView('process')" class="px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
-        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5Z"></path><path d="m2 17 10 5 10-5"></path><path d="m2 12 10 5 10-5"></path></svg>
-        3. 关键工序在线监测
-      </button>
-    </div>
-  </div>
-
-  <!-- 🌟 2. 宏观实时 5 大指标遥测舱 (全模式常驻 + 自动回显采集频率) -->
-  <div class="p-3.5 rounded-lg bg-white border border-[#e5e7eb] shadow-xs space-y-2.5">
-    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
-      <div class="flex items-center gap-2 text-xs">
-        <span class="font-bold text-slate-800 flex items-center gap-1.5">
-          <svg class="size-4 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-          【<span id="display-org-name">沈变本部</span>】宏观动力与能源实时遥测舱
-        </span>
-        <span class="text-[11px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-medium">
-          当前选中节点: <strong id="current-node-tag">沈变本部</strong>
-        </span>
-      </div>
-
-      <!-- 自动回显采集频率 -->
-      <div class="flex items-center gap-3 text-xs font-mono">
-        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-50 border border-slate-200 text-slate-600">
-          <svg class="size-3.5 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          <span>测点采集频率：</span>
-          <strong id="echo-frequency" class="text-emerald-600 font-bold">1s 实时流 (SCADA 高频)</strong>
-        </div>
-        <div class="flex items-center gap-1 text-[11px] text-slate-400">
-          <span class="size-2 rounded-full bg-emerald-500 animate-ping"></span>
-          <span>数据更新: 刚刚</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5 大宏观指标卡片 -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 font-mono">
-      <!-- 1. 新能源发电功率 -->
-      <div class="p-3 rounded-lg bg-emerald-50/70 border border-emerald-200 space-y-1">
-        <div class="flex items-center justify-between text-xs text-emerald-800 font-sans font-medium">
-          <span class="flex items-center gap-1">
-            <svg class="size-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
-            新能源发电功率
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch min-h-[calc(100vh-80px)]">
+  <!-- 🌟 左侧贯通全高：组织拓扑与产业群树 (col-span-3) -->
+  <div class="lg:col-span-3 flex flex-col">
+    <div class="bg-white p-3.5 rounded-xl border border-[#e5e7eb] shadow-xs space-y-3 h-full flex flex-col justify-between">
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100 text-xs">
+          <span class="font-bold text-slate-800 flex items-center gap-1.5">
+            <svg class="size-4 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"></path><path d="M20 21a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.88-.55l-.42-.85a1 1 0 0 0-.92-.6H13a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"></path><path d="M3 5a2 2 0 0 0 2 2h3"></path><path d="M3 3v13a2 2 0 0 0 2 2h3"></path></svg>
+            产业群与工厂树 (1、2级)
           </span>
+          <span class="text-[10px] text-slate-400 font-mono">树状穿透</span>
         </div>
-        <div class="text-xl font-bold text-emerald-700">
-          5,820.0 <span class="text-xs font-sans text-slate-500">kW</span>
-        </div>
-        <span class="text-[10px] text-emerald-600 font-sans block">☀️ 光伏出力充沛</span>
-      </div>
 
-      <!-- 2. 储能充放功率 -->
-      <div class="p-3 rounded-lg bg-sky-50/70 border border-sky-200 space-y-1">
-        <div class="flex items-center justify-between text-xs text-sky-800 font-sans font-medium">
-          <span class="flex items-center gap-1">
-            <svg class="size-3.5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m11 7-3 5h4l-3 5"></path><path d="M14 6h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1"></path><path d="M6 18H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1"></path><path d="M18 11v2"></path></svg>
-            储能充放功率
-          </span>
+        <!-- 搜索框 -->
+        <div class="relative">
+          <svg class="size-3.5 text-slate-400 absolute left-2.5 top-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+          <input
+            id="tree-search-input"
+            type="text"
+            placeholder="搜索树节点名称..."
+            oninput="filterTreeNodes(this.value)"
+            class="w-full bg-slate-50 border border-slate-200 rounded pl-8 pr-2 py-1 text-xs text-slate-800 focus:outline-none focus:border-[#1677ff]"
+          />
         </div>
-        <div class="text-xl font-bold text-sky-700">
-          +45.0 <span class="text-xs font-sans text-slate-500">kW</span>
-        </div>
-        <span class="text-[10px] text-sky-600 font-sans block">⚡ 微网自适应平抑 (SOC 78%)</span>
-      </div>
 
-      <!-- 3. 市电接入功率 -->
-      <div class="p-3 rounded-lg bg-blue-50/70 border border-blue-200 space-y-1">
-        <div class="flex items-center justify-between text-xs text-blue-800 font-sans font-medium">
-          <span class="flex items-center gap-1">
-            <svg class="size-3.5 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-            市电接入功率
-          </span>
-        </div>
-        <div class="text-xl font-bold text-[#1677ff]">
-          12,431.6 <span class="text-xs font-sans text-slate-500">kW</span>
-        </div>
-        <span class="text-[10px] text-blue-600 font-sans block">110kV 主变进线受控</span>
-      </div>
+        <!-- 树容器 (严格 1、2 级组织拓扑) -->
+        <div class="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+          <div class="text-xs">
+            <!-- 根节点：全量 -->
+            <div class="tree-node-item">
+              <div id="node-root" onclick="selectOrgNode('特变电工集团 (全量)', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400">
+                  <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
+                </span>
+                <span class="flex shrink-0 items-center text-[#1677ff]">
+                  <svg class="size-3.5 shrink-0 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 12h4"></path><path d="M10 8h4"></path><path d="M14 21v-3a2 2 0 0 0-4 0v3"></path><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"></path><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"></path></svg>
+                </span>
+                <span class="truncate">特变电工集团 (全量经营单位)</span>
+                <span class="ml-auto shrink-0 pl-2">
+                  <span class="rounded bg-blue-50 px-1.5 py-px text-[10px] text-[#1677ff] font-bold">全量</span>
+                </span>
+              </div>
 
-      <!-- 4. 全厂负荷功率 -->
-      <div class="p-3 rounded-lg bg-amber-50/70 border border-amber-200 space-y-1">
-        <div class="flex items-center justify-between text-xs text-amber-800 font-sans font-medium">
-          <span class="flex items-center gap-1">
-            <svg class="size-3.5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="16" x="4" y="4" rx="2"></rect><rect width="6" height="6" x="9" y="9" rx="1"></rect><path d="M15 2v2"></path><path d="M15 20v2"></path><path d="M2 15h2"></path><path d="M2 9h2"></path><path d="M20 15h2"></path><path d="M20 9h2"></path><path d="M9 2v2"></path><path d="M9 20v2"></path></svg>
-            全厂负荷功率
-          </span>
-        </div>
-        <div class="text-xl font-bold text-amber-700">
-          18,206.6 <span class="text-xs font-sans text-slate-500">kW</span>
-        </div>
-        <span class="text-[10px] text-amber-600 font-sans block">主变负荷率 72.8%</span>
-      </div>
+              <div class="ml-[20px] border-l border-[#e8e8e8]">
+                <!-- 1. 沈变公司 (一级单位) -->
+                <div class="tree-node-item">
+                  <div onclick="toggleTreeNode(this); selectOrgNode('沈变公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">
+                      <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
+                    </span>
+                    <span class="flex shrink-0 items-center text-[#1677ff]">
+                      <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>
+                    </span>
+                    <span class="truncate">沈变公司 (一级单位)</span>
+                  </div>
+                  <!-- 二级单位 -->
+                  <div class="ml-[20px] border-l border-[#e8e8e8] tree-children">
+                    <div onclick="selectOrgNode('沈变本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors bg-[#e6f4ff] font-semibold text-[#1677ff]">
+                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                      <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
+                      <span class="flex shrink-0 items-center text-slate-400">
+                        <svg class="size-3.5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>
+                      </span>
+                      <span class="truncate">沈变本部</span>
+                      <span class="ml-auto shrink-0 pl-2"><span class="size-1.5 rounded-full bg-emerald-500 block"></span></span>
+                    </div>
+                    <div onclick="selectOrgNode('智慧能源', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                      <span class="truncate">• 智慧能源</span>
+                    </div>
+                    <div onclick="selectOrgNode('和新套管公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                      <span class="truncate">• 和新套管公司</span>
+                    </div>
+                    <div onclick="selectOrgNode('康嘉互感器', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                      <span class="truncate">• 康嘉互感器</span>
+                    </div>
+                    <div onclick="selectOrgNode('印能公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                      <span class="truncate">• 印能公司</span>
+                    </div>
+                  </div>
+                </div>
 
-      <!-- 5. 能源消耗总量 (支持多介质切换) -->
-      <div class="p-3 rounded-lg bg-purple-50/70 border border-purple-200 space-y-1">
-        <div class="flex items-center justify-between text-xs text-purple-800 font-sans font-medium">
-          <span class="flex items-center gap-1">
-            <svg class="size-3.5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg>
-            本日能源消耗量
-          </span>
-          <div class="flex items-center gap-0.5 bg-white rounded p-0.5 border border-purple-200 text-[9px]">
-            <button id="btn-med-elec" onclick="switchEnergyMedium('elec')" class="px-1.5 py-0.5 rounded bg-purple-600 text-white font-bold">电</button>
-            <button id="btn-med-gas" onclick="switchEnergyMedium('gas')" class="px-1.5 py-0.5 rounded text-purple-700 hover:bg-purple-100">气</button>
-            <button id="btn-med-water" onclick="switchEnergyMedium('water')" class="px-1.5 py-0.5 rounded text-purple-700 hover:bg-purple-100">水</button>
-            <button id="btn-med-air" onclick="switchEnergyMedium('air')" class="px-1.5 py-0.5 rounded text-purple-700 hover:bg-purple-100">汽</button>
+                <!-- 2. 衡变公司 (一级单位) -->
+                <div class="tree-node-item">
+                  <div onclick="toggleTreeNode(this); selectOrgNode('衡变公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">
+                      <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
+                    </span>
+                    <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
+                    <span class="truncate">衡变公司 (一级单位)</span>
+                  </div>
+                  <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">
+                    <div onclick="selectOrgNode('衡变本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 衡变本部</span></div>
+                    <div onclick="selectOrgNode('南京电研', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 南京电研</span></div>
+                    <div onclick="selectOrgNode('云集电气', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 云集电气</span></div>
+                    <div onclick="selectOrgNode('湖南电气', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 湖南电气</span></div>
+                    <div onclick="selectOrgNode('云集高压开关', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 云集高压开关</span></div>
+                    <div onclick="selectOrgNode('新疆自控', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 新疆自控</span></div>
+                    <div onclick="selectOrgNode('特能建', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 特能建</span></div>
+                    <div onclick="selectOrgNode('合容电气', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 合容电气</span></div>
+                    <div onclick="selectOrgNode('赛杰爱迪', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 赛杰爱迪</span></div>
+                  </div>
+                </div>
+
+                <!-- 3. 新变厂 (一级单位) -->
+                <div class="tree-node-item">
+                  <div onclick="toggleTreeNode(this); selectOrgNode('新变厂', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></span>
+                    <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
+                    <span class="truncate">新变厂 (一级单位)</span>
+                  </div>
+                  <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">
+                    <div onclick="selectOrgNode('超高压公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 超高压公司</span></div>
+                    <div onclick="selectOrgNode('天变公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 天变公司</span></div>
+                    <div onclick="selectOrgNode('智能电气公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 智能电气公司</span></div>
+                    <div onclick="selectOrgNode('京津冀公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 京津冀公司</span></div>
+                    <div onclick="selectOrgNode('珠峰硅钢', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 珠峰硅钢</span></div>
+                  </div>
+                </div>
+
+                <!-- 4. 鲁缆公司 (一级单位) -->
+                <div class="tree-node-item">
+                  <div onclick="toggleTreeNode(this); selectOrgNode('鲁缆公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></span>
+                    <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
+                    <span class="truncate">鲁缆公司 (一级单位)</span>
+                  </div>
+                  <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">
+                    <div onclick="selectOrgNode('鲁缆本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 鲁缆本部</span></div>
+                    <div onclick="selectOrgNode('智缆公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 智缆公司</span></div>
+                    <div onclick="selectOrgNode('昭和公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 昭和公司</span></div>
+                    <div onclick="selectOrgNode('曙光公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 曙光公司</span></div>
+                  </div>
+                </div>
+
+                <!-- 5. 新缆厂 (一级单位) -->
+                <div class="tree-node-item">
+                  <div onclick="toggleTreeNode(this); selectOrgNode('新缆厂', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></span>
+                    <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
+                    <span class="truncate">新缆厂 (一级单位)</span>
+                  </div>
+                  <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">
+                    <div onclick="selectOrgNode('新疆电缆公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 新疆电缆公司</span></div>
+                    <div onclick="selectOrgNode('新疆线缆厂', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 新疆线缆厂</span></div>
+                  </div>
+                </div>
+
+                <!-- 6. 德缆公司 (一级单位) -->
+                <div class="tree-node-item">
+                  <div onclick="toggleTreeNode(this); selectOrgNode('德缆公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
+                    <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
+                    <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg></span>
+                    <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
+                    <span class="truncate">德缆公司 (一级单位)</span>
+                  </div>
+                  <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">
+                    <div onclick="selectOrgNode('德缆股份公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70"><span class="truncate">• 德缆股份公司</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div id="macro-energy-val" class="text-xl font-bold text-purple-700">
-          14,250 <span class="text-xs font-sans text-slate-500">kWh</span>
-        </div>
-        <span id="macro-energy-sub" class="text-[10px] text-purple-600 font-sans block">
-          折标煤: 1.75 tce
-        </span>
+      </div>
+
+      <div class="pt-2.5 border-t border-slate-100 text-[11px] text-slate-400 font-mono flex items-center gap-1">
+        <svg class="size-3 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path></svg>
+        <span>点击树节点实时刷新右侧在线监测</span>
       </div>
     </div>
   </div>
 
-  <!-- 🌟 3. 主体工作区：左侧 1-2 级组织架构树 (同指标管控) + 右侧多模式看板 -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch min-h-[calc(100vh-230px)]">
-    <!-- 左侧树状结构 (col-span-3) 与指标管控 indicator.html 100% 相同组件与样式 -->
-    <div class="lg:col-span-3">
-      <div class="bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3 h-full flex flex-col justify-between">
-        <div class="space-y-2.5">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-100 text-xs">
-            <span class="font-bold text-slate-800 flex items-center gap-1.5">
-              <svg class="size-4 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"></path><path d="M20 21a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.88-.55l-.42-.85a1 1 0 0 0-.92-.6H13a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"></path><path d="M3 5a2 2 0 0 0 2 2h3"></path><path d="M3 3v13a2 2 0 0 0 2 2h3"></path></svg>
-              产业群与工厂树 (1、2级)
+  <!-- 🌟 右侧主体区域 (col-span-9)：顶部Header + 5大指标卡片 + 遥测看板 -->
+  <div class="lg:col-span-9 space-y-3.5">
+    <!-- 1. 顶部 Header 与 3 大核心监测模式 Tab 切换 -->
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-lg border border-[#e5e7eb] shadow-xs">
+      <div class="flex items-center gap-3">
+        <div class="size-8 rounded-lg bg-blue-50 text-[#1677ff] flex items-center justify-center font-bold">
+          <svg class="size-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path><circle cx="12" cy="12" r="2"></circle><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"></path></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm font-bold text-slate-800">在线监测 · 能源与工艺全景物联看板</h1>
+            <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 font-mono font-bold">SCADA 时序直连</span>
+          </div>
+          <p class="text-[11px] text-slate-500 font-mono mt-0.5">
+            左侧选择 1-2 级组织架构树 · 右侧实时监控宏观平衡、重点设备参量与关键工序能效
+          </p>
+        </div>
+      </div>
+
+      <!-- 3 大模式 Tab 切换胶囊 -->
+      <div class="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
+        <button id="tab-macro" onclick="switchMonitorView('macro')" class="px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 bg-[#1677ff] text-white shadow-xs">
+          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg>
+          1. 经营单位宏观指标监测
+        </button>
+        <button id="tab-equipment" onclick="switchMonitorView('equipment')" class="px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
+          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          2. 重点用能设备在线监测
+        </button>
+        <button id="tab-process" onclick="switchMonitorView('process')" class="px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
+          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5Z"></path><path d="m2 17 10 5 10-5"></path><path d="m2 12 10 5 10-5"></path></svg>
+          3. 关键工序在线监测
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. 宏观实时 5 大指标遥测舱 (常驻 + 自动回显采集频率) -->
+    <div class="p-3.5 rounded-lg bg-white border border-[#e5e7eb] shadow-xs space-y-2.5">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+        <div class="flex items-center gap-2 text-xs">
+          <span class="font-bold text-slate-800 flex items-center gap-1.5">
+            <svg class="size-4 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            【<span id="display-org-name">沈变本部</span>】宏观动力与能源实时遥测舱
+          </span>
+          <span class="text-[11px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-medium">
+            当前选中节点: <strong id="current-node-tag">沈变本部</strong>
+          </span>
+        </div>
+
+        <!-- 自动回显采集频率 -->
+        <div class="flex items-center gap-3 text-xs font-mono">
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-50 border border-slate-200 text-slate-600">
+            <svg class="size-3.5 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>测点采集频率：</span>
+            <strong id="echo-frequency" class="text-emerald-600 font-bold">1s 实时流 (SCADA 高频)</strong>
+          </div>
+          <div class="flex items-center gap-1 text-[11px] text-slate-400">
+            <span class="size-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span>数据更新: 刚刚</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 大宏观指标卡片 (柔和底色体系) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 font-mono">
+        <!-- 1. 新能源发电功率 -->
+        <div class="p-3 rounded-lg bg-emerald-50/70 border border-emerald-200 space-y-1">
+          <div class="flex items-center justify-between text-xs text-emerald-800 font-sans font-medium">
+            <span class="flex items-center gap-1">
+              <svg class="size-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+              新能源发电功率
             </span>
-            <span class="text-[10px] text-slate-400 font-mono">树状穿透</span>
           </div>
-
-          <!-- 搜索框 -->
-          <div class="relative">
-            <svg class="size-3.5 text-slate-400 absolute left-2.5 top-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
-            <input
-              id="tree-search-input"
-              type="text"
-              placeholder="搜索树节点名称..."
-              oninput="filterTreeNodes(this.value)"
-              class="w-full bg-slate-50 border border-slate-200 rounded pl-8 pr-2 py-1 text-xs text-slate-800 focus:outline-none focus:border-[#1677ff]"
-            />
+          <div class="text-xl font-bold text-emerald-700">
+            5,820.0 <span class="text-xs font-sans text-slate-500">kW</span>
           </div>
-
-          <!-- 树容器 (严格 1、2 级组织拓扑) -->
-          <div class="max-h-[520px] overflow-y-auto pr-1">
-            <div class="text-xs">
-              <!-- 根节点：全量 -->
-              <div class="tree-node-item">
-                <div id="node-root" onclick="selectOrgNode('特变电工集团 (全量)', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                  <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400">
-                    <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
-                  </span>
-                  <span class="flex shrink-0 items-center text-[#1677ff]">
-                    <svg class="size-3.5 shrink-0 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 12h4"></path><path d="M10 8h4"></path><path d="M14 21v-3a2 2 0 0 0-4 0v3"></path><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"></path><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"></path></svg>
-                  </span>
-                  <span class="truncate">特变电工集团 (全量经营单位)</span>
-                  <span class="ml-auto shrink-0 pl-2">
-                    <span class="rounded bg-blue-50 px-1.5 py-px text-[10px] text-[#1677ff] font-bold">全量</span>
-                  </span>
-                </div>
-
-                <div class="ml-[20px] border-l border-[#e8e8e8]">
-                  <!-- 1. 沈变公司 (一级单位) -->
-                  <div class="tree-node-item">
-                    <div onclick="toggleTreeNode(this); selectOrgNode('沈变公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">
-                        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
-                      </span>
-                      <span class="flex shrink-0 items-center text-[#1677ff]">
-                        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>
-                      </span>
-                      <span class="truncate">沈变公司 (一级单位)</span>
-                    </div>
-                    <!-- 二级单位 -->
-                    <div class="ml-[20px] border-l border-[#e8e8e8] tree-children">
-                      <div onclick="selectOrgNode('沈变本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors bg-[#e6f4ff] font-semibold text-[#1677ff]">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400">
-                          <svg class="size-3.5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>
-                        </span>
-                        <span class="truncate">沈变本部</span>
-                        <span class="ml-auto shrink-0 pl-2"><span class="size-1.5 rounded-full bg-emerald-500 block"></span></span>
-                      </div>
-                      <div onclick="selectOrgNode('智慧能源', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">智慧能源</span>
-                      </div>
-                      <div onclick="selectOrgNode('和新套管公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">和新套管公司</span>
-                      </div>
-                      <div onclick="selectOrgNode('康嘉互感器', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">康嘉互感器</span>
-                      </div>
-                      <div onclick="selectOrgNode('印能公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">印能公司</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 2. 衡变公司 (一级单位) -->
-                  <div class="tree-node-item">
-                    <div onclick="toggleTreeNode(this); selectOrgNode('衡变公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">
-                        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-                      </span>
-                      <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
-                      <span class="truncate">衡变公司 (一级单位)</span>
-                    </div>
-                    <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">
-                      <div onclick="selectOrgNode('衡变本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">衡变本部</span>
-                      </div>
-                      <div onclick="selectOrgNode('南京电研', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">南京电研</span>
-                      </div>
-                      <div onclick="selectOrgNode('云集电气', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">云集电气</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 3. 新变厂 (一级单位) -->
-                  <div class="tree-node-item">
-                    <div onclick="toggleTreeNode(this); selectOrgNode('新变厂', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">
-                        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-                      </span>
-                      <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
-                      <span class="truncate">新变厂 (一级单位)</span>
-                    </div>
-                    <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">
-                      <div onclick="selectOrgNode('超高压公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">超高压公司</span>
-                      </div>
-                      <div onclick="selectOrgNode('天变公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">天变公司</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 4. 鲁缆公司 (一级单位) -->
-                  <div class="tree-node-item">
-                    <div onclick="toggleTreeNode(this); selectOrgNode('鲁缆公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">
-                        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-                      </span>
-                      <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
-                      <span class="truncate">鲁缆公司 (一级单位)</span>
-                    </div>
-                    <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">
-                      <div onclick="selectOrgNode('鲁缆本部', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">鲁缆本部</span>
-                      </div>
-                      <div onclick="selectOrgNode('智缆公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">智缆公司</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 5. 新缆厂 (一级单位) -->
-                  <div class="tree-node-item">
-                    <div onclick="toggleTreeNode(this); selectOrgNode('新缆厂', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">
-                        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-                      </span>
-                      <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
-                      <span class="truncate">新缆厂 (一级单位)</span>
-                    </div>
-                    <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">
-                      <div onclick="selectOrgNode('新疆电缆公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">新疆电缆公司</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 6. 德缆公司 (一级单位) -->
-                  <div class="tree-node-item">
-                    <div onclick="toggleTreeNode(this); selectOrgNode('德缆公司', this);" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                      <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                      <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400 tree-arrow">
-                        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-                      </span>
-                      <span class="flex shrink-0 items-center text-[#1677ff]"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span>
-                      <span class="truncate">德缆公司 (一级单位)</span>
-                    </div>
-                    <div class="ml-[20px] border-l border-[#e8e8e8] tree-children hidden">
-                      <div onclick="selectOrgNode('德缆股份公司', this)" class="relative flex min-h-[28px] cursor-pointer select-none items-center gap-1.5 rounded py-[5px] pr-1.5 text-[12px] leading-none transition-colors text-slate-700 hover:bg-slate-100/70">
-                        <span class="pointer-events-none absolute left-0 top-1/2 h-px w-[16px] -translate-y-1/2 bg-[#d9d9d9]"></span>
-                        <span class="flex w-[16px] shrink-0 items-center justify-center text-slate-400"></span>
-                        <span class="flex shrink-0 items-center text-slate-400"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg></span>
-                        <span class="truncate">德缆股份公司</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <span class="text-[10px] text-emerald-600 font-sans block">☀️ 光伏出力充沛</span>
         </div>
 
-        <div class="pt-2.5 border-t border-slate-100 text-[11px] text-slate-400 font-mono flex items-center gap-1">
-          <svg class="size-3 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path></svg>
-          <span>点击树节点实时刷新右侧在线监测</span>
+        <!-- 2. 储能充放功率 -->
+        <div class="p-3 rounded-lg bg-sky-50/70 border border-sky-200 space-y-1">
+          <div class="flex items-center justify-between text-xs text-sky-800 font-sans font-medium">
+            <span class="flex items-center gap-1">
+              <svg class="size-3.5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m11 7-3 5h4l-3 5"></path><path d="M14 6h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1"></path><path d="M6 18H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1"></path><path d="M18 11v2"></path></svg>
+              储能充放功率
+            </span>
+          </div>
+          <div class="text-xl font-bold text-sky-700">
+            +45.0 <span class="text-xs font-sans text-slate-500">kW</span>
+          </div>
+          <span class="text-[10px] text-sky-600 font-sans block">⚡ 微网自适应平抑 (SOC 78%)</span>
+        </div>
+
+        <!-- 3. 市电接入功率 -->
+        <div class="p-3 rounded-lg bg-blue-50/70 border border-blue-200 space-y-1">
+          <div class="flex items-center justify-between text-xs text-blue-800 font-sans font-medium">
+            <span class="flex items-center gap-1">
+              <svg class="size-3.5 text-[#1677ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              市电接入功率
+            </span>
+          </div>
+          <div class="text-xl font-bold text-[#1677ff]">
+            12,431.6 <span class="text-xs font-sans text-slate-500">kW</span>
+          </div>
+          <span class="text-[10px] text-blue-600 font-sans block">110kV 主变进线受控</span>
+        </div>
+
+        <!-- 4. 全厂负荷功率 -->
+        <div class="p-3 rounded-lg bg-amber-50/70 border border-amber-200 space-y-1">
+          <div class="flex items-center justify-between text-xs text-amber-800 font-sans font-medium">
+            <span class="flex items-center gap-1">
+              <svg class="size-3.5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="16" x="4" y="4" rx="2"></rect><rect width="6" height="6" x="9" y="9" rx="1"></rect><path d="M15 2v2"></path><path d="M15 20v2"></path><path d="M2 15h2"></path><path d="M2 9h2"></path><path d="M20 15h2"></path><path d="M20 9h2"></path><path d="M9 2v2"></path><path d="M9 20v2"></path></svg>
+              全厂负荷功率
+            </span>
+          </div>
+          <div class="text-xl font-bold text-amber-700">
+            18,206.6 <span class="text-xs font-sans text-slate-500">kW</span>
+          </div>
+          <span class="text-[10px] text-amber-600 font-sans block">主变负荷率 72.8%</span>
+        </div>
+
+        <!-- 5. 能源消耗总量 (支持多介质切换) -->
+        <div class="p-3 rounded-lg bg-purple-50/70 border border-purple-200 space-y-1">
+          <div class="flex items-center justify-between text-xs text-purple-800 font-sans font-medium">
+            <span class="flex items-center gap-1">
+              <svg class="size-3.5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg>
+              本日能源消耗量
+            </span>
+            <div class="flex items-center gap-0.5 bg-white rounded p-0.5 border border-purple-200 text-[9px]">
+              <button id="btn-med-elec" onclick="switchEnergyMedium('elec')" class="px-1.5 py-0.5 rounded bg-purple-600 text-white font-bold">电</button>
+              <button id="btn-med-gas" onclick="switchEnergyMedium('gas')" class="px-1.5 py-0.5 rounded text-purple-700 hover:bg-purple-100">气</button>
+              <button id="btn-med-water" onclick="switchEnergyMedium('water')" class="px-1.5 py-0.5 rounded text-purple-700 hover:bg-purple-100">水</button>
+              <button id="btn-med-air" onclick="switchEnergyMedium('air')" class="px-1.5 py-0.5 rounded text-purple-700 hover:bg-purple-100">汽</button>
+            </div>
+          </div>
+          <div id="macro-energy-val" class="text-xl font-bold text-purple-700">
+            14,250 <span class="text-xs font-sans text-slate-500">kWh</span>
+          </div>
+          <span id="macro-energy-sub" class="text-[10px] text-purple-600 font-sans block">
+            折标煤: 1.75 tce
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- 右侧动态遥测看板 (col-span-9) -->
-    <div class="lg:col-span-9 space-y-3 flex flex-col justify-between">
-      <!-- 视图 1：经营单位宏观指标监测 -->
-      <div id="view-macro-container" class="space-y-3">
-        <div class="bg-white p-4 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
-            <div class="flex items-center gap-2">
-              <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span class="font-bold text-xs text-slate-800">
-                【<span class="dyn-org-title">沈变本部</span>】全厂 24 小时综合负荷与微网平衡时序曲线
-              </span>
-            </div>
-            <span class="text-xs text-slate-400 font-mono">SCADA 秒级直连 · 负荷平衡分析</span>
+    <!-- 3. 动态监测看板 (宏观/设备/工序) -->
+    <!-- 视图 1：经营单位宏观指标监测 -->
+    <div id="view-macro-container" class="space-y-3">
+      <div class="bg-white p-4 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-bold text-xs text-slate-800">
+              【<span class="dyn-org-title">沈变本部</span>】全厂 24 小时综合负荷与微网平衡时序曲线
+            </span>
           </div>
-
-          <!-- 曲线图 -->
-          <div class="w-full h-[280px] relative flex flex-col justify-between select-none py-2">
-            <svg class="w-full h-full overflow-visible" viewBox="0 0 600 220" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="grad-macro-p" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#1677ff" stop-opacity="0.35"/>
-                  <stop offset="100%" stop-color="#1677ff" stop-opacity="0.0"/>
-                </linearGradient>
-                <linearGradient id="grad-macro-pv" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
-                  <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
-                </linearGradient>
-              </defs>
-              <line x1="40" y1="20" x2="580" y2="20" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
-              <line x1="40" y1="70" x2="580" y2="70" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
-              <line x1="40" y1="120" x2="580" y2="120" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
-              <line x1="40" y1="170" x2="580" y2="170" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
-              <path d="M 50 140 Q 140 130, 230 70 T 410 40 T 570 60 L 570 190 L 50 190 Z" fill="url(#grad-macro-p)"/>
-              <path d="M 50 140 Q 140 130, 230 70 T 410 40 T 570 60" fill="none" stroke="#1677ff" stroke-width="2.5"/>
-              <path d="M 50 190 Q 140 190, 230 140 T 410 80 T 570 190 L 570 190 L 50 190 Z" fill="url(#grad-macro-pv)"/>
-              <path d="M 50 190 Q 140 190, 230 140 T 410 80 T 570 190" fill="none" stroke="#10b981" stroke-width="2"/>
-              <circle cx="50" cy="140" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
-              <circle cx="230" cy="70" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
-              <circle cx="410" cy="40" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
-              <circle cx="570" cy="60" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
-              <text x="45" y="208" font-size="11" fill="#64748b" font-family="monospace">00:00</text>
-              <text x="140" y="208" font-size="11" fill="#64748b" font-family="monospace">04:00</text>
-              <text x="230" y="208" font-size="11" fill="#64748b" font-family="monospace">08:00</text>
-              <text x="320" y="208" font-size="11" fill="#64748b" font-family="monospace">12:00</text>
-              <text x="410" y="208" font-size="11" fill="#64748b" font-family="monospace">16:00</text>
-              <text x="500" y="208" font-size="11" fill="#64748b" font-family="monospace">20:00</text>
-              <text x="560" y="208" font-size="11" fill="#64748b" font-family="monospace">24:00</text>
-            </svg>
-            <div class="flex items-center justify-center gap-6 text-xs font-medium text-slate-600 pt-1 border-t border-slate-100">
-              <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-[#1677ff]"></span> 全厂负荷功率 (kW)</span>
-              <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-emerald-500"></span> 新能源光伏出力 (kW)</span>
-            </div>
-          </div>
+          <span class="text-xs text-slate-400 font-mono">SCADA 秒级直连 · 负荷平衡分析</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div class="bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 class="text-xs font-bold text-slate-800">车间用能负荷分布</h3>
-              <span class="text-[11px] text-slate-400 font-mono">SCADA 实时流</span>
-            </div>
-            <div class="flex items-center justify-around py-2">
-              <div class="relative size-28 rounded-full border-8 border-blue-500 flex items-center justify-center">
-                <span class="text-center"><strong class="text-base font-bold text-slate-800 block">45%</strong><span class="text-[10px] text-slate-400">干燥车间</span></span>
-              </div>
-              <div class="space-y-1.5 text-xs text-slate-600">
-                <div class="flex items-center gap-2"><span class="size-2 rounded bg-blue-500"></span> 绝缘干燥车间 (45%)</div>
-                <div class="flex items-center gap-2"><span class="size-2 rounded bg-emerald-500"></span> 超高压试验大厅 (25%)</div>
-                <div class="flex items-center gap-2"><span class="size-2 rounded bg-amber-500"></span> 铁芯与绕线 (18%)</div>
-                <div class="flex items-center gap-2"><span class="size-2 rounded bg-purple-500"></span> 辅助与办公 (12%)</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs flex flex-col justify-between space-y-2.5">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 class="text-xs font-bold text-slate-800">实时用能安全与越限预警</h3>
-              <span class="size-2 rounded-full bg-emerald-500 animate-ping"></span>
-            </div>
-            <div class="space-y-2 text-xs">
-              <div class="p-2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 flex justify-between"><span>主变温升遥测：</span><span class="font-mono font-bold">58.4 ℃ (受控正常)</span></div>
-              <div class="p-2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 flex justify-between"><span>三相不平衡度：</span><span class="font-mono font-bold">1.2% (优于国标)</span></div>
-              <div class="p-2 rounded bg-blue-50 text-blue-800 border border-blue-200 flex justify-between"><span>今日最大需量余量：</span><span class="font-mono font-bold text-[#1677ff]">极低风险 (余量 28%)</span></div>
-            </div>
-            <button onclick="alert('已生成【' + document.getElementById('display-org-name').innerText + '】宏观监测简报')" class="w-full py-1.5 rounded bg-[#1677ff] text-white font-semibold text-xs shadow-xs hover:bg-blue-700">
-              导出【<span class="dyn-org-title">沈变本部</span>】宏观监测简报
-            </button>
+        <!-- 曲线图 -->
+        <div class="w-full h-[280px] relative flex flex-col justify-between select-none py-2">
+          <svg class="w-full h-full overflow-visible" viewBox="0 0 600 220" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad-macro-p" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1677ff" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#1677ff" stop-opacity="0.0"/>
+              </linearGradient>
+              <linearGradient id="grad-macro-pv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+            <line x1="40" y1="20" x2="580" y2="20" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
+            <line x1="40" y1="70" x2="580" y2="70" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
+            <line x1="40" y1="120" x2="580" y2="120" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
+            <line x1="40" y1="170" x2="580" y2="170" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
+            <path d="M 50 140 Q 140 130, 230 70 T 410 40 T 570 60 L 570 190 L 50 190 Z" fill="url(#grad-macro-p)"/>
+            <path d="M 50 140 Q 140 130, 230 70 T 410 40 T 570 60" fill="none" stroke="#1677ff" stroke-width="2.5"/>
+            <path d="M 50 190 Q 140 190, 230 140 T 410 80 T 570 190 L 570 190 L 50 190 Z" fill="url(#grad-macro-pv)"/>
+            <path d="M 50 190 Q 140 190, 230 140 T 410 80 T 570 190" fill="none" stroke="#10b981" stroke-width="2"/>
+            <circle cx="50" cy="140" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
+            <circle cx="230" cy="70" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
+            <circle cx="410" cy="40" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
+            <circle cx="570" cy="60" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
+            <text x="45" y="208" font-size="11" fill="#64748b" font-family="monospace">00:00</text>
+            <text x="140" y="208" font-size="11" fill="#64748b" font-family="monospace">04:00</text>
+            <text x="230" y="208" font-size="11" fill="#64748b" font-family="monospace">08:00</text>
+            <text x="320" y="208" font-size="11" fill="#64748b" font-family="monospace">12:00</text>
+            <text x="410" y="208" font-size="11" fill="#64748b" font-family="monospace">16:00</text>
+            <text x="500" y="208" font-size="11" fill="#64748b" font-family="monospace">20:00</text>
+            <text x="560" y="208" font-size="11" fill="#64748b" font-family="monospace">24:00</text>
+          </svg>
+          <div class="flex items-center justify-center gap-6 text-xs font-medium text-slate-600 pt-1 border-t border-slate-100">
+            <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-[#1677ff]"></span> 全厂负荷功率 (kW)</span>
+            <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-emerald-500"></span> 新能源光伏出力 (kW)</span>
           </div>
         </div>
       </div>
 
-      <!-- 视图 2：重点用能设备在线监测 -->
-      <div id="view-equipment-container" class="space-y-3 hidden">
-        <div class="p-4 rounded-lg bg-white border border-[#e5e7eb] shadow-xs flex flex-wrap items-center justify-between gap-3">
-          <div class="space-y-1">
-            <div class="flex items-center gap-2">
-              <span id="eq-name" class="font-bold text-sm text-slate-800">1# 超高压真空干燥气相烘干罐</span>
-              <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold">运行中</span>
-              <span class="px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 text-xs">⚡ 高压电力</span>
-            </div>
-            <div class="flex items-center gap-4 text-xs text-slate-500 font-mono">
-              <span>所属基地: <strong class="dyn-org-title text-slate-700">沈变本部</strong></span>
-              <span>型号: <strong id="eq-model" class="text-slate-700">VD-500kW-UHV</strong></span>
-              <span>额定功率: <strong id="eq-power" class="text-slate-700">500 kW</strong></span>
-              <span>车间: <strong id="eq-workshop" class="text-slate-700">绝缘干燥车间</strong></span>
-            </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h3 class="text-xs font-bold text-slate-800">车间用能负荷分布</h3>
+            <span class="text-[11px] text-slate-400 font-mono">SCADA 实时流</span>
           </div>
-
-          <div class="text-right font-mono">
-            <span class="text-xs text-slate-500 font-sans block">本日累计耗能</span>
-            <span class="text-lg font-bold text-[#1677ff]">3,850 kWh</span>
+          <div class="flex items-center justify-around py-2">
+            <div class="relative size-28 rounded-full border-8 border-blue-500 flex items-center justify-center">
+              <span class="text-center"><strong class="text-base font-bold text-slate-800 block">45%</strong><span class="text-[10px] text-slate-400">干燥车间</span></span>
+            </div>
+            <div class="space-y-1.5 text-xs text-slate-600">
+              <div class="flex items-center gap-2"><span class="size-2 rounded bg-blue-500"></span> 绝缘干燥车间 (45%)</div>
+              <div class="flex items-center gap-2"><span class="size-2 rounded bg-emerald-500"></span> 超高压试验大厅 (25%)</div>
+              <div class="flex items-center gap-2"><span class="size-2 rounded bg-amber-500"></span> 铁芯与绕线 (18%)</div>
+              <div class="flex items-center gap-2"><span class="size-2 rounded bg-purple-500"></span> 辅助与办公 (12%)</div>
+            </div>
           </div>
         </div>
 
-        <!-- 8 大遥测参量 -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
-          <div class="p-3 rounded-lg bg-white border border-[#e5e7eb] shadow-xs space-y-1">
-            <span class="text-[11px] text-slate-500 font-sans block">三相电压 (Ua/Ub/Uc)</span>
-            <div class="text-sm font-bold text-slate-800">10.15 / 10.12 / 10.14 <span class="text-[10px] font-sans text-slate-500">kV</span></div>
+        <div class="bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs flex flex-col justify-between space-y-2.5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h3 class="text-xs font-bold text-slate-800">实时用能安全与越限预警</h3>
+            <span class="size-2 rounded-full bg-emerald-500 animate-ping"></span>
           </div>
-          <div class="p-3 rounded-lg bg-white border border-[#e5e7eb] shadow-xs space-y-1">
-            <span class="text-[11px] text-slate-500 font-sans block">三相电流 (Ia/Ib/Ic)</span>
-            <div class="text-sm font-bold text-slate-800">320 / 318 / 322 <span class="text-[10px] font-sans text-slate-500">A</span></div>
+          <div class="space-y-2 text-xs">
+            <div class="p-2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 flex justify-between"><span>主变温升遥测：</span><span class="font-mono font-bold">58.4 ℃ (受控正常)</span></div>
+            <div class="p-2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 flex justify-between"><span>三相不平衡度：</span><span class="font-mono font-bold">1.2% (优于国标)</span></div>
+            <div class="p-2 rounded bg-blue-50 text-blue-800 border border-blue-200 flex justify-between"><span>今日最大需量余量：</span><span class="font-mono font-bold text-[#1677ff]">极低风险 (余量 28%)</span></div>
           </div>
-          <div class="p-3 rounded-lg bg-white border border-[#e5e7eb] shadow-xs space-y-1">
-            <span class="text-[11px] text-slate-500 font-sans block">总有功功率 (P)</span>
-            <div class="text-sm font-bold text-emerald-600">465.2 <span class="text-[10px] font-sans text-slate-500">kW</span></div>
+          <button onclick="alert('已生成【' + document.getElementById('display-org-name').innerText + '】宏观监测简报')" class="w-full py-1.5 rounded bg-[#1677ff] text-white font-semibold text-xs shadow-xs hover:bg-blue-700">
+            导出【<span class="dyn-org-title">沈变本部</span>】宏观监测简报
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 视图 2：重点用能设备在线监测 -->
+    <div id="view-equipment-container" class="space-y-3 hidden">
+      <div class="p-4 rounded-lg bg-white border border-[#e5e7eb] shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span id="eq-name" class="font-bold text-sm text-slate-800">1# 超高压真空干燥气相烘干罐</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold">运行中</span>
+            <span class="px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 text-xs">⚡ 高压电力</span>
           </div>
-          <div class="p-3 rounded-lg bg-white border border-[#e5e7eb] shadow-xs space-y-1">
-            <span class="text-[11px] text-slate-500 font-sans block">功率因数 (PF)</span>
-            <div class="text-sm font-bold text-sky-600">0.96 <span class="text-[10px] font-sans text-emerald-600">(优)</span></div>
+          <div class="flex items-center gap-4 text-xs text-slate-500 font-mono">
+            <span>所属基地: <strong class="dyn-org-title text-slate-700">沈变本部</strong></span>
+            <span>型号: <strong id="eq-model" class="text-slate-700">VD-500kW-UHV</strong></span>
+            <span>额定功率: <strong id="eq-power" class="text-slate-700">500 kW</strong></span>
+            <span>车间: <strong id="eq-workshop" class="text-slate-700">绝缘干燥车间</strong></span>
           </div>
         </div>
 
-        <!-- 24h 波形图 -->
-        <div class="rounded-lg border border-[#e5e7eb] bg-white p-4 shadow-xs">
-          <div class="mb-3 flex items-center justify-between gap-3 border-b border-slate-100 pb-2">
-            <div class="flex items-center gap-2">
-              <span class="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0"></span>
-              <h3 class="text-xs font-bold text-slate-800">设备 24 小时高频遥测波形图</h3>
-            </div>
-            <span class="text-xs font-mono text-slate-500">采样频率: 1s</span>
-          </div>
-          <div class="w-full h-[260px] relative flex flex-col justify-between select-none py-2">
-            <svg class="w-full h-full overflow-visible" viewBox="0 0 600 200" preserveAspectRatio="none">
-              <line x1="40" y1="20" x2="580" y2="20" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
-              <line x1="40" y1="70" x2="580" y2="70" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
-              <line x1="40" y1="120" x2="580" y2="120" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
-              <path d="M 50 110 Q 140 100, 230 60 T 410 40 T 570 70" fill="none" stroke="#1677ff" stroke-width="2.5"/>
-              <path d="M 50 130 Q 140 120, 230 90 T 410 80 T 570 100" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="4 2"/>
-              <circle cx="50" cy="110" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
-              <circle cx="230" cy="60" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
-              <circle cx="410" cy="40" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
-              <circle cx="570" cy="70" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
-              <text x="45" y="190" font-size="11" fill="#64748b" font-family="monospace">00:00</text>
-              <text x="140" y="190" font-size="11" fill="#64748b" font-family="monospace">04:00</text>
-              <text x="230" y="190" font-size="11" fill="#64748b" font-family="monospace">08:00</text>
-              <text x="320" y="190" font-size="11" fill="#64748b" font-family="monospace">12:00</text>
-              <text x="410" y="190" font-size="11" fill="#64748b" font-family="monospace">16:00</text>
-              <text x="500" y="190" font-size="11" fill="#64748b" font-family="monospace">20:00</text>
-              <text x="560" y="190" font-size="11" fill="#64748b" font-family="monospace">24:00</text>
-            </svg>
-            <div class="flex items-center justify-center gap-6 text-xs font-medium text-slate-600 pt-1 border-t border-slate-100">
-              <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-[#1677ff]"></span> 有功功率 (kW)</span>
-              <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-emerald-500"></span> A相电流 (A)</span>
-            </div>
-          </div>
+        <div class="text-right font-mono">
+          <span class="text-xs text-slate-500 font-sans block">本日累计耗能</span>
+          <span class="text-lg font-bold text-[#1677ff]">3,850 kWh</span>
         </div>
       </div>
 
-      <!-- 视图 3：关键工序在线监测 -->
-      <div id="view-process-container" class="space-y-3 hidden">
-        <div class="p-4 rounded-lg bg-white border border-[#e5e7eb] shadow-xs flex flex-wrap items-center justify-between gap-3">
-          <div class="space-y-1">
-            <div class="flex items-center gap-2">
-              <span id="pr-name" class="font-bold text-sm text-slate-800">3. 真空干燥与气相烘烤工序</span>
-              <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold">工序受控中</span>
-              <span id="pr-workshop" class="px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 text-xs">干燥车间</span>
-            </div>
-            <div class="flex items-center gap-4 text-xs text-slate-500 font-mono">
-              <span>所属基地: <strong class="dyn-org-title text-slate-700">沈变本部</strong></span>
-              <span>所属产线: 特高压变压器产线</span>
-              <span>能效流速: <strong id="pr-speed" class="text-slate-700">580.6 kgce/h</strong></span>
-            </div>
-          </div>
+      <!-- 8 大遥测参量 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
+        <div class="p-3 rounded-lg bg-white border border-[#e5e7eb] shadow-xs space-y-1">
+          <span class="text-[11px] text-slate-500 font-sans block">三相电压 (Ua/Ub/Uc)</span>
+          <div class="text-sm font-bold text-slate-800">10.15 / 10.12 / 10.14 <span class="text-[10px] font-sans text-slate-500">kV</span></div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-[#e5e7eb] shadow-xs space-y-1">
+          <span class="text-[11px] text-slate-500 font-sans block">三相电流 (Ia/Ib/Ic)</span>
+          <div class="text-sm font-bold text-slate-800">320 / 318 / 322 <span class="text-[10px] font-sans text-slate-500">A</span></div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-[#e5e7eb] shadow-xs space-y-1">
+          <span class="text-[11px] text-slate-500 font-sans block">总有功功率 (P)</span>
+          <div class="text-sm font-bold text-emerald-600">465.2 <span class="text-[10px] font-sans text-slate-500">kW</span></div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border border-[#e5e7eb] shadow-xs space-y-1">
+          <span class="text-[11px] text-slate-500 font-sans block">功率因数 (PF)</span>
+          <div class="text-sm font-bold text-sky-600">0.96 <span class="text-[10px] font-sans text-emerald-600">(优)</span></div>
+        </div>
+      </div>
 
-          <div class="text-right font-mono">
-            <span class="text-xs text-slate-500 font-sans block">工序实测单耗</span>
-            <span id="pr-unit" class="text-lg font-bold text-emerald-600">0.48 tce/台 (定额 0.45)</span>
+      <!-- 24h 波形图 -->
+      <div class="rounded-lg border border-[#e5e7eb] bg-white p-4 shadow-xs">
+        <div class="mb-3 flex items-center justify-between gap-3 border-b border-slate-100 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0"></span>
+            <h3 class="text-xs font-bold text-slate-800">设备 24 小时高频遥测波形图</h3>
+          </div>
+          <span class="text-xs font-mono text-slate-500">采样频率: 1s</span>
+        </div>
+        <div class="w-full h-[260px] relative flex flex-col justify-between select-none py-2">
+          <svg class="w-full h-full overflow-visible" viewBox="0 0 600 200" preserveAspectRatio="none">
+            <line x1="40" y1="20" x2="580" y2="20" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
+            <line x1="40" y1="70" x2="580" y2="70" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
+            <line x1="40" y1="120" x2="580" y2="120" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
+            <path d="M 50 110 Q 140 100, 230 60 T 410 40 T 570 70" fill="none" stroke="#1677ff" stroke-width="2.5"/>
+            <path d="M 50 130 Q 140 120, 230 90 T 410 80 T 570 100" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="4 2"/>
+            <circle cx="50" cy="110" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
+            <circle cx="230" cy="60" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
+            <circle cx="410" cy="40" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
+            <circle cx="570" cy="70" r="3.5" fill="#1677ff" stroke="#fff" stroke-width="2"/>
+            <text x="45" y="190" font-size="11" fill="#64748b" font-family="monospace">00:00</text>
+            <text x="140" y="190" font-size="11" fill="#64748b" font-family="monospace">04:00</text>
+            <text x="230" y="190" font-size="11" fill="#64748b" font-family="monospace">08:00</text>
+            <text x="320" y="190" font-size="11" fill="#64748b" font-family="monospace">12:00</text>
+            <text x="410" y="190" font-size="11" fill="#64748b" font-family="monospace">16:00</text>
+            <text x="500" y="190" font-size="11" fill="#64748b" font-family="monospace">20:00</text>
+            <text x="560" y="190" font-size="11" fill="#64748b" font-family="monospace">24:00</text>
+          </svg>
+          <div class="flex items-center justify-center gap-6 text-xs font-medium text-slate-600 pt-1 border-t border-slate-100">
+            <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-[#1677ff]"></span> 有功功率 (kW)</span>
+            <span class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-emerald-500"></span> A相电流 (A)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 视图 3：关键工序在线监测 -->
+    <div id="view-process-container" class="space-y-3 hidden">
+      <div class="p-4 rounded-lg bg-white border border-[#e5e7eb] shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span id="pr-name" class="font-bold text-sm text-slate-800">3. 真空干燥与气相烘烤工序</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold">工序受控中</span>
+            <span id="pr-workshop" class="px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 text-xs">干燥车间</span>
+          </div>
+          <div class="flex items-center gap-4 text-xs text-slate-500 font-mono">
+            <span>所属基地: <strong class="dyn-org-title text-slate-700">沈变本部</strong></span>
+            <span>所属产线: 特高压变压器产线</span>
+            <span>能效流速: <strong id="pr-speed" class="text-slate-700">580.6 kgce/h</strong></span>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div class="bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 class="text-xs font-bold text-slate-800">工序用电市电/绿电分项占比</h3>
-              <span class="text-[11px] text-emerald-600 font-mono font-bold">绿电直供 55%</span>
-            </div>
-            <div class="flex items-center justify-around py-2">
-              <div class="relative size-28 rounded-full border-8 border-emerald-500 flex items-center justify-center">
-                <span class="text-center"><strong class="text-base font-bold text-emerald-600 block">55%</strong><span class="text-[10px] text-slate-400">绿电直供</span></span>
-              </div>
-              <div class="space-y-1.5 text-xs">
-                <div class="flex items-center gap-2"><span class="size-2 rounded bg-emerald-500"></span> 屋顶光伏绿电 (55%)</div>
-                <div class="flex items-center gap-2"><span class="size-2 rounded bg-[#1677ff]"></span> 国家电网市电 (45%)</div>
-              </div>
-            </div>
-          </div>
+        <div class="text-right font-mono">
+          <span class="text-xs text-slate-500 font-sans block">工序实测单耗</span>
+          <span id="pr-unit" class="text-lg font-bold text-emerald-600">0.48 tce/台 (定额 0.45)</span>
+        </div>
+      </div>
 
-          <div class="bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs flex flex-col justify-between space-y-2.5">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 class="text-xs font-bold text-slate-800">工序能耗时序流速</h3>
-              <span class="text-xs font-mono text-[#1677ff]">1min 聚合</span>
-            </div>
-            <div class="space-y-2 text-xs">
-              <div class="p-2 rounded bg-slate-50 flex justify-between"><span>工序今日总电耗：</span><span class="font-mono font-bold text-slate-800">3,850 kWh</span></div>
-              <div class="p-2 rounded bg-slate-50 flex justify-between"><span>折合标煤总量：</span><span class="font-mono font-bold text-slate-800">0.47 tce</span></div>
-              <div class="p-2 rounded bg-emerald-50 text-emerald-700 flex justify-between"><span>绿电减碳收益：</span><span class="font-mono font-bold">-285 kgCO2</span></div>
-            </div>
-            <button onclick="alert('已生成【' + document.getElementById('pr-name').innerText + '】工序能效诊断分析报告')" class="w-full py-1.5 rounded bg-[#1677ff] text-white font-semibold text-xs shadow-xs hover:bg-blue-700">
-              生成工序能效诊断分析报告
-            </button>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h3 class="text-xs font-bold text-slate-800">工序用电市电/绿电分项占比</h3>
+            <span class="text-[11px] text-emerald-600 font-mono font-bold">绿电直供 55%</span>
           </div>
+          <div class="flex items-center justify-around py-2">
+            <div class="relative size-28 rounded-full border-8 border-emerald-500 flex items-center justify-center">
+              <span class="text-center"><strong class="text-base font-bold text-emerald-600 block">55%</strong><span class="text-[10px] text-slate-400">绿电直供</span></span>
+            </div>
+            <div class="space-y-1.5 text-xs">
+              <div class="flex items-center gap-2"><span class="size-2 rounded bg-emerald-500"></span> 屋顶光伏绿电 (55%)</div>
+              <div class="flex items-center gap-2"><span class="size-2 rounded bg-[#1677ff]"></span> 国家电网市电 (45%)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs flex flex-col justify-between space-y-2.5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h3 class="text-xs font-bold text-slate-800">工序能耗时序流速</h3>
+            <span class="text-xs font-mono text-[#1677ff]">1min 聚合</span>
+          </div>
+          <div class="space-y-2 text-xs">
+            <div class="p-2 rounded bg-slate-50 flex justify-between"><span>工序今日总电耗：</span><span class="font-mono font-bold text-slate-800">3,850 kWh</span></div>
+            <div class="p-2 rounded bg-slate-50 flex justify-between"><span>折合标煤总量：</span><span class="font-mono font-bold text-slate-800">0.47 tce</span></div>
+            <div class="p-2 rounded bg-emerald-50 text-emerald-700 flex justify-between"><span>绿电减碳收益：</span><span class="font-mono font-bold">-285 kgCO2</span></div>
+          </div>
+          <button onclick="alert('已生成【' + document.getElementById('pr-name').innerText + '】工序能效诊断分析报告')" class="w-full py-1.5 rounded bg-[#1677ff] text-white font-semibold text-xs shadow-xs hover:bg-blue-700">
+            生成工序能效诊断分析报告
+          </button>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-<!-- 🌟 在线监测原生交互驱动脚本 -->
-<script id="online-monitor-interactive-driver">
-function switchMonitorView(mode) {
-  const btnMacro = document.getElementById('tab-macro');
-  const btnEq = document.getElementById('tab-equipment');
-  const btnPr = document.getElementById('tab-process');
-
-  const vMacro = document.getElementById('view-macro-container');
-  const vEq = document.getElementById('view-equipment-container');
-  const vPr = document.getElementById('view-process-container');
-
-  const echoFreq = document.getElementById('echo-frequency');
-
-  // 重置按钮样式
-  [btnMacro, btnEq, btnPr].forEach(b => {
-    b.className = "px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
-  });
-
-  // 隐藏所有主视图
-  vMacro.classList.add('hidden');
-  vEq.classList.add('hidden');
-  vPr.classList.add('hidden');
-
-  if (mode === 'macro') {
-    btnMacro.className = "px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 bg-[#1677ff] text-white shadow-xs";
-    vMacro.classList.remove('hidden');
-    echoFreq.innerText = "1s 实时流 (SCADA 高频)";
-  } else if (mode === 'equipment') {
-    btnEq.className = "px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 bg-[#1677ff] text-white shadow-xs";
-    vEq.classList.remove('hidden');
-    echoFreq.innerText = "1s 实时流 (高频波形)";
-  } else if (mode === 'process') {
-    btnPr.className = "px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 bg-[#1677ff] text-white shadow-xs";
-    vPr.classList.remove('hidden');
-    echoFreq.innerText = "1min 聚合 (能效时序)";
-  }
-}
-
-function toggleTreeNode(element) {
-  const parent = element.parentElement;
-  const children = parent.querySelector('.tree-children');
-  const arrow = parent.querySelector('.tree-arrow svg');
-  if (children) {
-    if (children.classList.contains('hidden')) {
-      children.classList.remove('hidden');
-      if (arrow) arrow.style.transform = 'rotate(0deg)';
-    } else {
-      children.classList.add('hidden');
-      if (arrow) arrow.style.transform = 'rotate(-90deg)';
-    }
-  }
-}
-
-function selectOrgNode(orgName, element) {
-  document.getElementById('display-org-name').innerText = orgName;
-  document.getElementById('current-node-tag').innerText = orgName;
-  document.querySelectorAll('.dyn-org-title').forEach(el => el.innerText = orgName);
-
-  // 清理其他节点的选中态样式
-  document.querySelectorAll('.tree-node-item div').forEach(el => {
-    el.classList.remove('bg-[#e6f4ff]', 'text-[#1677ff]', 'font-semibold');
-    el.classList.add('text-slate-700');
-  });
-
-  // 设置当前节点高亮
-  if (element) {
-    element.classList.remove('text-slate-700');
-    element.classList.add('bg-[#e6f4ff]', 'text-[#1677ff]', 'font-semibold');
-  }
-}
-
-function switchEnergyMedium(med) {
-  const val = document.getElementById('macro-energy-val');
-  const sub = document.getElementById('macro-energy-sub');
-  ['elec', 'gas', 'water', 'air'].forEach(m => {
-    const b = document.getElementById('btn-med-' + m);
-    if (b) b.className = "px-1.5 py-0.5 rounded text-purple-700 hover:bg-purple-100";
-  });
-  const act = document.getElementById('btn-med-' + med);
-  if (act) act.className = "px-1.5 py-0.5 rounded bg-purple-600 text-white font-bold";
-
-  if (med === 'elec') {
-    val.innerHTML = '14,250 <span class="text-xs font-sans text-slate-500">kWh</span>';
-    sub.innerText = '折标煤: 1.75 tce';
-  } else if (med === 'gas') {
-    val.innerHTML = '185.2 <span class="text-xs font-sans text-slate-500">m³</span>';
-    sub.innerText = '折标煤: 0.24 tce';
-  } else if (med === 'water') {
-    val.innerHTML = '12.4 <span class="text-xs font-sans text-slate-500">m³</span>';
-    sub.innerText = '回用率: 88.5%';
-  } else if (med === 'air') {
-    val.innerHTML = '3.7 <span class="text-xs font-sans text-slate-500">GJ</span>';
-    sub.innerText = '管网压力: 0.72 MPa';
-  }
-}
-
-function filterTreeNodes(keyword) {
-  const kw = keyword.toLowerCase().trim();
-  document.querySelectorAll('.tree-node-item').forEach(el => {
-    const text = el.innerText.toLowerCase();
-    if (!kw || text.includes(kw)) {
-      el.style.display = '';
-      const children = el.querySelector('.tree-children');
-      if (children && kw) children.classList.remove('hidden');
-    } else {
-      el.style.display = 'none';
-    }
-  });
-}
-</script>
 </main></div><div class="fixed bottom-5 right-5 z-40 flex flex-col items-end"><button class="flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl transition-all transform hover:scale-105 active:scale-95 group focus:outline-none ring-2 ring-white bg-gradient-to-r from-[#0958d9] via-[#1677ff] to-[#0284c7] text-white shadow-blue-500/40 hover:shadow-blue-500/60" title="点击打开特变电工 AI助手"><div class="size-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-xs"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles size-3.5 text-white animate-pulse" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg></div><span class="font-bold text-xs tracking-wide">AI助手</span><span class="size-2 rounded-full bg-emerald-400 animate-ping shrink-0"></span></button></div></div><script src="../../_next/static/chunks/2r22ou8x-ji8g.js" id="_R_" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0])</script><script>self.__next_f.push([1,"1:\"$Sreact.fragment\"\n2:I[6304,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"default\"]\n3:I[80528,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"default\"]\n4:I[36818,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\",\"../../_next/static/chunks/3mhx3nrig5vdd.js\",\"../../_next/static/chunks/0spzcbny1vab2.js\"],\"PlatformShell\"]\n5:I[57988,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"ClientPageRoot\"]\n6:I[10565,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\",\"../../_next/static/chunks/3mhx3nrig5vdd.js\",\"../../_next/static/chunks/0spzcbny1vab2.js\",\"../../_next/static/chunks/3c8b12gvn8yh6.js\",\"../../_next/static/chunks/1jid18eq3l1w1.js\"],\"default\"]\n9:I[82118,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"OutletBoundary\"]\na:\"$Sreact.suspense\"\nd:I[82118,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"ViewportBoundary\"]\nf:I[82118,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"MetadataBoundary\"]\n11:I[10590,[\"../../_next/static/chunks/0x-4tyxa32f6n.js\"],\"default\",1]\n:HL[\"../../_next/static/chunks/00bi4t_1h5yit.css\",\"style\"]\nc:X\n0:{\"P\":null,\"c\":[\"\",\"zero-carbon\",\"monitor\",\"online\"],\"q\":\"\",\"i\":false,\"f\":[[[\"\",{\"children\":[\"zero-carbon\",{\"children\":[\"monitor\",{\"children\":[\"online\",{\"children\":[\"__PAGE__\",{},\"$undefined\",\"$undefined\",4608]},\"$undefined\",\"$undefined\",4608]},\"$undefined\",\"$undefined\",4608]},\"$undefined\",\"$undefined\",4608]},\"$undefined\",\"$undefined\",4624],[[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"../../_next/static/chunks/00bi4t_1h5yit.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-0\",{\"src\":\"../../_next/static/chunks/0x-4tyxa32f6n.js\",\"async\":true,\"nonce\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"zh-CN\",\"children\":[\"$\",\"body\",null,{\"className\":\"min-h-screen bg-background text-foreground antialiased font-sans selection:bg-blue-100 selection:text-blue-700\",\"children\":[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":404}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],[]],\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]}]}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"script\",\"script-0\",{\"src\":\"../../_next/static/chunks/3mhx3nrig5vdd.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-1\",{\"src\":\"../../_next/static/chunks/0spzcbny1vab2.js\",\"async\":true,\"nonce\":\"$undefined\"}]],[\"$\",\"$L4\",null,{\"platform\":\"zero-carbon\",\"children\":[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[null,[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[null,[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[[\"$\",\"$L5\",null,{\"Component\":\"$6\",\"serverProvidedParams\":{\"searchParams\":{},\"params\":{},\"promises\":[\"$@7\",\"$@8\"]}}],[[\"$\",\"script\",\"script-0\",{\"src\":\"../../_next/static/chunks/3c8b12gvn8yh6.js\",\"async\":true,\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-1\",{\"src\":\"../../_next/static/chunks/1jid18eq3l1w1.js\",\"async\":true,\"nonce\":\"$undefined\"}]],[\"$\",\"$L9\",null,{\"children\":[\"$\",\"$a\",null,{\"name\":\"Next.MetadataOutlet\",\"children\":\"$@b\"}]}]]}],{},null,false,null]},null,false,\"$c\"]},null,false,\"$c\"]},null,false,null]},null,false,null],[\"$\",\"$1\",\"h\",{\"children\":[null,[\"$\",\"$Ld\",null,{\"children\":\"$Le\"}],[\"$\",\"div\",null,{\"hidden\":true,\"children\":[\"$\",\"$Lf\",null,{\"children\":[\"$\",\"$a\",null,{\"name\":\"Next.Metadata\",\"children\":\"$L10\"}]}]}],null]}],false]],\"m\":\"$undefined\",\"G\":[\"$11\",[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"../../_next/static/chunks/00bi4t_1h5yit.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}]]],\"S\":true,\"h\":null,\"r\":\"$undefined\",\"s\":\"$undefined\",\"a\":\"$undefined\",\"l\":\"$undefined\",\"p\":\"$undefined\",\"d\":\"$undefined\",\"b\":\"6oVrJNDmdqaSMDqxhVdoB\"}\nc:C\n7:{}\n8:\"$0:f:0:1:1:children:1:children:1:children:1:children:0:props:children:0:props:serverProvidedParams:params\"\ne:[[\"$\",\"meta\",\"0\",{\"charSet\":\"utf-8\"}],[\"$\",\"meta\",\"1\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}]]\nb:null\n10:[[\"$\",\"title\",\"0\",{\"children\":\"特变电工（电装集团）· 能源管理与双中心平台 v1.01\"}],[\"$\",\"meta\",\"1\",{\"name\":\"description\",\"content\":\"特变电工（电装集团）零碳园区集控中心与产品碳足迹集采中心高保真产品原型系统 v1.01\"}]]\n"])</script></body></html>
