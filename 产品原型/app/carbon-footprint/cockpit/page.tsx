@@ -1,59 +1,115 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Database, FileCheck2, Award, TrendingDown, Boxes, Factory } from 'lucide-react'
+import { Database, FileCheck2, Award, TrendingDown, Boxes, Factory, MapPin, ExternalLink, Sparkles, Layers, ArrowUpRight } from 'lucide-react'
 import { PageHeader } from '@/components/shared/page-header'
-import { Panel, PanelTitle, KpiCard, DataTable, StatusBadge } from '@/components/shared/primitives'
+import { Panel, PanelTitle, KpiCard, DataTable, StatusBadge, Badge } from '@/components/shared/primitives'
 import { Select } from '@/components/shared/select'
 import { AreaTrend, Donut, BarGroup } from '@/components/shared/charts'
 import { carbonTrend, hotspotData, productFootprint, honors, parks } from '@/lib/mock-data'
-import { seedFactor, vary } from '@/lib/variant'
+import { cn } from '@/lib/utils'
+
+// 园区气泡数据 (气泡大小=总碳排，颜色深浅=单位碳强度)
+const parkBubbles = [
+  { name: '东北输变电产业园', city: '沈阳', industry: '变压器', totalCarbon: '2.8 万t', unitPcf: 0.43, intensity: 'normal', color: '#1677ff', certifiedModels: 8, totalModels: 14, top: '28%', left: '76%' },
+  { name: '南方输变电产业园', city: '衡阳', industry: '变压器', totalCarbon: '2.4 万t', unitPcf: 0.38, intensity: 'low', color: '#10b981', certifiedModels: 6, totalModels: 12, top: '65%', left: '68%' },
+  { name: '天变产业园', city: '天津', industry: '变压器', totalCarbon: '1.6 万t', unitPcf: 0.48, intensity: 'high', color: '#f59e0b', certifiedModels: 5, totalModels: 9, top: '36%', left: '74%' },
+  { name: '新疆线缆产业园', city: '昌吉', industry: '线缆', totalCarbon: '3.2 万t', unitPcf: 0.68, intensity: 'normal', color: '#1677ff', certifiedModels: 4, totalModels: 16, top: '34%', left: '26%' },
+  { name: '德阳电缆园区', city: '德阳', industry: '线缆', totalCarbon: '2.1 万t', unitPcf: 0.72, intensity: 'high', color: '#f59e0b', certifiedModels: 3, totalModels: 11, top: '56%', left: '54%' },
+  { name: '江苏智能电气产业园', city: '南京', industry: '开关', totalCarbon: '1.2 万t', unitPcf: 0.35, intensity: 'low', color: '#10b981', certifiedModels: 2, totalModels: 6, top: '52%', left: '78%' },
+]
 
 export default function CockpitPage() {
   const [honorIdx, setHonorIdx] = useState(0)
-  const [park, setPark] = useState('全部园区')
+  const [selectedPark, setSelectedPark] = useState(parkBubbles[0])
   const [industry, setIndustry] = useState('all')
+
   useEffect(() => {
     const t = setInterval(() => setHonorIdx((i) => (i + 1) % honors.length), 3000)
     return () => clearInterval(t)
   }, [])
 
-  /* 园区 + 产业下拉联动：缩放趋势、构成与产品分布 */
-  const f = seedFactor(park, industry)
-  const carbonTrendV = vary(carbonTrend, f)
-  const hotspotV = vary(hotspotData, f, { only: ['value'] })
-  const productBar = vary(
-    productFootprint.slice(0, 6).map((p) => ({ name: p.product.slice(0, 8), 碳足迹: p.pcf, 基准: p.base })),
-    f,
-    { only: ['碳足迹'] },
-  )
-
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <PageHeader
-        title="集团驾驶舱"
-        positioning="对外示范窗口"
-        desc="可视化展示集团各园区、各产业的碳足迹数值、分布、构成、趋势及热力图，满足集团对各大园区及各经营单位的碳足迹集中管控与辅助决策。"
-        actions={
-          <div className="flex gap-2">
-            <Select label="园区" value={park} onChange={setPark} options={['全部园区', ...parks].map((p) => ({ label: p, value: p }))} />
-            <Select label="产业" value={industry} onChange={setIndustry} options={[{ label: '全部产业', value: 'all' }, { label: '变压器', value: 'tr' }, { label: '电缆', value: 'cable' }, { label: '开关', value: 'switch' }]} />
-          </div>
-        }
+        title="产品碳足迹对外示范驾驶舱"
+        positioning="对外示范窗口 · 集团全景"
+        desc="可视化呈现电装集团产品碳足迹总量、产业均值、21家经营单位气泡地图下钻、权威第三方认证轮播与全流程合规管控。"
       />
 
+      {/* 4 大核心 KPI 矩阵 */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="实景库订单" value="48,260" unit="单" delta="+1,240" up icon={Database} />
-        <KpiCard label="因子库因子" value="3,860" unit="个" delta="+126" up icon={Boxes} />
-        <KpiCard label="认证产品" value="21" unit="项" delta="+3" up icon={FileCheck2} />
-        <KpiCard label="平均碳足迹强度" value="0.58" unit="tCO2/万元" delta="-6.2%" up={false} icon={TrendingDown} />
+        <KpiCard label="实景库工单" value="48,260" unit="单" delta="+1,240" up icon={Database} />
+        <KpiCard label="因子库标准化因子" value="3,860" unit="个" delta="+126" up icon={Boxes} />
+        <KpiCard label="ISO 14067 认证产品" value="21" unit="项" delta="+3" up icon={FileCheck2} />
+        <KpiCard label="平均产品碳强度" value="0.42" unit="tCO2/万kVA" delta="-6.2%" up={false} icon={TrendingDown} />
       </div>
 
+      {/* 园区气泡地图与选定园区下钻 */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-8 p-4 rounded-xl bg-card border border-border space-y-3 relative overflow-hidden min-h-[380px] flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <PanelTitle icon={MapPin}>电装集团产业园区产品碳足迹气泡地图 (气泡大小=碳排量，颜色=碳强度)</PanelTitle>
+            <div className="flex items-center gap-3 text-xs font-mono">
+              <span className="flex items-center gap-1"><span className="size-2.5 rounded-full bg-emerald-500" /> 🟢 低碳标杆 (&lt;0.4)</span>
+              <span className="flex items-center gap-1"><span className="size-2.5 rounded-full bg-blue-500" /> 🔵 正常受控 (0.4~0.6)</span>
+              <span className="flex items-center gap-1"><span className="size-2.5 rounded-full bg-amber-500" /> 🟡 需改进 (&gt;0.6)</span>
+            </div>
+          </div>
+
+          <div className="relative flex-1 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'radial-gradient(#38bdf8 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
+            {parkBubbles.map((p) => (
+              <div
+                key={p.name}
+                onClick={() => setSelectedPark(p)}
+                className="absolute cursor-pointer -translate-x-1/2 -translate-y-1/2 group transition-transform hover:scale-125 z-10"
+                style={{ top: p.top, left: p.left }}
+              >
+                <div
+                  className="size-9 rounded-full flex flex-col items-center justify-center text-white text-[10px] font-bold shadow-lg ring-2 ring-white/40 animate-pulse"
+                  style={{ backgroundColor: p.color }}
+                >
+                  <span>{p.city.slice(0, 1)}</span>
+                </div>
+                <span className="absolute top-10 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] px-1.5 py-0.5 rounded bg-slate-900/95 text-slate-200 border border-slate-700 font-sans shadow">
+                  {p.name} · {p.totalCarbon}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 选定园区下钻卡片 */}
+        <div className="lg:col-span-4 p-4 rounded-xl bg-card border border-border space-y-3">
+          <PanelTitle icon={Factory}>【{selectedPark.name}】下钻详情</PanelTitle>
+          <div className="p-3 rounded-lg bg-accent/40 border border-border space-y-2.5 text-xs">
+            <span className="font-bold text-sm text-foreground block">{selectedPark.name}</span>
+            <div className="flex justify-between"><span>所属主导产业：</span><Badge tone="default">{selectedPark.industry}产业</Badge></div>
+            <div className="flex justify-between"><span>园区总碳排量：</span><span className="font-mono font-bold text-foreground">{selectedPark.totalCarbon}</span></div>
+            <div className="flex justify-between"><span>单位产品碳强度：</span><span className="font-mono font-bold text-emerald-400">{selectedPark.unitPcf} tCO2/万kVA</span></div>
+            <div className="flex justify-between"><span>已认证产品占比：</span><span className="font-mono font-bold text-sky-400">{selectedPark.certifiedModels} / {selectedPark.totalModels} 型号 (57.1%)</span></div>
+            
+            <div className="pt-2">
+              <button
+                onClick={() => alert(`正在跳转进入【${selectedPark.name}】本地实景碳足迹追踪与量化报告系统...`)}
+                className="w-full py-2 rounded-md bg-primary text-primary-foreground font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-primary/90 shadow"
+              >
+                <ExternalLink className="size-3.5" />
+                进入本地碳足迹追踪系统
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 趋势与构成 */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <Panel className="lg:col-span-2">
-          <PanelTitle title="集团碳足迹趋势" subtitle="按范围一/二/三拆解，支持下钻至各经营单位产品碳足迹" icon={Factory} />
+        <Panel className="lg:col-span-2 p-4">
+          <PanelTitle title="集团产品碳足迹趋势" subtitle="按范围一/二/三拆解，支持按产业筛选" icon={Factory} />
           <AreaTrend
-            data={carbonTrendV}
+            data={carbonTrend}
             keys={[
               { key: '范围一', name: '范围一', color: 'var(--chart-3)' },
               { key: '范围二', name: '范围二', color: 'var(--chart-1)' },
@@ -61,55 +117,30 @@ export default function CockpitPage() {
             ]}
           />
         </Panel>
-        <Panel>
-          <PanelTitle title="碳足迹构成" subtitle="生命周期各环节占比" />
-          <Donut data={hotspotV} />
+        <Panel className="p-4">
+          <PanelTitle title="全生命周期碳构成" subtitle="原材料/制造/运输/废弃" />
+          <Donut data={hotspotData} />
         </Panel>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Panel className="lg:col-span-2">
-          <PanelTitle title="各产业产品碳足迹分布" subtitle="点击下钻至经营单位与生产订单" />
-          <BarGroup
-            data={productBar}
-            keys={[
-              { key: '碳足迹', name: '产品碳足迹(kgCO2)', color: 'var(--chart-1)' },
-              { key: '基准', name: '基准值(kgCO2)', color: 'var(--chart-5)' },
-            ]}
-          />
-        </Panel>
-        <Panel>
-          <PanelTitle title="碳足迹红黑榜" subtitle="低碳标杆与高碳改进对象" />
-          <DataTable
-            columns={[
-              { key: 'rank', label: '#', render: (r) => <span className="font-mono text-primary">{r.rank}</span> },
-              { key: 'product', label: '产品', render: (r) => <span className="text-xs">{r.product.slice(0, 10)}</span> },
-              { key: 'pcf', label: 'kgCO2', align: 'right', className: 'font-mono' },
-              { key: 'flag', label: '', render: (r) => <StatusBadge tone={r.pcf <= r.base ? 'ok' : 'danger'}>{r.pcf <= r.base ? '优' : '高'}</StatusBadge> },
-            ]}
-            rows={productFootprint}
-          />
-        </Panel>
-      </div>
-
-      {/* 荣誉轮播 */}
-      <Panel className="overflow-hidden">
+      {/* 第三方认证荣誉轮播 */}
+      <Panel className="overflow-hidden p-3 bg-gradient-to-r from-accent/30 via-accent/10 to-accent/30 border border-border">
         <div className="flex items-center gap-3">
-          <Award className="size-5 shrink-0 text-[var(--warning)]" />
+          <Award className="size-5 shrink-0 text-amber-400" />
           <div className="relative h-6 flex-1 overflow-hidden">
             {honors.map((h, i) => (
               <div
-                key={h}
-                className="absolute inset-0 flex items-center text-sm text-foreground transition-all duration-500"
-                style={{ transform: `translateY(${(i - honorIdx) * 100}%)`, opacity: i === honorIdx ? 1 : 0 }}
+                key={h.title}
+                className={cn(
+                  'absolute inset-0 flex items-center justify-between text-xs transition-all duration-500',
+                  i === honorIdx ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+                )}
               >
-                {h}
+                <span className="font-semibold text-foreground">
+                  🏅 {h.org} 官方核定：{h.title}
+                </span>
+                <span className="text-muted-foreground font-mono">{h.time}</span>
               </div>
-            ))}
-          </div>
-          <div className="flex gap-1.5">
-            {honors.map((_, i) => (
-              <span key={i} className={i === honorIdx ? 'h-1.5 w-4 rounded-full bg-primary' : 'h-1.5 w-1.5 rounded-full bg-border'} />
             ))}
           </div>
         </div>

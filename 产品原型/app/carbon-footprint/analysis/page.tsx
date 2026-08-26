@@ -2,220 +2,299 @@
 
 import { useState } from 'react'
 import { PageHeader } from '@/components/shared/page-header'
-import { Panel, DataTable, StatusBadge, Toolbar, KpiCard } from '@/components/shared/primitives'
+import { Panel, PanelTitle, DataTable, StatusBadge, Toolbar, KpiCard, Badge } from '@/components/shared/primitives'
 import { Tabs } from '@/components/shared/tabs'
 import { Select } from '@/components/shared/select'
 import { Donut, BarGroup, RadarCompare } from '@/components/shared/charts'
 import { productFootprint, hotspotData, compareData } from '@/lib/mock-data'
 import { seedFactor, vary } from '@/lib/variant'
-import { Badge } from '@/components/shared/primitives'
-import { indicators, indicatorTone } from '@/lib/indicators'
-import { Sigma } from 'lucide-react'
+import { indicators } from '@/lib/indicators'
+import { Layers, Sliders, TrendingUp, TrendingDown, Target, Zap, Sparkles, AlertTriangle, ArrowRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const tabs = [
-  { label: '产品碳足迹总览', value: 'overview' },
-  { label: '同品类横向对比', value: 'compare' },
-  { label: '碳热点分析与模拟', value: 'hotspot' },
-  { label: '基准管理分析', value: 'benchmark' },
-  { label: '管控指标', value: 'kpi' },
+  { label: '横向对比 (同品类跨厂)', value: 'horizontal' },
+  { label: '纵向对比 (红黑榜 Top10)', value: 'vertical' },
+  { label: '基准对比与热点识别', value: 'benchmark' },
+  { label: '碳减排情景模拟', value: 'simulate' },
+  { label: '集采管控指标', value: 'kpi' },
 ]
 
-/* 集采中心管控指标 */
-const cfIndicators = indicators.filter((i) => i.center === '集采')
-
-const lineMap: Record<string, string> = { all: '', tr: '变压器', cable: '电缆', switch: '开关' }
+// 红黑榜数据 (含单台特征量及订单穿透)
+const redBlackRankData = [
+  { rank: 1, type: 'red', model: 'S13-M-800kVA 配电变压器', line: '配电产线', capacity: '800 kVA', totalCount: 1560, singlePcf: '125 kgCO2', unitPcf: '0.29 tCO2/MVA', rawPct: '57.6%', prodPct: '30.4%', transPct: '12.0%', planNo: 'PLN-2026-0810', diff: '-18.5%' },
+  { rank: 2, type: 'red', model: 'SZ-110kV/63MVA 双绕组变压器', line: '电力产线', capacity: '63,000 kVA', totalCount: 420, singlePcf: '880 kgCO2', unitPcf: '0.38 tCO2/MVA', rawPct: '57.9%', prodPct: '31.8%', transPct: '10.2%', planNo: 'PLN-2026-0812', diff: '-12.0%' },
+  { rank: 3, type: 'red', model: 'YJLW03-110kV 高压电缆', line: '高压电缆', capacity: '1200 mm²', totalCount: 880, singlePcf: '0.68 kg/m', unitPcf: '0.68 kg/km*mm²', rawPct: '61.8%', prodPct: '30.9%', transPct: '7.3%', planNo: 'PLN-2026-0814', diff: '-8.5%' },
+  { rank: 4, type: 'black', model: 'ODFS-334MVA/500kV 自耦变压器', line: '超高压产线', capacity: '334,000 kVA', totalCount: 120, singlePcf: '1,450 kgCO2', unitPcf: '0.43 tCO2/MVA', rawPct: '58.6%', prodPct: '33.1%', transPct: '8.3%', planNo: 'PLN-2026-0815', diff: '+15.2%' },
+  { rank: 5, type: 'black', model: 'SZ11-1600kVA 油浸变压器', line: '特配产线', capacity: '1,600 kVA', totalCount: 350, singlePcf: '480 kgCO2', unitPcf: '0.45 tCO2/MVA', rawPct: '59.2%', prodPct: '32.0%', transPct: '8.8%', planNo: 'PLN-2026-0818', diff: '+18.4%' },
+]
 
 export default function AnalysisPage() {
-  const [tab, setTab] = useState('overview')
-  const [reMat, setReMat] = useState(0)
-  const [green, setGreen] = useState(0)
-  const [line, setLine] = useState('all')
-  const [seriesSel, setSeriesSel] = useState('all')
-  const [sort, setSort] = useState('desc')
-  const [cmpDim, setCmpDim] = useState('factory')
+  const [tab, setTab] = useState('horizontal')
+  const [reMat, setReMat] = useState(25)
+  const [green, setGreen] = useState(40)
+  const [industry, setIndustry] = useState('变压器产业')
+  const [selectedRankType, setSelectedRankType] = useState<'all' | 'red' | 'black'>('all')
 
-  /* 总览：按产线过滤 + 按碳足迹排序 */
-  const overviewRows = productFootprint
-    .filter((r) => line === 'all' || r.line?.includes(lineMap[line]))
-    .slice()
-    .sort((a, b) => (sort === 'desc' ? b.pcf - a.pcf : a.pcf - b.pcf))
+  // 减排模拟实时测算
+  const basePcf = 1450 // kgCO2
+  const rawCarbon = basePcf * 0.586
+  const prodCarbon = basePcf * 0.331
+  const transCarbon = basePcf * 0.083
 
-  /* 对比：按工厂 / 按批次切换数据 */
-  const compareView =
-    cmpDim === 'factory'
-      ? compareData
-      : vary(compareData, seedFactor('batch')).map((r, i) => ({ ...r, factory: `批次 B${i + 1}` }))
-
-  const simulated = hotspotData.map((d) =>
-    d.name === '原材料获取'
-      ? { ...d, value: Math.round(d.value * (1 - reMat / 100)) }
-      : d.name === '生产制造'
-        ? { ...d, value: Math.round(d.value * (1 - green / 100)) }
-        : d,
-  )
-  const reducePct = Math.round((62 * reMat) / 100 + (21 * green) / 100)
+  const savedRaw = rawCarbon * (reMat / 100) * 0.65 // 再生铜减排65%
+  const savedProd = prodCarbon * (green / 100) * 0.90 // 绿电减排90%
+  const totalSaved = Math.round(savedRaw + savedProd)
+  const afterPcf = basePcf - totalSaved
+  const totalPct = ((totalSaved / basePcf) * 100).toFixed(1)
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <PageHeader
-        title="多维分析"
-        positioning="横向 · 纵向 · 对标"
-        desc="对产品碳足迹进行横向、纵向、对标分析，识别碳排热点，并对减排场景进行模拟。"
+        title="产品碳足迹多维分析平台"
+        positioning="横向 · 纵向 · 对标 · 减排模拟"
+        desc="支持同型号跨工厂横向对标、红黑榜纵向穿透至订单与生产计划、工序基准热点识别及低碳技术选型模拟。"
       />
 
       <Tabs tabs={tabs} value={tab} onChange={setTab} />
 
-      {tab === 'overview' && (
-        <Panel title="产品碳足迹总览" desc="各产线、各产品系列碳足迹分布与构成，支持按产线/产品系列筛选，红黑榜排名可下钻至经营单位及生产订单">
-          <Toolbar>
-            <Select label="产线" value={line} onChange={setLine} options={[{ label: '全部产线', value: 'all' }, { label: '变压器', value: 'tr' }, { label: '电缆', value: 'cable' }, { label: '开关', value: 'switch' }]} />
-            <Select label="产品系列" value={seriesSel} onChange={setSeriesSel} options={[{ label: '全部系列', value: 'all' }, { label: 'SG10 系列', value: 'sg10' }, { label: 'YJV 系列', value: 'yjv' }]} />
-            <Select label="排序" value={sort} onChange={setSort} options={[{ label: '碳足迹降序', value: 'desc' }, { label: '碳足迹升序', value: 'asc' }]} />
-          </Toolbar>
-          <DataTable
-            columns={[
-              { key: 'rank', label: '排名', render: (r) => <span className="font-mono text-primary">#{r.rank}</span> },
-              { key: 'product', label: '产品名称' },
-              { key: 'line', label: '产线' },
-              { key: 'pcf', label: '碳足迹(kgCO2)', align: 'right', className: 'font-mono' },
-              { key: 'base', label: '基准值', align: 'right', className: 'font-mono text-muted-foreground' },
-              { key: 'diff', label: '对标', render: (r) => <StatusBadge tone={r.pcf <= r.base ? 'ok' : 'danger'}>{r.pcf <= r.base ? `低于基准 ${(((r.base - r.pcf) / r.base) * 100).toFixed(1)}%` : `高于基准 ${(((r.pcf - r.base) / r.base) * 100).toFixed(1)}%`}</StatusBadge> },
-              { key: 'op', label: '操作', render: () => <button className="link-btn">下钻订单</button> },
-            ]}
-            rows={overviewRows}
-          />
-        </Panel>
-      )}
+      {/* Tab 1: 同品类横向对比 */}
+      {tab === 'horizontal' && (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-3 bg-card p-3 rounded-lg border border-border text-xs">
+            <Select label="产业" value={industry} onChange={setIndustry} options={['变压器产业', '线缆产业', '开关产业'].map((x) => ({ label: x, value: x }))} />
+            <Select label="产线" options={['全部产线', '超高压变压器产线', '中低压配电产线'].map((x) => ({ label: x, value: x }))} />
+            <Select label="产品类别" options={['全部类别', '单相自耦变压器', '双绕组变压器'].map((x) => ({ label: x, value: x }))} />
+            <Select label="产品型号" options={['ODFS-334MVA/500kV 单相自耦变压器', 'SZ-110kV/63MVA 电力变压器'].map((x) => ({ label: x, value: x }))} />
+          </div>
 
-      {tab === 'compare' && (
-        <div className="space-y-5">
-          <Panel title="同品类横向对比" desc="同一产品规格在不同工厂、不同批次间的碳足迹横向对比，通过差异分解定位核心差异原因">
-            <Toolbar>
-              <Select label="对比产品" options={[{ label: 'SG10-2500kVA 变压器', value: 'sg10' }, { label: 'YJV-8.7/15kV 电缆', value: 'yjv' }]} />
-              <Select label="对比维度" value={cmpDim} onChange={setCmpDim} options={[{ label: '按工厂', value: 'factory' }, { label: '按批次', value: 'batch' }]} />
-            </Toolbar>
-            <BarGroup
-              data={compareView}
-              stacked
-              nameKey="factory"
-              keys={[
-                { key: '原材料', name: '原材料', color: 'var(--chart-1)' },
-                { key: '生产', name: '生产', color: 'var(--chart-3)' },
-                { key: '运输', name: '运输', color: 'var(--chart-4)' },
-              ]}
-            />
-          </Panel>
-          <Panel title="差异分解排名" desc="快速识别低碳标杆与高碳改进对象">
-            <DataTable
-              columns={[
-                { key: 'factory', label: '工厂' },
-                { key: 'total', label: '总碳足迹', align: 'right', className: 'font-mono', render: (r) => (r.原材料 + r.生产 + r.运输).toLocaleString() },
-                { key: 'mat', label: '原材料', align: 'right', className: 'font-mono', render: (r) => r.原材料 },
-                { key: 'prod', label: '生产', align: 'right', className: 'font-mono', render: (r) => r.生产 },
-                { key: 'trans', label: '运输', align: 'right', className: 'font-mono', render: (r) => r.运输 },
-                { key: 'tag', label: '标签', render: (r) => <StatusBadge tone={(r.原材料 + r.生产 + r.运输) < 11500 ? 'ok' : 'warn'}>{(r.原材料 + r.生产 + r.运输) < 11500 ? '低碳标杆' : '改进对象'}</StatusBadge> },
-              ]}
-              rows={compareView}
-            />
-          </Panel>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <Panel className="lg:col-span-2 p-4">
+              <PanelTitle icon={Layers}>【ODFS-334MVA/500kV】生产制造单位横向对比与构成分解</PanelTitle>
+              <div className="mt-3">
+                <BarGroup
+                  data={[
+                    { name: '沈阳变压器集团', 原材料获取: 850, 生产制造: 480, 运输与分销: 120 },
+                    { name: '衡阳变压器公司', 原材料获取: 820, 生产制造: 440, 运输与分销: 110 },
+                    { name: '超高压公司(新变)', 原材料获取: 890, 生产制造: 510, 运输与分销: 130 },
+                  ]}
+                  keys={['原材料获取', '生产制造', '运输与分销']}
+                  stacked
+                  height={300}
+                />
+              </div>
+            </Panel>
+
+            <Panel className="p-4 space-y-3">
+              <PanelTitle icon={Target}>最佳实践与工序下钻建议</PanelTitle>
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs space-y-1.5">
+                <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                  <Sparkles className="size-4" /> 标杆单位：衡阳变压器公司
+                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  单台总碳排 1,370 kgCO2，较集团均值低 5.8%。主要优势在于器身干燥工序 100% 接入屋顶光伏绿电。
+                </p>
+                <button onClick={() => alert('已穿透至衡阳变压器 202608 生产订单明细')} className="text-primary font-semibold hover:underline mt-1 block">
+                  查看标杆订单工序参数 →
+                </button>
+              </div>
+            </Panel>
+          </div>
         </div>
       )}
 
-      {tab === 'hotspot' && (
-        <div className="grid gap-5 lg:grid-cols-2">
-          <Panel title="碳热点构成" desc="依据生产环节及原材料主材自动生成碳足迹构成，识别排放热点">
-            <Donut data={simulated} />
+      {/* Tab 2: 纵向对比 (红黑榜 Top10) */}
+      {tab === 'vertical' && (
+        <Panel className="p-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+            <PanelTitle icon={TrendingUp}>重点产品型号碳足迹纵向评价红黑榜 (穿透至销售订单与排产计划)</PanelTitle>
+            <div className="flex items-center gap-2 text-xs">
+              <button
+                onClick={() => setSelectedRankType('all')}
+                className={cn('px-2.5 py-1 rounded', selectedRankType === 'all' ? 'bg-primary text-primary-foreground font-bold' : 'text-muted-foreground')}
+              >
+                全部榜单
+              </button>
+              <button
+                onClick={() => setSelectedRankType('red')}
+                className={cn('px-2.5 py-1 rounded', selectedRankType === 'red' ? 'bg-emerald-600 text-white font-bold' : 'text-muted-foreground')}
+              >
+                🟢 绿色红榜 (Top 10)
+              </button>
+              <button
+                onClick={() => setSelectedRankType('black')}
+                className={cn('px-2.5 py-1 rounded', selectedRankType === 'black' ? 'bg-red-600 text-white font-bold' : 'text-muted-foreground')}
+              >
+                🔴 重点关注黑榜 (Top 10)
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead className="bg-accent/40 text-muted-foreground border-b border-border font-medium">
+                <tr>
+                  <th className="py-2.5 px-3">排名</th>
+                  <th className="py-2.5 px-3">产品型号</th>
+                  <th className="py-2.5 px-3">所属产线</th>
+                  <th className="py-2.5 px-3">单台特征量(容量)</th>
+                  <th className="py-2.5 px-3">累计生产台数</th>
+                  <th className="py-2.5 px-3">单台碳排</th>
+                  <th className="py-2.5 px-3">单位碳强度</th>
+                  <th className="py-2.5 px-3">对标偏差</th>
+                  <th className="py-2.5 px-3">关联排产计划</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40 font-mono">
+                {redBlackRankData
+                  .filter((r) => selectedRankType === 'all' || r.type === selectedRankType)
+                  .map((r) => (
+                    <tr key={r.model} className="hover:bg-accent/30">
+                      <td className="py-2.5 px-3 font-bold">{r.type === 'red' ? <span className="text-emerald-400">★ 0{r.rank}</span> : <span className="text-red-400">⚠ 0{r.rank}</span>}</td>
+                      <td className="py-2.5 px-3 font-sans font-medium text-foreground">{r.model}</td>
+                      <td className="py-2.5 px-3 font-sans text-muted-foreground">{r.line}</td>
+                      <td className="py-2.5 px-3 text-sky-400">{r.capacity}</td>
+                      <td className="py-2.5 px-3">{r.totalCount} 台</td>
+                      <td className="py-2.5 px-3 text-foreground">{r.singlePcf}</td>
+                      <td className="py-2.5 px-3 font-bold">{r.unitPcf}</td>
+                      <td className="py-2.5 px-3 font-sans"><StatusBadge tone={r.type === 'red' ? 'ok' : 'danger'}>{r.diff}</StatusBadge></td>
+                      <td className="py-2.5 px-3 text-primary underline cursor-pointer" onClick={() => alert(`已穿透至实景数据库排产计划【${r.planNo}】碳核算台账`)}>{r.planNo}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
+      )}
+
+      {/* Tab 3: 基准对比与热点识别 */}
+      {tab === 'benchmark' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <Panel className="lg:col-span-2 p-4">
+            <PanelTitle icon={BarChart3}>车间产线主材与生产环节单位碳排 (高碳排热点识别)</PanelTitle>
+            <div className="mt-3">
+              <BarGroup
+                data={[
+                  { name: '电磁线(铜材)', 单位碳排: 380, 基准线: 350 },
+                  { name: '取向硅钢片', 单位碳排: 290, 基准线: 270 },
+                  { name: '变压器绝缘油', 单位碳排: 180, 基准线: 160 },
+                  { name: '真空干燥能耗', 单位碳排: 320, 基准线: 260 },
+                  { name: '绕线与总装', 单位碳排: 110, 基准线: 110 },
+                  { name: '绝缘试验', 单位碳排: 80, 基准线: 75 },
+                ]}
+                keys={['单位碳排', '基准线']}
+                height={300}
+              />
+            </div>
           </Panel>
-          <Panel title="减排场景模拟" desc="模拟原材料替换、绿电接入等场景的减排潜力，辅助低碳技术选型">
-            <div className="space-y-6 py-2">
-              <Slider label="再生铜替代原生铜比例" value={reMat} onChange={setReMat} />
-              <Slider label="绿电接入比例" value={green} onChange={setGreen} />
-              <div className="flex flex-col items-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-5">
-                <div className="text-sm text-[var(--muted)]">单台产品碳足迹预计下降</div>
-                <div className="my-2 font-mono text-4xl font-bold text-[var(--success)]">{reducePct}%</div>
-                <StatusBadge tone="ok">对应减少约 {(12680 * reducePct / 100).toFixed(0)} kgCO2/台</StatusBadge>
-              </div>
+
+          <Panel className="p-4 space-y-3">
+            <PanelTitle icon={AlertTriangle}>高碳热点诊断报告</PanelTitle>
+            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs space-y-2">
+              <span className="font-bold text-amber-400 block">🔴 核心高碳排热点识别：</span>
+              <p className="text-muted-foreground leading-relaxed">
+                1. <strong>真空干燥工序</strong>：单位碳排超出车间基准 23.1%，主因是蒸汽加热系统冷凝水热损失偏大；
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                2. <strong>原生电磁铜线</strong>：占整机原材料碳排 48.5%，建议提高低碳再生铜采购比例。
+              </p>
             </div>
           </Panel>
         </div>
       )}
 
-      {tab === 'benchmark' && (
-        <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-            <KpiCard label="年度目标基准" value="12,000" unit="kgCO2" />
-            <KpiCard label="行业标杆值" value="13,200" unit="kgCO2" />
-            <KpiCard label="集团当前均值" value="12,680" unit="kgCO2" delta="-3.9% vs 行业" up />
+      {/* Tab 4: 碳减排情景模拟 */}
+      {tab === 'simulate' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* 左侧参数调节 */}
+          <div className="lg:col-span-6 p-4 rounded-xl bg-card border border-border space-y-4">
+            <PanelTitle icon={Sliders}>低碳技术选型与减排策略模拟</PanelTitle>
+            
+            {/* 策略 1: 原材料替换 */}
+            <div className="p-3 rounded-lg bg-accent/30 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-foreground">策略 1: 低碳/再生铜材料替代比例</span>
+                <span className="font-mono font-bold text-sky-400">{reMat}%</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={reMat}
+                onChange={(e) => setReMat(Number(e.target.value))}
+                className="w-full accent-sky-500 cursor-pointer"
+              />
+              <span className="text-[11px] text-muted-foreground block">采用 ISO 14021 认证低碳再生铜线，因子降幅达 65%</span>
+            </div>
+
+            {/* 策略 2: 绿电接入比例 */}
+            <div className="p-3 rounded-lg bg-accent/30 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-foreground">策略 2: 制造工序绿电使用比例</span>
+                <span className="font-mono font-bold text-emerald-400">{green}%</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={green}
+                onChange={(e) => setGreen(Number(e.target.value))}
+                className="w-full accent-emerald-500 cursor-pointer"
+              />
+              <span className="text-[11px] text-muted-foreground block">屋顶分布式光伏直供 + 绿电绿证交易替代网电</span>
+            </div>
           </div>
-          <Panel title="集团产品与行业标杆差距" desc="支持自定义多级基准值（年度目标、行业标杆）">
-            <RadarCompare
-              data={[
-                { dim: '变压器', 集团: 88, 行业标杆: 80 },
-                { dim: '电缆', 集团: 76, 行业标杆: 82 },
-                { dim: '开关', 集团: 91, 行业标杆: 78 },
-                { dim: '互感器', 集团: 84, 行业标杆: 80 },
-                { dim: '母线', 集团: 79, 行业标杆: 85 },
-              ]}
-              keys={[
-                { key: '集团', name: '集团均值', color: 'var(--chart-1)' },
-                { key: '行业标杆', name: '行业标杆', color: 'var(--chart-4)' },
-              ]}
-            />
-          </Panel>
+
+          {/* 右侧模拟结果 */}
+          <div className="lg:col-span-6 p-4 rounded-xl bg-card border border-border space-y-3 flex flex-col justify-between">
+            <PanelTitle icon={Sparkles}>单台变压器减排潜力测算结果</PanelTitle>
+
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="p-3 rounded-lg bg-accent/40 border border-border">
+                <span className="text-xs text-muted-foreground block">基准单台碳足迹</span>
+                <span className="text-2xl font-bold font-mono text-foreground mt-1 block">{basePcf} <span className="text-xs font-sans text-muted-foreground">kgCO2</span></span>
+              </div>
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                <span className="text-xs text-emerald-400 block font-semibold">模拟后单台碳足迹</span>
+                <span className="text-2xl font-bold font-mono text-emerald-400 mt-1 block">{afterPcf} <span className="text-xs font-sans text-emerald-500">kgCO2</span></span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/30 text-xs space-y-1 font-sans">
+              <div className="flex justify-between"><span>单台产品净减排量：</span><span className="font-mono font-bold text-sky-400">-{totalSaved} kgCO2/台</span></div>
+              <div className="flex justify-between"><span>整机碳足迹降幅：</span><span className="font-mono font-bold text-emerald-400">-{totalPct}% (显著达标)</span></div>
+              <div className="flex justify-between"><span>预计欧盟 CBAM 关税节约：</span><span className="font-mono font-bold text-amber-400">€{Math.round((totalSaved / 1000) * 82)} /台</span></div>
+            </div>
+
+            <button onClick={() => alert('已将当前减排模拟方案保存为《ODFS-500kV 低碳工艺改良选型建议书》')} className="w-full py-2 rounded-md bg-primary text-primary-foreground font-semibold text-xs shadow">
+              应用并生成工艺改进方案报告
+            </button>
+          </div>
         </div>
       )}
 
+      {/* Tab 5: 集采管控指标 */}
       {tab === 'kpi' && (
-        <Panel
-          title="集采中心管控指标"
-          desc="依据《管控指标明细》整理的集采中心指标（含计算公式、单位、来源与覆盖范围），支撑产品碳足迹的横向对比与对标"
-        >
-          <DataTable
-            columns={[
-              { key: 'name', label: '指标名称' },
-              { key: 'category', label: '类别', render: (r) => <Badge tone="primary">{r.category}</Badge> },
-              {
-                key: 'formula',
-                label: '计算公式',
-                render: (r) => (
-                  <span className="inline-flex items-center gap-1 text-xs text-primary">
-                    <Sigma className="size-3.5 shrink-0" />
-                    {r.formula}
-                  </span>
-                ),
-              },
-              { key: 'unit', label: '单位', className: 'text-muted-foreground' },
-              { key: 'source', label: '指标来源', className: 'text-xs text-muted-foreground' },
-              { key: 'scope', label: '覆盖范围', className: 'text-xs text-muted-foreground' },
-              {
-                key: 'status',
-                label: '状态',
-                render: (r) => (r.status ? <StatusBadge tone={indicatorTone(r.status)}>{r.status}</StatusBadge> : '—'),
-              },
-            ]}
-            rows={cfIndicators}
-          />
+        <Panel className="p-4">
+          <PanelTitle icon={Target}>产品碳足迹集采中心核心管控指标清单</PanelTitle>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+            {indicators.filter((i) => i.center === '集采').map((item) => (
+              <div key={item.code} className="p-3 rounded-lg bg-accent/30 border border-border/60 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sky-400 font-bold">{item.code}</span>
+                  <Badge tone="default">{item.category}</Badge>
+                </div>
+                <span className="font-semibold text-foreground block">{item.name}</span>
+                <p className="text-[11px] text-muted-foreground leading-tight">{item.desc}</p>
+                <div className="pt-1 flex justify-between text-[11px] font-mono">
+                  <span>目标值: <strong className="text-foreground">{item.target}</strong></span>
+                  <span className="text-emerald-400">达标</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </Panel>
       )}
-    </div>
-  )
-}
-
-function Slider({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
-  return (
-    <div>
-      <div className="mb-2 flex items-center justify-between text-sm">
-        <span className="text-[var(--muted)]">{label}</span>
-        <span className="font-mono text-primary">{value}%</span>
-      </div>
-      <input
-        type="range"
-        min={0}
-        max={100}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-[var(--primary)]"
-      />
     </div>
   )
 }
