@@ -36,6 +36,7 @@ import {
 import { Panel, PanelTitle, Badge, StatusBadge, DataTable } from '@/components/shared/primitives'
 import { LineTrend, Donut } from '@/components/shared/charts'
 import { TimeRange } from '@/components/shared/time-range'
+import { TreeView, type TreeViewNode } from '@/components/shared/tree-view'
 import { seedFactor, vary, varyNum } from '@/lib/variant'
 import { cn } from '@/lib/utils'
 
@@ -308,6 +309,56 @@ export default function OnlineMonitoringPage() {
       },
     ]
   }, [activeMedium])
+
+  // 🌟 经典树数据：将介质拓扑树映射为统一标准树控件节点（引导线 + 箭头 + 选中高亮）
+  const onlineTreeData = useMemo<TreeViewNode[]>(
+    () =>
+      currentMediumTree.map((p) => ({
+        key: p.name,
+        label: p.name,
+        icon: <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />,
+        selected: selectedOrg === p.name,
+        onSelect: () => {
+          setSelectedOrg(p.name)
+          setSelectedTreePath(p.name)
+        },
+        children: p.children.map((fac) => ({
+          key: fac.name,
+          label: fac.name,
+          icon: <Factory className="size-3.5 shrink-0 text-slate-500" />,
+          selected: selectedOrg === fac.name,
+          onSelect: () => {
+            setSelectedOrg(fac.name)
+            setSelectedTreePath(`${p.name} / ${fac.name}`)
+          },
+          children: (fac.children ?? []).map((ws) => ({
+            key: ws.name,
+            label: ws.name,
+            icon: <Cog className="size-3.5 shrink-0 text-slate-400" />,
+            selected: selectedOrg === ws.name,
+            onSelect: () => {
+              setSelectedOrg(ws.name)
+              setSelectedTreePath(`${p.name} / ${fac.name} / ${ws.name}`)
+            },
+            children: (ws.children ?? []).map((eq) => ({
+              key: eq.name,
+              label: eq.name,
+              icon: <Cpu className="size-3.5 shrink-0 text-slate-400" />,
+              selected: selectedOrg === eq.name,
+              className: eq.name.includes('2号真空干燥')
+                ? 'font-semibold text-red-600'
+                : undefined,
+              onSelect: () => {
+                setSelectedOrg(eq.name)
+                setSelectedTreePath(`${p.name} / ${fac.name} / ${ws.name} / ${eq.name}`)
+              },
+            })),
+          })),
+        })),
+      })),
+    [currentMediumTree, selectedOrg],
+  )
+
 
   // 🌟 核心修正 3：根据当前介质类型，动态生成对应的 24h 物理监测曲线与标签
   const chartConfig = useMemo(() => {
@@ -610,98 +661,10 @@ export default function OnlineMonitoringPage() {
               </span>
             </div>
 
-            <div className="space-y-1 text-xs max-h-[500px] overflow-y-auto">
-              {currentMediumTree.map((p, idx) => (
-                <div key={idx} className="space-y-1">
-                  <div
-                    onClick={() => {
-                      setSelectedOrg(p.name)
-                      setSelectedTreePath(p.name)
-                    }}
-                    className={cn(
-                      'font-bold flex items-center justify-between py-1 px-1.5 rounded cursor-pointer transition-colors',
-                      selectedOrg === p.name ? 'bg-blue-50 text-[#1677ff] border border-blue-200' : 'bg-slate-50 text-slate-800 hover:bg-slate-100 border border-slate-200'
-                    )}
-                  >
-                    <div className="flex items-center gap-1">
-                      <Building2 className="size-3.5 text-[#1677ff]" />
-                      <span>{p.name}</span>
-                    </div>
-                    {selectedOrg === p.name && <span className="size-1.5 rounded-full bg-[#1677ff]" />}
-                  </div>
-
-                  <div className="ml-2 pl-2 border-l border-slate-200 space-y-1">
-                    {p.children.map((fac, fIdx) => (
-                      <div key={fIdx} className="space-y-1">
-                        <div
-                          onClick={() => {
-                            setSelectedOrg(fac.name)
-                            setSelectedTreePath(`${p.name} / ${fac.name}`)
-                          }}
-                          className={cn(
-                            'p-1.5 rounded flex items-center justify-between cursor-pointer transition-colors',
-                            selectedOrg === fac.name ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200' : 'text-slate-700 hover:bg-slate-50'
-                          )}
-                        >
-                          <div className="flex items-center gap-1">
-                            <Factory className="size-3.5 text-slate-400" />
-                            <span>{fac.name}</span>
-                          </div>
-                          {selectedOrg === fac.name && <span className="size-1.5 rounded-full bg-[#1677ff]" />}
-                        </div>
-
-                        {fac.children && (
-                          <div className="ml-3 pl-2 border-l border-slate-100 space-y-0.5 text-[11px] text-slate-600">
-                            {fac.children.map((ws, wIdx) => (
-                              <div key={wIdx} className="space-y-0.5">
-                                <div
-                                  onClick={() => {
-                                    setSelectedOrg(ws.name)
-                                    setSelectedTreePath(`${p.name} / ${fac.name} / ${ws.name}`)
-                                  }}
-                                  className={cn(
-                                    'py-0.5 px-1 rounded cursor-pointer flex items-center justify-between transition-colors',
-                                    selectedOrg === ws.name ? 'bg-blue-50 text-[#1677ff] font-bold' : 'hover:bg-slate-50 text-slate-700'
-                                  )}
-                                >
-                                  <span>⚙️ {ws.name}</span>
-                                  {selectedOrg === ws.name && <span className="size-1.5 rounded-full bg-[#1677ff]" />}
-                                </div>
-
-                                {ws.children && (
-                                  <div className="ml-3 pl-2 border-l border-slate-100 space-y-0.5 text-[10px] text-slate-500 mt-0.5">
-                                    {ws.children.map((eq, eIdx) => (
-                                      <div
-                                        key={eIdx}
-                                        onClick={() => {
-                                          setSelectedOrg(eq.name)
-                                          setSelectedTreePath(`${p.name} / ${fac.name} / ${ws.name} / ${eq.name}`)
-                                        }}
-                                        className={cn(
-                                          'py-0.5 px-1 rounded cursor-pointer flex items-center justify-between transition-colors',
-                                          selectedOrg === eq.name
-                                            ? 'bg-blue-50 text-[#1677ff] font-bold'
-                                            : eq.name.includes('2号真空干燥')
-                                            ? 'text-red-600 font-semibold hover:bg-red-50'
-                                            : 'hover:text-slate-900 hover:bg-slate-50'
-                                        )}
-                                      >
-                                        <span className="truncate">• {eq.name}</span>
-                                        {selectedOrg === eq.name && <span className="size-1.5 rounded-full bg-[#1677ff]" />}
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <div className="max-h-[500px] overflow-y-auto pr-1">
+              <TreeView data={onlineTreeData} />
             </div>
+
           </div>
 
           <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-400 font-mono">

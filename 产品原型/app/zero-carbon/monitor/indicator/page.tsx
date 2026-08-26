@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Activity,
   AlertTriangle,
@@ -11,13 +11,12 @@ import {
   Building2,
   Factory,
   Cog,
-  ChevronRight,
-  ChevronDown,
   SlidersHorizontal,
   Zap,
   Flame,
   Droplets,
   Package,
+  Tags,
   Award,
   Swords,
   Gauge,
@@ -34,16 +33,69 @@ import {
   ExternalLink,
   Layers,
   Filter,
-  Check,
   FolderTree,
   FileText,
   Clock,
   Coins,
   Cpu,
-  Wrench,
-  CheckCheck,
 } from 'lucide-react'
+import { TreeView, type TreeViewNode } from '@/components/shared/tree-view'
+import { LineTrend, Donut, BarGroup } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
+
+
+// —— 抽屉图表 mock 数据（基于工厂当期数值平滑外推，仅供演示）——
+const TREND_MONTHS = ['9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月']
+const TREND_WAVE = [0.88, 0.86, 0.92, 0.98, 0.84, 0.8, 0.86, 0.9, 0.95, 1.0, 1.05, 1.12]
+
+function genEnergyTrend(energy: number, carbon: number) {
+  const eb = energy / 12
+  const cb = carbon / 12
+  return TREND_MONTHS.map((month, i) => ({
+    month,
+    综合能耗: Math.max(0, Math.round(eb * TREND_WAVE[i])),
+    碳排放: Math.max(0, Math.round(cb * (TREND_WAVE[i] + 0.12))),
+  }))
+}
+
+function genWeekTou() {
+  return [
+    { day: '周一', 高峰: 86, 平段: 52, 低谷: 31 },
+    { day: '周二', 高峰: 91, 平段: 49, 低谷: 33 },
+    { day: '周三', 高峰: 95, 平段: 54, 低谷: 30 },
+    { day: '周四', 高峰: 88, 平段: 50, 低谷: 32 },
+    { day: '周五', 高峰: 78, 平段: 46, 低谷: 29 },
+    { day: '周六', 高峰: 42, 平段: 38, 低谷: 26 },
+    { day: '周日', 高峰: 38, 平段: 40, 低谷: 27 },
+  ]
+}
+
+function genPowerCurve() {
+  const curve = [62, 58, 54, 68, 118, 152, 146, 172, 198, 214, 168, 96]
+  return curve.map((v, i) => ({ hour: i * 2 + '时', 用电负荷: v }))
+}
+
+
+function genPointCurve(pt: any) {
+  const hours = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22]
+  const name = pt?.name || ''
+  const group = pt?.group || ''
+  const sameDay = [0.62, 0.58, 0.54, 0.68, 1.18, 1.52, 1.46, 1.72, 1.98, 2.14, 1.68, 0.96]
+  let base: number[]
+  if (name === '电压') base = [10.15, 10.12, 10.1, 10.18, 10.22, 10.2, 10.18, 10.22, 10.25, 10.2, 10.16, 10.12]
+  else if (name === '电流') base = sameDay.map((v) => Math.round(v * 320))
+  else if (name === '总有功功率') base = sameDay.map((v) => Math.round(v * 4000))
+  else if (name === '功率因数') base = [0.95, 0.95, 0.96, 0.94, 0.95, 0.94, 0.96, 0.95, 0.94, 0.96, 0.95, 0.95]
+  else if (name === '正向有功电能') base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => Math.round(8450 * (0.52 + i * 0.082)))
+  else if (name === '反向有功电能') base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => Math.round(12.5 * (0.6 + i * 0.075)))
+  else if (name === '正向无功电能') base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => Math.round(1280 * (0.55 + i * 0.075)))
+  else if (name === '反向无功电能') base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => Math.round(25.6 * (0.55 + i * 0.07)))
+  else if (name === '水压') base = [0.4, 0.39, 0.38, 0.41, 0.43, 0.44, 0.43, 0.42, 0.41, 0.4, 0.39, 0.38]
+  else if (name === '累计流量') base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => Math.round((group === '气' ? 124 : 42) * (0.5 + i * 0.0833)))
+  else if (name === '瞬时流量') base = [14, 12, 11, 15, 18, 21, 19, 20, 18, 16, 14, 12]
+  else base = sameDay.map((v) => Math.round(v * 1000))
+  return hours.map((h, i) => ({ hour: h + '时', 监测值: base[i] }))
+}
 
 export default function IndicatorControlPage() {
   // 4 大硬刚 PK 维度
@@ -64,8 +116,8 @@ export default function IndicatorControlPage() {
   // 二级工序穿透抽屉选中的实体
   const [selectedDrawerEntity, setSelectedDrawerEntity] = useState<any | null>(null)
 
-  // 工单下发成功提示
-  const [ticketCreated, setTicketCreated] = useState(false)
+  // 实时量测点位选中状态（联动下方 24h 监测曲线）
+  const [activeRtPoint, setActiveRtPoint] = useState<any | null>(null)
 
   // 树内搜索关键字
   const [treeSearch, setTreeSearch] = useState('')
@@ -76,13 +128,16 @@ export default function IndicatorControlPage() {
     group_transformer: true,
     group_cable: true,
     group_newenergy: true,
+    prod_root: true,
     prod_trans: true,
     prod_cable: true,
     prod_energy: true,
+    line_root: true,
     fac_sb: true,
     fac_hb: true,
     fac_xb: true,
     fac_ll: true,
+    batch_root: true,
     batch_odfs: true,
     batch_sz: true,
   })
@@ -90,6 +145,229 @@ export default function IndicatorControlPage() {
   const toggleNode = (nodeKey: string) => {
     setExpandedNodes((prev) => ({ ...prev, [nodeKey]: !prev[nodeKey] }))
   }
+
+  // 切换 PK 维度标签时，自动展开该维度的树状图
+  useEffect(() => {
+    setExpandedNodes((prev) => {
+      const next: Record<string, boolean> = { ...prev }
+      for (const k of Object.keys(next)) next[k] = true
+      return next
+    })
+  }, [pkTab])
+
+
+  // —— 经典标准树数据（4 大 PK 维度）——
+  const factoryTreeData: TreeViewNode[] = [
+    {
+      key: 'group_all',
+      label: '特变电工集团 (全量 21 家厂)',
+      icon: <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />,
+      selected: selectedFactoryGroup === 'all',
+      badge: <span className="rounded bg-slate-100 px-1 py-px text-[10px] text-slate-500">全部</span>,
+      onSelect: () => setSelectedFactoryGroup('all'),
+      children: [
+        {
+          key: 'group_transformer',
+          label: '变压器产业群 (8家)',
+          selected: selectedFactoryGroup === 'transformer',
+          onSelect: () => setSelectedFactoryGroup('transformer'),
+          children: [
+            { key: 'f_sb', label: '沈变本部 (沈阳基地)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_hb', label: '衡变本部 (衡阳基地)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            {
+              key: 'f_xb',
+              label: '新变超高压 (昌吉)',
+              icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
+              className: 'font-semibold text-red-600',
+              badge: <span className="size-1.5 rounded-full bg-red-500" />,
+            },
+            { key: 'f_tj', label: '天津变压器厂', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+          ],
+        },
+        {
+          key: 'group_cable',
+          label: '输配电线缆产业群 (7家)',
+          selected: selectedFactoryGroup === 'cable',
+          onSelect: () => setSelectedFactoryGroup('cable'),
+          children: [
+            { key: 'f_ll', label: '鲁缆本部 (泰安基地)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_dl', label: '德缆股份 (德阳基地)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            {
+              key: 'f_xlc',
+              label: '新缆厂 (昌吉总部)',
+              icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
+              className: 'font-semibold text-emerald-700',
+              badge: <span className="size-1.5 rounded-full bg-emerald-500" />,
+            },
+          ],
+        },
+        {
+          key: 'group_newenergy',
+          label: '新能源与成套产业群 (6家)',
+          selected: selectedFactoryGroup === 'newenergy',
+          onSelect: () => setSelectedFactoryGroup('newenergy'),
+          children: [
+            { key: 'f_xa', label: '西安新能源成套基地', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_cj', label: '昌吉成套装备厂', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+          ],
+        },
+      ],
+    },
+  ]
+
+  const productTreeData: TreeViewNode[] = [
+    {
+      key: 'prod_root',
+      label: '特变电工重点产品目录',
+      icon: <Package className="size-3.5 shrink-0 text-[#1677ff]" />,
+      children: [
+        {
+          key: 'prod_trans',
+          label: '输变电与特高压变压器',
+          selected: false,
+          children: [
+            {
+              key: 'm_odfs',
+              label: (
+                <span className="flex items-baseline gap-1.5">
+                  <span className="font-mono">ODFS-334MVA/500kV</span>
+                  <span className="text-[10px] text-slate-400">单相自耦变 (3 厂共造)</span>
+                </span>
+              ),
+              selected: selectedProductModel === 'ODFS-334MVA/500kV',
+              onSelect: () => setSelectedProductModel('ODFS-334MVA/500kV'),
+            },
+            {
+              key: 'm_sz',
+              label: (
+                <span className="flex items-baseline gap-1.5">
+                  <span className="font-mono">SZ-110kV/63000kVA</span>
+                  <span className="text-[10px] text-slate-400">三相油浸电力变 (4 厂共造)</span>
+                </span>
+              ),
+              selected: selectedProductModel === 'SZ-110kV/63000kVA',
+              onSelect: () => setSelectedProductModel('SZ-110kV/63000kVA'),
+            },
+            {
+              key: 'm_s13',
+              label: (
+                <span className="flex items-baseline gap-1.5">
+                  <span className="font-mono">S13-M-800kVA</span>
+                  <span className="text-[10px] text-slate-400">节能配电变 (5 厂共造)</span>
+                </span>
+              ),
+              selected: selectedProductModel === 'S13-M-800kVA',
+              onSelect: () => setSelectedProductModel('S13-M-800kVA'),
+            },
+          ],
+        },
+        {
+          key: 'prod_cable',
+          label: '高压与特种线缆',
+          children: [
+            {
+              key: 'm_yj',
+              label: (
+                <span className="flex items-baseline gap-1.5">
+                  <span className="font-mono">YJLW03-64/110kV</span>
+                  <span className="text-[10px] text-slate-400">高压交联电缆 (3 厂共造)</span>
+                </span>
+              ),
+              selected: selectedProductModel === 'YJLW03-64/110kV',
+              onSelect: () => setSelectedProductModel('YJLW03-64/110kV'),
+            },
+          ],
+        },
+      ],
+    },
+  ]
+
+  const lineTreeData: TreeViewNode[] = [
+    {
+      key: 'line_root',
+      label: '特变电工制造基地与车间',
+      icon: <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />,
+      children: [
+        {
+          key: 'fac_sb',
+          label: '沈变本部 (沈阳基地)',
+          icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
+          selected: selectedLineFactory === '沈变本部 (沈阳基地)',
+          onSelect: () => setSelectedLineFactory('沈变本部 (沈阳基地)'),
+          children: [
+            {
+              key: 'ws_dry',
+              label: '超高压真空干燥车间',
+              icon: <Cog className="size-3.5 shrink-0 text-slate-400" />,
+              className: 'font-semibold text-red-600',
+              badge: <span className="size-1.5 rounded-full bg-red-500" />,
+            },
+            { key: 'ws_test', label: '无局放超高压试验大厅', icon: <Cog className="size-3.5 shrink-0 text-slate-400" /> },
+            {
+              key: 'ws_shear',
+              label: '铁芯剪切自动叠装线',
+              icon: <Cog className="size-3.5 shrink-0 text-slate-400" />,
+              className: 'font-semibold text-emerald-700',
+              badge: <span className="size-1.5 rounded-full bg-emerald-500" />,
+            },
+            { key: 'ws_wind', label: '自动化绝缘绕线车间', icon: <Cog className="size-3.5 shrink-0 text-slate-400" /> },
+          ],
+        },
+        {
+          key: 'fac_hb',
+          label: '衡变本部 (衡阳基地)',
+          icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
+          selected: selectedLineFactory === '衡变本部 (衡阳基地)',
+          onSelect: () => setSelectedLineFactory('衡变本部 (衡阳基地)'),
+        },
+        {
+          key: 'fac_xb',
+          label: '新变超高压 (昌吉基地)',
+          icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
+          selected: selectedLineFactory === '新变超高压 (昌吉基地)',
+          onSelect: () => setSelectedLineFactory('新变超高压 (昌吉基地)'),
+        },
+      ],
+    },
+  ]
+
+  const batchTreeData: TreeViewNode[] = [
+    {
+      key: 'batch_root',
+      label: '产品批次追溯目录',
+      icon: <Tags className="size-3.5 shrink-0 text-[#1677ff]" />,
+      children: [
+        {
+          key: 'batch_odfs',
+          label: (
+            <span className="flex items-baseline gap-1.5">
+              <span className="font-mono">ODFS-334MVA/500kV</span>
+              <span className="rounded bg-red-50 px-1 py-px text-[10px] font-semibold text-red-600">当期异常</span>
+            </span>
+          ),
+          selected: selectedBatchProduct === 'ODFS-334MVA/500kV',
+          onSelect: () => setSelectedBatchProduct('ODFS-334MVA/500kV'),
+          children: [
+            {
+              key: 'bat_202608',
+              label: '#202608 批次 (突增 +24.5%)',
+              icon: <FileText className="size-3.5 shrink-0 text-slate-400" />,
+              className: 'font-semibold text-red-600',
+              badge: <span className="size-1.5 rounded-full bg-red-500" />,
+            },
+            { key: 'bat_202607', label: '#202607 批次 (正常)', icon: <FileText className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'bat_202606', label: '#202606 批次 (正常)', icon: <FileText className="size-3.5 shrink-0 text-slate-400" /> },
+          ],
+        },
+        {
+          key: 'batch_sz',
+          label: <span className="font-mono">SZ-110kV/63000kVA</span>,
+          selected: selectedBatchProduct === 'SZ-110kV/63000kVA',
+          onSelect: () => setSelectedBatchProduct('SZ-110kV/63000kVA'),
+        },
+      ],
+    },
+  ]
 
   // 1. 维度一数据：全集团工厂 PK
   const factoryPkList = [
@@ -140,6 +418,46 @@ export default function IndicatorControlPage() {
           priority: '🟡 中 (下月纳入排产)',
         },
       ],
+      meta: {
+        indicatorName: '综合能源消费量',
+        period: '2026-08 (月)',
+        current: '1,520.0 tce',
+        benchmark: '1,280.0 tce',
+        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
+        result: '🔴 异常（高于基准 18.8%）',
+        dataSource: '电装能源管理平台自动采集（电/蒸汽/热力）+ 人工录入（天然气/柴油）',
+        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
+      },
+      products: [
+        { model: 'ODFS-334MVA/500kV', energy: '1.58 tce/台', elec: '10,800 kWh/台', steam: '5.10 GJ/台', gas: '132 m³/台', water: '42 t/台', mom: '+31.6%' },
+        { model: 'SZ-110kV/63000kVA', energy: '1.45 tce/台', elec: '9,650 kWh/台', steam: '4.86 GJ/台', gas: '118 m³/台', water: '36 t/台', mom: '+21.0%' },
+        { model: 'GIS-252kV/63kA', energy: '0.98 tce/台', elec: '6,850 kWh/台', steam: '2.42 GJ/台', gas: '72 m³/台', water: '26 t/台', mom: '+9.6%' },
+      ],
+      realtime: [
+        { group: '电', name: '电压', val: '10.2 kV', status: '正常' },
+        { group: '电', name: '电流', val: '486.3 A', status: '正常' },
+        { group: '电', name: '总有功功率', val: '7,820 kW', status: '🔴 超限' },
+        { group: '电', name: '功率因数', val: '0.94', status: '🟡 偏低' },
+        { group: '电', name: '正向有功电能', val: '8,450,320 kWh', status: '正常' },
+        { group: '电', name: '反向有功电能', val: '12,480 kWh', status: '正常' },
+        { group: '电', name: '正向无功电能', val: '1,280,450 kvarh', status: '正常' },
+        { group: '电', name: '反向无功电能', val: '25,600 kvarh', status: '正常' },
+        { group: '水', name: '水压', val: '0.42 MPa', status: '正常' },
+        { group: '水', name: '累计流量', val: '42,000 t', status: '正常' },
+        { group: '水', name: '瞬时流量', val: '18.6 t/h', status: '正常' },
+        { group: '气', name: '累计流量', val: '124,000 Nm³', status: '正常' },
+      ],
+      newEnergy: [
+        { name: '光伏发电功率', val: '2,860 kW' },
+        { name: '逆变器效率', val: '98.2%' },
+        { name: '光伏消纳率', val: '91.5%' },
+        { name: '储能充放电功率', val: '±1,200 kW' },
+        { name: '储能 SOC', val: '62.4%' },
+        { name: '储能 SOH', val: '94.8%' },
+        { name: '储能直流电压', val: '735.6 V' },
+        { name: '储能直流电流', val: '128.4 A' },
+        { name: '市电负荷', val: '6,280 kW' },
+      ],
     },
     {
       rank: 2,
@@ -180,6 +498,46 @@ export default function IndicatorControlPage() {
           roi: '预估年节约力调电费 3.2 万元',
           priority: '🟢 正常维护',
         },
+      ],
+      meta: {
+        indicatorName: '综合能源消费量',
+        period: '2026-08 (月)',
+        current: '1,284.5 tce',
+        benchmark: '1,280.0 tce',
+        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
+        result: '🟡 正常（高于基准 0.4%）',
+        dataSource: '电装能源管理平台自动采集（电/蒸汽/热力）+ 人工录入（天然气）',
+        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
+      },
+      products: [
+        { model: 'ODFS-334MVA/500kV', energy: '1.45 tce/台', elec: '10,420 kWh/台', steam: '4.82 GJ/台', gas: '126 m³/台', water: '38 t/台', mom: '+20.8%' },
+        { model: 'SZ-110kV/63000kVA', energy: '0.92 tce/台', elec: '6,100 kWh/台', steam: '2.10 GJ/台', gas: '88 m³/台', water: '25 t/台', mom: '-3.2%' },
+        { model: 'S13-M-800kVA', energy: '0.65 tce/台', elec: '3,550 kWh/台', steam: '0.92 GJ/台', gas: '45 m³/台', water: '18 t/台', mom: '+4.8%' },
+      ],
+      realtime: [
+        { group: '电', name: '电压', val: '10.5 kV', status: '正常' },
+        { group: '电', name: '电流', val: '412.8 A', status: '正常' },
+        { group: '电', name: '总有功功率', val: '6,840 kW', status: '正常' },
+        { group: '电', name: '功率因数', val: '0.97', status: '正常' },
+        { group: '电', name: '正向有功电能', val: '7,800,320 kWh', status: '正常' },
+        { group: '电', name: '反向有功电能', val: '9,860 kWh', status: '正常' },
+        { group: '电', name: '正向无功电能', val: '1,020,400 kvarh', status: '正常' },
+        { group: '电', name: '反向无功电能', val: '18,900 kvarh', status: '正常' },
+        { group: '水', name: '水压', val: '0.40 MPa', status: '正常' },
+        { group: '水', name: '累计流量', val: '38,000 t', status: '正常' },
+        { group: '水', name: '瞬时流量', val: '16.2 t/h', status: '正常' },
+        { group: '气', name: '累计流量', val: '110,000 Nm³', status: '正常' },
+      ],
+      newEnergy: [
+        { name: '光伏发电功率', val: '2,150 kW' },
+        { name: '逆变器效率', val: '98.0%' },
+        { name: '光伏消纳率', val: '88.6%' },
+        { name: '储能充放电功率', val: '±900 kW' },
+        { name: '储能 SOC', val: '55.8%' },
+        { name: '储能 SOH', val: '96.2%' },
+        { name: '储能直流电压', val: '748.2 V' },
+        { name: '储能直流电流', val: '96.5 A' },
+        { name: '市电负荷', val: '5,860 kW' },
       ],
     },
     {
@@ -222,6 +580,46 @@ export default function IndicatorControlPage() {
           priority: '🟢 标杆经验输出',
         },
       ],
+      meta: {
+        indicatorName: '综合能源消费量',
+        period: '2026-08 (月)',
+        current: '1,190.0 tce',
+        benchmark: '1,280.0 tce',
+        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
+        result: '🟢 优秀（低于基准 7.0%）',
+        dataSource: '电装能源管理平台自动采集 + 衡变 MES 产量数据',
+        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
+      },
+      products: [
+        { model: 'ODFS-334MVA/500kV', energy: '1.18 tce/台', elec: '8,250 kWh/台', steam: '3.40 GJ/台', gas: '98 m³/台', water: '30 t/台', mom: '-1.6%' },
+        { model: 'SZ-110kV/63000kVA', energy: '0.98 tce/台', elec: '6,450 kWh/台', steam: '2.25 GJ/台', gas: '82 m³/台', water: '24 t/台', mom: '+3.1%' },
+        { model: 'GIS-252kV/63kA', energy: '0.88 tce/台', elec: '5,900 kWh/台', steam: '2.30 GJ/台', gas: '76 m³/台', water: '22 t/台', mom: '-2.8%' },
+      ],
+      realtime: [
+        { group: '电', name: '电压', val: '10.8 kV', status: '正常' },
+        { group: '电', name: '电流', val: '398.5 A', status: '正常' },
+        { group: '电', name: '总有功功率', val: '6,320 kW', status: '正常' },
+        { group: '电', name: '功率因数', val: '0.98', status: '正常' },
+        { group: '电', name: '正向有功电能', val: '7,100,260 kWh', status: '正常' },
+        { group: '电', name: '反向有功电能', val: '6,540 kWh', status: '正常' },
+        { group: '电', name: '正向无功电能', val: '980,200 kvarh', status: '正常' },
+        { group: '电', name: '反向无功电能', val: '12,300 kvarh', status: '正常' },
+        { group: '水', name: '水压', val: '0.45 MPa', status: '正常' },
+        { group: '水', name: '累计流量', val: '31,000 t', status: '正常' },
+        { group: '水', name: '瞬时流量', val: '14.8 t/h', status: '正常' },
+        { group: '气', name: '累计流量', val: '128,000 Nm³', status: '正常' },
+      ],
+      newEnergy: [
+        { name: '光伏发电功率', val: '3,460 kW' },
+        { name: '逆变器效率', val: '98.6%' },
+        { name: '光伏消纳率', val: '96.8%' },
+        { name: '储能充放电功率', val: '±1,500 kW' },
+        { name: '储能 SOC', val: '68.2%' },
+        { name: '储能 SOH', val: '97.1%' },
+        { name: '储能直流电压', val: '742.4 V' },
+        { name: '储能直流电流', val: '152.8 A' },
+        { name: '市电负荷', val: '4,980 kW' },
+      ],
     },
     {
       rank: 4,
@@ -249,6 +647,46 @@ export default function IndicatorControlPage() {
       tou: { tip: '20.0%', peak: '36.0%', flat: '26.0%', valley: '18.0%' },
       sensors: [{ tag: 'VCV-01', desc: '立塔交联管道氮气循环温度', val: '210 ℃', limit: '210±5 ℃', status: '🟢 受控' }],
       actions: [{ title: '挤出机变频螺杆润滑保养', roi: '维持稳定运行', priority: '🟢 常规' }],
+      meta: {
+        indicatorName: '综合能源消费量',
+        period: '2026-08 (月)',
+        current: '980.0 tce',
+        benchmark: '1,080.0 tce',
+        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
+        result: '🟢 优秀（低于基准 9.3%）',
+        dataSource: '电装能源管理平台自动采集（电/蒸汽/热力）+ 人工录入（天然气）',
+        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
+      },
+      products: [
+        { model: 'YJLW03-64/110kV', energy: '0.42 tce/km', elec: '2,800 kWh/km', steam: '1.10 GJ/km', gas: '35 m³/km', water: '12 t/km', mom: '-6.7%' },
+        { model: 'YJV22-8.7/15kV', energy: '0.31 tce/km', elec: '2,050 kWh/km', steam: '0.85 GJ/km', gas: '28 m³/km', water: '9 t/km', mom: '-3.4%' },
+        { model: 'OPJY-500kV', energy: '0.55 tce/km', elec: '3,600 kWh/km', steam: '1.42 GJ/km', gas: '48 m³/km', water: '15 t/km', mom: '+5.2%' },
+      ],
+      realtime: [
+        { group: '电', name: '电压', val: '10.4 kV', status: '正常' },
+        { group: '电', name: '电流', val: '356.2 A', status: '正常' },
+        { group: '电', name: '总有功功率', val: '5,780 kW', status: '正常' },
+        { group: '电', name: '功率因数', val: '0.96', status: '正常' },
+        { group: '电', name: '正向有功电能', val: '6,400,180 kWh', status: '正常' },
+        { group: '电', name: '反向有功电能', val: '8,240 kWh', status: '正常' },
+        { group: '电', name: '正向无功电能', val: '860,500 kvarh', status: '正常' },
+        { group: '电', name: '反向无功电能', val: '15,700 kvarh', status: '正常' },
+        { group: '水', name: '水压', val: '0.38 MPa', status: '正常' },
+        { group: '水', name: '累计流量', val: '28,000 t', status: '正常' },
+        { group: '水', name: '瞬时流量', val: '12.6 t/h', status: '正常' },
+        { group: '气', name: '累计流量', val: '78,000 Nm³', status: '正常' },
+      ],
+      newEnergy: [
+        { name: '光伏发电功率', val: '1,680 kW' },
+        { name: '逆变器效率', val: '97.6%' },
+        { name: '光伏消纳率', val: '90.2%' },
+        { name: '储能充放电功率', val: '±700 kW' },
+        { name: '储能 SOC', val: '48.6%' },
+        { name: '储能 SOH', val: '95.4%' },
+        { name: '储能直流电压', val: '751.0 V' },
+        { name: '储能直流电流', val: '68.2 A' },
+        { name: '市电负荷', val: '5,120 kW' },
+      ],
     },
     {
       rank: 5,
@@ -276,6 +714,46 @@ export default function IndicatorControlPage() {
       tou: { tip: '18.0%', peak: '35.0%', flat: '27.0%', valley: '20.0%' },
       sensors: [{ tag: 'DRAW-02', desc: '大拉机乳化液恒温系统', val: '45 ℃', limit: '45±3 ℃', status: '🟢 受控' }],
       actions: [{ title: '非晶立体卷铁芯节能工艺迭代', roi: '提升能效 2.5%', priority: '🟢 工艺优化' }],
+      meta: {
+        indicatorName: '综合能源消费量',
+        period: '2026-08 (月)',
+        current: '840.0 tce',
+        benchmark: '960.0 tce',
+        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
+        result: '🟢 优秀（低于基准 12.5%）',
+        dataSource: '电装能源管理平台自动采集（电/热力）+ 人工录入（天然气/柴油）',
+        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
+      },
+      products: [
+        { model: 'S13-M-800kVA', energy: '0.58 tce/台', elec: '3,200 kWh/台', steam: '0.80 GJ/台', gas: '28 m³/台', water: '10 t/台', mom: '-6.4%' },
+        { model: 'YJV22-8.7/15kV', energy: '0.35 tce/km', elec: '2,300 kWh/km', steam: '0.92 GJ/km', gas: '30 m³/km', water: '10 t/km', mom: '-2.1%' },
+        { model: '轨道交通直流电缆', energy: '0.47 tce/km', elec: '3,120 kWh/km', steam: '1.18 GJ/km', gas: '38 m³/km', water: '13 t/km', mom: '+4.0%' },
+      ],
+      realtime: [
+        { group: '电', name: '电压', val: '10.2 kV', status: '正常' },
+        { group: '电', name: '电流', val: '332.5 A', status: '正常' },
+        { group: '电', name: '总有功功率', val: '5,460 kW', status: '正常' },
+        { group: '电', name: '功率因数', val: '0.97', status: '正常' },
+        { group: '电', name: '正向有功电能', val: '5,800,420 kWh', status: '正常' },
+        { group: '电', name: '反向有功电能', val: '7,120 kWh', status: '正常' },
+        { group: '电', name: '正向无功电能', val: '780,300 kvarh', status: '正常' },
+        { group: '电', name: '反向无功电能', val: '13,800 kvarh', status: '正常' },
+        { group: '水', name: '水压', val: '0.36 MPa', status: '正常' },
+        { group: '水', name: '累计流量', val: '23,000 t', status: '正常' },
+        { group: '水', name: '瞬时流量', val: '11.4 t/h', status: '正常' },
+        { group: '气', name: '累计流量', val: '65,000 Nm³', status: '正常' },
+      ],
+      newEnergy: [
+        { name: '光伏发电功率', val: '1,240 kW' },
+        { name: '逆变器效率', val: '97.2%' },
+        { name: '光伏消纳率', val: '86.4%' },
+        { name: '储能充放电功率', val: '±600 kW' },
+        { name: '储能 SOC', val: '52.1%' },
+        { name: '储能 SOH', val: '95.8%' },
+        { name: '储能直流电压', val: '740.8 V' },
+        { name: '储能直流电流', val: '58.4 A' },
+        { name: '市电负荷', val: '4,860 kW' },
+      ],
     },
     {
       rank: 6,
@@ -303,6 +781,46 @@ export default function IndicatorControlPage() {
       tou: { tip: '12.0%', peak: '30.0%', flat: '30.0%', valley: '28.0%' },
       sensors: [{ tag: 'PV-ROOF', desc: '屋顶光伏实时出力', val: '3,200 kW', limit: '光照充足', status: '🟢 100% 就地消纳' }],
       actions: [{ title: '持续保持屋顶光伏组件清洗与逆变器巡检', roi: '年绿电发电量超 520 万 kWh', priority: '🟢 标杆维护' }],
+      meta: {
+        indicatorName: '综合能源消费量',
+        period: '2026-08 (月)',
+        current: '680.0 tce',
+        benchmark: '960.0 tce',
+        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
+        result: '🟢 优秀（低于基准 29.2%）',
+        dataSource: '电装能源管理平台自动采集（电/热力）+ 人工录入（天然气）',
+        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
+      },
+      products: [
+        { model: 'YJLW03-64/110kV', energy: '0.48 tce/km', elec: '3,150 kWh/km', steam: '1.28 GJ/km', gas: '40 m³/km', water: '14 t/km', mom: '+6.6%' },
+        { model: '大截面铝导体电缆', energy: '0.44 tce/km', elec: '2,900 kWh/km', steam: '1.05 GJ/km', gas: '36 m³/km', water: '12 t/km', mom: '-5.0%' },
+        { model: 'OPJY-330kV', energy: '0.52 tce/km', elec: '3,400 kWh/km', steam: '1.30 GJ/km', gas: '42 m³/km', water: '14 t/km', mom: '-6.8%' },
+      ],
+      realtime: [
+        { group: '电', name: '电压', val: '10.6 kV', status: '正常' },
+        { group: '电', name: '电流', val: '288.4 A', status: '正常' },
+        { group: '电', name: '总有功功率', val: '4,220 kW', status: '正常' },
+        { group: '电', name: '功率因数', val: '0.98', status: '正常' },
+        { group: '电', name: '正向有功电能', val: '4,500,180 kWh', status: '正常' },
+        { group: '电', name: '反向有功电能', val: '4,860 kWh', status: '正常' },
+        { group: '电', name: '正向无功电能', val: '620,400 kvarh', status: '正常' },
+        { group: '电', name: '反向无功电能', val: '9,800 kvarh', status: '正常' },
+        { group: '水', name: '水压', val: '0.41 MPa', status: '正常' },
+        { group: '水', name: '累计流量', val: '23,000 t', status: '正常' },
+        { group: '水', name: '瞬时流量', val: '10.2 t/h', status: '正常' },
+        { group: '气', name: '累计流量', val: '68,000 Nm³', status: '正常' },
+      ],
+      newEnergy: [
+        { name: '光伏发电功率', val: '3,200 kW' },
+        { name: '逆变器效率', val: '98.4%' },
+        { name: '光伏消纳率', val: '100%' },
+        { name: '储能充放电功率', val: '±800 kW' },
+        { name: '储能 SOC', val: '58.8%' },
+        { name: '储能 SOH', val: '96.9%' },
+        { name: '储能直流电压', val: '736.4 V' },
+        { name: '储能直流电流', val: '82.6 A' },
+        { name: '市电负荷', val: '2,880 kW' },
+      ],
     },
   ]
 
@@ -591,11 +1109,6 @@ export default function IndicatorControlPage() {
     ],
   }
 
-  const handleCreateTicket = () => {
-    setTicketCreated(true)
-    setTimeout(() => setTicketCreated(false), 4000)
-  }
-
   return (
     <div className="space-y-3 relative">
       {/* 顶部控制栏：4 大硬刚 PK 切换器 + 统计周期 + 导出对标红黑榜 */}
@@ -709,319 +1222,13 @@ export default function IndicatorControlPage() {
               </div>
 
               {/* 树节点滚动区 */}
-              <div className="space-y-1 text-xs max-h-[520px] overflow-y-auto pr-1">
-                {/* ---------------------------------------------------- */}
-                {/* 维度 1: 产业群与工厂树 */}
-                {/* ---------------------------------------------------- */}
-                {pkTab === 'factory' && (
-                  <div className="space-y-1">
-                    <div
-                      onClick={() => setSelectedFactoryGroup('all')}
-                      className={cn(
-                        'p-1.5 rounded flex items-center justify-between cursor-pointer border',
-                        selectedFactoryGroup === 'all'
-                          ? 'bg-blue-50 border-[#1677ff] text-[#1677ff] font-bold shadow-xs'
-                          : 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100'
-                      )}
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <Building2 className="size-3.5 text-[#1677ff]" />
-                        <span>特变电工集团 (全量 21 家厂)</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-slate-400">全部</span>
-                    </div>
-
-                    <div className="ml-2 pl-2 border-l border-slate-200 space-y-1 mt-1">
-                      {/* 变压器产业群 */}
-                      <div>
-                        <div
-                          onClick={() => {
-                            toggleNode('group_transformer')
-                            setSelectedFactoryGroup('transformer')
-                          }}
-                          className={cn(
-                            'p-1 rounded flex items-center justify-between cursor-pointer',
-                            selectedFactoryGroup === 'transformer' ? 'bg-blue-50 text-[#1677ff] font-bold' : 'text-slate-700 hover:bg-slate-50'
-                          )}
-                        >
-                          <div className="flex items-center gap-1">
-                            {expandedNodes.group_transformer ? <ChevronDown className="size-3 text-slate-400" /> : <ChevronRight className="size-3 text-slate-400" />}
-                            <span>⚡ 变压器产业群 (8家)</span>
-                          </div>
-                        </div>
-                        {expandedNodes.group_transformer && (
-                          <div className="ml-4 pl-2 border-l border-slate-100 space-y-0.5 mt-0.5 text-[11px] text-slate-600">
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50 cursor-pointer">🏬 沈变本部 (沈阳基地)</div>
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50 cursor-pointer">🏬 衡变本部 (衡阳基地)</div>
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50 cursor-pointer text-red-600 font-semibold">🏬 新变超高压 (昌吉) 🔴</div>
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50 cursor-pointer">🏬 天津变压器厂</div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 输配电线缆产业群 */}
-                      <div>
-                        <div
-                          onClick={() => {
-                            toggleNode('group_cable')
-                            setSelectedFactoryGroup('cable')
-                          }}
-                          className={cn(
-                            'p-1 rounded flex items-center justify-between cursor-pointer',
-                            selectedFactoryGroup === 'cable' ? 'bg-blue-50 text-[#1677ff] font-bold' : 'text-slate-700 hover:bg-slate-50'
-                          )}
-                        >
-                          <div className="flex items-center gap-1">
-                            {expandedNodes.group_cable ? <ChevronDown className="size-3 text-slate-400" /> : <ChevronRight className="size-3 text-slate-400" />}
-                            <span>🔌 输配电线缆产业群 (7家)</span>
-                          </div>
-                        </div>
-                        {expandedNodes.group_cable && (
-                          <div className="ml-4 pl-2 border-l border-slate-100 space-y-0.5 mt-0.5 text-[11px] text-slate-600">
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50 cursor-pointer">🏬 鲁缆本部 (泰安基地)</div>
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50 cursor-pointer">🏬 德缆股份 (德阳基地)</div>
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50 cursor-pointer text-emerald-700 font-semibold">🏬 新缆厂 (昌吉总部) 🟢</div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 新能源与集成成套 */}
-                      <div>
-                        <div
-                          onClick={() => {
-                            toggleNode('group_newenergy')
-                            setSelectedFactoryGroup('newenergy')
-                          }}
-                          className={cn(
-                            'p-1 rounded flex items-center justify-between cursor-pointer',
-                            selectedFactoryGroup === 'newenergy' ? 'bg-blue-50 text-[#1677ff] font-bold' : 'text-slate-700 hover:bg-slate-50'
-                          )}
-                        >
-                          <div className="flex items-center gap-1">
-                            {expandedNodes.group_newenergy ? <ChevronDown className="size-3 text-slate-400" /> : <ChevronRight className="size-3 text-slate-400" />}
-                            <span>☀️ 新能源与成套产业群 (6家)</span>
-                          </div>
-                        </div>
-                        {expandedNodes.group_newenergy && (
-                          <div className="ml-4 pl-2 border-l border-slate-100 space-y-0.5 mt-0.5 text-[11px] text-slate-600">
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50 cursor-pointer">🏬 西安新能源成套基地</div>
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50 cursor-pointer">🏬 昌吉成套装备厂</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 维度 2: 产品品类与型号树 */}
-                {pkTab === 'product' && (
-                  <div className="space-y-1">
-                    <div className="font-bold text-slate-800 py-1 px-1.5 bg-slate-50 rounded flex items-center gap-1.5 border border-slate-200">
-                      <ChevronDown className="size-3.5 text-[#1677ff]" />
-                      <span>特变电工重点产品目录</span>
-                    </div>
-
-                    <div className="ml-2 pl-2 border-l border-slate-200 space-y-1 mt-1">
-                      <div>
-                        <div
-                          onClick={() => toggleNode('prod_trans')}
-                          className="font-semibold text-slate-700 py-0.5 px-1 flex items-center gap-1 cursor-pointer"
-                        >
-                          {expandedNodes.prod_trans ? <ChevronDown className="size-3 text-slate-400" /> : <ChevronRight className="size-3 text-slate-400" />}
-                          <span>⚡ 输变电与特高压变压器</span>
-                        </div>
-                        {expandedNodes.prod_trans && (
-                          <div className="ml-4 pl-2 border-l border-slate-100 space-y-1 mt-0.5">
-                            <div
-                              onClick={() => setSelectedProductModel('ODFS-334MVA/500kV')}
-                              className={cn(
-                                'p-1.5 rounded cursor-pointer transition-colors',
-                                selectedProductModel === 'ODFS-334MVA/500kV'
-                                  ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200'
-                                  : 'text-slate-600 hover:bg-slate-50'
-                              )}
-                            >
-                              <div className="font-mono text-xs">ODFS-334MVA/500kV</div>
-                              <span className="text-[10px] text-slate-500 block">单相自耦变 (3 厂共造)</span>
-                            </div>
-
-                            <div
-                              onClick={() => setSelectedProductModel('SZ-110kV/63000kVA')}
-                              className={cn(
-                                'p-1.5 rounded cursor-pointer transition-colors',
-                                selectedProductModel === 'SZ-110kV/63000kVA'
-                                  ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200'
-                                  : 'text-slate-600 hover:bg-slate-50'
-                              )}
-                            >
-                              <div className="font-mono text-xs">SZ-110kV/63000kVA</div>
-                              <span className="text-[10px] text-slate-500 block">三相油浸电力变 (4 厂共造)</span>
-                            </div>
-
-                            <div
-                              onClick={() => setSelectedProductModel('S13-M-800kVA')}
-                              className={cn(
-                                'p-1.5 rounded cursor-pointer transition-colors',
-                                selectedProductModel === 'S13-M-800kVA'
-                                  ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200'
-                                  : 'text-slate-600 hover:bg-slate-50'
-                              )}
-                            >
-                              <div className="font-mono text-xs">S13-M-800kVA</div>
-                              <span className="text-[10px] text-slate-500 block">节能配电变 (5 厂共造)</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div>
-                        <div
-                          onClick={() => toggleNode('prod_cable')}
-                          className="font-semibold text-slate-700 py-0.5 px-1 flex items-center gap-1 cursor-pointer"
-                        >
-                          {expandedNodes.prod_cable ? <ChevronDown className="size-3 text-slate-400" /> : <ChevronRight className="size-3 text-slate-400" />}
-                          <span>🔌 高压与特种线缆</span>
-                        </div>
-                        {expandedNodes.prod_cable && (
-                          <div className="ml-4 pl-2 border-l border-slate-100 space-y-1 mt-0.5">
-                            <div
-                              onClick={() => setSelectedProductModel('YJLW03-64/110kV')}
-                              className={cn(
-                                'p-1.5 rounded cursor-pointer transition-colors',
-                                selectedProductModel === 'YJLW03-64/110kV'
-                                  ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200'
-                                  : 'text-slate-600 hover:bg-slate-50'
-                              )}
-                            >
-                              <div className="font-mono text-xs">YJLW03-64/110kV</div>
-                              <span className="text-[10px] text-slate-500 block">高压交联电缆 (3 厂共造)</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 维度 3: 制造基地与车间树 */}
-                {pkTab === 'line' && (
-                  <div className="space-y-1">
-                    <div className="font-bold text-slate-800 py-1 px-1.5 bg-slate-50 rounded flex items-center gap-1.5 border border-slate-200">
-                      <ChevronDown className="size-3.5 text-[#1677ff]" />
-                      <span>特变电工制造基地与车间</span>
-                    </div>
-
-                    <div className="ml-2 pl-2 border-l border-slate-200 space-y-1 mt-1">
-                      <div>
-                        <div
-                          onClick={() => {
-                            toggleNode('fac_sb')
-                            setSelectedLineFactory('沈变本部 (沈阳基地)')
-                          }}
-                          className={cn(
-                            'p-1.5 rounded flex items-center justify-between cursor-pointer',
-                            selectedLineFactory === '沈变本部 (沈阳基地)' ? 'bg-blue-50 text-[#1677ff] font-bold' : 'text-slate-700 hover:bg-slate-50'
-                          )}
-                        >
-                          <div className="flex items-center gap-1">
-                            {expandedNodes.fac_sb ? <ChevronDown className="size-3 text-slate-400" /> : <ChevronRight className="size-3 text-slate-400" />}
-                            <span>🏬 沈变本部 (沈阳基地)</span>
-                          </div>
-                          {selectedLineFactory === '沈变本部 (沈阳基地)' && <Check className="size-3 text-[#1677ff]" />}
-                        </div>
-                        {expandedNodes.fac_sb && (
-                          <div className="ml-4 pl-2 border-l border-slate-100 space-y-0.5 mt-0.5 text-[11px] text-slate-600">
-                            <div className="py-0.5 px-1 rounded text-red-600 font-semibold bg-red-50">⚙️ 超高压真空干燥车间 🔴</div>
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50">⚙️ 无局放超高压试验大厅</div>
-                            <div className="py-0.5 px-1 rounded text-emerald-700 hover:bg-slate-50">⚙️ 铁芯剪切自动叠装线 🟢</div>
-                            <div className="py-0.5 px-1 rounded hover:bg-slate-50">⚙️ 自动化绝缘绕线车间</div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div
-                        onClick={() => {
-                          setSelectedLineFactory('衡变本部 (衡阳基地)')
-                        }}
-                        className={cn(
-                          'p-1.5 rounded flex items-center justify-between cursor-pointer',
-                          selectedLineFactory === '衡变本部 (衡阳基地)' ? 'bg-blue-50 text-[#1677ff] font-bold' : 'text-slate-700 hover:bg-slate-50'
-                        )}
-                      >
-                        <div className="flex items-center gap-1">
-                          <Factory className="size-3 text-slate-400" />
-                          <span>🏬 衡变本部 (衡阳基地)</span>
-                        </div>
-                        {selectedLineFactory === '衡变本部 (衡阳基地)' && <Check className="size-3 text-[#1677ff]" />}
-                      </div>
-
-                      <div
-                        onClick={() => {
-                          setSelectedLineFactory('新变超高压 (昌吉基地)')
-                        }}
-                        className={cn(
-                          'p-1.5 rounded flex items-center justify-between cursor-pointer',
-                          selectedLineFactory === '新变超高压 (昌吉基地)' ? 'bg-blue-50 text-[#1677ff] font-bold' : 'text-slate-700 hover:bg-slate-50'
-                        )}
-                      >
-                        <div className="flex items-center gap-1">
-                          <Factory className="size-3 text-slate-400" />
-                          <span>🏬 新变超高压 (昌吉基地)</span>
-                        </div>
-                        {selectedLineFactory === '新变超高压 (昌吉基地)' && <Check className="size-3 text-[#1677ff]" />}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 维度 4: 产品批次追溯树 */}
-                {pkTab === 'batch' && (
-                  <div className="space-y-1">
-                    <div className="font-bold text-slate-800 py-1 px-1.5 bg-slate-50 rounded flex items-center gap-1.5 border border-slate-200">
-                      <ChevronDown className="size-3.5 text-[#1677ff]" />
-                      <span>产品批次追溯目录</span>
-                    </div>
-
-                    <div className="ml-2 pl-2 border-l border-slate-200 space-y-1 mt-1">
-                      <div>
-                        <div
-                          onClick={() => {
-                            toggleNode('batch_odfs')
-                            setSelectedBatchProduct('ODFS-334MVA/500kV')
-                          }}
-                          className={cn(
-                            'p-1.5 rounded flex items-center justify-between cursor-pointer',
-                            selectedBatchProduct === 'ODFS-334MVA/500kV' ? 'bg-blue-50 text-[#1677ff] font-bold' : 'text-slate-700 hover:bg-slate-50'
-                          )}
-                        >
-                          <div className="flex items-center gap-1">
-                            {expandedNodes.batch_odfs ? <ChevronDown className="size-3 text-slate-400" /> : <ChevronRight className="size-3 text-slate-400" />}
-                            <span className="font-mono">ODFS-334MVA/500kV</span>
-                          </div>
-                          <span className="text-[10px] text-red-600 font-bold">当期异常</span>
-                        </div>
-                        {expandedNodes.batch_odfs && (
-                          <div className="ml-4 pl-2 border-l border-slate-100 space-y-0.5 mt-0.5 text-[11px]">
-                            <div className="py-0.5 px-1 rounded text-red-600 font-bold bg-red-50">🏷️ #202608 批次 (突增 +24.5%) 🔴</div>
-                            <div className="py-0.5 px-1 rounded text-slate-600">🏷️ #202607 批次 (正常)</div>
-                            <div className="py-0.5 px-1 rounded text-slate-600">🏷️ #202606 批次 (正常)</div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div
-                        onClick={() => setSelectedBatchProduct('SZ-110kV/63000kVA')}
-                        className={cn(
-                          'p-1.5 rounded cursor-pointer',
-                          selectedBatchProduct === 'SZ-110kV/63000kVA' ? 'bg-blue-50 text-[#1677ff] font-bold' : 'text-slate-700 hover:bg-slate-50'
-                        )}
-                      >
-                        <span className="font-mono">SZ-110kV/63000kVA</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+              <div className="max-h-[520px] overflow-y-auto pr-1">
+                {pkTab === 'factory' && <TreeView data={factoryTreeData} expandedKeys={expandedNodes} onToggle={toggleNode} />}
+                {pkTab === 'product' && <TreeView data={productTreeData} expandedKeys={expandedNodes} onToggle={toggleNode} />}
+                {pkTab === 'line' && <TreeView data={lineTreeData} expandedKeys={expandedNodes} onToggle={toggleNode} />}
+                {pkTab === 'batch' && <TreeView data={batchTreeData} expandedKeys={expandedNodes} onToggle={toggleNode} />}
               </div>
+
             </div>
 
             {/* 左侧底部提示 */}
@@ -1168,7 +1375,7 @@ export default function IndicatorControlPage() {
 
               <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 font-mono">
                 <span>当前筛选工厂月度平均能耗：<strong>1,082.3 tce</strong> · 绿电平均消纳率：<strong>38.6%</strong></span>
-                <span className="text-slate-400">💡 点击【显示明细】可滑出 6 大深度工序能碳诊断与闭环工单抽屉</span>
+                <span className="text-slate-400">💡 点击【显示明细】可滑出工厂能碳指标与监测明细（指标核算/产品单耗/实时量测/新能源资产）</span>
               </div>
             </div>
           )}
@@ -1334,7 +1541,7 @@ export default function IndicatorControlPage() {
       </div>
 
       {/* ======================================================== */}
-      {/* 🌟 工业级 6 大深度板块：工序能碳全景诊断与闭环抽屉 (Drawer) */}
+      {/* 🌟 工业级 7 大板块：工厂能碳指标与监测明细抽屉（按需求对齐） */}
       {/* ======================================================== */}
       {selectedDrawerEntity && (
         <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
@@ -1348,20 +1555,20 @@ export default function IndicatorControlPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="font-bold text-sm text-slate-900 font-sans">
-                      {selectedDrawerEntity.name} · 工序能碳全景诊断明细
+                      {selectedDrawerEntity.name} · 工厂能碳指标与监测明细
                     </h2>
                     <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 text-[#1677ff] font-bold font-mono">
-                      诊断报告 2026-08
+                      监测报告 2026-08
                     </span>
                   </div>
                   <span className="text-[11px] text-slate-500 font-mono">
-                    主体：{selectedDrawerEntity.pic || '特变电工基地'} · 产线自动化与动力装备诊断
+                    主体：{selectedDrawerEntity.pic || '特变电工基地'} · 指标核算/产品单耗/实时量测/新能源资产全量监测
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => alert(`已成功导出《${selectedDrawerEntity.name}能碳诊断与消缺建议报告(2026-08)》PDF 文件！`)}
+                  onClick={() => alert(`已成功导出《${selectedDrawerEntity.name}能碳指标与监测明细报告(2026-08)》PDF 文件！`)}
                   className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold flex items-center gap-1 shadow-xs"
                 >
                   <Download className="size-3.5 text-[#1677ff]" />
@@ -1376,19 +1583,8 @@ export default function IndicatorControlPage() {
               </div>
             </div>
 
-            {/* 抽屉内容主体 (6 大板块滚动区) */}
+            {/* 抽屉内容主体 (7 大板块滚动区) */}
             <div className="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
-              {/* 工单下发成功浮层 */}
-              {ticketCreated && (
-                <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-lg text-emerald-800 flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <CheckCheck className="size-4 text-emerald-600 shrink-0" />
-                  <div>
-                    <span className="font-bold block">整改工单已成功下发至生产动力运维系统！</span>
-                    <span className="text-[11px] text-emerald-700 font-mono">工单编号: #GD-202608-019 · 指派责任人: 特变电工动力装备部主管 (3个工作日内消缺)</span>
-                  </div>
-                </div>
-              )}
-
               {/* 板块 1: 核心指标概况与同环比 */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
@@ -1424,6 +1620,26 @@ export default function IndicatorControlPage() {
                     <div className="text-[10px] text-red-600 font-semibold mt-0.5">尖峰电费偏高</div>
                   </div>
                 </div>
+              </div>
+
+              {/* 板块 1.2: 近12个月综合能耗与碳排放趋势 */}
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex items-center justify-between pb-1.5">
+                  <span className="text-[11px] font-bold text-slate-700 font-sans flex items-center gap-1.5">
+                    <Activity className="size-3.5 text-[#1677ff]" />
+                    近12个月综合能耗与碳排放趋势
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">月 / 当量值</span>
+                </div>
+                <LineTrend
+                  height={180}
+                  xKey="month"
+                  keys={[
+                    { key: '综合能耗', name: '综合能耗 (tce)', color: '#1677ff' },
+                    { key: '碳排放', name: '碳排放 (tCO2)', color: '#52c41a' },
+                  ]}
+                  data={genEnergyTrend(selectedDrawerEntity.energy, selectedDrawerEntity.carbon)}
+                />
               </div>
 
               {/* 板块 2: 能源介质解构 (电/蒸汽/天然气/水) */}
@@ -1475,6 +1691,20 @@ export default function IndicatorControlPage() {
                 </div>
               </div>
 
+              {/* 板块 2.1: 能源介质占比构成（环形图） */}
+              <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="text-[11px] font-bold text-slate-700 font-sans pb-1">能源介质占比构成</div>
+                <Donut
+                  height={185}
+                  data={[
+                    { name: '外购电力', value: parseFloat(String(selectedDrawerEntity.media?.elec.pct || '68.3%').replace('%', '')) },
+                    { name: '工业蒸汽', value: parseFloat(String(selectedDrawerEntity.media?.steam.pct || '21.5%').replace('%', '')) },
+                    { name: '天然气', value: parseFloat(String(selectedDrawerEntity.media?.gas.pct || '8.0%').replace('%', '')) },
+                    { name: '软水/气', value: parseFloat(String(selectedDrawerEntity.media?.other.pct || '2.2%').replace('%', '')) },
+                  ]}
+                />
+              </div>
+
               {/* 板块 3: 峰平谷分时用电结构透视 */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
@@ -1515,6 +1745,27 @@ export default function IndicatorControlPage() {
                 </div>
               </div>
 
+              {/* 板块 3.1: 近7日峰谷电量分布 */}
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex items-center justify-between pb-1.5">
+                  <span className="text-[11px] font-bold text-slate-700 font-sans flex items-center gap-1.5">
+                    <BarChart3 className="size-3.5 text-[#1677ff]" />
+                    近7日峰谷电量分布
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">MWh / 日</span>
+                </div>
+                <BarGroup
+                  height={170}
+                  xKey="day"
+                  keys={[
+                    { key: '高峰', name: '高峰', color: '#f5222d' },
+                    { key: '平段', name: '平段', color: '#1677ff' },
+                    { key: '低谷', name: '低谷', color: '#52c41a' },
+                  ]}
+                  data={genWeekTou()}
+                />
+              </div>
+
               {/* 板块 4: 车间工序能流与设备负荷下钻 */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
@@ -1522,88 +1773,105 @@ export default function IndicatorControlPage() {
                     <Cog className="size-4 text-[#1677ff]" />
                     4. 车间重点工序能流与能耗占比
                   </span>
-                  <span className="text-[10px] text-slate-400 font-mono">责任落实到车间</span>
+                  <span className="text-[10px] text-slate-400 font-mono">对应《"双中心"项目能碳管控指标体系V1.4》关键工序指标</span>
                 </div>
 
-                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2.5">
-                  <div className="space-y-1 font-mono">
-                    <div className="flex justify-between items-center text-[11px] font-sans">
-                      <span className="font-semibold text-slate-800">1. 高压真空干燥工序 (超标源头)</span>
-                      <span className="font-bold text-red-600 font-mono">32.6% · 4,200 MWh</span>
-                    </div>
-                    <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-red-500 rounded-full w-[32.6%]" />
-                    </div>
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
+                  {/* 左侧：工序能耗占比饼图 */}
+                  <div className="lg:col-span-2 p-2.5 bg-white rounded-lg border border-slate-200 flex flex-col">
+                    <div className="text-[11px] font-bold text-slate-700 font-sans pb-1">工序能耗占比构成</div>
+                    <Donut
+                      height={190}
+                      data={[
+                        { name: '高压真空干燥', value: 32.6 },
+                        { name: '超高压试验大厅', value: 22.1 },
+                        { name: '铁芯数控叠装', value: 14.1 },
+                        { name: '绝缘绕线车间', value: 11.2 },
+                      ]}
+                    />
                   </div>
 
-                  <div className="space-y-1 font-mono">
-                    <div className="flex justify-between items-center text-[11px] font-sans">
-                      <span className="font-semibold text-slate-800">2. 无局放超高压试验大厅</span>
-                      <span className="font-bold text-slate-700 font-mono">22.1% · 2,850 MWh</span>
+                  {/* 右侧：工序能耗明细占比列表 */}
+                  <div className="lg:col-span-3 space-y-2.5">
+                    <div className="space-y-1 font-mono">
+                      <div className="flex justify-between items-center text-[11px] font-sans">
+                        <span className="font-semibold text-slate-800">1. 高压真空干燥工序 (超标源头)</span>
+                        <span className="font-bold text-red-600 font-mono">32.6% · 4,200 MWh</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-red-500 rounded-full w-[32.6%]" />
+                      </div>
                     </div>
-                    <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#1677ff] rounded-full w-[22.1%]" />
-                    </div>
-                  </div>
 
-                  <div className="space-y-1 font-mono">
-                    <div className="flex justify-between items-center text-[11px] font-sans">
-                      <span className="font-semibold text-slate-800">3. 铁芯数控叠装与自动化装配 (伺服节能)</span>
-                      <span className="font-bold text-emerald-700 font-mono">14.1% · 1,820 MWh</span>
+                    <div className="space-y-1 font-mono">
+                      <div className="flex justify-between items-center text-[11px] font-sans">
+                        <span className="font-semibold text-slate-800">2. 无局放超高压试验大厅</span>
+                        <span className="font-bold text-slate-700 font-mono">22.1% · 2,850 MWh</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#1677ff] rounded-full w-[22.1%]" />
+                      </div>
                     </div>
-                    <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500 rounded-full w-[14.1%]" />
-                    </div>
-                  </div>
 
-                  <div className="space-y-1 font-mono">
-                    <div className="flex justify-between items-center text-[11px] font-sans">
-                      <span className="font-semibold text-slate-800">4. 自动化绝缘绕线车间</span>
-                      <span className="font-bold text-slate-700 font-mono">11.2% · 1,450 MWh</span>
+                    <div className="space-y-1 font-mono">
+                      <div className="flex justify-between items-center text-[11px] font-sans">
+                        <span className="font-semibold text-slate-800">3. 铁芯数控叠装与自动化装配 (伺服节能)</span>
+                        <span className="font-bold text-emerald-700 font-mono">14.1% · 1,820 MWh</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-500 rounded-full w-[14.1%]" />
+                      </div>
                     </div>
-                    <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-slate-400 rounded-full w-[11.2%]" />
+
+                    <div className="space-y-1 font-mono">
+                      <div className="flex justify-between items-center text-[11px] font-sans">
+                        <span className="font-semibold text-slate-800">4. 自动化绝缘绕线车间</span>
+                        <span className="font-bold text-slate-700 font-mono">11.2% · 1,450 MWh</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-slate-400 rounded-full w-[11.2%]" />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* 板块 5: 现场关键设备实时测点与遥测数据 */}
+                            {/* 板块 5: 产品型号级产品管控指标（需求：5类单耗到产品型号） */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
                   <span className="flex items-center gap-1.5">
-                    <Cpu className="size-4 text-[#1677ff]" />
-                    5. 异常设备现场实时测点遥测诊断
+                    <Package className="size-4 text-[#1677ff]" />
+                    5. 产品型号级产品管控指标（单位产品5类单耗）
                   </span>
-                  <span className="text-[10px] text-slate-400 font-mono">现场 SCADA / IoT 遥测</span>
+                  <span className="text-[10px] text-slate-400 font-mono">需求：单耗均到产品型号 · 环比同型号对比</span>
                 </div>
-
                 <div className="border border-slate-200 rounded-lg overflow-hidden font-mono">
                   <table className="w-full text-[11px] text-left">
                     <thead className="bg-slate-100 text-slate-600 font-sans font-bold border-b border-slate-200">
                       <tr>
-                        <th className="p-2">测点编号</th>
-                        <th className="p-2 font-sans">监测参数描述</th>
-                        <th className="p-2 text-right">实时遥测值</th>
-                        <th className="p-2 text-right">设计限值</th>
-                        <th className="p-2 font-sans text-center">诊断结论</th>
+                        <th className="p-2">产品型号</th>
+                        <th className="p-2 text-right">单位产品能耗</th>
+                        <th className="p-2 text-right">单位产品电耗</th>
+                        <th className="p-2 text-right">单位产品蒸汽消耗</th>
+                        <th className="p-2 text-right">单位产品天然气消耗</th>
+                        <th className="p-2 text-right">单位产品水耗</th>
+                        <th className="p-2 text-center">环比</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-white">
-                      {(selectedDrawerEntity.sensors || [
-                        { tag: 'TT-204', desc: '2号真空干燥罐壁温', val: '142 ℃', limit: '128 ℃', status: '🔴 异常偏高 (漏热)' },
-                        { tag: 'ST-02', desc: '干燥罐蒸汽疏水阀', val: '开度 85% 常开', limit: '脉动排汽', status: '🔴 阀芯卡死微漏' },
-                        { tag: 'VF-01', desc: '试验大厅变频机组待机', val: '42 kW', limit: '0 kW', status: '🟡 空载未停机' },
-                        { tag: 'FLOW-03', desc: '蒸汽总管实时流量', val: '5.8 t/h', limit: '4.2 t/h', status: '🔴 超标 38%' },
-                      ]).map((s: any) => (
-                        <tr key={s.tag} className="hover:bg-slate-50">
-                          <td className="p-2 font-bold text-[#1677ff]">{s.tag}</td>
-                          <td className="p-2 font-sans text-slate-700">{s.desc}</td>
-                          <td className="p-2 text-right font-bold text-slate-900">{s.val}</td>
-                          <td className="p-2 text-right text-slate-400">{s.limit}</td>
-                          <td className="p-2 font-sans text-center">
-                            <span className={cn('px-1.5 py-0.2 rounded font-bold text-[10px]', s.status.includes('🔴') ? 'bg-red-100 text-red-700 border border-red-300' : 'bg-slate-100 text-slate-600')}>
-                              {s.status}
+                      {(selectedDrawerEntity.products && selectedDrawerEntity.products.length ? selectedDrawerEntity.products : [
+                        { model: 'ODFS-334MVA/500kV', energy: '1.58 tce/台', elec: '10,800 kWh/台', steam: '5.10 GJ/台', gas: '132 m³/台', water: '42 t/台', mom: '+31.6%' },
+                      ]).map((p: any) => (
+                        <tr key={p.model} className="hover:bg-slate-50">
+                          <td className="p-2 font-bold text-[#1677ff]">{p.model}</td>
+                          <td className="p-2 text-right">{p.energy}</td>
+                          <td className="p-2 text-right">{p.elec}</td>
+                          <td className="p-2 text-right">{p.steam}</td>
+                          <td className="p-2 text-right">{p.gas}</td>
+                          <td className="p-2 text-right">{p.water}</td>
+                          <td className="p-2 text-center">
+                            <span className={cn('px-1.5 py-0.2 rounded font-bold text-[10px]', p.mom.startsWith('-') ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700')}>
+                              {p.mom} 环比
                             </span>
                           </td>
                         </tr>
@@ -1613,49 +1881,63 @@ export default function IndicatorControlPage() {
                 </div>
               </div>
 
-              {/* 板块 6: 优化建议与闭环管理 (ROI 效益测算) */}
+              {/* 板块 6: 工序能耗实时量测点位（需求：电/水/天然气实时数据） */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
                   <span className="flex items-center gap-1.5">
-                    <Wrench className="size-4 text-[#1677ff]" />
-                    6. 降碳节能治理对策与 ROI 效益测算
+                    <Cpu className="size-4 text-[#1677ff]" />
+                    6. 工序能耗实时量测点位（电 / 水 / 天然气）
                   </span>
-                  <span className="text-[10px] text-emerald-600 font-bold">年节约潜力 150+ 万元</span>
+                  <span className="text-[10px] text-slate-400 font-mono">需求：电压/电流/功率/电能/水压/流量</span>
                 </div>
 
-                <div className="space-y-2">
-                  {(selectedDrawerEntity.actions || [
-                    {
-                      title: '更换 2号干燥罐温控疏水阀并加装气凝胶隔热套',
-                      roi: '预估月节蒸汽 180 吨 · 月省 12.8 万元 · 年减碳 112.5 tCO2 · 静态回收期 0.8 个月',
-                      priority: '🔴 极高 (本周内闭环)',
-                    },
-                    {
-                      title: '试验大厅加装变频器自动休眠逻辑与避峰试验排产',
-                      roi: '预估年节约电费 8.4 万元 · 尖峰用电占比降低 4.2%',
-                      priority: '🟡 中 (下月纳入排产)',
-                    },
-                  ]).map((act: any, idx: number) => (
-                    <div key={idx} className="p-3 bg-red-50/80 rounded-lg border border-red-200 space-y-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {(selectedDrawerEntity.realtime && selectedDrawerEntity.realtime.length ? selectedDrawerEntity.realtime : [
+                    { group: '电', name: '电压', val: '10.2 kV', status: '正常' },
+                  ]).map((s: any, i: number) => (
+                    <div
+                      key={i}
+                      onClick={() => setActiveRtPoint(s)}
+                      className={cn(
+                        'p-2.5 bg-white rounded-lg border shadow-xs font-mono flex flex-col gap-1.5 cursor-pointer transition-all',
+                        activeRtPoint?.name === s.name ? 'border-[#1677ff] ring-1 ring-[#1677ff]/30' : 'border-slate-200 hover:border-blue-300',
+                      )}
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900 font-sans flex items-center gap-1.5">
-                          <span className="size-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold">
-                            {idx + 1}
-                          </span>
-                          {act.title}
+                        <span className={cn('px-1.5 py-0.2 rounded font-bold text-[10px] font-sans', s.group === '电' ? 'bg-blue-100 text-blue-700' : s.group === '水' ? 'bg-cyan-100 text-cyan-700' : 'bg-amber-100 text-amber-700')}>
+                          {s.group}
                         </span>
-                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-red-100 text-red-700 border border-red-300">
-                          {act.priority}
+                        <span className={cn('px-1.5 py-0.2 rounded font-bold text-[10px] font-sans', s.status.includes('🔴') ? 'bg-red-100 text-red-700 border border-red-300' : s.status.includes('🟡') ? 'bg-amber-50 text-amber-700 border border-amber-300' : 'bg-slate-100 text-slate-600')}>
+                          {s.status}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-600 font-sans pl-5">
-                        <strong>预计效益：</strong>{act.roi}
-                      </p>
+                      <div>
+                        <div className="text-[10px] text-slate-400 block font-sans">{s.name}</div>
+                        <div className="text-sm font-bold text-slate-900">{s.val}</div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
+
+              {/* 板块 6.1: 选中点位 24小时监测曲线（点击上方卡片联动切换） */}
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex items-center justify-between pb-1.5">
+                  <span className="text-[11px] font-bold text-slate-700 font-sans flex items-center gap-1.5">
+                    <Zap className="size-3.5 text-[#1677ff]" />
+                    {(activeRtPoint?.name || '正向有功电能')} · 24小时监测曲线
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">当前值 {activeRtPoint?.val || '…'}</span>
+                </div>
+                <LineTrend
+                  height={160}
+                  xKey="hour"
+                  keys={[{ key: '监测值', name: (activeRtPoint?.name || '正向有功电能') + ' 监测值', color: '#1677ff' }]}
+                  data={genPointCurve(activeRtPoint)}
+                />
+              </div>
+
+                          </div>
 
             {/* 抽屉底部操作栏：关闭 */}
             <div className="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-end">

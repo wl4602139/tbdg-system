@@ -1612,503 +1612,7 @@
   </div>
 
   <!-- JavaScript 交互驱动逻辑 -->
-  <script>
-    // 初始化 Lucide 图标
-    lucide.createIcons();
-
-    // 页面路由切换
-    function switchPage(pageId) {
-      const pages = ['screen', 'indicator', 'online', 'green', 'structure', 'cbam', 'entry'];
-      pages.forEach(p => {
-        const el = document.getElementById('page-' + p);
-        const nav = document.getElementById('nav-' + p);
-        if (el) el.classList.add('hidden');
-        if (nav) nav.classList.remove('menu-active');
-      });
-
-      const targetEl = document.getElementById('page-' + pageId);
-      const targetNav = document.getElementById('nav-' + pageId);
-      if (targetEl) targetEl.classList.remove('hidden');
-      if (targetNav) targetNav.classList.add('menu-active');
-
-      // 触发 ECharts 重绘与全宽平铺自适应
-      setTimeout(() => {
-        if (pageId === 'screen') { initScreenCharts(); if (chartScreenTrend) chartScreenTrend.resize(); if (chartScreenLoad) chartScreenLoad.resize(); if (chartScreenStruct) chartScreenStruct.resize(); }
-        if (pageId === 'online') { initOnlineChart(); if (chartOnlineLoad) chartOnlineLoad.resize(); }
-        if (pageId === 'green') { initGreenChart(); if (chartGreenPeak) chartGreenPeak.resize(); }
-        if (pageId === 'structure') { 
-          initStructureCharts(); 
-          if (chartSankey) chartSankey.resize(); 
-          if (chartStructTrend) chartStructTrend.resize(); 
-        }
-      }, 50);
-    }
-
-    // 指标管控 PK Tab 切换
-    function setIndicatorPkTab(tabId) {
-      const tabs = ['factory', 'product', 'line', 'batch'];
-      tabs.forEach(t => {
-        const btn = document.getElementById('pktab-' + t);
-        const view = document.getElementById('pk-view-' + t);
-        if (btn) btn.classList.remove('tab-active');
-        if (view) view.classList.add('hidden');
-      });
-
-      const targetBtn = document.getElementById('pktab-' + tabId);
-      const targetView = document.getElementById('pk-view-' + tabId);
-      if (targetBtn) targetBtn.classList.add('tab-active');
-      if (targetView) targetView.classList.remove('hidden');
-    }
-
-    // 园区选择联动
-    function selectPark(name, city, stage, green, score) {
-      document.getElementById('selected-park-name').innerText = name;
-      document.getElementById('selected-park-stage').innerText = stage;
-      document.getElementById('selected-park-green').innerText = green;
-      document.getElementById('selected-park-score').innerText = score + ' 分';
-    }
-
-    // 模态框控制
-    function showGreenReportModal() { document.getElementById('modal-green-report').classList.remove('hidden'); }
-    function closeGreenReportModal() { document.getElementById('modal-green-report').classList.add('hidden'); }
-    function showAiModal() { document.getElementById('modal-ai').classList.remove('hidden'); }
-    function closeAiModal() { document.getElementById('modal-ai').classList.add('hidden'); }
-    function handleFormSubmit(e) {
-      e.preventDefault();
-      alert('填报数据已成功录入并同步至核算引擎！已生成审核审计日志。');
-    }
-
-    // ECharts 初始化逻辑
-    let chartScreenTrend, chartScreenLoad, chartScreenStruct, chartSankey, chartOnlineLoad, chartGreenPeak, chartStructTrend;
-
-    function initScreenCharts() {
-      if (!chartScreenTrend) {
-        chartScreenTrend = echarts.init(document.getElementById('chart-screen-trend'));
-        chartScreenTrend.setOption({
-          tooltip: { trigger: 'axis' },
-          grid: { top: 10, right: 10, bottom: 20, left: 30 },
-          xAxis: { type: 'category', data: ['1月','2月','3月','4月','5月','6月','7月','8月'], axisLabel: { fontSize: 10 } },
-          yAxis: { type: 'value', axisLabel: { fontSize: 10 } },
-          series: [
-            { name: '电力', type: 'line', smooth: true, data: [180, 175, 195, 205, 228, 245, 268, 274], color: '#1677ff', areaStyle: { opacity: 0.15 } },
-            { name: '天然气', type: 'line', smooth: true, data: [45, 42, 48, 50, 55, 60, 65, 68], color: '#fa8c16', areaStyle: { opacity: 0.15 } }
-          ]
-        });
-      }
-      if (!chartScreenLoad) {
-        chartScreenLoad = echarts.init(document.getElementById('chart-screen-load'));
-        chartScreenLoad.setOption({
-          tooltip: { trigger: 'axis' },
-          grid: { top: 10, right: 10, bottom: 20, left: 30 },
-          xAxis: { type: 'category', data: ['00:00','04:00','08:00','12:00','16:00','20:00','24:00'], axisLabel: { fontSize: 10 } },
-          yAxis: { type: 'value', axisLabel: { fontSize: 10 } },
-          series: [
-            { name: '总负荷', type: 'line', smooth: true, data: [22, 18, 42, 58, 62, 48, 28], color: '#1677ff' },
-            { name: '光伏出力', type: 'line', smooth: true, data: [0, 0, 15, 38, 25, 0, 0], color: '#52c41a' }
-          ]
-        });
-      }
-      if (!chartScreenStruct) {
-        chartScreenStruct = echarts.init(document.getElementById('chart-screen-structure'));
-        chartScreenStruct.setOption({
-          tooltip: { trigger: 'item' },
-          series: [{
-            type: 'pie',
-            radius: ['45%', '70%'],
-            data: [
-              { value: 71.7, name: '电力', itemStyle: { color: '#1677ff' } },
-              { value: 18.2, name: '蒸汽', itemStyle: { color: '#722ed1' } },
-              { value: 10.1, name: '天然气', itemStyle: { color: '#fa8c16' } }
-            ],
-            label: { fontSize: 10 }
-          }]
-        });
-      }
-    }
-
-    
-    
-    let currentOnlineMedium = 'elec';
-
-    function switchOnlineMedium(medium) {
-      currentOnlineMedium = medium;
-      const tabs = ['elec', 'water', 'gas', 'air'];
-      const titles = {
-        elec: '电力系统测点拓扑树',
-        water: '工业水循环管网树',
-        gas: '燃气与热动力管网树',
-        air: '动力空压气动管网树'
-      };
-      const badges = {
-        elec: '电力4级',
-        water: '水务4级',
-        gas: '燃气4级',
-        air: '气动4级'
-      };
-      const chartTitles = {
-        elec: '24小时用电负荷与新能源多曲线联动 (MW)',
-        water: '24小时全厂工业用水与循环水流量实时监测 (m³/h)',
-        gas: '24小时管道天然气消耗与锅炉瞬时出力监测 (Nm³/h)',
-        air: '24小时压缩空气产气量与车间末端用气监测 (Nm³/min)'
-      };
-      const legends = {
-        elec: '<span class="text-blue-600 font-bold">● 总用电负荷</span><span class="text-emerald-600 font-bold">● 光伏出力</span><span class="text-amber-600 font-bold">● 储能充放</span>',
-        water: '<span class="text-cyan-600 font-bold">● 循环供水总流量</span><span class="text-blue-600 font-bold">● 纯水制备瞬时量</span><span class="text-emerald-600 font-bold">● 冷凝中水回收量</span>',
-        gas: '<span class="text-amber-600 font-bold">● 天然气总供气量</span><span class="text-purple-600 font-bold">● 锅炉动力用气</span><span class="text-orange-600 font-bold">● 工艺烘干用气</span>',
-        air: '<span class="text-purple-600 font-bold">● 空压机总产气量</span><span class="text-cyan-600 font-bold">● 车间末端用气量</span><span class="text-amber-600 font-bold">● 管网压力 (×100)</span>'
-      };
-
-      tabs.forEach(t => {
-        const btn = document.getElementById('online-tab-' + t);
-        const tree = document.getElementById('tree-online-' + t);
-        if (btn) {
-          if (t === medium) {
-            btn.className = 'flex items-center gap-1.5 px-4 py-2 rounded-t-lg font-bold border-b-2 border-[#1677ff] text-[#1677ff] bg-blue-50/50';
-          } else {
-            btn.className = 'flex items-center gap-1.5 px-4 py-2 rounded-t-lg font-bold border-b-2 border-transparent text-slate-600 hover:text-slate-900';
-          }
-        }
-        if (tree) {
-          if (t === medium) tree.classList.remove('hidden');
-          else tree.classList.add('hidden');
-        }
-      });
-
-      const titleEl = document.getElementById('online-tree-title');
-      const badgeEl = document.getElementById('online-tree-badge');
-      const chartTitleEl = document.getElementById('online-chart-title');
-      const legendEl = document.getElementById('online-chart-legend');
-
-      if (titleEl) titleEl.innerText = titles[medium];
-      if (badgeEl) badgeEl.innerText = badges[medium];
-      if (chartTitleEl) chartTitleEl.innerHTML = '<i data-lucide="activity" class="size-4 text-[#1677ff]"></i> ' + chartTitles[medium];
-      if (legendEl) legendEl.innerHTML = legends[medium];
-
-      renderOnlineMediumChart(medium, 1.0);
-      lucide.createIcons();
-    }
-
-    function renderOnlineMediumChart(medium, seed) {
-      if (!chartOnlineLoad) return;
-      if (medium === 'water') {
-        chartOnlineLoad.setOption({
-          series: [
-            { name: '循环供水总流量', data: [120, 110, 115, 145, 280, 320, 290, 340, 310, 260, 190, 140].map(v => +(v * seed).toFixed(1)), color: '#13c2c2' },
-            { name: '纯水制备瞬时量', data: [15, 12, 14, 18, 35, 42, 38, 45, 40, 30, 22, 16].map(v => +(v * seed).toFixed(1)), color: '#1677ff' },
-            { name: '冷凝中水回收量', data: [45, 40, 42, 55, 95, 110, 105, 120, 115, 85, 65, 50].map(v => +(v * seed).toFixed(1)), color: '#52c41a' }
-          ]
-        });
-      } else if (medium === 'gas') {
-        chartOnlineLoad.setOption({
-          series: [
-            { name: '天然气总流量', data: [480, 450, 460, 620, 1180, 1420, 1250, 1480, 1350, 1100, 820, 560].map(v => +(v * seed).toFixed(1)), color: '#fa8c16' },
-            { name: '锅炉动力用气', data: [320, 300, 310, 420, 780, 920, 800, 950, 880, 720, 550, 380].map(v => +(v * seed).toFixed(1)), color: '#722ed1' },
-            { name: '工艺烘干用气', data: [160, 150, 150, 200, 400, 500, 450, 530, 470, 380, 270, 180].map(v => +(v * seed).toFixed(1)), color: '#fa541c' }
-          ]
-        });
-      } else if (medium === 'air') {
-        chartOnlineLoad.setOption({
-          series: [
-            { name: '空压机总产气量', data: [42, 38, 39.5, 58, 112, 135, 118, 142, 128, 98, 72, 48].map(v => +(v * seed).toFixed(1)), color: '#722ed1' },
-            { name: '车间末端用气量', data: [38.5, 35, 36.2, 52, 104, 126.5, 110, 132, 119, 90, 66, 44].map(v => +(v * seed).toFixed(1)), color: '#13c2c2' },
-            { name: '管网压力', data: [72, 73, 72, 71, 69, 68, 70, 68, 69, 70, 71, 72].map(v => +(v * seed).toFixed(1)), color: '#fa8c16' }
-          ]
-        });
-      } else {
-        chartOnlineLoad.setOption({
-          series: [
-            { name: '总负荷', data: [20, 18, 16, 25, 48, 62, 58, 65, 60, 52, 42, 28].map(v => +(v * seed).toFixed(1)), color: '#1677ff' },
-            { name: '光伏发电', data: [0, 0, 0, 2, 18, 35, 38, 32, 22, 5, 0, 0].map(v => +(v * seed).toFixed(1)), color: '#52c41a' },
-            { name: '储能充放', data: [-8, -8, -8, 0, 0, 0, 0, 0, 5, 12, 8, 0].map(v => +(v * seed).toFixed(1)), color: '#fa8c16' }
-          ]
-        });
-      }
-    }
-
-    function selectOnlineNode(name, path) {
-      const pathEl = document.getElementById('online-current-path');
-      if (pathEl) pathEl.innerText = path;
-
-      // 根据节点名称动态波动数据
-      let seed = 1.0;
-      if (name.includes('干燥')) seed = 0.42;
-      else if (name.includes('剪切')) seed = 0.28;
-      else if (name.includes('试验')) seed = 0.65;
-      else if (name.includes('衡变')) seed = 0.88;
-      else if (name.includes('鲁缆')) seed = 0.75;
-
-      const loadData = [20, 18, 16, 25, 48, 62, 58, 65, 60, 52, 42, 28].map(v => +(v * seed).toFixed(1));
-      const pvData = [0, 0, 0, 2, 18, 35, 38, 32, 22, 5, 0, 0].map(v => +(v * seed).toFixed(1));
-      const stData = [-8, -8, -8, 0, 0, 0, 0, 0, 5, 12, 8, 0].map(v => +(v * seed).toFixed(1));
-
-      if (chartOnlineLoad) {
-        chartOnlineLoad.setOption({
-          series: [
-            { name: '总负荷', data: loadData },
-            { name: '光伏发电', data: pvData },
-            { name: '储能充放', data: stData }
-          ]
-        });
-      }
-    }
-
-    function initOnlineChart() {
-      if (!chartOnlineLoad) {
-        chartOnlineLoad = echarts.init(document.getElementById('chart-online-load'));
-        chartOnlineLoad.setOption({
-          tooltip: { trigger: 'axis' },
-          grid: { top: 20, right: 20, bottom: 25, left: 35 },
-          xAxis: { type: 'category', data: ['00:00','02:00','04:00','06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'], axisLabel: { fontSize: 11 } },
-          yAxis: { type: 'value', axisLabel: { fontSize: 11 } },
-          series: [
-            { name: '总负荷', type: 'line', smooth: true, data: [20, 18, 16, 25, 48, 62, 58, 65, 60, 52, 42, 28], color: '#1677ff' },
-            { name: '光伏发电', type: 'line', smooth: true, data: [0, 0, 0, 2, 18, 35, 38, 32, 22, 5, 0, 0], color: '#52c41a' },
-            { name: '储能充放', type: 'line', smooth: true, data: [-8, -8, -8, 0, 0, 0, 0, 0, 5, 12, 8, 0], color: '#fa8c16' }
-          ]
-        });
-      }
-    }
-
-    function initGreenChart() {
-      if (!chartGreenPeak) {
-        chartGreenPeak = echarts.init(document.getElementById('chart-green-peak'));
-        chartGreenPeak.setOption({
-          tooltip: { trigger: 'axis' },
-          grid: { top: 20, right: 20, bottom: 25, left: 35 },
-          xAxis: { type: 'category', data: ['00:00','04:00','08:00','12:00','16:00','20:00','24:00'] },
-          yAxis: { type: 'value' },
-          series: [
-            { name: '原始电网峰值负荷', type: 'line', smooth: true, data: [25, 20, 58, 72, 68, 55, 30], color: '#94a3b8', lineStyle: { type: 'dashed' } },
-            { name: '绿电消纳后净电网负荷', type: 'line', smooth: true, data: [25, 20, 40, 34, 46, 43, 30], color: '#10b981', areaStyle: { opacity: 0.15 } }
-          ]
-        });
-      }
-    }
-
-    // ECharts 100% 对齐参考图的桑基图
-    function initStructureCharts() {
-      if (!chartSankey) {
-        chartSankey = echarts.init(document.getElementById('chart-sankey'));
-        renderSankey('all', 'park');
-      }
-      if (!chartStructTrend) {
-        chartStructTrend = echarts.init(document.getElementById('chart-structure-multitrend'));
-        renderStructureTrend();
-      }
-    }
-
-    function setSankeyLevel(level) {
-      document.getElementById('sankey-btn-park').className = level === 'park' ? 'px-2.5 py-1 rounded font-bold tab-active' : 'px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900';
-      document.getElementById('sankey-btn-factory').className = level === 'factory' ? 'px-2.5 py-1 rounded font-bold tab-active' : 'px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900';
-      renderSankey(document.getElementById('sankey-type-select').value, level);
-    }
-
-    function changeSankeyType(type) {
-      const level = document.getElementById('sankey-btn-park').classList.contains('tab-active') ? 'park' : 'factory';
-      renderSankey(type, level);
-    }
-
-    function renderSankey(type, level) {
-      const option = {
-        tooltip: {
-          trigger: 'item',
-          triggerOn: 'mousemove',
-          backgroundColor: 'rgba(15, 23, 42, 0.95)',
-          borderColor: '#334155',
-          borderWidth: 1,
-          textStyle: { color: '#ffffff', fontSize: 12, fontFamily: 'monospace' },
-          formatter: function(params) {
-            if (params.dataType === 'node') {
-              return '<div style="font-weight:bold; border-bottom:1px solid #334155; padding-bottom:3px;">' + params.name + '</div><div>节点能流通量: ' + (params.value || '汇总节点') + '</div>';
-            } else {
-              return '<div style="font-weight:bold; border-bottom:1px solid #334155; padding-bottom:3px;">' + params.data.source + ' ➔ ' + params.data.target + '</div><div>能流传输量: ' + params.data.value + ' MWh/tce</div>';
-            }
-          }
-        },
-        series: [{
-          type: 'sankey',
-          layout: 'none',
-          emphasis: { focus: 'adjacency' },
-          nodeAlign: 'justify',
-          orient: 'horizontal',
-          draggable: true,
-          left: '2%',
-          right: '10%',
-          top: '3%',
-          bottom: '3%',
-          nodeWidth: 18,
-          nodeGap: 22,
-          data: [
-            { name: '市政工业热力/蒸汽', itemStyle: { color: '#64748b' } },
-            { name: '市政电网接入', itemStyle: { color: '#f43f5e' } },
-            { name: '分布式屋顶光伏', itemStyle: { color: '#334155' } },
-            { name: '市政天然气管网', itemStyle: { color: '#84cc16' } },
-            { name: '余热回收利用', itemStyle: { color: '#64748b' } },
-            { name: '储能电池电站', itemStyle: { color: '#60a5fa' } },
-            { name: '中央变电与配电中心', itemStyle: { color: '#10b981' } },
-            { name: '燃气锅炉/冷热联供', itemStyle: { color: '#a3e635' } },
-            { name: '1号高端制造车间', itemStyle: { color: '#a89078' } },
-            { name: 'IDC数据中心', itemStyle: { color: '#84cc16' } },
-            { name: '充电桩集群', itemStyle: { color: '#3b82f6' } },
-            { name: '2号精细化工车间', itemStyle: { color: '#f97316' } },
-            { name: '变压与线路热损', itemStyle: { color: '#6366f1' } },
-            { name: '园区行政与生活区', itemStyle: { color: '#84cc16' } }
-          ],
-          links: [
-            { source: '市政工业热力/蒸汽', target: '余热回收利用', value: 850 },
-            { source: '市政电网接入', target: '中央变电与配电中心', value: 8700 },
-            { source: '分布式屋顶光伏', target: '储能电池电站', value: 1820 },
-            { source: '储能电池电站', target: '中央变电与配电中心', value: 1820 },
-            { source: '市政天然气管网', target: '燃气锅炉/冷热联供', value: 1450 },
-            { source: '余热回收利用', target: '1号高端制造车间', value: 850 },
-            { source: '中央变电与配电中心', target: '1号高端制造车间', value: 3800 },
-            { source: '中央变电与配电中心', target: 'IDC数据中心', value: 2200 },
-            { source: '中央变电与配电中心', target: '充电桩集群', value: 950 },
-            { source: '中央变电与配电中心', target: '2号精细化工车间', value: 2800 },
-            { source: '中央变电与配电中心', target: '变压与线路热损', value: 220 },
-            { source: '中央变电与配电中心', target: '园区行政与生活区', value: 550 },
-            { source: '燃气锅炉/冷热联供', target: '2号精细化工车间', value: 800 },
-            { source: '燃气锅炉/冷热联供', target: '园区行政与生活区', value: 650 }
-          ],
-          lineStyle: { color: 'gradient', curveness: 0.5, opacity: 0.38 },
-          label: { color: '#1e293b', fontSize: 11, fontWeight: 'bold' },
-          itemStyle: { borderWidth: 0 }
-        }]
-      };
-      chartSankey.setOption(option, true);
-    }
-
-    function renderStructureTrend() {
-      chartStructTrend.setOption({
-        tooltip: { trigger: 'axis' },
-        grid: { top: 20, right: 20, bottom: 25, left: 35 },
-        xAxis: { type: 'category', data: ['1月','2月','3月','4月','5月','6月','7月','8月'] },
-        yAxis: { type: 'value' },
-        series: [
-          { name: '电力', type: 'line', smooth: true, data: [182.5, 175.0, 195.4, 205.8, 228.0, 245.2, 268.5, 274.0], color: '#1677ff' },
-          { name: '蒸汽', type: 'line', smooth: true, data: [48.2, 46.0, 51.2, 54.0, 58.6, 62.0, 66.8, 68.2], color: '#722ed1' },
-          { name: '天然气', type: 'line', smooth: true, data: [26.5, 25.8, 28.0, 29.5, 31.2, 33.0, 35.5, 36.2], color: '#fa8c16' },
-          { name: '绿电', type: 'line', smooth: true, data: [68.5, 65.0, 76.2, 84.0, 96.5, 108.0, 122.5, 128.4], color: '#52c41a' }
-        ]
-      });
-    }
-
-    window.addEventListener('resize', () => {
-      if (chartScreenTrend) chartScreenTrend.resize();
-      if (chartScreenLoad) chartScreenLoad.resize();
-      if (chartScreenStruct) chartScreenStruct.resize();
-      if (chartSankey) chartSankey.resize();
-      if (chartOnlineLoad) chartOnlineLoad.resize();
-      if (chartGreenPeak) chartGreenPeak.resize();
-      if (chartStructTrend) chartStructTrend.resize();
-    });
-
-    // 默认展示大屏
-    window.onload = () => {
-      initScreenCharts();
-    };
   
-    function toggleFloatingAi() {
-      const win = document.getElementById('floating-ai-window');
-      win.classList.toggle('hidden');
-    }
-    function sendQuickAi(q) {
-      document.getElementById('floating-ai-input').value = q;
-      sendFloatingAi();
-    }
-    function sendFloatingAi() {
-      const input = document.getElementById('floating-ai-input');
-      const text = input.value.trim();
-      if (!text) return;
-      input.value = '';
-
-      const container = document.getElementById('ai-chat-messages');
-      container.innerHTML += '<div class="flex justify-end"><div class="p-2.5 rounded-xl bg-[#1677ff] text-white max-w-[85%] leading-relaxed shadow-xs">' + text + '</div></div>';
-      container.scrollTop = container.scrollHeight;
-
-      setTimeout(() => {
-        let reply = '【AI 智能诊断】已查询特变电工能碳中枢数据：该指标在 8 月份整体处于受控范围内，节能技改项目投资回报周期预计为 2.8 年。';
-        if (text.includes('干燥') || text.includes('蒸汽') || text.includes('沈变')) {
-          reply = '【工序异动预警】沈变本部 8 月真空干燥车间能耗超标 +48.3%，万元产值能耗 0.89 tce/万 (标杆 0.60)。传感器监测诊断：2号干燥罐温控疏水阀微漏，建议排期检修。';
-        } else if (text.includes('单耗') || text.includes('工厂') || text.includes('最高')) {
-          reply = '【指标横向PK】全集团 21 家工厂中，新变超高压公司 8 月综合单耗最高 (1.58 tce/万kVA，超标 +31.6%)，为重点监管单位；衡变本部表现最优 (1.18 tce/万kVA)，为低碳标杆。';
-        }
-        container.innerHTML += '<div class="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 leading-relaxed shadow-xs">' + reply + '</div>';
-        container.scrollTop = container.scrollHeight;
-      }, 300);
-    }
-        
-  
-    function dispatchBill(name) {
-      alert('已向责任工厂【' + name + '】下发《特变电工节能降碳限期整改督办单》！工单编号：DB-20260825-009');
-    }
-    function openDrawer(name) {
-      alert('【' + name + '】工序能碳诊断明细：\n• 综合能耗：1,284.5 tce\n• 绿电消纳率：38.6%\n• 核心异动：超高压试验大厅变频机组存在轻微空载损耗。');
-    }
-        
-  
-    function switchPkTab(tabKey) {
-      const titles = {
-        factory: '产业群与工厂树',
-        product: '产品品类与型号树',
-        line: '制造基地与车间树',
-        batch: '产品批次追溯树'
-      };
-      const titleEl = document.getElementById('left-tree-title');
-      if (titleEl && titles[tabKey]) titleEl.innerText = titles[tabKey];
-
-      ['factory', 'product', 'line', 'batch'].forEach(k => {
-        const btn = document.getElementById('tab-btn-' + k);
-        const tree = document.getElementById('left-tree-' + k);
-        const view = document.getElementById('pk-view-' + k);
-        if (btn) {
-          if (k === tabKey) {
-            btn.className = 'px-3.5 py-1.5 rounded-md font-bold transition-all bg-[#1677ff] text-white flex items-center gap-1.5';
-          } else {
-            btn.className = 'px-3.5 py-1.5 rounded-md font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5';
-          }
-        }
-        if (tree) {
-          if (k === tabKey) tree.classList.remove('hidden');
-          else tree.classList.add('hidden');
-        }
-        if (view) {
-          if (k === tabKey) view.classList.remove('hidden');
-          else view.classList.add('hidden');
-        }
-      });
-      lucide.createIcons();
-    } else {
-            btn.className = 'px-3.5 py-1.5 rounded-md font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5';
-          }
-        }
-        if (sel) {
-          if (k === tabKey) sel.classList.remove('hidden');
-          else sel.classList.add('hidden');
-        }
-        if (view) {
-          if (k === tabKey) view.classList.remove('hidden');
-          else view.classList.add('hidden');
-        }
-      });
-      lucide.createIcons();
-    }
-    
-  
-    function triggerTicketToast() {
-      const toast = document.getElementById('ticket-toast');
-      const btn = document.getElementById('btn-create-ticket');
-      if (toast) {
-        toast.classList.remove('hidden');
-      }
-      if (btn) {
-        btn.innerHTML = '<i data-lucide="check-check" class="size-3.5"></i><span>已下发整改工单</span>';
-        btn.className = 'px-4 py-2 rounded bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 cursor-default shadow-xs';
-      }
-      lucide.createIcons();
-    }
-
-  </script>
 
   <!-- 🌟 页面右下角固定浮层 AI 图标与对话框 -->
   <div id="floating-ai-widget" class="fixed bottom-5 right-5 z-40 flex flex-col items-end">
@@ -2157,5 +1661,319 @@
     </button>
   </div>
         
+
+  <!-- 🌟 工业级 7 大板块：工厂能碳指标与监测明细抽屉 -->
+  <div id="indicator-drawer" class="fixed inset-0 z-[60] bg-black/40 backdrop-blur-xs flex justify-end hidden">
+    <div class="w-full max-w-4xl lg:max-w-5xl bg-white h-full shadow-2xl border-l border-slate-200 flex flex-col justify-between overflow-hidden animate-in slide-in-from-right">
+      <!-- 抽屉顶部 -->
+      <div class="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="size-9 rounded-lg bg-[#1677ff] text-white flex items-center justify-center font-bold shadow-xs">
+            <i data-lucide="factory" class="size-5"></i>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 id="drawer-title" class="font-bold text-sm text-slate-900 font-sans">
+                沈变本部 · 工厂能碳指标与监测明细
+              </h2>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 text-[#1677ff] font-bold font-mono">
+                监测报告 2026-08
+              </span>
+            </div>
+            <span class="text-[11px] text-slate-500 font-mono">
+              主体：特变电工东北输变电产业园 · 指标核算/产品单耗/实时量测/新能源资产全量监测
+            </span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="alert('已导出能碳监测明细报告PDF！')" class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold flex items-center gap-1 shadow-xs">
+            <i data-lucide="download" class="size-3.5 text-[#1677ff]"></i>
+            <span>导出PDF</span>
+          </button>
+          <button onclick="closeDrawer()" class="p-1 rounded text-slate-400 hover:text-slate-800 text-lg font-bold">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- 抽屉滚动内容 -->
+      <div class="p-5 space-y-4 overflow-y-auto flex-1 text-xs font-sans">
+        <!-- 板块 1: 核心概况 -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
+            <span class="flex items-center gap-1.5"><i data-lucide="gauge" class="size-4 text-[#1677ff]"></i> 1. 综合能碳概况与同环比趋势</span>
+            <span class="text-[10px] text-slate-400 font-mono">行业先进对标</span>
+          </div>
+          <div class="grid grid-cols-4 gap-2 font-mono">
+            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="text-[10px] text-slate-400 block font-sans">月度综合能耗</span>
+              <div class="text-base font-bold text-slate-900"><span id="drawer-kpi-energy">1,284.5</span> <span class="text-[10px] font-normal text-slate-400 font-sans">tce</span></div>
+              <div class="text-[10px] text-red-600 font-semibold mt-0.5">同比 +2.1% ▲</div>
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="text-[10px] text-slate-400 block font-sans">月度总碳排放</span>
+              <div class="text-base font-bold text-slate-900"><span id="drawer-kpi-carbon">3,420.8</span> <span class="text-[10px] font-normal text-slate-400 font-sans">tCO2</span></div>
+              <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">减碳 -1,240 t</div>
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="text-[10px] text-slate-400 block font-sans">绿电消纳占比</span>
+              <div class="text-base font-bold text-emerald-600"><span id="drawer-kpi-green">38.6%</span></div>
+              <div class="text-[10px] text-slate-400 font-sans mt-0.5">标杆基准 44.0%</div>
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="text-[10px] text-slate-400 block font-sans">综合度电成本</span>
+              <div class="text-base font-bold text-slate-900">0.685 <span class="text-[10px] font-normal text-slate-400 font-sans">元/度</span></div>
+              <div class="text-[10px] text-red-600 font-semibold mt-0.5">尖峰电费偏高</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 板块 2: 能源介质构成 -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
+            <span class="flex items-center gap-1.5"><i data-lucide="layers" class="size-4 text-[#1677ff]"></i> 2. 能源介质消耗构成 (分项能耗)</span>
+            <span class="text-[10px] text-red-600 font-semibold">🔴 蒸汽为主要超标介质</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono">
+            <div class="p-2 bg-blue-50/60 rounded border border-blue-200 space-y-1">
+              <div class="flex items-center justify-between font-sans"><span class="font-bold text-slate-800">⚡ 外购电力</span><span class="text-[10px] text-blue-700 font-bold">68.3%</span></div>
+              <div class="text-xs font-bold text-slate-900">8,450 MWh</div>
+              <div class="text-[10px] text-slate-500">折标: 1,038 tce</div>
+            </div>
+            <div class="p-2 bg-red-50 rounded border border-red-200 space-y-1">
+              <div class="flex items-center justify-between font-sans"><span class="font-bold text-red-800">🔥 工业蒸汽</span><span class="text-[10px] text-red-700 font-bold">21.5%</span></div>
+              <div class="text-xs font-bold text-red-600">3,820 GJ</div>
+              <div class="text-[10px] text-red-700 font-semibold">🔴 严重超标</div>
+            </div>
+            <div class="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <div class="flex items-center justify-between font-sans"><span class="font-bold text-slate-800">🔥 天然气</span><span class="text-[10px] text-slate-500">8.0%</span></div>
+              <div class="text-xs font-bold text-slate-800">12.4万 Nm³</div>
+              <div class="text-[10px] text-slate-500">折标: 121.6 tce</div>
+            </div>
+            <div class="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <div class="flex items-center justify-between font-sans"><span class="font-bold text-slate-800">💧 软水/气</span><span class="text-[10px] text-slate-500">2.2%</span></div>
+              <div class="text-xs font-bold text-slate-800">4.2万吨</div>
+              <div class="text-[10px] text-slate-500">正常受控</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 板块 3: 峰平谷结构 -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
+            <span class="flex items-center gap-1.5"><i data-lucide="clock" class="size-4 text-[#1677ff]"></i> 3. 峰平谷用电结构透视 (避峰填谷潜力)</span>
+            <span class="text-[10px] text-slate-500 font-mono">峰谷比 64.6% : 13.3%</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2 font-mono">
+            <div class="h-3 w-full bg-slate-200 rounded-full overflow-hidden flex">
+              <div class="bg-red-500 h-full w-[28.4%]" title="尖峰 28.4%"></div>
+              <div class="bg-amber-400 h-full w-[36.2%]" title="高峰 36.2%"></div>
+              <div class="bg-blue-400 h-full w-[22.1%]" title="平段 22.1%"></div>
+              <div class="bg-emerald-500 h-full w-[13.3%]" title="低谷 13.3%"></div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 text-[11px] font-sans pt-1">
+              <div>尖峰: <strong class="text-red-600 font-mono">28.4%</strong> (偏高)</div>
+              <div>高峰: <strong class="text-slate-800 font-mono">36.2%</strong></div>
+              <div>平段: <strong class="text-slate-800 font-mono">22.1%</strong></div>
+              <div>低谷: <strong class="text-emerald-700 font-mono">13.3%</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 板块 5: 重点产品能耗定额 -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
+            <span class="flex items-center gap-1.5"><i data-lucide="package" class="size-4 text-[#1677ff]"></i> 5. 工序重点产品能耗定额与实物单耗对标</span>
+            <span class="text-[10px] text-slate-400 font-mono">特高压主力型号</span>
+          </div>
+          <div class="overflow-x-auto border border-slate-200 rounded-lg bg-white">
+            <table class="w-full text-[11px] text-left font-mono">
+              <thead class="bg-slate-50 text-slate-600 font-sans border-b border-slate-200">
+                <tr>
+                  <th class="p-2">产品型号</th>
+                  <th class="p-2 text-right">综合单耗</th>
+                  <th class="p-2 text-right">单台电耗</th>
+                  <th class="p-2 text-right">单台蒸汽</th>
+                  <th class="p-2 text-right">单台天然气</th>
+                  <th class="p-2 text-right">单台水耗</th>
+                  <th class="p-2 text-center">环比趋势</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="hover:bg-slate-50">
+                  <td class="p-2 font-bold text-[#1677ff]">ODFS-334MVA/500kV</td>
+                  <td class="p-2 text-right">1.58 tce/台</td>
+                  <td class="p-2 text-right">10,800 kWh/台</td>
+                  <td class="p-2 text-right">5.10 GJ/台</td>
+                  <td class="p-2 text-right">132 m³/台</td>
+                  <td class="p-2 text-right">42 t/台</td>
+                  <td class="p-2 text-center"><span class="px-1.5 py-0.2 rounded font-bold text-[10px] bg-red-100 text-red-700">+31.6% 环比</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="p-2 font-bold text-[#1677ff]">SZ11-50000/110kV</td>
+                  <td class="p-2 text-right">0.82 tce/台</td>
+                  <td class="p-2 text-right">5,400 kWh/台</td>
+                  <td class="p-2 text-right">2.20 GJ/台</td>
+                  <td class="p-2 text-right">65 m³/台</td>
+                  <td class="p-2 text-right">18 t/台</td>
+                  <td class="p-2 text-center"><span class="px-1.5 py-0.2 rounded font-bold text-[10px] bg-emerald-100 text-emerald-700">-4.2% 环比</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 板块 6: 实时量测点位 -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
+            <span class="flex items-center gap-1.5"><i data-lucide="cpu" class="size-4 text-[#1677ff]"></i> 6. 工序能耗实时量测点位（电 / 水 / 天然气）</span>
+            <span class="text-[10px] text-slate-400 font-mono">SCADA 实时遥测</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 shadow-2xs font-mono">
+              <span class="px-1.5 py-0.2 rounded font-bold text-[10px] bg-blue-100 text-blue-700">电</span>
+              <div class="text-[10px] text-slate-400 block mt-1 font-sans">A相电压</div>
+              <div class="text-sm font-bold text-slate-900">10.2 kV</div>
+            </div>
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 shadow-2xs font-mono">
+              <span class="px-1.5 py-0.2 rounded font-bold text-[10px] bg-blue-100 text-blue-700">电</span>
+              <div class="text-[10px] text-slate-400 block mt-1 font-sans">总有功功率</div>
+              <div class="text-sm font-bold text-slate-900">4,820 kW</div>
+            </div>
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 shadow-2xs font-mono">
+              <span class="px-1.5 py-0.2 rounded font-bold text-[10px] bg-cyan-100 text-cyan-700">水</span>
+              <div class="text-[10px] text-slate-400 block mt-1 font-sans">循环水瞬时流量</div>
+              <div class="text-sm font-bold text-slate-900">320 m³/h</div>
+            </div>
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 shadow-2xs font-mono">
+              <span class="px-1.5 py-0.2 rounded font-bold text-[10px] bg-amber-100 text-amber-700">气</span>
+              <div class="text-[10px] text-slate-400 block mt-1 font-sans">锅炉供气瞬时量</div>
+              <div class="text-sm font-bold text-slate-900">920 Nm³/h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 抽屉底部关闭按钮 -->
+      <div class="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-end">
+        <button onclick="closeDrawer()" class="px-5 py-2 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white font-bold text-xs shadow-xs">
+          关闭明细
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    function openDrawer(name) {
+      const drawer = document.getElementById('indicator-drawer');
+      const title = document.getElementById('drawer-title');
+      const kpiE = document.getElementById('drawer-kpi-energy');
+      const kpiC = document.getElementById('drawer-kpi-carbon');
+      const kpiG = document.getElementById('drawer-kpi-green');
+
+      if (title) title.innerText = name + ' · 工厂能碳指标与监测明细';
+      if (name.includes('新变')) {
+        if (kpiE) kpiE.innerText = '1,520.0';
+        if (kpiC) kpiC.innerText = '4,150.2';
+        if (kpiG) kpiG.innerText = '31.2%';
+      } else if (name.includes('衡变')) {
+        if (kpiE) kpiE.innerText = '1,190.0';
+        if (kpiC) kpiC.innerText = '3,180.5';
+        if (kpiG) kpiG.innerText = '41.2%';
+      } else if (name.includes('新缆')) {
+        if (kpiE) kpiE.innerText = '680.0';
+        if (kpiC) kpiC.innerText = '1,820.0';
+        if (kpiG) kpiG.innerText = '44.0%';
+      } else {
+        if (kpiE) kpiE.innerText = '1,284.5';
+        if (kpiC) kpiC.innerText = '3,420.8';
+        if (kpiG) kpiG.innerText = '38.6%';
+      }
+
+      if (drawer) {
+        drawer.classList.remove('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    function closeDrawer() {
+      const drawer = document.getElementById('indicator-drawer');
+      if (drawer) drawer.classList.add('hidden');
+    }
+
+    function switchPkTab(tabKey) {
+      const titles = {
+        factory: '产业群与工厂树',
+        product: '产品品类与型号树',
+        line: '制造基地与车间树',
+        batch: '产品批次追溯树'
+      };
+      const titleEl = document.getElementById('left-tree-title');
+      if (titleEl && titles[tabKey]) titleEl.innerText = titles[tabKey];
+
+      ['factory', 'product', 'line', 'batch'].forEach(k => {
+        const btn = document.getElementById('tab-btn-' + k);
+        const tree = document.getElementById('left-tree-' + k);
+        const view = document.getElementById('pk-view-' + k);
+        if (btn) {
+          if (k === tabKey) {
+            btn.className = 'px-3.5 py-1.5 rounded-md font-bold transition-all bg-[#1677ff] text-white flex items-center gap-1.5 shadow-xs';
+          } else {
+            btn.className = 'px-3.5 py-1.5 rounded-md font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5';
+          }
+        }
+        if (tree) {
+          if (k === tabKey) tree.classList.remove('hidden');
+          else tree.classList.add('hidden');
+        }
+        if (view) {
+          if (k === tabKey) view.classList.remove('hidden');
+          else view.classList.add('hidden');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function toggleFloatingAi() {
+      const win = document.getElementById('floating-ai-window');
+      if (win) {
+        win.classList.toggle('hidden');
+      }
+    }
+
+    function sendFloatingAi() {
+      const input = document.getElementById('floating-ai-input');
+      if (!input || !input.value.trim()) return;
+      const text = input.value.trim();
+      input.value = '';
+      appendAiMessage(text, 'user');
+      setTimeout(() => {
+        appendAiMessage('已为您检索特变电工各产业基地 SCADA 实时遥测数据：' + text + ' 相关指标运行受控，建议持续关注避峰填谷优化。', 'ai');
+      }, 500);
+    }
+
+    function sendQuickAi(text) {
+      appendAiMessage(text, 'user');
+      setTimeout(() => {
+        appendAiMessage('【AI 智能诊断】：针对“' + text + '”，SCADA 系统排查显示 2号真空干燥罐存在局部疏水阀温控滞后，建议闭环维保。', 'ai');
+      }, 500);
+    }
+
+    function appendAiMessage(text, sender) {
+      const container = document.getElementById('ai-chat-messages');
+      if (!container) return;
+      const div = document.createElement('div');
+      if (sender === 'user') {
+        div.className = 'p-2.5 rounded-xl bg-[#1677ff] text-white self-end text-xs shadow-xs';
+      } else {
+        div.className = 'p-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 leading-relaxed shadow-xs text-xs';
+      }
+      div.innerText = text;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+  </script>
+
 </body>
 </html>
