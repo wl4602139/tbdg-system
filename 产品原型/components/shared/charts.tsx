@@ -141,16 +141,17 @@ export function AreaTrend({
 }
 
 export function Donut({
-  data,
+  data = [],
   height = 200,
   nameKey = 'name',
   valueKey = 'value',
 }: {
-  data: any[]
+  data?: any[]
   height?: number
   nameKey?: string
   valueKey?: string
 }) {
+  if (!data || !Array.isArray(data) || data.length === 0) return null
   return (
     <ResponsiveContainer width="100%" height={height}>
       <PieChart>

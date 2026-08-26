@@ -24,7 +24,6 @@ import {
   Sun,
   BatteryCharging,
   Leaf,
-  Cloud,
   Layers,
   AlertTriangle,
   Radio,
@@ -32,723 +31,558 @@ import {
   ShieldCheck,
   Calendar,
   Sparkles,
+  Sliders,
+  CheckCircle2,
+  RefreshCw,
+  Eye,
+  SlidersHorizontal,
 } from 'lucide-react'
-import { Panel, PanelTitle, Badge, StatusBadge, DataTable } from '@/components/shared/primitives'
-import { LineTrend, Donut } from '@/components/shared/charts'
-import { TimeRange } from '@/components/shared/time-range'
+import { Panel, PanelTitle, Badge, StatusBadge, DataTable, KpiCard } from '@/components/shared/primitives'
+import { LineTrend, Donut, BarGroup } from '@/components/shared/charts'
+import { Select } from '@/components/shared/select'
 import { TreeView, type TreeViewNode } from '@/components/shared/tree-view'
-import { seedFactor, vary, varyNum } from '@/lib/variant'
 import { cn } from '@/lib/utils'
 
+// —— 1. 重点用能设备列表数据 ——
+const equipmentList = [
+  { id: 'eq_1', name: '1# 超高压真空干燥气相烘干罐', model: 'VD-500kW-UHV', category: 'elec', org: '沈变本部', workshop: '绝缘干燥车间', power: '500 kW', ratedVolt: '10 kV', status: 'running', freq: '1s 实时流', ua: 10.15, ub: 10.12, uc: 10.14, ia: 320, ib: 318, ic: 322, p: 465.2, q: 68.4, pf: 0.96, temp: 115.4, energyToday: '3,850 kWh' },
+  { id: 'eq_2', name: '2# 超高压无局放试验变压器机组', model: 'TF-1200kVA-PD', category: 'elec', org: '沈变本部', workshop: '超高压试验大厅', power: '1200 kVA', ratedVolt: '35 kV', status: 'running', freq: '1s 实时流', ua: 35.2, ub: 35.1, uc: 35.3, ia: 180, ib: 178, ic: 182, p: 790.0, q: 112.5, pf: 0.95, temp: 48.2, energyToday: '2,100 kWh' },
+  { id: 'eq_3', name: '1# 节能双螺杆动力空压机', model: 'AC-160kW-VFD', category: 'air', org: '沈变本部', workshop: '动力综合站房', power: '160 kW', ratedVolt: '380 V', status: 'running', freq: '1s 实时流', ua: 0.38, ub: 0.38, uc: 0.38, ia: 280, ib: 275, ic: 285, p: 142.5, q: 22.0, pf: 0.95, temp: 82.5, energyToday: '1,450 kWh' },
+  { id: 'eq_4', name: '循环冷却水主供水泵组 (75kW)', model: 'WP-75kW-300m³', category: 'water', org: '沈变本部', workshop: '循环水泵房', power: '75 kW', ratedVolt: '380 V', status: 'running', freq: '15s 遥测流', ua: 0.38, ub: 0.38, uc: 0.38, ia: 135, ib: 132, ic: 136, p: 68.4, q: 12.0, pf: 0.92, temp: 36.2, energyToday: '580 kWh' },
+  { id: 'eq_5', name: '燃气相变常压供热锅炉 (1.4MW)', model: 'GB-1400kW-Gas', category: 'gas', org: '沈变本部', workshop: '动力综合站房', power: '1.4 MW', ratedVolt: '380 V', status: 'standby', freq: '1min 遥测流', ua: 0.38, ub: 0.38, uc: 0.38, ia: 15, ib: 15, ic: 15, p: 8.5, q: 1.2, pf: 0.91, temp: 65.0, energyToday: '42 m³' },
+  { id: 'eq_6', name: '全自动铁芯数控剪切机组', model: 'SC-90kW-CNC', category: 'elec', org: '沈变本部', workshop: '铁芯制造车间', power: '90 kW', ratedVolt: '380 V', status: 'running', freq: '1s 实时流', ua: 0.38, ub: 0.38, uc: 0.38, ia: 160, ib: 158, ic: 162, p: 78.2, q: 14.5, pf: 0.94, temp: 42.1, energyToday: '620 kWh' },
+]
+
+// —— 2. 关键工艺工序列表数据 ——
+const processList = [
+  { id: 'pr_1', name: '1. 铁芯剪切与自动叠装工序', line: '特高压变压器产线', org: '沈变本部', workshop: '铁芯车间', speed: '145.2 kgce/h', elecKwh: '1,020 kWh', gridRatio: 65, greenRatio: 35, unitQuota: '0.12 tce/t', actualUnit: '0.11 tce/t', status: 'running', freq: '1min 聚合' },
+  { id: 'pr_2', name: '2. 电磁线绝缘绕制工序', line: '特高压变压器产线', org: '沈变本部', workshop: '绕线车间', speed: '210.8 kgce/h', elecKwh: '1,480 kWh', gridRatio: 60, greenRatio: 40, unitQuota: '0.18 tce/t', actualUnit: '0.17 tce/t', status: 'running', freq: '1min 聚合' },
+  { id: 'pr_3', name: '3. 真空干燥与气相烘烤工序', line: '特高压变压器产线', org: '沈变本部', workshop: '干燥车间', speed: '580.6 kgce/h', elecKwh: '3,850 kWh', gridRatio: 45, greenRatio: 55, unitQuota: '0.45 tce/台', actualUnit: '0.48 tce/台', status: 'running', freq: '1min 聚合' },
+  { id: 'pr_4', name: '4. 器身装配与总装注油工序', line: '特高压变压器产线', org: '沈变本部', workshop: '总装车间', speed: '88.4 kgce/h', elecKwh: '620 kWh', gridRatio: 70, greenRatio: 30, unitQuota: '0.08 tce/台', actualUnit: '0.07 tce/台', status: 'running', freq: '1min 聚合' },
+  { id: 'pr_5', name: '5. 出厂高压绝缘试验工序', line: '特高压变压器产线', org: '沈变本部', workshop: '试验大厅', speed: '112.5 kgce/h', elecKwh: '790 kWh', gridRatio: 62, greenRatio: 38, unitQuota: '0.09 tce/台', actualUnit: '0.09 tce/台', status: 'running', freq: '1min 聚合' },
+]
+
 export default function OnlineMonitoringPage() {
+  // 3 大核心监测模式
+  const [viewMode, setViewMode] = useState<'macro' | 'equipment' | 'process'>('macro')
+  
+  // 选中的经营单位/工厂
   const [selectedOrg, setSelectedOrg] = useState('沈变本部')
-  const [selectedTreePath, setSelectedTreePath] = useState('特变电工东北输变电产业园 / 沈变本部')
-  const [timeDim, setTimeDim] = useState<'day' | 'month' | 'year'>('month')
-  const [selectedDate, setSelectedDate] = useState('2026-08')
 
-  // 四大能源介质 Tab: elec(电力), water(工业水), gas(天然气), air(压缩空气)
-  const [activeMedium, setActiveMedium] = useState<'elec' | 'water' | 'gas' | 'air'>('elec')
+  // 能耗介质类型查询/切换
+  const [energyType, setEnergyType] = useState<'all' | 'elec' | 'water' | 'gas' | 'air'>('all')
 
-  // 多曲线勾选状态
-  const [showCurve1, setShowCurve1] = useState(true)
-  const [showCurve2, setShowCurve2] = useState(true)
-  const [showCurve3, setShowCurve3] = useState(true)
+  // 左侧树名称模糊查询
+  const [searchKeyword, setSearchKeyword] = useState('')
 
-  // 🌟 核心修正 1：顶部企业级 KPI 统计仅依赖于机构与月份，切换下方介质时保持稳定不变！
-  const kpiFactor = seedFactor(selectedOrg, selectedDate)
+  // 选中的重点设备与工序
+  const [selectedEquipment, setSelectedEquipment] = useState(equipmentList[0])
+  const [selectedProcess, setSelectedProcess] = useState(processList[2]) // 默认真空干燥
 
-  // 树状图与图表数据因变量：随节点选择与当前介质动态联动
-  const mediumFactor = seedFactor(selectedOrg, selectedDate, timeDim, activeMedium, selectedTreePath)
+  // 宏观能源消耗量展示介质
+  const [macroEnergyMedium, setMacroEnergyMedium] = useState<'elec' | 'gas' | 'water' | 'air'>('elec')
 
-  // 🌟 核心修正 2：根据当前选中的能源介质，左侧呈现专属的专业管网/设备拓扑树
-  const currentMediumTree = useMemo(() => {
-    if (activeMedium === 'water') {
-      return [
-        {
-          name: '特变电工东北输变电产业园',
-          children: [
-            {
-              name: '沈变本部',
-              children: [
-                {
-                  name: '综合给水与循环水泵房',
-                  children: [
-                    { name: '1号主循环供水泵组 (75kW)' },
-                    { name: '2号变频补水泵组 (45kW)' },
-                    { name: '冷却水加药阻垢系统' },
-                  ],
-                },
-                {
-                  name: '纯水与软化脱盐车间',
-                  children: [
-                    { name: '双级反渗透RO纯水机组 (20m³/h)' },
-                    { name: 'EDI电去离子超纯水装置' },
-                  ],
-                },
-                {
-                  name: '试验大厅闭式冷却塔群',
-                  children: [
-                    { name: '1号试验闭式冷却塔 (300m³/h)' },
-                    { name: '真空干燥冷凝冷却回水系统' },
-                  ],
-                },
-                {
-                  name: '中水回用与绿化处理站',
-                  children: [
-                    { name: '雨水收集过滤回用装置' },
-                    { name: '厂区绿化与喷淋管网' },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        {
-          name: '特变电工南方输变电产业园',
-          children: [
-            {
-              name: '衡变本部',
-              children: [
-                { name: '南方基地综合水处理站', children: [{ name: '循环水冷泵机组' }] },
-              ],
-            },
-          ],
-        },
-      ]
-    }
+  // 自动回显采集频率
+  const activeFrequency = useMemo(() => {
+    if (viewMode === 'macro') return '1s 实时流 (SCADA 高频)'
+    if (viewMode === 'equipment') return selectedEquipment.freq
+    if (viewMode === 'process') return selectedProcess.freq
+    return '1s 实时流'
+  }, [viewMode, selectedEquipment, selectedProcess])
 
-    if (activeMedium === 'gas') {
-      return [
-        {
-          name: '特变电工东北输变电产业园',
-          children: [
-            {
-              name: '沈变本部',
-              children: [
-                {
-                  name: '市政中压燃气调压站',
-                  children: [
-                    { name: '中压/低压总调压稳压计量柜' },
-                    { name: '燃气泄漏智能联动切断阀' },
-                  ],
-                },
-                {
-                  name: '动力蒸汽锅炉房',
-                  children: [
-                    { name: '1号10t/h超低氮燃气蒸汽锅炉' },
-                    { name: '2号6t/h燃气热水锅炉 (备用)' },
-                    { name: '锅炉烟气余热冷凝回收装置' },
-                  ],
-                },
-                {
-                  name: '线圈烘房与绝缘干燥支路',
-                  children: [
-                    { name: '立式线圈烘焙加热燃气管网' },
-                    { name: '浸漆固化烘炉燃烧动力站' },
-                  ],
-                },
-                {
-                  name: '厂区生活与采暖支路',
-                  children: [
-                    { name: '冬季车间恒温换热机组' },
-                    { name: '员工餐厅与生活热水供应' },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        {
-          name: '特变电工南方输变电产业园',
-          children: [
-            {
-              name: '衡变本部',
-              children: [
-                { name: '燃气调压站与供热中心', children: [{ name: '低氮燃气锅炉机组' }] },
-              ],
-            },
-          ],
-        },
-      ]
-    }
+  // 过滤后的设备列表
+  const filteredEquipments = useMemo(() => {
+    return equipmentList.filter((eq) => {
+      const matchName = eq.name.toLowerCase().includes(searchKeyword.toLowerCase()) || eq.model.toLowerCase().includes(searchKeyword.toLowerCase())
+      const matchType = energyType === 'all' || eq.category === energyType
+      return matchName && matchType
+    })
+  }, [searchKeyword, energyType])
 
-    if (activeMedium === 'air') {
-      return [
-        {
-          name: '特变电工东北输变电产业园',
-          children: [
-            {
-              name: '沈变本部',
-              children: [
-                {
-                  name: '中央动力空压机总站',
-                  children: [
-                    { name: '1号高效离心式空压机 (250kW)' },
-                    { name: '2号变频无油螺杆空压机 (180kW)' },
-                    { name: '3号常备工频螺杆空压机 (110kW)' },
-                  ],
-                },
-                {
-                  name: '压缩空气净化房',
-                  children: [
-                    { name: '吸附式微热再生干燥塔 (-40℃露点)' },
-                    { name: '高效除油精密过滤器组' },
-                  ],
-                },
-                {
-                  name: '超高压线圈车间用气管网',
-                  children: [
-                    { name: '气相干燥罐充气吹扫电磁阀' },
-                    { name: '气浮搬运平台动力管路' },
-                  ],
-                },
-                {
-                  name: '铁芯与结构件车间用气',
-                  children: [
-                    { name: '数控剪切机气动夹具' },
-                    { name: '机器人焊接与喷涂气源' },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        {
-          name: '特变电工南方输变电产业园',
-          children: [
-            {
-              name: '衡变本部',
-              children: [
-                { name: '空压动力车间', children: [{ name: '离心空压机组 300kW' }] },
-              ],
-            },
-          ],
-        },
-      ]
-    }
+  // 过滤后的工序列表
+  const filteredProcesses = useMemo(() => {
+    return processList.filter((pr) => {
+      return pr.name.toLowerCase().includes(searchKeyword.toLowerCase()) || pr.workshop.toLowerCase().includes(searchKeyword.toLowerCase())
+    })
+  }, [searchKeyword])
 
-    // 默认：电力系统拓扑树 (elec)
+  // —— 构建左侧重点设备树 ——
+  const equipmentTreeData: TreeViewNode[] = useMemo(() => {
     return [
       {
-        name: '特变电工东北输变电产业园',
-        children: [
-          {
-            name: '沈变本部',
-            children: [
-              {
-                name: '110kV 总降压变电站',
-                children: [
-                  { name: '1号 110kV/10kV 主变压器' },
-                  { name: '2号 110kV/10kV 主变压器' },
-                  { name: 'SVG 无功动态补偿装置' },
-                ],
-              },
-              {
-                name: '超高压线圈车间配电房',
-                children: [
-                  { name: '1号真空干燥罐 (500kW)' },
-                  { name: '2号真空干燥罐 (500kW)' },
-                  { name: '自动化绕线机组动力柜' },
-                ],
-              },
-              {
-                name: '铁芯制造车间配电房',
-                children: [
-                  { name: '数控全自动剪切生产线' },
-                  { name: '铁芯自动叠装机台动力柜' },
-                ],
-              },
-              {
-                name: '总装试验大厅配电房',
-                children: [
-                  { name: '无局放试验变频机组 (800kVA)' },
-                  { name: '绝缘油气相真空处理系统' },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        name: '特变电工南方输变电产业园',
-        children: [
-          {
-            name: '衡变本部',
-            children: [
-              {
-                name: '超高压制造车间',
-                children: [
-                  { name: '气相干燥罐 600kW' },
-                  { name: '超高压绕线机组' },
-                ],
-              },
-              {
-                name: '试验大厅变频配电室',
-                children: [{ name: '试验大厅变频机组' }],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        name: '特变电工华东输变电科技产业园',
-        children: [
-          {
-            name: '鲁缆本部',
-            children: [
-              {
-                name: '立塔交联车间',
-                children: [
-                  { name: '超高压立塔交联生产线' },
-                  { name: '盘绞机组配电柜' },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ]
-  }, [activeMedium])
-
-  // 🌟 经典树数据：将介质拓扑树映射为统一标准树控件节点（引导线 + 箭头 + 选中高亮）
-  const onlineTreeData = useMemo<TreeViewNode[]>(
-    () =>
-      currentMediumTree.map((p) => ({
-        key: p.name,
-        label: p.name,
+        key: 'org_sb',
+        label: `${selectedOrg} · 重点用能设备`,
         icon: <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />,
-        selected: selectedOrg === p.name,
-        onSelect: () => {
-          setSelectedOrg(p.name)
-          setSelectedTreePath(p.name)
-        },
-        children: p.children.map((fac) => ({
-          key: fac.name,
-          label: fac.name,
-          icon: <Factory className="size-3.5 shrink-0 text-slate-500" />,
-          selected: selectedOrg === fac.name,
-          onSelect: () => {
-            setSelectedOrg(fac.name)
-            setSelectedTreePath(`${p.name} / ${fac.name}`)
+        children: [
+          {
+            key: 'ws_dry',
+            label: '绝缘干燥车间 (高耗能工段)',
+            icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
+            children: filteredEquipments
+              .filter((e) => e.workshop === '绝缘干燥车间')
+              .map((e) => ({
+                key: e.id,
+                label: e.name,
+                icon: <Cog className="size-3.5 shrink-0 text-slate-400" />,
+                selected: selectedEquipment.id === e.id,
+                badge: <span className="size-1.5 rounded-full bg-emerald-500" />,
+                onSelect: () => setSelectedEquipment(e),
+              })),
           },
-          children: (fac.children ?? []).map((ws) => ({
-            key: ws.name,
-            label: ws.name,
-            icon: <Cog className="size-3.5 shrink-0 text-slate-400" />,
-            selected: selectedOrg === ws.name,
-            onSelect: () => {
-              setSelectedOrg(ws.name)
-              setSelectedTreePath(`${p.name} / ${fac.name} / ${ws.name}`)
-            },
-            children: (ws.children ?? []).map((eq) => ({
-              key: eq.name,
-              label: eq.name,
-              icon: <Cpu className="size-3.5 shrink-0 text-slate-400" />,
-              selected: selectedOrg === eq.name,
-              className: eq.name.includes('2号真空干燥')
-                ? 'font-semibold text-red-600'
-                : undefined,
-              onSelect: () => {
-                setSelectedOrg(eq.name)
-                setSelectedTreePath(`${p.name} / ${fac.name} / ${ws.name} / ${eq.name}`)
-              },
-            })),
-          })),
-        })),
-      })),
-    [currentMediumTree, selectedOrg],
-  )
-
-
-  // 🌟 核心修正 3：根据当前介质类型，动态生成对应的 24h 物理监测曲线与标签
-  const chartConfig = useMemo(() => {
-    if (activeMedium === 'water') {
-      const rawData = [
-        { time: '00:00', 循环供水总流量: 120, 纯水制备瞬时量: 15, 冷凝中水回收量: 45 },
-        { time: '02:00', 循环供水总流量: 110, 纯水制备瞬时量: 12, 冷凝中水回收量: 40 },
-        { time: '04:00', 循环供水总流量: 115, 纯水制备瞬时量: 14, 冷凝中水回收量: 42 },
-        { time: '06:00', 循环供水总流量: 145, 纯水制备瞬时量: 18, 冷凝中水回收量: 55 },
-        { time: '08:00', 循环供水总流量: 280, 纯水制备瞬时量: 35, 冷凝中水回收量: 95 },
-        { time: '10:00', 循环供水总流量: 320, 纯水制备瞬时量: 42, 冷凝中水回收量: 110 },
-        { time: '12:00', 循环供水总流量: 290, 纯水制备瞬时量: 38, 冷凝中水回收量: 105 },
-        { time: '14:00', 循环供水总流量: 340, 纯水制备瞬时量: 45, 冷凝中水回收量: 120 },
-        { time: '16:00', 循环供水总流量: 310, 纯水制备瞬时量: 40, 冷凝中水回收量: 115 },
-        { time: '18:00', 循环供水总流量: 260, 纯水制备瞬时量: 30, 冷凝中水回收量: 85 },
-        { time: '20:00', 循环供水总流量: 190, 纯水制备瞬时量: 22, 冷凝中水回收量: 65 },
-        { time: '22:00', 循环供水总流量: 140, 纯水制备瞬时量: 16, 冷凝中水回收量: 50 },
-      ]
-      return {
-        title: '24小时全厂工业用水与循环水流量实时监测 (m³/h)',
-        unit: 'm³/h',
-        data: vary(rawData, mediumFactor),
-        lines: [
-          { key: '循环供水总流量', name: '循环供水总流量', color: '#13c2c2', active: showCurve1 },
-          { key: '纯水制备瞬时量', name: '纯水制备瞬时量', color: '#1677ff', active: showCurve2 },
-          { key: '冷凝中水回收量', name: '冷凝中水回收量', color: '#52c41a', active: showCurve3 },
+          {
+            key: 'ws_test',
+            label: '超高压试验大厅',
+            icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
+            children: filteredEquipments
+              .filter((e) => e.workshop === '超高压试验大厅')
+              .map((e) => ({
+                key: e.id,
+                label: e.name,
+                icon: <Cog className="size-3.5 shrink-0 text-slate-400" />,
+                selected: selectedEquipment.id === e.id,
+                badge: <span className="size-1.5 rounded-full bg-emerald-500" />,
+                onSelect: () => setSelectedEquipment(e),
+              })),
+          },
+          {
+            key: 'ws_power',
+            label: '动力综合站房与循环水',
+            icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
+            children: filteredEquipments
+              .filter((e) => e.workshop === '动力综合站房' || e.workshop === '循环水泵房')
+              .map((e) => ({
+                key: e.id,
+                label: e.name,
+                icon: <Cog className="size-3.5 shrink-0 text-slate-400" />,
+                selected: selectedEquipment.id === e.id,
+                badge: <span className={cn('size-1.5 rounded-full', e.status === 'running' ? 'bg-emerald-500' : 'bg-amber-500')} />,
+                onSelect: () => setSelectedEquipment(e),
+              })),
+          },
+          {
+            key: 'ws_iron',
+            label: '铁芯制造车间',
+            icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
+            children: filteredEquipments
+              .filter((e) => e.workshop === '铁芯制造车间')
+              .map((e) => ({
+                key: e.id,
+                label: e.name,
+                icon: <Cog className="size-3.5 shrink-0 text-slate-400" />,
+                selected: selectedEquipment.id === e.id,
+                badge: <span className="size-1.5 rounded-full bg-emerald-500" />,
+                onSelect: () => setSelectedEquipment(e),
+              })),
+          },
         ],
-      }
-    }
-
-    if (activeMedium === 'gas') {
-      const rawData = [
-        { time: '00:00', 天然气总流量: 480, 锅炉动力用气: 320, 工艺烘干用气: 160 },
-        { time: '02:00', 天然气总流量: 450, 锅炉动力用气: 300, 工艺烘干用气: 150 },
-        { time: '04:00', 天然气总流量: 460, 锅炉动力用气: 310, 工艺烘干用气: 150 },
-        { time: '06:00', 天然气总流量: 620, 锅炉动力用气: 420, 工艺烘干用气: 200 },
-        { time: '08:00', 天然气总流量: 1180, 锅炉动力用气: 780, 工艺烘干用气: 400 },
-        { time: '10:00', 天然气总流量: 1420, 锅炉动力用气: 920, 工艺烘干用气: 500 },
-        { time: '12:00', 天然气总流量: 1250, 锅炉动力用气: 800, 工艺烘干用气: 450 },
-        { time: '14:00', 天然气总流量: 1480, 锅炉动力用气: 950, 工艺烘干用气: 530 },
-        { time: '16:00', 天然气总流量: 1350, 锅炉动力用气: 880, 工艺烘干用气: 470 },
-        { time: '18:00', 天然气总流量: 1100, 锅炉动力用气: 720, 工艺烘干用气: 380 },
-        { time: '20:00', 天然气总流量: 820, 锅炉动力用气: 550, 工艺烘干用气: 270 },
-        { time: '22:00', 天然气总流量: 560, 锅炉动力用气: 380, 工艺烘干用气: 180 },
-      ]
-      return {
-        title: '24小时管道天然气消耗与锅炉瞬时出力监测 (Nm³/h)',
-        unit: 'Nm³/h',
-        data: vary(rawData, mediumFactor),
-        lines: [
-          { key: '天然气总流量', name: '天然气总供气量', color: '#fa8c16', active: showCurve1 },
-          { key: '锅炉动力用气', name: '锅炉动力蒸汽用气', color: '#722ed1', active: showCurve2 },
-          { key: '工艺烘干用气', name: '工艺烘房燃烧用气', color: '#fa541c', active: showCurve3 },
-        ],
-      }
-    }
-
-    if (activeMedium === 'air') {
-      const rawData = [
-        { time: '00:00', 空压机总产气量: 42.0, 车间末端用气量: 38.5, 管网压力: 0.72 },
-        { time: '02:00', 空压机总产气量: 38.0, 车间末端用气量: 35.0, 管网压力: 0.73 },
-        { time: '04:00', 空压机总产气量: 39.5, 车间末端用气量: 36.2, 管网压力: 0.72 },
-        { time: '06:00', 空压机总产气量: 58.0, 车间末端用气量: 52.0, 管网压力: 0.71 },
-        { time: '08:00', 空压机总产气量: 112.0, 车间末端用气量: 104.0, 管网压力: 0.69 },
-        { time: '10:00', 空压机总产气量: 135.0, 车间末端用气量: 126.5, 管网压力: 0.68 },
-        { time: '12:00', 空压机总产气量: 118.0, 车间末端用气量: 110.0, 管网压力: 0.70 },
-        { time: '14:00', 空压机总产气量: 142.0, 车间末端用气量: 132.0, 管网压力: 0.68 },
-        { time: '16:00', 空压机总产气量: 128.0, 车间末端用气量: 119.0, 管网压力: 0.69 },
-        { time: '18:00', 空压机总产气量: 98.0, 车间末端用气量: 90.0, 管网压力: 0.70 },
-        { time: '20:00', 空压机总产气量: 72.0, 车间末端用气量: 66.0, 管网压力: 0.71 },
-        { time: '22:00', 空压机总产气量: 48.0, 车间末端用气量: 44.0, 管网压力: 0.72 },
-      ]
-      return {
-        title: '24小时压缩空气产气量与车间末端用气监测 (Nm³/min)',
-        unit: 'Nm³/min',
-        data: vary(rawData, mediumFactor),
-        lines: [
-          { key: '空压机总产气量', name: '空压机总产气量', color: '#722ed1', active: showCurve1 },
-          { key: '车间末端用气量', name: '车间末端用气量', color: '#13c2c2', active: showCurve2 },
-          { key: '管网压力', name: '管网压力 (×100)', color: '#fa8c16', active: showCurve3 },
-        ],
-      }
-    }
-
-    // 默认电力系统
-    const rawData = [
-      { time: '00:00', 总用电负荷: 18.2, 光伏发电: 0, 储能充放: -2.0 },
-      { time: '02:00', 总用电负荷: 16.5, 光伏发电: 0, 储能充放: -3.5 },
-      { time: '04:00', 总用电负荷: 17.0, 光伏发电: 0, 储能充放: -3.0 },
-      { time: '06:00', 总用电负荷: 22.4, 光伏发电: 1.2, 储能充放: 0 },
-      { time: '08:00', 总用电负荷: 38.6, 光伏发电: 8.5, 储能充放: 4.2 },
-      { time: '10:00', 总用电负荷: 46.2, 光伏发电: 16.4, 储能充放: 5.0 },
-      { time: '12:00', 总用电负荷: 42.0, 光伏发电: 18.8, 储能充放: 0 },
-      { time: '14:00', 总用电负荷: 48.5, 光伏发电: 15.2, 储能充放: 4.8 },
-      { time: '16:00', 总用电负荷: 44.8, 光伏发电: 9.0, 储能充放: 3.5 },
-      { time: '18:00', 总用电负荷: 36.2, 光伏发电: 2.0, 储能充放: 5.0 },
-      { time: '20:00', 总用电负荷: 28.5, 光伏发电: 0, 储能充放: 4.5 },
-      { time: '22:00', 总用电负荷: 21.0, 光伏发电: 0, 储能充放: 0 },
+      },
     ]
-    return {
-      title: '24小时用电负荷与新能源多曲线联动 (MW)',
-      unit: 'MW',
-      data: vary(rawData, mediumFactor),
-      lines: [
-        { key: '总用电负荷', name: '总用电负荷', color: '#1677ff', active: showCurve1 },
-        { key: '光伏发电', name: '光伏出力', color: '#52c41a', active: showCurve2 },
-        { key: '储能充放', name: '储能充放', color: '#fa8c16', active: showCurve3 },
-      ],
-    }
-  }, [activeMedium, mediumFactor, showCurve1, showCurve2, showCurve3])
+  }, [filteredEquipments, selectedEquipment, selectedOrg])
+
+  // —— 构建左侧关键工序树 ——
+  const processTreeData: TreeViewNode[] = useMemo(() => {
+    return [
+      {
+        key: 'pr_root',
+        label: `${selectedOrg} · 生产制造工艺链`,
+        icon: <Layers className="size-3.5 shrink-0 text-[#1677ff]" />,
+        children: filteredProcesses.map((p) => ({
+          key: p.id,
+          label: p.name,
+          icon: <Activity className="size-3.5 shrink-0 text-slate-400" />,
+          selected: selectedProcess.id === p.id,
+          badge: <span className="text-[10px] text-emerald-600 font-mono font-semibold">{p.actualUnit}</span>,
+          onSelect: () => setSelectedProcess(p),
+        })),
+      },
+    ]
+  }, [filteredProcesses, selectedProcess, selectedOrg])
 
   return (
-    <div className="space-y-3">
-      {/* 🌟 1. 顶部控制栏与分时电价实时动态指示条 */}
-      <div className="bg-white p-3 rounded-lg border border-[#e5e7eb] flex flex-wrap items-center justify-between gap-3 shadow-xs">
-        <div className="flex flex-wrap items-center gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="text-slate-600 font-semibold">统计周期:</span>
-            <div className="inline-flex rounded border border-slate-200 p-0.5 bg-slate-50">
-              <button
-                onClick={() => setTimeDim('day')}
-                className={cn('px-2.5 py-0.5 rounded text-xs transition-colors', timeDim === 'day' ? 'bg-[#1677ff] text-white font-bold' : 'text-slate-600 hover:text-slate-900')}
-              >
-                日
-              </button>
-              <button
-                onClick={() => setTimeDim('month')}
-                className={cn('px-2.5 py-0.5 rounded text-xs transition-colors', timeDim === 'month' ? 'bg-[#1677ff] text-white font-bold' : 'text-slate-600 hover:text-slate-900')}
-              >
-                月
-              </button>
-              <button
-                onClick={() => setTimeDim('year')}
-                className={cn('px-2.5 py-0.5 rounded text-xs transition-colors', timeDim === 'year' ? 'bg-[#1677ff] text-white font-bold' : 'text-slate-600 hover:text-slate-900')}
-              >
-                年
-              </button>
-            </div>
+    <div className="space-y-4">
+      {/* 🌟 1. 顶部 Header 与 3 大模式 Tab 切换 */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-xl border border-border">
+        <div className="flex items-center gap-3">
+          <div className="size-9 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-primary">
+            <Radio className="size-5 animate-pulse" />
           </div>
-
-          <input
-            type="month"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="border border-slate-300 rounded px-2.5 py-1 text-xs text-slate-800 bg-white font-mono"
-          />
-
-          <button className="px-3.5 py-1 bg-[#1677ff] hover:bg-blue-600 text-white rounded text-xs font-semibold shadow-xs">
-            查询
-          </button>
-
-          {/* 实时分时电价状态胶囊 */}
-          <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-200 rounded text-amber-800 font-sans">
-            <span className="size-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
-            <span>实时电价：<strong>高峰时段 (0.88元/kWh)</strong> · 距低谷时段 (0.32元) 还有 <strong>3小时40分</strong></span>
-          </div>
-        </div>
-
-        <div className="text-xs text-slate-500 font-mono flex items-center gap-2">
-          <span className="flex items-center gap-1"><ShieldCheck className="size-3.5 text-emerald-600" /> 申报需量安全：<strong>9,250 / 10,000 kVA (92.5%)</strong></span>
-          <span>|</span>
-          <span>当前拓扑：<strong className="text-slate-800 font-sans">{selectedTreePath}</strong></span>
-        </div>
-      </div>
-
-      {/* 🌟 2. 顶部 4 大核心能碳 KPI 横幅 (稳定不随下方介质切换闪烁) */}
-      <div className="bg-white p-4 rounded-lg border border-[#e5e7eb] shadow-xs">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="flex items-center gap-3 border-r border-slate-100 last:border-0 pr-3">
-            <div className="size-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <Leaf className="size-5" />
-            </div>
-            <div>
-              <span className="text-xs text-slate-500 block">综合能耗总量</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold font-mono text-slate-800">{varyNum(1284.5, kpiFactor)}</span>
-                <span className="text-xs text-slate-500">tce</span>
-              </div>
-              <span className="text-[11px] text-emerald-600 font-mono">同比 -2.7% · 环比 -0.8%</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 border-r border-slate-100 last:border-0 pr-3">
-            <div className="size-10 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
-              <Cloud className="size-5" />
-            </div>
-            <div>
-              <span className="text-xs text-slate-500 block">净碳排放总量</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold font-mono text-slate-800">{varyNum(3420.8, kpiFactor)}</span>
-                <span className="text-xs text-slate-500">tCO2</span>
-              </div>
-              <span className="text-[11px] text-slate-500 font-mono">直接: 480.2 · 间接: 2940.6</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 border-r border-slate-100 last:border-0 pr-3">
-            <div className="size-10 rounded-full bg-blue-50 text-[#1677ff] flex items-center justify-center shrink-0">
-              <Sun className="size-5" />
-            </div>
-            <div>
-              <span className="text-xs text-slate-500 block">直供绿电消纳量</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold font-mono text-[#1677ff]">{varyNum(182.6, kpiFactor)}</span>
-                <span className="text-xs text-slate-500">万kWh</span>
-              </div>
-              <span className="text-[11px] text-emerald-600 font-mono">绿电占比: 38.6% (达标)</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 pr-3">
-            <div className="size-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-              <Gauge className="size-5" />
-            </div>
-            <div>
-              <span className="text-xs text-slate-500 block">实时总有功负荷</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold font-mono text-slate-800">{varyNum(24.5, kpiFactor)}</span>
-                <span className="text-xs text-slate-500">MW</span>
-              </div>
-              <span className="text-[11px] text-amber-600 font-mono">负荷率: 78.5% (平稳)</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 🌟 3. 四大能源介质分项 Tab 切换 (点击无缝切换专业树与时序曲线) */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-1 text-xs">
-        <button
-          onClick={() => setActiveMedium('elec')}
-          className={cn(
-            'flex items-center gap-1.5 px-4 py-2 rounded-t-lg font-bold transition-all border-b-2',
-            activeMedium === 'elec'
-              ? 'border-[#1677ff] text-[#1677ff] bg-blue-50/50'
-              : 'border-transparent text-slate-600 hover:text-slate-900'
-          )}
-        >
-          <Zap className="size-4 text-[#1677ff]" />
-          <span>电力系统在线监测</span>
-        </button>
-
-        <button
-          onClick={() => setActiveMedium('water')}
-          className={cn(
-            'flex items-center gap-1.5 px-4 py-2 rounded-t-lg font-bold transition-all border-b-2',
-            activeMedium === 'water'
-              ? 'border-cyan-500 text-cyan-600 bg-cyan-50/50'
-              : 'border-transparent text-slate-600 hover:text-slate-900'
-          )}
-        >
-          <Droplets className="size-4 text-cyan-500" />
-          <span>工业水与循环水系统</span>
-        </button>
-
-        <button
-          onClick={() => setActiveMedium('gas')}
-          className={cn(
-            'flex items-center gap-1.5 px-4 py-2 rounded-t-lg font-bold transition-all border-b-2',
-            activeMedium === 'gas'
-              ? 'border-amber-500 text-amber-600 bg-amber-50/50'
-              : 'border-transparent text-slate-600 hover:text-slate-900'
-          )}
-        >
-          <Flame className="size-4 text-amber-500" />
-          <span>管道天然气与锅炉动力</span>
-        </button>
-
-        <button
-          onClick={() => setActiveMedium('air')}
-          className={cn(
-            'flex items-center gap-1.5 px-4 py-2 rounded-t-lg font-bold transition-all border-b-2',
-            activeMedium === 'air'
-              ? 'border-purple-500 text-purple-600 bg-purple-50/50'
-              : 'border-transparent text-slate-600 hover:text-slate-900'
-          )}
-        >
-          <Wind className="size-4 text-purple-500" />
-          <span>动力压缩空气系统</span>
-        </button>
-      </div>
-
-      {/* 🌟 4. 主体两栏：左侧【当前介质专属拓扑树】 + 右侧【当前介质 24h 时序曲线】 */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
-        {/* 左侧拓扑树 */}
-        <div className="lg:col-span-3 bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-2.5 flex flex-col justify-between">
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100 text-xs">
-              <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                <Layers className="size-4 text-[#1677ff]" />
-                {activeMedium === 'water'
-                  ? '工业水循环管网树'
-                  : activeMedium === 'gas'
-                  ? '燃气与热动力管网树'
-                  : activeMedium === 'air'
-                  ? '动力空压气动管网树'
-                  : '电力系统测点拓扑树'}
-              </span>
-              <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.2 rounded font-mono font-bold">
-                {activeMedium === 'water' ? '水务4级' : activeMedium === 'gas' ? '燃气4级' : activeMedium === 'air' ? '气动4级' : '电力4级'}
-              </span>
-            </div>
-
-            <div className="max-h-[500px] overflow-y-auto pr-1">
-              <TreeView data={onlineTreeData} />
-            </div>
-
-          </div>
-
-          <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-400 font-mono">
-            点击任意节点实时穿透 {activeMedium === 'water' ? '水量' : activeMedium === 'gas' ? '气量' : activeMedium === 'air' ? '风量' : '负荷'}
-          </div>
-        </div>
-
-        {/* 右侧：24 小时动态多曲线大图表 */}
-        <div className="lg:col-span-9 bg-white p-5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-4 flex flex-col justify-between">
           <div>
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
-              <span className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                <Activity className="size-4 text-[#1677ff]" />
-                {chartConfig.title}
+            <h1 className="text-base font-bold text-foreground flex items-center gap-2">
+              能源与工艺全景在线监测中心
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 font-mono font-bold flex items-center gap-1">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-ping" />
+                SCADA 时序直连
               </span>
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              实时物联遥测：覆盖经营单位宏观平衡、重点用能设备参量波形与关键工序能效
+            </p>
+          </div>
+        </div>
 
-              <div className="flex items-center gap-5 text-xs font-medium">
-                {chartConfig.lines[0] && (
-                  <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={showCurve1}
-                      onChange={(e) => setShowCurve1(e.target.checked)}
-                      className="accent-[#1677ff] size-3.5"
-                    />
-                    <span style={{ color: chartConfig.lines[0].color }} className="font-bold">
-                      ● {chartConfig.lines[0].name}
-                    </span>
-                  </label>
-                )}
+        {/* 3 大模式 Tab 切换胶囊 */}
+        <div className="flex items-center gap-1.5 bg-accent/40 p-1 rounded-lg border border-border/60">
+          {[
+            { key: 'macro', label: '1. 经营单位宏观指标监测' },
+            { key: 'equipment', label: '2. 重点用能设备在线监测' },
+            { key: 'process', label: '3. 关键工序在线监测' },
+          ].map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setViewMode(t.key as any)}
+              className={cn(
+                'px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all',
+                viewMode === t.key
+                  ? 'bg-primary text-primary-foreground shadow'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-                {chartConfig.lines[1] && (
-                  <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={showCurve2}
-                      onChange={(e) => setShowCurve2(e.target.checked)}
-                      className="accent-[#52c41a] size-3.5"
-                    />
-                    <span style={{ color: chartConfig.lines[1].color }} className="font-bold">
-                      ● {chartConfig.lines[1].name}
-                    </span>
-                  </label>
-                )}
+      {/* 🌟 2. 宏观实时 5 大指标遥测舱 (全模式置顶常驻 + 自动回显采集频率) */}
+      <div className="p-3.5 rounded-xl bg-gradient-to-r from-card via-card/90 to-card border border-border shadow-xs space-y-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="font-bold text-foreground flex items-center gap-1.5">
+              <Activity className="size-4 text-primary" />
+              【{selectedOrg}】宏观动力与能源实时遥测舱
+            </span>
+            <Select
+              value={selectedOrg}
+              onChange={setSelectedOrg}
+              options={['沈变本部', '衡变本部', '新变超高压', '天津变压器厂', '鲁缆本部', '德缆股份公司'].map((x) => ({ label: x, value: x }))}
+            />
+          </div>
 
-                {chartConfig.lines[2] && (
-                  <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={showCurve3}
-                      onChange={(e) => setShowCurve3(e.target.checked)}
-                      className="accent-[#fa8c16] size-3.5"
-                    />
-                    <span style={{ color: chartConfig.lines[2].color }} className="font-bold">
-                      ● {chartConfig.lines[2].name}
-                    </span>
-                  </label>
-                )}
+          {/* 自动回显采集频率 */}
+          <div className="flex items-center gap-3 text-xs font-mono">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-accent/40 border border-border text-muted-foreground">
+              <Clock className="size-3.5 text-primary" />
+              <span>测点采集频率：</span>
+              <strong className="text-emerald-500 font-bold">{activeFrequency}</strong>
+            </div>
+            <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+              <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
+              <span>数据更新: 刚刚</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 5 大宏观指标卡片 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 font-mono">
+          {/* 指标 1: 新能源发电功率 */}
+          <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 space-y-1">
+            <div className="flex items-center justify-between text-xs text-emerald-400 font-sans">
+              <span className="flex items-center gap-1"><Sun className="size-3.5 text-emerald-500" /> 新能源发电功率</span>
+            </div>
+            <div className="text-xl font-bold text-emerald-400">
+              5,820.0 <span className="text-xs font-sans text-muted-foreground">kW</span>
+            </div>
+            <span className="text-[10px] text-emerald-500 font-sans block">☀️ 光伏出力充沛</span>
+          </div>
+
+          {/* 指标 2: 储能充放功率 */}
+          <div className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/30 space-y-1">
+            <div className="flex items-center justify-between text-xs text-sky-400 font-sans">
+              <span className="flex items-center gap-1"><BatteryCharging className="size-3.5 text-sky-400" /> 储能充放功率</span>
+            </div>
+            <div className="text-xl font-bold text-sky-400">
+              +45.0 <span className="text-xs font-sans text-muted-foreground">kW</span>
+            </div>
+            <span className="text-[10px] text-sky-400 font-sans block">⚡ 微网自适应平抑 (SOC 78%)</span>
+          </div>
+
+          {/* 指标 3: 市电接入功率 */}
+          <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30 space-y-1">
+            <div className="flex items-center justify-between text-xs text-blue-400 font-sans">
+              <span className="flex items-center gap-1"><Zap className="size-3.5 text-blue-400" /> 市电接入功率</span>
+            </div>
+            <div className="text-xl font-bold text-blue-400">
+              12,431.6 <span className="text-xs font-sans text-muted-foreground">kW</span>
+            </div>
+            <span className="text-[10px] text-blue-400 font-sans block">110kV 主变进线受控</span>
+          </div>
+
+          {/* 指标 4: 全厂负荷功率 */}
+          <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 space-y-1">
+            <div className="flex items-center justify-between text-xs text-amber-400 font-sans">
+              <span className="flex items-center gap-1"><Cpu className="size-3.5 text-amber-400" /> 全厂负荷功率</span>
+            </div>
+            <div className="text-xl font-bold text-amber-400">
+              18,206.6 <span className="text-xs font-sans text-muted-foreground">kW</span>
+            </div>
+            <span className="text-[10px] text-amber-400 font-sans block">变压器负荷率 72.8%</span>
+          </div>
+
+          {/* 指标 5: 能源消耗总量 (支持多介质切换) */}
+          <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30 space-y-1">
+            <div className="flex items-center justify-between text-xs text-purple-400 font-sans">
+              <span className="flex items-center gap-1"><Gauge className="size-3.5 text-purple-400" /> 本日能源消耗量</span>
+              <div className="flex items-center gap-0.5 bg-purple-950/40 rounded p-0.5 border border-purple-500/30 text-[9px]">
+                <button onClick={() => setMacroEnergyMedium('elec')} className={cn('px-1 rounded', macroEnergyMedium === 'elec' ? 'bg-purple-500 text-white font-bold' : 'text-purple-300')}>电</button>
+                <button onClick={() => setMacroEnergyMedium('gas')} className={cn('px-1 rounded', macroEnergyMedium === 'gas' ? 'bg-purple-500 text-white font-bold' : 'text-purple-300')}>气</button>
+                <button onClick={() => setMacroEnergyMedium('water')} className={cn('px-1 rounded', macroEnergyMedium === 'water' ? 'bg-purple-500 text-white font-bold' : 'text-purple-300')}>水</button>
+                <button onClick={() => setMacroEnergyMedium('air')} className={cn('px-1 rounded', macroEnergyMedium === 'air' ? 'bg-purple-500 text-white font-bold' : 'text-purple-300')}>汽</button>
               </div>
             </div>
+            <div className="text-xl font-bold text-purple-400">
+              {macroEnergyMedium === 'elec' && '14,250 kWh'}
+              {macroEnergyMedium === 'gas' && '185.2 m³'}
+              {macroEnergyMedium === 'water' && '12.4 m³'}
+              {macroEnergyMedium === 'air' && '3.7 GJ'}
+            </div>
+            <span className="text-[10px] text-purple-400 font-sans block">
+              {macroEnergyMedium === 'elec' && '折标煤: 1.75 tce'}
+              {macroEnergyMedium === 'gas' && '折标煤: 0.24 tce'}
+              {macroEnergyMedium === 'water' && '回用率: 88.5%'}
+              {macroEnergyMedium === 'air' && '管网压力: 0.72 MPa'}
+            </span>
+          </div>
+        </div>
+      </div>
 
-            <div className="h-[460px] mt-3">
-              <LineTrend
-                data={chartConfig.data}
-                xKey="time"
-                height={460}
-                lines={chartConfig.lines.filter((l) => l.active).map((l) => ({
-                  key: l.key,
-                  name: l.name,
-                  color: l.color,
-                }))}
+      {/* 🌟 3. 视图一：经营单位宏观指标监测 */}
+      {viewMode === 'macro' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <Panel className="lg:col-span-2 p-4">
+              <PanelTitle icon={Activity}>全厂 24 小时综合负荷与微网平衡时序曲线</PanelTitle>
+              <div className="mt-3">
+                <LineTrend
+                  data={[
+                    { time: '00:00', 全厂负荷: 8400, 市电输入: 8400, 光伏出力: 0, 储能功率: 300 },
+                    { time: '04:00', 全厂负荷: 7800, 市电输入: 7800, 光伏出力: 0, 储能功率: 300 },
+                    { time: '08:00', 全厂负荷: 14200, 市电输入: 12500, 光伏出力: 1700, 储能功率: 0 },
+                    { time: '12:00', 全厂负荷: 18200, 市电输入: 12400, 光伏出力: 5820, 储能功率: -45 },
+                    { time: '16:00', 全厂负荷: 17500, 市电输入: 13800, 光伏出力: 3700, 储能功率: 0 },
+                    { time: '20:00', 全厂负荷: 11200, 市电输入: 11500, 光伏出力: 0, 储能功率: -300 },
+                  ]}
+                  keys={['全厂负荷', '市电输入', '光伏出力']}
+                  xKey="time"
+                  height={300}
+                />
+              </div>
+            </Panel>
+
+            <Panel className="p-4 space-y-3">
+              <PanelTitle icon={Donut}>车间用能负荷分布</PanelTitle>
+              <Donut
+                data={[
+                  { name: '绝缘干燥车间', value: 45, color: 'var(--chart-1)' },
+                  { name: '超高压试验大厅', value: 25, color: 'var(--chart-2)' },
+                  { name: '铁芯与绕线车间', value: 18, color: 'var(--chart-3)' },
+                  { name: '综合办公与辅助', value: 12, color: 'var(--chart-4)' },
+                ]}
+                unit="%"
+                height={230}
+              />
+            </Panel>
+          </div>
+        </div>
+      )}
+
+      {/* 🌟 4. 视图二：重点用能设备在线监测 (左侧树 + 模糊查询 + 能耗类型筛选 + 右侧 8 大遥测参量卡片) */}
+      {viewMode === 'equipment' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* 左侧设备树 (col-span-4) */}
+          <div className="lg:col-span-4 p-4 rounded-xl bg-card border border-border space-y-3">
+            <PanelTitle icon={Sliders}>重点设备拓扑树</PanelTitle>
+
+            {/* 模糊搜索框 */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="模糊搜索设备名称或型号..."
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 rounded-md bg-accent/30 border border-border text-xs focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
+
+            {/* 能耗类型筛选胶囊 */}
+            <div className="flex flex-wrap items-center gap-1 text-[11px]">
+              {[
+                { key: 'all', label: '全部' },
+                { key: 'elec', label: '⚡ 电力' },
+                { key: 'water', label: '💧 工业水' },
+                { key: 'gas', label: '🔥 天然气' },
+                { key: 'air', label: '💨 空压' },
+              ].map((m) => (
+                <button
+                  key={m.key}
+                  onClick={() => setEnergyType(m.key as any)}
+                  className={cn(
+                    'px-2 py-0.5 rounded border transition-colors',
+                    energyType === m.key
+                      ? 'bg-primary text-primary-foreground border-primary font-bold'
+                      : 'bg-accent/30 text-muted-foreground hover:text-foreground border-border'
+                  )}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+
+            {/* 设备标准树 */}
+            <div className="pt-1 overflow-y-auto max-h-[420px]">
+              <TreeView data={equipmentTreeData} defaultExpandAll />
+            </div>
           </div>
 
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-mono">
-            <span>
-              💡 监测数据由厂区 SCADA / DCS 系统每 15 分钟采集汇聚（当前主体：
-              <strong className="text-slate-800 font-sans">{selectedOrg}</strong>）
-            </span>
-            <span>当前采样率：100% (正常在线)</span>
+          {/* 右侧重点设备实时遥测工作台 (col-span-8) */}
+          <div className="lg:col-span-8 space-y-4">
+            {/* 设备详情 Header */}
+            <div className="p-4 rounded-xl bg-card border border-border flex flex-wrap items-center justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-foreground">{selectedEquipment.name}</span>
+                  <StatusBadge tone="ok">运行中</StatusBadge>
+                  <Badge tone="default">{selectedEquipment.category === 'elec' ? '⚡ 电力' : selectedEquipment.category === 'air' ? '💨 压缩空气' : '💧 工业水'}</Badge>
+                </div>
+                <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
+                  <span>型号: {selectedEquipment.model}</span>
+                  <span>额定功率: {selectedEquipment.power}</span>
+                  <span>所属车间: {selectedEquipment.workshop}</span>
+                </div>
+              </div>
+
+              <div className="text-right font-mono">
+                <span className="text-xs text-muted-foreground font-sans block">本日累计耗能</span>
+                <span className="text-lg font-bold text-primary">{selectedEquipment.energyToday}</span>
+              </div>
+            </div>
+
+            {/* 8 大实时遥测参量卡片 */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
+              <div className="p-3 rounded-lg bg-accent/30 border border-border/80 space-y-1">
+                <span className="text-[11px] text-muted-foreground font-sans block">三相电压 (Ua/Ub/Uc)</span>
+                <div className="text-sm font-bold text-foreground">{selectedEquipment.ua} / {selectedEquipment.ub} / {selectedEquipment.uc} <span className="text-[10px] font-sans text-muted-foreground">kV</span></div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-accent/30 border border-border/80 space-y-1">
+                <span className="text-[11px] text-muted-foreground font-sans block">三相电流 (Ia/Ib/Ic)</span>
+                <div className="text-sm font-bold text-foreground">{selectedEquipment.ia} / {selectedEquipment.ib} / {selectedEquipment.ic} <span className="text-[10px] font-sans text-muted-foreground">A</span></div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-accent/30 border border-border/80 space-y-1">
+                <span className="text-[11px] text-muted-foreground font-sans block">总有功功率 (P)</span>
+                <div className="text-sm font-bold text-emerald-500">{selectedEquipment.p} <span className="text-[10px] font-sans text-muted-foreground">kW</span></div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-accent/30 border border-border/80 space-y-1">
+                <span className="text-[11px] text-muted-foreground font-sans block">功率因数 (PF)</span>
+                <div className="text-sm font-bold text-sky-400">{selectedEquipment.pf} <span className="text-[10px] font-sans text-emerald-500">(优)</span></div>
+              </div>
+            </div>
+
+            {/* 24h 遥测时序波形图 */}
+            <Panel className="p-4">
+              <PanelTitle icon={Activity}>【{selectedEquipment.name}】24 小时高频遥测波形图</PanelTitle>
+              <div className="mt-3">
+                <LineTrend
+                  data={[
+                    { time: '00:00', 有功功率: 420, A相电流: 310, 温度: 110 },
+                    { time: '04:00', 有功功率: 410, A相电流: 305, 温度: 112 },
+                    { time: '08:00', 有功功率: 465, A相电流: 320, 温度: 115 },
+                    { time: '12:00', 有功功率: 468, A相电流: 322, 温度: 116 },
+                    { time: '16:00', 有功功率: 462, A相电流: 318, 温度: 114 },
+                    { time: '20:00', 有功功率: 440, A相电流: 312, 温度: 113 },
+                  ]}
+                  keys={['有功功率', 'A相电流']}
+                  xKey="time"
+                  height={260}
+                />
+              </div>
+            </Panel>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* 🌟 5. 视图三：关键工序在线监测 (左侧工艺树 + 模糊查询 + 市电/绿电分项拆解) */}
+      {viewMode === 'process' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* 左侧工序树 (col-span-4) */}
+          <div className="lg:col-span-4 p-4 rounded-xl bg-card border border-border space-y-3">
+            <PanelTitle icon={Layers}>工艺流程工序树</PanelTitle>
+
+            {/* 模糊搜索框 */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="模糊搜索工序名称或车间..."
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 rounded-md bg-accent/30 border border-border text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            {/* 工序标准树 */}
+            <div className="pt-1 overflow-y-auto max-h-[420px]">
+              <TreeView data={processTreeData} defaultExpandAll />
+            </div>
+          </div>
+
+          {/* 右侧关键工序实时能效工作台 (col-span-8) */}
+          <div className="lg:col-span-8 space-y-4">
+            {/* 工序详情 Header */}
+            <div className="p-4 rounded-xl bg-card border border-border flex flex-wrap items-center justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-foreground">{selectedProcess.name}</span>
+                  <StatusBadge tone="ok">工序受控中</StatusBadge>
+                  <Badge tone="primary">{selectedProcess.workshop}</Badge>
+                </div>
+                <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
+                  <span>所属产线: {selectedProcess.line}</span>
+                  <span>能效流速: {selectedProcess.speed}</span>
+                </div>
+              </div>
+
+              <div className="text-right font-mono">
+                <span className="text-xs text-muted-foreground font-sans block">工序实测单耗</span>
+                <span className="text-lg font-bold text-emerald-500">{selectedProcess.actualUnit} (定额 {selectedProcess.unitQuota})</span>
+              </div>
+            </div>
+
+            {/* 市电 vs 绿电分项实时拆解 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Panel className="p-4 space-y-3">
+                <PanelTitle icon={Sun}>工序用电市电/绿电分项占比</PanelTitle>
+                <Donut
+                  data={[
+                    { name: '屋顶光伏绿电直供', value: selectedProcess.greenRatio, color: '#10b981' },
+                    { name: '国家电网市电输入', value: selectedProcess.gridRatio, color: '#1677ff' },
+                  ]}
+                  unit="%"
+                  height={200}
+                />
+                <div className="flex justify-between text-xs font-mono pt-1">
+                  <span className="text-emerald-500 font-bold">🟢 绿电消纳率: {selectedProcess.greenRatio}%</span>
+                  <span className="text-blue-500 font-bold">🔵 市电依赖: {selectedProcess.gridRatio}%</span>
+                </div>
+              </Panel>
+
+              <Panel className="p-4 space-y-3 flex flex-col justify-between">
+                <PanelTitle icon={Activity}>工序能耗时序流速</PanelTitle>
+                <div className="space-y-2 text-xs font-sans">
+                  <div className="p-2.5 rounded bg-accent/30 flex justify-between"><span>工序今日总电耗：</span><span className="font-mono font-bold text-foreground">{selectedProcess.elecKwh}</span></div>
+                  <div className="p-2.5 rounded bg-accent/30 flex justify-between"><span>折合标煤总量：</span><span className="font-mono font-bold text-foreground">0.47 tce</span></div>
+                  <div className="p-2.5 rounded bg-emerald-500/10 text-emerald-500 flex justify-between"><span>绿电减碳收益：</span><span className="font-mono font-bold">-285 kgCO2</span></div>
+                </div>
+                <button onClick={() => alert(`已导出【${selectedProcess.name}】工序能效分析报告`)} className="w-full py-2 rounded-md bg-primary text-primary-foreground font-semibold text-xs shadow">
+                  生成工序能效诊断分析报告
+                </button>
+              </Panel>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
