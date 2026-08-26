@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Zap,
@@ -89,12 +89,12 @@ export default function ZeroCarbonScreenPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#030b17] text-white p-2.5 sm:p-3.5 font-sans overflow-x-hidden select-none flex flex-col justify-between">
+    <div className="fixed inset-0 z-[100] w-screen h-screen bg-[#030b17] text-white p-2.5 sm:p-3.5 font-sans overflow-x-hidden overflow-y-auto select-none flex flex-col justify-between">
       {/* 🌟 1. 顶部赛博科技 HUD 导航栏 */}
       <header className="relative z-30 flex items-center justify-between pb-2">
         {/* 左侧：天气 + 空气质量 + 实时时钟 */}
         <div className="flex items-center gap-3 text-[11px] font-mono text-cyan-300">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-cyan-950/60 border border-cyan-500/30 backdrop-blur-sm">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-cyan-950/60 border border-cyan-500/30 backdrop-blur-sm shadow-[0_0_8px_rgba(6,182,212,0.2)]">
             <span className="text-amber-400">☀️ 26℃ 晴</span>
             <span>|</span>
             <span className="text-emerald-400">AQI 18 优</span>
@@ -106,11 +106,11 @@ export default function ZeroCarbonScreenPage() {
         {/* 中央标题 HUD 发光牌 */}
         <div className="relative text-center px-8 py-1">
           <div className="flex items-center justify-center gap-2">
-            <div className="h-0.5 w-12 bg-gradient-to-r from-transparent to-cyan-400" />
+            <div className="h-0.5 w-16 bg-gradient-to-r from-transparent to-cyan-400" />
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-widest bg-gradient-to-b from-white via-cyan-200 to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]">
               零碳园区能碳双控数据大屏
             </h1>
-            <div className="h-0.5 w-12 bg-gradient-to-l from-transparent to-cyan-400" />
+            <div className="h-0.5 w-16 bg-gradient-to-l from-transparent to-cyan-400" />
           </div>
           <div className="text-[9px] font-mono tracking-widest text-cyan-400/80 uppercase -mt-0.5">
             ZERO CARBON PLATFORM SYSTEM // MULTI-MEDIA TELEMETRY
@@ -119,18 +119,18 @@ export default function ZeroCarbonScreenPage() {
           <div className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#06b6d4]" />
         </div>
 
-        {/* 右侧：全屏与返回按钮 */}
+        {/* 右侧：全屏与返回系统按钮 */}
         <div className="flex items-center gap-2 text-xs font-mono">
           <button
             onClick={toggleFullscreen}
-            className="flex items-center gap-1.5 px-3 py-1 rounded bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 transition-colors shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-1 rounded bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 transition-all shadow-[0_0_8px_rgba(6,182,212,0.2)] hover:shadow-[0_0_12px_rgba(6,182,212,0.4)]"
           >
             {isFullscreen ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
             <span>{isFullscreen ? 'EXIT FULL' : 'FULLSCREEN'}</span>
           </button>
           <Link
             href="/zero-carbon/monitor/indicator"
-            className="flex items-center gap-1.5 px-3 py-1 rounded bg-blue-950/80 hover:bg-blue-900 border border-blue-500/40 text-blue-300 transition-colors shadow-xs font-bold"
+            className="flex items-center gap-1.5 px-3.5 py-1 rounded bg-blue-950/80 hover:bg-blue-900 border border-blue-500/40 text-blue-300 transition-all shadow-xs font-bold hover:shadow-[0_0_12px_rgba(59,130,246,0.4)]"
           >
             <ArrowLeft className="size-3.5" />
             <span>BACK TO SYSTEM</span>
@@ -145,7 +145,7 @@ export default function ZeroCarbonScreenPage() {
         <div className="lg:col-span-3 flex flex-col justify-between gap-3">
           
           {/* 卡片 1: 多介质能耗实时监测 */}
-          <div className="p-3 rounded-xl bg-[#061428]/80 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md flex flex-col justify-between space-y-2">
+          <div className="p-3 rounded-xl bg-[#061428]/85 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md flex flex-col justify-between space-y-2">
             <div className="flex items-center justify-between border-b border-cyan-500/20 pb-1.5">
               <span className="font-bold text-xs text-cyan-300 flex items-center gap-1.5">
                 <span className="size-2 rounded-full bg-cyan-400 animate-pulse" />
@@ -202,7 +202,7 @@ export default function ZeroCarbonScreenPage() {
           </div>
 
           {/* 卡片 2: 园区实时能碳效益总览 */}
-          <div className="p-3 rounded-xl bg-[#061428]/80 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md flex flex-col justify-between space-y-2">
+          <div className="p-3 rounded-xl bg-[#061428]/85 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md flex flex-col justify-between space-y-2">
             <div className="flex items-center justify-between border-b border-cyan-500/20 pb-1.5">
               <span className="font-bold text-xs text-cyan-300 flex items-center gap-1.5">
                 <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -239,7 +239,7 @@ export default function ZeroCarbonScreenPage() {
           </div>
 
           {/* 卡片 3: 1MW/2MWh 储能电站控制舱 */}
-          <div className="p-3 rounded-xl bg-[#061428]/80 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md space-y-2.5">
+          <div className="p-3 rounded-xl bg-[#061428]/85 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md space-y-2.5">
             <div className="flex items-center justify-between border-b border-cyan-500/20 pb-1.5">
               <span className="font-bold text-xs text-cyan-300 flex items-center gap-1.5">
                 <BatteryCharging className="size-4 text-cyan-400" />
@@ -312,7 +312,7 @@ export default function ZeroCarbonScreenPage() {
         <div className="lg:col-span-6 flex flex-col justify-between gap-3 relative">
           
           {/* 3D 沙盘控制顶栏 */}
-          <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl bg-[#061428]/80 border border-cyan-500/30 backdrop-blur-md z-20">
+          <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl bg-[#061428]/85 border border-cyan-500/30 backdrop-blur-md z-20">
             <div className="flex items-center gap-2 text-xs">
               <span className="px-2.5 py-1 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 font-bold flex items-center gap-1.5">
                 <Box className="size-3.5 text-cyan-400" />
@@ -494,7 +494,7 @@ export default function ZeroCarbonScreenPage() {
           </div>
 
           {/* 底部中间：综合能流 Sankey 分配比 */}
-          <div className="p-3 rounded-xl bg-[#061428]/80 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md space-y-2">
+          <div className="p-3 rounded-xl bg-[#061428]/85 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md space-y-2">
             <div className="flex items-center justify-between border-b border-cyan-500/20 pb-1.5 text-xs">
               <span className="font-bold text-cyan-300 flex items-center gap-1.5">
                 <Sliders className="size-3.5 text-cyan-400" />
@@ -544,7 +544,7 @@ export default function ZeroCarbonScreenPage() {
         <div className="lg:col-span-3 flex flex-col justify-between gap-3">
           
           {/* 卡片 1: 各用能占比统计 */}
-          <div className="p-3 rounded-xl bg-[#061428]/80 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md space-y-2">
+          <div className="p-3 rounded-xl bg-[#061428]/85 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md space-y-2">
             <div className="flex items-center justify-between border-b border-cyan-500/20 pb-1.5 text-xs">
               <span className="font-bold text-cyan-300 flex items-center gap-1.5">
                 <BarChart3 className="size-3.5 text-cyan-400" />
@@ -581,7 +581,7 @@ export default function ZeroCarbonScreenPage() {
           </div>
 
           {/* 卡片 2: 实时用电与光伏出力对标 */}
-          <div className="p-3 rounded-xl bg-[#061428]/80 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md space-y-2">
+          <div className="p-3 rounded-xl bg-[#061428]/85 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md space-y-2">
             <div className="flex items-center justify-between border-b border-cyan-500/20 pb-1.5 text-xs">
               <span className="font-bold text-cyan-300 flex items-center gap-1.5">
                 <Activity className="size-3.5 text-cyan-400" />
@@ -658,7 +658,7 @@ export default function ZeroCarbonScreenPage() {
           </div>
 
           {/* 卡片 3: 系统事件实时监控 */}
-          <div className="p-3 rounded-xl bg-[#061428]/80 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md space-y-2">
+          <div className="p-3 rounded-xl bg-[#061428]/85 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md space-y-2">
             <div className="flex items-center justify-between border-b border-cyan-500/20 pb-1.5 text-xs">
               <span className="font-bold text-cyan-300 flex items-center gap-1.5">
                 <AlertTriangle className="size-3.5 text-cyan-400" />
