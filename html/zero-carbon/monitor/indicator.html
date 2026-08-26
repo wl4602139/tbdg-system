@@ -377,98 +377,97 @@ window.toggleNavGroup = function(btn) {
     <!-- 5 大核心突出指标卡片 -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 font-mono">
       <!-- 核心 1: 绿电占比 -->
-      <div class="p-3.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xs space-y-1.5 cursor-pointer hover:opacity-95 transition-opacity" onclick="openIndicatorModal('green_ratio')">
-        <div class="flex items-center justify-between text-xs font-sans opacity-90">
-          <span class="flex items-center gap-1.5 font-bold">
+      <div class="p-3.5 rounded-xl shadow-xs space-y-1.5 cursor-pointer hover:shadow-md transition-all text-white" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%);" onclick="openIndicatorModal('green_ratio')">
+        <div class="flex items-center justify-between text-xs font-sans text-emerald-50">
+          <span class="flex items-center gap-1.5 font-bold text-white">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
             绿电占比
           </span>
-          <span class="px-1.5 py-0.2 rounded bg-white/20 text-[10px] font-mono font-bold">超额达成</span>
+          <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold" style="background: rgba(255,255,255,0.25); color: #ffffff;">超额达成</span>
         </div>
-        <div class="text-2xl font-black tracking-tight">
-          38.6 <span class="text-xs font-normal opacity-80">%</span>
+        <div class="text-2xl font-black tracking-tight text-white">
+          38.6 <span class="text-xs font-normal opacity-85"> %</span>
         </div>
-        <div class="flex items-center justify-between text-[11px] font-sans pt-1 border-t border-white/20">
-          <span class="opacity-85">目标值: 35.0%</span>
-          <span class="font-bold text-emerald-100">+3.6% ▲</span>
+        <div class="flex items-center justify-between text-[11px] font-sans pt-1 border-t text-emerald-50" style="border-color: rgba(255,255,255,0.25);">
+          <span>目标值: 35.0%</span>
+          <span class="font-bold text-emerald-200">+3.6% ▲</span>
         </div>
       </div>
 
       <!-- 核心 2: 碳排放强度 -->
-      <div class="p-3.5 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xs space-y-1.5 cursor-pointer hover:opacity-95 transition-opacity" onclick="openIndicatorModal('carbon_intensity')">
-        <div class="flex items-center justify-between text-xs font-sans opacity-90">
-          <span class="flex items-center gap-1.5 font-bold">
+      <div class="p-3.5 rounded-xl shadow-xs space-y-1.5 cursor-pointer hover:shadow-md transition-all text-white" style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);" onclick="openIndicatorModal('carbon_intensity')">
+        <div class="flex items-center justify-between text-xs font-sans text-blue-50">
+          <span class="flex items-center gap-1.5 font-bold text-white">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg>
             碳排放强度
           </span>
-          <span class="px-1.5 py-0.2 rounded bg-white/20 text-[10px] font-mono font-bold">优于定额</span>
+          <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold" style="background: rgba(255,255,255,0.25); color: #ffffff;">优于定额</span>
         </div>
-        <div class="text-2xl font-black tracking-tight">
-          0.42 <span class="text-xs font-normal opacity-80">tCO2/万</span>
+        <div class="text-2xl font-black tracking-tight text-white">
+          0.42 <span class="text-xs font-normal opacity-85"> tCO2/万</span>
         </div>
-        <div class="flex items-center justify-between text-[11px] font-sans pt-1 border-t border-white/20">
-          <span class="opacity-85">定额限值: 0.45</span>
-          <span class="font-bold text-emerald-100">-6.7% ▼</span>
+        <div class="flex items-center justify-between text-[11px] font-sans pt-1 border-t text-blue-50" style="border-color: rgba(255,255,255,0.25);">
+          <span>定额限值: 0.45</span>
+          <span class="font-bold text-emerald-200">-6.7% ▼</span>
         </div>
       </div>
 
-      <!-- 核心 3: 万元产值能耗 -->
-      <div class="p-3.5 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-800 text-white shadow-xs space-y-1.5 cursor-pointer hover:opacity-95 transition-opacity" onclick="openIndicatorModal('gdp_energy')">
-        <div class="flex items-center justify-between text-xs font-sans opacity-90">
-          <span class="flex items-center gap-1.5 font-bold">
+      <!-- 核心 3: 万元产值综合能耗 -->
+      <div class="p-3.5 rounded-xl shadow-xs space-y-1.5 cursor-pointer hover:shadow-md transition-all text-white" style="background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);" onclick="openIndicatorModal('gdp_energy')">
+        <div class="flex items-center justify-between text-xs font-sans text-purple-50">
+          <span class="flex items-center gap-1.5 font-bold text-white">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             万元产值综合能耗
           </span>
-          <span class="px-1.5 py-0.2 rounded bg-white/20 text-[10px] font-mono font-bold">受控良好</span>
+          <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold" style="background: rgba(255,255,255,0.25); color: #ffffff;">受控良好</span>
         </div>
-        <div class="text-2xl font-black tracking-tight">
-          0.138 <span class="text-xs font-normal opacity-80">tce/万</span>
+        <div class="text-2xl font-black tracking-tight text-white">
+          0.138 <span class="text-xs font-normal opacity-85"> tce/万</span>
         </div>
-        <div class="flex items-center justify-between text-[11px] font-sans pt-1 border-t border-white/20">
-          <span class="opacity-85">定额限值: 0.150</span>
-          <span class="font-bold text-emerald-100">-8.0% ▼</span>
+        <div class="flex items-center justify-between text-[11px] font-sans pt-1 border-t text-purple-50" style="border-color: rgba(255,255,255,0.25);">
+          <span>定额限值: 0.150</span>
+          <span class="font-bold text-emerald-200">-8.0% ▼</span>
         </div>
       </div>
 
       <!-- 核心 4: 企业碳排放总量 -->
-      <div class="p-3.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xs space-y-1.5 cursor-pointer hover:opacity-95 transition-opacity" onclick="openIndicatorModal('carbon_total')">
-        <div class="flex items-center justify-between text-xs font-sans opacity-90">
-          <span class="flex items-center gap-1.5 font-bold">
+      <div class="p-3.5 rounded-xl shadow-xs space-y-1.5 cursor-pointer hover:shadow-md transition-all text-white" style="background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);" onclick="openIndicatorModal('carbon_total')">
+        <div class="flex items-center justify-between text-xs font-sans text-orange-50">
+          <span class="flex items-center gap-1.5 font-bold text-white">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
             企业碳排放总量
           </span>
-          <span class="px-1.5 py-0.2 rounded bg-white/20 text-[10px] font-mono font-bold">在控进度</span>
+          <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold" style="background: rgba(255,255,255,0.25); color: #ffffff;">在控进度</span>
         </div>
-        <div class="text-2xl font-black tracking-tight">
-          17,431 <span class="text-xs font-normal opacity-80">tCO2</span>
+        <div class="text-2xl font-black tracking-tight text-white">
+          17,431 <span class="text-xs font-normal opacity-85"> tCO2</span>
         </div>
-        <div class="flex items-center justify-between text-[11px] font-sans pt-1 border-t border-white/20">
-          <span class="opacity-85">年度配额进度: 61.2%</span>
-          <span class="font-bold text-amber-100">绿灯</span>
+        <div class="flex items-center justify-between text-[11px] font-sans pt-1 border-t text-orange-50" style="border-color: rgba(255,255,255,0.25);">
+          <span>年度配额进度: 61.2%</span>
+          <span class="font-bold text-emerald-200">绿灯在控</span>
         </div>
       </div>
 
       <!-- 核心 5: 清洁能源消纳率 -->
-      <div class="p-3.5 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-xs space-y-1.5 cursor-pointer hover:opacity-95 transition-opacity" onclick="openIndicatorModal('clean_energy')">
-        <div class="flex items-center justify-between text-xs font-sans opacity-90">
-          <span class="flex items-center gap-1.5 font-bold">
+      <div class="p-3.5 rounded-xl shadow-xs space-y-1.5 cursor-pointer hover:shadow-md transition-all text-white" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);" onclick="openIndicatorModal('clean_energy')">
+        <div class="flex items-center justify-between text-xs font-sans text-sky-50">
+          <span class="flex items-center gap-1.5 font-bold text-white">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
             清洁能源消纳率
           </span>
-          <span class="px-1.5 py-0.2 rounded bg-white/20 text-[10px] font-mono font-bold">领跑</span>
+          <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold" style="background: rgba(255,255,255,0.25); color: #ffffff;">行业领跑</span>
         </div>
-        <div class="text-2xl font-black tracking-tight">
-          98.5 <span class="text-xs font-normal opacity-80">%</span>
+        <div class="text-2xl font-black tracking-tight text-white">
+          98.5 <span class="text-xs font-normal opacity-85"> %</span>
         </div>
-        <div class="flex items-center justify-between text-[11px] font-sans pt-1 border-t border-white/20">
-          <span class="opacity-85">光伏全额就地消纳</span>
-          <span class="font-bold text-sky-100">0 弃光</span>
+        <div class="flex items-center justify-between text-[11px] font-sans pt-1 border-t text-sky-50" style="border-color: rgba(255,255,255,0.25);">
+          <span>光伏全额就地消纳</span>
+          <span class="font-bold text-emerald-200">0 弃光</span>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- 🌟 3. 主体工作区：左侧 1-2 级经营单位树 + 右侧统一页面上下排布 (公司级/产品级/工序级) -->
+<!-- 🌟 3. 主体工作区：左侧 1-2 级经营单位树 + 右侧统一页面上下排布 (公司级/产品级/工序级) -->
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch min-h-[calc(100vh-270px)]">
     <!-- 左侧树状结构 (col-span-3)：仅展示到经营单位级别 -->
     <div class="lg:col-span-3">
