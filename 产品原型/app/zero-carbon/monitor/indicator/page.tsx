@@ -158,192 +158,99 @@ export default function IndicatorControlPage() {
 
   // —— 经典标准树数据（4 大 PK 维度）——
   // —— 依据《园区-工厂对应关系表.xlsx》完整组织拓扑树 ——
+  // —— 依据《园区-工厂对应关系表.xlsx》仅展示 1、2 级组织架构树 ——
   const factoryTreeData: TreeViewNode[] = [
     {
       key: 'group_all',
-      label: '特变电工集团 (全量 21 家工厂/经营单位)',
+      label: '特变电工集团 (全量经营单位)',
       icon: <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />,
       selected: selectedFactoryGroup === 'all',
-      badge: <span className="rounded bg-blue-50 px-1.5 py-px text-[10px] text-[#1677ff] font-bold">全网</span>,
+      badge: <span className="rounded bg-blue-50 px-1.5 py-px text-[10px] text-[#1677ff] font-bold">全量</span>,
       onSelect: () => setSelectedFactoryGroup('all'),
       children: [
-        // 1. 沈变公司
+        // 1. 沈变公司 (一级单位) -> 二级单位
         {
           key: 'comp_sb',
-          label: '沈变公司 (东北产业基地)',
+          label: '沈变公司 (一级单位)',
           selected: selectedFactoryGroup === 'sb_all',
           onSelect: () => setSelectedFactoryGroup('sb_all'),
           children: [
-            {
-              key: 'park_sb_ne',
-              label: '特变电工东北输变电产业园',
-              children: [
-                { key: 'f_sb_main', label: '沈变本部 (超高压/试验大厅)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_sb') },
-              ],
-            },
-            { key: 'f_sb_hx', label: '和新套管公司 (套管车间)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_sb_kj', label: '康嘉互感器公司 (互感器车间)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_sb_zh', label: '沈变智慧能源公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_sb_yn', label: '沈变印能公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_sb_main', label: '沈变本部', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_sb') },
+            { key: 'f_sb_zh', label: '智慧能源', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_sb_hx', label: '和新套管公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_sb_kj', label: '康嘉互感器', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_sb_yn', label: '印能公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
           ],
         },
 
-        // 2. 衡变公司
+        // 2. 衡变公司 (一级单位) -> 二级单位
         {
           key: 'comp_hb',
-          label: '衡变公司 (南方产业基地)',
+          label: '衡变公司 (一级单位)',
           selected: selectedFactoryGroup === 'hb_all',
           onSelect: () => setSelectedFactoryGroup('hb_all'),
           children: [
-            {
-              key: 'park_hb_south',
-              label: '特变电工南方输变电产业园',
-              children: [
-                { key: 'f_hb_main', label: '衡变本部 (特高压变压器车间)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_hb') },
-              ],
-            },
-            {
-              key: 'park_hb_sec',
-              label: '特变电工二次产业园区',
-              children: [
-                { key: 'f_hb_nj', label: '南京电研 (二次研发制造)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-              ],
-            },
-            {
-              key: 'park_hb_yj',
-              label: '特变电工云集5G科技产业园',
-              children: [
-                { key: 'f_hb_yjdq', label: '云集电气 (中低压开关柜)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-                { key: 'f_hb_yjgy', label: '云集高压开关 (GIS/断路器)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-              ],
-            },
-            {
-              key: 'park_hb_xa',
-              label: '特变电工西安智能装备产业园',
-              children: [
-                { key: 'f_hb_hr', label: '合容电气 (合容股份/合容开关)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-              ],
-            },
-            {
-              key: 'park_hb_gil',
-              label: '特变电工GIL产业园',
-              children: [
-                { key: 'f_hb_gil_fac', label: '赛杰爱迪 (GIL管道车间)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-              ],
-            },
-            {
-              key: 'park_hb_zn',
-              label: '特变电工智能电气产业园',
-              children: [
-                { key: 'f_hb_xjzk', label: '新疆自控 (开关柜车间)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-              ],
-            },
-            { key: 'f_hb_hn', label: '湖南电气 / 特能建', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_hb_main', label: '衡变本部', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_hb') },
+            { key: 'f_hb_nj', label: '南京电研', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_hb_yjdq', label: '云集电气', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_hb_hndq', label: '湖南电气', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_hb_yjgy', label: '云集高压开关', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_hb_xjzk', label: '新疆自控', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_hb_tnj', label: '特能建', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_hb_hr', label: '合容电气', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_hb_gil', label: '赛杰爱迪', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
           ],
         },
 
-        // 3. 新变厂
+        // 3. 新变厂 (一级单位) -> 二级单位
         {
           key: 'comp_xb',
-          label: '新变厂 (新疆与天变基地)',
+          label: '新变厂 (一级单位)',
           selected: selectedFactoryGroup === 'xb_all',
           onSelect: () => setSelectedFactoryGroup('xb_all'),
           children: [
-            {
-              key: 'park_xb_sbd',
-              label: '特变电工输变电产业园',
-              children: [
-                { key: 'f_xb_uhv', label: '超高压公司 (新变超高压基地)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_xb') },
-                { key: 'f_xb_zf', label: '珠峰硅钢 (铁心加工中心)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-              ],
-            },
-            {
-              key: 'park_xb_tb',
-              label: '特变电工天变产业园',
-              children: [
-                { key: 'f_tb_main', label: '天变公司 (天津变压器制造基地)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_tj') },
-              ],
-            },
-            {
-              key: 'park_xb_zn',
-              label: '特变电工智能电气产业园',
-              children: [
-                { key: 'f_xb_zndq', label: '智能电气公司 (自控配变基地)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-              ],
-            },
-            {
-              key: 'park_xb_jjj',
-              label: '特变电工京津冀智能科技产业园',
-              children: [
-                { key: 'f_xb_jjj_fac', label: '京津冀公司 (智能成套装备)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-              ],
-            },
+            { key: 'f_xb_uhv', label: '超高压公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_xb') },
+            { key: 'f_tb_main', label: '天变公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_tj') },
+            { key: 'f_xb_zndq', label: '智能电气公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_xb_jjj', label: '京津冀公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_xb_zf', label: '珠峰硅钢', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
           ],
         },
 
-        // 4. 鲁缆公司
+        // 4. 鲁缆公司 (一级单位) -> 二级单位
         {
           key: 'comp_ll',
-          label: '鲁缆公司 (山东线缆基地)',
+          label: '鲁缆公司 (一级单位)',
           selected: selectedFactoryGroup === 'll_all',
           onSelect: () => setSelectedFactoryGroup('ll_all'),
           children: [
-            {
-              key: 'park_ll_east',
-              label: '特变电工华东输变电科技产业园',
-              children: [
-                { key: 'f_ll_main', label: '鲁缆本部 (高压电缆制造基地)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_ll') },
-              ],
-            },
-            {
-              key: 'park_ll_sg',
-              label: '特变电工曙光电缆产业园',
-              children: [
-                { key: 'f_ll_sg_fac', label: '曙光公司 (特种电缆车间)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-              ],
-            },
-            { key: 'f_ll_zl', label: '鲁缆智缆公司 / 昭和公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_ll_main', label: '鲁缆本部', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_ll') },
+            { key: 'f_ll_zl', label: '智缆公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_ll_sh', label: '昭和公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
+            { key: 'f_ll_sg', label: '曙光公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
           ],
         },
 
-        // 5. 新缆厂
+        // 5. 新缆厂 (一级单位) -> 二级单位
         {
           key: 'comp_xlc',
-          label: '新缆厂 (新疆线缆基地)',
+          label: '新缆厂 (一级单位)',
           selected: selectedFactoryGroup === 'xlc_all',
           onSelect: () => setSelectedFactoryGroup('xlc_all'),
           children: [
-            {
-              key: 'park_xlc_xj',
-              label: '特变电工新疆电缆产业园',
-              children: [
-                { key: 'f_xlc_main', label: '新疆电缆公司 (特种线缆制造)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_xlc') },
-              ],
-            },
-            {
-              key: 'park_xlc_sbd',
-              label: '特变电工输变电产业园 (线缆)',
-              children: [
-                { key: 'f_xlc_sbd_fac', label: '新疆线缆厂 (线缆制造车间)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-              ],
-            },
+            { key: 'f_xlc_main', label: '新疆电缆公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_xlc') },
+            { key: 'f_xlc_sbd', label: '新疆线缆厂', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
           ],
         },
 
-        // 6. 德缆公司
+        // 6. 德缆公司 (一级单位) -> 二级单位
         {
           key: 'comp_dl',
-          label: '德缆公司 (西南线缆基地)',
+          label: '德缆公司 (一级单位)',
           selected: selectedFactoryGroup === 'dl_all',
           onSelect: () => setSelectedFactoryGroup('dl_all'),
           children: [
-            {
-              key: 'park_dl_dy',
-              label: '特变电工(德阳)电缆园区',
-              children: [
-                { key: 'f_dl_main', label: '德缆股份公司 (高低压电缆基地)', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_dl') },
-              ],
-            },
+            { key: 'f_dl_main', label: '德缆股份公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_dl') },
           ],
         },
       ],
