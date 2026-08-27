@@ -1,676 +1,610 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
-import * as echarts from 'echarts'
+import React, { useState } from 'react'
 import {
-  Layers,
-  Activity,
+  Calendar,
+  Download,
+  Building2,
   Zap,
   Flame,
   Droplets,
-  Building2,
-  ChevronRight,
-  TrendingUp,
-  TrendingDown,
-  PieChart,
-  ArrowRight,
+  Layers,
   Sparkles,
-  Wind,
-  Sun,
-  Filter,
-  CheckCircle2,
-  Gauge,
-  Factory,
-  Sliders,
-  RefreshCw,
+  Maximize2,
+  X,
+  FileSpreadsheet,
+  TrendingDown,
   Info,
-  CheckSquare,
-  Square,
-  BarChart3,
-  Calendar,
+  CheckCircle2,
 } from 'lucide-react'
-import { Panel, PanelTitle, Badge, StatusBadge, DataTable, KpiCard } from '@/components/shared/primitives'
-import { Donut, LineTrend, AreaTrend } from '@/components/shared/charts'
-import { TimeRange } from '@/components/shared/time-range'
-import { energyStructure, energyTrend } from '@/lib/mock-data'
-import { seedFactor, vary, varyNum } from '@/lib/variant'
+import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { cn } from '@/lib/utils'
 
+// 集团 6 大直属经营单位水电消耗与能耗结构
+interface CompanyPanorama {
+  id: string
+  name: string
+  color: string
+  totalTce: number
+  elecWanKwh: number
+  elecYoy: string
+  waterWanT: number
+  waterYoy: string
+  status: 'active' | 'grayed' // 灰色搁置标识
+}
+
+const PANORAMA_COMPANIES: CompanyPanorama[] = [
+  { id: 'comp_sb', name: '沈变公司', color: '#1677ff', totalTce: 1577.2, elecWanKwh: 1080.0, elecYoy: '-3.2%', waterWanT: 4.8, waterYoy: '-4.0%', status: 'active' },
+  { id: 'comp_hb', name: '衡变公司', color: '#10b981', totalTce: 1420.5, elecWanKwh: 985.0, elecYoy: '-2.8%', waterWanT: 4.2, waterYoy: '-3.5%', status: 'active' },
+  { id: 'comp_xb', name: '新变厂', color: '#8b5cf6', totalTce: 1280.0, elecWanKwh: 890.0, elecYoy: '-2.1%', waterWanT: 3.9, waterYoy: '-2.0%', status: 'active' },
+  { id: 'comp_ll', name: '鲁缆公司', color: '#f59e0b', totalTce: 860.4, elecWanKwh: 620.0, elecYoy: '-3.0%', waterWanT: 2.1, waterYoy: '-1.5%', status: 'active' },
+  { id: 'comp_xlc', name: '新缆厂', color: '#06b6d4', totalTce: 740.2, elecWanKwh: 540.0, elecYoy: '-1.8%', waterWanT: 1.8, waterYoy: '-1.2%', status: 'active' },
+  { id: 'comp_dl', name: '德缆公司', color: '#f43f5e', totalTce: 620.8, elecWanKwh: 450.0, elecYoy: '-2.4%', waterWanT: 1.5, waterYoy: '-2.0%', status: 'active' },
+  { id: 'comp_sk', name: '上海上开 (无归属搁置)', color: '#94a3b8', totalTce: 0.0, elecWanKwh: 0.0, elecYoy: '0%', waterWanT: 0.0, waterYoy: '0%', status: 'grayed' },
+]
+
 export default function EnergyStructurePage() {
-  // 1. 园区 vs 厂区层级切换
-  const [viewLevel, setViewLevel] = useState<'park' | 'factory'>('park')
-  const [selectedOrg, setSelectedOrg] = useState('特变电工东北输变电产业园')
-  const [selectedFactory, setSelectedFactory] = useState('沈变本部')
-  const [activePeriod, setActivePeriod] = useState('2026-08')
+  const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
+    id: 'comp_sb',
+    name: '沈变公司',
+    fullName: '沈变公司 (东北输变电中心)',
+    level: 'company',
+    badge: '东北中心',
+  })
 
-  // 2. 桑基图类型单独查看
-  const [sankeyType, setSankeyType] = useState<'all' | 'elec' | 'steam' | 'gas' | 'water'>('all')
-
-  // 3. 底部消耗趋势多类型自由勾选
-  const [trendMetric, setTrendMetric] = useState<'tce' | 'physical' | 'cost' | 'carbon'>('tce')
-  const [showElec, setShowElec] = useState(true)
-  const [showSteam, setShowSteam] = useState(true)
-  const [showGas, setShowGas] = useState(true)
-  const [showWater, setShowWater] = useState(false)
-  const [showGreen, setShowGreen] = useState(true)
-
-  const chartRef = useRef<HTMLDivElement>(null)
-  const chartInstance = useRef<echarts.ECharts | null>(null)
-
-  const currentSubject = viewLevel === 'park' ? selectedOrg : selectedFactory
-  const factor = seedFactor(currentSubject, activePeriod)
-
-  // 园区级 vs 厂区级 & 不同介质的专用桑基图拓扑数据生成器
-  const getSankeyConfig = () => {
-    // A. 全部能流 (综合折标煤 tce) - 园区级 (100% 对标参考图)
-    if (sankeyType === 'all' && viewLevel === 'park') {
-      return {
-        title: '【零碳智慧园区】全园区全能耗流向与损耗拓扑图 (Sankey Flow)',
-        sub: '国家《数字化能碳管理中心建设指南》标准对标能流拓扑视图',
-        nodes: [
-          { name: '市政工业热力/蒸汽', itemStyle: { color: '#64748b' } },
-          { name: '市政电网接入', itemStyle: { color: '#f43f5e' } },
-          { name: '分布式屋顶光伏', itemStyle: { color: '#334155' } },
-          { name: '市政天然气管网', itemStyle: { color: '#84cc16' } },
-
-          { name: '余热回收利用', itemStyle: { color: '#64748b' } },
-          { name: '储能电池电站', itemStyle: { color: '#60a5fa' } },
-          { name: '中央变电与配电中心', itemStyle: { color: '#10b981' } },
-          { name: '燃气锅炉/冷热联供', itemStyle: { color: '#a3e635' } },
-
-          { name: '1号高端制造车间', itemStyle: { color: '#a89078' } },
-          { name: 'IDC数据中心', itemStyle: { color: '#84cc16' } },
-          { name: '充电桩集群', itemStyle: { color: '#3b82f6' } },
-          { name: '2号精细化工车间', itemStyle: { color: '#f97316' } },
-          { name: '变压与线路热损', itemStyle: { color: '#6366f1' } },
-          { name: '园区行政与生活区', itemStyle: { color: '#84cc16' } },
-        ],
-        links: [
-          { source: '市政工业热力/蒸汽', target: '余热回收利用', value: 850 },
-          { source: '市政电网接入', target: '中央变电与配电中心', value: 8700 },
-          { source: '分布式屋顶光伏', target: '储能电池电站', value: 1820 },
-          { source: '储能电池电站', target: '中央变电与配电中心', value: 1820 },
-          { source: '市政天然气管网', target: '燃气锅炉/冷热联供', value: 1450 },
-
-          { source: '余热回收利用', target: '1号高端制造车间', value: 850 },
-          { source: '中央变电与配电中心', target: '1号高端制造车间', value: 3800 },
-          { source: '中央变电与配电中心', target: 'IDC数据中心', value: 2200 },
-          { source: '中央变电与配电中心', target: '充电桩集群', value: 950 },
-          { source: '中央变电与配电中心', target: '2号精细化工车间', value: 2800 },
-          { source: '中央变电与配电中心', target: '变压与线路热损', value: 220 },
-          { source: '中央变电与配电中心', target: '园区行政与生活区', value: 550 },
-          { source: '燃气锅炉/冷热联供', target: '2号精细化工车间', value: 800 },
-          { source: '燃气锅炉/冷热联供', target: '园区行政与生活区', value: 650 },
-        ],
-      }
-    }
-
-    // B. 全部能流 (综合折标煤 tce) - 厂区工序级 (特变装备制造工厂)
-    if (sankeyType === 'all' && viewLevel === 'factory') {
-      return {
-        title: `【${selectedFactory}】制造工序全能流平衡拓扑图 (Sankey Flow)`,
-        sub: '工序级能源输入、动力枢纽分配与车间产线流向平衡',
-        nodes: [
-          { name: '10kV市政市电', itemStyle: { color: '#1677ff' } },
-          { name: '厂房屋顶光伏', itemStyle: { color: '#52c41a' } },
-          { name: '工业外购蒸汽', itemStyle: { color: '#722ed1' } },
-          { name: '管道天然气', itemStyle: { color: '#fa8c16' } },
-
-          { name: '总降压变电站', itemStyle: { color: '#1677ff' } },
-          { name: '气相热动力站', itemStyle: { color: '#722ed1' } },
-          { name: '动力压缩空气站', itemStyle: { color: '#fa8c16' } },
-
-          { name: '高压线圈干燥罐', itemStyle: { color: '#1677ff' } },
-          { name: '无局放试验大厅', itemStyle: { color: '#1677ff' } },
-          { name: '数控铁芯叠装线', itemStyle: { color: '#52c41a' } },
-          { name: '公辅冷却循环泵', itemStyle: { color: '#13c2c2' } },
-          { name: '罐体恒温与采暖', itemStyle: { color: '#722ed1' } },
-          { name: '变电综合线损', itemStyle: { color: '#f5222d' } },
-        ],
-        links: [
-          { source: '10kV市政市电', target: '总降压变电站', value: 7800 },
-          { source: '厂房屋顶光伏', target: '总降压变电站', value: 1600 },
-          { source: '工业外购蒸汽', target: '气相热动力站', value: 1300 },
-          { source: '管道天然气', target: '动力压缩空气站', value: 950 },
-
-          { source: '总降压变电站', target: '高压线圈干燥罐', value: 3600 },
-          { source: '总降压变电站', target: '无局放试验大厅', value: 2500 },
-          { source: '总降压变电站', target: '数控铁芯叠装线', value: 1600 },
-          { source: '总降压变电站', target: '公辅冷却循环泵', value: 1400 },
-          { source: '总降压变电站', target: '变电综合线损', value: 300 },
-          { source: '气相热动力站', target: '高压线圈干燥罐', value: 850 },
-          { source: '气相热动力站', target: '罐体恒温与采暖', value: 450 },
-          { source: '动力压缩空气站', target: '数控铁芯叠装线', value: 550 },
-          { source: '动力压缩空气站', target: '公辅冷却循环泵', value: 400 },
-        ],
-      }
-    }
-
-    // C. ⚡ 单独查看：电力能流专向图 (MWh)
-    if (sankeyType === 'elec') {
-      return {
-        title: '【电力能流专向图】市电与新能源发电 ➔ 变配电 ➔ 各用电负载',
-        sub: '单位：MWh (兆瓦时) · 变配电综合效率：98.6%',
-        nodes: [
-          { name: '10kV 市电购电 (8,700 MWh)', itemStyle: { color: '#1677ff' } },
-          { name: '光伏自发自用 (1,820 MWh)', itemStyle: { color: '#52c41a' } },
-          { name: '储能夜间放电 (650 MWh)', itemStyle: { color: '#fa8c16' } },
-
-          { name: '10kV 高压配电总柜', itemStyle: { color: '#1677ff' } },
-          { name: '车间动力变压器组', itemStyle: { color: '#0958d9' } },
-
-          { name: '真空干燥主动力 (4,200 MWh)', itemStyle: { color: '#1677ff' } },
-          { name: '变压器超高压试验 (2,850 MWh)', itemStyle: { color: '#1677ff' } },
-          { name: '自动化剪切卷线 (1,820 MWh)', itemStyle: { color: '#52c41a' } },
-          { name: '空压机与水泵站 (1,650 MWh)', itemStyle: { color: '#13c2c2' } },
-          { name: '厂区智能照明 (480 MWh)', itemStyle: { color: '#fadb14' } },
-          { name: '变损与线路损耗 (170 MWh)', itemStyle: { color: '#f5222d' } },
-        ],
-        links: [
-          { source: '10kV 市电购电 (8,700 MWh)', target: '10kV 高压配电总柜', value: 8700 },
-          { source: '光伏自发自用 (1,820 MWh)', target: '10kV 高压配电总柜', value: 1820 },
-          { source: '储能夜间放电 (650 MWh)', target: '10kV 高压配电总柜', value: 650 },
-
-          { source: '10kV 高压配电总柜', target: '车间动力变压器组', value: 11000 },
-          { source: '10kV 高压配电总柜', target: '变损与线路损耗 (170 MWh)', value: 170 },
-
-          { source: '车间动力变压器组', target: '真空干燥主动力 (4,200 MWh)', value: 4200 },
-          { source: '车间动力变压器组', target: '变压器超高压试验 (2,850 MWh)', value: 2850 },
-          { source: '车间动力变压器组', target: '自动化剪切卷线 (1,820 MWh)', value: 1820 },
-          { source: '车间动力变压器组', target: '空压机与水泵站 (1,650 MWh)', value: 1650 },
-          { source: '车间动力变压器组', target: '厂区智能照明 (480 MWh)', value: 480 },
-        ],
-      }
-    }
-
-    // D. 💨 单独查看：蒸汽/热力能流专向图 (t)
-    if (sankeyType === 'steam') {
-      return {
-        title: '【工业蒸汽与热力能流图】集中蒸汽与余热 ➔ 换热总站 ➔ 干燥保温',
-        sub: '单位：t (吨) · 蒸汽综合热利用率：91.2%',
-        nodes: [
-          { name: '市政外购蒸汽 (1,420 t)', itemStyle: { color: '#722ed1' } },
-          { name: '余热循环回收 (380 t等效)', itemStyle: { color: '#13c2c2' } },
-
-          { name: '换热减温减压站', itemStyle: { color: '#722ed1' } },
-          { name: '高温冷凝水回收', itemStyle: { color: '#52c41a' } },
-
-          { name: '真空干燥气相加热 (880 t)', itemStyle: { color: '#722ed1' } },
-          { name: '绝缘油真空气相处理 (360 t)', itemStyle: { color: '#9254de' } },
-          { name: '冬季车间恒温采暖 (420 t)', itemStyle: { color: '#b37feb' } },
-          { name: '管网热阻散失 (140 t)', itemStyle: { color: '#f5222d' } },
-        ],
-        links: [
-          { source: '市政外购蒸汽 (1,420 t)', target: '换热减温减压站', value: 1420 },
-          { source: '余热循环回收 (380 t等效)', target: '换热减温减压站', value: 380 },
-
-          { source: '换热减温减压站', target: '真空干燥气相加热 (880 t)', value: 880 },
-          { source: '换热减温减压站', target: '绝缘油真空气相处理 (360 t)', value: 360 },
-          { source: '换热减温减压站', target: '冬季车间恒温采暖 (420 t)', value: 420 },
-          { source: '换热减温减压站', target: '管网热阻散失 (140 t)', value: 140 },
-
-          { source: '真空干燥气相加热 (880 t)', target: '高温冷凝水回收', value: 320 },
-        ],
-      }
-    }
-
-    // E. 🔥 单独查看：天然气能流专向图 (Nm³)
-    if (sankeyType === 'gas') {
-      return {
-        title: '【天然气能源流向图】市政管道天然气 ➔ 调压燃气站 ➔ 锅炉烘干',
-        sub: '单位：Nm³ · 燃气综合燃烧热效率：92.5%',
-        nodes: [
-          { name: '市政中压天然气 (28,400 Nm³)', itemStyle: { color: '#fa8c16' } },
-          { name: '燃气调压计量柜', itemStyle: { color: '#fa8c16' } },
-
-          { name: '低氮燃气锅炉动力 (16,200 Nm³)', itemStyle: { color: '#fa8c16' } },
-          { name: '漆包线立式烘焙炉 (8,600 Nm³)', itemStyle: { color: '#ffa940' } },
-          { name: '食堂与生活热水 (3,600 Nm³)', itemStyle: { color: '#ffd591' } },
-        ],
-        links: [
-          { source: '市政中压天然气 (28,400 Nm³)', target: '燃气调压计量柜', value: 28400 },
-          { source: '燃气调压计量柜', target: '低氮燃气锅炉动力 (16,200 Nm³)', value: 16200 },
-          { source: '燃气调压计量柜', target: '漆包线立式烘焙炉 (8,600 Nm³)', value: 8600 },
-          { source: '燃气调压计量柜', target: '食堂与生活热水 (3,600 Nm³)', value: 3600 },
-        ],
-      }
-    }
-
-    // F. 💧 单独查看：工业用水与中水回用能流图 (m³)
-    return {
-      title: '【工业水资源循环流向图】市政新水与中水 ➔ 水处理泵房 ➔ 冷却与循环',
-      sub: '单位：m³ · 全厂水资源循环利用率：94.2%',
-      nodes: [
-        { name: '市政自来水接入 (8,940 m³)', itemStyle: { color: '#13c2c2' } },
-        { name: '中水与冷凝回收 (4,200 m³)', itemStyle: { color: '#52c41a' } },
-
-        { name: '综合循环水泵房', itemStyle: { color: '#13c2c2' } },
-        { name: '纯水与软化处理站', itemStyle: { color: '#36cfc9' } },
-
-        { name: '试验大厅闭式冷却塔 (6,500 m³)', itemStyle: { color: '#13c2c2' } },
-        { name: '真空干燥冷凝冷却水 (3,800 m³)', itemStyle: { color: '#13c2c2' } },
-        { name: '绿化保洁与公辅用水 (1,840 m³)', itemStyle: { color: '#52c41a' } },
-        { name: '蒸发自然损耗 (1,000 m³)', itemStyle: { color: '#f5222d' } },
-      ],
-      links: [
-        { source: '市政自来水接入 (8,940 m³)', target: '综合循环水泵房', value: 8940 },
-        { source: '中水与冷凝回收 (4,200 m³)', target: '综合循环水泵房', value: 4200 },
-
-        { source: '综合循环水泵房', target: '纯水与软化处理站', value: 5200 },
-        { source: '综合循环水泵房', target: '试验大厅闭式冷却塔 (6,500 m³)', value: 6500 },
-        { source: '综合循环水泵房', target: '绿化保洁与公辅用水 (1,840 m³)', value: 1840 },
-
-        { source: '纯水与软化处理站', target: '真空干燥冷凝冷却水 (3,800 m³)', value: 3800 },
-        { source: '纯水与软化处理站', target: '蒸发自然损耗 (1,000 m³)', value: 1000 },
-      ],
-    }
-  }
-
-  const sankeyConfig = getSankeyConfig()
-
-  useEffect(() => {
-    if (!chartRef.current) return
-
-    if (!chartInstance.current) {
-      chartInstance.current = echarts.init(chartRef.current)
-    }
-
-    const chart = chartInstance.current
-
-    const option: echarts.EChartsOption = {
-      tooltip: {
-        trigger: 'item',
-        triggerOn: 'mousemove',
-        backgroundColor: 'rgba(15, 23, 42, 0.95)',
-        borderColor: '#334155',
-        borderWidth: 1,
-        textStyle: {
-          color: '#ffffff',
-          fontSize: 12,
-          fontFamily: 'monospace',
-        },
-        formatter: (params: any) => {
-          if (params.dataType === 'node') {
-            return `<div style="font-weight: bold; font-family: sans-serif; border-bottom: 1px solid #334155; padding-bottom: 4px; margin-bottom: 4px;">${params.name}</div>
-                    <div>节点通量: <span style="color: #38bdf8; font-weight: bold;">${params.value || '汇总节点'}</span></div>`
-          } else {
-            return `<div style="font-weight: bold; font-family: sans-serif; border-bottom: 1px solid #334155; padding-bottom: 4px; margin-bottom: 4px;">${params.data.source} ➔ ${params.data.target}</div>
-                    <div>能流传输量: <span style="color: #4ade80; font-weight: bold;">${params.data.value}</span></div>`
-          }
-        },
-      },
-      series: [
-        {
-          type: 'sankey',
-          layout: 'none',
-          emphasis: {
-            focus: 'adjacency',
-          },
-          nodeAlign: 'justify',
-          orient: 'horizontal',
-          draggable: true,
-          left: '2%',
-          right: '10%',
-          top: '3%',
-          bottom: '3%',
-          nodeWidth: 18,
-          nodeGap: 22,
-          data: sankeyConfig.nodes,
-          links: sankeyConfig.links,
-          lineStyle: {
-            color: 'gradient',
-            curveness: 0.5,
-            opacity: 0.38,
-          },
-          label: {
-            color: '#1e293b',
-            fontSize: 11,
-            fontWeight: 'bold',
-            fontFamily: 'sans-serif',
-          },
-          itemStyle: {
-            borderWidth: 0,
-            borderRadius: 2,
-          },
-        },
-      ],
-    }
-
-    chart.setOption(option, true)
-
-    const handleResize = () => chart.resize()
-    window.addEventListener('resize', handleResize)
-
-    return () => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [viewLevel, selectedOrg, selectedFactory, sankeyType])
-
-  // 12 个月多类型时序消耗趋势模拟数据
-  const multiEnergyTrendData = [
-    { month: '1月', 电力: 182.5, 蒸汽: 48.2, 天然气: 26.5, 工业水: 88.0, 绿电: 68.5 },
-    { month: '2月', 电力: 175.0, 蒸汽: 46.0, 天然气: 25.8, 工业水: 84.5, 绿电: 65.0 },
-    { month: '3月', 电力: 195.4, 蒸汽: 51.2, 天然气: 28.0, 工业水: 92.0, 绿电: 76.2 },
-    { month: '4月', 电力: 205.8, 蒸汽: 54.0, 天然气: 29.5, 工业水: 95.5, 绿电: 84.0 },
-    { month: '5月', 电力: 228.0, 蒸汽: 58.6, 天然气: 31.2, 工业水: 102.0, 绿电: 96.5 },
-    { month: '6月', 电力: 245.2, 蒸汽: 62.0, 天然气: 33.0, 工业水: 108.4, 绿电: 108.0 },
-    { month: '7月', 电力: 268.5, 蒸汽: 66.8, 天然气: 35.5, 工业水: 116.0, 绿电: 122.5 },
-    { month: '8月', 电力: 274.0, 蒸汽: 68.2, 天然气: 36.2, 工业水: 118.5, 绿电: 128.4 },
-  ]
+  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
+  const [highlightedMedium, setHighlightedMedium] = useState<string | null>(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
   return (
-    <div className="space-y-3">
-      {/* 顶部工具栏：园区/厂区层级切换 + 实体选择 + 时间范围 */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-lg border border-[#e5e7eb] shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="size-8 rounded-lg bg-blue-50 text-[#1677ff] flex items-center justify-center font-bold">
-            <Layers className="size-4" />
+    <div className="flex gap-3.5 items-start">
+      {/* 🌟 左侧 270px 经典工业级拓扑树 */}
+      <StandardOrgTree
+        selectedId={selectedNode.id}
+        onSelect={(node) => setSelectedNode(node)}
+      />
+
+      {/* 🌟 右侧主面板 */}
+      <div className="flex-1 min-w-0 flex flex-col gap-3.5">
+        
+        {/* 1. 顶部 Header 与 统一时间维度筛选 */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="size-2 rounded-full bg-[#1677ff]" />
+            <h1 className="text-xs font-bold text-slate-800">用能结构分析中心</h1>
+            <span className="text-xs font-mono font-normal text-slate-400 ml-1">
+              【{selectedNode.name}】
+            </span>
           </div>
-          <div>
-            <h1 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-              用能结构分析与多维能流拓扑图 (Sankey Flow)
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-mono font-bold">
-                {viewLevel === 'park' ? '零碳园区级' : '工厂工序级'}
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* 时间维度统一 */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+              <button
+                type="button"
+                onClick={() => setTimeDim('month')}
+                className={cn(
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                )}
+              >
+                月度 (08月)
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimeDim('quarter')}
+                className={cn(
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                )}
+              >
+                季度 (Q3)
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimeDim('year')}
+                className={cn(
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                )}
+              >
+                年度 (2026)
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => alert(`正在导出【${selectedNode.name}】用能结构与 ESG 资源透视表 (Excel)...`)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+            >
+              <Download className="size-3.5" />
+              <span>导出数据表</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 2. 5 大核心指标卡片 (替代原总费用框，增加 ESG 水资源消耗展示) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+          {/* 卡片 1: 综合能耗折标总量 */}
+          <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-1.5 hover:border-blue-300 transition-all">
+            <div className="flex items-center justify-between text-xs text-slate-600 font-sans">
+              <span className="font-bold flex items-center gap-1 text-slate-800">
+                <Zap className="size-3.5 text-[#1677ff]" />
+                综合能耗总量 (tce)
               </span>
-            </h1>
-            <p className="text-[11px] text-slate-500">
-              支持园区总览与工厂工序穿透切换，支持单独查看某种能源介质能流及多类型消耗时序趋势
-            </p>
-          </div>
-        </div>
-
-        {/* 顶部层级切换与选择器 */}
-        <div className="flex flex-wrap items-center gap-2.5 text-xs">
-          {/* 1. 园区 vs 厂区切换胶囊 */}
-          <div className="flex items-center p-0.5 rounded bg-slate-100 border border-slate-200">
-            <button
-              onClick={() => setViewLevel('park')}
-              className={cn(
-                'flex items-center gap-1 px-3 py-1 rounded font-bold transition-all',
-                viewLevel === 'park' ? 'bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              <Building2 className="size-3.5" />
-              零碳智慧园区
-            </button>
-            <button
-              onClick={() => setViewLevel('factory')}
-              className={cn(
-                'flex items-center gap-1 px-3 py-1 rounded font-bold transition-all',
-                viewLevel === 'factory' ? 'bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              <Factory className="size-3.5" />
-              经营制造工厂
-            </button>
+              <span className="px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] text-[10px] font-bold">
+                折标总核算
+              </span>
+            </div>
+            <div className="text-xl font-extrabold text-slate-900">
+              1,577.2 <span className="text-xs font-sans text-slate-500 font-normal">tce</span>
+            </div>
+            <div className="text-[11px] font-sans text-slate-500 pt-1 border-t border-slate-100 flex items-center justify-between">
+              <span>同比: <strong className="text-emerald-600 font-mono">-2.7% ↓</strong></span>
+              <span>环比: <strong className="text-emerald-600 font-mono">-1.1% ↓</strong></span>
+            </div>
           </div>
 
-          {/* 2. 下拉主体选择器 */}
-          {viewLevel === 'park' ? (
-            <select
-              value={selectedOrg}
-              onChange={(e) => setSelectedOrg(e.target.value)}
-              className="bg-white border border-slate-300 rounded px-2.5 py-1 text-xs text-slate-800 font-semibold focus:outline-none focus:border-[#1677ff]"
-            >
-              <option value="特变电工东北输变电产业园">特变电工东北输变电产业园 (沈阳)</option>
-              <option value="特变电工南方输变电产业园">特变电工南方输变电产业园 (衡阳)</option>
-              <option value="特变电工输变电产业园">特变电工输变电产业园 (昌吉)</option>
-              <option value="特变电工华东输变电科技产业园">特变电工华东输变电科技产业园 (泰安)</option>
-              <option value="特变电工天变产业园">特变电工天变产业园 (天津)</option>
-            </select>
-          ) : (
-            <select
-              value={selectedFactory}
-              onChange={(e) => setSelectedFactory(e.target.value)}
-              className="bg-white border border-slate-300 rounded px-2.5 py-1 text-xs text-slate-800 font-semibold focus:outline-none focus:border-[#1677ff]"
-            >
-              <option value="沈变本部">沈变公司 · 沈变本部</option>
-              <option value="衡变本部">衡变公司 · 衡变本部</option>
-              <option value="新变超高压公司">新变厂 · 新变超高压公司</option>
-              <option value="鲁缆本部">鲁缆公司 · 鲁缆本部</option>
-              <option value="新缆厂">新缆厂 · 新疆电缆厂</option>
-              <option value="德缆股份公司">德缆公司 · 德缆股份</option>
-            </select>
-          )}
-
-          <TimeRange value={activePeriod} onChange={setActivePeriod} />
-        </div>
-      </div>
-
-      {/* 顶部 4 大核心结构 KPI 卡片 */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-lg bg-white border border-[#e5e7eb] shadow-xs">
-          <span className="text-xs text-slate-500 block">⚡ 电力消费占比</span>
-          <div className="my-1 flex items-baseline gap-1">
-            <span className="text-2xl font-bold font-mono text-slate-800">{varyNum(71.7, factor)}</span>
-            <span className="text-xs text-slate-400">%</span>
-          </div>
-          <span className="text-[11px] text-blue-600 font-mono">+1.2% (主导能耗介质)</span>
-        </div>
-
-        <div className="p-3.5 rounded-lg bg-white border border-[#e5e7eb] shadow-xs">
-          <span className="text-xs text-slate-500 block">💨 蒸汽/热力占比</span>
-          <div className="my-1 flex items-baseline gap-1">
-            <span className="text-2xl font-bold font-mono text-slate-800">{varyNum(18.2, factor)}</span>
-            <span className="text-xs text-slate-400">%</span>
-          </div>
-          <span className="text-[11px] text-emerald-600 font-mono">-0.8% 绝缘干燥平稳</span>
-        </div>
-
-        <div className="p-3.5 rounded-lg bg-white border border-[#e5e7eb] shadow-xs">
-          <span className="text-xs text-slate-500 block">🔥 天然气消费占比</span>
-          <div className="my-1 flex items-baseline gap-1">
-            <span className="text-2xl font-bold font-mono text-slate-800">{varyNum(10.1, factor)}</span>
-            <span className="text-xs text-slate-400">%</span>
-          </div>
-          <span className="text-[11px] text-emerald-600 font-mono">-0.3% 节能受控</span>
-        </div>
-
-        <div className="p-3.5 rounded-lg bg-white border border-[#e5e7eb] shadow-xs">
-          <span className="text-xs text-slate-500 block">🍃 综合折标能耗总量</span>
-          <div className="my-1 flex items-baseline gap-1">
-            <span className="text-2xl font-bold font-mono text-[#1677ff]">{varyNum(1284.5, factor)}</span>
-            <span className="text-xs text-slate-400">tce</span>
-          </div>
-          <span className="text-[11px] text-emerald-600 font-mono">-2.7% 同比下降</span>
-        </div>
-      </div>
-
-      {/* 🌟 核心功能一：能流桑基图（支持单独查看某种类型的数据） */}
-      <div className="bg-white p-4.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
-          <div className="flex items-center gap-2">
-            <span className="size-2.5 rounded-full bg-emerald-500 animate-ping" />
-            <span className="font-bold text-xs text-slate-800">
-              {sankeyConfig.title}
-            </span>
+          {/* 卡片 2: 生产电力消耗 */}
+          <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-1.5 hover:border-blue-300 transition-all">
+            <div className="flex items-center justify-between text-xs text-slate-600 font-sans">
+              <span className="font-bold flex items-center gap-1 text-blue-800">
+                <Zap className="size-3.5 text-blue-500" />
+                生产电力消耗
+              </span>
+              <span className="px-1.5 py-0.2 rounded bg-blue-100 text-blue-700 text-[10px] font-bold">
+                占比 84.2%
+              </span>
+            </div>
+            <div className="text-xl font-extrabold text-[#1677ff]">
+              1,080.0 <span className="text-xs font-sans text-slate-500 font-normal">万kWh</span>
+            </div>
+            <div className="text-[11px] font-sans text-slate-500 pt-1 border-t border-slate-100 flex items-center justify-between">
+              <span>折标: <strong className="font-mono text-slate-800">1,327.3</strong> tce</span>
+              <span className="text-emerald-600 font-mono font-bold">同比 -3.2%</span>
+            </div>
           </div>
 
-          {/* 5 种能源介质类型单独筛选 Tab */}
-          <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
-            <button
-              onClick={() => setSankeyType('all')}
-              className={cn(
-                'px-2.5 py-1 rounded font-bold transition-all',
-                sankeyType === 'all' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              🌐 全部能流 (综合折标)
-            </button>
-            <button
-              onClick={() => setSankeyType('elec')}
-              className={cn(
-                'px-2.5 py-1 rounded font-bold transition-all',
-                sankeyType === 'elec' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              ⚡ 电力能流专向图
-            </button>
-            <button
-              onClick={() => setSankeyType('steam')}
-              className={cn(
-                'px-2.5 py-1 rounded font-bold transition-all',
-                sankeyType === 'steam' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              💨 蒸汽/热力专向图
-            </button>
-            <button
-              onClick={() => setSankeyType('gas')}
-              className={cn(
-                'px-2.5 py-1 rounded font-bold transition-all',
-                sankeyType === 'gas' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              🔥 天然气专向图
-            </button>
-            <button
-              onClick={() => setSankeyType('water')}
-              className={cn(
-                'px-2.5 py-1 rounded font-bold transition-all',
-                sankeyType === 'water' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              💧 工业水循环专向图
-            </button>
-          </div>
-        </div>
-
-        <p className="text-[11px] text-slate-400">
-          {sankeyConfig.sub}
-        </p>
-
-        {/* ECharts 桑基图挂载画布 */}
-        <div className="relative w-full h-[460px] bg-white rounded-lg border border-slate-100">
-          <div ref={chartRef} className="w-full h-full" />
-        </div>
-
-        {/* 底部流向图例 */}
-        <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
-          <div className="flex items-center gap-4 font-mono">
-            <span>当前主体：<strong className="text-slate-800 font-sans">{currentSubject}</strong></span>
-            <span>|</span>
-            <span>流向介质：<strong className="text-[#1677ff] font-sans">{sankeyType === 'all' ? '全介质综合平衡' : sankeyType === 'elec' ? '电力时序流' : sankeyType === 'steam' ? '工业蒸汽热力' : sankeyType === 'gas' ? '管道天然气' : '工业循环水'}</strong></span>
-          </div>
-          <span className="text-slate-400 font-mono text-[11px]">
-            💡 鼠标悬停任意流带可高亮上下游流向全链路，支持节点自由拖拽
-          </span>
-        </div>
-      </div>
-
-      {/* 🌟 核心功能二：消耗趋势多类型自由勾选与综合分析看板 */}
-      <div className="bg-white p-4.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
-          <div className="flex items-center gap-2">
-            <span className="h-3.5 w-1 rounded-full bg-[#1677ff]" />
-            <span className="font-bold text-xs text-slate-800">
-              时序用能消耗趋势分析（支持多能源类型自由勾选对比）
-            </span>
+          {/* 卡片 3: 管道天然气 */}
+          <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-1.5 hover:border-amber-300 transition-all">
+            <div className="flex items-center justify-between text-xs text-slate-600 font-sans">
+              <span className="font-bold flex items-center gap-1 text-amber-800">
+                <Flame className="size-3.5 text-amber-500" />
+                管道天然气
+              </span>
+              <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-700 text-[10px] font-bold">
+                占比 9.6%
+              </span>
+            </div>
+            <div className="text-xl font-extrabold text-amber-600">
+              12.5 <span className="text-xs font-sans text-slate-500 font-normal">万m³</span>
+            </div>
+            <div className="text-[11px] font-sans text-slate-500 pt-1 border-t border-slate-100 flex items-center justify-between">
+              <span>折标: <strong className="font-mono text-slate-800">151.8</strong> tce</span>
+              <span className="text-emerald-600 font-mono font-bold">同比 -1.8%</span>
+            </div>
           </div>
 
-          {/* 统计口径切换 */}
-          <div className="flex items-center gap-3 text-xs">
-            <span className="text-slate-500">统计口径：</span>
-            <div className="flex items-center p-0.5 rounded bg-slate-100 border border-slate-200">
-              <button
-                onClick={() => setTrendMetric('tce')}
-                className={cn('px-2.5 py-0.5 rounded font-bold transition-all', trendMetric === 'tce' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900')}
-              >
-                折标煤 (万tce)
-              </button>
-              <button
-                onClick={() => setTrendMetric('physical')}
-                className={cn('px-2.5 py-0.5 rounded font-bold transition-all', trendMetric === 'physical' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900')}
-              >
-                实物消耗量
-              </button>
-              <button
-                onClick={() => setTrendMetric('cost')}
-                className={cn('px-2.5 py-0.5 rounded font-bold transition-all', trendMetric === 'cost' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900')}
-              >
-                能源成本 (万元)
-              </button>
-              <button
-                onClick={() => setTrendMetric('carbon')}
-                className={cn('px-2.5 py-0.5 rounded font-bold transition-all', trendMetric === 'carbon' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900')}
-              >
-                碳排放量 (tCO2)
-              </button>
+          {/* 卡片 4: 工业蒸汽 */}
+          <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-1.5 hover:border-purple-300 transition-all">
+            <div className="flex items-center justify-between text-xs text-slate-600 font-sans">
+              <span className="font-bold flex items-center gap-1 text-purple-800">
+                <span className="size-2 rounded-full bg-purple-500" />
+                工业蒸汽
+              </span>
+              <span className="px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 text-[10px] font-bold">
+                占比 6.2%
+              </span>
+            </div>
+            <div className="text-xl font-extrabold text-purple-700">
+              740.0 <span className="text-xs font-sans text-slate-500 font-normal">t</span>
+            </div>
+            <div className="text-[11px] font-sans text-slate-500 pt-1 border-t border-slate-100 flex items-center justify-between">
+              <span>折标: <strong className="font-mono text-slate-800">98.1</strong> tce</span>
+              <span className="text-amber-600 font-mono font-bold">同比 +0.5%</span>
+            </div>
+          </div>
+
+          {/* 卡片 5: 水资源消耗 (ESG合规关键指标，替换原当期总费用框) */}
+          <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-1.5 hover:border-cyan-300 transition-all">
+            <div className="flex items-center justify-between text-xs text-slate-600 font-sans">
+              <span className="font-bold flex items-center gap-1 text-cyan-800">
+                <Droplets className="size-3.5 text-cyan-600" />
+                水资源消耗 (ESG)
+              </span>
+              <span className="px-1.5 py-0.2 rounded bg-cyan-50 text-cyan-700 text-[10px] font-bold border border-cyan-200">
+                独立指标
+              </span>
+            </div>
+            <div className="text-xl font-extrabold text-cyan-700">
+              4.8 <span className="text-xs font-sans text-slate-500 font-normal">万t</span>
+            </div>
+            <div className="text-[11px] font-sans text-slate-500 pt-1 border-t border-slate-100 flex items-center justify-between">
+              <span>水费支出: <strong className="font-mono text-slate-800">¥8.3万</strong></span>
+              <span className="text-emerald-600 font-mono font-bold">同比 -4.0% ↓</span>
             </div>
           </div>
         </div>
 
-        {/* 多能源类型自由勾选 Checkbox 栏 */}
-        <div className="flex flex-wrap items-center gap-5 p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
-          <span className="text-slate-700 font-bold">图表显示介质：</span>
+        {/* 3. 集团全景板块：6 大直属经营单位水电消耗分布透视 */}
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+              <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                【特变电工集团 6 大直属经营单位水电消耗与综合能耗分布】
+              </h2>
+              <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] font-mono">
+                集团统管 · ESG水指标独立展现
+              </span>
+            </div>
+            <span className="text-xs text-slate-400 font-mono">
+              无归属节点 (如上开) 标灰搁置
+            </span>
+          </div>
 
-          <label className="flex items-center gap-1.5 cursor-pointer select-none font-medium text-slate-700">
-            <input
-              type="checkbox"
-              checked={showElec}
-              onChange={(e) => setShowElec(e.target.checked)}
-              className="accent-[#1677ff] size-3.5"
-            />
-            <span className="text-blue-600 font-bold">⚡ 电力消费 (万kWh / tce)</span>
-          </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 font-mono">
+            {PANORAMA_COMPANIES.map((c) => (
+              <div
+                key={c.id}
+                className={cn(
+                  'p-3.5 rounded-xl border transition-all space-y-2',
+                  c.status === 'grayed'
+                    ? 'bg-slate-100 border-slate-200 opacity-60'
+                    : 'bg-slate-50/50 hover:border-blue-300 border-slate-200'
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs font-sans text-slate-900 flex items-center gap-1.5">
+                    <span className="size-2 rounded-full" style={{ backgroundColor: c.color }} />
+                    {c.name}
+                  </span>
+                  {c.status === 'grayed' ? (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-200 text-slate-500 font-sans font-bold">
+                      暂无归属搁置
+                    </span>
+                  ) : (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-700 font-bold">
+                      {c.totalTce.toFixed(1)} tce
+                    </span>
+                  )}
+                </div>
 
-          <label className="flex items-center gap-1.5 cursor-pointer select-none font-medium text-slate-700">
-            <input
-              type="checkbox"
-              checked={showSteam}
-              onChange={(e) => setShowSteam(e.target.checked)}
-              className="accent-[#722ed1] size-3.5"
-            />
-            <span className="text-purple-600 font-bold">💨 蒸汽与热力 (t / tce)</span>
-          </label>
-
-          <label className="flex items-center gap-1.5 cursor-pointer select-none font-medium text-slate-700">
-            <input
-              type="checkbox"
-              checked={showGas}
-              onChange={(e) => setShowGas(e.target.checked)}
-              className="accent-[#fa8c16] size-3.5"
-            />
-            <span className="text-amber-600 font-bold">🔥 管道天然气 (万Nm³ / tce)</span>
-          </label>
-
-          <label className="flex items-center gap-1.5 cursor-pointer select-none font-medium text-slate-700">
-            <input
-              type="checkbox"
-              checked={showWater}
-              onChange={(e) => setShowWater(e.target.checked)}
-              className="accent-[#13c2c2] size-3.5"
-            />
-            <span className="text-cyan-600 font-bold">💧 工业用水 (万m³)</span>
-          </label>
-
-          <label className="flex items-center gap-1.5 cursor-pointer select-none font-medium text-slate-700">
-            <input
-              type="checkbox"
-              checked={showGreen}
-              onChange={(e) => setShowGreen(e.target.checked)}
-              className="accent-[#52c41a] size-3.5"
-            />
-            <span className="text-emerald-600 font-bold">☀️ 绿电消纳量 (万kWh)</span>
-          </label>
+                {c.status !== 'grayed' && (
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-200/60">
+                    <div className="p-2 rounded bg-white border border-slate-100">
+                      <span className="text-[10px] text-slate-400 block font-sans">⚡ 用电量 (万kWh)</span>
+                      <strong className="text-[#1677ff]">{c.elecWanKwh.toFixed(1)}</strong>
+                      <span className="text-[10px] text-emerald-600 block">同比 {c.elecYoy}</span>
+                    </div>
+                    <div className="p-2 rounded bg-white border border-slate-100">
+                      <span className="text-[10px] text-slate-400 block font-sans">💧 用水量 (万t)</span>
+                      <strong className="text-cyan-700">{c.waterWanT.toFixed(1)}</strong>
+                      <span className="text-[10px] text-emerald-600 block">同比 {c.waterYoy}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* 趋势图表区 */}
-        <div className="h-[400px] mt-2">
-          <LineTrend
-            data={multiEnergyTrendData}
-            xKey="month"
-            height={400}
-            lines={[
-              ...(showElec ? [{ key: '电力', color: '#1677ff' }] : []),
-              ...(showSteam ? [{ key: '蒸汽', color: '#722ed1' }] : []),
-              ...(showGas ? [{ key: '天然气', color: '#fa8c16' }] : []),
-              ...(showWater ? [{ key: '工业水', color: '#13c2c2' }] : []),
-              ...(showGreen ? [{ key: '绿电', color: '#52c41a' }] : []),
-            ]}
-          />
+        {/* 4. 核心模块一：用能结构南丁格尔玫瑰图 + 绿色降本增效指导 */}
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+              <h2 className="text-xs font-bold text-slate-800 tracking-wide uppercase">
+                【1. 各能源介质用能结构 (南丁格尔玫瑰图) 与折标/费用联动透视】
+              </h2>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-mono font-bold">
+                玫瑰图放大水/气小占比数据视觉可见性
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-xs font-medium font-sans">
+              <span className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded-full bg-[#1677ff]" /> ⚡ 电力 (84.2%)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded-full bg-[#fa8c16]" /> 🔥 天然气 (9.6%)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded-full bg-[#722ed1]" /> 💨 蒸汽 (6.2%)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded-full bg-[#0ea5e9]" /> 💧 工业水 (ESG)
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-4 items-stretch">
+            {/* 左栏：SVG 南丁格尔玫瑰图 (极坐标半径差异明显) */}
+            <div className="w-full lg:w-[340px] shrink-0 flex flex-col items-center justify-center p-3 bg-slate-50/70 rounded-xl border border-slate-200">
+              <div className="relative w-full flex items-center justify-center py-2" style={{ height: '250px' }}>
+                <svg className="w-64 h-64 select-none" viewBox="0 0 240 240">
+                  {/* 同心极坐标网格 */}
+                  <circle cx="120" cy="120" r="105" fill="none" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="3 3" />
+                  <circle cx="120" cy="120" r="75" fill="none" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="3 3" />
+                  <circle cx="120" cy="120" r="50" fill="none" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="3 3" />
+                  <circle cx="120" cy="120" r="28" fill="#f8fafc" stroke="#94a3b8" strokeWidth="1" />
+
+                  {/* 1. 电力扇区 (R=105, -90°~45°, 极大半径) */}
+                  <path
+                    d="M 120 120 L 120 15 A 105 105 0 0 1 194.2 194.2 Z"
+                    fill="#1677ff"
+                    fillOpacity={highlightedMedium === 'elec' ? '1' : '0.85'}
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    className="cursor-pointer transition-all hover:fill-opacity-100"
+                    onMouseEnter={() => setHighlightedMedium('elec')}
+                    onMouseLeave={() => setHighlightedMedium(null)}
+                  />
+
+                  {/* 2. 天然气扇区 (R=75, 45°~135°, 中等半径) */}
+                  <path
+                    d="M 120 120 L 173.0 173.0 A 75 75 0 0 1 67.0 173.0 Z"
+                    fill="#fa8c16"
+                    fillOpacity={highlightedMedium === 'gas' ? '1' : '0.85'}
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    className="cursor-pointer transition-all hover:fill-opacity-100"
+                    onMouseEnter={() => setHighlightedMedium('gas')}
+                    onMouseLeave={() => setHighlightedMedium(null)}
+                  />
+
+                  {/* 3. 蒸汽扇区 (R=60, 135°~225°, 小半径) */}
+                  <path
+                    d="M 120 120 L 77.6 162.4 A 60 60 0 0 1 77.6 77.6 Z"
+                    fill="#722ed1"
+                    fillOpacity={highlightedMedium === 'steam' ? '1' : '0.85'}
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    className="cursor-pointer transition-all hover:fill-opacity-100"
+                    onMouseEnter={() => setHighlightedMedium('steam')}
+                    onMouseLeave={() => setHighlightedMedium(null)}
+                  />
+
+                  {/* 4. 工业水扇区 (R=50, 225°~270°, ESG水资源显眼化) */}
+                  <path
+                    d="M 120 120 L 84.6 84.6 A 50 50 0 0 1 120 70 Z"
+                    fill="#0ea5e9"
+                    fillOpacity={highlightedMedium === 'water' ? '1' : '0.9'}
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    className="cursor-pointer transition-all hover:fill-opacity-100"
+                    onMouseEnter={() => setHighlightedMedium('water')}
+                    onMouseLeave={() => setHighlightedMedium(null)}
+                  />
+
+                  {/* 中心总折标数 */}
+                  <circle cx="120" cy="120" r="26" fill="#ffffff" stroke="#94a3b8" strokeWidth="1.5" />
+                  <text x="120" y="116" fontSize="9" fill="#64748b" textAnchor="middle" fontFamily="sans-serif">
+                    总折标
+                  </text>
+                  <text
+                    x="120"
+                    y="128"
+                    fontSize="10"
+                    fontWeight="bold"
+                    fill="#1e293b"
+                    textAnchor="middle"
+                    fontFamily="monospace"
+                  >
+                    1,577
+                  </text>
+                </svg>
+              </div>
+
+              {/* 南丁格尔玫瑰图优势说明提示 */}
+              <div className="w-full mt-2 p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 font-sans">
+                💡 <strong>南丁格尔玫瑰图优势</strong>：水费与电费数值悬殊，环形图易使水/气隐藏。玫瑰图利用极坐标面积弥补差距，强化 ESG 水资源可见性。
+              </div>
+            </div>
+
+            {/* 右栏：4 大介质折标/费用联动与绿色降本指导 */}
+            <div className="flex-1 min-w-0 flex flex-col gap-2">
+              {/* 电力 */}
+              <div className="p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 transition-all space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-900 flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-[#1677ff]" /> 1. 生产电力 (主供能介质)
+                  </span>
+                  <span className="font-mono text-xs font-bold text-[#1677ff] bg-blue-50 px-2 py-0.5 rounded">
+                    用能折标 84.2% · 费用占比 88.5%
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-2 font-mono text-xs pt-1 border-t border-slate-100">
+                  <div><span className="text-[10px] text-slate-400 block font-sans">物理用量</span><strong>1,080.0 万kWh</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">折标当量</span><strong className="text-blue-600">1,327.3 tce</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">当期水/电费</span><strong className="text-slate-800">¥675.0万元</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">同比增减</span><strong className="text-emerald-600">-3.2% ↓</strong></div>
+                </div>
+              </div>
+
+              {/* 天然气 */}
+              <div className="p-3 rounded-xl border border-slate-200 bg-white hover:border-amber-300 transition-all space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-900 flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-[#fa8c16]" /> 2. 管道天然气 (清洁热源)
+                  </span>
+                  <span className="font-mono text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">
+                    用能折标 9.6% · 费用占比 7.0% (高性价比)
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-2 font-mono text-xs pt-1 border-t border-slate-100">
+                  <div><span className="text-[10px] text-slate-400 block font-sans">物理用量</span><strong>12.5 万m³</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">折标当量</span><strong className="text-amber-600">151.8 tce</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">当期气费</span><strong className="text-slate-800">¥53.6万元</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">同比增减</span><strong className="text-emerald-600">-1.8% ↓</strong></div>
+                </div>
+              </div>
+
+              {/* 蒸汽 */}
+              <div className="p-3 rounded-xl border border-slate-200 bg-white hover:border-purple-300 transition-all space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-900 flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-[#722ed1]" /> 3. 工业蒸汽 (干燥工艺)
+                  </span>
+                  <span className="font-mono text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded">
+                    用能折标 6.2% · 费用占比 3.4%
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-2 font-mono text-xs pt-1 border-t border-slate-100">
+                  <div><span className="text-[10px] text-slate-400 block font-sans">物理用量</span><strong>740.0 t</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">折标当量</span><strong className="text-purple-700">98.1 tce</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">当期汽费</span><strong className="text-slate-800">¥25.6万元</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">同比增减</span><strong className="text-amber-600">+0.5% ↑</strong></div>
+                </div>
+              </div>
+
+              {/* 工业水 */}
+              <div className="p-3 rounded-xl border border-slate-200 bg-white hover:border-cyan-300 transition-all space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-900 flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-[#0ea5e9]" /> 4. 工业水资源 (ESG独立节点)
+                  </span>
+                  <span className="font-mono text-xs font-bold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded">
+                    实物量 4.8万t · 费用占比 1.1%
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-2 font-mono text-xs pt-1 border-t border-slate-100">
+                  <div><span className="text-[10px] text-slate-400 block font-sans">物理用水</span><strong>4.8 万t</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">ESG环保属性</span><strong className="text-cyan-700">独立合规项</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">当期水费</span><strong className="text-slate-800">¥8.3万元</strong></div>
+                  <div><span className="text-[10px] text-slate-400 block font-sans">同比增减</span><strong className="text-emerald-600">-4.0% ↓</strong></div>
+                </div>
+              </div>
+
+              {/* 💡 绿色降本增效结构优化指导框 */}
+              <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-200 text-xs space-y-1 font-sans">
+                <div className="flex items-center gap-1.5 font-bold text-blue-900">
+                  <Sparkles className="size-4 text-[#1677ff]" />
+                  <span>降本增效决策依据：天然气 vs 电力结构优化建议</span>
+                </div>
+                <p className="text-slate-600 text-[11px] leading-relaxed">
+                  天然气折标用能占比 9.6% 但费用仅占 7.0%，热值单价明显低于电力。建议在烘干与清洗工序中优先提升天然气替代比例，预计可为【{selectedNode.name}】降低年度能源成本 <strong>¥24.5 万元</strong>。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 展开弹窗明细按钮 */}
+          <div className="flex items-center justify-between pt-2.5 border-t border-slate-100">
+            <span className="text-xs text-slate-500 font-sans">
+              💡 图表集中展示，避免多页面反复跳转。支持透视表下载。
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsDetailModalOpen(true)}
+              className="flex items-center gap-1 px-3.5 py-1.5 rounded-lg bg-blue-50 text-[#1677ff] hover:bg-blue-100 text-xs font-bold transition-all border border-blue-200 cursor-pointer"
+            >
+              <Maximize2 className="size-3.5" />
+              <span>展开具体数据明细 (弹窗)</span>
+            </button>
+          </div>
         </div>
+
       </div>
+
+      {/* 🌟 具体数据明细透视弹窗 Modal */}
+      {isDetailModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="w-full max-w-4xl bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-[#fafbfc]">
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="size-5 text-[#1677ff]" />
+                <h3 className="text-sm font-bold text-slate-800">
+                  【{selectedNode.name}】用能结构与 ESG 资源消耗全景明细透视
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDetailModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4 text-xs">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <span className="font-bold text-slate-800">车间/工序级能源介质消耗与折标分解</span>
+                <button
+                  type="button"
+                  onClick={() => alert(`正在导出【${selectedNode.name}】明细 Excel...`)}
+                  className="px-3 py-1 bg-emerald-600 text-white rounded font-bold hover:bg-emerald-700 cursor-pointer"
+                >
+                  导出 Excel 报表
+                </button>
+              </div>
+
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
+                    <th className="py-2.5 px-3">工序 / 车间</th>
+                    <th className="py-2.5 px-3 text-right">电力 (万kWh)</th>
+                    <th className="py-2.5 px-3 text-right">天然气 (万m³)</th>
+                    <th className="py-2.5 px-3 text-right">工业蒸汽 (t)</th>
+                    <th className="py-2.5 px-3 text-right text-cyan-700">工业水 (万t) [ESG]</th>
+                    <th className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/50">
+                      折标当量 (tce)
+                    </th>
+                    <th className="py-2.5 px-3 text-right">能耗占比</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700 font-mono">
+                  <tr className="hover:bg-blue-50/30">
+                    <td className="py-2.5 px-3 font-sans font-medium text-slate-900">1. 真空干燥工段 (煤油气相/蒸汽)</td>
+                    <td className="py-2.5 px-3 text-right">485.0</td>
+                    <td className="py-2.5 px-3 text-right">6.8</td>
+                    <td className="py-2.5 px-3 text-right">520.0</td>
+                    <td className="py-2.5 px-3 text-right text-cyan-700 font-bold">1.2</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/30">747.5</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-blue-600">47.4%</td>
+                  </tr>
+                  <tr className="hover:bg-blue-50/30">
+                    <td className="py-2.5 px-3 font-sans font-medium text-slate-900">2. 铁芯剪切与叠装工序</td>
+                    <td className="py-2.5 px-3 text-right">240.0</td>
+                    <td className="py-2.5 px-3 text-right">2.1</td>
+                    <td className="py-2.5 px-3 text-right">40.0</td>
+                    <td className="py-2.5 px-3 text-right text-cyan-700 font-bold">0.8</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/30">325.8</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-blue-600">20.7%</td>
+                  </tr>
+                  <tr className="hover:bg-blue-50/30">
+                    <td className="py-2.5 px-3 font-sans font-medium text-slate-900">3. 线圈绕制与绝缘处理工段</td>
+                    <td className="py-2.5 px-3 text-right">195.0</td>
+                    <td className="py-2.5 px-3 text-right">1.9</td>
+                    <td className="py-2.5 px-3 text-right">110.0</td>
+                    <td className="py-2.5 px-3 text-right text-cyan-700 font-bold">1.1</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/30">277.3</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-blue-600">17.6%</td>
+                  </tr>
+                  <tr className="hover:bg-blue-50/30">
+                    <td className="py-2.5 px-3 font-sans font-medium text-slate-900">4. 总装配、试验与辅助动力站房</td>
+                    <td className="py-2.5 px-3 text-right">160.0</td>
+                    <td className="py-2.5 px-3 text-right">1.7</td>
+                    <td className="py-2.5 px-3 text-right">70.0</td>
+                    <td className="py-2.5 px-3 text-right text-cyan-700 font-bold">1.7</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/30">226.6</td>
+                    <td className="py-2.5 px-3 text-right font-bold text-blue-600">14.3%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="p-3 border-t border-slate-100 bg-[#fafbfc] flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsDetailModalOpen(false)}
+                className="px-4 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 transition-colors cursor-pointer"
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

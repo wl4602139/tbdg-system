@@ -9,7 +9,7 @@ import { Donut, BarGroup, RadarCompare } from '@/components/shared/charts'
 import { productFootprint, hotspotData, compareData } from '@/lib/mock-data'
 import { seedFactor, vary } from '@/lib/variant'
 import { indicators } from '@/lib/indicators'
-import { Layers, Sliders, TrendingUp, TrendingDown, Target, Zap, Sparkles, AlertTriangle, ArrowRight } from 'lucide-react'
+import { Layers, Sliders, TrendingUp, TrendingDown, Target, Zap, Sparkles, AlertTriangle, ArrowRight, BarChart3 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const tabs = [
@@ -279,9 +279,9 @@ export default function AnalysisPage() {
           <PanelTitle icon={Target}>产品碳足迹集采中心核心管控指标清单</PanelTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
             {indicators.filter((i) => i.center === '集采').map((item) => (
-              <div key={item.code} className="p-3 rounded-lg bg-accent/30 border border-border/60 space-y-1.5 text-xs">
+              <div key={item.id} className="p-3 rounded-lg bg-accent/30 border border-border/60 space-y-1.5 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-sky-400 font-bold">{item.code}</span>
+                  <span className="font-mono text-sky-400 font-bold">JC-{String(item.id).padStart(2, '0')}</span>
                   <Badge tone="default">{item.category}</Badge>
                 </div>
                 <span className="font-semibold text-foreground block">{item.name}</span>

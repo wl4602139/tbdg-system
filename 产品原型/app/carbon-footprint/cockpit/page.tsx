@@ -130,16 +130,16 @@ export default function CockpitPage() {
           <div className="relative h-6 flex-1 overflow-hidden">
             {honors.map((h, i) => (
               <div
-                key={h.title}
+                key={h}
                 className={cn(
                   'absolute inset-0 flex items-center justify-between text-xs transition-all duration-500',
                   i === honorIdx ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
                 )}
               >
                 <span className="font-semibold text-foreground">
-                  🏅 {h.org} 官方核定：{h.title}
+                  🏅 官方认证荣誉：{h}
                 </span>
-                <span className="text-muted-foreground font-mono">{h.time}</span>
+                <span className="text-muted-foreground font-mono">2026 权威核定</span>
               </div>
             ))}
           </div>

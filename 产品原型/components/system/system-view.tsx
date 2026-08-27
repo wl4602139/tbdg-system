@@ -13,7 +13,7 @@ import {
   Plus,
   ChevronRight,
 } from 'lucide-react'
-import { Panel, PanelTitle, Badge, DataTable } from '@/components/shared/primitives'
+import { Panel, PanelTitle, Badge, StatusBadge, DataTable } from '@/components/shared/primitives'
 import { Tabs } from '@/components/shared/tabs'
 import { Modal } from '@/components/shared/modal'
 import { Select } from '@/components/shared/select'
@@ -118,7 +118,7 @@ export function SystemView() {
                 {
                   key: 'status',
                   label: '状态',
-                  render: (r) => <span className={statusColor[r.status]}>{r.status}</span>,
+                  render: (r) => <StatusBadge tone={statusColor(r.status)}>{r.status}</StatusBadge>,
                 },
                 {
                   key: 'op',

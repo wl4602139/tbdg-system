@@ -18,7 +18,7 @@ export function Panel({
   actions?: React.ReactNode
   className?: string
   bodyClassName?: string
-  children: React.ReactNode
+  children?: React.ReactNode
 }) {
   return (
     <div
@@ -158,14 +158,26 @@ export function StatusBadge({
   className,
 }: {
   children: React.ReactNode
-  tone?: BadgeTone
+  tone?: BadgeTone | 'default' | 'primary' | 'success' | 'warning' | 'danger'
   className?: string
 }) {
+  const map: Record<string, BadgeTone> = {
+    default: 'muted',
+    muted: 'muted',
+    primary: 'info',
+    info: 'info',
+    success: 'ok',
+    ok: 'ok',
+    warning: 'warn',
+    warn: 'warn',
+    danger: 'danger',
+  }
+  const mappedTone = map[tone] || 'muted'
   return (
     <span
       className={cn(
         'inline-flex items-center gap-1 rounded-full border px-2 py-0.2 text-[11px] font-medium',
-        TONE_CLS[tone],
+        TONE_CLS[mappedTone],
         className,
       )}
     >
@@ -180,18 +192,22 @@ export function Badge({
   className,
 }: {
   children: React.ReactNode
-  tone?: 'default' | 'primary' | 'success' | 'warning' | 'danger'
+  tone?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'ok' | 'info' | 'warn'
   className?: string
 }) {
   const map: Record<string, BadgeTone> = {
     default: 'muted',
     primary: 'info',
+    info: 'info',
     success: 'ok',
+    ok: 'ok',
     warning: 'warn',
+    warn: 'warn',
     danger: 'danger',
   }
+  const mappedTone = map[tone] || 'muted'
   return (
-    <StatusBadge tone={map[tone]} className={className}>
+    <StatusBadge tone={mappedTone} className={className}>
       {children}
     </StatusBadge>
   )

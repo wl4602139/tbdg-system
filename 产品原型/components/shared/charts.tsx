@@ -44,7 +44,7 @@ const tooltipStyle = {
 }
 
 export type SeriesKey = string | { key: string; name?: string; color?: string }
-function normKeys(keys: SeriesKey[]) {
+function normKeys(keys?: SeriesKey[]) {
   return (keys ?? []).map((k, i) =>
     typeof k === 'string'
       ? { key: k, name: k, color: chartColors[i % chartColors.length] }
@@ -145,17 +145,22 @@ export function Donut({
   height = 200,
   nameKey = 'name',
   valueKey = 'value',
+  unit,
 }: {
   data?: any[]
   height?: number
   nameKey?: string
   valueKey?: string
+  unit?: string
 }) {
   if (!data || !Array.isArray(data) || data.length === 0) return null
   return (
     <ResponsiveContainer width="100%" height={height}>
       <PieChart>
-        <Tooltip contentStyle={tooltipStyle} />
+        <Tooltip
+          contentStyle={tooltipStyle}
+          formatter={(value: any) => (unit ? `${value} ${unit}` : value)}
+        />
         <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
         <Pie
           data={data}
@@ -167,8 +172,8 @@ export function Donut({
           outerRadius={75}
           paddingAngle={3}
         >
-          {data.map((_, i) => (
-            <Cell key={i} fill={chartColors[i % chartColors.length]} />
+          {data.map((entry, i) => (
+            <Cell key={i} fill={entry.color || chartColors[i % chartColors.length]} />
           ))}
         </Pie>
       </PieChart>
@@ -181,25 +186,37 @@ export function BarChartGroup({
   keys,
   bars,
   xKey = 'name',
+  nameKey,
   height = 240,
+  stacked = false,
 }: {
   data: any[]
   keys?: SeriesKey[]
   bars?: SeriesKey[]
   xKey?: string
+  nameKey?: string
   height?: number
+  stacked?: boolean
 }) {
+  const actualXKey = nameKey || xKey
   const series = normKeys(bars || keys || [])
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
         <CartesianGrid stroke={gridColor} vertical={false} />
-        <XAxis dataKey={xKey} tick={axisStyle} tickLine={false} axisLine={false} />
+        <XAxis dataKey={actualXKey} tick={axisStyle} tickLine={false} axisLine={false} />
         <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
         <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#f8fafc' }} />
         <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
         {series.map((s) => (
-          <Bar key={s.key} dataKey={s.key} name={s.name} fill={s.color} radius={[3, 3, 0, 0]} />
+          <Bar
+            key={s.key}
+            dataKey={s.key}
+            name={s.name}
+            fill={s.color}
+            stackId={stacked ? '1' : undefined}
+            radius={stacked ? undefined : [3, 3, 0, 0]}
+          />
         ))}
       </BarChart>
     </ResponsiveContainer>
@@ -210,16 +227,16 @@ export const BarGroup = BarChartGroup
 
 export function RadarCompare({
   data,
-  keys,
+  keys = [],
   angleKey = 'subject',
   height = 240,
 }: {
   data: any[]
-  keys: SeriesKey[]
+  keys?: SeriesKey[]
   angleKey?: string
   height?: number
 }) {
-  const series = normKeys(keys)
+  const series = normKeys(keys.length > 0 ? keys : [{ key: 'value', name: '数值' }])
   return (
     <ResponsiveContainer width="100%" height={height}>
       <RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>

@@ -139,7 +139,7 @@ export default function CbamPage() {
                       <td className="py-2.5 px-3 font-sans font-medium text-foreground">{p.name}</td>
                       <td className="py-2.5 px-3">{p.hs}</td>
                       <td className="py-2.5 px-3 text-sky-400 font-bold">{p.cn}</td>
-                      <td className="py-2.5 px-3 font-sans"><Badge tone="warn">{p.scope}</Badge></td>
+                      <td className="py-2.5 px-3 font-sans"><Badge tone="warning">{p.scope}</Badge></td>
                       <td className="py-2.5 px-3 text-emerald-400 font-bold">1.42 tCO2/台</td>
                       <td className="py-2.5 px-3 font-sans text-muted-foreground">
                         {p.exempt ? '符合豁免' : '需申报碳关税'}
@@ -240,7 +240,7 @@ export default function CbamPage() {
                     <td className="py-2.5 px-3 font-sans">{s.material}</td>
                     <td className="py-2.5 px-3 text-emerald-400 font-bold">{s.factor} tCO2/t</td>
                     <td className="py-2.5 px-3">{s.green}</td>
-                    <td className="py-2.5 px-3 font-sans"><Badge tone="ok">评级 {s.grade}</Badge></td>
+                    <td className="py-2.5 px-3 font-sans"><Badge tone="success">评级 {s.grade}</Badge></td>
                     <td className="py-2.5 px-3 font-sans"><StatusBadge tone="ok">已通过 SGS 核查</StatusBadge></td>
                   </tr>
                 ))}
@@ -259,7 +259,7 @@ export default function CbamPage() {
               <div key={k.title} className="p-3.5 rounded-lg bg-accent/30 border border-border/60 space-y-1.5 text-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-foreground">{k.title}</span>
-                  <Badge tone="info">{k.type}</Badge>
+                  <Badge tone="primary">{k.type}</Badge>
                 </div>
                 <div className="flex items-center justify-between text-muted-foreground pt-1 text-[11px]">
                   <span>更新日期：{k.updated}</span>

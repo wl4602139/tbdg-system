@@ -732,43 +732,7 @@
             <!-- ========================================================================= -->
             <div id="indicator-overview-view" class="space-y-3.5">
               
-              <!-- 1. 顶部 Header 与 分类快速筛选导航 -->
-              <div class="bg-white p-3.5 rounded-xl border border-[#e5e7eb] shadow-xs flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                  <div class="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff]">
-                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg>
-                  </div>
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <h1 class="text-sm font-bold text-slate-800">能碳指标管控中心 · 数据概览看板</h1>
-                      <span class="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-mono font-bold">
-                        依据《“双中心”项目能碳管控指标体系 V1.4》
-                      </span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-0.5 font-mono">
-                      当前考核主体：【<span id="current-indicator-org-title" class="font-bold text-[#1677ff] font-sans">沈变公司</span>】 · 
-                      覆盖 3 大管控层级 · 共 <span class="font-bold text-slate-800">65 项标准指标</span> · 
-                      <span class="text-emerald-600 font-bold">综合考核达标率: 93.8% (领跑标杆)</span>
-                    </p>
-                  </div>
-                </div>
 
-                <!-- 分类筛选与快捷锚点 -->
-                <div class="flex items-center gap-2">
-                  <button onclick="IndicatorEngine.filterOverviewCategory('all')" id="btn-cat-all" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-[#1677ff] text-white shadow-xs">
-                    全景概览 (全部)
-                  </button>
-                  <button onclick="IndicatorEngine.filterOverviewCategory('company')" id="btn-cat-company" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all">
-                    1. 公司整体指标 (11项)
-                  </button>
-                  <button onclick="IndicatorEngine.filterOverviewCategory('product')" id="btn-cat-product" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all">
-                    2. 产品型号指标 (5项)
-                  </button>
-                  <button onclick="IndicatorEngine.filterOverviewCategory('process')" id="btn-cat-process" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all">
-                    3. 关键工序指标 (49项)
-                  </button>
-                </div>
-              </div>
 
               <!-- 2. 顶部 5 大核心双碳 KPI Bento 卡片 -->
               <div class="bg-white p-4 rounded-xl border border-[#e5e7eb] shadow-xs space-y-3">

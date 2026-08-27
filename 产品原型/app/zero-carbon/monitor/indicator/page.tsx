@@ -1,1998 +1,1565 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useState, useMemo } from 'react'
+import Link from 'next/link'
 import {
-  Activity,
-  AlertTriangle,
-  ArrowRight,
+  Building2,
   TrendingDown,
   TrendingUp,
   Search,
-  Building2,
-  Factory,
-  Cog,
-  SlidersHorizontal,
   Zap,
   Flame,
   Droplets,
-  Package,
-  Tags,
-  Award,
-  Swords,
-  Gauge,
-  Sparkles,
-  ShieldAlert,
   Calendar,
-  Download,
-  BarChart3,
-  List,
-  FileCheck,
-  X,
-  Send,
-  CheckCircle2,
-  ExternalLink,
   Layers,
-  Filter,
-  FolderTree,
+  Info,
   FileText,
   Clock,
   Coins,
   Cpu,
+  BarChart3,
+  Sparkles,
+  ChevronRight,
+  ChevronLeft,
+  Download,
+  ExternalLink,
+  Table,
+  Calculator,
+  RefreshCw,
+  X,
+  PieChart,
+  Sliders,
+  Check,
+  AlertCircle,
+  Factory,
+  Lightbulb,
+  ArrowRight,
+  Filter,
+  Maximize2,
 } from 'lucide-react'
-import { TreeView, type TreeViewNode } from '@/components/shared/tree-view'
-import { LineTrend, Donut, BarGroup } from '@/components/shared/charts'
+import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
+import { LineTrend } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
 
-
-// —— 抽屉图表 mock 数据（基于工厂当期数值平滑外推，仅供演示）——
-const TREND_MONTHS = ['9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月']
-const TREND_WAVE = [0.88, 0.86, 0.92, 0.98, 0.84, 0.8, 0.86, 0.9, 0.95, 1.0, 1.05, 1.12]
-
-function genEnergyTrend(energy: number, carbon: number) {
-  const eb = energy / 12
-  const cb = carbon / 12
-  return TREND_MONTHS.map((month, i) => ({
-    month,
-    综合能耗: Math.max(0, Math.round(eb * TREND_WAVE[i])),
-    碳排放: Math.max(0, Math.round(cb * (TREND_WAVE[i] + 0.12))),
-  }))
+// 指标数据接口
+interface IndicatorMetric {
+  id: string
+  code: string
+  name: string
+  category: 'company' | 'product' | 'process'
+  categoryName: string
+  unit: string
+  curVal: string
+  yoy: string
+  isYoyDown: boolean
+  status: '常规监测' | '正常变动' | '历史同频' | '分析对标'
+  statusType: 'green' | 'blue' | 'purple' | 'slate'
+  badge: string
+  tipText: string
+  formula: string
+  formulaDesc: string
+  numeratorName: string
+  numeratorVal: string
+  denominatorName: string
+  denominatorVal: string
+  dataSource: string
+  rawMeters: {
+    medium: string
+    meterCode: string
+    location: string
+    reading: string
+    unit: string
+    coeff: string
+    tce: string
+  }[]
+  trendHistory: { period: string; value: number; yoy: string; mom: string }[]
 }
 
-function genWeekTou() {
-  return [
-    { day: '周一', 高峰: 86, 平段: 52, 低谷: 31 },
-    { day: '周二', 高峰: 91, 平段: 49, 低谷: 33 },
-    { day: '周三', 高峰: 95, 平段: 54, 低谷: 30 },
-    { day: '周四', 高峰: 88, 平段: 50, 低谷: 32 },
-    { day: '周五', 高峰: 78, 平段: 46, 低谷: 29 },
-    { day: '周六', 高峰: 42, 平段: 38, 低谷: 26 },
-    { day: '周日', 高峰: 38, 平段: 40, 低谷: 27 },
-  ]
-}
+// 1. 一、经营单位及项目公司整体指标 (前 10 项)
+const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
+  {
+    id: 'm-total-energy',
+    code: 'GK-01',
+    name: '综合能源消费量',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tce',
+    curVal: '1,284.5',
+    yoy: '-4.8%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '能耗总量',
+    tipText: '指统计期内用能系统实际消耗的各种能源实物量（包括电力、天然气、蒸汽、水等）折算为标准煤的总和。',
+    formula: 'E = ∑(Ei × ki)',
+    formulaDesc: '月度指标。E: 综合能源消费量 (tce)；Ei: 第 i 种能源实物消耗量；ki: 折标准煤系数。',
+    numeratorName: '各介质实物消耗折标煤之和 ∑(Ei × ki)',
+    numeratorVal: '1,284.5 tce',
+    denominatorName: '核算周期 (自然月)',
+    denominatorVal: '1 个月',
+    dataSource: '分子与分母的核算范围保持一致。提供电（包括市电和绿电）、天然气、蒸汽、热水、柴油、煤油等所有消耗能源种类的消耗量。其中电力消费量折算标煤按照等价值计算。',
+    rawMeters: [
+      { medium: '电力 (市电)', meterCode: 'EM-10KV-01', location: '1号变电所', reading: '3,840,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '471.9' },
+      { medium: '过热蒸汽', meterCode: 'STM-FM-02', location: '蒸汽减温站', reading: '4,280 t', unit: 't', coeff: '0.1286', tce: '550.4' },
+      { medium: '天然气', meterCode: 'GAS-MAIN-01', location: '燃气门站', reading: '197,000 m³', unit: 'm³', coeff: '1.3300', tce: '262.2' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 1380, yoy: '-3.2%', mom: '-0.8%' },
+      { period: '25-10', value: 1360, yoy: '-3.8%', mom: '-1.4%' },
+      { period: '25-11', value: 1340, yoy: '-4.0%', mom: '-1.5%' },
+      { period: '25-12', value: 1390, yoy: '-3.5%', mom: '+3.7%' },
+      { period: '26-01', value: 1320, yoy: '-4.1%', mom: '-5.0%' },
+      { period: '26-02', value: 1300, yoy: '-4.5%', mom: '-1.5%' },
+      { period: '26-03', value: 1310, yoy: '-4.4%', mom: '+0.8%' },
+      { period: '26-04', value: 1295, yoy: '-4.1%', mom: '-1.1%' },
+      { period: '26-05', value: 1305, yoy: '-4.7%', mom: '+0.8%' },
+      { period: '26-06', value: 1340, yoy: '-4.3%', mom: '+2.7%' },
+      { period: '26-07', value: 1300, yoy: '-4.8%', mom: '-3.0%' },
+      { period: '26-08', value: 1284.5, yoy: '-4.8%', mom: '-1.2%' },
+    ],
+  },
+  {
+    id: 'm-unit-output',
+    code: 'GK-02',
+    name: '单位产值能耗',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tce/万元',
+    curVal: '0.0553',
+    yoy: '-5.2%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '产值能耗',
+    tipText: '指统计期内综合能源总消费量与工业总产值的比值，用以评估每万元工业总产值的能耗强度。',
+    formula: 'g = E / G',
+    formulaDesc: '月度指标。g: 单位产值能耗 (tce/万元)；E: 综合能源消费量 (tce)；G: 工业总产值 (万元)。',
+    numeratorName: '综合能源消费量 E',
+    numeratorVal: '1,577.2 tce',
+    denominatorName: '企业工业总产值 G',
+    denominatorVal: '28,500 万元',
+    dataSource: '财务经营月报工业总产值 (万元) 与关口能源关口表数据结合汇总清分。',
+    rawMeters: [
+      { medium: '总折标能耗', meterCode: 'SUM-ENERGY', location: '厂界全域', reading: '1,577.2 tce', unit: 'tce', coeff: '1.0', tce: '1,577.2' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 0.0585, yoy: '-3.5%', mom: '-0.5%' },
+      { period: '25-10', value: 0.0578, yoy: '-3.8%', mom: '-1.2%' },
+      { period: '25-11', value: 0.0574, yoy: '-4.0%', mom: '-0.7%' },
+      { period: '25-12', value: 0.0579, yoy: '-3.6%', mom: '+0.9%' },
+      { period: '26-01', value: 0.0570, yoy: '-4.2%', mom: '-1.6%' },
+      { period: '26-02', value: 0.0568, yoy: '-4.4%', mom: '-0.4%' },
+      { period: '26-03', value: 0.0568, yoy: '-4.0%', mom: '0.0%' },
+      { period: '26-04', value: 0.0564, yoy: '-4.3%', mom: '-0.7%' },
+      { period: '26-05', value: 0.0561, yoy: '-4.5%', mom: '-0.5%' },
+      { period: '26-06', value: 0.0559, yoy: '-4.8%', mom: '-0.4%' },
+      { period: '26-07', value: 0.0556, yoy: '-5.0%', mom: '-0.5%' },
+      { period: '26-08', value: 0.0553, yoy: '-5.2%', mom: '-0.5%' },
+    ],
+  },
+  {
+    id: 'm-output-elec',
+    code: 'GK-03',
+    name: '万元产值用电量',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'kWh/万元',
+    curVal: '1,231.5',
+    yoy: '-4.2%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '产值电耗',
+    tipText: '指统计期内全厂总电能消费量与工业总产值的比值。',
+    formula: 'q_e = Total_Elec / Total_Output',
+    formulaDesc: '月度指标。q_e: 万元产值用电量 (kWh/万元)；Total_Elec: 厂界电力总消耗 (kWh)；Total_Output: 工业产值 (万元)。',
+    numeratorName: '全厂总用电量',
+    numeratorVal: '3,840,000 kWh',
+    denominatorName: '工业总产值',
+    denominatorVal: '3,118.0 万元',
+    dataSource: '变电所电能管理系统关口表自动采集。',
+    rawMeters: [
+      { medium: '市电总表', meterCode: 'EM-MAIN-01', location: '开闭所', reading: '3,840,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '471.9' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 1300, yoy: '-2.5%', mom: '-0.5%' },
+      { period: '25-10', value: 1290, yoy: '-2.8%', mom: '-0.8%' },
+      { period: '25-11', value: 1285, yoy: '-3.0%', mom: '-0.4%' },
+      { period: '25-12', value: 1295, yoy: '-2.7%', mom: '+0.8%' },
+      { period: '26-01', value: 1275, yoy: '-3.2%', mom: '-1.5%' },
+      { period: '26-02', value: 1270, yoy: '-3.5%', mom: '-0.4%' },
+      { period: '26-03', value: 1280, yoy: '-3.0%', mom: '+0.8%' },
+      { period: '26-04', value: 1265, yoy: '-3.4%', mom: '-1.2%' },
+      { period: '26-05', value: 1250, yoy: '-3.8%', mom: '-1.2%' },
+      { period: '26-06', value: 1260, yoy: '-3.8%', mom: '+0.8%' },
+      { period: '26-07', value: 1242, yoy: '-4.0%', mom: '-1.4%' },
+      { period: '26-08', value: 1231.5, yoy: '-4.2%', mom: '-0.8%' },
+    ],
+  },
+  {
+    id: 'm-output-water',
+    code: 'GK-04',
+    name: '万元产值用水量 (ESG)',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 't/万元',
+    curVal: '1.68',
+    yoy: '-3.5%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'blue',
+    badge: 'ESG水资源',
+    tipText: '指统计期内全厂新鲜水总消费量与工业总产值的比值，用于 ESG 水资源控制。',
+    formula: 'q_w = Total_Water / Total_Output',
+    formulaDesc: '月度指标。q_w: 万元产值用水量 (t/万元)；Total_Water: 总用水量 (t)；Total_Output: 工业产值 (万元)。',
+    numeratorName: '全厂用水总量',
+    numeratorVal: '48,000 t',
+    denominatorName: '工业总产值',
+    denominatorVal: '28,500 万元',
+    dataSource: '市政关口远传水表与水资源监测网系统。',
+    rawMeters: [
+      { medium: '新鲜水', meterCode: 'WM-MAIN-01', location: '水表房', reading: '48,000 t', unit: 't', coeff: '0.0857', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 1.82, yoy: '-2.4%', mom: '-0.5%' },
+      { period: '25-10', value: 1.80, yoy: '-2.6%', mom: '-1.1%' },
+      { period: '25-11', value: 1.79, yoy: '-2.8%', mom: '-0.6%' },
+      { period: '25-12', value: 1.81, yoy: '-2.5%', mom: '+1.1%' },
+      { period: '26-01', value: 1.76, yoy: '-3.0%', mom: '-2.8%' },
+      { period: '26-02', value: 1.75, yoy: '-3.1%', mom: '-0.6%' },
+      { period: '26-03', value: 1.78, yoy: '-3.0%', mom: '+1.7%' },
+      { period: '26-04', value: 1.75, yoy: '-3.2%', mom: '-1.7%' },
+      { period: '26-05', value: 1.72, yoy: '-3.3%', mom: '-1.7%' },
+      { period: '26-06', value: 1.74, yoy: '-3.1%', mom: '+1.2%' },
+      { period: '26-07', value: 1.70, yoy: '-3.4%', mom: '-2.3%' },
+      { period: '26-08', value: 1.68, yoy: '-3.5%', mom: '-1.2%' },
+    ],
+  },
+  {
+    id: 'm-output-gas',
+    code: 'GK-05',
+    name: '万元产值用天然气量',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'm³/万元',
+    curVal: '63.18',
+    yoy: '-3.9%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '产值气耗',
+    tipText: '指统计期内天然气消费量与工业总产值的比值。',
+    formula: 'q_g = Total_Gas / Total_Output',
+    formulaDesc: '月度指标。q_g: 万元产值天然气量 (m³/万元)；Total_Gas: 天然气消费总量 (m³)；Total_Output: 工业产值 (万元)。',
+    numeratorName: '全厂天然气总消耗量',
+    numeratorVal: '197,000 m³',
+    denominatorName: '工业总产值',
+    denominatorVal: '3,118.0 万元',
+    dataSource: '燃气门站流量计与远传抄表网。',
+    rawMeters: [
+      { medium: '天然气', meterCode: 'GAS-MAIN-01', location: '调压站', reading: '197,000 m³', unit: 'm³', coeff: '1.3300', tce: '262.2' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 68.0, yoy: '-2.8%', mom: '-0.5%' },
+      { period: '25-10', value: 67.2, yoy: '-3.0%', mom: '-1.2%' },
+      { period: '25-11', value: 66.8, yoy: '-3.1%', mom: '-0.6%' },
+      { period: '25-12', value: 67.5, yoy: '-2.9%', mom: '+1.0%' },
+      { period: '26-01', value: 65.8, yoy: '-3.3%', mom: '-2.5%' },
+      { period: '26-02', value: 65.5, yoy: '-3.5%', mom: '-0.5%' },
+      { period: '26-03', value: 66.5, yoy: '-3.2%', mom: '+1.5%' },
+      { period: '26-04', value: 65.2, yoy: '-3.5%', mom: '-2.0%' },
+      { period: '26-05', value: 64.5, yoy: '-3.6%', mom: '-1.1%' },
+      { period: '26-06', value: 65.0, yoy: '-3.4%', mom: '+0.8%' },
+      { period: '26-07', value: 63.8, yoy: '-3.8%', mom: '-1.8%' },
+      { period: '26-08', value: 63.18, yoy: '-3.9%', mom: '-1.0%' },
+    ],
+  },
+  {
+    id: 'm-green-rate',
+    code: 'GK-06',
+    name: '非化石能源消费占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '38.6',
+    yoy: '+4.2%',
+    isYoyDown: false,
+    status: '正常变动',
+    statusType: 'green',
+    badge: '绿电占比',
+    tipText: '指非化石能源电力消纳折标量占全厂综合能源消费总量的比重。',
+    formula: 'R = E_green / E_total',
+    formulaDesc: '月度指标。R: 非化石能源占比 (%)；E_green: 绿电+分布式光伏折标能耗；E_total: 综合能耗。',
+    numeratorName: '自建光伏消纳 + 绿电交易',
+    numeratorVal: '2,069,000 kWh',
+    denominatorName: '综合能源消费总量',
+    denominatorVal: '1,284.5 tce',
+    dataSource: '屋顶光伏并网关口表与全国绿电交易系统数据凭证。',
+    rawMeters: [
+      { medium: '光伏自用', meterCode: 'PV-GEN-01', location: '1-4号厂房', reading: '1,520,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '186.8' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 32.5, yoy: '+2.8%', mom: '+0.5%' },
+      { period: '25-10', value: 33.1, yoy: '+3.1%', mom: '+1.8%' },
+      { period: '25-11', value: 33.8, yoy: '+3.5%', mom: '+2.1%' },
+      { period: '25-12', value: 34.2, yoy: '+3.2%', mom: '+1.2%' },
+      { period: '26-01', value: 35.0, yoy: '+3.9%', mom: '+2.3%' },
+      { period: '26-02', value: 35.6, yoy: '+4.0%', mom: '+1.7%' },
+      { period: '26-03', value: 34.2, yoy: '+3.4%', mom: '-3.9%' },
+      { period: '26-04', value: 35.8, yoy: '+4.3%', mom: '+4.7%' },
+      { period: '26-05', value: 37.1, yoy: '+4.3%', mom: '+3.6%' },
+      { period: '26-06', value: 37.8, yoy: '+4.4%', mom: '+1.9%' },
+      { period: '26-07', value: 38.2, yoy: '+4.2%', mom: '+1.1%' },
+      { period: '26-08', value: 38.6, yoy: '+4.2%', mom: '+1.0%' },
+    ],
+  },
+  {
+    id: 'm-energy-saving',
+    code: 'GK-07',
+    name: '月度综合节能量',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tce',
+    curVal: '65.5',
+    yoy: '+9.2%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '节能量',
+    tipText: '指相比于基准期在同等产能水平下节约的综合能源折标准煤量。',
+    formula: 'E_saved = E_baseline - E_current',
+    formulaDesc: '月度指标。E_saved: 月度节能量 (tce)；E_baseline: 基准期折标能耗；E_current: 当期折标能耗。',
+    numeratorName: '基准期折标能耗 - 当期折标能耗',
+    numeratorVal: '65.5 tce',
+    denominatorName: '核算周期',
+    denominatorVal: '1 个月',
+    dataSource: '能效分析引擎算法模型对比计算。',
+    rawMeters: [
+      { medium: '综合能耗差额', meterCode: 'SAVED-SUM', location: '全厂', reading: '65.5 tce', unit: 'tce', coeff: '1.0', tce: '65.5' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 52.0, yoy: '+4.5%', mom: '+1.0%' },
+      { period: '25-10', value: 54.2, yoy: '+4.8%', mom: '+4.2%' },
+      { period: '25-11', value: 55.8, yoy: '+5.0%', mom: '+3.0%' },
+      { period: '25-12', value: 56.5, yoy: '+4.6%', mom: '+1.3%' },
+      { period: '26-01', value: 57.2, yoy: '+5.1%', mom: '+1.2%' },
+      { period: '26-02', value: 56.8, yoy: '+5.0%', mom: '-0.7%' },
+      { period: '26-03', value: 58.0, yoy: '+5.5%', mom: '+2.1%' },
+      { period: '26-04', value: 61.2, yoy: '+6.2%', mom: '+5.5%' },
+      { period: '26-05', value: 62.8, yoy: '+8.3%', mom: '+2.6%' },
+      { period: '26-06', value: 60.5, yoy: '+4.3%', mom: '-3.7%' },
+      { period: '26-07', value: 63.4, yoy: '+5.7%', mom: '+4.8%' },
+      { period: '26-08', value: 65.5, yoy: '+9.2%', mom: '+3.3%' },
+    ],
+  },
+  {
+    id: 'm-energy-cost-ratio',
+    code: 'GK-08',
+    name: '能源成本占制造费用比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '4.15',
+    yoy: '-0.35%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '成本比率',
+    tipText: '指水电气汽等各类能源直接支出总额占全厂制造费用总额的比重。',
+    formula: 'R_cost = Cost_energy / Cost_manufacturing',
+    formulaDesc: '月度指标。R_cost: 能源成本占比 (%)；Cost_energy: 能源总支出 (万元)；Cost_manufacturing: 制造总费用 (万元)。',
+    numeratorName: '月度能源总支出',
+    numeratorVal: '285.4 万元',
+    denominatorName: '月度制造费用总额',
+    denominatorVal: '6,877.1 万元',
+    dataSource: '财务 ERP 系统能源科目明细账。',
+    rawMeters: [
+      { medium: '电费支出', meterCode: 'FIN-ELEC', location: '财务账', reading: '228.3 万元', unit: '万元', coeff: '1.0', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 4.50, yoy: '-0.20%', mom: '-0.1%' },
+      { period: '25-10', value: 4.45, yoy: '-0.22%', mom: '-1.1%' },
+      { period: '25-11', value: 4.40, yoy: '-0.23%', mom: '-1.1%' },
+      { period: '25-12', value: 4.48, yoy: '-0.21%', mom: '+1.8%' },
+      { period: '26-01', value: 4.38, yoy: '-0.24%', mom: '-2.2%' },
+      { period: '26-02', value: 4.36, yoy: '-0.25%', mom: '-0.5%' },
+      { period: '26-03', value: 4.35, yoy: '-0.25%', mom: '-0.2%' },
+      { period: '26-04', value: 4.28, yoy: '-0.27%', mom: '-1.6%' },
+      { period: '26-05', value: 4.22, yoy: '-0.28%', mom: '-1.4%' },
+      { period: '26-06', value: 4.30, yoy: '-0.25%', mom: '+1.9%' },
+      { period: '26-07', value: 4.19, yoy: '-0.31%', mom: '-2.6%' },
+      { period: '26-08', value: 4.15, yoy: '-0.35%', mom: '-1.0%' },
+    ],
+  },
+  {
+    id: 'm-steam-cost',
+    code: 'GK-09',
+    name: '蒸汽折标费用占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '3.4',
+    yoy: '-0.2%',
+    isYoyDown: true,
+    status: '历史同频',
+    statusType: 'purple',
+    badge: '蒸汽费用',
+    tipText: '指蒸汽消费金额占全厂总能源支出比重。',
+    formula: 'R_steam = Cost_steam / Cost_energy_total',
+    formulaDesc: '月度指标。R_steam: 蒸汽费用占比 (%)；Cost_steam: 蒸汽支出 (万元)；Cost_energy_total: 总能源支出 (万元)。',
+    numeratorName: '蒸汽支出',
+    numeratorVal: '25.6 万元',
+    denominatorName: '总能源支出',
+    denominatorVal: '762.5 万元',
+    dataSource: '蒸汽管道总流量计与热力公司账单。',
+    rawMeters: [
+      { medium: '工业蒸汽', meterCode: 'STM-COST-01', location: '热力主管', reading: '740.0 t', unit: 't', coeff: '0.1286', tce: '98.1' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 3.9, yoy: '-0.1%', mom: '0.0%' },
+      { period: '25-10', value: 3.8, yoy: '-0.1%', mom: '-2.5%' },
+      { period: '25-11', value: 3.8, yoy: '-0.1%', mom: '0.0%' },
+      { period: '25-12', value: 3.9, yoy: '-0.1%', mom: '+2.6%' },
+      { period: '26-01', value: 3.7, yoy: '-0.1%', mom: '-5.1%' },
+      { period: '26-02', value: 3.7, yoy: '-0.1%', mom: '0.0%' },
+      { period: '26-03', value: 3.8, yoy: '-0.1%', mom: '+2.7%' },
+      { period: '26-04', value: 3.7, yoy: '-0.1%', mom: '-2.6%' },
+      { period: '26-05', value: 3.6, yoy: '-0.2%', mom: '-2.7%' },
+      { period: '26-06', value: 3.5, yoy: '-0.2%', mom: '-2.8%' },
+      { period: '26-07', value: 3.5, yoy: '-0.2%', mom: '0.0%' },
+      { period: '26-08', value: 3.4, yoy: '-0.2%', mom: '-2.9%' },
+    ],
+  },
+  {
+    id: 'm-gas-cost',
+    code: 'GK-10',
+    name: '天然气折标费用占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '7.0',
+    yoy: '-0.5%',
+    isYoyDown: true,
+    status: '历史同频',
+    statusType: 'purple',
+    badge: '天然气费用',
+    tipText: '指天然气消费金额占全厂总能源支出比重。',
+    formula: 'R_gas = Cost_gas / Cost_energy_total',
+    formulaDesc: '月度指标。R_gas: 天然气费用占比 (%)；Cost_gas: 天然气支出 (万元)；Cost_energy_total: 总能源支出 (万元)。',
+    numeratorName: '天然气支出',
+    numeratorVal: '53.6 万元',
+    denominatorName: '总能源支出',
+    denominatorVal: '762.5 万元',
+    dataSource: '天然气计量关口表与燃气公司发票。',
+    rawMeters: [
+      { medium: '管道天然气', meterCode: 'GAS-COST-01', location: '门站', reading: '12.5 万m³', unit: '万m³', coeff: '1.3300', tce: '151.8' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 7.9, yoy: '-0.2%', mom: '-0.1%' },
+      { period: '25-10', value: 7.8, yoy: '-0.3%', mom: '-1.2%' },
+      { period: '25-11', value: 7.7, yoy: '-0.3%', mom: '-1.3%' },
+      { period: '25-12', value: 7.9, yoy: '-0.2%', mom: '+2.6%' },
+      { period: '26-01', value: 7.5, yoy: '-0.4%', mom: '-5.0%' },
+      { period: '26-02', value: 7.4, yoy: '-0.4%', mom: '-1.3%' },
+      { period: '26-03', value: 7.8, yoy: '-0.3%', mom: '+5.4%' },
+      { period: '26-04', value: 7.6, yoy: '-0.4%', mom: '-2.5%' },
+      { period: '26-05', value: 7.4, yoy: '-0.4%', mom: '-2.6%' },
+      { period: '26-06', value: 7.3, yoy: '-0.5%', mom: '-1.3%' },
+      { period: '26-07', value: 7.1, yoy: '-0.5%', mom: '-2.7%' },
+      { period: '26-08', value: 7.0, yoy: '-0.5%', mom: '-1.4%' },
+    ],
+  },
+]
 
-function genPowerCurve() {
-  const curve = [62, 58, 54, 68, 118, 152, 146, 172, 198, 214, 168, 96]
-  return curve.map((v, i) => ({ hour: i * 2 + '时', 用电负荷: v }))
-}
+// 2. 二、产品管控指标
+const PRODUCT_CONTROL_METRICS: IndicatorMetric[] = [
+  {
+    id: 'm-prod-tce',
+    code: 'CP-01',
+    name: '单位产品能耗（型号）',
+    category: 'product',
+    categoryName: '二、产品管控指标',
+    unit: 'tce/万kVA',
+    curVal: '0.317',
+    yoy: '-6.2%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '综合单耗',
+    tipText: '指统计期内综合能源总消费量与产品产量的比值。',
+    formula: 'e = E / M',
+    formulaDesc: '月度指标。e: 单位产品能耗，单位为 tce/产品单位；E: 综合能源消费量，单位 tce；M: 产品产量，单位为产品单位，如万kVA、万km*mm²等。',
+    numeratorName: '综合能源消费量 E',
+    numeratorVal: '1,577.2 tce',
+    denominatorName: '产品产量 M (下线容量)',
+    denominatorVal: '4,975.4 万kVA',
+    dataSource: 'MES 生产工单产出量与车间嵌入式电能/蒸汽分表。',
+    rawMeters: [
+      { medium: '综合折标能耗', meterCode: 'SUM-PROD-ENERGY', location: '超高压变压器车间', reading: '1,577.2 tce', unit: 'tce', coeff: '1.0', tce: '1,577.2' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 0.345, yoy: '-4.2%', mom: '-0.5%' },
+      { period: '25-10', value: 0.341, yoy: '-4.5%', mom: '-1.1%' },
+      { period: '25-11', value: 0.338, yoy: '-4.8%', mom: '-0.8%' },
+      { period: '25-12', value: 0.342, yoy: '-4.5%', mom: '+1.1%' },
+      { period: '26-01', value: 0.335, yoy: '-5.2%', mom: '-2.0%' },
+      { period: '26-02', value: 0.334, yoy: '-5.3%', mom: '-0.3%' },
+      { period: '26-03', value: 0.338, yoy: '-5.0%', mom: '+1.2%' },
+      { period: '26-04', value: 0.332, yoy: '-5.4%', mom: '-1.7%' },
+      { period: '26-05', value: 0.328, yoy: '-5.8%', mom: '-1.2%' },
+      { period: '26-06', value: 0.325, yoy: '-6.0%', mom: '-0.9%' },
+      { period: '26-07', value: 0.321, yoy: '-6.1%', mom: '-1.2%' },
+      { period: '26-08', value: 0.317, yoy: '-6.2%', mom: '-1.2%' },
+    ],
+  },
+  {
+    id: 'm-prod-elec',
+    code: 'CP-02',
+    name: '单位产品电耗',
+    category: 'product',
+    categoryName: '二、产品管控指标',
+    unit: 'kWh/万kVA',
+    curVal: '2,420.5',
+    yoy: '-5.8%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '单电耗',
+    tipText: '指统计期内电能源消费量（包括公辅设备）与产品产量的比值。',
+    formula: 'q_电 = Q_电 / M',
+    formulaDesc: '月度指标。q_电: 单位产品电耗，单位为 kWh/产品单位；Q_电: 电能源消费量，单位 kWh；M: 产品产量，单位为产品单位，如万kVA、万km*mm²等。',
+    numeratorName: '电能源消费量 Q_电 (含公辅)',
+    numeratorVal: '12,043,000 kWh',
+    denominatorName: '产品产量 M (下线容量)',
+    denominatorVal: '4,975.4 万kVA',
+    dataSource: '变电所专线电表与公辅配电智能表。',
+    rawMeters: [
+      { medium: '生产及公辅用电', meterCode: 'EM-PROD-SUM', location: '全车间电网', reading: '12,043,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '1,480.1' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 2600, yoy: '-4.2%', mom: '-0.8%' },
+      { period: '25-10', value: 2580, yoy: '-4.5%', mom: '-0.7%' },
+      { period: '25-11', value: 2560, yoy: '-4.8%', mom: '-0.7%' },
+      { period: '25-12', value: 2590, yoy: '-4.3%', mom: '+1.1%' },
+      { period: '26-01', value: 2530, yoy: '-5.0%', mom: '-2.3%' },
+      { period: '26-02', value: 2525, yoy: '-5.1%', mom: '-0.2%' },
+      { period: '26-03', value: 2560, yoy: '-4.8%', mom: '+1.4%' },
+      { period: '26-04', value: 2520, yoy: '-5.0%', mom: '-1.5%' },
+      { period: '26-05', value: 2480, yoy: '-5.3%', mom: '-1.6%' },
+      { period: '26-06', value: 2460, yoy: '-5.5%', mom: '-0.8%' },
+      { period: '26-07', value: 2435, yoy: '-5.7%', mom: '-1.0%' },
+      { period: '26-08', value: 2420.5, yoy: '-5.8%', mom: '-0.6%' },
+    ],
+  },
+  {
+    id: 'm-prod-steam',
+    code: 'CP-03',
+    name: '单位产品蒸汽消耗',
+    category: 'product',
+    categoryName: '二、产品管控指标',
+    unit: 'GJ/万kVA',
+    curVal: '3.85',
+    yoy: '-4.5%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'purple',
+    badge: '单汽耗',
+    tipText: '指统计期内蒸汽能源消费量与产品产量的比值。',
+    formula: 'q_蒸汽 = Q_蒸汽 / M',
+    formulaDesc: '月度指标。q_蒸汽: 单位产品蒸汽消耗，单位为 GJ/产品单位；Q_蒸汽: 蒸汽能源消费量，单位 GJ；M: 产品产量，单位为产品单位，如万kVA、万km*mm²等。',
+    numeratorName: '蒸汽能源消费量 Q_蒸汽',
+    numeratorVal: '19,155.3 GJ',
+    denominatorName: '产品产量 M',
+    denominatorVal: '4,975.4 万kVA',
+    dataSource: '蒸汽减温减压站专表。',
+    rawMeters: [
+      { medium: '过热蒸汽', meterCode: 'STM-PROD-01', location: '气相干燥站', reading: '6,450 t (19,155.3 GJ)', unit: 'GJ', coeff: '0.1286', tce: '829.5' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 4.15, yoy: '-3.2%', mom: '-0.5%' },
+      { period: '25-10', value: 4.10, yoy: '-3.5%', mom: '-1.2%' },
+      { period: '25-11', value: 4.08, yoy: '-3.7%', mom: '-0.5%' },
+      { period: '25-12', value: 4.12, yoy: '-3.4%', mom: '+1.0%' },
+      { period: '26-01', value: 4.02, yoy: '-3.9%', mom: '-2.4%' },
+      { period: '26-02', value: 4.00, yoy: '-4.0%', mom: '-0.5%' },
+      { period: '26-03', value: 4.08, yoy: '-3.8%', mom: '+2.0%' },
+      { period: '26-04', value: 4.01, yoy: '-4.0%', mom: '-1.7%' },
+      { period: '26-05', value: 3.96, yoy: '-4.2%', mom: '-1.2%' },
+      { period: '26-06', value: 3.92, yoy: '-4.3%', mom: '-1.0%' },
+      { period: '26-07', value: 3.88, yoy: '-4.4%', mom: '-1.0%' },
+      { period: '26-08', value: 3.85, yoy: '-4.5%', mom: '-0.8%' },
+    ],
+  },
+  {
+    id: 'm-prod-gas',
+    code: 'CP-04',
+    name: '单位产品天然气消耗',
+    category: 'product',
+    categoryName: '二、产品管控指标',
+    unit: 'm³/万kVA',
+    curVal: '45.2',
+    yoy: '-4.1%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '单气耗',
+    tipText: '指统计期内天然气能源消费量与产品产量的比值。',
+    formula: 'q_天然气 = Q_天然气 / M',
+    formulaDesc: '月度指标。q_天然气: 单位产品天然气消耗，单位为 m³/产品单位；Q_天然气: 天然气能源消费量，单位 m³；M: 产品产量，单位为产品单位，如万kVA、万km*mm²等。',
+    numeratorName: '天然气能源消费量 Q_天然气',
+    numeratorVal: '224,888 m³',
+    denominatorName: '产品产量 M',
+    denominatorVal: '4,975.4 万kVA',
+    dataSource: '燃气门站流量计与固化炉流量计。',
+    rawMeters: [
+      { medium: '天然气', meterCode: 'GAS-PROD-01', location: '热风炉门站', reading: '224,888 m³', unit: 'm³', coeff: '1.3300', tce: '299.1' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 48.5, yoy: '-2.8%', mom: '-0.5%' },
+      { period: '25-10', value: 48.0, yoy: '-3.0%', mom: '-1.0%' },
+      { period: '25-11', value: 47.6, yoy: '-3.2%', mom: '-0.8%' },
+      { period: '25-12', value: 48.2, yoy: '-2.9%', mom: '+1.2%' },
+      { period: '26-01', value: 47.0, yoy: '-3.5%', mom: '-2.5%' },
+      { period: '26-02', value: 46.8, yoy: '-3.6%', mom: '-0.4%' },
+      { period: '26-03', value: 47.8, yoy: '-3.2%', mom: '+2.1%' },
+      { period: '26-04', value: 47.1, yoy: '-3.5%', mom: '-1.5%' },
+      { period: '26-05', value: 46.5, yoy: '-3.8%', mom: '-1.3%' },
+      { period: '26-06', value: 46.0, yoy: '-3.9%', mom: '-1.0%' },
+      { period: '26-07', value: 45.6, yoy: '-4.0%', mom: '-0.9%' },
+      { period: '26-08', value: 45.2, yoy: '-4.1%', mom: '-0.9%' },
+    ],
+  },
+  {
+    id: 'm-prod-water',
+    code: 'CP-05',
+    name: '单位产品水耗',
+    category: 'product',
+    categoryName: '二、产品管控指标',
+    unit: 't/万kVA',
+    curVal: '12.4',
+    yoy: '-3.9%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'blue',
+    badge: '单水耗',
+    tipText: '指统计期内水能源消费量与产品产量的比值。',
+    formula: 'q_水 = Q_水 / M',
+    formulaDesc: '月度指标。q_水: 单位产品水耗，单位为 t/产品单位；Q_水: 水能源消费量，单位 t；M: 产品产量，单位为产品单位，如万kVA、万km*mm²等。',
+    numeratorName: '水能源消费量 Q_水',
+    numeratorVal: '61,695 t',
+    denominatorName: '产品产量 M',
+    denominatorVal: '4,975.4 万kVA',
+    dataSource: '车间冷却水与生产关口表。',
+    rawMeters: [
+      { medium: '新鲜水', meterCode: 'WM-PROD-01', location: '水表房', reading: '61,695 t', unit: 't', coeff: '0.0857', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 13.5, yoy: '-2.5%', mom: '-0.5%' },
+      { period: '25-10', value: 13.3, yoy: '-2.8%', mom: '-1.5%' },
+      { period: '25-11', value: 13.1, yoy: '-3.0%', mom: '-1.5%' },
+      { period: '25-12', value: 13.4, yoy: '-2.7%', mom: '+2.3%' },
+      { period: '26-01', value: 12.9, yoy: '-3.3%', mom: '-3.7%' },
+      { period: '26-02', value: 12.8, yoy: '-3.4%', mom: '-0.8%' },
+      { period: '26-03', value: 13.2, yoy: '-3.0%', mom: '+3.1%' },
+      { period: '26-04', value: 13.0, yoy: '-3.2%', mom: '-1.5%' },
+      { period: '26-05', value: 12.8, yoy: '-3.5%', mom: '-1.5%' },
+      { period: '26-06', value: 12.6, yoy: '-3.7%', mom: '-1.6%' },
+      { period: '26-07', value: 12.5, yoy: '-3.8%', mom: '-0.8%' },
+      { period: '26-08', value: 12.4, yoy: '-3.9%', mom: '-0.8%' },
+    ],
+  },
+]
 
-
-function genPointCurve(pt: any) {
-  const hours = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22]
-  const name = pt?.name || ''
-  const group = pt?.group || ''
-  const sameDay = [0.62, 0.58, 0.54, 0.68, 1.18, 1.52, 1.46, 1.72, 1.98, 2.14, 1.68, 0.96]
-  let base: number[]
-  if (name === '电压') base = [10.15, 10.12, 10.1, 10.18, 10.22, 10.2, 10.18, 10.22, 10.25, 10.2, 10.16, 10.12]
-  else if (name === '电流') base = sameDay.map((v) => Math.round(v * 320))
-  else if (name === '总有功功率') base = sameDay.map((v) => Math.round(v * 4000))
-  else if (name === '功率因数') base = [0.95, 0.95, 0.96, 0.94, 0.95, 0.94, 0.96, 0.95, 0.94, 0.96, 0.95, 0.95]
-  else if (name === '正向有功电能') base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => Math.round(8450 * (0.52 + i * 0.082)))
-  else if (name === '反向有功电能') base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => Math.round(12.5 * (0.6 + i * 0.075)))
-  else if (name === '正向无功电能') base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => Math.round(1280 * (0.55 + i * 0.075)))
-  else if (name === '反向无功电能') base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => Math.round(25.6 * (0.55 + i * 0.07)))
-  else if (name === '水压') base = [0.4, 0.39, 0.38, 0.41, 0.43, 0.44, 0.43, 0.42, 0.41, 0.4, 0.39, 0.38]
-  else if (name === '累计流量') base = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => Math.round((group === '气' ? 124 : 42) * (0.5 + i * 0.0833)))
-  else if (name === '瞬时流量') base = [14, 12, 11, 15, 18, 21, 19, 20, 18, 16, 14, 12]
-  else base = sameDay.map((v) => Math.round(v * 1000))
-  return hours.map((h, i) => ({ hour: h + '时', 监测值: base[i] }))
-}
+// 3. 三、关键制造工序能效管控指标 (全量标准规范 17-65 序号表)
+const PROCESS_CONTROL_METRICS: IndicatorMetric[] = [
+  {
+    id: 'm-17', code: '17', name: '吨铜电耗（线缆-拉丝）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/t', curVal: '142.5', yoy: '-3.8%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '线缆拉丝',
+    tipText: '拉丝工序，拉1吨铜耗电量 (电装管理要求集控)', formula: 'q_线-拉丝Cu-电 = Q_线-拉丝Cu-电 / M_线-拉丝Cu', formulaDesc: '月度指标。q: 单位铜电耗 (kWh/t)；Q: 电能消耗 (kWh)；M: 铜产量 (t)。',
+    numeratorName: '线缆拉丝工序电能源消费量 Q', numeratorVal: '456,000 kWh', denominatorName: '拉丝工序铜产量 M', denominatorVal: '3,200 t', dataSource: '大拉机智能电表与 MES 产线称重记录。',
+    rawMeters: [{ medium: '铜拉丝用电', meterCode: 'EQ-DRAW-CU-01', location: '拉丝车间', reading: '456,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '56.0' }],
+    trendHistory: [{ period: '25-09', value: 152.0, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 150.0, yoy: '-3.0%', mom: '-1.3%' }, { period: '25-11', value: 149.0, yoy: '-3.1%', mom: '-0.7%' }, { period: '25-12', value: 151.0, yoy: '-2.9%', mom: '+1.3%' }, { period: '26-01', value: 147.0, yoy: '-3.3%', mom: '-2.6%' }, { period: '26-02', value: 146.5, yoy: '-3.4%', mom: '-0.3%' }, { period: '26-03', value: 148.0, yoy: '-3.2%', mom: '+1.0%' }, { period: '26-04', value: 146.5, yoy: '-3.4%', mom: '-1.0%' }, { period: '26-05', value: 145.0, yoy: '-3.5%', mom: '-1.0%' }, { period: '26-06', value: 144.2, yoy: '-3.6%', mom: '-0.5%' }, { period: '26-07', value: 143.0, yoy: '-3.7%', mom: '-0.8%' }, { period: '26-08', value: 142.5, yoy: '-3.8%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-18', code: '18', name: '吨铝电耗（线缆-拉丝）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/t', curVal: '215.0', yoy: '-4.1%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '铝拉丝',
+    tipText: '拉丝工序，拉1吨铝耗电量 (电装管理要求集控)', formula: 'q_线-拉丝Al-电 = Q_线-拉丝Al-电 / M_线-拉丝Al', formulaDesc: '月度指标。q: 单位铝电耗 (kWh/t)；Q: 电能消耗 (kWh)；M: 铝产量 (t)。',
+    numeratorName: '线缆铝拉丝用电总量 Q', numeratorVal: '537,500 kWh', denominatorName: '铝拉丝产线产量 M', denominatorVal: '2,500 t', dataSource: '铝拉丝机组智能电表。',
+    rawMeters: [{ medium: '铝拉丝电力', meterCode: 'EQ-DRAW-AL-01', location: '铝缆车间', reading: '537,500 kWh', unit: 'kWh', coeff: '0.1229', tce: '66.1' }],
+    trendHistory: [{ period: '25-09', value: 228.0, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 225.0, yoy: '-3.2%', mom: '-1.3%' }, { period: '25-11', value: 223.0, yoy: '-3.4%', mom: '-0.9%' }, { period: '25-12', value: 226.0, yoy: '-3.1%', mom: '+1.3%' }, { period: '26-01', value: 220.0, yoy: '-3.7%', mom: '-2.7%' }, { period: '26-02', value: 219.5, yoy: '-3.8%', mom: '-0.2%' }, { period: '26-03', value: 224.0, yoy: '-3.5%', mom: '+2.0%' }, { period: '26-04', value: 221.5, yoy: '-3.7%', mom: '-1.1%' }, { period: '26-05', value: 219.0, yoy: '-3.8%', mom: '-1.1%' }, { period: '26-06', value: 217.5, yoy: '-3.9%', mom: '-0.7%' }, { period: '26-07', value: 216.0, yoy: '-4.0%', mom: '-0.7%' }, { period: '26-08', value: 215.0, yoy: '-4.1%', mom: '-0.5%' }],
+  },
+  {
+    id: 'm-19', code: '19', name: '交联电耗（线缆-中低压-交联）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/km*mm²', curVal: '18.4', yoy: '-3.6%', isYoyDown: true, status: '常规监测', statusType: 'blue', badge: '中低压交联',
+    tipText: '中低压产线交联工序，单位产量耗电量', formula: 'q_线-中低压-交联-电 = Q / M', formulaDesc: '月度指标。q: 单位电耗 (kWh/km*mm²)；Q: 电能消耗 (kWh)；M: 产品规格产量 (km*mm²)。',
+    numeratorName: '中低压交联线用电量 Q', numeratorVal: '736,000 kWh', denominatorName: '交联产品规格产量 M', denominatorVal: '40,000 km*mm²', dataSource: '中低压立塔交联机电表与 MES 规格汇总。',
+    rawMeters: [{ medium: '交联塔电力', meterCode: 'EQ-XLPE-LOW', location: '交联车间', reading: '736,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '90.5' }],
+    trendHistory: [{ period: '25-09', value: 19.5, yoy: '-2.5%', mom: '-0.5%' }, { period: '25-10', value: 19.3, yoy: '-2.8%', mom: '-1.0%' }, { period: '25-11', value: 19.2, yoy: '-2.9%', mom: '-0.5%' }, { period: '25-12', value: 19.6, yoy: '-2.6%', mom: '+2.1%' }, { period: '26-01', value: 18.9, yoy: '-3.2%', mom: '-3.6%' }, { period: '26-02', value: 18.8, yoy: '-3.3%', mom: '-0.5%' }, { period: '26-03', value: 19.1, yoy: '-3.0%', mom: '+1.6%' }, { period: '26-04', value: 18.9, yoy: '-3.2%', mom: '-1.0%' }, { period: '26-05', value: 18.7, yoy: '-3.4%', mom: '-1.1%' }, { period: '26-06', value: 18.6, yoy: '-3.5%', mom: '-0.5%' }, { period: '26-07', value: 18.5, yoy: '-3.5%', mom: '-0.5%' }, { period: '26-08', value: 18.4, yoy: '-3.6%', mom: '-0.5%' }],
+  },
+  {
+    id: 'm-20', code: '20', name: '交联电耗（线缆-高压-交联）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/km*mm²', curVal: '24.2', yoy: '-4.8%', isYoyDown: true, status: '常规监测', statusType: 'blue', badge: '高压交联',
+    tipText: '高压产线交联工序，单位产量耗电量', formula: 'q_线-高压-交联-电 = Q / M', formulaDesc: '月度指标。q: 单位电耗 (kWh/km*mm²)；Q: 电能消耗 (kWh)；M: 规格产量 (km*mm²)。',
+    numeratorName: '500kV 悬垂立塔交联用电量 Q', numeratorVal: '1,210,000 kWh', denominatorName: '高压交联规格产量 M', denominatorVal: '50,000 km*mm²', dataSource: '500kV 悬垂立塔专用开闭所智能电表。',
+    rawMeters: [{ medium: '立塔高压用电', meterCode: 'EQ-XLPE-HIGH-01', location: '超高压立塔', reading: '1,210,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '148.7' }],
+    trendHistory: [{ period: '25-09', value: 25.8, yoy: '-3.8%', mom: '-0.5%' }, { period: '25-10', value: 25.4, yoy: '-4.0%', mom: '-1.5%' }, { period: '25-11', value: 25.1, yoy: '-4.2%', mom: '-1.2%' }, { period: '25-12', value: 25.6, yoy: '-3.9%', mom: '+2.0%' }, { period: '26-01', value: 24.8, yoy: '-4.5%', mom: '-3.1%' }, { period: '26-02', value: 24.6, yoy: '-4.6%', mom: '-0.8%' }, { period: '26-03', value: 25.4, yoy: '-4.0%', mom: '+3.2%' }, { period: '26-04', value: 25.1, yoy: '-4.2%', mom: '-1.2%' }, { period: '26-05', value: 24.8, yoy: '-4.5%', mom: '-1.2%' }, { period: '26-06', value: 24.6, yoy: '-4.6%', mom: '-0.8%' }, { period: '26-07', value: 24.4, yoy: '-4.7%', mom: '-0.8%' }, { period: '26-08', value: 24.2, yoy: '-4.8%', mom: '-0.8%' }],
+  },
+  {
+    id: 'm-21', code: '21', name: '单位产值能耗（变压器-高压-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'tce/万元', curVal: '0.0125', yoy: '-5.3%', isYoyDown: true, status: '常规监测', statusType: 'purple', badge: '高压干燥',
+    tipText: '变压器高压产线干燥工序每万元产值综合能耗', formula: 'g_变-高压-干燥 = E / G', formulaDesc: '月度指标。g: 单位产值能耗 (tce/万元)；E: 干燥工序综合能耗 (tce)；G: 产值 (万元)。',
+    numeratorName: '高压气相干燥工序综合能耗 E', numeratorVal: '185.3 tce', denominatorName: '高压干燥产线对应产值 G', denominatorVal: '14,824.0 万元', dataSource: '1-6号煤油气相干燥罐电表与减温站蒸汽流量计。',
+    rawMeters: [{ medium: '气相干燥电/汽', meterCode: 'EQ-DRY-HIGH-SUM', location: '干燥车间', reading: '185.3 tce', unit: 'tce', coeff: '1.0', tce: '185.3' }],
+    trendHistory: [{ period: '25-09', value: 0.0135, yoy: '-4.0%', mom: '-0.5%' }, { period: '25-10', value: 0.0132, yoy: '-4.5%', mom: '-2.2%' }, { period: '25-11', value: 0.0130, yoy: '-4.8%', mom: '-1.5%' }, { period: '25-12', value: 0.0133, yoy: '-4.2%', mom: '+2.3%' }, { period: '26-01', value: 0.0128, yoy: '-5.0%', mom: '-3.7%' }, { period: '26-02', value: 0.0127, yoy: '-5.1%', mom: '-0.8%' }, { period: '26-03', value: 0.0132, yoy: '-4.5%', mom: '+3.9%' }, { period: '26-04', value: 0.0130, yoy: '-4.8%', mom: '-1.5%' }, { period: '26-05', value: 0.0128, yoy: '-5.0%', mom: '-1.5%' }, { period: '26-06', value: 0.0127, yoy: '-5.1%', mom: '-0.8%' }, { period: '26-07', value: 0.0126, yoy: '-5.2%', mom: '-0.8%' }, { period: '26-08', value: 0.0125, yoy: '-5.3%', mom: '-0.8%' }],
+  },
+  {
+    id: 'm-22', code: '22', name: '单位产值能耗（变压器-中低压-油变-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'tce/万元', curVal: '0.0108', yoy: '-4.6%', isYoyDown: true, status: '常规监测', statusType: 'purple', badge: '油变干燥',
+    tipText: '变压器中低压产线油变干燥工序每万元产值综合能耗', formula: 'g_变-中低压-油变-干燥 = E / G', formulaDesc: '月度指标。g: 单位产值能耗 (tce/万元)；E: 综合能耗 (tce)；G: 产值 (万元)。',
+    numeratorName: '中低压油变干燥能耗 E', numeratorVal: '95.0 tce', denominatorName: '中低压油变干燥产值 G', denominatorVal: '8,796.3 万元', dataSource: '中低压油变干燥罐分表。',
+    rawMeters: [{ medium: '油变干燥能耗', meterCode: 'EQ-DRY-LOW-OIL', location: '中低压车间', reading: '95.0 tce', unit: 'tce', coeff: '1.0', tce: '95.0' }],
+    trendHistory: [{ period: '25-09', value: 0.0116, yoy: '-3.5%', mom: '-0.5%' }, { period: '25-10', value: 0.0113, yoy: '-3.8%', mom: '-2.5%' }, { period: '25-11', value: 0.0111, yoy: '-4.0%', mom: '-1.8%' }, { period: '25-12', value: 0.0114, yoy: '-3.6%', mom: '+2.7%' }, { period: '26-01', value: 0.0110, yoy: '-4.2%', mom: '-3.5%' }, { period: '26-02', value: 0.0109, yoy: '-4.4%', mom: '-0.9%' }, { period: '26-03', value: 0.0113, yoy: '-3.8%', mom: '+3.7%' }, { period: '26-04', value: 0.0111, yoy: '-4.0%', mom: '-1.8%' }, { period: '26-05', value: 0.0110, yoy: '-4.2%', mom: '-0.9%' }, { period: '26-06', value: 0.0109, yoy: '-4.4%', mom: '-0.9%' }, { period: '26-07', value: 0.0108, yoy: '-4.5%', mom: '-0.9%' }, { period: '26-08', value: 0.0108, yoy: '-4.6%', mom: '0.0%' }],
+  },
+  {
+    id: 'm-23', code: '23', name: '单位产值能耗（变压器-中低压-干变-固化）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'tce/万元', curVal: '0.0094', yoy: '-4.2%', isYoyDown: true, status: '常规监测', statusType: 'purple', badge: '干变固化',
+    tipText: '变压器中低压产线干变固化工序每万元产值综合能耗', formula: 'g_变-中低压-干变-固化 = E / G', formulaDesc: '月度指标。g: 单位产值能耗 (tce/万元)；E: 固化能耗 (tce)；G: 产值 (万元)。',
+    numeratorName: '干变固化烘房能耗 E', numeratorVal: '76.5 tce', denominatorName: '干变产线产值 G', denominatorVal: '8,138.3 万元', dataSource: '干变树脂浇注固化烘房智能表。',
+    rawMeters: [{ medium: '浇注固化用电', meterCode: 'EQ-CURE-DRY', location: '干变车间', reading: '76.5 tce', unit: 'tce', coeff: '1.0', tce: '76.5' }],
+    trendHistory: [{ period: '25-09', value: 0.0100, yoy: '-3.2%', mom: '-0.5%' }, { period: '25-10', value: 0.0098, yoy: '-3.5%', mom: '-2.0%' }, { period: '25-11', value: 0.0097, yoy: '-3.7%', mom: '-1.0%' }, { period: '25-12', value: 0.0099, yoy: '-3.4%', mom: '+2.1%' }, { period: '26-01', value: 0.0096, yoy: '-3.9%', mom: '-3.0%' }, { period: '26-02', value: 0.0095, yoy: '-4.0%', mom: '-1.0%' }, { period: '26-03', value: 0.0098, yoy: '-3.5%', mom: '+3.1%' }, { period: '26-04', value: 0.0097, yoy: '-3.7%', mom: '-1.0%' }, { period: '26-05', value: 0.0096, yoy: '-3.9%', mom: '-1.0%' }, { period: '26-06', value: 0.0095, yoy: '-4.0%', mom: '-1.0%' }, { period: '26-07', value: 0.0094, yoy: '-4.1%', mom: '-1.0%' }, { period: '26-08', value: 0.0094, yoy: '-4.2%', mom: '0.0%' }],
+  },
+  {
+    id: 'm-24', code: '24', name: '单位产值电耗（变压器-高压-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '98.5', yoy: '-4.0%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '高压干燥电耗',
+    tipText: '变压器高压产线干燥工序每万元产值电耗', formula: 'u_变-高压-干燥-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 电能消耗 (kWh)；G: 产值 (万元)。',
+    numeratorName: '高压干燥罐用电量 Q', numeratorVal: '1,460,000 kWh', denominatorName: '高压干燥产值 G', denominatorVal: '14,824.0 万元', dataSource: '高压真空干燥罐变频主电表。',
+    rawMeters: [{ medium: '干燥用电', meterCode: 'EM-DRY-HIGH-ELEC', location: '干燥车间', reading: '1,460,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '179.4' }],
+    trendHistory: [{ period: '25-09', value: 104.0, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 102.5, yoy: '-3.2%', mom: '-1.4%' }, { period: '25-11', value: 101.0, yoy: '-3.5%', mom: '-1.5%' }, { period: '25-12', value: 103.0, yoy: '-3.1%', mom: '+2.0%' }, { period: '26-01', value: 99.8, yoy: '-3.8%', mom: '-3.1%' }, { period: '26-02', value: 99.2, yoy: '-3.9%', mom: '-0.6%' }, { period: '26-03', value: 102.5, yoy: '-3.2%', mom: '+3.3%' }, { period: '26-04', value: 101.0, yoy: '-3.5%', mom: '-1.5%' }, { period: '26-05', value: 99.8, yoy: '-3.8%', mom: '-1.2%' }, { period: '26-06', value: 99.2, yoy: '-3.9%', mom: '-0.6%' }, { period: '26-07', value: 98.8, yoy: '-4.0%', mom: '-0.4%' }, { period: '26-08', value: 98.5, yoy: '-4.0%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-25', code: '25', name: '单位产值电耗（变压器-中低压-油变-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '85.2', yoy: '-3.8%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '油变干燥电耗',
+    tipText: '变压器中低压产线油变干燥工序每万元产值电耗', formula: 'u_变-中低压-油变-干燥-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 电消耗 (kWh)；G: 产值 (万元)。',
+    numeratorName: '中低压油变干燥用电量 Q', numeratorVal: '749,445 kWh', denominatorName: '中低压油变干燥产值 G', denominatorVal: '8,796.3 万元', dataSource: '油变干燥罐专用电表。',
+    rawMeters: [{ medium: '干燥电能', meterCode: 'EM-DRY-LOW-ELEC', location: '油变车间', reading: '749,445 kWh', unit: 'kWh', coeff: '0.1229', tce: '92.1' }],
+    trendHistory: [{ period: '25-09', value: 90.0, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 88.5, yoy: '-3.0%', mom: '-1.7%' }, { period: '25-11', value: 87.2, yoy: '-3.2%', mom: '-1.5%' }, { period: '25-12', value: 89.0, yoy: '-2.9%', mom: '+2.1%' }, { period: '26-01', value: 86.5, yoy: '-3.5%', mom: '-2.8%' }, { period: '26-02', value: 86.0, yoy: '-3.6%', mom: '-0.6%' }, { period: '26-03', value: 88.5, yoy: '-3.0%', mom: '+2.9%' }, { period: '26-04', value: 87.2, yoy: '-3.2%', mom: '-1.5%' }, { period: '26-05', value: 86.5, yoy: '-3.5%', mom: '-0.8%' }, { period: '26-06', value: 86.0, yoy: '-3.6%', mom: '-0.6%' }, { period: '26-07', value: 85.6, yoy: '-3.7%', mom: '-0.5%' }, { period: '26-08', value: 85.2, yoy: '-3.8%', mom: '-0.5%' }],
+  },
+  {
+    id: 'm-26', code: '26', name: '单位产值电耗（变压器-中低压-干变-固化）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '76.4', yoy: '-3.5%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '干变固化电耗',
+    tipText: '变压器中低压产线干变固化工序每万元产值电耗', formula: 'u_变-中低压-干变-固化-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 电消耗 (kWh)；G: 产值 (万元)。',
+    numeratorName: '干变浇注固化用电量 Q', numeratorVal: '621,766 kWh', denominatorName: '干变固化产值 G', denominatorVal: '8,138.3 万元', dataSource: '干变固化烘房控制器电表。',
+    rawMeters: [{ medium: '烘房用电', meterCode: 'EM-CURE-ELEC', location: '干变车间', reading: '621,766 kWh', unit: 'kWh', coeff: '0.1229', tce: '76.4' }],
+    trendHistory: [{ period: '25-09', value: 80.5, yoy: '-2.5%', mom: '-0.5%' }, { period: '25-10', value: 79.2, yoy: '-2.8%', mom: '-1.6%' }, { period: '25-11', value: 78.5, yoy: '-3.0%', mom: '-0.9%' }, { period: '25-12', value: 79.8, yoy: '-2.7%', mom: '+1.7%' }, { period: '26-01', value: 77.6, yoy: '-3.2%', mom: '-2.8%' }, { period: '26-02', value: 77.2, yoy: '-3.3%', mom: '-0.5%' }, { period: '26-03', value: 79.2, yoy: '-2.8%', mom: '+2.6%' }, { period: '26-04', value: 78.5, yoy: '-3.0%', mom: '-0.9%' }, { period: '26-05', value: 77.6, yoy: '-3.2%', mom: '-1.1%' }, { period: '26-06', value: 77.2, yoy: '-3.3%', mom: '-0.5%' }, { period: '26-07', value: 76.8, yoy: '-3.4%', mom: '-0.5%' }, { period: '26-08', value: 76.4, yoy: '-3.5%', mom: '-0.5%' }],
+  },
+  {
+    id: 'm-27', code: '27', name: '单位产值蒸汽消耗（变压器-高压-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 't/万元', curVal: '0.288', yoy: '-4.2%', isYoyDown: true, status: '常规监测', statusType: 'purple', badge: '高压干燥蒸汽',
+    tipText: '变压器高压产线干燥工序每万元产值蒸汽消耗', formula: 'u_变-高压-干燥-蒸汽 = Q / G', formulaDesc: '月度指标。u: 单位产值蒸汽耗 (t/万元)；Q: 蒸汽量 (t)；G: 产值 (万元)。',
+    numeratorName: '高压干燥气相加热用蒸汽量 Q', numeratorVal: '4,269.3 t', denominatorName: '高压干燥产值 G', denominatorVal: '14,824.0 万元', dataSource: '干燥车间蒸汽总进管流量计。',
+    rawMeters: [{ medium: '过热蒸汽', meterCode: 'STM-DRY-HIGH-01', location: '干燥站', reading: '4,269.3 t', unit: 't', coeff: '0.1286', tce: '549.0' }],
+    trendHistory: [{ period: '25-09', value: 0.308, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 0.302, yoy: '-3.3%', mom: '-1.9%' }, { period: '25-11', value: 0.298, yoy: '-3.6%', mom: '-1.3%' }, { period: '25-12', value: 0.304, yoy: '-3.2%', mom: '+2.0%' }, { period: '26-01', value: 0.294, yoy: '-3.9%', mom: '-3.3%' }, { period: '26-02', value: 0.292, yoy: '-4.0%', mom: '-0.7%' }, { period: '26-03', value: 0.302, yoy: '-3.3%', mom: '+3.4%' }, { period: '26-04', value: 0.298, yoy: '-3.6%', mom: '-1.3%' }, { period: '26-05', value: 0.294, yoy: '-3.9%', mom: '-1.3%' }, { period: '26-06', value: 0.292, yoy: '-4.0%', mom: '-0.7%' }, { period: '26-07', value: 0.290, yoy: '-4.1%', mom: '-0.7%' }, { period: '26-08', value: 0.288, yoy: '-4.2%', mom: '-0.7%' }],
+  },
+  {
+    id: 'm-28', code: '28', name: '单位产量能耗（变压器-高压-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'tce/万kVA', curVal: '0.0372', yoy: '-5.1%', isYoyDown: true, status: '常规监测', statusType: 'purple', badge: '高压干燥单耗',
+    tipText: '变压器高压产线干燥工序每万kVA综合能耗', formula: 'e_变-高压-干燥 = E / M', formulaDesc: '月度指标。e: 单位产品能耗 (tce/万kVA)；E: 综合能耗 (tce)；M: 产量 (万kVA)。',
+    numeratorName: '高压干燥综合能耗 E', numeratorVal: '185.3 tce', denominatorName: '高压干燥下线容量 M', denominatorVal: '4,975.4 万kVA', dataSource: '干燥罐分表与 MES 完工下线记录。',
+    rawMeters: [{ medium: '干燥折标能耗', meterCode: 'EQ-DRY-TOTAL', location: '干燥车间', reading: '185.3 tce', unit: 'tce', coeff: '1.0', tce: '185.3' }],
+    trendHistory: [{ period: '25-09', value: 0.0402, yoy: '-3.8%', mom: '-0.5%' }, { period: '25-10', value: 0.0395, yoy: '-4.1%', mom: '-1.7%' }, { period: '25-11', value: 0.0390, yoy: '-4.4%', mom: '-1.3%' }, { period: '25-12', value: 0.0398, yoy: '-4.0%', mom: '+2.1%' }, { period: '26-01', value: 0.0384, yoy: '-4.7%', mom: '-3.5%' }, { period: '26-02', value: 0.0381, yoy: '-4.8%', mom: '-0.8%' }, { period: '26-03', value: 0.0395, yoy: '-4.1%', mom: '+3.7%' }, { period: '26-04', value: 0.0390, yoy: '-4.4%', mom: '-1.3%' }, { period: '26-05', value: 0.0384, yoy: '-4.7%', mom: '-1.5%' }, { period: '26-06', value: 0.0381, yoy: '-4.8%', mom: '-0.8%' }, { period: '26-07', value: 0.0376, yoy: '-5.0%', mom: '-1.3%' }, { period: '26-08', value: 0.0372, yoy: '-5.1%', mom: '-1.1%' }],
+  },
+  {
+    id: 'm-29', code: '29', name: '单位产量能耗（变压器-中低压-油变-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'tce/万kVA', curVal: '0.0312', yoy: '-4.5%', isYoyDown: true, status: '常规监测', statusType: 'purple', badge: '油变干燥单耗',
+    tipText: '变压器中低压产线油变干燥工序每万kVA综合能耗', formula: 'e_变-中低压-油变-干燥 = E / M', formulaDesc: '月度指标。e: 单位产品能耗 (tce/万kVA)；E: 综合能耗 (tce)；M: 产量 (万kVA)。',
+    numeratorName: '油变干燥综合能耗 E', numeratorVal: '95.0 tce', denominatorName: '油变合格下线容量 M', denominatorVal: '3,044.8 万kVA', dataSource: '油变干燥分表与 MES 下线容量。',
+    rawMeters: [{ medium: '油变干燥折标', meterCode: 'EQ-OIL-TOTAL', location: '油变车间', reading: '95.0 tce', unit: 'tce', coeff: '1.0', tce: '95.0' }],
+    trendHistory: [{ period: '25-09', value: 0.0335, yoy: '-3.2%', mom: '-0.5%' }, { period: '25-10', value: 0.0328, yoy: '-3.5%', mom: '-2.1%' }, { period: '25-11', value: 0.0324, yoy: '-3.8%', mom: '-1.2%' }, { period: '25-12', value: 0.0330, yoy: '-3.4%', mom: '+1.9%' }, { period: '26-01', value: 0.0320, yoy: '-4.1%', mom: '-3.0%' }, { period: '26-02', value: 0.0318, yoy: '-4.2%', mom: '-0.6%' }, { period: '26-03', value: 0.0328, yoy: '-3.5%', mom: '+3.1%' }, { period: '26-04', value: 0.0324, yoy: '-3.8%', mom: '-1.2%' }, { period: '26-05', value: 0.0320, yoy: '-4.1%', mom: '-1.2%' }, { period: '26-06', value: 0.0318, yoy: '-4.2%', mom: '-0.6%' }, { period: '26-07', value: 0.0315, yoy: '-4.4%', mom: '-0.9%' }, { period: '26-08', value: 0.0312, yoy: '-4.5%', mom: '-1.0%' }],
+  },
+  {
+    id: 'm-30', code: '30', name: '单位产量能耗（变压器-中低压-干变-固化）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'tce/万kVA', curVal: '0.0286', yoy: '-4.0%', isYoyDown: true, status: '常规监测', statusType: 'purple', badge: '干变固化单耗',
+    tipText: '变压器中低压产线干变固化工序每万kVA综合能耗', formula: 'e_变-中低压-干变-固化 = E / M', formulaDesc: '月度指标。e: 单位产品能耗 (tce/万kVA)；E: 固化能耗 (tce)；M: 产量 (万kVA)。',
+    numeratorName: '干变固化烘房能耗 E', numeratorVal: '76.5 tce', denominatorName: '干变完工产量 M', denominatorVal: '2,674.8 万kVA', dataSource: '固化烘房智能总表。',
+    rawMeters: [{ medium: '固化烘房折标', meterCode: 'EQ-CURE-TOTAL', location: '干变车间', reading: '76.5 tce', unit: 'tce', coeff: '1.0', tce: '76.5' }],
+    trendHistory: [{ period: '25-09', value: 0.0305, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 0.0300, yoy: '-3.2%', mom: '-1.6%' }, { period: '25-11', value: 0.0296, yoy: '-3.4%', mom: '-1.3%' }, { period: '25-12', value: 0.0302, yoy: '-3.1%', mom: '+2.0%' }, { period: '26-01', value: 0.0292, yoy: '-3.7%', mom: '-3.3%' }, { period: '26-02', value: 0.0290, yoy: '-3.8%', mom: '-0.7%' }, { period: '26-03', value: 0.0300, yoy: '-3.2%', mom: '+3.4%' }, { period: '26-04', value: 0.0296, yoy: '-3.4%', mom: '-1.3%' }, { period: '26-05', value: 0.0292, yoy: '-3.7%', mom: '-1.3%' }, { period: '26-06', value: 0.0290, yoy: '-3.8%', mom: '-0.7%' }, { period: '26-07', value: 0.0288, yoy: '-3.9%', mom: '-0.7%' }, { period: '26-08', value: 0.0286, yoy: '-4.0%', mom: '-0.7%' }],
+  },
+  {
+    id: 'm-31', code: '31', name: '单位产量电耗（变压器-高压-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万kVA', curVal: '293.4', yoy: '-4.3%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '高压干燥电耗',
+    tipText: '变压器高压产线干燥工序每万kVA电耗', formula: 'q_变-高压-干燥-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/万kVA)；Q: 电能消耗 (kWh)；M: 产量 (万kVA)。',
+    numeratorName: '高压干燥真空泵及加热电量 Q', numeratorVal: '1,460,000 kWh', denominatorName: '高压下线容量 M', denominatorVal: '4,975.4 万kVA', dataSource: '干燥罐变频主电表。',
+    rawMeters: [{ medium: '干燥用电', meterCode: 'EM-DRY-ELEC-01', location: '干燥车间', reading: '1,460,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '179.4' }],
+    trendHistory: [{ period: '25-09', value: 312.0, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 308.0, yoy: '-3.3%', mom: '-1.3%' }, { period: '25-11', value: 304.0, yoy: '-3.5%', mom: '-1.3%' }, { period: '25-12', value: 310.0, yoy: '-3.1%', mom: '+2.0%' }, { period: '26-01', value: 298.0, yoy: '-3.9%', mom: '-3.9%' }, { period: '26-02', value: 296.5, yoy: '-4.0%', mom: '-0.5%' }, { period: '26-03', value: 308.0, yoy: '-3.3%', mom: '+3.9%' }, { period: '26-04', value: 304.0, yoy: '-3.5%', mom: '-1.3%' }, { period: '26-05', value: 298.0, yoy: '-3.9%', mom: '-2.0%' }, { period: '26-06', value: 296.5, yoy: '-4.0%', mom: '-0.5%' }, { period: '26-07', value: 295.0, yoy: '-4.1%', mom: '-0.5%' }, { period: '26-08', value: 293.4, yoy: '-4.3%', mom: '-0.5%' }],
+  },
+  {
+    id: 'm-32', code: '32', name: '单位产量电耗（变压器-中低压-油变-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万kVA', curVal: '246.1', yoy: '-3.9%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '油变干燥电耗',
+    tipText: '变压器中低压产线油变干燥工序每万kVA电耗', formula: 'q_变-中低压-油变-干燥-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/万kVA)；Q: 电消耗 (kWh)；M: 产量 (万kVA)。',
+    numeratorName: '中低压油变干燥电量 Q', numeratorVal: '749,445 kWh', denominatorName: '油变产量 M', denominatorVal: '3,044.8 万kVA', dataSource: '油变干燥罐配电表。',
+    rawMeters: [{ medium: '油变干燥用电', meterCode: 'EM-OIL-ELEC', location: '油变车间', reading: '749,445 kWh', unit: 'kWh', coeff: '0.1229', tce: '92.1' }],
+    trendHistory: [{ period: '25-09', value: 260.0, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 256.0, yoy: '-3.0%', mom: '-1.5%' }, { period: '25-11', value: 252.0, yoy: '-3.2%', mom: '-1.6%' }, { period: '25-12', value: 258.0, yoy: '-2.9%', mom: '+2.4%' }, { period: '26-01', value: 249.0, yoy: '-3.5%', mom: '-3.5%' }, { period: '26-02', value: 248.0, yoy: '-3.6%', mom: '-0.4%' }, { period: '26-03', value: 256.0, yoy: '-3.0%', mom: '+3.2%' }, { period: '26-04', value: 252.0, yoy: '-3.2%', mom: '-1.6%' }, { period: '26-05', value: 249.0, yoy: '-3.5%', mom: '-1.2%' }, { period: '26-06', value: 248.0, yoy: '-3.6%', mom: '-0.4%' }, { period: '26-07', value: 247.0, yoy: '-3.7%', mom: '-0.4%' }, { period: '26-08', value: 246.1, yoy: '-3.9%', mom: '-0.4%' }],
+  },
+  {
+    id: 'm-33', code: '33', name: '单位产量电耗（变压器-中低压-干变-固化）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万kVA', curVal: '232.4', yoy: '-3.7%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '干变固化电耗',
+    tipText: '变压器中低压产线干变固化工序每万kVA电耗', formula: 'q_变-中低压-干变-固化-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/万kVA)；Q: 电消耗 (kWh)；M: 产量 (万kVA)。',
+    numeratorName: '干变浇注固化用电量 Q', numeratorVal: '621,766 kWh', denominatorName: '干变产量 M', denominatorVal: '2,674.8 万kVA', dataSource: '固化烘房智能表。',
+    rawMeters: [{ medium: '固化烘房用电', meterCode: 'EM-DRY-CURE', location: '干变车间', reading: '621,766 kWh', unit: 'kWh', coeff: '0.1229', tce: '76.4' }],
+    trendHistory: [{ period: '25-09', value: 245.0, yoy: '-2.5%', mom: '-0.5%' }, { period: '25-10', value: 241.0, yoy: '-2.8%', mom: '-1.6%' }, { period: '25-11', value: 238.0, yoy: '-3.0%', mom: '-1.2%' }, { period: '25-12', value: 243.0, yoy: '-2.7%', mom: '+2.1%' }, { period: '26-01', value: 235.0, yoy: '-3.3%', mom: '-3.3%' }, { period: '26-02', value: 234.0, yoy: '-3.4%', mom: '-0.4%' }, { period: '26-03', value: 241.0, yoy: '-2.8%', mom: '+3.0%' }, { period: '26-04', value: 238.0, yoy: '-3.0%', mom: '-1.2%' }, { period: '26-05', value: 235.0, yoy: '-3.3%', mom: '-1.3%' }, { period: '26-06', value: 234.0, yoy: '-3.4%', mom: '-0.4%' }, { period: '26-07', value: 233.0, yoy: '-3.5%', mom: '-0.4%' }, { period: '26-08', value: 232.4, yoy: '-3.7%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-34', code: '34', name: '单位产量蒸汽消耗（变压器-高压-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 't/万kVA', curVal: '0.858', yoy: '-4.5%', isYoyDown: true, status: '常规监测', statusType: 'purple', badge: '高压干燥蒸汽',
+    tipText: '变压器高压产线干燥工序每万kVA蒸汽消耗', formula: 'q_变-高压-干燥-蒸汽 = Q / M', formulaDesc: '月度指标。q: 单位产品蒸汽耗 (t/万kVA)；Q: 蒸汽量 (t)；M: 产量 (万kVA)。',
+    numeratorName: '干燥气相加热用蒸汽 Q', numeratorVal: '4,269.3 t', denominatorName: '高压下线容量 M', denominatorVal: '4,975.4 万kVA', dataSource: '干燥罐关口蒸汽流量计。',
+    rawMeters: [{ medium: '过热蒸汽', meterCode: 'STM-DRY-HIGH', location: '干燥站', reading: '4,269.3 t', unit: 't', coeff: '0.1286', tce: '549.0' }],
+    trendHistory: [{ period: '25-09', value: 0.920, yoy: '-3.2%', mom: '-0.5%' }, { period: '25-10', value: 0.900, yoy: '-3.5%', mom: '-2.2%' }, { period: '25-11', value: 0.885, yoy: '-3.8%', mom: '-1.7%' }, { period: '25-12', value: 0.905, yoy: '-3.4%', mom: '+2.3%' }, { period: '26-01', value: 0.875, yoy: '-4.1%', mom: '-3.3%' }, { period: '26-02', value: 0.870, yoy: '-4.2%', mom: '-0.6%' }, { period: '26-03', value: 0.900, yoy: '-3.5%', mom: '+3.4%' }, { period: '26-04', value: 0.885, yoy: '-3.8%', mom: '-1.7%' }, { period: '26-05', value: 0.875, yoy: '-4.1%', mom: '-1.1%' }, { period: '26-06', value: 0.870, yoy: '-4.2%', mom: '-0.6%' }, { period: '26-07', value: 0.862, yoy: '-4.4%', mom: '-0.9%' }, { period: '26-08', value: 0.858, yoy: '-4.5%', mom: '-0.5%' }],
+  },
+  {
+    id: 'm-35', code: '35', name: '单位产值电耗（变压器-试验）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '42.5', yoy: '-3.6%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '变压器试验',
+    tipText: '变压器试验工序每万元产值电耗', formula: 'u_变-试验-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 试验用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: '特高压/超高压试验大厅用电量 Q', numeratorVal: '630,000 kWh', denominatorName: '试验合格产品产值 G', denominatorVal: '14,824.0 万元', dataSource: '无局放试验大厅专用智能电表。',
+    rawMeters: [{ medium: '试验大厅用电', meterCode: 'EM-TEST-HALL', location: '高压试验站', reading: '630,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '77.4' }],
+    trendHistory: [{ period: '25-09', value: 45.0, yoy: '-2.5%', mom: '-0.5%' }, { period: '25-10', value: 44.2, yoy: '-2.8%', mom: '-1.8%' }, { period: '25-11', value: 43.6, yoy: '-3.0%', mom: '-1.4%' }, { period: '25-12', value: 44.5, yoy: '-2.7%', mom: '+2.1%' }, { period: '26-01', value: 43.0, yoy: '-3.2%', mom: '-3.4%' }, { period: '26-02', value: 42.8, yoy: '-3.3%', mom: '-0.5%' }, { period: '26-03', value: 44.2, yoy: '-2.8%', mom: '+3.3%' }, { period: '26-04', value: 43.6, yoy: '-3.0%', mom: '-1.4%' }, { period: '26-05', value: 43.0, yoy: '-3.2%', mom: '-1.4%' }, { period: '26-06', value: 42.8, yoy: '-3.3%', mom: '-0.5%' }, { period: '26-07', value: 42.6, yoy: '-3.5%', mom: '-0.5%' }, { period: '26-08', value: 42.5, yoy: '-3.6%', mom: '-0.2%' }],
+  },
+  {
+    id: 'm-36', code: '36', name: '单位产量电耗（变压器-试验）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万kVA', curVal: '126.6', yoy: '-3.8%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '试验单电耗',
+    tipText: '变压器试验工序每万kVA电耗', formula: 'q_变-试验-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/万kVA)；Q: 试验用电 (kWh)；M: 容量 (万kVA)。',
+    numeratorName: '试验大厅高压冲击及负载试验用电 Q', numeratorVal: '630,000 kWh', denominatorName: '试验合格产量容量 M', denominatorVal: '4,975.4 万kVA', dataSource: '高压试验大厅控制台电表。',
+    rawMeters: [{ medium: '试验用电', meterCode: 'EM-TEST-MAIN', location: '试验站', reading: '630,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '77.4' }],
+    trendHistory: [{ period: '25-09', value: 134.0, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 131.5, yoy: '-3.0%', mom: '-1.9%' }, { period: '25-11', value: 129.8, yoy: '-3.2%', mom: '-1.3%' }, { period: '25-12', value: 132.5, yoy: '-2.9%', mom: '+2.1%' }, { period: '26-01', value: 128.0, yoy: '-3.5%', mom: '-3.4%' }, { period: '26-02', value: 127.5, yoy: '-3.6%', mom: '-0.4%' }, { period: '26-03', value: 131.5, yoy: '-3.0%', mom: '+3.1%' }, { period: '26-04', value: 129.8, yoy: '-3.2%', mom: '-1.3%' }, { period: '26-05', value: 128.0, yoy: '-3.5%', mom: '-1.4%' }, { period: '26-06', value: 127.5, yoy: '-3.6%', mom: '-0.4%' }, { period: '26-07', value: 127.0, yoy: '-3.7%', mom: '-0.4%' }, { period: '26-08', value: 126.6, yoy: '-3.8%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-37', code: '37', name: '单位产值电耗（中低压开关柜-钣金加工）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '58.4', yoy: '-3.5%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '开关柜钣金',
+    tipText: '中低压开关柜钣金加工工序万元产值电耗，产值取产品产值', formula: 'u_柜-加工-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 冲床用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: '数控转塔冲床及柔性钣金线用电 Q', numeratorVal: '262,800 kWh', denominatorName: '开关柜产品产值 G', denominatorVal: '4,500.0 万元', dataSource: '钣金冲压车间机床分表。',
+    rawMeters: [{ medium: '数控冲床用电', meterCode: 'EQ-SHEET-METAL', location: '钣金车间', reading: '262,800 kWh', unit: 'kWh', coeff: '0.1229', tce: '32.3' }],
+    trendHistory: [{ period: '25-09', value: 61.5, yoy: '-2.5%', mom: '-0.5%' }, { period: '25-10', value: 60.5, yoy: '-2.8%', mom: '-1.6%' }, { period: '25-11', value: 59.8, yoy: '-3.0%', mom: '-1.2%' }, { period: '25-12', value: 61.0, yoy: '-2.7%', mom: '+2.0%' }, { period: '26-01', value: 59.0, yoy: '-3.2%', mom: '-3.3%' }, { period: '26-02', value: 58.8, yoy: '-3.3%', mom: '-0.3%' }, { period: '26-03', value: 60.5, yoy: '-2.8%', mom: '+2.9%' }, { period: '26-04', value: 59.8, yoy: '-3.0%', mom: '-1.2%' }, { period: '26-05', value: 59.0, yoy: '-3.2%', mom: '-1.3%' }, { period: '26-06', value: 58.8, yoy: '-3.3%', mom: '-0.3%' }, { period: '26-07', value: 58.6, yoy: '-3.4%', mom: '-0.3%' }, { period: '26-08', value: 58.4, yoy: '-3.5%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-38', code: '38', name: '单位产值电耗（中低压开关柜-钣金喷涂）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '64.2', yoy: '-3.9%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '钣金喷涂',
+    tipText: '中低压开关柜钣金喷涂工序万元产值电耗', formula: 'u_柜-喷涂-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 喷涂线用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: '静电喷涂与烘干喷粉线用电 Q', numeratorVal: '288,900 kWh', denominatorName: '喷涂柜体产值 G', denominatorVal: '4,500.0 万元', dataSource: '自动喷涂烘干线主电表。',
+    rawMeters: [{ medium: '喷涂线用电', meterCode: 'EQ-PAINT-LINE', location: '喷涂车间', reading: '288,900 kWh', unit: 'kWh', coeff: '0.1229', tce: '35.5' }],
+    trendHistory: [{ period: '25-09', value: 68.0, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 66.8, yoy: '-3.0%', mom: '-1.8%' }, { period: '25-11', value: 66.0, yoy: '-3.2%', mom: '-1.2%' }, { period: '25-12', value: 67.2, yoy: '-2.9%', mom: '+1.8%' }, { period: '26-01', value: 65.0, yoy: '-3.5%', mom: '-3.3%' }, { period: '26-02', value: 64.6, yoy: '-3.6%', mom: '-0.6%' }, { period: '26-03', value: 66.8, yoy: '-3.0%', mom: '+3.4%' }, { period: '26-04', value: 66.0, yoy: '-3.2%', mom: '-1.2%' }, { period: '26-05', value: 65.0, yoy: '-3.5%', mom: '-1.5%' }, { period: '26-06', value: 64.6, yoy: '-3.6%', mom: '-0.6%' }, { period: '26-07', value: 64.4, yoy: '-3.8%', mom: '-0.3%' }, { period: '26-08', value: 64.2, yoy: '-3.9%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-39', code: '39', name: '单位产值电耗（套管-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '72.8', yoy: '-4.1%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '套管干燥',
+    tipText: '套管干燥工序每万元产值电耗', formula: 'u_套-干燥-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 干燥罐用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: '和新套管真空干燥罐用电 Q', numeratorVal: '218,400 kWh', denominatorName: '套管产品产值 G', denominatorVal: '3,000.0 万元', dataSource: '套管干燥罐智能分配电表。',
+    rawMeters: [{ medium: '套管干燥用电', meterCode: 'EQ-BUSH-DRY', location: '套管车间', reading: '218,400 kWh', unit: 'kWh', coeff: '0.1229', tce: '26.8' }],
+    trendHistory: [{ period: '25-09', value: 77.0, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 75.8, yoy: '-3.2%', mom: '-1.6%' }, { period: '25-11', value: 74.8, yoy: '-3.5%', mom: '-1.3%' }, { period: '25-12', value: 76.2, yoy: '-3.1%', mom: '+1.9%' }, { period: '26-01', value: 73.8, yoy: '-3.8%', mom: '-3.1%' }, { period: '26-02', value: 73.4, yoy: '-3.9%', mom: '-0.5%' }, { period: '26-03', value: 75.8, yoy: '-3.2%', mom: '+3.3%' }, { period: '26-04', value: 74.8, yoy: '-3.5%', mom: '-1.3%' }, { period: '26-05', value: 73.8, yoy: '-3.8%', mom: '-1.3%' }, { period: '26-06', value: 73.4, yoy: '-3.9%', mom: '-0.5%' }, { period: '26-07', value: 73.0, yoy: '-4.0%', mom: '-0.5%' }, { period: '26-08', value: 72.8, yoy: '-4.1%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-42', code: '42', name: '单位产值综合能耗（互感器-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'tce/万元', curVal: '0.0142', yoy: '-4.5%', isYoyDown: true, status: '常规监测', statusType: 'purple', badge: '互感器干燥',
+    tipText: '互感器干燥工序每万元产值综合能耗。电和蒸汽都有，蒸汽用的多，80%蒸汽', formula: 'g_互-干燥 = E / G', formulaDesc: '月度指标。g: 单位产值能耗 (tce/万元)；E: 干燥综合能耗 (tce)；G: 产值 (万元)。',
+    numeratorName: '互感器干燥电能与蒸汽折标总能耗 E', numeratorVal: '35.5 tce', denominatorName: '互感器产值 G', denominatorVal: '2,500.0 万元', dataSource: '康嘉互感器干燥罐蒸汽流量计与电表。',
+    rawMeters: [{ medium: '干燥蒸汽+电', meterCode: 'EQ-MUTUAL-DRY', location: '互感器车间', reading: '35.5 tce', unit: 'tce', coeff: '1.0', tce: '35.5' }],
+    trendHistory: [{ period: '25-09', value: 0.0152, yoy: '-3.2%', mom: '-0.5%' }, { period: '25-10', value: 0.0149, yoy: '-3.5%', mom: '-2.0%' }, { period: '25-11', value: 0.0147, yoy: '-3.8%', mom: '-1.3%' }, { period: '25-12', value: 0.0150, yoy: '-3.4%', mom: '+2.0%' }, { period: '26-01', value: 0.0145, yoy: '-4.1%', mom: '-3.3%' }, { period: '26-02', value: 0.0144, yoy: '-4.2%', mom: '-0.7%' }, { period: '26-03', value: 0.0149, yoy: '-3.5%', mom: '+3.5%' }, { period: '26-04', value: 0.0147, yoy: '-3.8%', mom: '-1.3%' }, { period: '26-05', value: 0.0145, yoy: '-4.1%', mom: '-1.4%' }, { period: '26-06', value: 0.0144, yoy: '-4.2%', mom: '-0.7%' }, { period: '26-07', value: 0.0143, yoy: '-4.4%', mom: '-0.7%' }, { period: '26-08', value: 0.0142, yoy: '-4.5%', mom: '-0.7%' }],
+  },
+  {
+    id: 'm-43', code: '43', name: '单位产值电耗（互感器-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '34.8', yoy: '-3.9%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '互感器干燥电耗',
+    tipText: '互感器干燥工序每万元产值电耗', formula: 'u_互-干燥-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 电能消耗 (kWh)；G: 产值 (万元)。',
+    numeratorName: '互感器干燥真空泵电量 Q', numeratorVal: '87,000 kWh', denominatorName: '互感器产值 G', denominatorVal: '2,500.0 万元', dataSource: '干燥真空泵控制柜表。',
+    rawMeters: [{ medium: '干燥泵用电', meterCode: 'EM-MUTUAL-PUMP', location: '互感器车间', reading: '87,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '10.7' }],
+    trendHistory: [{ period: '25-09', value: 36.8, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 36.2, yoy: '-3.0%', mom: '-1.6%' }, { period: '25-11', value: 35.8, yoy: '-3.2%', mom: '-1.1%' }, { period: '25-12', value: 36.4, yoy: '-2.9%', mom: '+1.7%' }, { period: '26-01', value: 35.2, yoy: '-3.5%', mom: '-3.3%' }, { period: '26-02', value: 35.0, yoy: '-3.6%', mom: '-0.6%' }, { period: '26-03', value: 36.2, yoy: '-3.0%', mom: '+3.4%' }, { period: '26-04', value: 35.8, yoy: '-3.2%', mom: '-1.1%' }, { period: '26-05', value: 35.2, yoy: '-3.5%', mom: '-1.7%' }, { period: '26-06', value: 35.0, yoy: '-3.6%', mom: '-0.6%' }, { period: '26-07', value: 34.9, yoy: '-3.8%', mom: '-0.3%' }, { period: '26-08', value: 34.8, yoy: '-3.9%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-44', code: '44', name: '单位产值蒸汽消耗（互感器-干燥）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 't/万元', curVal: '0.198', yoy: '-4.3%', isYoyDown: true, status: '常规监测', statusType: 'purple', badge: '互感器干燥蒸汽',
+    tipText: '互感器干燥工序每万元产值蒸汽消耗 (占能耗80%)', formula: 'u_互-干燥-蒸汽 = Q / G', formulaDesc: '月度指标。u: 单位产值蒸汽耗 (t/万元)；Q: 蒸汽消耗 (t)；G: 产值 (万元)。',
+    numeratorName: '互感器干燥用过热蒸汽总量 Q', numeratorVal: '495.0 t', denominatorName: '互感器产值 G', denominatorVal: '2,500.0 万元', dataSource: '干燥罐专用蒸汽流量计。',
+    rawMeters: [{ medium: '过热蒸汽', meterCode: 'STM-MUTUAL-DRY', location: '互感器车间', reading: '495.0 t', unit: 't', coeff: '0.1286', tce: '63.7' }],
+    trendHistory: [{ period: '25-09', value: 0.210, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 0.206, yoy: '-3.3%', mom: '-1.9%' }, { period: '25-11', value: 0.203, yoy: '-3.6%', mom: '-1.5%' }, { period: '25-12', value: 0.208, yoy: '-3.2%', mom: '+2.5%' }, { period: '26-01', value: 0.201, yoy: '-3.9%', mom: '-3.4%' }, { period: '26-02', value: 0.200, yoy: '-4.0%', mom: '-0.5%' }, { period: '26-03', value: 0.206, yoy: '-3.3%', mom: '+3.0%' }, { period: '26-04', value: 0.203, yoy: '-3.6%', mom: '-1.5%' }, { period: '26-05', value: 0.201, yoy: '-3.9%', mom: '-1.0%' }, { period: '26-06', value: 0.200, yoy: '-4.0%', mom: '-0.5%' }, { period: '26-07', value: 0.199, yoy: '-4.1%', mom: '-0.5%' }, { period: '26-08', value: 0.198, yoy: '-4.3%', mom: '-0.5%' }],
+  },
+  {
+    id: 'm-45', code: '45', name: '单位产值电耗（互感器-试验）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '28.6', yoy: '-3.5%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '互感器试验',
+    tipText: '互感器试验工序每万元产值电耗', formula: 'u_互-试验-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 试验电量 (kWh)；G: 产值 (万元)。',
+    numeratorName: '互感器高压工频及局放试验用电 Q', numeratorVal: '71,500 kWh', denominatorName: '合格互感器产值 G', denominatorVal: '2,500.0 万元', dataSource: '试验站屏蔽室主电表。',
+    rawMeters: [{ medium: '试验屏蔽室用电', meterCode: 'EM-MUTUAL-TEST', location: '互感器试验站', reading: '71,500 kWh', unit: 'kWh', coeff: '0.1229', tce: '8.8' }],
+    trendHistory: [{ period: '25-09', value: 30.2, yoy: '-2.5%', mom: '-0.5%' }, { period: '25-10', value: 29.8, yoy: '-2.8%', mom: '-1.3%' }, { period: '25-11', value: 29.4, yoy: '-3.0%', mom: '-1.3%' }, { period: '25-12', value: 30.0, yoy: '-2.7%', mom: '+2.0%' }, { period: '26-01', value: 29.0, yoy: '-3.2%', mom: '-3.3%' }, { period: '26-02', value: 28.9, yoy: '-3.3%', mom: '-0.3%' }, { period: '26-03', value: 29.8, yoy: '-2.8%', mom: '+3.1%' }, { period: '26-04', value: 29.4, yoy: '-3.0%', mom: '-1.3%' }, { period: '26-05', value: 29.0, yoy: '-3.2%', mom: '-1.4%' }, { period: '26-06', value: 28.9, yoy: '-3.3%', mom: '-0.3%' }, { period: '26-07', value: 28.7, yoy: '-3.4%', mom: '-0.7%' }, { period: '26-08', value: 28.6, yoy: '-3.5%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-46', code: '46', name: '单位产值电耗（二次-SMT贴片）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '45.8', yoy: '-4.0%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: 'SMT贴片',
+    tipText: '二次-SMT贴片工序每万元产值电耗', formula: 'u_二次-贴片-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 贴片机电量 (kWh)；G: 产值 (万元)。',
+    numeratorName: '高速 SMT 贴片机组用电量 Q', numeratorVal: '183,200 kWh', denominatorName: '二次自动化控制板产值 G', denominatorVal: '4,000.0 万元', dataSource: 'SMT 净化车间专用智能电表。',
+    rawMeters: [{ medium: '贴片机用电', meterCode: 'EQ-SMT-01', location: '二次净化车间', reading: '183,200 kWh', unit: 'kWh', coeff: '0.1229', tce: '22.5' }],
+    trendHistory: [{ period: '25-09', value: 48.5, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 47.8, yoy: '-3.2%', mom: '-1.4%' }, { period: '25-11', value: 47.2, yoy: '-3.5%', mom: '-1.3%' }, { period: '25-12', value: 48.0, yoy: '-3.1%', mom: '+1.7%' }, { period: '26-01', value: 46.5, yoy: '-3.8%', mom: '-3.1%' }, { period: '26-02', value: 46.2, yoy: '-3.9%', mom: '-0.6%' }, { period: '26-03', value: 47.8, yoy: '-3.2%', mom: '+3.5%' }, { period: '26-04', value: 47.2, yoy: '-3.5%', mom: '-1.3%' }, { period: '26-05', value: 46.5, yoy: '-3.8%', mom: '-1.5%' }, { period: '26-06', value: 46.2, yoy: '-3.9%', mom: '-0.6%' }, { period: '26-07', value: 46.0, yoy: '-4.0%', mom: '-0.4%' }, { period: '26-08', value: 45.8, yoy: '-4.0%', mom: '-0.4%' }],
+  },
+  {
+    id: 'm-47', code: '47', name: '单位产值电耗（二次-高温老化）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '52.4', yoy: '-4.2%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '高温老化',
+    tipText: '二次-高温老化工序每万元产值电耗', formula: 'u_二次-高温-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 老化房用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: '高温老化房持续加温用电 Q', numeratorVal: '209,600 kWh', denominatorName: '老化产品产值 G', denominatorVal: '4,000.0 万元', dataSource: '老化房加温恒温控制器电表。',
+    rawMeters: [{ medium: '老化房用电', meterCode: 'EQ-BURN-IN', location: '二次车间', reading: '209,600 kWh', unit: 'kWh', coeff: '0.1229', tce: '25.8' }],
+    trendHistory: [{ period: '25-09', value: 55.8, yoy: '-3.2%', mom: '-0.5%' }, { period: '25-10', value: 54.8, yoy: '-3.5%', mom: '-1.8%' }, { period: '25-11', value: 54.2, yoy: '-3.8%', mom: '-1.1%' }, { period: '25-12', value: 55.0, yoy: '-3.4%', mom: '+1.5%' }, { period: '26-01', value: 53.5, yoy: '-4.0%', mom: '-2.7%' }, { period: '26-02', value: 53.2, yoy: '-4.1%', mom: '-0.6%' }, { period: '26-03', value: 54.8, yoy: '-3.5%', mom: '+3.0%' }, { period: '26-04', value: 54.2, yoy: '-3.8%', mom: '-1.1%' }, { period: '26-05', value: 53.5, yoy: '-4.0%', mom: '-1.3%' }, { period: '26-06', value: 53.2, yoy: '-4.1%', mom: '-0.6%' }, { period: '26-07', value: 52.8, yoy: '-4.1%', mom: '-0.8%' }, { period: '26-08', value: 52.4, yoy: '-4.2%', mom: '-0.8%' }],
+  },
+  {
+    id: 'm-48', code: '48', name: '单位产值电耗（二次-波峰焊）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '36.5', yoy: '-3.8%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '波峰焊',
+    tipText: '二次-波峰焊工序每万元产值电耗', formula: 'u_二次-波峰焊-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 波峰焊用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: '无铅氮气波峰焊机用电 Q', numeratorVal: '146,000 kWh', denominatorName: '二次焊接控制板产值 G', denominatorVal: '4,000.0 万元', dataSource: '波峰焊生产线主电表。',
+    rawMeters: [{ medium: '波峰焊用电', meterCode: 'EQ-WAVE-SOLDER', location: '二次车间', reading: '146,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '17.9' }],
+    trendHistory: [{ period: '25-09', value: 38.8, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 38.2, yoy: '-3.0%', mom: '-1.5%' }, { period: '25-11', value: 37.8, yoy: '-3.2%', mom: '-1.0%' }, { period: '25-12', value: 38.5, yoy: '-2.9%', mom: '+1.9%' }, { period: '26-01', value: 37.2, yoy: '-3.5%', mom: '-3.4%' }, { period: '26-02', value: 37.0, yoy: '-3.6%', mom: '-0.5%' }, { period: '26-03', value: 38.2, yoy: '-3.0%', mom: '+3.2%' }, { period: '26-04', value: 37.8, yoy: '-3.2%', mom: '-1.0%' }, { period: '26-05', value: 37.2, yoy: '-3.5%', mom: '-1.6%' }, { period: '26-06', value: 37.0, yoy: '-3.6%', mom: '-0.5%' }, { period: '26-07', value: 36.8, yoy: '-3.7%', mom: '-0.5%' }, { period: '26-08', value: 36.5, yoy: '-3.8%', mom: '-0.8%' }],
+  },
+  {
+    id: 'm-49', code: '49', name: '单位产量电耗（电容器-芯子卷绕）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/kvar', curVal: '0.85', yoy: '-3.9%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '芯子卷绕',
+    tipText: '电容器芯子卷绕工序每万元产值电耗 (按产量 kvar 算)', formula: 'q_容-卷绕-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/kvar)；Q: 卷绕机用电 (kWh)；M: 产量 (kvar)。',
+    numeratorName: '全自动无尘卷绕机组用电 Q', numeratorVal: '170,000 kWh', denominatorName: '电容器芯子卷绕产量 M', denominatorVal: '200,000 kvar', dataSource: '卷绕车间无尘室电表。',
+    rawMeters: [{ medium: '卷绕机用电', meterCode: 'EQ-CAP-WIND', location: '电容器车间', reading: '170,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '20.9' }],
+    trendHistory: [{ period: '25-09', value: 0.90, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 0.89, yoy: '-3.0%', mom: '-1.1%' }, { period: '25-11', value: 0.88, yoy: '-3.2%', mom: '-1.1%' }, { period: '25-12', value: 0.90, yoy: '-2.9%', mom: '+2.3%' }, { period: '26-01', value: 0.87, yoy: '-3.5%', mom: '-3.3%' }, { period: '26-02', value: 0.86, yoy: '-3.6%', mom: '-1.1%' }, { period: '26-03', value: 0.89, yoy: '-3.0%', mom: '+3.5%' }, { period: '26-04', value: 0.88, yoy: '-3.2%', mom: '-1.1%' }, { period: '26-05', value: 0.87, yoy: '-3.5%', mom: '-1.1%' }, { period: '26-06', value: 0.86, yoy: '-3.6%', mom: '-1.1%' }, { period: '26-07', value: 0.85, yoy: '-3.8%', mom: '-1.2%' }, { period: '26-08', value: 0.85, yoy: '-3.9%', mom: '0.0%' }],
+  },
+  {
+    id: 'm-50', code: '50', name: '单位产量电耗（电容器-真空浸渍）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/kvar', curVal: '1.42', yoy: '-4.2%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '真空浸渍',
+    tipText: '电容器真空浸渍工序每万元产值电耗 (按产量 kvar 算)', formula: 'q_容-真空-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/kvar)；Q: 浸渍罐用电 (kWh)；M: 产量 (kvar)。',
+    numeratorName: '真空浸渍罐加热及抽真空电量 Q', numeratorVal: '284,000 kWh', denominatorName: '浸渍产品容量 M', denominatorVal: '200,000 kvar', dataSource: '真空浸渍系统控制器主电表。',
+    rawMeters: [{ medium: '浸渍罐用电', meterCode: 'EQ-CAP-IMPREG', location: '电容器车间', reading: '284,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '34.9' }],
+    trendHistory: [{ period: '25-09', value: 1.52, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 1.49, yoy: '-3.3%', mom: '-2.0%' }, { period: '25-11', value: 1.47, yoy: '-3.6%', mom: '-1.3%' }, { period: '25-12', value: 1.50, yoy: '-3.2%', mom: '+2.0%' }, { period: '26-01', value: 1.45, yoy: '-3.9%', mom: '-3.3%' }, { period: '26-02', value: 1.44, yoy: '-4.0%', mom: '-0.7%' }, { period: '26-03', value: 1.49, yoy: '-3.3%', mom: '+3.5%' }, { period: '26-04', value: 1.47, yoy: '-3.6%', mom: '-1.3%' }, { period: '26-05', value: 1.45, yoy: '-3.9%', mom: '-1.4%' }, { period: '26-06', value: 1.44, yoy: '-4.0%', mom: '-0.7%' }, { period: '26-07', value: 1.43, yoy: '-4.1%', mom: '-0.7%' }, { period: '26-08', value: 1.42, yoy: '-4.2%', mom: '-0.7%' }],
+  },
+  {
+    id: 'm-51', code: '51', name: '单位产量电耗（电容器-喷漆）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/kvar', curVal: '0.48', yoy: '-3.6%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '电容喷漆',
+    tipText: '电容器喷漆工序每万元产值电耗 (按产量 kvar 算)', formula: 'q_容-喷漆-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/kvar)；Q: 喷漆线用电 (kWh)；M: 产量 (kvar)。',
+    numeratorName: '电容器外壳自动喷漆烘干用电 Q', numeratorVal: '96,000 kWh', denominatorName: '喷漆合格产量 M', denominatorVal: '200,000 kvar', dataSource: '喷漆烘干线专用智能表。',
+    rawMeters: [{ medium: '喷漆线用电', meterCode: 'EQ-CAP-PAINT', location: '电容器车间', reading: '96,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '11.8' }],
+    trendHistory: [{ period: '25-09', value: 0.51, yoy: '-2.5%', mom: '-0.5%' }, { period: '25-10', value: 0.50, yoy: '-2.8%', mom: '-2.0%' }, { period: '25-11', value: 0.49, yoy: '-3.0%', mom: '-2.0%' }, { period: '25-12', value: 0.51, yoy: '-2.7%', mom: '+4.1%' }, { period: '26-01', value: 0.49, yoy: '-3.2%', mom: '-3.9%' }, { period: '26-02', value: 0.49, yoy: '-3.3%', mom: '0.0%' }, { period: '26-03', value: 0.50, yoy: '-2.8%', mom: '+2.0%' }, { period: '26-04', value: 0.49, yoy: '-3.0%', mom: '-2.0%' }, { period: '26-05', value: 0.49, yoy: '-3.2%', mom: '0.0%' }, { period: '26-06', value: 0.49, yoy: '-3.3%', mom: '0.0%' }, { period: '26-07', value: 0.48, yoy: '-3.5%', mom: '-2.0%' }, { period: '26-08', value: 0.48, yoy: '-3.6%', mom: '0.0%' }],
+  },
+  {
+    id: 'm-52', code: '52', name: '单位产量电耗（电容器-试验）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/kvar', curVal: '0.35', yoy: '-3.5%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '电容试验',
+    tipText: '电容器试验工序每万元产值电耗 (按产量 kvar 算)', formula: 'q_容-试验-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/kvar)；Q: 试验用电 (kWh)；M: 产量 (kvar)。',
+    numeratorName: '高压电容出厂出厂耐压及损耗试验用电 Q', numeratorVal: '70,000 kWh', denominatorName: '试验合格产量 M', denominatorVal: '200,000 kvar', dataSource: '电容器出厂试验站电表。',
+    rawMeters: [{ medium: '电容试验用电', meterCode: 'EM-CAP-TEST', location: '电容试验站', reading: '70,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '8.6' }],
+    trendHistory: [{ period: '25-09', value: 0.37, yoy: '-2.5%', mom: '-0.5%' }, { period: '25-10', value: 0.36, yoy: '-2.8%', mom: '-2.7%' }, { period: '25-11', value: 0.36, yoy: '-3.0%', mom: '0.0%' }, { period: '25-12', value: 0.37, yoy: '-2.7%', mom: '+2.8%' }, { period: '26-01', value: 0.36, yoy: '-3.2%', mom: '-2.7%' }, { period: '26-02', value: 0.35, yoy: '-3.3%', mom: '-2.8%' }, { period: '26-03', value: 0.36, yoy: '-2.8%', mom: '+2.9%' }, { period: '26-04', value: 0.36, yoy: '-3.0%', mom: '0.0%' }, { period: '26-05', value: 0.35, yoy: '-3.2%', mom: '-2.8%' }, { period: '26-06', value: 0.35, yoy: '-3.3%', mom: '0.0%' }, { period: '26-07', value: 0.35, yoy: '-3.4%', mom: '0.0%' }, { period: '26-08', value: 0.35, yoy: '-3.5%', mom: '0.0%' }],
+  },
+  {
+    id: 'm-53', code: '53', name: '单位产值电耗（干式电抗器-固化）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '68.2', yoy: '-4.0%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '电抗器固化',
+    tipText: '干式电抗器-固化工序每万元产值电耗', formula: 'u_抗-固化-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 固化电量 (kWh)；G: 产值 (万元)。',
+    numeratorName: '干式电抗器浇注固化烘房用电 Q', numeratorVal: '204,600 kWh', denominatorName: '干式电抗器产值 G', denominatorVal: '3,000.0 万元', dataSource: '电抗器固化烘房电表。',
+    rawMeters: [{ medium: '固化烘房用电', meterCode: 'EQ-REACT-CURE', location: '电抗器车间', reading: '204,600 kWh', unit: 'kWh', coeff: '0.1229', tce: '25.1' }],
+    trendHistory: [{ period: '25-09', value: 72.0, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 71.0, yoy: '-3.2%', mom: '-1.4%' }, { period: '25-11', value: 70.0, yoy: '-3.5%', mom: '-1.4%' }, { period: '25-12', value: 71.5, yoy: '-3.1%', mom: '+2.1%' }, { period: '26-01', value: 69.2, yoy: '-3.8%', mom: '-3.2%' }, { period: '26-02', value: 68.8, yoy: '-3.9%', mom: '-0.6%' }, { period: '26-03', value: 71.0, yoy: '-3.2%', mom: '+3.2%' }, { period: '26-04', value: 70.0, yoy: '-3.5%', mom: '-1.4%' }, { period: '26-05', value: 69.2, yoy: '-3.8%', mom: '-1.1%' }, { period: '26-06', value: 68.8, yoy: '-3.9%', mom: '-0.6%' }, { period: '26-07', value: 68.5, yoy: '-4.0%', mom: '-0.4%' }, { period: '26-08', value: 68.2, yoy: '-4.0%', mom: '-0.4%' }],
+  },
+  {
+    id: 'm-54', code: '54', name: '单位产值电耗（干式电抗器-试验）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '32.4', yoy: '-3.7%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '电抗器试验',
+    tipText: '干式电抗器-试验工序每万元产值电耗', formula: 'u_抗-试验-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 试验用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: '电抗器温升及工频耐压试验用电 Q', numeratorVal: '97,200 kWh', denominatorName: '电抗器合格产值 G', denominatorVal: '3,000.0 万元', dataSource: '电抗器试验台配电表。',
+    rawMeters: [{ medium: '试验台用电', meterCode: 'EM-REACT-TEST', location: '电抗器试验站', reading: '97,200 kWh', unit: 'kWh', coeff: '0.1229', tce: '11.9' }],
+    trendHistory: [{ period: '25-09', value: 34.2, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 33.6, yoy: '-3.0%', mom: '-1.8%' }, { period: '25-11', value: 33.2, yoy: '-3.2%', mom: '-1.2%' }, { period: '25-12', value: 33.8, yoy: '-2.9%', mom: '+1.8%' }, { period: '26-01', value: 32.8, yoy: '-3.5%', mom: '-3.0%' }, { period: '26-02', value: 32.6, yoy: '-3.6%', mom: '-0.6%' }, { period: '26-03', value: 33.6, yoy: '-3.0%', mom: '+3.1%' }, { period: '26-04', value: 33.2, yoy: '-3.2%', mom: '-1.2%' }, { period: '26-05', value: 32.8, yoy: '-3.5%', mom: '-1.2%' }, { period: '26-06', value: 32.6, yoy: '-3.6%', mom: '-0.6%' }, { period: '26-07', value: 32.5, yoy: '-3.6%', mom: '-0.3%' }, { period: '26-08', value: 32.4, yoy: '-3.7%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-55', code: '55', name: '单位产值电耗（GIL-螺旋焊管生产)', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '88.5', yoy: '-4.3%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: 'GIL螺旋焊管',
+    tipText: 'GIL螺旋焊管生产工序每万元产值电耗', formula: 'u_GIL-螺旋焊管-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 焊管机用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: 'GIL 铝合金螺旋焊管自动生产线用电 Q', numeratorVal: '354,000 kWh', denominatorName: 'GIL 管道产品产值 G', denominatorVal: '4,000.0 万元', dataSource: 'GIL 焊管车间主分配电表。',
+    rawMeters: [{ medium: '焊管线用电', meterCode: 'EQ-GIL-WELD', location: 'GIL车间', reading: '354,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '43.5' }],
+    trendHistory: [{ period: '25-09', value: 94.0, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 92.5, yoy: '-3.3%', mom: '-1.6%' }, { period: '25-11', value: 91.0, yoy: '-3.5%', mom: '-1.6%' }, { period: '25-12', value: 93.0, yoy: '-3.1%', mom: '+2.2%' }, { period: '26-01', value: 89.8, yoy: '-3.9%', mom: '-3.4%' }, { period: '26-02', value: 89.2, yoy: '-4.0%', mom: '-0.7%' }, { period: '26-03', value: 92.5, yoy: '-3.3%', mom: '+3.7%' }, { period: '26-04', value: 91.0, yoy: '-3.5%', mom: '-1.6%' }, { period: '26-05', value: 89.8, yoy: '-3.9%', mom: '-1.3%' }, { period: '26-06', value: 89.2, yoy: '-4.0%', mom: '-0.7%' }, { period: '26-07', value: 88.8, yoy: '-4.2%', mom: '-0.4%' }, { period: '26-08', value: 88.5, yoy: '-4.3%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-56', code: '56', name: '单位产值电耗（GIL-测试)', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '38.2', yoy: '-3.8%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: 'GIL测试',
+    tipText: 'GIL-测试工序每万元产值电耗', formula: 'u_GIL-测试-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 测试用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: 'GIL 管道气密性测试及耐压试验用电 Q', numeratorVal: '152,800 kWh', denominatorName: 'GIL 合格测试产值 G', denominatorVal: '4,000.0 万元', dataSource: 'GIL 测试大厅专用智能电表。',
+    rawMeters: [{ medium: 'GIL测试用电', meterCode: 'EM-GIL-TEST', location: 'GIL测试站', reading: '152,800 kWh', unit: 'kWh', coeff: '0.1229', tce: '18.8' }],
+    trendHistory: [{ period: '25-09', value: 40.5, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 39.8, yoy: '-3.0%', mom: '-1.7%' }, { period: '25-11', value: 39.2, yoy: '-3.2%', mom: '-1.5%' }, { period: '25-12', value: 40.0, yoy: '-2.9%', mom: '+2.0%' }, { period: '26-01', value: 38.8, yoy: '-3.5%', mom: '-3.0%' }, { period: '26-02', value: 38.5, yoy: '-3.6%', mom: '-0.8%' }, { period: '26-03', value: 39.8, yoy: '-3.0%', mom: '+3.4%' }, { period: '26-04', value: 39.2, yoy: '-3.2%', mom: '-1.5%' }, { period: '26-05', value: 38.8, yoy: '-3.5%', mom: '-1.0%' }, { period: '26-06', value: 38.5, yoy: '-3.6%', mom: '-0.8%' }, { period: '26-07', value: 38.3, yoy: '-3.7%', mom: '-0.5%' }, { period: '26-08', value: 38.2, yoy: '-3.8%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-57', code: '57', name: '单位产值电耗（GIL-绝缘子生产)', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '54.6', yoy: '-4.1%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: 'GIL绝缘子',
+    tipText: 'GIL-绝缘子生产工序每万元产值电耗', formula: 'u_GIL-绝缘-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 浇注用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: '盆式绝缘子浇注及高温固化用电 Q', numeratorVal: '218,400 kWh', denominatorName: '绝缘子产值 G', denominatorVal: '4,000.0 万元', dataSource: '绝缘子浇注净化车间电表。',
+    rawMeters: [{ medium: '绝缘子浇注用电', meterCode: 'EQ-GIL-INSULATOR', location: '绝缘子车间', reading: '218,400 kWh', unit: 'kWh', coeff: '0.1229', tce: '26.8' }],
+    trendHistory: [{ period: '25-09', value: 58.0, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 57.0, yoy: '-3.2%', mom: '-1.7%' }, { period: '25-11', value: 56.2, yoy: '-3.5%', mom: '-1.4%' }, { period: '25-12', value: 57.5, yoy: '-3.1%', mom: '+2.3%' }, { period: '26-01', value: 55.5, yoy: '-3.8%', mom: '-3.5%' }, { period: '26-02', value: 55.0, yoy: '-3.9%', mom: '-0.9%' }, { period: '26-03', value: 57.0, yoy: '-3.2%', mom: '+3.6%' }, { period: '26-04', value: 56.2, yoy: '-3.5%', mom: '-1.4%' }, { period: '26-05', value: 55.5, yoy: '-3.8%', mom: '-1.2%' }, { period: '26-06', value: 55.0, yoy: '-3.9%', mom: '-0.9%' }, { period: '26-07', value: 54.8, yoy: '-4.0%', mom: '-0.4%' }, { period: '26-08', value: 54.6, yoy: '-4.1%', mom: '-0.4%' }],
+  },
+  {
+    id: 'm-58', code: '58', name: '单位产值电耗（GIS-抽真空)', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '42.8', yoy: '-3.9%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: 'GIS抽真空',
+    tipText: 'GIS-抽真空工序每万元产值电耗', formula: 'u_GIS-真空-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 真空泵用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: 'GIS 组合电器 SF6 抽真空充气用电 Q', numeratorVal: '214,000 kWh', denominatorName: 'GIS 产值 G', denominatorVal: '5,000.0 万元', dataSource: 'GIS 装配车间真空泵电表。',
+    rawMeters: [{ medium: '抽真空用电', meterCode: 'EQ-GIS-VACUUM', location: 'GIS车间', reading: '214,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '26.3' }],
+    trendHistory: [{ period: '25-09', value: 45.5, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 44.6, yoy: '-3.0%', mom: '-2.0%' }, { period: '25-11', value: 44.0, yoy: '-3.2%', mom: '-1.3%' }, { period: '25-12', value: 45.0, yoy: '-2.9%', mom: '+2.3%' }, { period: '26-01', value: 43.5, yoy: '-3.5%', mom: '-3.3%' }, { period: '26-02', value: 43.2, yoy: '-3.6%', mom: '-0.7%' }, { period: '26-03', value: 44.6, yoy: '-3.0%', mom: '+3.2%' }, { period: '26-04', value: 44.0, yoy: '-3.2%', mom: '-1.3%' }, { period: '26-05', value: 43.5, yoy: '-3.5%', mom: '-1.1%' }, { period: '26-06', value: 43.2, yoy: '-3.6%', mom: '-0.7%' }, { period: '26-07', value: 43.0, yoy: '-3.8%', mom: '-0.5%' }, { period: '26-08', value: 42.8, yoy: '-3.9%', mom: '-0.5%' }],
+  },
+  {
+    id: 'm-59', code: '59', name: '单位产值电耗（GIS-绝缘件干燥)', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '48.5', yoy: '-4.2%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: 'GIS干燥',
+    tipText: 'GIS-绝缘件干燥工序每万元产值电耗', formula: 'u_GIS-干燥-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 干燥烘箱用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: 'GIS 绝缘拉杆及盆子干燥烘箱用电 Q', numeratorVal: '242,500 kWh', denominatorName: 'GIS 干燥产值 G', denominatorVal: '5,000.0 万元', dataSource: '干燥烘箱智能控表。',
+    rawMeters: [{ medium: '绝缘干燥用电', meterCode: 'EQ-GIS-DRY', location: 'GIS干燥房', reading: '242,500 kWh', unit: 'kWh', coeff: '0.1229', tce: '29.8' }],
+    trendHistory: [{ period: '25-09', value: 51.5, yoy: '-3.0%', mom: '-0.5%' }, { period: '25-10', value: 50.5, yoy: '-3.3%', mom: '-1.9%' }, { period: '25-11', value: 49.8, yoy: '-3.6%', mom: '-1.4%' }, { period: '25-12', value: 51.0, yoy: '-3.2%', mom: '+2.4%' }, { period: '26-01', value: 49.2, yoy: '-3.9%', mom: '-3.5%' }, { period: '26-02', value: 48.8, yoy: '-4.0%', mom: '-0.8%' }, { period: '26-03', value: 50.5, yoy: '-3.3%', mom: '+3.5%' }, { period: '26-04', value: 49.8, yoy: '-3.6%', mom: '-1.4%' }, { period: '26-05', value: 49.2, yoy: '-3.9%', mom: '-1.2%' }, { period: '26-06', value: 48.8, yoy: '-4.0%', mom: '-0.8%' }, { period: '26-07', value: 48.6, yoy: '-4.1%', mom: '-0.4%' }, { period: '26-08', value: 48.5, yoy: '-4.2%', mom: '-0.2%' }],
+  },
+  {
+    id: 'm-60', code: '60', name: '单位产值电耗（GIS-工频耐压试验)', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '35.6', yoy: '-3.7%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: 'GIS耐压试验',
+    tipText: 'GIS-工频耐压试验工序每万元产值电耗', formula: 'u_GIS-试验-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 试验变压器用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: 'GIS 整体工频耐压及局放测试用电 Q', numeratorVal: '178,000 kWh', denominatorName: 'GIS 试验产值 G', denominatorVal: '5,000.0 万元', dataSource: 'GIS 试验大厅专用配电表。',
+    rawMeters: [{ medium: 'GIS耐压试验用电', meterCode: 'EM-GIS-TEST', location: 'GIS试验大厅', reading: '178,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '21.9' }],
+    trendHistory: [{ period: '25-09', value: 37.8, yoy: '-2.5%', mom: '-0.5%' }, { period: '25-10', value: 37.0, yoy: '-2.8%', mom: '-2.1%' }, { period: '25-11', value: 36.5, yoy: '-3.0%', mom: '-1.4%' }, { period: '25-12', value: 37.2, yoy: '-2.7%', mom: '+1.9%' }, { period: '26-01', value: 36.0, yoy: '-3.2%', mom: '-3.2%' }, { period: '26-02', value: 35.8, yoy: '-3.3%', mom: '-0.6%' }, { period: '26-03', value: 37.0, yoy: '-2.8%', mom: '+3.4%' }, { period: '26-04', value: 36.5, yoy: '-3.0%', mom: '-1.4%' }, { period: '26-05', value: 36.0, yoy: '-3.2%', mom: '-1.4%' }, { period: '26-06', value: 35.8, yoy: '-3.3%', mom: '-0.6%' }, { period: '26-07', value: 35.7, yoy: '-3.5%', mom: '-0.3%' }, { period: '26-08', value: 35.6, yoy: '-3.7%', mom: '-0.3%' }],
+  },
+  {
+    id: 'm-61', code: '61', name: '单位产值电耗（GIS-空调恒温除湿)', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/万元', curVal: '52.1', yoy: '-4.5%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: 'GIS净化除湿',
+    tipText: 'GIS-空调恒温除湿工序每万元产值电耗', formula: 'u_GIS-除湿-电 = Q / G', formulaDesc: '月度指标。u: 单位产值电耗 (kWh/万元)；Q: 净化空调用电 (kWh)；G: 产值 (万元)。',
+    numeratorName: 'GIS 尘洁净化车间恒温恒湿空调机组用电 Q', numeratorVal: '260,500 kWh', denominatorName: 'GIS 装配产值 G', denominatorVal: '5,000.0 万元', dataSource: '净化空调机房专用电能表。',
+    rawMeters: [{ medium: '净化除湿用电', meterCode: 'EM-GIS-HVAC', location: 'GIS净化厂房', reading: '260,500 kWh', unit: 'kWh', coeff: '0.1229', tce: '32.0' }],
+    trendHistory: [{ period: '25-09', value: 55.5, yoy: '-3.2%', mom: '-0.5%' }, { period: '25-10', value: 54.5, yoy: '-3.5%', mom: '-1.8%' }, { period: '25-11', value: 53.8, yoy: '-3.8%', mom: '-1.3%' }, { period: '25-12', value: 55.0, yoy: '-3.4%', mom: '+2.2%' }, { period: '26-01', value: 53.0, yoy: '-4.1%', mom: '-3.6%' }, { period: '26-02', value: 52.6, yoy: '-4.2%', mom: '-0.8%' }, { period: '26-03', value: 54.5, yoy: '-3.5%', mom: '+3.6%' }, { period: '26-04', value: 53.8, yoy: '-3.8%', mom: '-1.3%' }, { period: '26-05', value: 53.0, yoy: '-4.1%', mom: '-1.5%' }, { period: '26-06', value: 52.6, yoy: '-4.2%', mom: '-0.8%' }, { period: '26-07', value: 52.3, yoy: '-4.4%', mom: '-0.6%' }, { period: '26-08', value: 52.1, yoy: '-4.5%', mom: '-0.4%' }],
+  },
+  {
+    id: 'm-62', code: '62', name: '单位产量电耗（非晶合金铁心-退火）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/t', curVal: '320.5', yoy: '-4.8%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '非晶退火',
+    tipText: '生产每t非晶合金铁心，退火工序耗电量', formula: 'q_非晶-退火-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/t)；Q: 退火炉用电 (kWh)；M: 铁心产量 (t)。',
+    numeratorName: '非晶铁心磁场退火炉加热用电 Q', numeratorVal: '480,750 kWh', denominatorName: '非晶合金铁心产量 M', denominatorVal: '1,500 t', dataSource: '非晶退火炉智能调功控制器电表。',
+    rawMeters: [{ medium: '非晶退火用电', meterCode: 'EQ-AMORPHOUS-FURN', location: '非晶车间', reading: '480,750 kWh', unit: 'kWh', coeff: '0.1229', tce: '59.1' }],
+    trendHistory: [{ period: '25-09', value: 342.0, yoy: '-3.5%', mom: '-0.5%' }, { period: '25-10', value: 336.0, yoy: '-3.8%', mom: '-1.8%' }, { period: '25-11', value: 332.0, yoy: '-4.0%', mom: '-1.2%' }, { period: '25-12', value: 338.0, yoy: '-3.6%', mom: '+1.8%' }, { period: '26-01', value: 326.0, yoy: '-4.3%', mom: '-3.6%' }, { period: '26-02', value: 324.0, yoy: '-4.4%', mom: '-0.6%' }, { period: '26-03', value: 336.0, yoy: '-3.8%', mom: '+3.7%' }, { period: '26-04', value: 332.0, yoy: '-4.0%', mom: '-1.2%' }, { period: '26-05', value: 326.0, yoy: '-4.3%', mom: '-1.8%' }, { period: '26-06', value: 324.0, yoy: '-4.4%', mom: '-0.6%' }, { period: '26-07', value: 322.0, yoy: '-4.6%', mom: '-0.6%' }, { period: '26-08', value: 320.5, yoy: '-4.8%', mom: '-0.5%' }],
+  },
+  {
+    id: 'm-63', code: '63', name: '单位产量电耗（硅钢铁心-纵剪）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/t', curVal: '68.5', yoy: '-3.6%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '硅钢纵剪',
+    tipText: '生产每t硅钢铁心，纵剪工序耗电量', formula: 'q_硅钢-纵剪-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/t)；Q: 纵剪机电量 (kWh)；M: 产量 (t)。',
+    numeratorName: '纵剪机组用电量 Q', numeratorVal: '287,700 kWh', denominatorName: '加工硅钢片重量 M', denominatorVal: '4,200 t', dataSource: '纵剪线多功能数显电表。',
+    rawMeters: [{ medium: '纵剪用电', meterCode: 'EQ-CUT-SILICON', location: '铁芯车间', reading: '287,700 kWh', unit: 'kWh', coeff: '0.1229', tce: '35.4' }],
+    trendHistory: [{ period: '25-09', value: 72.5, yoy: '-2.5%', mom: '-0.5%' }, { period: '25-10', value: 71.2, yoy: '-2.8%', mom: '-1.8%' }, { period: '25-11', value: 70.5, yoy: '-3.0%', mom: '-1.0%' }, { period: '25-12', value: 71.8, yoy: '-2.7%', mom: '+1.8%' }, { period: '26-01', value: 69.5, yoy: '-3.2%', mom: '-3.2%' }, { period: '26-02', value: 69.2, yoy: '-3.3%', mom: '-0.4%' }, { period: '26-03', value: 71.2, yoy: '-2.8%', mom: '+2.9%' }, { period: '26-04', value: 70.5, yoy: '-3.0%', mom: '-1.0%' }, { period: '26-05', value: 69.5, yoy: '-3.2%', mom: '-1.4%' }, { period: '26-06', value: 69.2, yoy: '-3.3%', mom: '-0.4%' }, { period: '26-07', value: 68.8, yoy: '-3.5%', mom: '-0.6%' }, { period: '26-08', value: 68.5, yoy: '-3.6%', mom: '-0.4%' }],
+  },
+  {
+    id: 'm-64', code: '64', name: '单位产量电耗（硅钢铁心-中型叠装）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/t', curVal: '42.8', yoy: '-3.4%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '中型叠装',
+    tipText: '生产每t硅钢铁心，中型叠装工序耗电量', formula: 'q_硅钢-中型叠装-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/t)；Q: 叠片机电量 (kWh)；M: 产量 (t)。',
+    numeratorName: '中型自动叠片机械手用电 Q', numeratorVal: '107,000 kWh', denominatorName: '中型铁心产量 M', denominatorVal: '2,500 t', dataSource: '中型叠装生产线电表。',
+    rawMeters: [{ medium: '中型叠装用电', meterCode: 'EQ-MID-STACK', location: '铁芯车间', reading: '107,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '13.1' }],
+    trendHistory: [{ period: '25-09', value: 45.2, yoy: '-2.4%', mom: '-0.5%' }, { period: '25-10', value: 44.5, yoy: '-2.6%', mom: '-1.5%' }, { period: '25-11', value: 44.0, yoy: '-2.8%', mom: '-1.1%' }, { period: '25-12', value: 44.8, yoy: '-2.5%', mom: '+1.8%' }, { period: '26-01', value: 43.5, yoy: '-3.0%', mom: '-2.9%' }, { period: '26-02', value: 43.2, yoy: '-3.1%', mom: '-0.7%' }, { period: '26-03', value: 44.5, yoy: '-2.6%', mom: '+3.0%' }, { period: '26-04', value: 44.0, yoy: '-2.8%', mom: '-1.1%' }, { period: '26-05', value: 43.5, yoy: '-3.0%', mom: '-1.1%' }, { period: '26-06', value: 43.2, yoy: '-3.1%', mom: '-0.7%' }, { period: '26-07', value: 43.0, yoy: '-3.3%', mom: '-0.5%' }, { period: '26-08', value: 42.8, yoy: '-3.4%', mom: '-0.5%' }],
+  },
+  {
+    id: 'm-65', code: '65', name: '单位产量电耗（硅钢铁心-大型叠装）', category: 'process', categoryName: '三、关键制造工序能效管控指标', unit: 'kWh/t', curVal: '54.2', yoy: '-3.9%', isYoyDown: true, status: '常规监测', statusType: 'green', badge: '大型叠装',
+    tipText: '生产每t硅钢铁心，大型叠装工序耗电量', formula: 'q_硅钢-大型叠装-电 = Q / M', formulaDesc: '月度指标。q: 单位产品电耗 (kWh/t)；Q: 翻转台用电 (kWh)；M: 产量 (t)。',
+    numeratorName: '特高压大型铁心翻转叠装台用电 Q', numeratorVal: '135,500 kWh', denominatorName: '大型铁心产量 M', denominatorVal: '2,500 t', dataSource: '大型叠装车间天车及翻转台电表。',
+    rawMeters: [{ medium: '大型叠装用电', meterCode: 'EQ-LARGE-STACK', location: '铁芯车间', reading: '135,500 kWh', unit: 'kWh', coeff: '0.1229', tce: '16.7' }],
+    trendHistory: [{ period: '25-09', value: 57.5, yoy: '-2.8%', mom: '-0.5%' }, { period: '25-10', value: 56.5, yoy: '-3.0%', mom: '-1.7%' }, { period: '25-11', value: 55.8, yoy: '-3.2%', mom: '-1.2%' }, { period: '25-12', value: 56.8, yoy: '-2.9%', mom: '+1.8%' }, { period: '26-01', value: 55.0, yoy: '-3.5%', mom: '-3.2%' }, { period: '26-02', value: 54.8, yoy: '-3.6%', mom: '-0.4%' }, { period: '26-03', value: 56.5, yoy: '-3.0%', mom: '+3.1%' }, { period: '26-04', value: 55.8, yoy: '-3.2%', mom: '-1.2%' }, { period: '26-05', value: 55.0, yoy: '-3.5%', mom: '-1.4%' }, { period: '26-06', value: 54.8, yoy: '-3.6%', mom: '-0.4%' }, { period: '26-07', value: 54.5, yoy: '-3.7%', mom: '-0.5%' }, { period: '26-08', value: 54.2, yoy: '-3.9%', mom: '-0.5%' }],
+  },
+]
 
 export default function IndicatorControlPage() {
-  // 4 大硬刚 PK 维度
-  const [pkTab, setPkTab] = useState<'factory' | 'product' | 'line' | 'batch'>('factory')
-
-  // 1. 维度一：选中的产业群或基地
-  const [selectedFactoryGroup, setSelectedFactoryGroup] = useState<string>('all')
-
-  // 2. 维度二：选中的产品型号
-  const [selectedProductModel, setSelectedProductModel] = useState<string>('ODFS-334MVA/500kV')
-
-  // 3. 维度三：选中的工厂
-  const [selectedLineFactory, setSelectedLineFactory] = useState<string>('沈变本部 (沈阳基地)')
-
-  // 4. 维度四：选中的批次产品型号
-  const [selectedBatchProduct, setSelectedBatchProduct] = useState<string>('ODFS-334MVA/500kV')
-
-  // 二级工序穿透抽屉选中的实体
-  const [selectedDrawerEntity, setSelectedDrawerEntity] = useState<any | null>(null)
-
-  // 实时量测点位选中状态（联动下方 24h 监测曲线）
-  const [activeRtPoint, setActiveRtPoint] = useState<any | null>(null)
-
-  // 树内搜索关键字
-  const [treeSearch, setTreeSearch] = useState('')
-
-  // 折叠展开状态
-  const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({
-    group_all: true,
-    group_transformer: true,
-    group_cable: true,
-    group_newenergy: true,
-    prod_root: true,
-    prod_trans: true,
-    prod_cable: true,
-    prod_energy: true,
-    line_root: true,
-    fac_sb: true,
-    fac_hb: true,
-    fac_xb: true,
-    fac_ll: true,
-    batch_root: true,
-    batch_odfs: true,
-    batch_sz: true,
+  const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
+    id: 'comp_sb',
+    name: '沈变公司',
+    fullName: '沈变公司 (东北输变电中心)',
+    level: 'company',
+    badge: '5单位',
   })
 
-  const toggleNode = (nodeKey: string) => {
-    setExpandedNodes((prev) => ({ ...prev, [nodeKey]: !prev[nodeKey] }))
-  }
+  // 时间维度: 'month' | 'quarter' | 'year'
+  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
+  
+  // 🌟 点击卡片激活的 Mode B 详情指标 Mode B (Null 时为 Mode A 全景概览)
+  const [activeViewMetric, setActiveViewMetric] = useState<IndicatorMetric | null>(null)
+  
+  const [procSearchKey, setProcSearchKey] = useState('')
 
-  // 切换 PK 维度标签时，自动展开该维度的树状图
-  useEffect(() => {
-    setExpandedNodes((prev) => {
-      const next: Record<string, boolean> = { ...prev }
-      for (const k of Object.keys(next)) next[k] = true
-      return next
-    })
-  }, [pkTab])
+  // 判断当前选中节点层级
+  const isGroupLevel = selectedNode.level === 'group'
+  const isCompanyLevel = selectedNode.level === 'company'
+  const isWorkshopLevel = selectedNode.level === 'workshop'
 
-
-  // —— 经典标准树数据（4 大 PK 维度）——
-  // —— 依据《园区-工厂对应关系表.xlsx》完整组织拓扑树 ——
-  // —— 依据《园区-工厂对应关系表.xlsx》仅展示 1、2 级组织架构树 ——
-  const factoryTreeData: TreeViewNode[] = [
-    {
-      key: 'group_all',
-      label: '特变电工集团 (全量经营单位)',
-      icon: <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />,
-      selected: selectedFactoryGroup === 'all',
-      badge: <span className="rounded bg-blue-50 px-1.5 py-px text-[10px] text-[#1677ff] font-bold">全量</span>,
-      onSelect: () => setSelectedFactoryGroup('all'),
-      children: [
-        // 1. 沈变公司 (一级单位) -> 二级单位
-        {
-          key: 'comp_sb',
-          label: '沈变公司 (一级单位)',
-          selected: selectedFactoryGroup === 'sb_all',
-          onSelect: () => setSelectedFactoryGroup('sb_all'),
-          children: [
-            { key: 'f_sb_main', label: '沈变本部', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_sb') },
-            { key: 'f_sb_zh', label: '智慧能源', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_sb_hx', label: '和新套管公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_sb_kj', label: '康嘉互感器', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_sb_yn', label: '印能公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-          ],
-        },
-
-        // 2. 衡变公司 (一级单位) -> 二级单位
-        {
-          key: 'comp_hb',
-          label: '衡变公司 (一级单位)',
-          selected: selectedFactoryGroup === 'hb_all',
-          onSelect: () => setSelectedFactoryGroup('hb_all'),
-          children: [
-            { key: 'f_hb_main', label: '衡变本部', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_hb') },
-            { key: 'f_hb_nj', label: '南京电研', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_hb_yjdq', label: '云集电气', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_hb_hndq', label: '湖南电气', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_hb_yjgy', label: '云集高压开关', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_hb_xjzk', label: '新疆自控', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_hb_tnj', label: '特能建', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_hb_hr', label: '合容电气', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_hb_gil', label: '赛杰爱迪', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-          ],
-        },
-
-        // 3. 新变厂 (一级单位) -> 二级单位
-        {
-          key: 'comp_xb',
-          label: '新变厂 (一级单位)',
-          selected: selectedFactoryGroup === 'xb_all',
-          onSelect: () => setSelectedFactoryGroup('xb_all'),
-          children: [
-            { key: 'f_xb_uhv', label: '超高压公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_xb') },
-            { key: 'f_tb_main', label: '天变公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_tj') },
-            { key: 'f_xb_zndq', label: '智能电气公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_xb_jjj', label: '京津冀公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_xb_zf', label: '珠峰硅钢', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-          ],
-        },
-
-        // 4. 鲁缆公司 (一级单位) -> 二级单位
-        {
-          key: 'comp_ll',
-          label: '鲁缆公司 (一级单位)',
-          selected: selectedFactoryGroup === 'll_all',
-          onSelect: () => setSelectedFactoryGroup('ll_all'),
-          children: [
-            { key: 'f_ll_main', label: '鲁缆本部', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_ll') },
-            { key: 'f_ll_zl', label: '智缆公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_ll_sh', label: '昭和公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'f_ll_sg', label: '曙光公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-          ],
-        },
-
-        // 5. 新缆厂 (一级单位) -> 二级单位
-        {
-          key: 'comp_xlc',
-          label: '新缆厂 (一级单位)',
-          selected: selectedFactoryGroup === 'xlc_all',
-          onSelect: () => setSelectedFactoryGroup('xlc_all'),
-          children: [
-            { key: 'f_xlc_main', label: '新疆电缆公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_xlc') },
-            { key: 'f_xlc_sbd', label: '新疆线缆厂', icon: <Factory className="size-3.5 shrink-0 text-slate-400" /> },
-          ],
-        },
-
-        // 6. 德缆公司 (一级单位) -> 二级单位
-        {
-          key: 'comp_dl',
-          label: '德缆公司 (一级单位)',
-          selected: selectedFactoryGroup === 'dl_all',
-          onSelect: () => setSelectedFactoryGroup('dl_all'),
-          children: [
-            { key: 'f_dl_main', label: '德缆股份公司', icon: <Factory className="size-3.5 shrink-0 text-slate-400" />, onSelect: () => setSelectedFactoryGroup('f_dl') },
-          ],
-        },
-      ],
-    },
-  ]
-
-  const productTreeData: TreeViewNode[] = [
-    {
-      key: 'prod_root',
-      label: '特变电工重点产品目录',
-      icon: <Package className="size-3.5 shrink-0 text-[#1677ff]" />,
-      children: [
-        {
-          key: 'prod_trans',
-          label: '输变电与特高压变压器',
-          selected: false,
-          children: [
-            {
-              key: 'm_odfs',
-              label: (
-                <span className="flex items-baseline gap-1.5">
-                  <span className="font-mono">ODFS-334MVA/500kV</span>
-                  <span className="text-[10px] text-slate-400">单相自耦变 (3 厂共造)</span>
-                </span>
-              ),
-              selected: selectedProductModel === 'ODFS-334MVA/500kV',
-              onSelect: () => setSelectedProductModel('ODFS-334MVA/500kV'),
-            },
-            {
-              key: 'm_sz',
-              label: (
-                <span className="flex items-baseline gap-1.5">
-                  <span className="font-mono">SZ-110kV/63000kVA</span>
-                  <span className="text-[10px] text-slate-400">三相油浸电力变 (4 厂共造)</span>
-                </span>
-              ),
-              selected: selectedProductModel === 'SZ-110kV/63000kVA',
-              onSelect: () => setSelectedProductModel('SZ-110kV/63000kVA'),
-            },
-            {
-              key: 'm_s13',
-              label: (
-                <span className="flex items-baseline gap-1.5">
-                  <span className="font-mono">S13-M-800kVA</span>
-                  <span className="text-[10px] text-slate-400">节能配电变 (5 厂共造)</span>
-                </span>
-              ),
-              selected: selectedProductModel === 'S13-M-800kVA',
-              onSelect: () => setSelectedProductModel('S13-M-800kVA'),
-            },
-          ],
-        },
-        {
-          key: 'prod_cable',
-          label: '高压与特种线缆',
-          children: [
-            {
-              key: 'm_yj',
-              label: (
-                <span className="flex items-baseline gap-1.5">
-                  <span className="font-mono">YJLW03-64/110kV</span>
-                  <span className="text-[10px] text-slate-400">高压交联电缆 (3 厂共造)</span>
-                </span>
-              ),
-              selected: selectedProductModel === 'YJLW03-64/110kV',
-              onSelect: () => setSelectedProductModel('YJLW03-64/110kV'),
-            },
-          ],
-        },
-      ],
-    },
-  ]
-
-  const lineTreeData: TreeViewNode[] = [
-    {
-      key: 'line_root',
-      label: '特变电工制造基地与车间',
-      icon: <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />,
-      children: [
-        {
-          key: 'fac_sb',
-          label: '沈变本部 (沈阳基地)',
-          icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
-          selected: selectedLineFactory === '沈变本部 (沈阳基地)',
-          onSelect: () => setSelectedLineFactory('沈变本部 (沈阳基地)'),
-          children: [
-            {
-              key: 'ws_dry',
-              label: '超高压真空干燥车间',
-              icon: <Cog className="size-3.5 shrink-0 text-slate-400" />,
-              className: 'font-semibold text-red-600',
-              badge: <span className="size-1.5 rounded-full bg-red-500" />,
-            },
-            { key: 'ws_test', label: '无局放超高压试验大厅', icon: <Cog className="size-3.5 shrink-0 text-slate-400" /> },
-            {
-              key: 'ws_shear',
-              label: '铁芯剪切自动叠装线',
-              icon: <Cog className="size-3.5 shrink-0 text-slate-400" />,
-              className: 'font-semibold text-emerald-700',
-              badge: <span className="size-1.5 rounded-full bg-emerald-500" />,
-            },
-            { key: 'ws_wind', label: '自动化绝缘绕线车间', icon: <Cog className="size-3.5 shrink-0 text-slate-400" /> },
-          ],
-        },
-        {
-          key: 'fac_hb',
-          label: '衡变本部 (衡阳基地)',
-          icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
-          selected: selectedLineFactory === '衡变本部 (衡阳基地)',
-          onSelect: () => setSelectedLineFactory('衡变本部 (衡阳基地)'),
-        },
-        {
-          key: 'fac_xb',
-          label: '新变超高压 (昌吉基地)',
-          icon: <Factory className="size-3.5 shrink-0 text-slate-400" />,
-          selected: selectedLineFactory === '新变超高压 (昌吉基地)',
-          onSelect: () => setSelectedLineFactory('新变超高压 (昌吉基地)'),
-        },
-      ],
-    },
-  ]
-
-  const batchTreeData: TreeViewNode[] = [
-    {
-      key: 'batch_root',
-      label: '产品批次追溯目录',
-      icon: <Tags className="size-3.5 shrink-0 text-[#1677ff]" />,
-      children: [
-        {
-          key: 'batch_odfs',
-          label: (
-            <span className="flex items-baseline gap-1.5">
-              <span className="font-mono">ODFS-334MVA/500kV</span>
-              <span className="rounded bg-red-50 px-1 py-px text-[10px] font-semibold text-red-600">当期异常</span>
-            </span>
-          ),
-          selected: selectedBatchProduct === 'ODFS-334MVA/500kV',
-          onSelect: () => setSelectedBatchProduct('ODFS-334MVA/500kV'),
-          children: [
-            {
-              key: 'bat_202608',
-              label: '#202608 批次 (突增 +24.5%)',
-              icon: <FileText className="size-3.5 shrink-0 text-slate-400" />,
-              className: 'font-semibold text-red-600',
-              badge: <span className="size-1.5 rounded-full bg-red-500" />,
-            },
-            { key: 'bat_202607', label: '#202607 批次 (正常)', icon: <FileText className="size-3.5 shrink-0 text-slate-400" /> },
-            { key: 'bat_202606', label: '#202606 批次 (正常)', icon: <FileText className="size-3.5 shrink-0 text-slate-400" /> },
-          ],
-        },
-        {
-          key: 'batch_sz',
-          label: <span className="font-mono">SZ-110kV/63000kVA</span>,
-          selected: selectedBatchProduct === 'SZ-110kV/63000kVA',
-          onSelect: () => setSelectedBatchProduct('SZ-110kV/63000kVA'),
-        },
-      ],
-    },
-  ]
-
-  // 1. 维度一数据：全集团工厂 PK
-  const factoryPkList = [
-    {
-      rank: 1,
-      name: '新变超高压公司',
-      group: 'transformer',
-      energy: 1520.0,
-      carbon: 4150.2,
-      green: '31.2%',
-      status: 'worst',
-      delta: '+18.4% ▲',
-      barWidth: 100,
-      reason: '【重点监管】真空干燥蒸汽泄漏，能耗严重超标',
-      lossCost: '180 吨蒸汽 (12.8万元)',
-      pic: '新变超高压基地 (昌吉)',
-      yoy: '+18.4%',
-      mom: '+9.2%',
-      avoidedCarbon: '1,240.5',
-      avgCost: '0.685',
-      media: {
-        elec: { val: '8,450 MWh', tce: '1,038.5 tce', pct: '68.3%', status: '受控' },
-        steam: { val: '3,820 GJ', tce: '326.2 tce', pct: '21.5%', status: '🔴 严重超标 (+34.2%)' },
-        gas: { val: '12.4 万 Nm³', tce: '121.6 tce', pct: '8.0%', status: '正常' },
-        other: { val: '4.2 万吨水', tce: '33.7 tce', pct: '2.2%', status: '正常' },
-      },
-      tou: {
-        tip: '28.4%',
-        peak: '36.2%',
-        flat: '22.1%',
-        valley: '13.3%',
-      },
-      sensors: [
-        { tag: 'TT-204', desc: '2号真空干燥罐壁温', val: '142 ℃', limit: '128 ℃', status: '🔴 异常偏高 (漏热)' },
-        { tag: 'ST-02', desc: '干燥罐温控蒸汽疏水阀', val: '开度 85% 持续常开', limit: '脉动排汽', status: '🔴 阀芯卡死微漏' },
-        { tag: 'VF-01', desc: '试验大厅变频机组待机功率', val: '42 kW', limit: '0 kW', status: '🟡 空载未停机' },
-        { tag: 'FLOW-03', desc: '车间蒸汽总管实时流量', val: '5.8 t/h', limit: '4.2 t/h', status: '🔴 超标 38%' },
-      ],
-      actions: [
-        {
-          title: '更换 2号干燥罐温控疏水阀并加装气凝胶隔热套',
-          roi: '预估月节蒸汽 180 吨 · 月省 12.8 万元 · 年减碳 112.5 tCO2 · 静态回收期 0.8 个月',
-          priority: '🔴 极高 (本周内闭环)',
-        },
-        {
-          title: '试验大厅加装变频器自动休眠逻辑与避峰试验排产',
-          roi: '预估年节约电费 8.4 万元 · 尖峰用电占比降低 4.2%',
-          priority: '🟡 中 (下月纳入排产)',
-        },
-      ],
-      meta: {
-        indicatorName: '综合能源消费量',
-        period: '2026-08 (月)',
-        current: '1,520.0 tce',
-        benchmark: '1,280.0 tce',
-        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
-        result: '🔴 异常（高于基准 18.8%）',
-        dataSource: '电装能源管理平台自动采集（电/蒸汽/热力）+ 人工录入（天然气/柴油）',
-        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
-      },
-      products: [
-        { model: 'ODFS-334MVA/500kV', energy: '1.58 tce/台', elec: '10,800 kWh/台', steam: '5.10 GJ/台', gas: '132 m³/台', water: '42 t/台', mom: '+31.6%' },
-        { model: 'SZ-110kV/63000kVA', energy: '1.45 tce/台', elec: '9,650 kWh/台', steam: '4.86 GJ/台', gas: '118 m³/台', water: '36 t/台', mom: '+21.0%' },
-        { model: 'GIS-252kV/63kA', energy: '0.98 tce/台', elec: '6,850 kWh/台', steam: '2.42 GJ/台', gas: '72 m³/台', water: '26 t/台', mom: '+9.6%' },
-      ],
-      realtime: [
-        { group: '电', name: '电压', val: '10.2 kV', status: '正常' },
-        { group: '电', name: '电流', val: '486.3 A', status: '正常' },
-        { group: '电', name: '总有功功率', val: '7,820 kW', status: '🔴 超限' },
-        { group: '电', name: '功率因数', val: '0.94', status: '🟡 偏低' },
-        { group: '电', name: '正向有功电能', val: '8,450,320 kWh', status: '正常' },
-        { group: '电', name: '反向有功电能', val: '12,480 kWh', status: '正常' },
-        { group: '电', name: '正向无功电能', val: '1,280,450 kvarh', status: '正常' },
-        { group: '电', name: '反向无功电能', val: '25,600 kvarh', status: '正常' },
-        { group: '水', name: '水压', val: '0.42 MPa', status: '正常' },
-        { group: '水', name: '累计流量', val: '42,000 t', status: '正常' },
-        { group: '水', name: '瞬时流量', val: '18.6 t/h', status: '正常' },
-        { group: '气', name: '累计流量', val: '124,000 Nm³', status: '正常' },
-      ],
-      newEnergy: [
-        { name: '光伏发电功率', val: '2,860 kW' },
-        { name: '逆变器效率', val: '98.2%' },
-        { name: '光伏消纳率', val: '91.5%' },
-        { name: '储能充放电功率', val: '±1,200 kW' },
-        { name: '储能 SOC', val: '62.4%' },
-        { name: '储能 SOH', val: '94.8%' },
-        { name: '储能直流电压', val: '735.6 V' },
-        { name: '储能直流电流', val: '128.4 A' },
-        { name: '市电负荷', val: '6,280 kW' },
-      ],
-    },
-    {
-      rank: 2,
-      name: '沈变本部 (沈阳基地)',
-      group: 'transformer',
-      energy: 1284.5,
-      carbon: 3420.8,
-      green: '38.6%',
-      status: 'normal',
-      delta: '+2.1% ▲',
-      barWidth: 84.5,
-      reason: '能耗平稳受控，超高压试验负荷略高',
-      lossCost: '受控范围内',
-      pic: '沈变铁西园区 (沈阳)',
-      yoy: '+2.1%',
-      mom: '-1.0%',
-      avoidedCarbon: '1,580.0',
-      avgCost: '0.620',
-      media: {
-        elec: { val: '7,800 MWh', tce: '958.6 tce', pct: '74.6%', status: '正常' },
-        steam: { val: '2,200 GJ', tce: '187.9 tce', pct: '14.6%', status: '正常' },
-        gas: { val: '11.0 万 Nm³', tce: '107.9 tce', pct: '8.4%', status: '正常' },
-        other: { val: '3.8 万吨水', tce: '30.1 tce', pct: '2.4%', status: '正常' },
-      },
-      tou: {
-        tip: '22.0%',
-        peak: '38.0%',
-        flat: '25.0%',
-        valley: '15.0%',
-      },
-      sensors: [
-        { tag: 'TT-101', desc: '1号退火炉均温区温度', val: '650 ℃', limit: '650±10 ℃', status: '🟢 正常' },
-        { tag: 'VF-03', desc: '变频升压补偿电容器组', val: '功率因数 0.96', limit: '≥0.95', status: '🟢 优良' },
-      ],
-      actions: [
-        {
-          title: '优化试验大厅夜间无功补偿投入策略',
-          roi: '预估年节约力调电费 3.2 万元',
-          priority: '🟢 正常维护',
-        },
-      ],
-      meta: {
-        indicatorName: '综合能源消费量',
-        period: '2026-08 (月)',
-        current: '1,284.5 tce',
-        benchmark: '1,280.0 tce',
-        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
-        result: '🟡 正常（高于基准 0.4%）',
-        dataSource: '电装能源管理平台自动采集（电/蒸汽/热力）+ 人工录入（天然气）',
-        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
-      },
-      products: [
-        { model: 'ODFS-334MVA/500kV', energy: '1.45 tce/台', elec: '10,420 kWh/台', steam: '4.82 GJ/台', gas: '126 m³/台', water: '38 t/台', mom: '+20.8%' },
-        { model: 'SZ-110kV/63000kVA', energy: '0.92 tce/台', elec: '6,100 kWh/台', steam: '2.10 GJ/台', gas: '88 m³/台', water: '25 t/台', mom: '-3.2%' },
-        { model: 'S13-M-800kVA', energy: '0.65 tce/台', elec: '3,550 kWh/台', steam: '0.92 GJ/台', gas: '45 m³/台', water: '18 t/台', mom: '+4.8%' },
-      ],
-      realtime: [
-        { group: '电', name: '电压', val: '10.5 kV', status: '正常' },
-        { group: '电', name: '电流', val: '412.8 A', status: '正常' },
-        { group: '电', name: '总有功功率', val: '6,840 kW', status: '正常' },
-        { group: '电', name: '功率因数', val: '0.97', status: '正常' },
-        { group: '电', name: '正向有功电能', val: '7,800,320 kWh', status: '正常' },
-        { group: '电', name: '反向有功电能', val: '9,860 kWh', status: '正常' },
-        { group: '电', name: '正向无功电能', val: '1,020,400 kvarh', status: '正常' },
-        { group: '电', name: '反向无功电能', val: '18,900 kvarh', status: '正常' },
-        { group: '水', name: '水压', val: '0.40 MPa', status: '正常' },
-        { group: '水', name: '累计流量', val: '38,000 t', status: '正常' },
-        { group: '水', name: '瞬时流量', val: '16.2 t/h', status: '正常' },
-        { group: '气', name: '累计流量', val: '110,000 Nm³', status: '正常' },
-      ],
-      newEnergy: [
-        { name: '光伏发电功率', val: '2,150 kW' },
-        { name: '逆变器效率', val: '98.0%' },
-        { name: '光伏消纳率', val: '88.6%' },
-        { name: '储能充放电功率', val: '±900 kW' },
-        { name: '储能 SOC', val: '55.8%' },
-        { name: '储能 SOH', val: '96.2%' },
-        { name: '储能直流电压', val: '748.2 V' },
-        { name: '储能直流电流', val: '96.5 A' },
-        { name: '市电负荷', val: '5,860 kW' },
-      ],
-    },
-    {
-      rank: 3,
-      name: '衡变本部 (衡阳基地)',
-      group: 'transformer',
-      energy: 1190.0,
-      carbon: 3180.5,
-      green: '41.2%',
-      status: 'good',
-      delta: '-3.5% ▼',
-      barWidth: 78.3,
-      reason: '绿电消纳优秀，工艺能耗控制良好，集团标杆工厂',
-      lossCost: '节约 8.5 万元',
-      pic: '衡变雁峰园区 (衡阳)',
-      yoy: '-3.5%',
-      mom: '-2.4%',
-      avoidedCarbon: '1,890.2',
-      avgCost: '0.582',
-      media: {
-        elec: { val: '7,100 MWh', tce: '872.6 tce', pct: '73.3%', status: '低碳优胜' },
-        steam: { val: '1,950 GJ', tce: '166.5 tce', pct: '14.0%', status: '优胜' },
-        gas: { val: '12.8 万 Nm³', tce: '125.6 tce', pct: '10.6%', status: '正常' },
-        other: { val: '3.1 万吨水', tce: '25.3 tce', pct: '2.1%', status: '优胜' },
-      },
-      tou: {
-        tip: '16.5%',
-        peak: '33.5%',
-        flat: '28.0%',
-        valley: '22.0%',
-      },
-      sensors: [
-        { tag: 'TT-302', desc: '洁净装配间恒温恒湿空调', val: '22.5 ℃ / 48%', limit: '23±2 ℃', status: '🟢 优胜' },
-        { tag: 'HEAT-01', desc: '余热回收换热器出口水温', val: '68 ℃', limit: '≥60 ℃', status: '🟢 高效回收' },
-      ],
-      actions: [
-        {
-          title: '推广真空干燥冷凝水 100% 回收经验至新变与沈变',
-          roi: '集团协同预计可复制降碳效益 180 万元/年',
-          priority: '🟢 标杆经验输出',
-        },
-      ],
-      meta: {
-        indicatorName: '综合能源消费量',
-        period: '2026-08 (月)',
-        current: '1,190.0 tce',
-        benchmark: '1,280.0 tce',
-        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
-        result: '🟢 优秀（低于基准 7.0%）',
-        dataSource: '电装能源管理平台自动采集 + 衡变 MES 产量数据',
-        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
-      },
-      products: [
-        { model: 'ODFS-334MVA/500kV', energy: '1.18 tce/台', elec: '8,250 kWh/台', steam: '3.40 GJ/台', gas: '98 m³/台', water: '30 t/台', mom: '-1.6%' },
-        { model: 'SZ-110kV/63000kVA', energy: '0.98 tce/台', elec: '6,450 kWh/台', steam: '2.25 GJ/台', gas: '82 m³/台', water: '24 t/台', mom: '+3.1%' },
-        { model: 'GIS-252kV/63kA', energy: '0.88 tce/台', elec: '5,900 kWh/台', steam: '2.30 GJ/台', gas: '76 m³/台', water: '22 t/台', mom: '-2.8%' },
-      ],
-      realtime: [
-        { group: '电', name: '电压', val: '10.8 kV', status: '正常' },
-        { group: '电', name: '电流', val: '398.5 A', status: '正常' },
-        { group: '电', name: '总有功功率', val: '6,320 kW', status: '正常' },
-        { group: '电', name: '功率因数', val: '0.98', status: '正常' },
-        { group: '电', name: '正向有功电能', val: '7,100,260 kWh', status: '正常' },
-        { group: '电', name: '反向有功电能', val: '6,540 kWh', status: '正常' },
-        { group: '电', name: '正向无功电能', val: '980,200 kvarh', status: '正常' },
-        { group: '电', name: '反向无功电能', val: '12,300 kvarh', status: '正常' },
-        { group: '水', name: '水压', val: '0.45 MPa', status: '正常' },
-        { group: '水', name: '累计流量', val: '31,000 t', status: '正常' },
-        { group: '水', name: '瞬时流量', val: '14.8 t/h', status: '正常' },
-        { group: '气', name: '累计流量', val: '128,000 Nm³', status: '正常' },
-      ],
-      newEnergy: [
-        { name: '光伏发电功率', val: '3,460 kW' },
-        { name: '逆变器效率', val: '98.6%' },
-        { name: '光伏消纳率', val: '96.8%' },
-        { name: '储能充放电功率', val: '±1,500 kW' },
-        { name: '储能 SOC', val: '68.2%' },
-        { name: '储能 SOH', val: '97.1%' },
-        { name: '储能直流电压', val: '742.4 V' },
-        { name: '储能直流电流', val: '152.8 A' },
-        { name: '市电负荷', val: '4,980 kW' },
-      ],
-    },
-    {
-      rank: 4,
-      name: '鲁缆本部 (泰安基地)',
-      group: 'cable',
-      energy: 980.0,
-      carbon: 2610.0,
-      green: '37.5%',
-      status: 'normal',
-      delta: '-0.8% ▼',
-      barWidth: 64.5,
-      reason: '立塔交联挤出产线能耗正常受控',
-      lossCost: '正常运行',
-      pic: '鲁缆高新园区 (泰安)',
-      yoy: '-0.8%',
-      mom: '+0.5%',
-      avoidedCarbon: '1,120.0',
-      avgCost: '0.615',
-      media: {
-        elec: { val: '6,400 MWh', tce: '786.6 tce', pct: '80.3%', status: '正常' },
-        steam: { val: '1,100 GJ', tce: '93.9 tce', pct: '9.6%', status: '正常' },
-        gas: { val: '7.8 万 Nm³', tce: '76.5 tce', pct: '7.8%', status: '正常' },
-        other: { val: '2.8 万吨水', tce: '23.0 tce', pct: '2.3%', status: '正常' },
-      },
-      tou: { tip: '20.0%', peak: '36.0%', flat: '26.0%', valley: '18.0%' },
-      sensors: [{ tag: 'VCV-01', desc: '立塔交联管道氮气循环温度', val: '210 ℃', limit: '210±5 ℃', status: '🟢 受控' }],
-      actions: [{ title: '挤出机变频螺杆润滑保养', roi: '维持稳定运行', priority: '🟢 常规' }],
-      meta: {
-        indicatorName: '综合能源消费量',
-        period: '2026-08 (月)',
-        current: '980.0 tce',
-        benchmark: '1,080.0 tce',
-        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
-        result: '🟢 优秀（低于基准 9.3%）',
-        dataSource: '电装能源管理平台自动采集（电/蒸汽/热力）+ 人工录入（天然气）',
-        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
-      },
-      products: [
-        { model: 'YJLW03-64/110kV', energy: '0.42 tce/km', elec: '2,800 kWh/km', steam: '1.10 GJ/km', gas: '35 m³/km', water: '12 t/km', mom: '-6.7%' },
-        { model: 'YJV22-8.7/15kV', energy: '0.31 tce/km', elec: '2,050 kWh/km', steam: '0.85 GJ/km', gas: '28 m³/km', water: '9 t/km', mom: '-3.4%' },
-        { model: 'OPJY-500kV', energy: '0.55 tce/km', elec: '3,600 kWh/km', steam: '1.42 GJ/km', gas: '48 m³/km', water: '15 t/km', mom: '+5.2%' },
-      ],
-      realtime: [
-        { group: '电', name: '电压', val: '10.4 kV', status: '正常' },
-        { group: '电', name: '电流', val: '356.2 A', status: '正常' },
-        { group: '电', name: '总有功功率', val: '5,780 kW', status: '正常' },
-        { group: '电', name: '功率因数', val: '0.96', status: '正常' },
-        { group: '电', name: '正向有功电能', val: '6,400,180 kWh', status: '正常' },
-        { group: '电', name: '反向有功电能', val: '8,240 kWh', status: '正常' },
-        { group: '电', name: '正向无功电能', val: '860,500 kvarh', status: '正常' },
-        { group: '电', name: '反向无功电能', val: '15,700 kvarh', status: '正常' },
-        { group: '水', name: '水压', val: '0.38 MPa', status: '正常' },
-        { group: '水', name: '累计流量', val: '28,000 t', status: '正常' },
-        { group: '水', name: '瞬时流量', val: '12.6 t/h', status: '正常' },
-        { group: '气', name: '累计流量', val: '78,000 Nm³', status: '正常' },
-      ],
-      newEnergy: [
-        { name: '光伏发电功率', val: '1,680 kW' },
-        { name: '逆变器效率', val: '97.6%' },
-        { name: '光伏消纳率', val: '90.2%' },
-        { name: '储能充放电功率', val: '±700 kW' },
-        { name: '储能 SOC', val: '48.6%' },
-        { name: '储能 SOH', val: '95.4%' },
-        { name: '储能直流电压', val: '751.0 V' },
-        { name: '储能直流电流', val: '68.2 A' },
-        { name: '市电负荷', val: '5,120 kW' },
-      ],
-    },
-    {
-      rank: 5,
-      name: '德缆股份 (德阳基地)',
-      group: 'cable',
-      energy: 840.0,
-      carbon: 2250.0,
-      green: '35.0%',
-      status: 'normal',
-      delta: '-1.2% ▼',
-      barWidth: 55.2,
-      reason: '铜拉丝与高速绞线工序节能稳定运行',
-      lossCost: '节约 3.2 万元',
-      pic: '德缆旌阳园区 (德阳)',
-      yoy: '-1.2%',
-      mom: '-1.5%',
-      avoidedCarbon: '980.0',
-      avgCost: '0.608',
-      media: {
-        elec: { val: '5,800 MWh', tce: '712.8 tce', pct: '84.9%', status: '正常' },
-        steam: { val: '520 GJ', tce: '44.4 tce', pct: '5.3%', status: '正常' },
-        gas: { val: '6.5 万 Nm³', tce: '63.8 tce', pct: '7.6%', status: '正常' },
-        other: { val: '2.3 万吨水', tce: '19.0 tce', pct: '2.2%', status: '正常' },
-      },
-      tou: { tip: '18.0%', peak: '35.0%', flat: '27.0%', valley: '20.0%' },
-      sensors: [{ tag: 'DRAW-02', desc: '大拉机乳化液恒温系统', val: '45 ℃', limit: '45±3 ℃', status: '🟢 受控' }],
-      actions: [{ title: '非晶立体卷铁芯节能工艺迭代', roi: '提升能效 2.5%', priority: '🟢 工艺优化' }],
-      meta: {
-        indicatorName: '综合能源消费量',
-        period: '2026-08 (月)',
-        current: '840.0 tce',
-        benchmark: '960.0 tce',
-        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
-        result: '🟢 优秀（低于基准 12.5%）',
-        dataSource: '电装能源管理平台自动采集（电/热力）+ 人工录入（天然气/柴油）',
-        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
-      },
-      products: [
-        { model: 'S13-M-800kVA', energy: '0.58 tce/台', elec: '3,200 kWh/台', steam: '0.80 GJ/台', gas: '28 m³/台', water: '10 t/台', mom: '-6.4%' },
-        { model: 'YJV22-8.7/15kV', energy: '0.35 tce/km', elec: '2,300 kWh/km', steam: '0.92 GJ/km', gas: '30 m³/km', water: '10 t/km', mom: '-2.1%' },
-        { model: '轨道交通直流电缆', energy: '0.47 tce/km', elec: '3,120 kWh/km', steam: '1.18 GJ/km', gas: '38 m³/km', water: '13 t/km', mom: '+4.0%' },
-      ],
-      realtime: [
-        { group: '电', name: '电压', val: '10.2 kV', status: '正常' },
-        { group: '电', name: '电流', val: '332.5 A', status: '正常' },
-        { group: '电', name: '总有功功率', val: '5,460 kW', status: '正常' },
-        { group: '电', name: '功率因数', val: '0.97', status: '正常' },
-        { group: '电', name: '正向有功电能', val: '5,800,420 kWh', status: '正常' },
-        { group: '电', name: '反向有功电能', val: '7,120 kWh', status: '正常' },
-        { group: '电', name: '正向无功电能', val: '780,300 kvarh', status: '正常' },
-        { group: '电', name: '反向无功电能', val: '13,800 kvarh', status: '正常' },
-        { group: '水', name: '水压', val: '0.36 MPa', status: '正常' },
-        { group: '水', name: '累计流量', val: '23,000 t', status: '正常' },
-        { group: '水', name: '瞬时流量', val: '11.4 t/h', status: '正常' },
-        { group: '气', name: '累计流量', val: '65,000 Nm³', status: '正常' },
-      ],
-      newEnergy: [
-        { name: '光伏发电功率', val: '1,240 kW' },
-        { name: '逆变器效率', val: '97.2%' },
-        { name: '光伏消纳率', val: '86.4%' },
-        { name: '储能充放电功率', val: '±600 kW' },
-        { name: '储能 SOC', val: '52.1%' },
-        { name: '储能 SOH', val: '95.8%' },
-        { name: '储能直流电压', val: '740.8 V' },
-        { name: '储能直流电流', val: '58.4 A' },
-        { name: '市电负荷', val: '4,860 kW' },
-      ],
-    },
-    {
-      rank: 6,
-      name: '新缆厂 (昌吉总部)',
-      group: 'cable',
-      energy: 680.0,
-      carbon: 1820.0,
-      green: '44.0%',
-      status: 'best',
-      delta: '-8.6% ▼',
-      barWidth: 44.7,
-      reason: '【集团能效标杆】屋顶分布式光伏全额消纳，低碳运行典范',
-      lossCost: '节约 14.6 万元',
-      pic: '新缆昌吉园区 (昌吉)',
-      yoy: '-8.6%',
-      mom: '-4.2%',
-      avoidedCarbon: '1,450.0',
-      avgCost: '0.540',
-      media: {
-        elec: { val: '4,500 MWh', tce: '553.1 tce', pct: '81.3%', status: '低碳标杆' },
-        steam: { val: '480 GJ', tce: '41.0 tce', pct: '6.0%', status: '优胜' },
-        gas: { val: '6.8 万 Nm³', tce: '66.7 tce', pct: '9.8%', status: '正常' },
-        other: { val: '2.3 万吨水', tce: '19.2 tce', pct: '2.9%', status: '优胜' },
-      },
-      tou: { tip: '12.0%', peak: '30.0%', flat: '30.0%', valley: '28.0%' },
-      sensors: [{ tag: 'PV-ROOF', desc: '屋顶光伏实时出力', val: '3,200 kW', limit: '光照充足', status: '🟢 100% 就地消纳' }],
-      actions: [{ title: '持续保持屋顶光伏组件清洗与逆变器巡检', roi: '年绿电发电量超 520 万 kWh', priority: '🟢 标杆维护' }],
-      meta: {
-        indicatorName: '综合能源消费量',
-        period: '2026-08 (月)',
-        current: '680.0 tce',
-        benchmark: '960.0 tce',
-        benchmarkSource: '国家《零碳工厂评价规范》GB/T 36132-2018',
-        result: '🟢 优秀（低于基准 29.2%）',
-        dataSource: '电装能源管理平台自动采集（电/热力）+ 人工录入（天然气）',
-        formula: 'E = Σ(Ei × ki)：各能源介质实物量 × 折标准煤系数（电力取当量值）',
-      },
-      products: [
-        { model: 'YJLW03-64/110kV', energy: '0.48 tce/km', elec: '3,150 kWh/km', steam: '1.28 GJ/km', gas: '40 m³/km', water: '14 t/km', mom: '+6.6%' },
-        { model: '大截面铝导体电缆', energy: '0.44 tce/km', elec: '2,900 kWh/km', steam: '1.05 GJ/km', gas: '36 m³/km', water: '12 t/km', mom: '-5.0%' },
-        { model: 'OPJY-330kV', energy: '0.52 tce/km', elec: '3,400 kWh/km', steam: '1.30 GJ/km', gas: '42 m³/km', water: '14 t/km', mom: '-6.8%' },
-      ],
-      realtime: [
-        { group: '电', name: '电压', val: '10.6 kV', status: '正常' },
-        { group: '电', name: '电流', val: '288.4 A', status: '正常' },
-        { group: '电', name: '总有功功率', val: '4,220 kW', status: '正常' },
-        { group: '电', name: '功率因数', val: '0.98', status: '正常' },
-        { group: '电', name: '正向有功电能', val: '4,500,180 kWh', status: '正常' },
-        { group: '电', name: '反向有功电能', val: '4,860 kWh', status: '正常' },
-        { group: '电', name: '正向无功电能', val: '620,400 kvarh', status: '正常' },
-        { group: '电', name: '反向无功电能', val: '9,800 kvarh', status: '正常' },
-        { group: '水', name: '水压', val: '0.41 MPa', status: '正常' },
-        { group: '水', name: '累计流量', val: '23,000 t', status: '正常' },
-        { group: '水', name: '瞬时流量', val: '10.2 t/h', status: '正常' },
-        { group: '气', name: '累计流量', val: '68,000 Nm³', status: '正常' },
-      ],
-      newEnergy: [
-        { name: '光伏发电功率', val: '3,200 kW' },
-        { name: '逆变器效率', val: '98.4%' },
-        { name: '光伏消纳率', val: '100%' },
-        { name: '储能充放电功率', val: '±800 kW' },
-        { name: '储能 SOC', val: '58.8%' },
-        { name: '储能 SOH', val: '96.9%' },
-        { name: '储能直流电压', val: '736.4 V' },
-        { name: '储能直流电流', val: '82.6 A' },
-        { name: '市电负荷', val: '2,880 kW' },
-      ],
-    },
-  ]
-
-  const filteredFactories = factoryPkList.filter((f) => {
-    if (selectedFactoryGroup === 'all') return true
-    return f.group === selectedFactoryGroup
-  })
-
-  // 2. 维度二数据：产品型号库及其跨厂对比数据
-  const crossFactoryDataByProduct: Record<string, any[]> = {
-    'ODFS-334MVA/500kV': [
-      {
-        factory: '衡变本部 (衡阳基地)',
-        unitEnergy: 1.18,
-        diffPct: '-1.6% (达标)',
-        isBest: true,
-        status: '🟢 优胜标杆 (低碳工厂)',
-        elec: '8,250 kWh/台',
-        steam: '3.40 GJ/台',
-        carbon: '1.15 tCO2/台',
-        diagnosis: '真空干燥罐密封性极佳，冷凝水 100% 回收利用',
-      },
-      {
-        factory: '沈变本部 (沈阳基地)',
-        unitEnergy: 1.45,
-        diffPct: '+20.8% (偏高)',
-        isBest: false,
-        status: '🟡 正常受控 (蒸汽略高)',
-        elec: '10,420 kWh/台',
-        steam: '4.82 GJ/台',
-        carbon: '1.42 tCO2/台',
-        diagnosis: '试验大厅无局放试验变频机组存在空载损耗',
-      },
-      {
-        factory: '新变超高压 (昌吉基地)',
-        unitEnergy: 1.58,
-        diffPct: '+31.6% (超标)',
-        isWorst: true,
-        status: '🔴 严重拖后腿 (重点整改)',
-        elec: '10,800 kWh/台',
-        steam: '5.10 GJ/台',
-        carbon: '1.55 tCO2/台',
-        diagnosis: '2号干燥罐温控疏水阀微漏，保温层老化热散失大',
-      },
-    ],
-    'SZ-110kV/63000kVA': [
-      {
-        factory: '沈变本部 (沈阳基地)',
-        unitEnergy: 0.92,
-        diffPct: '-3.2% (达标)',
-        isBest: true,
-        status: '🟢 优胜标杆',
-        elec: '6,100 kWh/台',
-        steam: '2.10 GJ/台',
-        carbon: '0.88 tCO2/台',
-        diagnosis: '自动化铁芯剪切线伺服节能，工艺能耗受控',
-      },
-      {
-        factory: '衡变本部 (衡阳基地)',
-        unitEnergy: 0.98,
-        diffPct: '+3.1% (平稳)',
-        isBest: false,
-        status: '🟡 正常受控',
-        elec: '6,450 kWh/台',
-        steam: '2.25 GJ/台',
-        carbon: '0.94 tCO2/台',
-        diagnosis: '线圈绕组退火温控平稳，符合标准',
-      },
-      {
-        factory: '天津变压器厂',
-        unitEnergy: 1.15,
-        diffPct: '+21.0% (超标)',
-        isWorst: true,
-        status: '🔴 偏高待优化',
-        elec: '7,320 kWh/台',
-        steam: '2.90 GJ/台',
-        carbon: '1.10 tCO2/台',
-        diagnosis: '老旧烘房保温棉老化，热效率低于行业基准',
-      },
-    ],
-    'S13-M-800kVA': [
-      {
-        factory: '德缆股份配电车间',
-        unitEnergy: 0.58,
-        diffPct: '-6.4% (达标)',
-        isBest: true,
-        status: '🟢 能效标杆',
-        elec: '3,200 kWh/台',
-        steam: '0.80 GJ/台',
-        carbon: '0.52 tCO2/台',
-        diagnosis: '全自动流水线作业，非晶合金立体卷铁芯节能明显',
-      },
-      {
-        factory: '沈变配电变压器分厂',
-        unitEnergy: 0.65,
-        diffPct: '+4.8%',
-        isBest: false,
-        status: '🟡 正常受控',
-        elec: '3,550 kWh/台',
-        steam: '0.92 GJ/台',
-        carbon: '0.61 tCO2/台',
-        diagnosis: '喷涂烘干线采用电加热辅热，略有波动',
-      },
-    ],
-    'YJLW03-64/110kV': [
-      {
-        factory: '鲁缆本部 (泰安基地)',
-        unitEnergy: 0.42,
-        diffPct: '-6.7% (优胜)',
-        isBest: true,
-        status: '🟢 低碳标杆',
-        elec: '2,800 kWh/km',
-        steam: '1.10 GJ/km',
-        carbon: '0.39 tCO2/km',
-        diagnosis: '立塔交联全氮气循环系统，热回收效率 88%',
-      },
-      {
-        factory: '新缆厂 (昌吉总部)',
-        unitEnergy: 0.48,
-        diffPct: '+6.6%',
-        isWorst: true,
-        status: '🔴 轻度偏高',
-        elec: '3,150 kWh/km',
-        steam: '1.28 GJ/km',
-        carbon: '0.46 tCO2/km',
-        diagnosis: '牵引收线电机功率因数需加装就地补偿',
-      },
-    ],
-    'ESS-5MWh-Container': [
-      {
-        factory: '西安新能源成套基地',
-        unitEnergy: 1.72,
-        diffPct: '-7.0%',
-        isBest: true,
-        status: '🟢 标杆工厂',
-        elec: '12,500 kWh/舱',
-        steam: '0.00 GJ/舱',
-        carbon: '1.65 tCO2/舱',
-        diagnosis: '纯电充放电老化测试 100% 接入储能逆变回馈电网',
-      },
-      {
-        factory: '昌吉成套制造厂',
-        unitEnergy: 2.05,
-        diffPct: '+10.8%',
-        isWorst: true,
-        status: '🔴 待优化',
-        elec: '14,800 kWh/舱',
-        steam: '0.00 GJ/舱',
-        carbon: '1.98 tCO2/舱',
-        diagnosis: '负载测试电阻箱未进行能量回馈，造成电能散失',
-      },
-    ],
-  }
-
-  // 3. 维度三数据：各工厂车间产线
-  const factoryLineData: Record<string, any[]> = {
-    '沈变本部 (沈阳基地)': [
-      {
-        name: '超高压真空干燥车间',
-        unitOutputEnergy: 0.89,
-        target: 0.60,
-        diffPct: '+48.3% ▲',
-        isWorst: true,
-        status: '🔴 重点整改',
-        reason: '2号真空干燥罐温控疏水阀微漏，加热升温曲线异常',
-        lossCost: '超标电费 12.8 万元',
-      },
-      {
-        name: '无局放超高压试验大厅',
-        unitOutputEnergy: 0.58,
-        target: 0.55,
-        diffPct: '+5.4% ▲',
-        isWorst: false,
-        status: '🟡 轻微偏高',
-        reason: '大容量变压器满负荷升温试验无功损耗',
-        lossCost: '正常受控',
-      },
-      {
-        name: '铁芯数控剪切自动叠装线',
-        unitOutputEnergy: 0.32,
-        target: 0.35,
-        diffPct: '-8.5% ▼',
-        isBest: true,
-        status: '🟢 优秀达标',
-        reason: '全自动高精伺服电机节能改造见效',
-        lossCost: '节约电费 4.2 万元',
-      },
-      {
-        name: '自动化绝缘绕线车间',
-        unitOutputEnergy: 0.28,
-        target: 0.30,
-        diffPct: '-6.6% ▼',
-        isBest: true,
-        status: '🟢 优秀达标',
-        reason: '恒张力变频卷线机组平稳运行',
-        lossCost: '节约电费 3.5 万元',
-      },
-    ],
-    '衡变本部 (衡阳基地)': [
-      {
-        name: '特高压变压器装配车间',
-        unitOutputEnergy: 0.52,
-        target: 0.55,
-        diffPct: '-5.4% ▼',
-        isBest: true,
-        status: '🟢 优秀达标',
-        reason: '数字化洁净装配车间恒温恒湿精准变频控制',
-        lossCost: '节约 3.8 万元',
-      },
-      {
-        name: '油浸绝缘干燥车间',
-        unitOutputEnergy: 0.58,
-        target: 0.60,
-        diffPct: '-3.3% ▼',
-        isBest: true,
-        status: '🟢 正常受控',
-        reason: '余热蒸汽回收系统正常运转',
-        lossCost: '节约 2.1 万元',
-      },
-    ],
-    '新变超高压 (昌吉基地)': [
-      {
-        name: '2号气相干燥生产线',
-        unitOutputEnergy: 0.96,
-        target: 0.60,
-        diffPct: '+60.0% ▲',
-        isWorst: true,
-        status: '🔴 严重超标',
-        reason: '管道阀门保温破损，蒸汽泄漏导致能耗剧增',
-        lossCost: '损失 16.5 万元',
-      },
-      {
-        name: '高压试验屏蔽机房',
-        unitOutputEnergy: 0.62,
-        target: 0.55,
-        diffPct: '+12.7% ▲',
-        isWorst: false,
-        status: '🟡 偏高预警',
-        reason: '谐波滤波装置效率下降',
-        lossCost: '超标 3.2 万元',
-      },
-    ],
-    '鲁缆本部 (泰安基地)': [
-      {
-        name: '超高压立塔悬垂生产线',
-        unitOutputEnergy: 0.44,
-        target: 0.45,
-        diffPct: '-2.2% ▼',
-        isBest: true,
-        status: '🟢 达标受控',
-        reason: '交联加热区温控 PID 自整定算法运行良好',
-        lossCost: '正常',
-      },
-    ],
-  }
-
-  // 4. 维度四数据：产品批次波动
-  const batchDataByProduct: Record<string, any[]> = {
-    'ODFS-334MVA/500kV': [
-      { batch: '#202608 批次 (当期)', unitKwh: 12800, carbon: 1.72, status: '🔴 异常突增 +24.5%', isWorst: true },
-      { batch: '#202607 批次', unitKwh: 10350, carbon: 1.41, status: '正常受控', isWorst: false },
-      { batch: '#202606 批次', unitKwh: 10200, carbon: 1.39, status: '正常受控', isWorst: false },
-      { batch: '#202605 批次', unitKwh: 10250, carbon: 1.40, status: '正常受控', isWorst: false },
-      { batch: '#202604 批次', unitKwh: 10100, carbon: 1.38, status: '正常受控', isWorst: false },
-    ],
-    'SZ-110kV/63000kVA': [
-      { batch: '#202608 批次 (当期)', unitKwh: 6850, carbon: 0.98, status: '🟡 波动 +10.5%', isWorst: true },
-      { batch: '#202607 批次', unitKwh: 6200, carbon: 0.89, status: '正常受控', isWorst: false },
-      { batch: '#202606 批次', unitKwh: 6150, carbon: 0.88, status: '正常受控', isWorst: false },
-      { batch: '#202605 批次', unitKwh: 6100, carbon: 0.87, status: '正常受控', isWorst: false },
-      { batch: '#202604 批次', unitKwh: 6050, carbon: 0.86, status: '正常受控', isWorst: false },
-    ],
-    'S13-M-800kVA': [
-      { batch: '#202608 批次 (当期)', unitKwh: 3220, carbon: 0.51, status: '🟢 极其平稳', isWorst: false },
-      { batch: '#202607 批次', unitKwh: 3210, carbon: 0.51, status: '正常受控', isWorst: false },
-      { batch: '#202606 批次', unitKwh: 3180, carbon: 0.50, status: '正常受控', isWorst: false },
-      { batch: '#202605 批次', unitKwh: 3250, carbon: 0.52, status: '正常受控', isWorst: false },
-      { batch: '#202604 批次', unitKwh: 3200, carbon: 0.51, status: '正常受控', isWorst: false },
-    ],
-    'YJLW03-64/110kV': [
-      { batch: '#202608 批次 (当期)', unitKwh: 3150, carbon: 0.46, status: '🔴 突增 +11.7%', isWorst: true },
-      { batch: '#202607 批次', unitKwh: 2820, carbon: 0.39, status: '正常受控', isWorst: false },
-      { batch: '#202606 批次', unitKwh: 2790, carbon: 0.38, status: '正常受控', isWorst: false },
-      { batch: '#202605 批次', unitKwh: 2850, carbon: 0.40, status: '正常受控', isWorst: false },
-      { batch: '#202604 批次', unitKwh: 2800, carbon: 0.39, status: '正常受控', isWorst: false },
-    ],
-  }
+  // 工序指标搜索过滤
+  const filteredProcessMetrics = useMemo(() => {
+    if (!procSearchKey.trim()) return PROCESS_CONTROL_METRICS
+    const kw = procSearchKey.trim().toLowerCase()
+    return PROCESS_CONTROL_METRICS.filter(
+      (m) =>
+        m.name.toLowerCase().includes(kw) ||
+        m.code.toLowerCase().includes(kw) ||
+        m.formula.toLowerCase().includes(kw) ||
+        m.unit.toLowerCase().includes(kw)
+    )
+  }, [procSearchKey])
 
   return (
-    <div className="space-y-3 relative">
-      {/* 顶部控制栏：4 大硬刚 PK 切换器 + 统计周期 + 导出对标红黑榜 */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-lg border border-[#e5e7eb] shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="size-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center font-bold">
-            <Swords className="size-4 animate-pulse" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-sm font-bold text-slate-800">
-                指标管控 · 4 维横向硬核 PK 看板
-              </h1>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-red-50 text-red-600 border border-red-200 font-mono font-bold">
-                用数据抓管理 · 用对比分优劣
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 font-mono mt-0.5">
-              左侧选择树状节点 · 右侧实时对比优劣 · 统计周期：2026-08
-            </p>
-          </div>
-        </div>
+    <div className="flex gap-3.5 items-start">
+      {/* 🌟 左侧 270px 经典工业级拓扑树 */}
+      <StandardOrgTree
+        selectedId={selectedNode.id}
+        onSelect={(node) => {
+          setSelectedNode(node)
+          setActiveViewMetric(null) // 切换组织节点时自动回到全景概览
+        }}
+      />
 
-        {/* 4 个对比维度大切换 Tab */}
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <div className="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
-            <button
-              onClick={() => setPkTab('factory')}
-              className={cn(
-                'px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5',
-                pkTab === 'factory' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              <Factory className="size-3.5" />
-              1. 工厂之间 PK (总能碳)
-            </button>
-            <button
-              onClick={() => setPkTab('product')}
-              className={cn(
-                'px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5',
-                pkTab === 'product' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              <Package className="size-3.5" />
-              2. 同产品跨工厂 PK (单耗)
-            </button>
-            <button
-              onClick={() => setPkTab('line')}
-              className={cn(
-                'px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5',
-                pkTab === 'line' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              <Cog className="size-3.5" />
-              3. 同厂不同产线 PK (抓落后)
-            </button>
-            <button
-              onClick={() => setPkTab('batch')}
-              className={cn(
-                'px-3.5 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5',
-                pkTab === 'batch' ? 'bg-[#1677ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              <Activity className="size-3.5" />
-              4. 同产品不同批次 PK (抓波动)
-            </button>
-          </div>
-
-          {/* 导出红黑榜按钮 */}
-          <button
-            onClick={() => alert('已导出本月《特变电工能效对标红黑榜 (2026年08月)》PDF/Excel 报告！')}
-            className="px-3 py-1.5 rounded bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold flex items-center gap-1.5 shadow-xs"
-            title="导出对标红黑榜"
-          >
-            <Download className="size-3.5 text-[#1677ff]" />
-            <span>导出对标红黑榜</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 主体两栏：左侧【对应维度的动态树状结构】 + 右侧【严格对齐的 PK 视口】 */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch min-h-[calc(100vh-170px)]">
-        {/* ======================================================== */}
-        {/* 🌟 1. 左侧动态树状结构选择器 (依据当前 PK 维度展开匹配树) */}
-        {/* ======================================================== */}
-        <div className="lg:col-span-3">
-          <div className="bg-white p-3.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3 h-full flex flex-col justify-between">
-            <div className="space-y-2.5">
-              {/* 树顶部标题 */}
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100 text-xs">
-                <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                  <FolderTree className="size-4 text-[#1677ff]" />
-                  {pkTab === 'factory' && '产业群与工厂树'}
-                  {pkTab === 'product' && '产品品类与型号树'}
-                  {pkTab === 'line' && '制造基地与车间树'}
-                  {pkTab === 'batch' && '产品批次追溯树'}
-                </span>
-                <span className="text-[10px] text-slate-400 font-mono">树状穿透</span>
-              </div>
-
-              {/* 快速搜索框 */}
-              <div className="relative">
-                <Search className="size-3.5 text-slate-400 absolute left-2.5 top-2" />
-                <input
-                  type="text"
-                  value={treeSearch}
-                  onChange={(e) => setTreeSearch(e.target.value)}
-                  placeholder="搜索树节点名称..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded pl-8 pr-2 py-1 text-xs text-slate-800 focus:outline-none focus:border-[#1677ff]"
-                />
-              </div>
-
-              {/* 树节点滚动区 */}
-              <div className="max-h-[520px] overflow-y-auto pr-1">
-                {pkTab === 'factory' && <TreeView data={factoryTreeData} expandedKeys={expandedNodes} onToggle={toggleNode} />}
-                {pkTab === 'product' && <TreeView data={productTreeData} expandedKeys={expandedNodes} onToggle={toggleNode} />}
-                {pkTab === 'line' && <TreeView data={lineTreeData} expandedKeys={expandedNodes} onToggle={toggleNode} />}
-                {pkTab === 'batch' && <TreeView data={batchTreeData} expandedKeys={expandedNodes} onToggle={toggleNode} />}
-              </div>
-
-            </div>
-
-            {/* 左侧底部提示 */}
-            <div className="pt-2.5 border-t border-slate-100 text-[11px] text-slate-400 font-mono flex items-center gap-1">
-              <Sparkles className="size-3 text-[#1677ff]" />
-              <span>点击树节点实时刷新右侧 PK</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ======================================================== */}
-        {/* 🌟 2. 右侧白底高反差 PK 视口 (标准对齐栅格 Grid Table) */}
-        {/* ======================================================== */}
-        <div className="lg:col-span-9 space-y-3 flex flex-col justify-between">
-          {/* 1. 维度一：全集团 21 家工厂总能碳大 PK */}
-          {pkTab === 'factory' && (
-            <div className="bg-white p-4.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3 flex-1 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="size-2.5 rounded-full bg-red-500 animate-pulse" />
-                    <span className="font-bold text-xs text-slate-800 uppercase tracking-wider">
-                      【维度一】全集团工厂总能耗与总碳排放排行榜（按综合能耗降序排列）
+      {/* 🌟 右侧主面板 */}
+      <div className="flex-1 min-w-0 flex flex-col gap-3.5">
+        
+        {/* ========================================================================= */}
+        {/* 模式 B: 点击卡片后直接呈现【指标详情透视与 12 个月历史明细台账内页】 (参照 media_1787836545294.png) */}
+        {/* ========================================================================= */}
+        {activeViewMetric !== null ? (
+          <div className="space-y-3.5 animate-in fade-in zoom-in-95 duration-150">
+            {/* 顶部面包屑与全景概览返回导航 */}
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setActiveViewMetric(null)}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer transition-colors shadow-2xs"
+                >
+                  <ChevronLeft className="size-4 text-slate-500" />
+                  <span>返回指标全景概览</span>
+                </button>
+                <div className="h-4 w-px bg-slate-200" />
+                <div>
+                  <h1 className="text-xs font-extrabold text-slate-900 flex items-center gap-2">
+                    <span>{activeViewMetric.name} ({activeViewMetric.unit})</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-mono font-bold">
+                      {activeViewMetric.categoryName}
                     </span>
-                  </div>
-                  <span className="text-xs text-slate-400 font-mono">2026-08 统计周期 · 能耗差值直观条</span>
-                </div>
-
-                {/* 严格垂直对齐表头 (Grid Columns) */}
-                <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 items-center select-none">
-                  <div className="col-span-4">工厂及重点工序</div>
-                  <div className="col-span-2 text-center">能耗规模对比条 (相较基准)</div>
-                  <div className="col-span-2 text-right">综合能耗 (tce)</div>
-                  <div className="col-span-2 text-right">总碳排放 (tCO2)</div>
-                  <div className="col-span-1 text-center">绿电占比</div>
-                  <div className="col-span-1 text-center">操作 / 诊断</div>
-                </div>
-
-                {/* 严格对齐数据行 (Data Rows) */}
-                <div className="space-y-2 font-mono">
-                  {filteredFactories.map((item) => (
-                    <div
-                      key={item.name}
-                      className={cn(
-                        'grid grid-cols-1 md:grid-cols-12 gap-3 px-4 py-3 rounded-lg border items-center transition-all',
-                        item.status === 'worst'
-                          ? 'bg-red-50/70 border-red-300 shadow-xs'
-                          : item.status === 'best'
-                          ? 'bg-emerald-50/70 border-emerald-300 shadow-xs'
-                          : 'bg-white border-slate-200 hover:border-blue-300'
-                      )}
-                    >
-                      {/* 列 1: 序号、工厂名称与归因 (col-span-4) */}
-                      <div className="md:col-span-4 flex items-center gap-3 overflow-hidden">
-                        <span
-                          className={cn(
-                            'size-6 rounded text-xs font-extrabold flex items-center justify-center shrink-0',
-                            item.status === 'worst'
-                              ? 'bg-red-600 text-white animate-pulse'
-                              : item.status === 'best'
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-slate-200 text-slate-700'
-                          )}
-                        >
-                          {item.rank}
-                        </span>
-                        <div className="overflow-hidden">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-sm text-slate-900 font-sans truncate">{item.name}</span>
-                            {item.status === 'worst' && (
-                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-red-100 text-red-700 font-sans font-bold border border-red-300">
-                                重点监管
-                              </span>
-                            )}
-                            {item.status === 'best' && (
-                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 font-sans font-bold border border-emerald-300">
-                                能效标杆
-                              </span>
-                            )}
-                          </div>
-                          <span className={cn('text-[11px] font-sans truncate block', item.status === 'worst' ? 'text-red-700 font-semibold' : 'text-slate-500')}>
-                            {item.reason}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* 列 2: 能耗规模对比能量条 (col-span-2) */}
-                      <div className="md:col-span-2 space-y-1">
-                        <div className="flex justify-between text-[10px] text-slate-500 font-sans">
-                          <span>差值幅度</span>
-                          <span className={cn('font-bold font-mono', item.status === 'worst' ? 'text-red-600' : item.status === 'best' ? 'text-emerald-600' : 'text-slate-700')}>
-                            {item.delta}
-                          </span>
-                        </div>
-                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className={cn(
-                              'h-full rounded-full transition-all duration-500',
-                              item.status === 'worst'
-                                ? 'bg-red-500'
-                                : item.status === 'best'
-                                ? 'bg-emerald-500'
-                                : 'bg-[#1677ff]'
-                            )}
-                            style={{ width: `${item.barWidth}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* 列 3: 综合能耗 (col-span-2 text-right) */}
-                      <div className="md:col-span-2 text-right">
-                        <span className={cn('text-base font-bold', item.status === 'worst' ? 'text-red-600' : item.status === 'best' ? 'text-emerald-600' : 'text-slate-800')}>
-                          {item.energy.toFixed(1)}
-                        </span>
-                        <span className="text-xs text-slate-400 font-sans ml-1">tce</span>
-                      </div>
-
-                      {/* 列 4: 总碳排放 (col-span-2 text-right) */}
-                      <div className="md:col-span-2 text-right">
-                        <span className={cn('text-base font-bold', item.status === 'worst' ? 'text-red-600' : item.status === 'best' ? 'text-emerald-600' : 'text-slate-800')}>
-                          {item.carbon.toFixed(1)}
-                        </span>
-                        <span className="text-xs text-slate-400 font-sans ml-1">tCO2</span>
-                      </div>
-
-                      {/* 列 5: 绿电占比 (col-span-1 text-center) */}
-                      <div className="md:col-span-1 text-center font-mono font-semibold text-xs text-slate-700">
-                        {item.green}
-                      </div>
-
-                      {/* 列 6: 操作 - 显示明细 (col-span-1 text-center) */}
-                      <div className="md:col-span-1 text-center font-sans">
-                        <button
-                          onClick={() => setSelectedDrawerEntity(item)}
-                          className="px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-[#1677ff] border border-blue-200 font-semibold text-xs transition-colors whitespace-nowrap shadow-xs"
-                        >
-                          显示明细
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                  </h1>
+                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                    考核单位：【<strong className="text-slate-700">{selectedNode.name}</strong>】 · 数据频率：按月汇总 · 归口中心：零碳园区集控中心
+                  </p>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 font-mono">
-                <span>当前筛选工厂月度平均能耗：<strong>1,082.3 tce</strong> · 绿电平均消纳率：<strong>38.6%</strong></span>
-                <span className="text-slate-400">💡 点击【显示明细】可滑出工厂能碳指标与监测明细（指标核算/产品单耗/实时量测/新能源资产）</span>
+              <div className="flex items-center gap-3 font-mono">
+                <div className="text-right">
+                  <span className="text-[10px] text-slate-400 block font-sans">当期实测值</span>
+                  <strong className="text-base text-slate-900 font-extrabold">{activeViewMetric.curVal} <span className="text-xs font-normal text-slate-500">{activeViewMetric.unit}</span></strong>
+                </div>
+                <div className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-xs border border-emerald-200">
+                  常规监测 ({activeViewMetric.yoy} ↓)
+                </div>
               </div>
             </div>
-          )}
 
-          {/* 2. 维度二：同产品跨工厂 */}
-          {pkTab === 'product' && (
-            <div className="bg-white p-4.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3.5 font-mono">
-              <div className="border-b border-slate-100 pb-2.5">
-                <span className="font-bold text-xs text-slate-800 flex items-center gap-2">
-                  <Package className="size-4 text-[#1677ff]" />
-                  【维度二】同型号产品跨厂低碳对标 PK：{selectedProductModel}
-                </span>
-                <p className="text-[11px] text-slate-500 font-sans mt-0.5">
-                  已匹配各基地生产批次横向对标 · 谁做得更低碳一目了然
+            {/* 顶部 3 栏信息卡片 (参照截图图片2顶部三栏) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs font-mono">
+              {/* 1. 指标标准定义 */}
+              <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center gap-1.5 text-slate-800 font-bold font-sans">
+                  <Info className="size-4 text-[#1677ff]" />
+                  <span>指标标准定义</span>
+                </div>
+                <p className="text-slate-600 font-sans text-[11.5px] leading-relaxed">
+                  {activeViewMetric.tipText}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {(crossFactoryDataByProduct[selectedProductModel] || crossFactoryDataByProduct['ODFS-334MVA/500kV']).map((item) => (
-                  <div
-                    key={item.factory}
-                    className={cn(
-                      'p-4.5 rounded-xl border space-y-3.5',
-                      item.isBest
-                        ? 'bg-emerald-50/70 border-emerald-300 shadow-xs'
-                        : item.isWorst
-                        ? 'bg-red-50/70 border-red-300 shadow-xs'
-                        : 'bg-white border-slate-200'
-                    )}
-                  >
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <span className="font-bold text-sm text-slate-800 font-sans">{item.factory}</span>
-                      <span className={cn('text-xs px-2.5 py-0.5 rounded font-sans font-bold border', item.isBest ? 'bg-emerald-100 text-emerald-700 border-emerald-300' : item.isWorst ? 'bg-red-100 text-red-700 border-red-300' : 'bg-slate-100 text-slate-600 border-slate-200')}>
-                        {item.status}
-                      </span>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] text-slate-400 block font-sans">综合单耗 (tce/万kVA)</span>
-                      <div className="flex items-baseline gap-1.5 mt-0.5">
-                        <span className={cn('text-3xl font-extrabold', item.isWorst ? 'text-red-600' : item.isBest ? 'text-emerald-700' : 'text-slate-900')}>
-                          {item.unitEnergy}
-                        </span>
-                        <span className={cn('text-xs font-bold font-sans', item.isWorst ? 'text-red-600' : 'text-emerald-600')}>
-                          {item.diffPct}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5 text-xs text-slate-600 font-sans pt-2 border-t border-slate-100">
-                      <div className="flex justify-between"><span>单台电耗：</span><span className="font-bold font-mono text-slate-900">{item.elec}</span></div>
-                      <div className="flex justify-between"><span>蒸汽消耗：</span><span className={cn('font-bold font-mono', item.isWorst ? 'text-red-600' : 'text-slate-900')}>{item.steam}</span></div>
-                      <div className="flex justify-between"><span>单台碳足迹：</span><span className="font-bold font-mono text-emerald-700">{item.carbon}</span></div>
-                    </div>
-
-                    <div className={cn('p-2.5 rounded text-xs font-sans', item.isWorst ? 'bg-red-100/80 text-red-800 border border-red-200' : 'bg-slate-50 text-slate-600')}>
-                      <strong>工艺归因：</strong>{item.diagnosis}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 3. 维度三：同厂不同产线 */}
-          {pkTab === 'line' && (
-            <div className="bg-white p-4.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3.5 font-mono">
-              <div className="border-b border-slate-100 pb-2.5">
-                <span className="font-bold text-xs text-slate-800 flex items-center gap-2">
-                  <Cog className="size-4 text-red-500" />
-                  【维度三】{selectedLineFactory} 各车间产线能效 PK（直接定位哪个车间在拖后腿）
-                </span>
-                <p className="text-[11px] text-slate-500 font-sans mt-0.5">万元产值标杆基准：<strong className="text-emerald-600">0.60 tce/万</strong> · 产线超标责任到车间</p>
-              </div>
-
-              <div className="space-y-3">
-                {(factoryLineData[selectedLineFactory] || factoryLineData['沈变本部 (沈阳基地)']).map((item) => (
-                  <div
-                    key={item.name}
-                    className={cn(
-                      'p-4 rounded-lg border flex flex-wrap items-center justify-between gap-4',
-                      item.isWorst
-                        ? 'bg-red-50/70 border-red-300 shadow-xs'
-                        : item.isBest
-                        ? 'bg-emerald-50/70 border-emerald-300 shadow-xs'
-                        : 'bg-white border-slate-200'
-                    )}
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slate-800 font-sans">{item.name}</span>
-                        <span className={cn('text-[10px] px-2 py-0.5 rounded font-sans font-bold border', item.isWorst ? 'bg-red-100 text-red-700 border-red-300' : 'bg-emerald-100 text-emerald-700 border-emerald-300')}>
-                          {item.lossCost}
-                        </span>
-                      </div>
-                      <span className={cn('text-xs font-sans block mt-1', item.isWorst ? 'text-red-700 font-semibold' : 'text-slate-500')}>
-                        排查归因：{item.reason}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-8 text-xs">
-                      <div>
-                        <span className="text-[10px] text-slate-400 block font-sans">产值能耗</span>
-                        <span className={cn('text-xl font-bold', item.isWorst ? 'text-red-600' : 'text-emerald-700')}>
-                          {item.unitOutputEnergy} <span className="text-xs font-normal text-slate-400">tce/万</span>
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-slate-400 block font-sans">偏差幅度</span>
-                        <span className={cn('text-base font-bold', item.isWorst ? 'text-red-600' : 'text-emerald-700')}>{item.diffPct}</span>
-                      </div>
-                      <span className={cn('px-3 py-1 rounded text-xs font-sans font-bold border', item.isWorst ? 'bg-red-100 text-red-700 border-red-300' : 'bg-emerald-100 text-emerald-700 border-emerald-300')}>
-                        {item.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 4. 维度四：同产品不同批次 */}
-          {pkTab === 'batch' && (
-            <div className="bg-white p-4.5 rounded-lg border border-[#e5e7eb] shadow-xs space-y-3.5 font-mono">
-              <div className="border-b border-slate-100 pb-2.5">
-                <span className="font-bold text-xs text-slate-800 flex items-center gap-2">
-                  <Activity className="size-4 text-red-500" />
-                  【维度四】{selectedBatchProduct} 连续 5 个生产批次单耗与碳排波动离散 PK
-                </span>
-                <p className="text-[11px] text-slate-500 font-sans mt-0.5">锁定异常突增生产批次，精准回溯工艺波动</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-3.5">
-                {(batchDataByProduct[selectedBatchProduct] || batchDataByProduct['ODFS-334MVA/500kV']).map((b) => (
-                  <div
-                    key={b.batch}
-                    className={cn(
-                      'p-4 rounded-xl border space-y-2.5',
-                      b.isWorst
-                        ? 'bg-red-50/70 border-red-300 shadow-xs'
-                        : 'bg-white border-slate-200'
-                    )}
-                  >
-                    <span className="font-bold text-xs text-slate-700 font-sans block">{b.batch}</span>
-                    <div>
-                      <span className="text-[10px] text-slate-400 font-sans block">单台电耗</span>
-                      <span className={cn('text-2xl font-bold', b.isWorst ? 'text-red-600' : 'text-slate-900')}>{b.unitKwh.toLocaleString()}</span>
-                      <span className="text-[10px] text-slate-400"> kWh</span>
-                    </div>
-                    <div className="pt-2 border-t border-slate-100 text-xs">
-                      <span className="text-slate-400 font-sans">碳排：</span>
-                      <span className={cn('font-bold', b.isWorst ? 'text-red-600' : 'text-emerald-700')}>{b.carbon} tCO2</span>
-                    </div>
-                    <span className={cn('block text-xs font-sans font-bold px-2 py-0.5 rounded text-center border', b.isWorst ? 'bg-red-100 text-red-700 border-red-300' : 'bg-slate-100 text-slate-600 border-slate-200')}>
-                      {b.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ======================================================== */}
-      {/* 🌟 工业级 7 大板块：工厂能碳指标与监测明细抽屉（按需求对齐） */}
-      {/* ======================================================== */}
-      {selectedDrawerEntity && (
-        <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
-          <div className="w-full max-w-4xl lg:max-w-5xl bg-white h-full shadow-2xl border-l border-slate-200 flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-300">
-            {/* 抽屉顶部头部 */}
-            <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="size-9 rounded-lg bg-[#1677ff] text-white flex items-center justify-center font-bold shadow-xs">
-                  <Factory className="size-5" />
+              {/* 2. 核算数学公式 */}
+              <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center gap-1.5 text-slate-800 font-bold font-sans">
+                  <Calculator className="size-4 text-purple-600" />
+                  <span>核算数学公式</span>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="font-bold text-sm text-slate-900 font-sans">
-                      {selectedDrawerEntity.name} · 工厂能碳指标与监测明细
-                    </h2>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 text-[#1677ff] font-bold font-mono">
-                      监测报告 2026-08
-                    </span>
-                  </div>
-                  <span className="text-[11px] text-slate-500 font-mono">
-                    主体：{selectedDrawerEntity.pic || '特变电工基地'} · 指标核算/产品单耗/实时量测/新能源资产全量监测
+                <div className="text-slate-900 font-extrabold text-xs font-sans bg-purple-50/60 p-2 rounded-lg border border-purple-100">
+                  {activeViewMetric.formula}
+                </div>
+                <p className="text-slate-500 text-[10.5px] font-sans leading-relaxed">
+                  {activeViewMetric.formulaDesc}
+                </p>
+              </div>
+
+              {/* 3. 数据来源与采集路径 */}
+              <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center gap-1.5 text-slate-800 font-bold font-sans">
+                  <Layers className="size-4 text-emerald-600" />
+                  <span>数据来源与采集路径</span>
+                </div>
+                <p className="text-slate-600 font-sans text-[11.5px] leading-relaxed">
+                  {activeViewMetric.dataSource}
+                </p>
+              </div>
+            </div>
+
+            {/* 中间图表：近 12 个月数据变化趋势走势 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-[#1677ff]" />
+                  <h3 className="text-xs font-bold text-slate-800">
+                    ● 近 12 个月数据变化趋势与基准对比走势
+                  </h3>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 font-mono">
+                    2025.09 ~ 2026.08
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-xs font-mono">
+                  <span className="flex items-center gap-1 text-[#1677ff] font-bold">
+                    <span className="size-2.5 rounded-full bg-[#1677ff]" /> 实测值走势
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => alert(`已成功导出《${selectedDrawerEntity.name}能碳指标与监测明细报告(2026-08)》PDF 文件！`)}
-                  className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold flex items-center gap-1 shadow-xs"
-                >
-                  <Download className="size-3.5 text-[#1677ff]" />
-                  <span>导出PDF</span>
-                </button>
-                <button
-                  onClick={() => setSelectedDrawerEntity(null)}
-                  className="p-1 rounded text-slate-400 hover:text-slate-800"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
-            </div>
 
-            {/* 抽屉内容主体 (7 大板块滚动区) */}
-            <div className="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
-              {/* 板块 1: 核心指标概况与同环比 */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <Gauge className="size-4 text-[#1677ff]" />
-                    1. 综合能碳概况与同环比趋势
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">行业先进对标</span>
-                </div>
-
-                <div className="grid grid-cols-4 gap-2 font-mono">
-                  <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-sans">月度综合能耗</span>
-                    <div className="text-base font-bold text-slate-900">{selectedDrawerEntity.energy} <span className="text-[10px] font-normal text-slate-400 font-sans">tce</span></div>
-                    <div className="text-[10px] text-red-600 font-semibold mt-0.5">同比 {selectedDrawerEntity.yoy || '+18.4%'} ▲</div>
-                  </div>
-
-                  <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-sans">月度总碳排放</span>
-                    <div className="text-base font-bold text-slate-900">{selectedDrawerEntity.carbon} <span className="text-[10px] font-normal text-slate-400 font-sans">tCO2</span></div>
-                    <div className="text-[10px] text-emerald-600 font-semibold mt-0.5">减碳 -{selectedDrawerEntity.avoidedCarbon || '1,240'} t</div>
-                  </div>
-
-                  <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-sans">绿电消纳占比</span>
-                    <div className="text-base font-bold text-emerald-600">{selectedDrawerEntity.green}</div>
-                    <div className="text-[10px] text-slate-400 font-sans mt-0.5">标杆基准 44.0%</div>
-                  </div>
-
-                  <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-sans">综合度电成本</span>
-                    <div className="text-base font-bold text-slate-900">{selectedDrawerEntity.avgCost || '0.685'} <span className="text-[10px] font-normal text-slate-400 font-sans">元/度</span></div>
-                    <div className="text-[10px] text-red-600 font-semibold mt-0.5">尖峰电费偏高</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 板块 1.2: 近12个月综合能耗与碳排放趋势 */}
-              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                <div className="flex items-center justify-between pb-1.5">
-                  <span className="text-[11px] font-bold text-slate-700 font-sans flex items-center gap-1.5">
-                    <Activity className="size-3.5 text-[#1677ff]" />
-                    近12个月综合能耗与碳排放趋势
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">月 / 当量值</span>
-                </div>
+              <div className="h-[260px]">
                 <LineTrend
-                  height={180}
-                  xKey="month"
-                  keys={[
-                    { key: '综合能耗', name: '综合能耗 (tce)', color: '#1677ff' },
-                    { key: '碳排放', name: '碳排放 (tCO2)', color: '#52c41a' },
-                  ]}
-                  data={genEnergyTrend(selectedDrawerEntity.energy, selectedDrawerEntity.carbon)}
-                />
-              </div>
-
-              {/* 板块 2: 能源介质解构 (电/蒸汽/天然气/水) */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <Layers className="size-4 text-[#1677ff]" />
-                    2. 能源介质消耗构成 (分项能耗)
-                  </span>
-                  <span className="text-[10px] text-red-600 font-semibold">🔴 蒸汽为主要超标介质</span>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono">
-                  <div className="p-2 bg-blue-50/60 rounded border border-blue-200 space-y-1">
-                    <div className="flex items-center justify-between font-sans">
-                      <span className="font-bold text-slate-800 flex items-center gap-1"><Zap className="size-3 text-[#1677ff]" />外购电力</span>
-                      <span className="text-[10px] text-blue-700 font-bold">{selectedDrawerEntity.media?.elec.pct || '68.3%'}</span>
-                    </div>
-                    <div className="text-xs font-bold text-slate-900">{selectedDrawerEntity.media?.elec.val || '8,450 MWh'}</div>
-                    <div className="text-[10px] text-slate-500">折标: {selectedDrawerEntity.media?.elec.tce || '1,038 tce'}</div>
-                  </div>
-
-                  <div className="p-2 bg-red-50 rounded border border-red-200 space-y-1">
-                    <div className="flex items-center justify-between font-sans">
-                      <span className="font-bold text-red-800 flex items-center gap-1"><Flame className="size-3 text-red-600" />工业蒸汽</span>
-                      <span className="text-[10px] text-red-700 font-bold">{selectedDrawerEntity.media?.steam.pct || '21.5%'}</span>
-                    </div>
-                    <div className="text-xs font-bold text-red-600">{selectedDrawerEntity.media?.steam.val || '3,820 GJ'}</div>
-                    <div className="text-[10px] text-red-700 font-semibold">{selectedDrawerEntity.media?.steam.status || '🔴 严重超标'}</div>
-                  </div>
-
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
-                    <div className="flex items-center justify-between font-sans">
-                      <span className="font-bold text-slate-800 flex items-center gap-1"><Flame className="size-3 text-amber-500" />天然气</span>
-                      <span className="text-[10px] text-slate-500">{selectedDrawerEntity.media?.gas.pct || '8.0%'}</span>
-                    </div>
-                    <div className="text-xs font-bold text-slate-800">{selectedDrawerEntity.media?.gas.val || '12.4万 Nm³'}</div>
-                    <div className="text-[10px] text-slate-500">折标: {selectedDrawerEntity.media?.gas.tce || '121.6 tce'}</div>
-                  </div>
-
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200 space-y-1">
-                    <div className="flex items-center justify-between font-sans">
-                      <span className="font-bold text-slate-800 flex items-center gap-1"><Droplets className="size-3 text-cyan-600" />软水/气</span>
-                      <span className="text-[10px] text-slate-500">{selectedDrawerEntity.media?.other.pct || '2.2%'}</span>
-                    </div>
-                    <div className="text-xs font-bold text-slate-800">{selectedDrawerEntity.media?.other.val || '4.2万吨'}</div>
-                    <div className="text-[10px] text-slate-500">正常受控</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 板块 2.1: 能源介质占比构成（环形图） */}
-              <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                <div className="text-[11px] font-bold text-slate-700 font-sans pb-1">能源介质占比构成</div>
-                <Donut
-                  height={185}
-                  data={[
-                    { name: '外购电力', value: parseFloat(String(selectedDrawerEntity.media?.elec.pct || '68.3%').replace('%', '')) },
-                    { name: '工业蒸汽', value: parseFloat(String(selectedDrawerEntity.media?.steam.pct || '21.5%').replace('%', '')) },
-                    { name: '天然气', value: parseFloat(String(selectedDrawerEntity.media?.gas.pct || '8.0%').replace('%', '')) },
-                    { name: '软水/气', value: parseFloat(String(selectedDrawerEntity.media?.other.pct || '2.2%').replace('%', '')) },
+                  data={activeViewMetric.trendHistory}
+                  xKey="period"
+                  height={260}
+                  lines={[
+                    { key: 'value', name: `实测值 (${activeViewMetric.unit})`, color: '#1677ff' },
                   ]}
                 />
               </div>
+            </div>
 
-              {/* 板块 3: 峰平谷分时用电结构透视 */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="size-4 text-[#1677ff]" />
-                    3. 峰平谷用电结构透视 (避峰填谷潜力)
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-mono">峰谷比 64.6% : 13.3%</span>
+            {/* 底部表格：近 12 个月历史月度数据变化明细台账 */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                <div className="flex items-center gap-2">
+                  <Table className="size-4 text-slate-700" />
+                  <h3 className="text-xs font-bold text-slate-800">
+                    近 12 个月历史月度数据变化明细台账
+                  </h3>
                 </div>
-
-                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2 font-mono">
-                  {/* 分时比例条 */}
-                  <div className="h-3 w-full bg-slate-200 rounded-full overflow-hidden flex">
-                    <div className="bg-red-500 h-full" style={{ width: selectedDrawerEntity.tou?.tip || '28.4%' }} title="尖峰 28.4%" />
-                    <div className="bg-amber-400 h-full" style={{ width: selectedDrawerEntity.tou?.peak || '36.2%' }} title="高峰 36.2%" />
-                    <div className="bg-blue-400 h-full" style={{ width: selectedDrawerEntity.tou?.flat || '22.1%' }} title="平段 22.1%" />
-                    <div className="bg-emerald-500 h-full" style={{ width: selectedDrawerEntity.tou?.valley || '13.3%' }} title="低谷 13.3%" />
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-2 text-[11px] font-sans pt-1">
-                    <div className="flex items-center gap-1">
-                      <span className="size-2 rounded-full bg-red-500 shrink-0" />
-                      <span>尖峰: <strong className="font-mono text-red-600">{selectedDrawerEntity.tou?.tip || '28.4%'}</strong> (偏高)</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="size-2 rounded-full bg-amber-400 shrink-0" />
-                      <span>高峰: <strong className="font-mono text-slate-800">{selectedDrawerEntity.tou?.peak || '36.2%'}</strong></span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="size-2 rounded-full bg-blue-400 shrink-0" />
-                      <span>平段: <strong className="font-mono text-slate-800">{selectedDrawerEntity.tou?.flat || '22.1%'}</strong></span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="size-2 rounded-full bg-emerald-500 shrink-0" />
-                      <span>低谷: <strong className="font-mono text-emerald-700">{selectedDrawerEntity.tou?.valley || '13.3%'}</strong></span>
-                    </div>
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => alert(`正在导出【${activeViewMetric.name}】近 12 个月历史明细台账 (Excel)...`)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
+                >
+                  <Download className="size-3.5" />
+                  <span>导出历史台账 Excel</span>
+                </button>
               </div>
 
-              {/* 板块 3.1: 近7日峰谷电量分布 */}
-              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                <div className="flex items-center justify-between pb-1.5">
-                  <span className="text-[11px] font-bold text-slate-700 font-sans flex items-center gap-1.5">
-                    <BarChart3 className="size-3.5 text-[#1677ff]" />
-                    近7日峰谷电量分布
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">MWh / 日</span>
-                </div>
-                <BarGroup
-                  height={170}
-                  xKey="day"
-                  keys={[
-                    { key: '高峰', name: '高峰', color: '#f5222d' },
-                    { key: '平段', name: '平段', color: '#1677ff' },
-                    { key: '低谷', name: '低谷', color: '#52c41a' },
-                  ]}
-                  data={genWeekTou()}
-                />
-              </div>
+              <div className="overflow-x-auto font-mono text-xs">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
+                      <th className="py-2.5 px-3">核算月份</th>
+                      <th className="py-2.5 px-3 text-right">⚡ 用电量 (万kWh)</th>
+                      <th className="py-2.5 px-3 text-right">💧 用水量 (万t)</th>
+                      <th className="py-2.5 px-3 text-right">🔥 用气量 (万m³)</th>
+                      <th className="py-2.5 px-3 text-right">💨 蒸汽量 (t)</th>
+                      <th className="py-2.5 px-3 font-mono text-right">月度实测值</th>
+                      <th className="py-2.5 px-3 font-mono text-right">环比变化 (MoM)</th>
+                      <th className="py-2.5 px-3 font-mono text-right">同比变化 (YoY)</th>
+                      <th className="py-2.5 px-3 text-center">监测状态</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-800">
+                    {activeViewMetric.trendHistory.map((item, idx) => {
+                      // 根据行索引与数值动态派生水电气汽基准拆解
+                      const baseFactor = item.value / (activeViewMetric.trendHistory[activeViewMetric.trendHistory.length - 1].value || 1)
+                      const elecVal = (384.0 * baseFactor).toFixed(1)
+                      const waterVal = (4.80 * baseFactor).toFixed(2)
+                      const gasVal = (19.70 * baseFactor).toFixed(1)
+                      const steamVal = (428 * baseFactor).toFixed(0)
 
-              {/* 板块 4: 车间工序能流与设备负荷下钻 */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <Cog className="size-4 text-[#1677ff]" />
-                    4. 车间重点工序能流与能耗占比
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">对应《"双中心"项目能碳管控指标体系V1.4》关键工序指标</span>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
-                  {/* 左侧：工序能耗占比饼图 */}
-                  <div className="lg:col-span-2 p-2.5 bg-white rounded-lg border border-slate-200 flex flex-col">
-                    <div className="text-[11px] font-bold text-slate-700 font-sans pb-1">工序能耗占比构成</div>
-                    <Donut
-                      height={190}
-                      data={[
-                        { name: '高压真空干燥', value: 32.6 },
-                        { name: '超高压试验大厅', value: 22.1 },
-                        { name: '铁芯数控叠装', value: 14.1 },
-                        { name: '绝缘绕线车间', value: 11.2 },
-                      ]}
-                    />
-                  </div>
-
-                  {/* 右侧：工序能耗明细占比列表 */}
-                  <div className="lg:col-span-3 space-y-2.5">
-                    <div className="space-y-1 font-mono">
-                      <div className="flex justify-between items-center text-[11px] font-sans">
-                        <span className="font-semibold text-slate-800">1. 高压真空干燥工序 (超标源头)</span>
-                        <span className="font-bold text-red-600 font-mono">32.6% · 4,200 MWh</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-red-500 rounded-full w-[32.6%]" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1 font-mono">
-                      <div className="flex justify-between items-center text-[11px] font-sans">
-                        <span className="font-semibold text-slate-800">2. 无局放超高压试验大厅</span>
-                        <span className="font-bold text-slate-700 font-mono">22.1% · 2,850 MWh</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#1677ff] rounded-full w-[22.1%]" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1 font-mono">
-                      <div className="flex justify-between items-center text-[11px] font-sans">
-                        <span className="font-semibold text-slate-800">3. 铁芯数控叠装与自动化装配 (伺服节能)</span>
-                        <span className="font-bold text-emerald-700 font-mono">14.1% · 1,820 MWh</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full w-[14.1%]" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1 font-mono">
-                      <div className="flex justify-between items-center text-[11px] font-sans">
-                        <span className="font-semibold text-slate-800">4. 自动化绝缘绕线车间</span>
-                        <span className="font-bold text-slate-700 font-mono">11.2% · 1,450 MWh</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-slate-400 rounded-full w-[11.2%]" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-                            {/* 板块 5: 产品型号级产品管控指标（需求：5类单耗到产品型号） */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <Package className="size-4 text-[#1677ff]" />
-                    5. 产品型号级产品管控指标（单位产品5类单耗）
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">需求：单耗均到产品型号 · 环比同型号对比</span>
-                </div>
-                <div className="border border-slate-200 rounded-lg overflow-hidden font-mono">
-                  <table className="w-full text-[11px] text-left">
-                    <thead className="bg-slate-100 text-slate-600 font-sans font-bold border-b border-slate-200">
-                      <tr>
-                        <th className="p-2">产品型号</th>
-                        <th className="p-2 text-right">单位产品能耗</th>
-                        <th className="p-2 text-right">单位产品电耗</th>
-                        <th className="p-2 text-right">单位产品蒸汽消耗</th>
-                        <th className="p-2 text-right">单位产品天然气消耗</th>
-                        <th className="p-2 text-right">单位产品水耗</th>
-                        <th className="p-2 text-center">环比</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {(selectedDrawerEntity.products && selectedDrawerEntity.products.length ? selectedDrawerEntity.products : [
-                        { model: 'ODFS-334MVA/500kV', energy: '1.58 tce/台', elec: '10,800 kWh/台', steam: '5.10 GJ/台', gas: '132 m³/台', water: '42 t/台', mom: '+31.6%' },
-                      ]).map((p: any) => (
-                        <tr key={p.model} className="hover:bg-slate-50">
-                          <td className="p-2 font-bold text-[#1677ff]">{p.model}</td>
-                          <td className="p-2 text-right">{p.energy}</td>
-                          <td className="p-2 text-right">{p.elec}</td>
-                          <td className="p-2 text-right">{p.steam}</td>
-                          <td className="p-2 text-right">{p.gas}</td>
-                          <td className="p-2 text-right">{p.water}</td>
-                          <td className="p-2 text-center">
-                            <span className={cn('px-1.5 py-0.2 rounded font-bold text-[10px]', p.mom.startsWith('-') ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700')}>
-                              {p.mom} 环比
+                      return (
+                        <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="py-2.5 px-3 font-bold">
+                            {item.period === '26-08' ? '2026年08月 (当期)' : `20${item.period.replace('-', '年')}月`}
+                          </td>
+                          <td className="py-2.5 px-3 text-right text-blue-700 font-bold">{elecVal}</td>
+                          <td className="py-2.5 px-3 text-right text-cyan-700 font-bold">{waterVal}</td>
+                          <td className="py-2.5 px-3 text-right text-amber-700 font-bold">{gasVal}</td>
+                          <td className="py-2.5 px-3 text-right text-purple-700 font-bold">{steamVal}</td>
+                          <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff]">
+                            {item.value} {activeViewMetric.unit}
+                          </td>
+                          <td className={cn('py-2.5 px-3 text-right font-bold', item.mom.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
+                            {item.mom}
+                          </td>
+                          <td className={cn('py-2.5 px-3 text-right font-bold', item.yoy.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
+                            {item.yoy}
+                          </td>
+                          <td className="py-2.5 px-3 text-center font-sans">
+                            <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200">
+                              ● 常规监测
                             </span>
                           </td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      )
+                    })}
+                  </tbody>
+                </table>
               </div>
-
-              {/* 板块 6: 工序能耗实时量测点位（需求：电/水/天然气实时数据） */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-slate-800 font-bold border-b border-slate-100 pb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <Cpu className="size-4 text-[#1677ff]" />
-                    6. 工序能耗实时量测点位（电 / 水 / 天然气）
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">需求：电压/电流/功率/电能/水压/流量</span>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {(selectedDrawerEntity.realtime && selectedDrawerEntity.realtime.length ? selectedDrawerEntity.realtime : [
-                    { group: '电', name: '电压', val: '10.2 kV', status: '正常' },
-                  ]).map((s: any, i: number) => (
-                    <div
-                      key={i}
-                      onClick={() => setActiveRtPoint(s)}
-                      className={cn(
-                        'p-2.5 bg-white rounded-lg border shadow-xs font-mono flex flex-col gap-1.5 cursor-pointer transition-all',
-                        activeRtPoint?.name === s.name ? 'border-[#1677ff] ring-1 ring-[#1677ff]/30' : 'border-slate-200 hover:border-blue-300',
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className={cn('px-1.5 py-0.2 rounded font-bold text-[10px] font-sans', s.group === '电' ? 'bg-blue-100 text-blue-700' : s.group === '水' ? 'bg-cyan-100 text-cyan-700' : 'bg-amber-100 text-amber-700')}>
-                          {s.group}
-                        </span>
-                        <span className={cn('px-1.5 py-0.2 rounded font-bold text-[10px] font-sans', s.status.includes('🔴') ? 'bg-red-100 text-red-700 border border-red-300' : s.status.includes('🟡') ? 'bg-amber-50 text-amber-700 border border-amber-300' : 'bg-slate-100 text-slate-600')}>
-                          {s.status}
-                        </span>
-                      </div>
-                      <div>
-                        <div className="text-[10px] text-slate-400 block font-sans">{s.name}</div>
-                        <div className="text-sm font-bold text-slate-900">{s.val}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 板块 6.1: 选中点位 24小时监测曲线（点击上方卡片联动切换） */}
-              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                <div className="flex items-center justify-between pb-1.5">
-                  <span className="text-[11px] font-bold text-slate-700 font-sans flex items-center gap-1.5">
-                    <Zap className="size-3.5 text-[#1677ff]" />
-                    {(activeRtPoint?.name || '正向有功电能')} · 24小时监测曲线
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">当前值 {activeRtPoint?.val || '…'}</span>
-                </div>
-                <LineTrend
-                  height={160}
-                  xKey="hour"
-                  keys={[{ key: '监测值', name: (activeRtPoint?.name || '正向有功电能') + ' 监测值', color: '#1677ff' }]}
-                  data={genPointCurve(activeRtPoint)}
-                />
-              </div>
-
-                          </div>
-
-            {/* 抽屉底部操作栏：关闭 */}
-            <div className="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-end">
-              <button
-                onClick={() => setSelectedDrawerEntity(null)}
-                className="px-4 py-2 rounded bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold text-xs shadow-xs"
-              >
-                关闭
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          /* ========================================================================= */
+          /* 模式 A: 全景概览 View (Section 1 5-cols, Section 2 5-cols, Section 3 4-cols) */
+          /* ========================================================================= */
+          <div className="space-y-3.5">
+            {/* 1. 顶部 Header 与 统一时间筛选 */}
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center gap-2">
+                <span className="size-2 rounded-full bg-[#1677ff]" />
+                <h1 className="text-xs font-bold text-slate-800">能碳指标管控中心</h1>
+                <span className="text-xs font-mono font-normal text-slate-400 ml-1">
+                  【{selectedNode.name}】
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-mono font-bold ml-1">
+                  按日更新 (每日 00:00) · 点击卡片看详情内页
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {/* 时间维度统一 (月度/季度/年度) */}
+                <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setTimeDim('month')}
+                    className={cn(
+                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                      timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    )}
+                  >
+                    月度 (08月)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTimeDim('quarter')}
+                    className={cn(
+                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                      timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    )}
+                  >
+                    季度 (Q3)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTimeDim('year')}
+                    className={cn(
+                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                      timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    )}
+                  >
+                    年度 (2026)
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => alert(`正在导出【${selectedNode.name}】指标管控报表 (Excel)...`)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+                >
+                  <Download className="size-3.5" />
+                  <span>导出指标数据表</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 电装集团视角 (整体指标不变，呈现 6 大二级单位能耗与费用占比情况) */}
+            {isGroupLevel && (
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                    <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                      【一、经营单位及项目公司整体指标 (6 大二级单位占比情况)】
+                    </h2>
+                  </div>
+                  <span className="text-xs text-slate-400 font-mono">集团看大盘 · 二级单位占比清分</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 font-mono">
+                  <div className="p-3.5 bg-blue-50/50 rounded-xl border border-blue-200 space-y-2">
+                    <div className="flex justify-between items-center text-xs font-sans">
+                      <span className="font-bold text-slate-900">1. 沈变公司</span>
+                      <span className="px-1.5 py-0.2 rounded bg-blue-100 text-blue-700 font-bold text-[10px]">
+                        能耗占比 32.5%
+                      </span>
+                    </div>
+                    <div className="text-xl font-bold text-[#1677ff]">
+                      762.5 <span className="text-xs font-normal text-slate-500 font-sans">万元 (1,577.2 tce)</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-blue-200/60 font-sans flex justify-between">
+                      <span>费用占比: <strong className="text-slate-800 font-mono">31.8%</strong></span>
+                      <span className="text-emerald-600 font-bold">同比 -2.7% ↓</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <div className="flex justify-between items-center text-xs font-sans">
+                      <span className="font-bold text-slate-900">2. 衡变公司</span>
+                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
+                        能耗占比 28.2%
+                      </span>
+                    </div>
+                    <div className="text-xl font-bold text-slate-900">
+                      685.0 <span className="text-xs font-normal text-slate-500 font-sans">万元 (1,420.5 tce)</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200 font-sans flex justify-between">
+                      <span>费用占比: <strong className="text-slate-800 font-mono">28.5%</strong></span>
+                      <span className="text-emerald-600 font-bold">同比 -2.0% ↓</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <div className="flex justify-between items-center text-xs font-sans">
+                      <span className="font-bold text-slate-900">3. 新变厂</span>
+                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
+                        能耗占比 24.1%
+                      </span>
+                    </div>
+                    <div className="text-xl font-bold text-slate-900">
+                      590.2 <span className="text-xs font-normal text-slate-500 font-sans">万元 (1,280.0 tce)</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200 font-sans flex justify-between">
+                      <span>费用占比: <strong className="text-slate-800 font-mono">24.6%</strong></span>
+                      <span className="text-emerald-600 font-bold">同比 -2.1% ↓</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <div className="flex justify-between items-center text-xs font-sans">
+                      <span className="font-bold text-slate-900">4. 鲁缆公司</span>
+                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
+                        能耗占比 8.2%
+                      </span>
+                    </div>
+                    <div className="text-xl font-bold text-slate-900">
+                      420.8 <span className="text-xs font-normal text-slate-500 font-sans">万元 (890.4 tce)</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200 font-sans flex justify-between">
+                      <span>费用占比: <strong className="text-slate-800 font-mono">8.3%</strong></span>
+                      <span className="text-emerald-600 font-bold">同比 -3.0% ↓</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <div className="flex justify-between items-center text-xs font-sans">
+                      <span className="font-bold text-slate-900">5. 新缆厂</span>
+                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
+                        能耗占比 4.5%
+                      </span>
+                    </div>
+                    <div className="text-xl font-bold text-slate-900">
+                      360.5 <span className="text-xs font-normal text-slate-500 font-sans">万元 (740.2 tce)</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200 font-sans flex justify-between">
+                      <span>费用占比: <strong className="text-slate-800 font-mono">4.4%</strong></span>
+                      <span className="text-emerald-600 font-bold">同比 -1.9% ↓</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <div className="flex justify-between items-center text-xs font-sans">
+                      <span className="font-bold text-slate-900">6. 德缆公司</span>
+                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
+                        能耗占比 2.5%
+                      </span>
+                    </div>
+                    <div className="text-xl font-bold text-slate-900">
+                      310.0 <span className="text-xs font-normal text-slate-500 font-sans">万元 (620.8 tce)</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200 font-sans flex justify-between">
+                      <span>费用占比: <strong className="text-slate-800 font-mono">2.4%</strong></span>
+                      <span className="text-emerald-600 font-bold">同比 -2.4% ↓</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 二级单位与项目公司通用能耗/产品/工序指标板块 */}
+            {(isWorkshopLevel || isCompanyLevel) && (
+              <div className="space-y-3.5">
+                {/* 一、经营单位及项目公司整体指标 (前10个指标合并，5卡片/行) */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        【一、经营单位及项目公司整体指标】
+                      </h2>
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      保留同比变化 · 点击查看 12 个月历史明细与公式
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                    {FACTORY_TOP10_METRICS.map((m) => (
+                      <div
+                        key={m.id}
+                        onClick={() => setActiveViewMetric(m)}
+                        className="p-3.5 bg-slate-50/70 hover:bg-blue-50/40 rounded-xl border border-slate-200 hover:border-blue-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between font-sans">
+                          <span className="text-[11px] font-bold text-slate-700 truncate">{m.name}</span>
+                        </div>
+
+                        <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
+                          {m.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{m.unit}</span>
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] font-sans">
+                          <span className="text-slate-500">同比变动:</span>
+                          <span className="font-bold text-emerald-600 font-mono">{m.yoy} ↓</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 二、产品管控指标 (5卡片/行 + 跳转链接) */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-amber-500 shrink-0" />
+                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        【二、产品管控指标】
+                      </h2>
+                    </div>
+                    <Link
+                      href="/zero-carbon/energy/unit-product"
+                      className="flex items-center gap-1 text-xs text-[#1677ff] font-bold hover:underline"
+                    >
+                      <span>跳转到【单位产品能耗分析 (产线-产品种类-产品型号)】</span>
+                      <ArrowRight className="size-3.5" />
+                    </Link>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                    {PRODUCT_CONTROL_METRICS.map((pm) => (
+                      <div
+                        key={pm.id}
+                        onClick={() => setActiveViewMetric(pm)}
+                        className="p-3.5 bg-amber-50/30 hover:bg-amber-50/80 rounded-xl border border-amber-200/80 hover:border-amber-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between font-sans">
+                          <span className="text-[11px] font-bold text-slate-800 truncate" title={pm.name}>
+                            {pm.name}
+                          </span>
+                        </div>
+
+                        <div className="text-lg font-extrabold text-slate-900 group-hover:text-amber-700 transition-colors">
+                          {pm.curVal} <span className="text-[10.5px] font-normal text-slate-500 font-sans">{pm.unit}</span>
+                        </div>
+
+                        <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-sans">
+                          <span className="text-slate-500">同比降幅:</span>
+                          <span className="font-bold text-emerald-600 font-mono">{pm.yoy} ↓</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 三、关键制造工序能效管控指标 (4卡片/行) */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-purple-600 shrink-0" />
+                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        【三、关键制造工序能效管控指标】
+                      </h2>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="relative">
+                        <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={procSearchKey}
+                          onChange={(e) => setProcSearchKey(e.target.value)}
+                          placeholder="搜索工序指标 (如: 拉丝 / 干燥 / 固化)..."
+                          className="pl-8 pr-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-purple-600 font-sans w-64"
+                        />
+                      </div>
+                      <span className="text-xs text-slate-400 font-mono">集控统一采集 · 序号 17-65</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 font-mono">
+                    {filteredProcessMetrics.map((prm) => (
+                      <div
+                        key={prm.id}
+                        onClick={() => setActiveViewMetric(prm)}
+                        className="p-3.5 rounded-xl border border-purple-200/80 bg-purple-50/30 hover:bg-purple-50/80 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between font-sans">
+                          <span className="text-xs font-bold text-slate-900 truncate" title={prm.name}>
+                            {prm.name}
+                          </span>
+                          <span className="text-[9.5px] px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 font-bold shrink-0">
+                            {prm.badge}
+                          </span>
+                        </div>
+
+                        <div className="text-lg font-extrabold text-[#1677ff] group-hover:text-purple-700 transition-colors">
+                          {prm.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{prm.unit}</span>
+                        </div>
+
+                        <div className="pt-2 border-t border-purple-200/60 flex items-center justify-between text-[11px] font-sans">
+                          <span className="text-slate-500 truncate" title={prm.formula}>
+                            {prm.formula}
+                          </span>
+                          <span className="font-bold text-emerald-600 font-mono shrink-0 ml-1">{prm.yoy} ↓</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+      </div>
     </div>
   )
 }

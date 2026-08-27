@@ -29,21 +29,16 @@ import { cn } from '@/lib/utils'
 interface ShellProps {
   children: React.ReactNode
   platformKey?: PlatformKey
+  platform?: PlatformKey
 }
 
-export function PlatformShell({ children, platformKey }: ShellProps) {
+export function PlatformShell({ children, platformKey, platform }: ShellProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   // 平台切换下拉框展开状态
   const [platformMenuOpen, setPlatformMenuOpen] = useState(false)
-  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({
-    集中监管: true,
-    能耗能效分析: true,
-    碳排管理: true,
-    零碳项目评估: false,
-    系统配置: false,
-  })
+  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({})
 
   // AI 悬浮窗口状态
   const [isAiOpen, setIsAiOpen] = useState(false)
@@ -57,12 +52,22 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
     },
   ])
 
-  // 根据当前路径自动判断所属平台
+  // 根据当前路径或传入属性自动判断所属平台
+  const actualPlatformKey = platformKey || platform
   const resolvedPlatformKey: PlatformKey =
-    platformKey ||
+    actualPlatformKey ||
     (pathname.startsWith('/carbon-footprint') ? 'carbon-footprint' : 'zero-carbon')
 
   const currentPlatform = platformMeta[resolvedPlatformKey]
+
+  // 当路径匹配子项时自动展开所属父菜单
+  useEffect(() => {
+    for (const item of currentPlatform.nav) {
+      if (item.children?.some((c) => pathname === c.href || pathname.startsWith(c.href.split('#')[0]))) {
+        setOpenSubMenus((prev) => ({ ...prev, [item.title]: true }))
+      }
+    }
+  }, [pathname, currentPlatform])
 
   const toggleSubMenu = (title: string) => {
     setOpenSubMenus((prev) => ({ ...prev, [title]: !prev[title] }))
@@ -150,17 +155,17 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
           </Link>
         </div>
 
-        {/* 左上角 LOGO 下方：平台切换下拉框 */}
+        {/* 左上角 LOGO 下方：平台切换下拉选择器 (零碳园区集控中心 ⇄ 产品碳足迹集采中心) */}
         <div className="relative px-2 py-2 border-b border-blue-400/20 bg-[#0747b0]">
           <button
             onClick={() => setPlatformMenuOpen((v) => !v)}
             className={cn(
-              'w-full flex items-center gap-2 rounded-md transition-colors',
+              'w-full flex items-center gap-2 rounded-lg transition-all',
               sidebarOpen
-                ? 'px-2 py-1.5 bg-blue-600/40 hover:bg-blue-600/60'
+                ? 'px-2.5 py-2 bg-blue-600/40 hover:bg-blue-600/70 cursor-pointer text-white border border-blue-400/30 shadow-xs group'
                 : 'mx-auto size-8 justify-center hover:bg-blue-600/60'
             )}
-            title="切换平台"
+            title="点击展开平台切换菜单"
           >
             {resolvedPlatformKey === 'zero-carbon' ? (
               <Globe2 className="size-4 shrink-0 text-blue-200" />
@@ -169,51 +174,79 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
             )}
             {sidebarOpen && (
               <>
-                <span className="flex-1 text-left text-[11px] font-bold text-blue-100 truncate">
+                <span className="flex-1 text-left text-xs font-bold text-white truncate">
                   {currentPlatform.name}
                 </span>
                 <ChevronDown
-                  className={cn('size-3.5 shrink-0 text-blue-200 transition-transform', platformMenuOpen && 'rotate-180')}
+                  className={cn(
+                    'size-3.5 shrink-0 text-blue-200 transition-transform duration-200 group-hover:text-white',
+                    platformMenuOpen && 'rotate-180'
+                  )}
                 />
               </>
             )}
           </button>
 
+          {/* 下拉弹出浮层 Popover */}
           {platformMenuOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setPlatformMenuOpen(false)} />
               <div
                 className={cn(
-                  'absolute top-full mt-1 z-50 w-48 rounded-lg border border-slate-200 bg-white py-1 text-xs text-slate-700 shadow-xl',
-                  sidebarOpen ? 'left-2' : 'left-14'
+                  'absolute top-full mt-1.5 z-50 rounded-xl border border-slate-200 bg-white p-1.5 text-xs text-slate-700 shadow-2xl animate-in fade-in zoom-in-95 duration-150',
+                  sidebarOpen ? 'left-2 right-2 w-auto' : 'left-14 w-52'
                 )}
               >
+                <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1 flex items-center justify-between">
+                  <span>切换平台中枢</span>
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-50 text-blue-600 font-mono font-bold">
+                    双中心 v1.01
+                  </span>
+                </div>
+
+                {/* 选项 1: 零碳园区集控中心 */}
                 <Link
                   href="/zero-carbon/screen"
                   onClick={() => setPlatformMenuOpen(false)}
                   className={cn(
-                    'flex items-center gap-2 px-3 py-2 transition-colors hover:bg-slate-50',
-                    resolvedPlatformKey === 'zero-carbon' ? 'font-bold text-[#1677ff]' : 'text-slate-700'
+                    'flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg transition-colors',
+                    resolvedPlatformKey === 'zero-carbon'
+                      ? 'bg-blue-50/90 font-bold text-[#1677ff]'
+                      : 'hover:bg-slate-50 text-slate-700 hover:text-[#1677ff]'
                   )}
                 >
-                  <Globe2 className="size-4 shrink-0 text-[#1677ff]" />
-                  <span className="truncate">零碳园区集控中心</span>
+                  <div className="size-7 rounded-lg bg-blue-100 text-[#1677ff] flex items-center justify-center shrink-0">
+                    <Globe2 className="size-4" />
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <div className="truncate text-xs font-bold leading-tight">零碳园区集控中心</div>
+                    <div className="text-[10px] text-slate-400 font-normal">能碳时序监控 / 统计报表</div>
+                  </div>
                   {resolvedPlatformKey === 'zero-carbon' && (
-                    <Check className="ml-auto size-3.5 shrink-0 text-[#1677ff]" />
+                    <Check className="size-4 text-[#1677ff] shrink-0 font-bold" />
                   )}
                 </Link>
+
+                {/* 选项 2: 产品碳足迹集采中心 */}
                 <Link
                   href="/carbon-footprint/cockpit"
                   onClick={() => setPlatformMenuOpen(false)}
                   className={cn(
-                    'flex items-center gap-2 px-3 py-2 transition-colors hover:bg-slate-50',
-                    resolvedPlatformKey === 'carbon-footprint' ? 'font-bold text-[#1677ff]' : 'text-slate-700'
+                    'flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg transition-colors mt-1',
+                    resolvedPlatformKey === 'carbon-footprint'
+                      ? 'bg-emerald-50/90 font-bold text-emerald-700'
+                      : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-600'
                   )}
                 >
-                  <Leaf className="size-4 shrink-0 text-emerald-600" />
-                  <span className="truncate">产品碳足迹集采中心</span>
+                  <div className="size-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <Leaf className="size-4" />
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <div className="truncate text-xs font-bold leading-tight">产品碳足迹集采中心</div>
+                    <div className="text-[10px] text-slate-400 font-normal">LCA碳足迹 / CBAM出海</div>
+                  </div>
                   {resolvedPlatformKey === 'carbon-footprint' && (
-                    <Check className="ml-auto size-3.5 shrink-0 text-emerald-600" />
+                    <Check className="size-4 text-emerald-600 shrink-0 font-bold" />
                   )}
                 </Link>
               </div>
@@ -229,7 +262,7 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
             const isSubOpen = openSubMenus[item.title]
             const isDirectActive = pathname === item.href
             const isChildActive =
-              hasChildren && item.children!.some((c) => pathname.startsWith(c.href))
+              hasChildren && item.children!.some((c) => pathname === c.href || pathname.startsWith(c.href.split('#')[0]))
             const isActive = isDirectActive || isChildActive
 
             if (!hasChildren) {
@@ -241,11 +274,11 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
                     'flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-all group my-0.5',
                     isActive
                       ? 'bg-[#1677ff] text-white font-bold shadow-xs'
-                      : 'text-blue-100 hover:text-white hover:bg-blue-600/50'
+                      : 'text-blue-100/90 hover:text-white hover:bg-white/10'
                   )}
                   title={!sidebarOpen ? item.title : undefined}
                 >
-                  <Icon className="size-4 shrink-0 text-white" />
+                  <Icon className="size-4 shrink-0 text-white/80 group-hover:text-white" />
                   {sidebarOpen && <span className="truncate">{item.title}</span>}
                 </Link>
               )
@@ -258,31 +291,29 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
                   className={cn(
                     'w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group my-0.5',
                     isActive
-                      ? 'bg-[#1677ff] text-white font-bold'
-                      : 'text-blue-100 hover:text-white hover:bg-blue-600/50'
+                      ? 'bg-blue-700/60 text-white font-bold'
+                      : 'text-blue-100/90 hover:text-white hover:bg-white/10'
                   )}
                   title={!sidebarOpen ? item.title : undefined}
                 >
                   <div className="flex items-center gap-2.5 overflow-hidden">
-                    <Icon className="size-4 shrink-0 text-white" />
+                    <Icon className="size-4 shrink-0 text-white/80 group-hover:text-white" />
                     {sidebarOpen && <span className="truncate">{item.title}</span>}
                   </div>
                   {sidebarOpen && (
                     <span className="p-0.5 text-blue-200">
-                      {isSubOpen ? (
-                        <ChevronDown className="size-3.5" />
-                      ) : (
-                        <ChevronRight className="size-3.5" />
-                      )}
+                      <ChevronDown
+                        className={cn('size-3.5 transition-transform duration-200', !isSubOpen && '-rotate-90')}
+                      />
                     </span>
                   )}
                 </button>
 
                 {/* 子菜单 */}
                 {sidebarOpen && isSubOpen && (
-                  <div className="ml-4 pl-2 border-l border-blue-400/30 space-y-0.5 py-0.5">
+                  <div className="ml-4 pl-2 border-l border-blue-400/40 space-y-0.5 py-0.5">
                     {item.children!.map((sub) => {
-                      const isSubActive = pathname === sub.href
+                      const isSubActive = pathname === sub.href || pathname.startsWith(sub.href)
                       return (
                         <Link
                           key={sub.href}
@@ -290,8 +321,8 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
                           className={cn(
                             'block px-2.5 py-1.5 rounded text-xs transition-colors',
                             isSubActive
-                              ? 'bg-blue-600/80 text-white font-bold'
-                              : 'text-blue-100 hover:text-white hover:bg-blue-600/40'
+                              ? 'bg-[#1677ff] text-white font-bold shadow-xs'
+                              : 'text-white/80 hover:text-white hover:bg-white/10'
                           )}
                         >
                           {sub.title}
@@ -305,12 +336,12 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
           })}
         </div>
 
-        {/* 侧边栏底部：版权信息 */}
+        {/* 侧边栏底部：统一版权信息 */}
         {sidebarOpen && (
-          <div className="p-3 border-t border-blue-400/20 bg-[#003eb3]/60">
+          <div className="p-3 border-t border-blue-400/20 bg-[#003eb3]/60 shrink-0">
             <div className="text-[10px] leading-4 text-blue-200/80 font-sans">
-              <div className="font-bold text-blue-100 mb-0.5">特变电工（电装集团）能源双中心</div>
-              <div>© 2026 特变电工股份有限公司</div>
+              <div className="font-bold text-white mb-0.5 whitespace-nowrap">特变电工（电装集团）能源双中心</div>
+              <div className="whitespace-nowrap">© 2026 特变电工股份有限公司</div>
             </div>
           </div>
         )}
@@ -318,8 +349,8 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
 
       {/* 2. 右侧主体容器 (flex-col: 顶部主条 + 滚动主内容区) */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-        {/* 右侧顶部白色主导航条 (已移除右上角 AI 问答入口，改至右下角悬浮) */}
-        <header className="h-14 border-b border-[#e5e7eb] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs">
+        {/* 右侧顶部白色主导航条 */}
+        <header className="h-14 border-b border-[#e5e7eb] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs z-20">
           {/* 左侧：折叠按钮 + 平台标题 */}
           <div className="flex items-center gap-3">
             <button
@@ -338,8 +369,6 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
                 v1.01
               </span>
             </div>
-
-
           </div>
 
           {/* 右侧工具栏：开发手册 + 管理配置 + 用户头像 */}
@@ -382,7 +411,7 @@ export function PlatformShell({ children, platformKey }: ShellProps) {
         </header>
 
         {/* 主内容区 (滚动视口) */}
-        <main className="flex-1 overflow-y-auto p-3.5 md:p-4 bg-[#f0f2f5] relative">
+        <main className="flex-1 overflow-y-auto p-3.5 md:p-4 bg-[#f0f2f5] relative custom-scrollbar">
           {children}
         </main>
       </div>
