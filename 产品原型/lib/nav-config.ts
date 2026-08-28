@@ -41,8 +41,9 @@ export const zeroCarbonNav: NavItem[] = [
     icon: MonitorCog,
     children: [
       { title: '指标管控', href: '/zero-carbon/monitor/indicator' },
-      { title: '在线监测', href: '/zero-carbon/monitor/online' },
+      { title: '在线监测', href: '/zero-carbon/monitor/online/microgrid' },
       { title: '绿电监测', href: '/zero-carbon/monitor/green' },
+      { title: '能源碳排放监测', href: '/zero-carbon/monitor/carbon-emission' },
     ],
   },
   {
@@ -57,25 +58,16 @@ export const zeroCarbonNav: NavItem[] = [
       { title: '对标管理', href: '/zero-carbon/energy/benchmark' },
     ],
   },
+
   {
-    title: '碳管理',
-    href: '/zero-carbon/carbon',
-    icon: Leaf,
-    children: [
-      { title: '碳排放核算', href: '/zero-carbon/carbon/accounting' },
-      { title: '碳排放分析', href: '/zero-carbon/carbon/analysis' },
-      { title: '碳核算报告', href: '/zero-carbon/carbon/report' },
-    ],
-  },
-  {
-    title: '零碳项目与减排',
+    title: '零碳项目评估',
     href: '/zero-carbon/project',
     icon: ClipboardCheck,
     children: [
-      { title: '项目台账', href: '/zero-carbon/project/archive' },
-      { title: '减排建模', href: '/zero-carbon/project/model' },
-      { title: '效益评估', href: '/zero-carbon/project/benefit' },
-      { title: '自愿减排(CCER)', href: '/zero-carbon/project/self' },
+      { title: '项目档案管理', href: '/zero-carbon/project/archive' },
+      { title: '模型管理', href: '/zero-carbon/project/model/monitoring' },
+      { title: '实时监控与项目效益评估', href: '/zero-carbon/project/benefit' },
+      { title: '零碳园区自评估', href: '/zero-carbon/project/self' },
     ],
   },
   {
@@ -95,31 +87,15 @@ export const zeroCarbonNav: NavItem[] = [
     icon: Database,
   },
   {
-    title: '数据采集预警',
-    href: '/zero-carbon/alarm',
-    icon: BellRing,
-    children: [
-      { title: '告警处理', href: '/zero-carbon/alarm/records' },
-      { title: '告警规则配置', href: '/zero-carbon/alarm/rules' },
-      { title: '告警推送策略', href: '/zero-carbon/alarm/push' },
-    ],
-  },
-  {
     title: '基础配置',
     href: '/zero-carbon/config',
     icon: Settings2,
     children: [
       { title: '碳排因子', href: '/zero-carbon/config/factor' },
-      { title: '费价模型', href: '/zero-carbon/config/price' },
       { title: '能源转换工具', href: '/zero-carbon/config/convert' },
       { title: '接口配置管理', href: '/zero-carbon/config/interface' },
       { title: '数据录入', href: '/zero-carbon/config/entry' },
     ],
-  },
-  {
-    title: '智能助手',
-    href: '/zero-carbon/assistant',
-    icon: Bot,
   },
 ]
 

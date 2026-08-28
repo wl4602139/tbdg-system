@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Plug } from 'lucide-react'
 import { Panel, DataTable, StatusBadge } from '@/components/shared/primitives'
 import { Modal } from '@/components/shared/modal'
 
@@ -8,7 +9,18 @@ export default function InterfacePage() {
   const [testResult, setTestResult] = useState<string | null>(null)
 
   return (
-    <Panel title="接口配置管理" desc="维护各工厂子系统接口连接参数，支持字段映射、单位换算与接口测试">
+    <div className="space-y-3.5">
+      {/* 顶部 Header */}
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <Plug className="size-5" />
+            </div>
+            <h1 className="text-base font-bold text-slate-800">接口配置管理</h1>
+          </div>
+      </div>
+
+      <Panel title="接口配置管理" desc="维护各工厂子系统接口连接参数，支持字段映射、单位换算与接口测试">
       <DataTable
         columns={[
           { key: 'factory', label: '工厂/系统' },
@@ -48,5 +60,6 @@ export default function InterfacePage() {
         </div>
       </Modal>
     </Panel>
+    </div>
   )
 }

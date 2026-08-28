@@ -293,21 +293,13 @@ export default function UnitReportPage() {
       {/* 右侧主面板 */}
       <div className="flex-1 min-w-0 flex flex-col gap-3.5">
         {/* 顶部面包屑与操作栏 */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="p-2 rounded-lg bg-blue-50 text-[#1677ff]">
-              <Layers className="size-4.5" />
-            </span>
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <Layers className="size-5" />
+            </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-bold text-slate-800">{selectedNode.name}</h1>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-bold flex items-center gap-1">
-                  🏢 集团全局大盘视角 (电装宏观总览)
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                🌟 <b>核心设计</b>：按产业分类统计订单数与工段单耗，变压器（容量 kVA）与线缆（长度 km）独立核算，严禁统一简单合并
-              </p>
+              <h1 className="text-base font-bold text-slate-800">单耗报表</h1>
             </div>
           </div>
 

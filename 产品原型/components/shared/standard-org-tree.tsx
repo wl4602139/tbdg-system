@@ -11,6 +11,8 @@ import {
   Minimize2,
   Folder,
   Layers,
+  Trees,
+  MapPin,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -35,8 +37,7 @@ export interface StandardOrgNode {
 }
 
 /**
- * 严格依据用户官方核定表（media_1787826462298.png）构建的标准企业树状数据结构
- * 6 大一级单位 ➔ 30 个二级单位
+ * 🏢 企业组织拓扑数据 (6 大一级单位 ➔ 30 个二级单位)
  */
 export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
   {
@@ -46,14 +47,15 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
     level: 'group',
     badge: '全集团',
     children: [
-      // 1. 沈变公司 (5个二级单位)
+      // 1. 沈变公司 (6个二级单位)
       {
         id: 'comp_sb',
         name: '沈变公司',
         level: 'company',
-        badge: '5单位',
+        badge: '6单位',
         children: [
           { id: 'ws_sb_main', name: '沈变本部', level: 'workshop', badge: '主体' },
+          { id: 'ws_sb_luna', name: '露娜公司 (特变电工露娜智能)', level: 'workshop', badge: '智能' },
           { id: 'ws_sb_zh', name: '智慧能源', level: 'workshop', badge: '综合' },
           { id: 'ws_sb_hx', name: '和新套管公司', level: 'workshop', badge: '主体' },
           { id: 'ws_sb_kj', name: '康嘉互感器', level: 'workshop', badge: '主体' },
@@ -156,6 +158,198 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
   },
 ]
 
+/**
+ * 🏞️ 零碳园区拓扑数据 (15 个零碳产业园区)
+ */
+export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
+  {
+    id: 'park_root',
+    name: '所属园区 (17 园区汇总)',
+    fullName: '特变电工所属园区 (17 园区全域汇总)',
+    level: 'group',
+    badge: '17园区',
+    children: [
+      {
+        id: 'park_01',
+        name: '特变电工东北输变电产业园',
+        fullName: '特变电工东北输变电产业园',
+        level: 'park',
+        badge: '沈阳',
+        children: [
+          { id: 'park_01_main', name: '沈变本部 (超高压厂房)', level: 'workshop', badge: '主体' },
+          { id: 'park_01_hx', name: '和新套管制造基地', level: 'workshop', badge: '主体' },
+          { id: 'park_01_kj', name: '康嘉互感器制造基地', level: 'workshop', badge: '主体' },
+          { id: 'park_01_grid', name: '园区微电网与储能站', level: 'workshop', badge: '微网' },
+        ],
+      },
+      {
+        id: 'park_02',
+        name: '特变电工南方输变电产业园',
+        fullName: '特变电工南方输变电产业园',
+        level: 'park',
+        badge: '衡阳',
+        children: [
+          { id: 'park_02_main', name: '衡变本部制造厂区', level: 'workshop', badge: '主体' },
+          { id: 'park_02_gc', name: '国创油箱车间', level: 'workshop', badge: '主体' },
+          { id: 'park_02_pv', name: '南方园区屋顶光伏电站', level: 'workshop', badge: '光伏' },
+        ],
+      },
+      {
+        id: 'park_03',
+        name: '特变电工二次产业园区',
+        fullName: '特变电工二次产业园区',
+        level: 'park',
+        badge: '南京',
+        children: [
+          { id: 'park_03_smt', name: '南京电研自动化 SMT 车间', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_04',
+        name: '特变电工云集5G科技产业园',
+        fullName: '特变电工云集5G科技产业园',
+        level: 'park',
+        badge: '衡阳',
+        children: [
+          { id: 'park_04_switch', name: '云集高压开关与钣金智能车间', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_05',
+        name: '特变电工智能电气产业园',
+        fullName: '特变电工智能电气产业园 (自控)',
+        level: 'park',
+        badge: '昌吉',
+        children: [
+          { id: 'park_05_main', name: '新疆自控成套开关车间', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_06',
+        name: '特变电工湖南能源建设园区',
+        fullName: '特变电工湖南能源建设园区',
+        level: 'park',
+        badge: '衡阳',
+        children: [
+          { id: 'park_06_main', name: '特能建新能源集成装配区', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_07',
+        name: '特变电工西安智能装备产业园',
+        fullName: '特变电工西安智能装备产业园',
+        level: 'park',
+        badge: '西安',
+        children: [
+          { id: 'park_07_rnd', name: '电力电子与储能逆变研发基地', level: 'workshop' },
+          { id: 'park_07_hr', name: '合容电气电力电容器生产区', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_08',
+        name: '特变电工GIL产业园',
+        fullName: '特变电工GIL产业园',
+        level: 'park',
+        badge: '衡阳',
+        children: [
+          { id: 'park_08_main', name: '赛杰爱迪特高压GIL管道车间', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_09',
+        name: '特变电工输变电产业园',
+        fullName: '特变电工输变电产业园 (超高压变压器)',
+        level: 'park',
+        badge: '昌吉',
+        children: [
+          { id: 'park_09_trans', name: '新变超高压变压器厂区', level: 'workshop', badge: '主体' },
+        ],
+      },
+      {
+        id: 'park_10',
+        name: '特变电工天变产业园',
+        fullName: '特变电工天变产业园',
+        level: 'park',
+        badge: '天津',
+        children: [
+          { id: 'park_10_main', name: '天变干式变压器生产基地', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_11',
+        name: '特变电工智能电气产业园',
+        fullName: '特变电工智能电气产业园 (配电智能)',
+        level: 'park',
+        badge: '昌吉',
+        children: [
+          { id: 'park_11_main', name: '配电变压器智能装配车间', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_12',
+        name: '特变电工京津冀智能科技产业园',
+        fullName: '特变电工京津冀智能科技产业园',
+        level: 'park',
+        badge: '武清',
+        children: [
+          { id: 'park_12_box', name: '箱式变电站与环网柜制造厂区', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_13',
+        name: '特变电工华东输变电科技产业园',
+        fullName: '特变电工华东输变电科技产业园',
+        level: 'park',
+        badge: '新泰',
+        children: [
+          { id: 'park_13_tower', name: '鲁缆高压交联立塔厂区', level: 'workshop', badge: '主体' },
+          { id: 'park_13_smart', name: '智缆科技制造中心', level: 'workshop', badge: '主体' },
+        ],
+      },
+      {
+        id: 'park_14',
+        name: '特变电工曙光电缆产业园',
+        fullName: '特变电工曙光电缆产业园',
+        level: 'park',
+        badge: '新泰',
+        children: [
+          { id: 'park_14_main', name: '曙光中低压环保交联线缆车间', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_15',
+        name: '特变电工新疆电缆产业园',
+        fullName: '特变电工新疆电缆产业园',
+        level: 'park',
+        badge: '乌市',
+        children: [
+          { id: 'park_15_main', name: '新疆电缆超高压阻燃交联电缆生产区', level: 'workshop' },
+        ],
+      },
+      {
+        id: 'park_16',
+        name: '特变电工输变电产业园',
+        fullName: '特变电工输变电产业园 (线缆车间)',
+        level: 'park',
+        badge: '昌吉',
+        children: [
+          { id: 'park_16_cable', name: '新疆线缆厂动力线缆车间', level: 'workshop', badge: '主体' },
+        ],
+      },
+      {
+        id: 'park_17',
+        name: '特变电工(德阳)电缆园区',
+        fullName: '特变电工(德阳)电缆园区',
+        level: 'park',
+        badge: '德阳',
+        children: [
+          { id: 'park_17_main', name: '德缆股份交联与连铸连轧厂区', level: 'workshop', badge: '主体' },
+        ],
+      },
+    ],
+  },
+]
+
 export const TBEA_ORG_TREE_DATA = ENTERPRISE_TREE_DATA
 
 export interface StandardOrgTreeProps {
@@ -163,6 +357,7 @@ export interface StandardOrgTreeProps {
   selectedId?: string
   onSelectNode?: (node: StandardOrgNode) => void
   onSelect?: (node: StandardOrgNode) => void
+  treeType?: 'enterprise' | 'park'
   className?: string
 }
 
@@ -171,36 +366,24 @@ export function StandardOrgTree({
   selectedId,
   onSelectNode,
   onSelect,
+  treeType = 'enterprise',
   className,
 }: StandardOrgTreeProps) {
-  const currentSelectedId = selectedId || selectedNodeId || 'ws_sb_main'
+  const currentSelectedId = selectedId || selectedNodeId || (treeType === 'park' ? 'park_ne' : 'ws_sb_main')
   const handleSelect = onSelect || onSelectNode || (() => {})
 
   const [keyword, setKeyword] = useState('')
-  const [collapsedKeys, setCollapsedKeys] = useState<Record<string, boolean>>({
-    comp_hb: true,
-    comp_xb: true,
-    comp_ll: true,
-    comp_xl: true,
-    comp_dl: true,
-    ws_hb_hr: true,
-    ws_xb_tb: true,
-  })
-
-  const toggleCollapse = (id: string) => {
-    setCollapsedKeys((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }))
-  }
-
-  const expandAll = () => {
-    setCollapsedKeys({})
-  }
-
-  const collapseAll = () => {
-    setCollapsedKeys({
-      comp_sb: true,
+  const [collapsedKeys, setCollapsedKeys] = useState<Record<string, boolean>>(() => {
+    if (treeType === 'park') {
+      const keys: Record<string, boolean> = {}
+      // 默认收起全部 17 个园区的下级子车间/微网节点
+      for (let i = 1; i <= 17; i++) {
+        const id = `park_${i < 10 ? '0' + i : i}`
+        keys[id] = true
+      }
+      return keys
+    }
+    return {
       comp_hb: true,
       comp_xb: true,
       comp_ll: true,
@@ -208,7 +391,14 @@ export function StandardOrgTree({
       comp_dl: true,
       ws_hb_hr: true,
       ws_xb_tb: true,
-    })
+    }
+  })
+
+  const toggleCollapse = (id: string) => {
+    setCollapsedKeys((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }))
   }
 
   // 递归过滤
@@ -230,11 +420,13 @@ export function StandardOrgTree({
     return null
   }
 
+  const rawTreeData = treeType === 'park' ? PARK_ORG_TREE_DATA : ENTERPRISE_TREE_DATA
+
   const displayData = useMemo(() => {
     const kw = keyword.trim().toLowerCase()
-    if (!kw) return ENTERPRISE_TREE_DATA
-    return ENTERPRISE_TREE_DATA.map((n) => filterNode(n, kw)).filter((n): n is StandardOrgNode => n !== null)
-  }, [keyword])
+    if (!kw) return rawTreeData
+    return rawTreeData.map((n) => filterNode(n, kw)).filter((n): n is StandardOrgNode => n !== null)
+  }, [keyword, rawTreeData])
 
   const renderTreeNodes = (nodes: StandardOrgNode[], level = 0) => {
     return nodes.map((node) => {
@@ -279,6 +471,7 @@ export function StandardOrgTree({
 
             {/* 节点图标 */}
             {node.level === 'group' && <Building2 className="size-3.5 text-[#1677ff] shrink-0" />}
+            {node.level === 'park' && <Trees className="size-3.5 text-emerald-600 shrink-0" />}
             {node.level === 'company' && <Building2 className="size-3.5 text-amber-500 shrink-0" />}
             {node.level === 'workshop' && <Factory className="size-3.5 text-slate-400 shrink-0" />}
 
@@ -293,8 +486,12 @@ export function StandardOrgTree({
                 className={cn(
                   'text-[9.5px] px-1 py-0.2 rounded font-mono shrink-0 scale-95',
                   node.badge === '全集团' && 'bg-blue-100 text-blue-700 font-bold',
+                  node.badge.includes('园区') && 'bg-emerald-100 text-emerald-800 font-bold',
                   node.badge === '主体' && 'bg-amber-100 text-amber-800 font-medium',
-                  node.badge === '综合' && 'bg-slate-100 text-slate-500 font-normal',
+                  node.badge === '微网' && 'bg-cyan-100 text-cyan-800 font-medium',
+                  node.badge === '光伏' && 'bg-emerald-100 text-emerald-800 font-medium',
+                  ['沈阳', '衡阳', '昌吉', '新泰', '德阳', '西安', '云集', '南京', '天津', '河北', '湖南', '山东', '武清', '乌市'].includes(node.badge) &&
+                    'bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-sans',
                   node.badge.endsWith('单位') && 'bg-slate-100 text-slate-600 font-medium'
                 )}
               >
@@ -324,10 +521,18 @@ export function StandardOrgTree({
       {/* 1. 顶部 Header 与 快捷操作 */}
       <div className="p-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-          <Building2 className="size-4 text-[#1677ff]" />
-          <span>企业组织拓扑 (6大单位)</span>
+          {treeType === 'park' ? (
+            <>
+              <Trees className="size-4 text-emerald-600" />
+              <span>零碳园区拓扑 (15大园区)</span>
+            </>
+          ) : (
+            <>
+              <Building2 className="size-4 text-[#1677ff]" />
+              <span>企业组织拓扑 (6大单位)</span>
+            </>
+          )}
         </div>
-        
       </div>
 
       {/* 2. 搜索框 */}
@@ -338,7 +543,7 @@ export function StandardOrgTree({
             type="text"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="搜索单位 / 车间 / 工序..."
+            placeholder={treeType === 'park' ? '搜索产业园 / 厂区 / 微电网...' : '搜索单位 / 车间 / 工序...'}
             className="w-full pl-8 pr-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1677ff] focus:bg-white transition-all placeholder:text-slate-400"
           />
         </div>
@@ -349,14 +554,25 @@ export function StandardOrgTree({
         {displayData.length > 0 ? (
           renderTreeNodes(displayData)
         ) : (
-          <div className="py-8 text-center text-xs text-slate-400">未检索到匹配的组织或单位</div>
+          <div className="py-8 text-center text-xs text-slate-400">
+            {treeType === 'park' ? '未检索到匹配的零碳园区' : '未检索到匹配的组织或单位'}
+          </div>
         )}
       </div>
 
       {/* 4. 底部统计栏 */}
       <div className="p-2 border-t border-slate-100 bg-slate-50/70 text-[10.5px] text-slate-500 flex items-center justify-between shrink-0 font-mono">
-        <span>6大一级单位 · 30二级单位</span>
-        <span className="text-emerald-600 font-semibold">100% 在线</span>
+        {treeType === 'park' ? (
+          <>
+            <span>15大零碳园区 · 全域微网</span>
+            <span className="text-emerald-600 font-semibold">100% 在线</span>
+          </>
+        ) : (
+          <>
+            <span>6大一级单位 · 30二级单位</span>
+            <span className="text-emerald-600 font-semibold">100% 在线</span>
+          </>
+        )}
       </div>
     </aside>
   )

@@ -1,51 +1,541 @@
 'use client'
 
-import { useState } from 'react'
-import { Panel } from '@/components/shared/primitives'
-import { Select } from '@/components/shared/select'
+import React, { useState, useMemo } from 'react'
+import {
+  Zap,
+  Flame,
+  Droplets,
+  Wind,
+  Layers,
+  ArrowRightLeft,
+  Copy,
+  Check,
+  RotateCcw,
+  Sparkles,
+  Info,
+  BookOpen,
+  Fuel,
+  Atom,
+  CheckCircle2,
+  FileText,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+// 能源介质标准配置接口
+interface EnergyMedium {
+  id: string
+  name: string
+  category: 'fossil' | 'power' | 'heat' | 'gas' | 'water'
+  categoryName: string
+  unit: string
+  icon: any
+  heatValMJ: number // 低位发热量 (MJ/标准物理单位)
+  tceEquiv: number // 当量折标系数 (kgce/单位)
+  tceEqual?: number // 等价值折标系数 (kgce/单位，如电力)
+  co2Factor: number // 碳排放因子 (kgCO2/单位)
+  standardRef: string // 国家标准出处
+  desc: string // 典型工业应用场景
+}
+
+// GB/T 2589-2020 标准能源介质数据库
+const ENERGY_DATABASE: EnergyMedium[] = [
+  {
+    id: 'elec_grid',
+    name: '电网电力 (市电)',
+    category: 'power',
+    categoryName: '二次电力',
+    unit: 'kWh',
+    icon: Zap,
+    heatValMJ: 3.6000,
+    tceEquiv: 0.1229,
+    tceEqual: 0.3150,
+    co2Factor: 0.5703,
+    standardRef: 'GB/T 2589-2020 (当量) / 全国电网平均',
+    desc: '全厂动力用电、变压器温升试验、电缆挤出机驱动',
+  },
+  {
+    id: 'gas_natural',
+    name: '管道天然气',
+    category: 'fossil',
+    categoryName: '化石燃料',
+    unit: 'm³',
+    icon: Flame,
+    heatValMJ: 38.9310,
+    tceEquiv: 1.3300,
+    co2Factor: 2.1622,
+    standardRef: 'GB/T 2589-2020 附录 A',
+    desc: '变压器真空干燥窑炉供热、硅钢退火炉、冬季厂房采暖',
+  },
+  {
+    id: 'steam_superheat',
+    name: '过热工业蒸汽 (1.6MPa, 300℃)',
+    category: 'heat',
+    categoryName: '热力工质',
+    unit: 't',
+    icon: Wind,
+    heatValMJ: 3050.0000,
+    tceEquiv: 104.1000,
+    co2Factor: 77.3000,
+    standardRef: 'GB/T 2589-2020 焓值法测算',
+    desc: '集中供热蒸汽管网入口主管、重型绝缘件固化',
+  },
+  {
+    id: 'steam_saturated',
+    name: '饱和工业蒸汽 (0.8~1.0MPa)',
+    category: 'heat',
+    categoryName: '热力工质',
+    unit: 't',
+    icon: Wind,
+    heatValMJ: 2756.7000,
+    tceEquiv: 94.1000,
+    co2Factor: 65.2000,
+    standardRef: 'GB/T 2589-2020 饱和蒸汽表',
+    desc: '变压器绝缘纸板热压、和新套管卷制干燥罐',
+  },
+  {
+    id: 'diesel_light',
+    name: '轻柴油 (生产动力)',
+    category: 'fossil',
+    categoryName: '化石燃料',
+    unit: 'kg',
+    icon: Fuel,
+    heatValMJ: 42.6520,
+    tceEquiv: 1.4571,
+    co2Factor: 3.1000,
+    standardRef: 'GB/T 2589-2020 表 A.1',
+    desc: '厂区重载物流叉车、应急备用柴油发电机组',
+  },
+  {
+    id: 'gasoline',
+    name: '车用汽油',
+    category: 'fossil',
+    categoryName: '化石燃料',
+    unit: 'kg',
+    icon: Fuel,
+    heatValMJ: 43.0700,
+    tceEquiv: 1.4714,
+    co2Factor: 2.9250,
+    standardRef: 'GB/T 2589-2020 表 A.1',
+    desc: '厂区巡检车辆、高压试验工程抢修车',
+  },
+  {
+    id: 'coal_raw',
+    name: '动力原煤 / 烟煤',
+    category: 'fossil',
+    categoryName: '化石燃料',
+    unit: 'kg',
+    icon: Layers,
+    heatValMJ: 20.9080,
+    tceEquiv: 0.7143,
+    co2Factor: 1.9000,
+    standardRef: 'GB/T 2589-2020 表 A.1',
+    desc: '自备热电厂动力锅炉燃烧用煤',
+  },
+  {
+    id: 'water_industrial',
+    name: '工业新鲜自来水',
+    category: 'water',
+    categoryName: '耗能工质',
+    unit: 't',
+    icon: Droplets,
+    heatValMJ: 2.5100,
+    tceEquiv: 0.0857,
+    co2Factor: 0.1680,
+    standardRef: '地方耗能工质折标通则',
+    desc: '变压器水喷雾冷却循环补水、电缆交联冷却水套',
+  },
+  {
+    id: 'water_softened',
+    name: '工业软化脱盐纯水',
+    category: 'water',
+    categoryName: '耗能工质',
+    unit: 't',
+    icon: Droplets,
+    heatValMJ: 14.2300,
+    tceEquiv: 0.4857,
+    co2Factor: 0.9520,
+    standardRef: '高纯水制备折标标准',
+    desc: '变压器绝缘油测试清洗、高压试验纯水冷却系统',
+  },
+  {
+    id: 'air_compressed',
+    name: '压缩空气 (0.8MPa)',
+    category: 'gas',
+    categoryName: '动力气体',
+    unit: 'm³',
+    icon: Wind,
+    heatValMJ: 1.1700,
+    tceEquiv: 0.0400,
+    co2Factor: 0.0230,
+    standardRef: '机械工业能耗统计通则',
+    desc: '气动工装夹具、开关柜钣金气动冲压、喷涂除尘',
+  },
+  {
+    id: 'gas_hydrogen',
+    name: '高纯氢气 (99.999%)',
+    category: 'gas',
+    categoryName: '工业气体',
+    unit: 'm³',
+    icon: Atom,
+    heatValMJ: 12.7400,
+    tceEquiv: 0.4350,
+    co2Factor: 0.0000,
+    standardRef: '工业气体折标技术规程',
+    desc: '新能源制氢储能研发测试、电子级保护气',
+  },
+  {
+    id: 'gas_nitrogen',
+    name: '高纯氮气 (N₂)',
+    category: 'gas',
+    categoryName: '工业气体',
+    unit: 'm³',
+    icon: Atom,
+    heatValMJ: 1.9000,
+    tceEquiv: 0.0650,
+    co2Factor: 0.0284,
+    standardRef: '空分气体工质折标规范',
+    desc: '特高压变压器油箱充氮绝缘、防潮密封保护',
+  },
+]
 
 export default function ConvertPage() {
-  const [convertResult, setConvertResult] = useState('—')
+  // -------------------------------------------------------------
+  // 单介质智能换算器状态
+  // -------------------------------------------------------------
+  const [selectedMediumId, setSelectedMediumId] = useState('elec_grid')
+  const [inputVal, setInputVal] = useState<number>(10000)
+  const [powerMode, setPowerMode] = useState<'equiv' | 'equal'>('equiv') // 电力当量值 vs 等价值
+  const [copied, setCopied] = useState(false)
+
+  const curMedium = useMemo(() => {
+    return ENERGY_DATABASE.find((m) => m.id === selectedMediumId) || ENERGY_DATABASE[0]
+  }, [selectedMediumId])
+
+  // 计算当前单介质换算结果
+  const singleCalc = useMemo(() => {
+    const val = Number(inputVal) || 0
+    let coeffTce = curMedium.tceEquiv
+    if (curMedium.id === 'elec_grid' && powerMode === 'equal') {
+      coeffTce = curMedium.tceEqual || 0.3150
+    }
+
+    const tceVal = (val * coeffTce) / 1000
+    const kgceVal = val * coeffTce
+    const heatMJ = val * curMedium.heatValMJ
+    const heatGJ = heatMJ / 1000
+    const heatKcal = heatMJ * 238.8459 // 1 MJ = 238.8459 kcal
+    const co2Kg = val * curMedium.co2Factor
+    const co2Ton = co2Kg / 1000
+
+    return {
+      tceVal: tceVal.toFixed(4),
+      kgceVal: kgceVal.toFixed(2),
+      heatMJ: heatMJ.toFixed(2),
+      heatGJ: heatGJ.toFixed(4),
+      heatKcal: heatKcal.toFixed(0),
+      co2Kg: co2Kg.toFixed(2),
+      co2Ton: co2Ton.toFixed(4),
+      usedCoeff: coeffTce,
+    }
+  }, [curMedium, inputVal, powerMode])
+
+  // 复制结果
+  const handleCopyResult = () => {
+    const text = `【特变电工能碳平台·能源折标换算结果】\n输入能源：${inputVal.toLocaleString()} ${curMedium.unit} ${curMedium.name}\n折标准煤：${singleCalc.tceVal} tce (${singleCalc.kgceVal} kgce)\n等效热值：${singleCalc.heatGJ} GJ (${singleCalc.heatMJ} MJ)\n等效碳排：${singleCalc.co2Ton} tCO2 (${singleCalc.co2Kg} kgCO2)\n采用依据：${curMedium.standardRef}`
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
-    <Panel title="能源转换工具" desc="维护各类能源折标准煤系数，支持不同能源单位之间的转换计算">
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-sm text-muted-foreground">输入数值</label>
-              <input className="w-full rounded-md border border-input bg-panel px-3 py-2 text-sm text-foreground outline-none focus:border-primary" defaultValue="1000" type="number" />
-            </div>
-            <Select
-              label="源单位"
-              options={[
-                { label: 'kWh 电', value: 'kwh' },
-                { label: 'm³ 天然气', value: 'gas' },
-                { label: 't 标煤', value: 'tce' },
-              ]}
-            />
+    <div className="space-y-4 font-sans text-slate-800">
+      
+      {/* 🌟 1. 顶部 4 大国家标准与基准概览 KPI 卡片 */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-xs text-slate-500 block">现行国家标准版次</span>
+            <div className="text-lg font-bold font-mono text-slate-800 mt-0.5">GB/T 2589-2020</div>
+            <span className="text-[10px] text-blue-600 font-sans block mt-0.5">《综合能耗计算通则》</span>
           </div>
-          <Select
-            label="目标单位"
-            options={[
-              { label: '吨标准煤 (tce)', value: 'tce' },
-              { label: 'GJ', value: 'gj' },
-              { label: 'kgCO2', value: 'co2' },
-            ]}
-          />
-          <button
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            onClick={() => setConvertResult('0.1229 tce')}
-          >
-            计算转换
-          </button>
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff]">
+            <BookOpen className="size-4.5" />
+          </div>
         </div>
-        <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-panel p-6">
-          <div className="text-sm text-muted-foreground">转换结果</div>
-          <div className="my-2 font-mono text-3xl font-semibold text-primary text-glow">{convertResult}</div>
-          <div className="text-xs text-muted-foreground">折标系数 v2025.1 · 1229 kgce/万kWh</div>
+
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-xs text-slate-500 block">标准折标煤基准热值</span>
+            <div className="text-lg font-bold font-mono text-amber-600 mt-0.5">
+              29,307.6 <span className="text-xs font-sans text-slate-500">kJ/kgce</span>
+            </div>
+            <span className="text-[10px] text-slate-400 font-mono block mt-0.5">等效 7,000 kcal / 29.3076 MJ</span>
+          </div>
+          <div className="size-9 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
+            <Flame className="size-4.5" />
+          </div>
+        </div>
+
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-xs text-slate-500 block">电力折标口径基准</span>
+            <div className="text-lg font-bold font-mono text-emerald-600 mt-0.5">
+              0.1229 / 0.3150
+            </div>
+            <span className="text-[10px] text-slate-400 font-mono block mt-0.5">kgce/kWh (物理当量 ⇄ 供电等价)</span>
+          </div>
+          <div className="size-9 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+            <Zap className="size-4.5" />
+          </div>
+        </div>
+
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-xs text-slate-500 block">全国电网平均排放因子</span>
+            <div className="text-lg font-bold font-mono text-purple-600 mt-0.5">
+              0.5703 <span className="text-xs font-sans text-slate-500">tCO2/MWh</span>
+            </div>
+            <span className="text-[10px] text-purple-600 font-sans block mt-0.5">生态环境部最新公告核算因子</span>
+          </div>
+          <div className="size-9 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
+            <Atom className="size-4.5" />
+          </div>
         </div>
       </div>
-    </Panel>
+
+      {/* 🌟 2. 核心主控制区：智能换算器 */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4.5 space-y-4">
+        
+        {/* 介质选择 Pills */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <Layers className="size-3.5 text-[#1677ff]" />
+              <span>选择待转换能源介质：</span>
+            </label>
+            <span className="text-[11px] text-slate-400 font-mono">
+              特变电工（电装集团）能效折算中枢
+            </span>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            {ENERGY_DATABASE.map((m) => {
+              const IconComponent = m.icon
+              const isSelected = m.id === selectedMediumId
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => setSelectedMediumId(m.id)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer',
+                    isSelected
+                      ? 'border-[#1677ff] bg-blue-50/80 text-[#1677ff] font-bold shadow-2xs'
+                      : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                  )}
+                >
+                  <IconComponent className="size-3.5" />
+                  <span>{m.name}</span>
+                  <span className="text-[10px] text-slate-400 font-mono">({m.unit})</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Bento Grid 双栏主换算区 */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+          {/* 左栏: 输入控制面板 (col-span-5) */}
+          <div className="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3.5 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <ArrowRightLeft className="size-4 text-[#1677ff]" />
+                  <span>输入实物用能量</span>
+                </span>
+                <span className="text-[11px] px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-mono font-semibold">
+                  {curMedium.categoryName}
+                </span>
+              </div>
+
+              {/* 数值输入 */}
+              <div className="space-y-1">
+                <label className="text-xs text-slate-600">实物数量 ({curMedium.unit})：</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={inputVal}
+                    onChange={(e) => setInputVal(Number(e.target.value))}
+                    className="w-full pl-3 pr-16 py-2 bg-white border border-slate-300 rounded-lg text-lg font-bold font-mono text-slate-900 focus:outline-none focus:border-[#1677ff]"
+                    placeholder="请输入实物量..."
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold font-mono text-slate-400">
+                    {curMedium.unit}
+                  </span>
+                </div>
+              </div>
+
+              {/* 快捷步进按钮 */}
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <span className="text-slate-400 text-[11px] font-sans">快捷填报:</span>
+                <button
+                  onClick={() => setInputVal((prev) => (prev || 0) + 1000)}
+                  className="px-2 py-1 bg-white border border-slate-200 rounded hover:bg-slate-100 cursor-pointer"
+                >
+                  +1,000
+                </button>
+                <button
+                  onClick={() => setInputVal((prev) => (prev || 0) + 10000)}
+                  className="px-2 py-1 bg-white border border-slate-200 rounded hover:bg-slate-100 cursor-pointer"
+                >
+                  +10,000
+                </button>
+                <button
+                  onClick={() => setInputVal((prev) => (prev || 0) * 10)}
+                  className="px-2 py-1 bg-white border border-slate-200 rounded hover:bg-slate-100 cursor-pointer"
+                >
+                  ×10
+                </button>
+                <button
+                  onClick={() => setInputVal(1000)}
+                  className="p-1 text-slate-400 hover:text-slate-700 ml-auto cursor-pointer"
+                  title="重置为 1000"
+                >
+                  <RotateCcw className="size-3.5" />
+                </button>
+              </div>
+
+              {/* 电力特殊口径切换 */}
+              {curMedium.id === 'elec_grid' && (
+                <div className="p-2.5 rounded-lg bg-blue-100/60 border border-blue-200 text-xs space-y-1.5">
+                  <div className="flex items-center justify-between font-bold text-blue-900">
+                    <span>⚡ 电力折标口径选择：</span>
+                    <span className="text-[10.5px] font-mono text-blue-700 font-normal">
+                      {powerMode === 'equiv' ? '0.1229 kgce/kWh' : '0.3150 kgce/kWh'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setPowerMode('equiv')}
+                      className={cn(
+                        'py-1 rounded text-xs transition-colors font-semibold cursor-pointer',
+                        powerMode === 'equiv'
+                              ? 'bg-blue-600 text-white shadow-2xs'
+                              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                      )}
+                    >
+                      当量值 (热值口径)
+                    </button>
+                    <button
+                      onClick={() => setPowerMode('equal')}
+                      className={cn(
+                        'py-1 rounded text-xs transition-colors font-semibold cursor-pointer',
+                        powerMode === 'equal'
+                              ? 'bg-blue-600 text-white shadow-2xs'
+                              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                      )}
+                    >
+                      等价值 (供电煤耗)
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-200">
+              <span>典型场景：{curMedium.desc}</span>
+            </div>
+          </div>
+
+          {/* 右栏: 3 大核心能量/碳排数显看板 (col-span-7) */}
+          <div className="lg:col-span-7 bg-white p-4 rounded-xl border border-slate-200 space-y-3.5 flex flex-col justify-between shadow-2xs">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div className="flex items-center gap-2">
+                <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-bold text-slate-800">
+                  换算结果多维数显看板 · 实时动态核算
+                </span>
+              </div>
+              <button
+                onClick={handleCopyResult}
+                className="flex items-center gap-1 text-xs text-[#1677ff] hover:text-blue-700 font-semibold cursor-pointer transition-colors"
+              >
+                {copied ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
+                <span>{copied ? '已复制换算结果' : '一键复制结果'}</span>
+              </button>
+            </div>
+
+            {/* 3 大核心 Bento 卡片 (3列并排平铺) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* 卡片 1: 标煤 */}
+              <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 space-y-1.5">
+                <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
+                  <Flame className="size-3.5 text-amber-600" />
+                  综合折标煤 (tce)
+                </span>
+                <div className="text-2xl font-black font-mono text-amber-700 tracking-tight">
+                  {singleCalc.tceVal} <span className="text-xs font-sans font-normal text-amber-900">tce</span>
+                </div>
+                <div className="text-[11px] font-mono text-amber-800/80 pt-1 border-t border-amber-200/60">
+                  折合：{Number(singleCalc.kgceVal).toLocaleString()} kgce
+                </div>
+              </div>
+
+              {/* 卡片 2: 热值 */}
+              <div className="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200 space-y-1.5">
+                <span className="text-xs font-bold text-rose-900 flex items-center gap-1">
+                  <Sparkles className="size-3.5 text-rose-600" />
+                  等效低位热值 (GJ)
+                </span>
+                <div className="text-2xl font-black font-mono text-rose-700 tracking-tight">
+                  {singleCalc.heatGJ} <span className="text-xs font-sans font-normal text-rose-900">GJ</span>
+                </div>
+                <div className="text-[11px] font-mono text-rose-800/80 pt-1 border-t border-rose-200/60">
+                  折合：{Number(singleCalc.heatMJ).toLocaleString()} MJ
+                </div>
+              </div>
+
+              {/* 卡片 3: 碳排 */}
+              <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
+                <span className="text-xs font-bold text-emerald-900 flex items-center gap-1">
+                  <Atom className="size-3.5 text-emerald-600" />
+                  等效碳排放 (tCO2)
+                </span>
+                <div className="text-2xl font-black font-mono text-emerald-700 tracking-tight">
+                  {singleCalc.co2Ton} <span className="text-xs font-sans font-normal text-emerald-900">tCO2</span>
+                </div>
+                <div className="text-[11px] font-mono text-emerald-800/80 pt-1 border-t border-emerald-200/60">
+                  折合：{Number(singleCalc.co2Kg).toLocaleString()} kgCO2
+                </div>
+              </div>
+            </div>
+
+            {/* 动态公式推导面板 */}
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs text-slate-700 space-y-1.5">
+              <div className="font-sans font-bold text-slate-800 text-[11.5px] flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Info className="size-3.5 text-[#1677ff]" />
+                  <span>数学推导过程与标准溯源：</span>
+                </div>
+                <span className="text-[10.5px] font-sans font-normal text-slate-400">
+                  依据：{curMedium.standardRef}
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-600 bg-white p-2 rounded border border-slate-200/70 space-y-1">
+                <div>
+                  <strong>折标公式：</strong>{inputVal.toLocaleString()} {curMedium.unit} × {singleCalc.usedCoeff} kgce/{curMedium.unit} ÷ 1,000 = <span className="text-amber-700 font-bold">{singleCalc.tceVal} tce</span>
+                </div>
+                <div>
+                  <strong>碳排公式：</strong>{inputVal.toLocaleString()} {curMedium.unit} × {curMedium.co2Factor} kgCO2/{curMedium.unit} ÷ 1,000 = <span className="text-emerald-700 font-bold">{singleCalc.co2Ton} tCO2</span>
+                </div>
+                <div>
+                  <strong>热值公式：</strong>{inputVal.toLocaleString()} {curMedium.unit} × {curMedium.heatValMJ} MJ/{curMedium.unit} ÷ 1,000 = <span className="text-rose-700 font-bold">{singleCalc.heatGJ} GJ</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   )
 }

@@ -7,7 +7,7 @@ import { Tabs } from '@/components/shared/tabs'
 import { Select } from '@/components/shared/select'
 import { Modal } from '@/components/shared/modal'
 import { interfaceConfigs, fieldMappings } from '@/lib/mock-data'
-import { Plug, Settings, Wifi, Plus } from 'lucide-react'
+import { Plug,  Settings, Wifi, Plus } from 'lucide-react'
 
 export default function InterfacePage() {
   const [tab, setTab] = useState('config')
@@ -21,7 +21,12 @@ export default function InterfacePage() {
 
   return (
     <div>
-      <PageHeader title="数据接口" desc="接口：与股份碳足迹系统、经营单位产品碳足迹系统的对接、传输与融合" />
+      <PageHeader
+        icon={Plug}
+        title="接口管理"
+        badge="ERP / PLM / MES 协同"
+        desc="打通集团 ERP 物料账、PLM 设计图纸与 MES 生产时序数据接口"
+      />
 
       <Tabs
         value={tab}

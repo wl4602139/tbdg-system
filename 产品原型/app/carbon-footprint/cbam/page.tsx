@@ -36,9 +36,7 @@ export default function CbamPage() {
             <ShieldCheck className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-foreground">
-              欧盟碳关税 (CBAM) 合规与出口申报专区
-            </h1>
+            <h1 className="text-base font-bold text-foreground">CBAM 与认证</h1>
             <p className="text-xs text-muted-foreground">
               支持变压器与线缆产品 HS-CN 编码映射、隐含碳排放测算与季度申报 XML 合规包生成
             </p>

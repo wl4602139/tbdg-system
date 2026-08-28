@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Database, FileCheck2, Award, TrendingDown, Boxes, Factory, MapPin, ExternalLink, Sparkles, Layers, ArrowUpRight } from 'lucide-react'
+import { LayoutDashboard,  Database, FileCheck2, Award, TrendingDown, Boxes, Factory, MapPin, ExternalLink, Sparkles, Layers, ArrowUpRight } from 'lucide-react'
 import { PageHeader } from '@/components/shared/page-header'
 import { Panel, PanelTitle, KpiCard, DataTable, StatusBadge, Badge } from '@/components/shared/primitives'
 import { Select } from '@/components/shared/select'

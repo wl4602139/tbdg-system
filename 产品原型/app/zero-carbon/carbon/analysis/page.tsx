@@ -91,20 +91,10 @@ export default function CarbonAnalysisPage() {
         {/* 顶部控制与视角提示卡片 */}
         <div className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-base shrink-0 border border-indigo-200 shadow-2xs">
-              📊
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <BarChart3 className="size-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-bold text-slate-800">{selectedOrg.name}</h1>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-bold flex items-center gap-1">
-                  🏢 集团全局大盘视角 (电装宏观总览)
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                能效-碳排放四象限矩阵、12个月演进趋势、核心工序碳热点拆解与红黑榜追溯
-              </p>
-            </div>
+            <h1 className="text-base font-bold text-slate-800">碳排放分析</h1>
           </div>
 
           <div className="flex items-center gap-2 self-end md:self-center">

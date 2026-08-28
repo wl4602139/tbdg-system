@@ -132,20 +132,10 @@ export default function CarbonReportPage() {
         {/* 顶部 Header 与 操作按钮 */}
         <div className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 text-[#1677ff] flex items-center justify-center font-bold text-base shrink-0 border border-blue-200 shadow-2xs">
-              📑
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <FileText className="size-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-bold text-slate-800">组织级碳核算权威报告与合规披露中心</h1>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-bold flex items-center gap-1">
-                  ISO 14064-1 / ESG 披露
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                支持第三方机构核验报告归档、一键生成标准合规报告与全量活动数据佐证包导出
-              </p>
-            </div>
+            <h1 className="text-base font-bold text-slate-800">碳核算报告</h1>
           </div>
 
           <div className="flex items-center gap-2 self-end md:self-center">

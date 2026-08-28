@@ -56,18 +56,11 @@ export default function ManualEntryPage() {
       {/* 顶部标题与说明 */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-xl border border-border">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-primary">
-            <FileEdit className="size-5" />
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <FileEdit className="size-5" />
+            </div>
+            <h1 className="text-base font-bold text-slate-800">数据录入</h1>
           </div>
-          <div>
-            <h1 className="text-base font-bold text-foreground">
-              线下能碳数据人工填报与补录系统
-            </h1>
-            <p className="text-xs text-muted-foreground">
-              针对天然气、蒸汽账单、柴油、工业增加值等无自动化表计能源提供月度合规填报
-            </p>
-          </div>
-        </div>
 
         <div className="flex items-center gap-2 text-xs">
           <span className="text-muted-foreground">当前填报单位：</span>

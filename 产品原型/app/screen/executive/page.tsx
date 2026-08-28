@@ -108,7 +108,7 @@ export default function ZeroCarbonScreenPage() {
           <div className="flex items-center justify-center gap-2">
             <div className="h-0.5 w-16 bg-gradient-to-r from-transparent to-cyan-400" />
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-widest bg-gradient-to-b from-white via-cyan-200 to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]">
-              零碳园区能碳双控数据大屏
+              零碳园区集控中心大屏
             </h1>
             <div className="h-0.5 w-16 bg-gradient-to-l from-transparent to-cyan-400" />
           </div>

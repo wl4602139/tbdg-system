@@ -7,7 +7,7 @@ import { Tabs } from '@/components/shared/tabs'
 import { Select } from '@/components/shared/select'
 import { Modal } from '@/components/shared/modal'
 import { certMaterials, certApplications, certResults, statusColor } from '@/lib/mock-data'
-import { Download, Upload, Plus, FileCheck } from 'lucide-react'
+import { BadgeCheck,  Download, Upload, Plus, FileCheck } from 'lucide-react'
 
 const orgLabel: Record<string, string> = { all: '', tuv: 'TÜV', sgs: 'SGS', bv: 'BV' }
 
@@ -22,7 +22,12 @@ export default function CertificationPage() {
 
   return (
     <div>
-      <PageHeader title="第三方认证管理" desc="第三方便捷认证对接管理：资料维护、在线申报、结果归档与证书生命周期管理" />
+      <PageHeader
+        icon={BadgeCheck}
+        title="EPD 与碳足迹证书"
+        badge="权威核查证书归档"
+        desc="对接国际与国家认证机构，维护核查申报、报告归档与证书全生命周期"
+      />
 
       <Tabs
         value={tab}

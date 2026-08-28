@@ -21,8 +21,18 @@ export default function RecordsPage() {
   )
 
   return (
-    <div className="grid gap-4">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="space-y-3.5">
+      {/* 顶部 Header */}
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <BellRing className="size-5" />
+            </div>
+            <h1 className="text-base font-bold text-slate-800">告警处理</h1>
+          </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
         <KpiCard label="待处理告警" value="6" unit="条" delta="需关注" up icon={BellRing} />
         <KpiCard label="处理中" value="1" unit="条" delta="节能专员处理" icon={Clock} />
         <KpiCard label="今日已闭环" value="7" unit="条" delta="平均耗时 42 分钟" up={false} icon={CheckCircle2} />

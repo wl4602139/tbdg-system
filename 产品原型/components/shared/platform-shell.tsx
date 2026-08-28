@@ -38,7 +38,23 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   // 平台切换下拉框展开状态
   const [platformMenuOpen, setPlatformMenuOpen] = useState(false)
+  const platformMenuRef = React.useRef<HTMLDivElement>(null)
   const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({})
+
+  // 点击外部自动关闭平台切换下拉框
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (platformMenuRef.current && !platformMenuRef.current.contains(event.target as Node)) {
+        setPlatformMenuOpen(false)
+      }
+    }
+    if (platformMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [platformMenuOpen])
 
   // AI 悬浮窗口状态
   const [isAiOpen, setIsAiOpen] = useState(false)
@@ -156,7 +172,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
         </div>
 
         {/* 左上角 LOGO 下方：平台切换下拉选择器 (零碳园区集控中心 ⇄ 产品碳足迹集采中心) */}
-        <div className="relative px-2 py-2 border-b border-blue-400/20 bg-[#0747b0]">
+        <div ref={platformMenuRef} className="relative px-2 py-2 border-b border-blue-400/20 bg-[#0747b0]">
           <button
             onClick={() => setPlatformMenuOpen((v) => !v)}
             className={cn(
@@ -189,14 +205,12 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
 
           {/* 下拉弹出浮层 Popover */}
           {platformMenuOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setPlatformMenuOpen(false)} />
-              <div
-                className={cn(
-                  'absolute top-full mt-1.5 z-50 rounded-xl border border-slate-200 bg-white p-1.5 text-xs text-slate-700 shadow-2xl animate-in fade-in zoom-in-95 duration-150',
-                  sidebarOpen ? 'left-2 right-2 w-auto' : 'left-14 w-52'
-                )}
-              >
+            <div
+              className={cn(
+                'absolute top-full mt-1.5 z-50 rounded-xl border border-slate-200 bg-white p-1.5 text-xs text-slate-700 shadow-2xl animate-in fade-in zoom-in-95 duration-150',
+                sidebarOpen ? 'left-2 right-2 w-auto' : 'left-14 w-52'
+              )}
+            >
                 <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1 flex items-center justify-between">
                   <span>切换平台中枢</span>
                   <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-50 text-blue-600 font-mono font-bold">
@@ -250,7 +264,6 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                   )}
                 </Link>
               </div>
-            </>
           )}
         </div>
 
@@ -350,7 +363,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
       {/* 2. 右侧主体容器 (flex-col: 顶部主条 + 滚动主内容区) */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
         {/* 右侧顶部白色主导航条 */}
-        <header className="h-14 border-b border-[#e5e7eb] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs z-20">
+        <header className="h-14 border-b border-[#e5e7eb] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs z-20 overflow-hidden">
           {/* 左侧：折叠按钮 + 平台标题 */}
           <div className="flex items-center gap-3">
             <button
@@ -419,10 +432,10 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
       {/* ======================================================== */}
       {/* 🌟 3. 页面右下角固定浮层图标与 AI 对话框窗口 */}
       {/* ======================================================== */}
-      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end">
+      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end pointer-events-none">
         {/* 弹出对话框窗口 */}
         {isAiOpen && (
-          <div className="w-96 sm:w-[420px] h-[520px] bg-white rounded-2xl shadow-2xl border border-slate-200 mb-3 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-200">
+          <div className="w-96 sm:w-[420px] h-[520px] bg-white rounded-2xl shadow-2xl border border-slate-200 mb-3 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-200 pointer-events-auto">
             {/* 窗口头部 */}
             <div className="bg-gradient-to-r from-[#0958d9] to-[#1677ff] p-3.5 text-white flex items-center justify-between shrink-0 shadow-md">
               <div className="flex items-center gap-2.5">
@@ -531,7 +544,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
         <button
           onClick={() => setIsAiOpen(!isAiOpen)}
           className={cn(
-            'flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl transition-all transform hover:scale-105 active:scale-95 group focus:outline-none ring-2 ring-white',
+            'pointer-events-auto cursor-pointer flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl transition-all transform hover:scale-105 active:scale-95 group focus:outline-none ring-2 ring-white',
             isAiOpen
               ? 'bg-slate-900 text-white shadow-slate-900/40'
               : 'bg-gradient-to-r from-[#0958d9] via-[#1677ff] to-[#0284c7] text-white shadow-blue-500/40 hover:shadow-blue-500/60'

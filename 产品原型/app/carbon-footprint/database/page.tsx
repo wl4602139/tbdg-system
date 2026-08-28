@@ -82,9 +82,7 @@ export default function DatabasePage() {
             <Database className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-foreground">
-              产品碳足迹实景数据库与 BOM 溯源系统
-            </h1>
+            <h1 className="text-base font-bold text-foreground">实景数据库</h1>
             <p className="text-xs text-muted-foreground">
               支撑型号/订单级实景碳核算、21家单位核算一张图、全工序能耗时序追踪与 ISO 14067 报告生成
             </p>

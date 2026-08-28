@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Settings2 } from 'lucide-react'
 import { Panel, DataTable, StatusBadge } from '@/components/shared/primitives'
 import { Select } from '@/components/shared/select'
 import { Modal } from '@/components/shared/modal'
@@ -10,7 +11,18 @@ export default function RulesPage() {
   const [ruleModal, setRuleModal] = useState(false)
 
   return (
-    <Panel
+    <div className="space-y-3.5">
+      {/* 顶部 Header */}
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <Settings2 className="size-5" />
+            </div>
+            <h1 className="text-base font-bold text-slate-800">告警规则配置</h1>
+          </div>
+      </div>
+
+      <Panel
       title="告警规则配置"
       desc="按能耗、单耗、碳排放、项目效益等多维度自定义规则"
       actions={
@@ -116,5 +128,6 @@ export default function RulesPage() {
         </div>
       </Modal>
     </Panel>
+    </div>
   )
 }

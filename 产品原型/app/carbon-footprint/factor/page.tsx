@@ -7,7 +7,7 @@ import { Tabs } from '@/components/shared/tabs'
 import { Select } from '@/components/shared/select'
 import { Modal } from '@/components/shared/modal'
 import { factorSets, factorItems, factorDispatch } from '@/lib/mock-data'
-import { RefreshCw, Send, Search, Pencil, CheckCircle2 } from 'lucide-react'
+import { Boxes,  RefreshCw, Send, Search, Pencil, CheckCircle2 } from 'lucide-react'
 
 const unitLabel: Record<string, string> = { all: '', tj: '天津', hy: '衡阳', sy: '沈阳' }
 
@@ -25,7 +25,12 @@ export default function FactorPage() {
 
   return (
     <div>
-      <PageHeader title="因子库管理" desc="建立特变电工各产业本地化因子库，统一构建、下发与版本管理" />
+      <PageHeader
+        icon={Boxes}
+        title="因子库"
+        badge="背景数据库与供应链溯源"
+        desc="特变电工专用行业特征背景数据库，统一发布与版本管控"
+      />
 
       <Tabs
         value={tab}

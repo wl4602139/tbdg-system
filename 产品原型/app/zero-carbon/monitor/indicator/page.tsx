@@ -76,10 +76,223 @@ interface IndicatorMetric {
 }
 
 // 1. 一、经营单位及项目公司整体指标 (前 10 项)
-const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
+
+// 🌟 集团大盘数据定义
+interface CompanyGroupMetrics {
+  id: string
+  name: string
+  fullName: string
+  industry: 'transformer' | 'cable'
+  industryName: string
+  unit: string
+  // 综合指标
+  energyTce: number
+  energyShare: string
+  costWan: number
+  costShare: string
+  unitOutputTce: string
+  unitOutputElec: string
+  unitOutputWater: string
+  greenRatio: string
+  yoy: string
+  // 产品管控指标
+  productEnergyTce: string
+  productElec: string
+  productSteam?: string
+  productGas: string
+  productWater: string
+}
+
+const GROUP_OVERALL_KPI = {
+  totalTce: '5,529.1',
+  totalTceUnit: 'tce',
+  totalTceYoy: '-2.4%',
+  unitOutputTce: '0.0526',
+  unitOutputTceUnit: 'tce/万元',
+  unitOutputTceYoy: '-3.8%',
+  greenRatio: '36.8%',
+  greenRatioYoy: '+4.5%',
+  savedTce: '142.5',
+  savedCost: '82.6',
+}
+
+const GROUP_COMPANIES_METRICS: CompanyGroupMetrics[] = [
   {
-    id: 'm-total-energy',
+    id: 'comp_sb',
+    name: '沈变公司',
+    fullName: '特变电工沈阳变压器集团',
+    industry: 'transformer',
+    industryName: '变压器产业',
+    unit: '万kVA',
+    energyTce: 1577.2,
+    energyShare: '32.5%',
+    costWan: 762.5,
+    costShare: '31.8%',
+    unitOutputTce: '0.0553',
+    unitOutputElec: '312.0',
+    unitOutputWater: '0.42',
+    greenRatio: '38.6%',
+    yoy: '-2.7%',
+    productEnergyTce: '0.0825',
+    productElec: '534.2',
+    productSteam: '1.85',
+    productGas: '12.4',
+    productWater: '0.75',
+  },
+  {
+    id: 'comp_hb',
+    name: '衡变公司',
+    fullName: '特变电工衡阳变压器有限公司',
+    industry: 'transformer',
+    industryName: '变压器产业',
+    unit: '万kVA',
+    energyTce: 1420.5,
+    energyShare: '28.2%',
+    costWan: 685.0,
+    costShare: '28.5%',
+    unitOutputTce: '0.0582',
+    unitOutputElec: '325.4',
+    unitOutputWater: '0.48',
+    greenRatio: '35.2%',
+    yoy: '-2.0%',
+    productEnergyTce: '0.0860',
+    productElec: '552.0',
+    productSteam: '1.92',
+    productGas: '13.1',
+    productWater: '0.80',
+  },
+  {
+    id: 'comp_xb',
+    name: '新变厂',
+    fullName: '特变电工新疆变压器厂',
+    industry: 'transformer',
+    industryName: '变压器产业',
+    unit: '万kVA',
+    energyTce: 1280.0,
+    energyShare: '24.1%',
+    costWan: 590.2,
+    costShare: '24.6%',
+    unitOutputTce: '0.0510',
+    unitOutputElec: '298.0',
+    unitOutputWater: '0.38',
+    greenRatio: '42.5%',
+    yoy: '-2.1%',
+    productEnergyTce: '0.0792',
+    productElec: '518.5',
+    productSteam: '1.70',
+    productGas: '11.2',
+    productWater: '0.68',
+  },
+  {
+    id: 'comp_ll',
+    name: '鲁缆公司',
+    fullName: '特变电工山东鲁能泰山电缆',
+    industry: 'cable',
+    industryName: '线缆产业',
+    unit: '万km·mm²',
+    energyTce: 890.4,
+    energyShare: '8.2%',
+    costWan: 420.8,
+    costShare: '8.3%',
+    unitOutputTce: '0.0465',
+    unitOutputElec: '285.0',
+    unitOutputWater: '0.32',
+    greenRatio: '31.0%',
+    yoy: '-3.0%',
+    productEnergyTce: '0.0425',
+    productElec: '310.8',
+    productGas: '8.5',
+    productWater: '0.52',
+  },
+  {
+    id: 'comp_xl',
+    name: '新缆厂',
+    fullName: '特变电工新疆线缆厂',
+    industry: 'cable',
+    industryName: '线缆产业',
+    unit: '万km·mm²',
+    energyTce: 740.2,
+    energyShare: '4.5%',
+    costWan: 360.5,
+    costShare: '4.4%',
+    unitOutputTce: '0.0440',
+    unitOutputElec: '272.0',
+    unitOutputWater: '0.28',
+    greenRatio: '36.5%',
+    yoy: '-1.9%',
+    productEnergyTce: '0.0398',
+    productElec: '295.4',
+    productGas: '7.8',
+    productWater: '0.45',
+  },
+  {
+    id: 'comp_dl',
+    name: '德缆公司',
+    fullName: '特变电工（德阳）电缆股份有限公司',
+    industry: 'cable',
+    industryName: '线缆产业',
+    unit: '万km·mm²',
+    energyTce: 620.8,
+    energyShare: '2.5%',
+    costWan: 310.0,
+    costShare: '2.4%',
+    unitOutputTce: '0.0480',
+    unitOutputElec: '292.5',
+    unitOutputWater: '0.35',
+    greenRatio: '29.8%',
+    yoy: '-2.4%',
+    productEnergyTce: '0.0450',
+    productElec: '320.0',
+    productGas: '9.1',
+    productWater: '0.58',
+  },
+]
+
+
+// 🌟 集团大盘 10 项公司整体管控指标定义清单 (与二三级 10 个参数 100% 保持完全一致)
+const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
+  {
+    id: 'gm-pcf-ratio',
     code: 'GK-01',
+    name: '开展产品碳足迹分析占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '85.7',
+    yoy: '+12.5%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集采·碳足迹',
+    tipText: '指统计期内开展主要产品碳足迹分析的产品类别数量占主要产品类别总数的比值。',
+    formula: 'R_cf = (N_cf / N) × 100%',
+    formulaDesc: '月度指标。R_cf: 开展产品碳足迹分析占比；N_cf: 开展主要产品碳足迹分析的产品类别数量；N: 主要产品类别总数。',
+    numeratorName: '已开展主要产品碳足迹分析的产品类别数 N_cf',
+    numeratorVal: '12 类',
+    denominatorName: '主要产品类别总数 N',
+    denominatorVal: '14 类',
+    dataSource: '产品碳足迹集采中心实景数据库与生命周期评估 (LCA) 认证报告清单。',
+    rawMeters: [
+      { medium: '碳足迹认证台账', meterCode: 'PCF-CERT-01', location: '集采中心', reading: '12 / 14 类别', unit: '类', coeff: '1.0', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 71.4, yoy: '+8.0%', mom: '+0.0%' },
+      { period: '25-10', value: 71.4, yoy: '+8.0%', mom: '+0.0%' },
+      { period: '25-11', value: 78.6, yoy: '+10.2%', mom: '+7.2%' },
+      { period: '25-12', value: 78.6, yoy: '+10.2%', mom: '+0.0%' },
+      { period: '26-01', value: 78.6, yoy: '+10.2%', mom: '+0.0%' },
+      { period: '26-02', value: 78.6, yoy: '+10.2%', mom: '+0.0%' },
+      { period: '26-03', value: 85.7, yoy: '+14.3%', mom: '+7.1%' },
+      { period: '26-04', value: 85.7, yoy: '+14.3%', mom: '+0.0%' },
+      { period: '26-05', value: 85.7, yoy: '+14.3%', mom: '+0.0%' },
+      { period: '26-06', value: 85.7, yoy: '+14.3%', mom: '+0.0%' },
+      { period: '26-07', value: 85.7, yoy: '+14.3%', mom: '+0.0%' },
+      { period: '26-08', value: 85.7, yoy: '+12.5%', mom: '+0.0%' },
+    ],
+  },
+  {
+    id: 'gm-total-energy',
+    code: 'GK-02',
     name: '综合能源消费量',
     category: 'company',
     categoryName: '一、经营单位及项目公司整体指标',
@@ -89,10 +302,405 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '能耗总量',
-    tipText: '指统计期内用能系统实际消耗的各种能源实物量（包括电力、天然气、蒸汽、水等）折算为标准煤的总和。',
+    badge: '集控·总量',
+    tipText: '指统计期内组织综合能源消费的总吨标准煤。',
     formula: 'E = ∑(Ei × ki)',
-    formulaDesc: '月度指标。E: 综合能源消费量 (tce)；Ei: 第 i 种能源实物消耗量；ki: 折标准煤系数。',
+    formulaDesc: '月度指标。E: 综合能源消耗量，单位为tce；n: 消耗的能源种类数；Ei: 实际消耗的第i种能源量；ki: 第i种能源的折标准煤系数。',
+    numeratorName: '各直属单位能源实物折标煤之和 ∑(Ei × ki)',
+    numeratorVal: '1,284.5 tce',
+    denominatorName: '核算周期 (自然月)',
+    denominatorVal: '1 个月',
+    dataSource: '覆盖直属经营单位关口电表、天然气门站、蒸汽流量计及油料台账。',
+    rawMeters: [
+      { medium: '电力消费', meterCode: 'SUM-ELEC-GRID', location: '全集团关口', reading: '18,540,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '2,278.6' },
+      { medium: '天然气', meterCode: 'SUM-GAS-MAIN', location: '全集团燃气', reading: '1,280,000 m³', unit: 'm³', coeff: '1.2143', tce: '1,554.3' },
+      { medium: '外购蒸汽', meterCode: 'SUM-STEAM-MAIN', location: '蒸汽主干', reading: '15,600 t', unit: 't', coeff: '0.0943', tce: '1,471.1' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 1380, yoy: '-3.2%', mom: '-0.8%' },
+      { period: '25-10', value: 1360, yoy: '-3.8%', mom: '-1.4%' },
+      { period: '25-11', value: 1340, yoy: '-4.0%', mom: '-1.5%' },
+      { period: '25-12', value: 1390, yoy: '-3.5%', mom: '+3.7%' },
+      { period: '26-01', value: 1320, yoy: '-4.1%', mom: '-5.0%' },
+      { period: '26-02', value: 1300, yoy: '-4.5%', mom: '-1.5%' },
+      { period: '26-03', value: 1310, yoy: '-4.4%', mom: '+0.8%' },
+      { period: '26-04', value: 1295, yoy: '-4.1%', mom: '-1.1%' },
+      { period: '26-05', value: 1305, yoy: '-4.7%', mom: '+0.8%' },
+      { period: '26-06', value: 1340, yoy: '-4.3%', mom: '+2.7%' },
+      { period: '26-07', value: 1300, yoy: '-4.8%', mom: '-3.0%' },
+      { period: '26-08', value: 1284.5, yoy: '-4.8%', mom: '-1.2%' },
+    ],
+  },
+  {
+    id: 'gm-total-carbon',
+    code: 'GK-03',
+    name: '总碳排放量',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tCO2',
+    curVal: '2,946.8',
+    yoy: '-5.4%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·碳排放',
+    tipText: '指统计期内组织产生的温室气体二氧化碳总排放量。',
+    formula: 'C = C燃烧 + C过程 + C购入电 - C输出电 + C购入热 - C输出热 - C回收利用',
+    formulaDesc: '月度指标。C: 二氧化碳总排放量 (tCO2)；C燃烧: 化石燃料燃烧排放；C购入电: 购入电力排放；C购入热: 购入热力排放。',
+    numeratorName: '化石燃料燃烧 + 净购入电力与热力碳排放',
+    numeratorVal: '2,946.8 tCO2',
+    denominatorName: '核算周期 (自然月)',
+    denominatorVal: '1 个月',
+    dataSource: '基于月度电力、天然气、蒸汽实物量及全国电网平均排放因子 (0.5703 tCO2/MWh) 自动核算生成。',
+    rawMeters: [
+      { medium: '外购市电', meterCode: 'EM-GRID-SUM', location: '主进线柜', reading: '18,540,000 kWh', unit: 'kWh', coeff: '0.5703', tce: '10,573 t' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 3180, yoy: '-3.8%', mom: '-0.5%' },
+      { period: '25-10', value: 3140, yoy: '-4.1%', mom: '-1.3%' },
+      { period: '25-11', value: 3110, yoy: '-4.3%', mom: '-1.0%' },
+      { period: '25-12', value: 3200, yoy: '-3.9%', mom: '+2.9%' },
+      { period: '26-01', value: 3050, yoy: '-4.8%', mom: '-4.7%' },
+      { period: '26-02', value: 3010, yoy: '-5.0%', mom: '-1.3%' },
+      { period: '26-03', value: 3025, yoy: '-4.9%', mom: '+0.5%' },
+      { period: '26-04', value: 2990, yoy: '-4.8%', mom: '-1.2%' },
+      { period: '26-05', value: 2980, yoy: '-5.2%', mom: '-0.3%' },
+      { period: '26-06', value: 3040, yoy: '-4.8%', mom: '+2.0%' },
+      { period: '26-07', value: 2975, yoy: '-5.3%', mom: '-2.1%' },
+      { period: '26-08', value: 2946.8, yoy: '-5.4%', mom: '-0.9%' },
+    ],
+  },
+  {
+    id: 'gm-carbon-per-energy',
+    code: 'GK-04',
+    name: '单位能耗碳排放',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tCO2/tce',
+    curVal: '2.294',
+    yoy: '-0.6%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·碳强度',
+    tipText: '指统计期内每消费一吨标准煤产生的二氧化碳排放量，用以衡量企业综合用能结构的绿色低碳化程度。',
+    formula: 'I = C / E',
+    formulaDesc: '月度指标。I: 单位能耗碳排放 (tCO2/tce)；C: 二氧化碳排放量 (tCO2)；E: 综合能源消耗量 (tce)。',
+    numeratorName: '全集团总二氧化碳排放量 C',
+    numeratorVal: '2,946.8 tCO2',
+    denominatorName: '全集团综合能源消费量 E',
+    denominatorVal: '1,284.5 tce',
+    dataSource: '根据当期总碳排放量与综合能源消费总量比值自动结算。',
+    rawMeters: [
+      { medium: '碳能比率', meterCode: 'RATIO-C-E-SUM', location: '集控中枢', reading: '2.294 tCO2/tce', unit: 'tCO2/tce', coeff: '1.0', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 2.304, yoy: '-0.5%', mom: '+0.1%' },
+      { period: '25-10', value: 2.308, yoy: '-0.4%', mom: '+0.2%' },
+      { period: '25-11', value: 2.320, yoy: '-0.3%', mom: '+0.5%' },
+      { period: '25-12', value: 2.302, yoy: '-0.4%', mom: '-0.8%' },
+      { period: '26-01', value: 2.310, yoy: '-0.5%', mom: '+0.3%' },
+      { period: '26-02', value: 2.315, yoy: '-0.5%', mom: '+0.2%' },
+      { period: '26-03', value: 2.309, yoy: '-0.5%', mom: '-0.3%' },
+      { period: '26-04', value: 2.308, yoy: '-0.6%', mom: '0.0%' },
+      { period: '26-05', value: 2.283, yoy: '-0.6%', mom: '-1.1%' },
+      { period: '26-06', value: 2.268, yoy: '-0.5%', mom: '-0.7%' },
+      { period: '26-07', value: 2.288, yoy: '-0.6%', mom: '+0.9%' },
+      { period: '26-08', value: 2.294, yoy: '-0.6%', mom: '+0.3%' },
+    ],
+  },
+  {
+    id: 'gm-green-energy-ratio',
+    code: 'GK-05',
+    name: '非化石能源消费占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '38.6',
+    yoy: '+4.2%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·绿能',
+    tipText: '指统计期内非化石能源消费量与综合能源消费量的比值。月度指标，交易绿电、绿证可纳入分子。',
+    formula: 'r = (R / E) × 100%',
+    formulaDesc: '月度指标。r: 非化石能源消费占比；R: 各类非化石能源消费量 (不含原料用能, tce)；E: 综合能源消费量 (不含原料用能, tce)。',
+    numeratorName: '全集团非化石能源消费量 R (自建光伏 + 交易绿电 + 绿证折算)',
+    numeratorVal: '495.8 tce',
+    denominatorName: '全集团综合能源消费量 E',
+    denominatorVal: '1,284.5 tce',
+    dataSource: '各园区自建分布式光伏自发自用量 + 全国电力交易中心绿电结算凭单 + 中国绿色电力证书 (GEC) 核销台账。',
+    rawMeters: [
+      { medium: '全集团非化石消纳', meterCode: 'GREEN-SUM-01', location: '调度中心', reading: '17,365 MWh', unit: 'MWh', coeff: '0.1229', tce: '2,134.2' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 32.5, yoy: '+2.8%', mom: '+0.5%' },
+      { period: '25-10', value: 33.1, yoy: '+3.1%', mom: '+1.8%' },
+      { period: '25-11', value: 33.8, yoy: '+3.5%', mom: '+2.1%' },
+      { period: '25-12', value: 34.2, yoy: '+3.2%', mom: '+1.2%' },
+      { period: '26-01', value: 35.0, yoy: '+3.9%', mom: '+2.3%' },
+      { period: '26-02', value: 35.6, yoy: '+4.0%', mom: '+1.7%' },
+      { period: '26-03', value: 34.2, yoy: '+3.4%', mom: '-3.9%' },
+      { period: '26-04', value: 35.8, yoy: '+4.3%', mom: '+4.7%' },
+      { period: '26-05', value: 37.1, yoy: '+4.3%', mom: '+3.6%' },
+      { period: '26-06', value: 37.8, yoy: '+4.4%', mom: '+1.9%' },
+      { period: '26-07', value: 38.2, yoy: '+4.2%', mom: '+1.1%' },
+      { period: '26-08', value: 38.6, yoy: '+4.2%', mom: '+1.0%' },
+    ],
+  },
+  {
+    id: 'gm-phy-green-ratio',
+    code: 'GK-06',
+    name: '非化石能源电力消费物理认定量占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '27.8',
+    yoy: '+3.5%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·物理绿电',
+    tipText: '指统计期内具备物理可溯源条件的非化石能源电力消费量占同期总用电量的比值。月底指标，交易绿电、绿证不纳入分子。',
+    formula: 'E_ui = (E_z / Q) × 100%',
+    formulaDesc: '月度指标。E_ui: 非化石能源电力消费物理认定量占比；E_z: 具备物理可溯源条件的非化石能源电力消费量 (kWh)；Q: 总用电量 (kWh)。',
+    numeratorName: '具备物理可溯源非化石电量 E_z (全集团园区屋顶光伏+专线直供)',
+    numeratorVal: '1,482,000 kWh',
+    denominatorName: '同期全集团工业总用电量 Q',
+    denominatorVal: '5,322,000 kWh',
+    dataSource: '各园区自建分布式光伏逆变器关口计量表及直供专用隔离配电柜时序电表，严格剔除外部市场化凭证。',
+    rawMeters: [
+      { medium: '物理光伏就地消纳', meterCode: 'PV-PHYS-SUM', location: '各园区总表', reading: '1,482,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '182.1' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 23.5, yoy: '+2.1%', mom: '+0.5%' },
+      { period: '25-10', value: 24.0, yoy: '+2.4%', mom: '+2.1%' },
+      { period: '25-11', value: 24.5, yoy: '+2.6%', mom: '+2.1%' },
+      { period: '25-12', value: 24.8, yoy: '+2.5%', mom: '+1.2%' },
+      { period: '26-01', value: 25.2, yoy: '+3.0%', mom: '+1.6%' },
+      { period: '26-02', value: 25.8, yoy: '+3.2%', mom: '+2.4%' },
+      { period: '26-03', value: 25.0, yoy: '+2.8%', mom: '-3.1%' },
+      { period: '26-04', value: 26.2, yoy: '+3.4%', mom: '+4.8%' },
+      { period: '26-05', value: 26.8, yoy: '+3.5%', mom: '+2.3%' },
+      { period: '26-06', value: 27.2, yoy: '+3.6%', mom: '+1.5%' },
+      { period: '26-07', value: 27.5, yoy: '+3.5%', mom: '+1.1%' },
+      { period: '26-08', value: 27.8, yoy: '+3.5%', mom: '+1.1%' },
+    ],
+  },
+  {
+    id: 'gm-unit-industrial-added-value',
+    code: 'GK-07',
+    name: '单位工业增加值能耗',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tce/万元',
+    curVal: '0.1425',
+    yoy: '-4.6%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·增加值能耗',
+    tipText: '指统计期内综合能源消费量与工业增加值的比值。月度指标，年度重新汇算。',
+    formula: 'E_nva = E / G_nva',
+    formulaDesc: '月度指标。E_nva: 单位工业增加值能耗 (tce/万元)；E: 综合能源消费量 (tce)；G_nva: 工业增加值 (万元)。',
+    numeratorName: '综合能源消费量 E',
+    numeratorVal: '1,284.5 tce',
+    denominatorName: '工业增加值 G_nva',
+    denominatorVal: '9,014.0 万元',
+    dataSource: '根据经营财务月报工业增加值与能源关口数据综合核算。',
+    rawMeters: [
+      { medium: '增加值能耗核算', meterCode: 'SUM-NVA-ALL', location: '集控中枢', reading: '1,284.5 / 9,014.0', unit: 'tce/万元', coeff: '1.0', tce: '0.1425' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 0.1510, yoy: '-3.5%', mom: '-0.5%' },
+      { period: '25-10', value: 0.1495, yoy: '-3.8%', mom: '-1.0%' },
+      { period: '25-11', value: 0.1482, yoy: '-4.0%', mom: '-0.9%' },
+      { period: '25-12', value: 0.1490, yoy: '-3.6%', mom: '+0.5%' },
+      { period: '26-01', value: 0.1470, yoy: '-4.1%', mom: '-1.3%' },
+      { period: '26-02', value: 0.1465, yoy: '-4.2%', mom: '-0.3%' },
+      { period: '26-03', value: 0.1460, yoy: '-4.0%', mom: '-0.3%' },
+      { period: '26-04', value: 0.1450, yoy: '-4.2%', mom: '-0.7%' },
+      { period: '26-05', value: 0.1442, yoy: '-4.4%', mom: '-0.6%' },
+      { period: '26-06', value: 0.1438, yoy: '-4.5%', mom: '-0.3%' },
+      { period: '26-07', value: 0.1430, yoy: '-4.5%', mom: '-0.6%' },
+      { period: '26-08', value: 0.1425, yoy: '-4.6%', mom: '-0.3%' },
+    ],
+  },
+  {
+    id: 'gm-energy-saving-equipment-ratio',
+    code: 'GK-08',
+    name: '节能装备应用占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '92.4',
+    yoy: '+3.8%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·节能装备',
+    tipText: '指统计期内达到或优于能效强制性国家标准 2 级水平和《重点用能产品设备能效先进水平、节能水平和准入水平》节能水平的装备累计额定总功率占纳入统计范围装备累计额定总功率的比例。',
+    formula: 'S = (R_es / E_ts) × 100%',
+    formulaDesc: '月度指标。S: 节能装备应用占比；R_es: 达到或优于能效国标 2 级水平装备累计额定总功率 (kW)；E_ts: 纳入统计范围装备累计额定总功率 (kW)。',
+    numeratorName: '能效2级及以上先进节能装备总额定功率 R_es',
+    numeratorVal: '32,850 kW',
+    denominatorName: '纳入统计范围设备总额定功率 E_ts',
+    denominatorVal: '35,550 kW',
+    dataSource: '设备资产台账及能效铭牌技术参数库，覆盖高效电动机、节能变压器、工业锅炉、磁悬浮空压机等。',
+    rawMeters: [
+      { medium: '节能设备总台账', meterCode: 'EQ-ASSET-ALL', location: '装备动力部', reading: '32,850 / 35,550 kW', unit: 'kW', coeff: '1.0', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 88.5, yoy: '+2.5%', mom: '+0.0%' },
+      { period: '25-10', value: 88.5, yoy: '+2.5%', mom: '+0.0%' },
+      { period: '25-11', value: 89.2, yoy: '+2.8%', mom: '+0.8%' },
+      { period: '25-12', value: 90.0, yoy: '+3.1%', mom: '+0.9%' },
+      { period: '26-01', value: 90.5, yoy: '+3.2%', mom: '+0.6%' },
+      { period: '26-02', value: 90.5, yoy: '+3.2%', mom: '+0.0%' },
+      { period: '26-03', value: 91.2, yoy: '+3.5%', mom: '+0.8%' },
+      { period: '26-04', value: 91.5, yoy: '+3.6%', mom: '+0.3%' },
+      { period: '26-05', value: 91.8, yoy: '+3.6%', mom: '+0.3%' },
+      { period: '26-06', value: 92.0, yoy: '+3.7%', mom: '+0.2%' },
+      { period: '26-07', value: 92.2, yoy: '+3.8%', mom: '+0.2%' },
+      { period: '26-08', value: 92.4, yoy: '+3.8%', mom: '+0.2%' },
+    ],
+  },
+  {
+    id: 'gm-auto-data-collect-rate',
+    code: 'GK-09',
+    name: '关键能源数据自动采集率',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '98.5',
+    yoy: '+1.8%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '股份管理要求',
+    tipText: '进出用能单位、进出主要次级用能单位和主要用能设备能源数据自动采集比例。',
+    formula: 'R_p = (N_s / N_l) × 100%',
+    formulaDesc: '月度指标。R_p: 关键能源数据自动采集率；N_s: 有效自动采集的表计数；N_l: 按标准要求理论装表数。',
+    numeratorName: '有效自动在线采集计量表点位数 N_s',
+    numeratorVal: '197 块',
+    denominatorName: '标准规范理论装表总数 N_l',
+    denominatorVal: '200 块',
+    dataSource: '物联网网关在线心跳检测、SCADA 遥测数据流通道完好率统计。',
+    rawMeters: [
+      { medium: '全网表计网关', meterCode: 'IOT-GATEWAY-ALL', location: '通信总机房', reading: '197 / 200 点位', unit: '点', coeff: '1.0', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 96.0, yoy: '+1.2%', mom: '+0.5%' },
+      { period: '25-10', value: 96.5, yoy: '+1.5%', mom: '+0.5%' },
+      { period: '25-11', value: 97.0, yoy: '+1.6%', mom: '+0.5%' },
+      { period: '25-12', value: 97.0, yoy: '+1.6%', mom: '+0.0%' },
+      { period: '26-01', value: 97.5, yoy: '+1.7%', mom: '+0.5%' },
+      { period: '26-02', value: 97.5, yoy: '+1.7%', mom: '+0.0%' },
+      { period: '26-03', value: 98.0, yoy: '+1.8%', mom: '+0.5%' },
+      { period: '26-04', value: 98.0, yoy: '+1.8%', mom: '+0.0%' },
+      { period: '26-05', value: 98.0, yoy: '+1.8%', mom: '+0.0%' },
+      { period: '26-06', value: 98.5, yoy: '+1.8%', mom: '+0.5%' },
+      { period: '26-07', value: 98.5, yoy: '+1.8%', mom: '+0.0%' },
+      { period: '26-08', value: 98.5, yoy: '+1.8%', mom: '+0.0%' },
+    ],
+  },
+  {
+    id: 'gm-unit-output',
+    code: 'GK-10',
+    name: '单位产值能耗',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tce/万元',
+    curVal: '0.0553',
+    yoy: '-5.2%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '股份管理要求',
+    tipText: '指统计期内综合能源消费量与产品产值的比值。',
+    formula: 'g = E / G',
+    formulaDesc: '月度指标。g: 单位产值能耗，单位为tce/万元；E: 综合能源消费量，单位tce；G: 产品产值，单位为万元。',
+    numeratorName: '综合能源消费量 E',
+    numeratorVal: '1,577.2 tce',
+    denominatorName: '企业工业总产值 G',
+    denominatorVal: '28,500 万元',
+    dataSource: '财务经营月报工业总产值 (万元) 与关口能源关口表数据结合汇总清分。',
+    rawMeters: [
+      { medium: '总折标能耗', meterCode: 'SUM-ENERGY', location: '厂界全域', reading: '1,577.2 tce', unit: 'tce', coeff: '1.0', tce: '1,577.2' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 0.0585, yoy: '-3.5%', mom: '-0.5%' },
+      { period: '25-10', value: 0.0578, yoy: '-3.8%', mom: '-1.2%' },
+      { period: '25-11', value: 0.0574, yoy: '-4.0%', mom: '-0.7%' },
+      { period: '25-12', value: 0.0579, yoy: '-3.6%', mom: '+0.9%' },
+      { period: '26-01', value: 0.0570, yoy: '-4.2%', mom: '-1.6%' },
+      { period: '26-02', value: 0.0568, yoy: '-4.4%', mom: '-0.4%' },
+      { period: '26-03', value: 0.0568, yoy: '-4.0%', mom: '0.0%' },
+      { period: '26-04', value: 0.0565, yoy: '-4.2%', mom: '-0.5%' },
+      { period: '26-05', value: 0.0562, yoy: '-4.4%', mom: '-0.5%' },
+      { period: '26-06', value: 0.0560, yoy: '-4.6%', mom: '-0.4%' },
+      { period: '26-07', value: 0.0556, yoy: '-4.9%', mom: '-0.7%' },
+      { period: '26-08', value: 0.0553, yoy: '-5.2%', mom: '-0.5%' },
+    ],
+  },
+]
+
+const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
+  {
+    id: 'm-pcf-ratio',
+    code: 'GK-01',
+    name: '开展产品碳足迹分析占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '85.7',
+    yoy: '+12.5%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集采·碳足迹',
+    tipText: '指统计期内开展主要产品碳足迹分析的产品类别数量占主要产品类别总数的比值。',
+    formula: 'R_cf = (N_cf / N) × 100%',
+    formulaDesc: '月度指标。R_cf: 开展产品碳足迹分析占比；N_cf: 开展主要产品碳足迹分析的产品类别数量；N: 主要产品类别总数。',
+    numeratorName: '已开展主要产品碳足迹分析的产品类别数 N_cf',
+    numeratorVal: '12 类',
+    denominatorName: '主要产品类别总数 N',
+    denominatorVal: '14 类',
+    dataSource: '产品碳足迹集采中心实景数据库与生命周期评估 (LCA) 认证报告清单。',
+    rawMeters: [
+      { medium: '碳足迹认证台账', meterCode: 'PCF-CERT-01', location: '集采中心', reading: '12 / 14 类别', unit: '类', coeff: '1.0', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 71.4, yoy: '+8.0%', mom: '+0.0%' },
+      { period: '25-10', value: 71.4, yoy: '+8.0%', mom: '+0.0%' },
+      { period: '25-11', value: 78.6, yoy: '+10.2%', mom: '+7.2%' },
+      { period: '25-12', value: 78.6, yoy: '+10.2%', mom: '+0.0%' },
+      { period: '26-01', value: 78.6, yoy: '+10.2%', mom: '+0.0%' },
+      { period: '26-02', value: 78.6, yoy: '+10.2%', mom: '+0.0%' },
+      { period: '26-03', value: 85.7, yoy: '+14.3%', mom: '+7.1%' },
+      { period: '26-04', value: 85.7, yoy: '+14.3%', mom: '+0.0%' },
+      { period: '26-05', value: 85.7, yoy: '+14.3%', mom: '+0.0%' },
+      { period: '26-06', value: 85.7, yoy: '+14.3%', mom: '+0.0%' },
+      { period: '26-07', value: 85.7, yoy: '+14.3%', mom: '+0.0%' },
+      { period: '26-08', value: 85.7, yoy: '+12.5%', mom: '+0.0%' },
+    ],
+  },
+  {
+    id: 'm-total-energy',
+    code: 'GK-02',
+    name: '综合能源消费量',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tce',
+    curVal: '1,284.5',
+    yoy: '-4.8%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·总量',
+    tipText: '指统计期内组织综合能源消费的总吨标准煤。',
+    formula: 'E = ∑(Ei × ki)',
+    formulaDesc: '月度指标。E: 综合能源消耗量，单位为tce；n: 消耗的能源种类数；Ei: 实际消耗的第i种能源量；ki: 第i种能源的折标准煤系数。',
     numeratorName: '各介质实物消耗折标煤之和 ∑(Ei × ki)',
     numeratorVal: '1,284.5 tce',
     denominatorName: '核算周期 (自然月)',
@@ -119,8 +727,285 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     ],
   },
   {
+    id: 'm-total-carbon',
+    code: 'GK-03',
+    name: '总碳排放量',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tCO2',
+    curVal: '2,946.8',
+    yoy: '-5.4%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·碳排放',
+    tipText: '指统计期内企业组织产生的二氧化碳总排放量。由于电装产业在生产过程碳排放、回收利用中固碳非常少，且数据难统计，本次主要考虑能源碳排放。',
+    formula: 'C = C燃烧 + C过程 + C购入电 - C输出电 + C购入热 - C输出热 - C回收利用',
+    formulaDesc: '月度指标。C: 二氧化碳总排放量 (tCO2)；C燃烧: 化石燃料燃烧排放；C购入电: 购入电力排放；C购入热: 购入热力排放。',
+    numeratorName: '化石燃料燃烧 + 净购入电力与热力碳排放',
+    numeratorVal: '2,946.8 tCO2',
+    denominatorName: '核算周期 (自然月)',
+    denominatorVal: '1 个月',
+    dataSource: '基于月度电力、天然气、蒸汽实物量及全国电网平均排放因子 (0.5703 tCO2/MWh) 自动核算生成。',
+    rawMeters: [
+      { medium: '外购市电', meterCode: 'EM-GRID-01', location: '主进线柜', reading: '3,840,000 kWh', unit: 'kWh', coeff: '0.5703', tce: '2,190.0' },
+      { medium: '天然气燃烧', meterCode: 'GAS-BURN-01', location: '锅炉房', reading: '197,000 m³', unit: 'm³', coeff: '2.1622', tce: '425.9' },
+      { medium: '外购蒸汽', meterCode: 'STM-BUY-01', location: '分汽缸', reading: '4,280 t', unit: 't', coeff: '0.0773', tce: '330.9' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 3180, yoy: '-3.8%', mom: '-0.5%' },
+      { period: '25-10', value: 3140, yoy: '-4.1%', mom: '-1.3%' },
+      { period: '25-11', value: 3110, yoy: '-4.3%', mom: '-1.0%' },
+      { period: '25-12', value: 3200, yoy: '-3.9%', mom: '+2.9%' },
+      { period: '26-01', value: 3050, yoy: '-4.8%', mom: '-4.7%' },
+      { period: '26-02', value: 3010, yoy: '-5.0%', mom: '-1.3%' },
+      { period: '26-03', value: 3025, yoy: '-4.9%', mom: '+0.5%' },
+      { period: '26-04', value: 2990, yoy: '-4.8%', mom: '-1.2%' },
+      { period: '26-05', value: 2980, yoy: '-5.2%', mom: '-0.3%' },
+      { period: '26-06', value: 3040, yoy: '-4.8%', mom: '+2.0%' },
+      { period: '26-07', value: 2975, yoy: '-5.3%', mom: '-2.1%' },
+      { period: '26-08', value: 2946.8, yoy: '-5.4%', mom: '-0.9%' },
+    ],
+  },
+  {
+    id: 'm-carbon-per-energy',
+    code: 'GK-04',
+    name: '单位能耗碳排放',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tCO2/tce',
+    curVal: '2.294',
+    yoy: '-0.6%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·碳强度',
+    tipText: '指统计期内每消费一吨标准煤产生的二氧化碳排放量，用以衡量企业综合用能结构的绿色低碳化程度。',
+    formula: 'I = C / E',
+    formulaDesc: '月度指标。I: 单位能耗碳排放 (tCO2/tce)；C: 二氧化碳排放量 (tCO2)；E: 综合能源消耗量 (tce)。',
+    numeratorName: '总二氧化碳排放量 C',
+    numeratorVal: '2,946.8 tCO2',
+    denominatorName: '综合能源消费量 E',
+    denominatorVal: '1,284.5 tce',
+    dataSource: '根据当期总碳排放量与综合能源消费总量比值自动结算。',
+    rawMeters: [
+      { medium: '碳能比率', meterCode: 'RATIO-C-E', location: '集控中枢', reading: '2.294 tCO2/tce', unit: 'tCO2/tce', coeff: '1.0', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 2.304, yoy: '-0.5%', mom: '+0.1%' },
+      { period: '25-10', value: 2.308, yoy: '-0.4%', mom: '+0.2%' },
+      { period: '25-11', value: 2.320, yoy: '-0.3%', mom: '+0.5%' },
+      { period: '25-12', value: 2.302, yoy: '-0.4%', mom: '-0.8%' },
+      { period: '26-01', value: 2.310, yoy: '-0.5%', mom: '+0.3%' },
+      { period: '26-02', value: 2.315, yoy: '-0.5%', mom: '+0.2%' },
+      { period: '26-03', value: 2.309, yoy: '-0.5%', mom: '-0.3%' },
+      { period: '26-04', value: 2.308, yoy: '-0.6%', mom: '0.0%' },
+      { period: '26-05', value: 2.283, yoy: '-0.6%', mom: '-1.1%' },
+      { period: '26-06', value: 2.268, yoy: '-0.5%', mom: '-0.7%' },
+      { period: '26-07', value: 2.288, yoy: '-0.6%', mom: '+0.9%' },
+      { period: '26-08', value: 2.294, yoy: '-0.6%', mom: '+0.3%' },
+    ],
+  },
+  {
+    id: 'm-green-energy-ratio',
+    code: 'GK-05',
+    name: '非化石能源消费占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '38.6',
+    yoy: '+4.2%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·绿能',
+    tipText: '指统计期内非化石能源消费量与综合能源消费量的比值。月度指标，交易绿电、绿证可纳入分子。',
+    formula: 'r = (R / E) × 100%',
+    formulaDesc: '月度指标。r: 非化石能源消费占比；R: 各类非化石能源消费量 (不含原料用能, tce)；E: 综合能源消费量 (不含原料用能, tce)。',
+    numeratorName: '非化石能源消费量 R (自建光伏 + 交易绿电 + 绿证折算)',
+    numeratorVal: '495.8 tce',
+    denominatorName: '综合能源消费量 E',
+    denominatorVal: '1,284.5 tce',
+    dataSource: '厂区自建分布式光伏自发自用量 + 全国电力交易中心绿电结算凭单 + 中国绿色电力证书 (GEC) 核销台账。',
+    rawMeters: [
+      { medium: '光伏自用电量', meterCode: 'PV-SELF-01', location: '屋顶光伏', reading: '1,482,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '182.1' },
+      { medium: '交易绿电消纳', meterCode: 'TRD-GREEN-01', location: '交易结算', reading: '801,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '98.4' },
+      { medium: 'GEC绿证核销', meterCode: 'GEC-CERT-01', location: '国家绿证网', reading: '18,000 张', unit: '张', coeff: '0.1229', tce: '215.3' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 32.5, yoy: '+2.8%', mom: '+0.5%' },
+      { period: '25-10', value: 33.1, yoy: '+3.1%', mom: '+1.8%' },
+      { period: '25-11', value: 33.8, yoy: '+3.5%', mom: '+2.1%' },
+      { period: '25-12', value: 34.2, yoy: '+3.2%', mom: '+1.2%' },
+      { period: '26-01', value: 35.0, yoy: '+3.9%', mom: '+2.3%' },
+      { period: '26-02', value: 35.6, yoy: '+4.0%', mom: '+1.7%' },
+      { period: '26-03', value: 34.2, yoy: '+3.4%', mom: '-3.9%' },
+      { period: '26-04', value: 35.8, yoy: '+4.3%', mom: '+4.7%' },
+      { period: '26-05', value: 37.1, yoy: '+4.3%', mom: '+3.6%' },
+      { period: '26-06', value: 37.8, yoy: '+4.4%', mom: '+1.9%' },
+      { period: '26-07', value: 38.2, yoy: '+4.2%', mom: '+1.1%' },
+      { period: '26-08', value: 38.6, yoy: '+4.2%', mom: '+1.0%' },
+    ],
+  },
+  {
+    id: 'm-phy-green-ratio',
+    code: 'GK-06',
+    name: '非化石能源电力消费物理认定量占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '27.8',
+    yoy: '+3.5%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·物理绿电',
+    tipText: '指统计期内具备物理可溯源条件的非化石能源电力消费量占同期总用电量的比值。月底指标，交易绿电、绿证不纳入分子。',
+    formula: 'E_ui = (E_z / Q) × 100%',
+    formulaDesc: '月度指标。E_ui: 非化石能源电力消费物理认定量占比；E_z: 具备物理可溯源条件的非化石能源电力消费量 (kWh)；Q: 总用电量 (kWh)。',
+    numeratorName: '具备物理可溯源非化石电量 E_z (厂区屋顶光伏+专线直供)',
+    numeratorVal: '1,482,000 kWh',
+    denominatorName: '同期全厂总用电量 Q',
+    denominatorVal: '5,322,000 kWh',
+    dataSource: '厂区自建分布式光伏逆变器关口计量表及直供专用隔离配电柜时序电表，严格剔除外部市场化凭证。',
+    rawMeters: [
+      { medium: '光伏物理就地消纳', meterCode: 'PV-PHYS-01', location: '1-4号厂房屋顶', reading: '1,482,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '182.1' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 23.5, yoy: '+2.1%', mom: '+0.5%' },
+      { period: '25-10', value: 24.0, yoy: '+2.4%', mom: '+2.1%' },
+      { period: '25-11', value: 24.5, yoy: '+2.6%', mom: '+2.1%' },
+      { period: '25-12', value: 24.8, yoy: '+2.5%', mom: '+1.2%' },
+      { period: '26-01', value: 25.2, yoy: '+3.0%', mom: '+1.6%' },
+      { period: '26-02', value: 25.8, yoy: '+3.2%', mom: '+2.4%' },
+      { period: '26-03', value: 25.0, yoy: '+2.8%', mom: '-3.1%' },
+      { period: '26-04', value: 26.2, yoy: '+3.4%', mom: '+4.8%' },
+      { period: '26-05', value: 26.8, yoy: '+3.5%', mom: '+2.3%' },
+      { period: '26-06', value: 27.2, yoy: '+3.6%', mom: '+1.5%' },
+      { period: '26-07', value: 27.5, yoy: '+3.5%', mom: '+1.1%' },
+      { period: '26-08', value: 27.8, yoy: '+3.5%', mom: '+1.1%' },
+    ],
+  },
+  {
+    id: 'm-unit-industrial-added-value',
+    code: 'GK-07',
+    name: '单位工业增加值能耗',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: 'tce/万元',
+    curVal: '0.1425',
+    yoy: '-4.6%',
+    isYoyDown: true,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·增加值能耗',
+    tipText: '指统计期内综合能源消费量与工业增加值的比值。月度指标，年度重新汇算。',
+    formula: 'E_nva = E / G_nva',
+    formulaDesc: '月度指标。E_nva: 单位工业增加值能耗 (tce/万元)；E: 综合能源消费量 (tce)；G_nva: 工业增加值 (万元)。',
+    numeratorName: '综合能源消费量 E',
+    numeratorVal: '1,284.5 tce',
+    denominatorName: '工业增加值 G_nva',
+    denominatorVal: '9,014.0 万元',
+    dataSource: '根据经营财务月报工业增加值与能源关口数据综合核算。',
+    rawMeters: [
+      { medium: '总能耗折标', meterCode: 'SUM-NVA-01', location: '厂界全域', reading: '1,284.5 tce', unit: 'tce', coeff: '1.0', tce: '1,284.5' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 0.1510, yoy: '-3.5%', mom: '-0.5%' },
+      { period: '25-10', value: 0.1495, yoy: '-3.8%', mom: '-1.0%' },
+      { period: '25-11', value: 0.1482, yoy: '-4.0%', mom: '-0.9%' },
+      { period: '25-12', value: 0.1490, yoy: '-3.6%', mom: '+0.5%' },
+      { period: '26-01', value: 0.1470, yoy: '-4.1%', mom: '-1.3%' },
+      { period: '26-02', value: 0.1465, yoy: '-4.2%', mom: '-0.3%' },
+      { period: '26-03', value: 0.1460, yoy: '-4.0%', mom: '-0.3%' },
+      { period: '26-04', value: 0.1450, yoy: '-4.2%', mom: '-0.7%' },
+      { period: '26-05', value: 0.1442, yoy: '-4.4%', mom: '-0.6%' },
+      { period: '26-06', value: 0.1438, yoy: '-4.5%', mom: '-0.3%' },
+      { period: '26-07', value: 0.1430, yoy: '-4.5%', mom: '-0.6%' },
+      { period: '26-08', value: 0.1425, yoy: '-4.6%', mom: '-0.3%' },
+    ],
+  },
+  {
+    id: 'm-energy-saving-equipment-ratio',
+    code: 'GK-08',
+    name: '节能装备应用占比',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '92.4',
+    yoy: '+3.8%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '集控·节能装备',
+    tipText: '指统计期内达到或优于能效强制性国家标准 2 级水平和《重点用能产品设备能效先进水平、节能水平和准入水平》节能水平的装备累计额定总功率占纳入统计范围装备累计额定总功率的比例。',
+    formula: 'S = (R_es / E_ts) × 100%',
+    formulaDesc: '月度指标。S: 节能装备应用占比；R_es: 达到或优于能效国标 2 级水平装备累计额定总功率 (kW)；E_ts: 纳入统计范围装备累计额定总功率 (kW)。',
+    numeratorName: '能效2级及以上先进节能装备总额定功率 R_es',
+    numeratorVal: '32,850 kW',
+    denominatorName: '纳入统计范围设备总额定功率 E_ts',
+    denominatorVal: '35,550 kW',
+    dataSource: '设备资产台账及能效铭牌技术参数库，覆盖高效电动机、节能变压器、工业锅炉、磁悬浮空压机等。',
+    rawMeters: [
+      { medium: '能效设备台账', meterCode: 'EQ-ASSET-01', location: '动力科', reading: '32,850 / 35,550 kW', unit: 'kW', coeff: '1.0', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 88.5, yoy: '+2.5%', mom: '+0.0%' },
+      { period: '25-10', value: 88.5, yoy: '+2.5%', mom: '+0.0%' },
+      { period: '25-11', value: 89.2, yoy: '+2.8%', mom: '+0.8%' },
+      { period: '25-12', value: 90.0, yoy: '+3.1%', mom: '+0.9%' },
+      { period: '26-01', value: 90.5, yoy: '+3.2%', mom: '+0.6%' },
+      { period: '26-02', value: 90.5, yoy: '+3.2%', mom: '+0.0%' },
+      { period: '26-03', value: 91.2, yoy: '+3.5%', mom: '+0.8%' },
+      { period: '26-04', value: 91.5, yoy: '+3.6%', mom: '+0.3%' },
+      { period: '26-05', value: 91.8, yoy: '+3.6%', mom: '+0.3%' },
+      { period: '26-06', value: 92.0, yoy: '+3.7%', mom: '+0.2%' },
+      { period: '26-07', value: 92.2, yoy: '+3.8%', mom: '+0.2%' },
+      { period: '26-08', value: 92.4, yoy: '+3.8%', mom: '+0.2%' },
+    ],
+  },
+  {
+    id: 'm-auto-data-collect-rate',
+    code: 'GK-09',
+    name: '关键能源数据自动采集率',
+    category: 'company',
+    categoryName: '一、经营单位及项目公司整体指标',
+    unit: '%',
+    curVal: '98.5',
+    yoy: '+1.8%',
+    isYoyDown: false,
+    status: '常规监测',
+    statusType: 'green',
+    badge: '股份管理要求',
+    tipText: '进出用能单位、进出主要次级用能单位和主要用能设备能源数据自动采集比例。',
+    formula: 'R_p = (N_s / N_l) × 100%',
+    formulaDesc: '月度指标。R_p: 关键能源数据自动采集率；N_s: 有效自动采集的表计数；N_l: 按标准要求理论装表数。',
+    numeratorName: '有效自动在线采集计量表点位数 N_s',
+    numeratorVal: '197 块',
+    denominatorName: '标准规范理论装表总数 N_l',
+    denominatorVal: '200 块',
+    dataSource: '物联网网关在线心跳检测、SCADA 遥测数据流通道完好率统计。',
+    rawMeters: [
+      { medium: '物联网表计网关', meterCode: 'IOT-GATEWAY-SUM', location: '通信机房', reading: '197 / 200 点位', unit: '点', coeff: '1.0', tce: '-' },
+    ],
+    trendHistory: [
+      { period: '25-09', value: 96.0, yoy: '+1.2%', mom: '+0.5%' },
+      { period: '25-10', value: 96.5, yoy: '+1.5%', mom: '+0.5%' },
+      { period: '25-11', value: 97.0, yoy: '+1.6%', mom: '+0.5%' },
+      { period: '25-12', value: 97.0, yoy: '+1.6%', mom: '+0.0%' },
+      { period: '26-01', value: 97.5, yoy: '+1.7%', mom: '+0.5%' },
+      { period: '26-02', value: 97.5, yoy: '+1.7%', mom: '+0.0%' },
+      { period: '26-03', value: 98.0, yoy: '+1.8%', mom: '+0.5%' },
+      { period: '26-04', value: 98.0, yoy: '+1.8%', mom: '+0.0%' },
+      { period: '26-05', value: 98.0, yoy: '+1.8%', mom: '+0.0%' },
+      { period: '26-06', value: 98.5, yoy: '+1.8%', mom: '+0.5%' },
+      { period: '26-07', value: 98.5, yoy: '+1.8%', mom: '+0.0%' },
+      { period: '26-08', value: 98.5, yoy: '+1.8%', mom: '+0.0%' },
+    ],
+  },
+  {
     id: 'm-unit-output',
-    code: 'GK-02',
+    code: 'GK-10',
     name: '单位产值能耗',
     category: 'company',
     categoryName: '一、经营单位及项目公司整体指标',
@@ -130,10 +1015,10 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '产值能耗',
-    tipText: '指统计期内综合能源总消费量与工业总产值的比值，用以评估每万元工业总产值的能耗强度。',
+    badge: '股份管理要求',
+    tipText: '指统计期内综合能源消费量与产品产值的比值。',
     formula: 'g = E / G',
-    formulaDesc: '月度指标。g: 单位产值能耗 (tce/万元)；E: 综合能源消费量 (tce)；G: 工业总产值 (万元)。',
+    formulaDesc: '月度指标。g: 单位产值能耗，单位为tce/万元；E: 综合能源消费量，单位tce；G: 产品产值，单位为万元。',
     numeratorName: '综合能源消费量 E',
     numeratorVal: '1,577.2 tce',
     denominatorName: '企业工业总产值 G',
@@ -155,318 +1040,6 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
       { period: '26-06', value: 0.0559, yoy: '-4.8%', mom: '-0.4%' },
       { period: '26-07', value: 0.0556, yoy: '-5.0%', mom: '-0.5%' },
       { period: '26-08', value: 0.0553, yoy: '-5.2%', mom: '-0.5%' },
-    ],
-  },
-  {
-    id: 'm-output-elec',
-    code: 'GK-03',
-    name: '万元产值用电量',
-    category: 'company',
-    categoryName: '一、经营单位及项目公司整体指标',
-    unit: 'kWh/万元',
-    curVal: '1,231.5',
-    yoy: '-4.2%',
-    isYoyDown: true,
-    status: '常规监测',
-    statusType: 'green',
-    badge: '产值电耗',
-    tipText: '指统计期内全厂总电能消费量与工业总产值的比值。',
-    formula: 'q_e = Total_Elec / Total_Output',
-    formulaDesc: '月度指标。q_e: 万元产值用电量 (kWh/万元)；Total_Elec: 厂界电力总消耗 (kWh)；Total_Output: 工业产值 (万元)。',
-    numeratorName: '全厂总用电量',
-    numeratorVal: '3,840,000 kWh',
-    denominatorName: '工业总产值',
-    denominatorVal: '3,118.0 万元',
-    dataSource: '变电所电能管理系统关口表自动采集。',
-    rawMeters: [
-      { medium: '市电总表', meterCode: 'EM-MAIN-01', location: '开闭所', reading: '3,840,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '471.9' },
-    ],
-    trendHistory: [
-      { period: '25-09', value: 1300, yoy: '-2.5%', mom: '-0.5%' },
-      { period: '25-10', value: 1290, yoy: '-2.8%', mom: '-0.8%' },
-      { period: '25-11', value: 1285, yoy: '-3.0%', mom: '-0.4%' },
-      { period: '25-12', value: 1295, yoy: '-2.7%', mom: '+0.8%' },
-      { period: '26-01', value: 1275, yoy: '-3.2%', mom: '-1.5%' },
-      { period: '26-02', value: 1270, yoy: '-3.5%', mom: '-0.4%' },
-      { period: '26-03', value: 1280, yoy: '-3.0%', mom: '+0.8%' },
-      { period: '26-04', value: 1265, yoy: '-3.4%', mom: '-1.2%' },
-      { period: '26-05', value: 1250, yoy: '-3.8%', mom: '-1.2%' },
-      { period: '26-06', value: 1260, yoy: '-3.8%', mom: '+0.8%' },
-      { period: '26-07', value: 1242, yoy: '-4.0%', mom: '-1.4%' },
-      { period: '26-08', value: 1231.5, yoy: '-4.2%', mom: '-0.8%' },
-    ],
-  },
-  {
-    id: 'm-output-water',
-    code: 'GK-04',
-    name: '万元产值用水量 (ESG)',
-    category: 'company',
-    categoryName: '一、经营单位及项目公司整体指标',
-    unit: 't/万元',
-    curVal: '1.68',
-    yoy: '-3.5%',
-    isYoyDown: true,
-    status: '常规监测',
-    statusType: 'blue',
-    badge: 'ESG水资源',
-    tipText: '指统计期内全厂新鲜水总消费量与工业总产值的比值，用于 ESG 水资源控制。',
-    formula: 'q_w = Total_Water / Total_Output',
-    formulaDesc: '月度指标。q_w: 万元产值用水量 (t/万元)；Total_Water: 总用水量 (t)；Total_Output: 工业产值 (万元)。',
-    numeratorName: '全厂用水总量',
-    numeratorVal: '48,000 t',
-    denominatorName: '工业总产值',
-    denominatorVal: '28,500 万元',
-    dataSource: '市政关口远传水表与水资源监测网系统。',
-    rawMeters: [
-      { medium: '新鲜水', meterCode: 'WM-MAIN-01', location: '水表房', reading: '48,000 t', unit: 't', coeff: '0.0857', tce: '-' },
-    ],
-    trendHistory: [
-      { period: '25-09', value: 1.82, yoy: '-2.4%', mom: '-0.5%' },
-      { period: '25-10', value: 1.80, yoy: '-2.6%', mom: '-1.1%' },
-      { period: '25-11', value: 1.79, yoy: '-2.8%', mom: '-0.6%' },
-      { period: '25-12', value: 1.81, yoy: '-2.5%', mom: '+1.1%' },
-      { period: '26-01', value: 1.76, yoy: '-3.0%', mom: '-2.8%' },
-      { period: '26-02', value: 1.75, yoy: '-3.1%', mom: '-0.6%' },
-      { period: '26-03', value: 1.78, yoy: '-3.0%', mom: '+1.7%' },
-      { period: '26-04', value: 1.75, yoy: '-3.2%', mom: '-1.7%' },
-      { period: '26-05', value: 1.72, yoy: '-3.3%', mom: '-1.7%' },
-      { period: '26-06', value: 1.74, yoy: '-3.1%', mom: '+1.2%' },
-      { period: '26-07', value: 1.70, yoy: '-3.4%', mom: '-2.3%' },
-      { period: '26-08', value: 1.68, yoy: '-3.5%', mom: '-1.2%' },
-    ],
-  },
-  {
-    id: 'm-output-gas',
-    code: 'GK-05',
-    name: '万元产值用天然气量',
-    category: 'company',
-    categoryName: '一、经营单位及项目公司整体指标',
-    unit: 'm³/万元',
-    curVal: '63.18',
-    yoy: '-3.9%',
-    isYoyDown: true,
-    status: '常规监测',
-    statusType: 'green',
-    badge: '产值气耗',
-    tipText: '指统计期内天然气消费量与工业总产值的比值。',
-    formula: 'q_g = Total_Gas / Total_Output',
-    formulaDesc: '月度指标。q_g: 万元产值天然气量 (m³/万元)；Total_Gas: 天然气消费总量 (m³)；Total_Output: 工业产值 (万元)。',
-    numeratorName: '全厂天然气总消耗量',
-    numeratorVal: '197,000 m³',
-    denominatorName: '工业总产值',
-    denominatorVal: '3,118.0 万元',
-    dataSource: '燃气门站流量计与远传抄表网。',
-    rawMeters: [
-      { medium: '天然气', meterCode: 'GAS-MAIN-01', location: '调压站', reading: '197,000 m³', unit: 'm³', coeff: '1.3300', tce: '262.2' },
-    ],
-    trendHistory: [
-      { period: '25-09', value: 68.0, yoy: '-2.8%', mom: '-0.5%' },
-      { period: '25-10', value: 67.2, yoy: '-3.0%', mom: '-1.2%' },
-      { period: '25-11', value: 66.8, yoy: '-3.1%', mom: '-0.6%' },
-      { period: '25-12', value: 67.5, yoy: '-2.9%', mom: '+1.0%' },
-      { period: '26-01', value: 65.8, yoy: '-3.3%', mom: '-2.5%' },
-      { period: '26-02', value: 65.5, yoy: '-3.5%', mom: '-0.5%' },
-      { period: '26-03', value: 66.5, yoy: '-3.2%', mom: '+1.5%' },
-      { period: '26-04', value: 65.2, yoy: '-3.5%', mom: '-2.0%' },
-      { period: '26-05', value: 64.5, yoy: '-3.6%', mom: '-1.1%' },
-      { period: '26-06', value: 65.0, yoy: '-3.4%', mom: '+0.8%' },
-      { period: '26-07', value: 63.8, yoy: '-3.8%', mom: '-1.8%' },
-      { period: '26-08', value: 63.18, yoy: '-3.9%', mom: '-1.0%' },
-    ],
-  },
-  {
-    id: 'm-green-rate',
-    code: 'GK-06',
-    name: '非化石能源消费占比',
-    category: 'company',
-    categoryName: '一、经营单位及项目公司整体指标',
-    unit: '%',
-    curVal: '38.6',
-    yoy: '+4.2%',
-    isYoyDown: false,
-    status: '正常变动',
-    statusType: 'green',
-    badge: '绿电占比',
-    tipText: '指非化石能源电力消纳折标量占全厂综合能源消费总量的比重。',
-    formula: 'R = E_green / E_total',
-    formulaDesc: '月度指标。R: 非化石能源占比 (%)；E_green: 绿电+分布式光伏折标能耗；E_total: 综合能耗。',
-    numeratorName: '自建光伏消纳 + 绿电交易',
-    numeratorVal: '2,069,000 kWh',
-    denominatorName: '综合能源消费总量',
-    denominatorVal: '1,284.5 tce',
-    dataSource: '屋顶光伏并网关口表与全国绿电交易系统数据凭证。',
-    rawMeters: [
-      { medium: '光伏自用', meterCode: 'PV-GEN-01', location: '1-4号厂房', reading: '1,520,000 kWh', unit: 'kWh', coeff: '0.1229', tce: '186.8' },
-    ],
-    trendHistory: [
-      { period: '25-09', value: 32.5, yoy: '+2.8%', mom: '+0.5%' },
-      { period: '25-10', value: 33.1, yoy: '+3.1%', mom: '+1.8%' },
-      { period: '25-11', value: 33.8, yoy: '+3.5%', mom: '+2.1%' },
-      { period: '25-12', value: 34.2, yoy: '+3.2%', mom: '+1.2%' },
-      { period: '26-01', value: 35.0, yoy: '+3.9%', mom: '+2.3%' },
-      { period: '26-02', value: 35.6, yoy: '+4.0%', mom: '+1.7%' },
-      { period: '26-03', value: 34.2, yoy: '+3.4%', mom: '-3.9%' },
-      { period: '26-04', value: 35.8, yoy: '+4.3%', mom: '+4.7%' },
-      { period: '26-05', value: 37.1, yoy: '+4.3%', mom: '+3.6%' },
-      { period: '26-06', value: 37.8, yoy: '+4.4%', mom: '+1.9%' },
-      { period: '26-07', value: 38.2, yoy: '+4.2%', mom: '+1.1%' },
-      { period: '26-08', value: 38.6, yoy: '+4.2%', mom: '+1.0%' },
-    ],
-  },
-  {
-    id: 'm-energy-saving',
-    code: 'GK-07',
-    name: '月度综合节能量',
-    category: 'company',
-    categoryName: '一、经营单位及项目公司整体指标',
-    unit: 'tce',
-    curVal: '65.5',
-    yoy: '+9.2%',
-    isYoyDown: false,
-    status: '常规监测',
-    statusType: 'green',
-    badge: '节能量',
-    tipText: '指相比于基准期在同等产能水平下节约的综合能源折标准煤量。',
-    formula: 'E_saved = E_baseline - E_current',
-    formulaDesc: '月度指标。E_saved: 月度节能量 (tce)；E_baseline: 基准期折标能耗；E_current: 当期折标能耗。',
-    numeratorName: '基准期折标能耗 - 当期折标能耗',
-    numeratorVal: '65.5 tce',
-    denominatorName: '核算周期',
-    denominatorVal: '1 个月',
-    dataSource: '能效分析引擎算法模型对比计算。',
-    rawMeters: [
-      { medium: '综合能耗差额', meterCode: 'SAVED-SUM', location: '全厂', reading: '65.5 tce', unit: 'tce', coeff: '1.0', tce: '65.5' },
-    ],
-    trendHistory: [
-      { period: '25-09', value: 52.0, yoy: '+4.5%', mom: '+1.0%' },
-      { period: '25-10', value: 54.2, yoy: '+4.8%', mom: '+4.2%' },
-      { period: '25-11', value: 55.8, yoy: '+5.0%', mom: '+3.0%' },
-      { period: '25-12', value: 56.5, yoy: '+4.6%', mom: '+1.3%' },
-      { period: '26-01', value: 57.2, yoy: '+5.1%', mom: '+1.2%' },
-      { period: '26-02', value: 56.8, yoy: '+5.0%', mom: '-0.7%' },
-      { period: '26-03', value: 58.0, yoy: '+5.5%', mom: '+2.1%' },
-      { period: '26-04', value: 61.2, yoy: '+6.2%', mom: '+5.5%' },
-      { period: '26-05', value: 62.8, yoy: '+8.3%', mom: '+2.6%' },
-      { period: '26-06', value: 60.5, yoy: '+4.3%', mom: '-3.7%' },
-      { period: '26-07', value: 63.4, yoy: '+5.7%', mom: '+4.8%' },
-      { period: '26-08', value: 65.5, yoy: '+9.2%', mom: '+3.3%' },
-    ],
-  },
-  {
-    id: 'm-energy-cost-ratio',
-    code: 'GK-08',
-    name: '能源成本占制造费用比',
-    category: 'company',
-    categoryName: '一、经营单位及项目公司整体指标',
-    unit: '%',
-    curVal: '4.15',
-    yoy: '-0.35%',
-    isYoyDown: true,
-    status: '常规监测',
-    statusType: 'green',
-    badge: '成本比率',
-    tipText: '指水电气汽等各类能源直接支出总额占全厂制造费用总额的比重。',
-    formula: 'R_cost = Cost_energy / Cost_manufacturing',
-    formulaDesc: '月度指标。R_cost: 能源成本占比 (%)；Cost_energy: 能源总支出 (万元)；Cost_manufacturing: 制造总费用 (万元)。',
-    numeratorName: '月度能源总支出',
-    numeratorVal: '285.4 万元',
-    denominatorName: '月度制造费用总额',
-    denominatorVal: '6,877.1 万元',
-    dataSource: '财务 ERP 系统能源科目明细账。',
-    rawMeters: [
-      { medium: '电费支出', meterCode: 'FIN-ELEC', location: '财务账', reading: '228.3 万元', unit: '万元', coeff: '1.0', tce: '-' },
-    ],
-    trendHistory: [
-      { period: '25-09', value: 4.50, yoy: '-0.20%', mom: '-0.1%' },
-      { period: '25-10', value: 4.45, yoy: '-0.22%', mom: '-1.1%' },
-      { period: '25-11', value: 4.40, yoy: '-0.23%', mom: '-1.1%' },
-      { period: '25-12', value: 4.48, yoy: '-0.21%', mom: '+1.8%' },
-      { period: '26-01', value: 4.38, yoy: '-0.24%', mom: '-2.2%' },
-      { period: '26-02', value: 4.36, yoy: '-0.25%', mom: '-0.5%' },
-      { period: '26-03', value: 4.35, yoy: '-0.25%', mom: '-0.2%' },
-      { period: '26-04', value: 4.28, yoy: '-0.27%', mom: '-1.6%' },
-      { period: '26-05', value: 4.22, yoy: '-0.28%', mom: '-1.4%' },
-      { period: '26-06', value: 4.30, yoy: '-0.25%', mom: '+1.9%' },
-      { period: '26-07', value: 4.19, yoy: '-0.31%', mom: '-2.6%' },
-      { period: '26-08', value: 4.15, yoy: '-0.35%', mom: '-1.0%' },
-    ],
-  },
-  {
-    id: 'm-steam-cost',
-    code: 'GK-09',
-    name: '蒸汽折标费用占比',
-    category: 'company',
-    categoryName: '一、经营单位及项目公司整体指标',
-    unit: '%',
-    curVal: '3.4',
-    yoy: '-0.2%',
-    isYoyDown: true,
-    status: '历史同频',
-    statusType: 'purple',
-    badge: '蒸汽费用',
-    tipText: '指蒸汽消费金额占全厂总能源支出比重。',
-    formula: 'R_steam = Cost_steam / Cost_energy_total',
-    formulaDesc: '月度指标。R_steam: 蒸汽费用占比 (%)；Cost_steam: 蒸汽支出 (万元)；Cost_energy_total: 总能源支出 (万元)。',
-    numeratorName: '蒸汽支出',
-    numeratorVal: '25.6 万元',
-    denominatorName: '总能源支出',
-    denominatorVal: '762.5 万元',
-    dataSource: '蒸汽管道总流量计与热力公司账单。',
-    rawMeters: [
-      { medium: '工业蒸汽', meterCode: 'STM-COST-01', location: '热力主管', reading: '740.0 t', unit: 't', coeff: '0.1286', tce: '98.1' },
-    ],
-    trendHistory: [
-      { period: '25-09', value: 3.9, yoy: '-0.1%', mom: '0.0%' },
-      { period: '25-10', value: 3.8, yoy: '-0.1%', mom: '-2.5%' },
-      { period: '25-11', value: 3.8, yoy: '-0.1%', mom: '0.0%' },
-      { period: '25-12', value: 3.9, yoy: '-0.1%', mom: '+2.6%' },
-      { period: '26-01', value: 3.7, yoy: '-0.1%', mom: '-5.1%' },
-      { period: '26-02', value: 3.7, yoy: '-0.1%', mom: '0.0%' },
-      { period: '26-03', value: 3.8, yoy: '-0.1%', mom: '+2.7%' },
-      { period: '26-04', value: 3.7, yoy: '-0.1%', mom: '-2.6%' },
-      { period: '26-05', value: 3.6, yoy: '-0.2%', mom: '-2.7%' },
-      { period: '26-06', value: 3.5, yoy: '-0.2%', mom: '-2.8%' },
-      { period: '26-07', value: 3.5, yoy: '-0.2%', mom: '0.0%' },
-      { period: '26-08', value: 3.4, yoy: '-0.2%', mom: '-2.9%' },
-    ],
-  },
-  {
-    id: 'm-gas-cost',
-    code: 'GK-10',
-    name: '天然气折标费用占比',
-    category: 'company',
-    categoryName: '一、经营单位及项目公司整体指标',
-    unit: '%',
-    curVal: '7.0',
-    yoy: '-0.5%',
-    isYoyDown: true,
-    status: '历史同频',
-    statusType: 'purple',
-    badge: '天然气费用',
-    tipText: '指天然气消费金额占全厂总能源支出比重。',
-    formula: 'R_gas = Cost_gas / Cost_energy_total',
-    formulaDesc: '月度指标。R_gas: 天然气费用占比 (%)；Cost_gas: 天然气支出 (万元)；Cost_energy_total: 总能源支出 (万元)。',
-    numeratorName: '天然气支出',
-    numeratorVal: '53.6 万元',
-    denominatorName: '总能源支出',
-    denominatorVal: '762.5 万元',
-    dataSource: '天然气计量关口表与燃气公司发票。',
-    rawMeters: [
-      { medium: '管道天然气', meterCode: 'GAS-COST-01', location: '门站', reading: '12.5 万m³', unit: '万m³', coeff: '1.3300', tce: '151.8' },
-    ],
-    trendHistory: [
-      { period: '25-09', value: 7.9, yoy: '-0.2%', mom: '-0.1%' },
-      { period: '25-10', value: 7.8, yoy: '-0.3%', mom: '-1.2%' },
-      { period: '25-11', value: 7.7, yoy: '-0.3%', mom: '-1.3%' },
-      { period: '25-12', value: 7.9, yoy: '-0.2%', mom: '+2.6%' },
-      { period: '26-01', value: 7.5, yoy: '-0.4%', mom: '-5.0%' },
-      { period: '26-02', value: 7.4, yoy: '-0.4%', mom: '-1.3%' },
-      { period: '26-03', value: 7.8, yoy: '-0.3%', mom: '+5.4%' },
-      { period: '26-04', value: 7.6, yoy: '-0.4%', mom: '-2.5%' },
-      { period: '26-05', value: 7.4, yoy: '-0.4%', mom: '-2.6%' },
-      { period: '26-06', value: 7.3, yoy: '-0.5%', mom: '-1.3%' },
-      { period: '26-07', value: 7.1, yoy: '-0.5%', mom: '-2.7%' },
-      { period: '26-08', value: 7.0, yoy: '-0.5%', mom: '-1.4%' },
     ],
   },
 ]
@@ -1018,6 +1591,16 @@ export default function IndicatorControlPage() {
   // 🌟 点击卡片激活的 Mode B 详情指标 Mode B (Null 时为 Mode A 全景概览)
   const [activeViewMetric, setActiveViewMetric] = useState<IndicatorMetric | null>(null)
   
+  // 🌟 集团层级综合对比视图切换: 'card' (卡片PK) | 'table' (透视大表)
+  const [groupViewMode, setGroupViewMode] = useState<'card' | 'table'>('card')
+  const [selectedGroupMetricId, setSelectedGroupMetricId] = useState<string>('gm-total-energy')
+  const activeGroupMetric = useMemo(() => {
+    return (
+      GROUP_OVERALL_TOP10_METRICS.find((m) => m.id === selectedGroupMetricId) ||
+      GROUP_OVERALL_TOP10_METRICS[1]
+    )
+  }, [selectedGroupMetricId])
+
   const [procSearchKey, setProcSearchKey] = useState('')
 
   // 判断当前选中节点层级
@@ -1244,15 +1827,11 @@ export default function IndicatorControlPage() {
           <div className="space-y-3.5">
             {/* 1. 顶部 Header 与 统一时间筛选 */}
             <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-[#1677ff]" />
-                <h1 className="text-xs font-bold text-slate-800">能碳指标管控中心</h1>
-                <span className="text-xs font-mono font-normal text-slate-400 ml-1">
-                  【{selectedNode.name}】
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-mono font-bold ml-1">
-                  按日更新 (每日 00:00) · 点击卡片看详情内页
-                </span>
+              <div className="flex items-center gap-3">
+                <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+                  <BarChart3 className="size-5" />
+                </div>
+                <h1 className="text-base font-bold text-slate-800">指标管控</h1>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -1301,115 +1880,303 @@ export default function IndicatorControlPage() {
               </div>
             </div>
 
-            {/* 电装集团视角 (整体指标不变，呈现 6 大二级单位能耗与费用占比情况) */}
+            {/* ========================================================================= */}
+            {/* 🌟 只有在结构树最顶级 (isGroupLevel) 时显示的全新多 Agent 优化方案 */}
+            {/* ========================================================================= */}
             {isGroupLevel && (
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
-                    <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                      【一、经营单位及项目公司整体指标 (6 大二级单位占比情况)】
-                    </h2>
+              <div className="space-y-3.5">
+                
+                {/* 1. 集团整体 10 项公司整体管控指标卡片矩阵 (GK-01 ~ GK-10) */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        【一、经营单位及项目公司整体指标】
+                      </h2>
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      保留同比变化 · 点击查看 12 个月历史明细与走势
+                    </span>
                   </div>
-                  <span className="text-xs text-slate-400 font-mono">集团看大盘 · 二级单位占比清分</span>
+
+                  {/* 10 个卡片网格 (2行5列，与二三级卡片样式 100% 一致) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                    {GROUP_OVERALL_TOP10_METRICS.map((item) => {
+                      const isSelected = selectedGroupMetricId === item.id
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => setSelectedGroupMetricId(item.id)}
+                          className={cn(
+                            'p-3.5 rounded-xl border transition-all cursor-pointer space-y-2 group shadow-2xs relative select-none',
+                            isSelected
+                              ? 'border-2 border-[#1677ff] bg-blue-50/40 shadow-md ring-2 ring-blue-500/20'
+                              : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/30'
+                          )}
+                        >
+                          <div className="flex items-center justify-between font-sans">
+                            <span className={cn('text-[11px] font-bold truncate', isSelected ? 'text-[#1677ff]' : 'text-slate-700 group-hover:text-[#1677ff]')}>
+                              {item.name}
+                            </span>
+                          </div>
+
+                          <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
+                            {item.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{item.unit}</span>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-sans">
+                            <span className="text-slate-400">同比变动:</span>
+                            <span className={cn('font-bold font-mono', item.yoy.startsWith('+') && !item.isYoyDown ? 'text-emerald-600' : 'text-emerald-600')}>
+                              {item.yoy} {item.isYoyDown ? '↓' : '↑'}
+                            </span>
+                          </div>
+
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 size-2 rounded-full bg-[#1677ff] animate-pulse" />
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 font-mono">
-                  <div className="p-3.5 bg-blue-50/50 rounded-xl border border-blue-200 space-y-2">
-                    <div className="flex justify-between items-center text-xs font-sans">
-                      <span className="font-bold text-slate-900">1. 沈变公司</span>
-                      <span className="px-1.5 py-0.2 rounded bg-blue-100 text-blue-700 font-bold text-[10px]">
-                        能耗占比 32.5%
+                {/* 2. 选中指标 12 个月数据变化趋势与基准对比区 (即点即显) */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        【二、【{activeGroupMetric.name}】近 12 个月数据变化趋势走势】
+                      </h2>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-mono font-bold">
+                        2025.09 ~ 2026.08 (全集团月度采样)
                       </span>
                     </div>
-                    <div className="text-xl font-bold text-[#1677ff]">
-                      762.5 <span className="text-xs font-normal text-slate-500 font-sans">万元 (1,577.2 tce)</span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-blue-200/60 font-sans flex justify-between">
-                      <span>费用占比: <strong className="text-slate-800 font-mono">31.8%</strong></span>
-                      <span className="text-emerald-600 font-bold">同比 -2.7% ↓</span>
+
+                    <div className="flex items-center gap-4 text-xs font-mono">
+                      <div className="flex items-center gap-1.5">
+                        <span className="size-2.5 rounded-full bg-[#1677ff]" />
+                        <span className="font-sans text-slate-600">当前实测值:</span>
+                        <strong className="text-slate-900">{activeGroupMetric.curVal} {activeGroupMetric.unit}</strong>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="size-2.5 rounded-sm bg-emerald-500" />
+                        <span className="font-sans text-slate-600">同比变动:</span>
+                        <strong className="text-emerald-700 font-bold">{activeGroupMetric.yoy}</strong>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                    <div className="flex justify-between items-center text-xs font-sans">
-                      <span className="font-bold text-slate-900">2. 衡变公司</span>
-                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
-                        能耗占比 28.2%
+                  {/* 动态平滑趋势折线图 */}
+                  <div className="h-[220px]">
+                    <LineTrend
+                      data={activeGroupMetric.trendHistory}
+                      xKey="period"
+                      height={220}
+                      lines={[
+                        { key: 'value', name: `${activeGroupMetric.name} (${activeGroupMetric.unit})`, color: '#1677ff' },
+                      ]}
+                    />
+                  </div>
+
+                  {/* 计算公式、分子分母与数据源拆解 */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-2 border-t border-slate-100 text-xs font-sans">
+                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-1">
+                      <span className="text-[10.5px] text-slate-500 font-bold block">权威计算公式：</span>
+                      <code className="text-xs font-mono text-[#1677ff] font-bold block">{activeGroupMetric.formula}</code>
+                      <span className="text-[10px] text-slate-400 block">{activeGroupMetric.formulaDesc}</span>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-1">
+                      <span className="text-[10.5px] text-slate-500 font-bold block">分子分母实测拆解：</span>
+                      <div className="text-[11px] text-slate-700 font-mono space-y-0.5">
+                        <div>分子: <strong>{activeGroupMetric.numeratorVal}</strong> <span className="text-slate-400 font-sans">({activeGroupMetric.numeratorName})</span></div>
+                        <div>分母: <strong>{activeGroupMetric.denominatorVal}</strong> <span className="text-slate-400 font-sans">({activeGroupMetric.denominatorName})</span></div>
+                      </div>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-1">
+                      <span className="text-[10.5px] text-slate-500 font-bold block">数据来源与采集路径：</span>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">{activeGroupMetric.dataSource}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. 6 大经营单位综合能效横向对比 (支持 📊 卡片 PK 视图 ⇄ 📋 多维数据透视表视图切换) */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        【三、6 大经营单位综合能效指标横向对比】
+                      </h2>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-mono font-bold">
+                        点击卡片/行直接穿透下钻至单厂
                       </span>
                     </div>
-                    <div className="text-xl font-bold text-slate-900">
-                      685.0 <span className="text-xs font-normal text-slate-500 font-sans">万元 (1,420.5 tce)</span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200 font-sans flex justify-between">
-                      <span>费用占比: <strong className="text-slate-800 font-mono">28.5%</strong></span>
-                      <span className="text-emerald-600 font-bold">同比 -2.0% ↓</span>
+
+                    <div className="flex items-center gap-2">
+                      {/* 视图切换按钮 */}
+                      <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setGroupViewMode('card')}
+                          className={cn(
+                            'px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer flex items-center gap-1',
+                            groupViewMode === 'card' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                          )}
+                        >
+                          <BarChart3 className="size-3.5" />
+                          <span>卡片 PK 视图</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setGroupViewMode('table')}
+                          className={cn(
+                            'px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer flex items-center gap-1',
+                            groupViewMode === 'table' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                          )}
+                        >
+                          <Table className="size-3.5" />
+                          <span>数据透视大表</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                    <div className="flex justify-between items-center text-xs font-sans">
-                      <span className="font-bold text-slate-900">3. 新变厂</span>
-                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
-                        能耗占比 24.1%
-                      </span>
-                    </div>
-                    <div className="text-xl font-bold text-slate-900">
-                      590.2 <span className="text-xs font-normal text-slate-500 font-sans">万元 (1,280.0 tce)</span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200 font-sans flex justify-between">
-                      <span>费用占比: <strong className="text-slate-800 font-mono">24.6%</strong></span>
-                      <span className="text-emerald-600 font-bold">同比 -2.1% ↓</span>
-                    </div>
-                  </div>
+                  {/* 模式 1: 卡片 PK 视图 */}
+                  {groupViewMode === 'card' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 font-mono">
+                      {GROUP_COMPANIES_METRICS.map((c, idx) => (
+                        <div
+                          key={c.id}
+                          onClick={() => {
+                            // 点击卡片平滑切换到该公司的单厂看板
+                            setSelectedNode({
+                              id: c.id,
+                              name: c.name,
+                              fullName: c.fullName,
+                              level: 'company',
+                              badge: c.industryName,
+                            })
+                          }}
+                          className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-blue-50/40 hover:border-blue-300 transition-all cursor-pointer space-y-2.5 shadow-2xs group"
+                        >
+                          <div className="flex justify-between items-center text-xs font-sans">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-bold text-slate-900 group-hover:text-[#1677ff] transition-colors">
+                                {idx + 1}. {c.name}
+                              </span>
+                              <span className={cn(
+                                'text-[9.5px] px-1.5 py-0.2 rounded font-bold',
+                                c.industry === 'transformer' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'
+                              )}>
+                                {c.industryName}
+                              </span>
+                            </div>
+                            <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
+                              能耗占比 {c.energyShare}
+                            </span>
+                          </div>
 
-                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                    <div className="flex justify-between items-center text-xs font-sans">
-                      <span className="font-bold text-slate-900">4. 鲁缆公司</span>
-                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
-                        能耗占比 8.2%
-                      </span>
-                    </div>
-                    <div className="text-xl font-bold text-slate-900">
-                      420.8 <span className="text-xs font-normal text-slate-500 font-sans">万元 (890.4 tce)</span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200 font-sans flex justify-between">
-                      <span>费用占比: <strong className="text-slate-800 font-mono">8.3%</strong></span>
-                      <span className="text-emerald-600 font-bold">同比 -3.0% ↓</span>
-                    </div>
-                  </div>
+                          <div className="flex items-baseline justify-between">
+                            <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
+                              {c.costWan.toFixed(1)} <span className="text-xs font-normal text-slate-500 font-sans">万元 ({c.energyTce.toFixed(1)} tce)</span>
+                            </div>
+                            <span className="text-emerald-600 font-bold text-xs font-mono">
+                              同比 {c.yoy} ↓
+                            </span>
+                          </div>
 
-                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                    <div className="flex justify-between items-center text-xs font-sans">
-                      <span className="font-bold text-slate-900">5. 新缆厂</span>
-                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
-                        能耗占比 4.5%
-                      </span>
-                    </div>
-                    <div className="text-xl font-bold text-slate-900">
-                      360.5 <span className="text-xs font-normal text-slate-500 font-sans">万元 (740.2 tce)</span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200 font-sans flex justify-between">
-                      <span>费用占比: <strong className="text-slate-800 font-mono">4.4%</strong></span>
-                      <span className="text-emerald-600 font-bold">同比 -1.9% ↓</span>
-                    </div>
-                  </div>
+                          {/* 占比进度条 */}
+                          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className="bg-[#1677ff] h-1.5 rounded-full"
+                              style={{ width: c.energyShare }}
+                            />
+                          </div>
 
-                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                    <div className="flex justify-between items-center text-xs font-sans">
-                      <span className="font-bold text-slate-900">6. 德缆公司</span>
-                      <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
-                        能耗占比 2.5%
-                      </span>
+                          {/* 细分指标矩阵 */}
+                          <div className="pt-2 border-t border-slate-200/60 grid grid-cols-3 gap-2 text-[10.5px] font-sans">
+                            <div className="space-y-0.5">
+                              <span className="text-slate-400 text-[10px] block">万元产值能耗</span>
+                              <strong className="text-slate-800 font-mono">{c.unitOutputTce} <span className="text-[9px] text-slate-400 font-sans">tce/万</span></strong>
+                            </div>
+                            <div className="space-y-0.5">
+                              <span className="text-slate-400 text-[10px] block">万元产值电耗</span>
+                              <strong className="text-slate-800 font-mono">{c.unitOutputElec} <span className="text-[9px] text-slate-400 font-sans">kWh</span></strong>
+                            </div>
+                            <div className="space-y-0.5">
+                              <span className="text-slate-400 text-[10px] block">绿电消纳占比</span>
+                              <strong className="text-purple-700 font-mono font-bold">{c.greenRatio}</strong>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="text-xl font-bold text-slate-900">
-                      310.0 <span className="text-xs font-normal text-slate-500 font-sans">万元 (620.8 tce)</span>
+                  ) : (
+                    /* 模式 2: 多维数据透视大表 */
+                    <div className="overflow-x-auto rounded-lg border border-slate-200 font-mono text-xs">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
+                            <th className="py-2.5 px-3">经营单位</th>
+                            <th className="py-2.5 px-3">所属产业</th>
+                            <th className="py-2.5 px-3 text-right">综合能耗 (tce)</th>
+                            <th className="py-2.5 px-3 text-right">能耗占比</th>
+                            <th className="py-2.5 px-3 text-right">能源费用 (万元)</th>
+                            <th className="py-2.5 px-3 text-right">费用占比</th>
+                            <th className="py-2.5 px-3 text-right">万元产值能耗 (tce/万)</th>
+                            <th className="py-2.5 px-3 text-right">万元产值电耗 (kWh/万)</th>
+                            <th className="py-2.5 px-3 text-right">万元产值水耗 (t/万)</th>
+                            <th className="py-2.5 px-3 text-right">绿电占比</th>
+                            <th className="py-2.5 px-3 text-center">同比降幅</th>
+                            <th className="py-2.5 px-3 text-center">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-slate-800">
+                          {GROUP_COMPANIES_METRICS.map((c) => (
+                            <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
+                              <td className="py-2.5 px-3 font-bold text-slate-900 font-sans">{c.name}</td>
+                              <td className="py-2.5 px-3 font-sans">
+                                <span className={cn(
+                                  'text-[10px] px-1.5 py-0.2 rounded font-bold',
+                                  c.industry === 'transformer' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                )}>
+                                  {c.industryName}
+                                </span>
+                              </td>
+                              <td className="py-2.5 px-3 text-right font-bold text-slate-900">{c.energyTce.toFixed(1)}</td>
+                              <td className="py-2.5 px-3 text-right text-blue-700 font-bold">{c.energyShare}</td>
+                              <td className="py-2.5 px-3 text-right font-bold">{c.costWan.toFixed(1)}</td>
+                              <td className="py-2.5 px-3 text-right text-slate-600">{c.costShare}</td>
+                              <td className="py-2.5 px-3 text-right font-bold text-emerald-700">{c.unitOutputTce}</td>
+                              <td className="py-2.5 px-3 text-right">{c.unitOutputElec}</td>
+                              <td className="py-2.5 px-3 text-right text-cyan-700">{c.unitOutputWater}</td>
+                              <td className="py-2.5 px-3 text-right text-purple-700 font-bold">{c.greenRatio}</td>
+                              <td className="py-2.5 px-3 text-center font-bold text-emerald-600">{c.yoy} ↓</td>
+                              <td className="py-2.5 px-3 text-center font-sans">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedNode({
+                                      id: c.id,
+                                      name: c.name,
+                                      fullName: c.fullName,
+                                      level: 'company',
+                                      badge: c.industryName,
+                                    })
+                                  }}
+                                  className="text-[#1677ff] hover:underline font-bold text-xs cursor-pointer"
+                                >
+                                  穿透查看 →
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200 font-sans flex justify-between">
-                      <span>费用占比: <strong className="text-slate-800 font-mono">2.4%</strong></span>
-                      <span className="text-emerald-600 font-bold">同比 -2.4% ↓</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}

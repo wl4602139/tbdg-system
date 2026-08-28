@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import {
+  TrendingUp,
   Calendar,
   Download,
   Zap,
@@ -14,6 +14,7 @@ import {
   Building2,
   BarChart3,
   Award,
+  Sparkles,
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { cn } from '@/lib/utils'
@@ -134,84 +135,71 @@ export default function UnitOutputPage() {
 
   return (
     <div className="flex gap-3.5 items-start">
-      {/* 左侧 270px 经典工业级拓扑树 */}
+      {/* 🌟 左侧 270px 经典工业级拓扑树 */}
       <StandardOrgTree
         selectedId={selectedNode.id}
         onSelect={(node) => setSelectedNode(node)}
       />
 
-      {/* 右侧主面板 */}
+      {/* 🌟 右侧主面板 */}
       <div className="flex-1 min-w-0 flex flex-col gap-3.5">
-        {/* 1. 顶部 Header 与 模式子页面切换器 */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-[#1677ff]" />
-            <h1 className="text-xs font-bold text-slate-800">能效与单耗多维穿透</h1>
-            <span className="text-xs font-mono font-normal text-slate-400 ml-1">
-              【{selectedNode.name}】
-            </span>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-mono font-bold ml-1">
-              数据按日更新 (每日 00:00) · 总裁督办目标
-            </span>
+        
+        {/* 1. 顶部 Header 与 统一时间筛选 */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <TrendingUp className="size-5" />
+            </div>
+            <h1 className="text-base font-bold text-slate-800">单位产值能耗</h1>
           </div>
 
-          {/* 子页面切换 Tab */}
-          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
-            <button className="px-3 py-1 rounded-md font-bold bg-[#1677ff] text-white shadow-xs transition-all flex items-center gap-1.5">
-              <Layers className="size-3.5" />
-              <span>单位产值能耗 (全厂宏观 · 总裁同比-5%目标)</span>
-            </button>
-            <Link
-              href="/zero-carbon/energy/unit-product"
-              className="px-3 py-1 rounded-md font-medium text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5"
-            >
-              <Package className="size-3.5" />
-              <span>单位产品能耗 (产线/型号/订单追溯)</span>
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* 时间维度 */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* 时间维度统一 */}
             <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
               <button
+                type="button"
                 onClick={() => setTimeDim('month')}
                 className={cn(
-                  'px-2 py-0.5 rounded-md font-medium transition-all',
-                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
-                月度
+                月度 (08月)
               </button>
               <button
+                type="button"
                 onClick={() => setTimeDim('quarter')}
                 className={cn(
-                  'px-2 py-0.5 rounded-md font-medium transition-all',
-                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
-                季度
+                季度 (Q3)
               </button>
               <button
+                type="button"
                 onClick={() => setTimeDim('year')}
                 className={cn(
-                  'px-2 py-0.5 rounded-md font-medium transition-all',
-                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
-                年度
+                年度 (2026)
               </button>
             </div>
+
             <button
-              onClick={() => alert('正在导出万元产值能耗报表...')}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs transition-colors"
+              type="button"
+              onClick={() => alert(`正在导出【${selectedNode.name}】万元产值能耗考核对标报表 (Excel)...`)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
             >
               <Download className="size-3.5" />
-              <span>导出明细</span>
+              <span>导出产值能耗表</span>
             </button>
           </div>
         </div>
 
-        {/* 2. 总裁战略目标督办 KPI 卡片 (前置重点突出同比变化) */}
+        {/* 2. 5 大核心 KPI 卡片 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
           {/* 卡片 1: 单位产值综合能耗 (总裁督办重点) */}
           <div className="p-3.5 rounded-xl bg-gradient-to-br from-blue-50/90 to-white border-2 border-[#1677ff] shadow-xs space-y-1.5 hover:shadow-md transition-all">
@@ -316,13 +304,68 @@ export default function UnitOutputPage() {
           </div>
         </div>
 
-        {/* 3. 8 大制造基地万元产值能耗横向对标透视表 */}
+        {/* 3. 8 大制造基地万元产值能耗卡片网格 */}
+        <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
+              <h3 className="text-xs font-bold text-slate-800">
+                【特变电工集团 8 大制造基地万元产值能耗与工业产值分布】
+              </h3>
+              <span className="text-[10px] text-blue-600 font-mono bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                穿透口径：8大制造基地汇流层
+              </span>
+            </div>
+            <span className="text-xs text-slate-400 font-mono">考核标准：同比下降 ≥ 5.0%</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-mono">
+            {FACTORY_OUTPUT_ROWS.map((r) => (
+              <div
+                key={r.id}
+                className="p-3 rounded-lg border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-blue-300 transition-all space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs font-sans text-slate-900 flex items-center gap-1.5">
+                    <span className="size-2 rounded-full bg-[#1677ff]" />
+                    {r.factory}
+                  </span>
+                  <span
+                    className={cn(
+                      'text-[10px] px-1.5 py-0.2 rounded font-bold font-sans',
+                      r.status === '超额达标'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-blue-100 text-blue-800'
+                    )}
+                  >
+                    {r.status}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-200/60">
+                  <div className="p-1.5 rounded bg-white border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block font-sans">产值能耗</span>
+                    <strong className="text-[#1677ff]">{r.unitOutputTce}</strong>
+                    <span className="text-[10px] text-emerald-600 block">同比 {r.yoy}</span>
+                  </div>
+                  <div className="p-1.5 rounded bg-white border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block font-sans">工业产值</span>
+                    <strong className="text-slate-800">{r.outputBillion} 亿元</strong>
+                    <span className="text-[10px] text-slate-400 block font-sans">{r.industry}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 4. 8 大制造基地万元产值能耗横向对标透视表 */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
           <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-[#1677ff]" />
+              <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
               <h3 className="text-xs font-bold text-slate-800">
-                全集团 8 大制造基地月度万元产值能耗考核达成明细表 (2026年08月)
+                【1. 全集团 8 大制造基地月度万元产值能耗考核达成明细表 (2026年08月)】
               </h3>
             </div>
             <div className="text-xs text-slate-500 font-mono">考核标准: 同比下降 ≥ 5.0%</div>
@@ -362,36 +405,36 @@ export default function UnitOutputPage() {
                             ? 'bg-blue-50 text-blue-700'
                             : r.industry === '线缆制造'
                             ? 'bg-amber-50 text-amber-700'
-                            : 'bg-purple-50 text-purple-700',
+                            : 'bg-purple-50 text-purple-700'
                         )}
                       >
                         {r.industry}
                       </span>
                     </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums font-bold">
+                    <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                       {r.outputBillion.toFixed(2)}
                     </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums">
-                      {r.energyTce.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    <td className="py-2.5 px-3 text-right">
+                      {r.energyTce.toLocaleString()}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-bold text-blue-700 bg-blue-50/40 tabular-nums">
+                    <td className="py-2.5 px-3 text-right font-bold text-[#1677ff] bg-blue-50/30">
                       {r.unitOutputTce.toFixed(3)}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-bold text-slate-700 tabular-nums">
+                    <td className="py-2.5 px-3 text-right text-slate-500">
                       {r.targetTce.toFixed(3)}
                     </td>
-                    <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">
-                      {r.yoy}
-                    </td>
                     <td className="py-2.5 px-3 text-center">
+                      <span className="text-emerald-600 font-bold font-mono">
+                        {r.yoy}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 text-center font-sans">
                       <span
                         className={cn(
-                          'px-2 py-0.5 rounded text-[10px] font-bold inline-flex items-center gap-1',
+                          'px-2 py-0.5 rounded-full text-[10px] font-bold border inline-flex items-center gap-1',
                           r.status === '超额达标'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : r.status === '达标'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-amber-100 text-amber-800',
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-blue-50 text-blue-700 border-blue-200'
                         )}
                       >
                         <CheckCircle2 className="size-3" />
@@ -404,6 +447,7 @@ export default function UnitOutputPage() {
             </table>
           </div>
         </div>
+
       </div>
     </div>
   )

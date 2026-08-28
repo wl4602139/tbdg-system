@@ -84,12 +84,11 @@ export default function EnergyCostPage() {
         
         {/* 1. 顶部 Header 与 统一时间筛选 */}
         <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-[#1677ff]" />
-            <h1 className="text-xs font-bold text-slate-800">能源成本分析与折标效益透视</h1>
-            <span className="text-xs font-mono font-normal text-slate-400 ml-1">
-              【{selectedNode.name}】
-            </span>
+          <div className="flex items-center gap-3">
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <DollarSign className="size-5" />
+            </div>
+            <h1 className="text-base font-bold text-slate-800">能源成本分析</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">

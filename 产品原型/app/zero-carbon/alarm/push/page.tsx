@@ -1,11 +1,23 @@
 'use client'
 
+import { Send } from 'lucide-react'
 import { Panel } from '@/components/shared/primitives'
 import { Select } from '@/components/shared/select'
 
 export default function PushPage() {
   return (
-    <Panel title="告警推送策略" desc="按角色、组织架构或设备范围配置接收对象与推送渠道">
+    <div className="space-y-3.5">
+      {/* 顶部 Header */}
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <Send className="size-5" />
+            </div>
+            <h1 className="text-base font-bold text-slate-800">告警推送策略</h1>
+          </div>
+      </div>
+
+      <Panel title="告警推送策略" desc="按角色、组织架构或设备范围配置接收对象与推送渠道">
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-3">
           <Select
@@ -53,5 +65,6 @@ export default function PushPage() {
         </button>
       </div>
     </Panel>
+    </div>
   )
 }

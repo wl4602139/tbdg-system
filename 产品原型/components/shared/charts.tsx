@@ -228,30 +228,39 @@ export const BarGroup = BarChartGroup
 export function RadarCompare({
   data,
   keys = [],
+  series: seriesProp,
+  lines: linesProp,
   angleKey = 'subject',
   height = 240,
 }: {
   data: any[]
   keys?: SeriesKey[]
+  series?: SeriesKey[]
+  lines?: SeriesKey[]
   angleKey?: string
   height?: number
 }) {
-  const series = normKeys(keys.length > 0 ? keys : [{ key: 'value', name: '数值' }])
+  const series = normKeys(seriesProp || linesProp || (keys.length > 0 ? keys : [{ key: 'value', name: '数值' }]))
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
-        <PolarGrid stroke="#e2e8f0" />
-        <PolarAngleAxis dataKey={angleKey} tick={{ fontSize: 11, fill: '#64748b' }} />
+      <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+        <PolarGrid stroke="#e2e8f0" strokeDasharray="3 3" />
+        <PolarAngleAxis
+          dataKey={angleKey}
+          tick={{ fontSize: 11, fill: '#475569', fontWeight: 600 }}
+        />
         <Tooltip contentStyle={tooltipStyle} />
-        <Legend wrapperStyle={{ fontSize: 11 }} />
+        <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
         {series.map((s) => (
           <Radar
             key={s.key}
             name={s.name}
             dataKey={s.key}
             stroke={s.color}
+            strokeWidth={2}
             fill={s.color}
-            fillOpacity={0.25}
+            fillOpacity={0.3}
+            dot={{ r: 3, fill: s.color, strokeWidth: 1, stroke: '#ffffff' }}
           />
         ))}
       </RadarChart>

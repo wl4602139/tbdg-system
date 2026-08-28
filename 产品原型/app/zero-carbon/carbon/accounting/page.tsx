@@ -75,27 +75,10 @@ export default function CarbonAccountingPage() {
         {/* 顶部控制与视角提示卡片 */}
         <div className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 text-[#1677ff] flex items-center justify-center font-bold text-base shrink-0 border border-blue-200 shadow-2xs">
-              🌿
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <Layers className="size-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-bold text-slate-800">{selectedOrg.name}</h1>
-                <span
-                  className={cn(
-                    'text-xs px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1 border',
-                    isGroupLevel
-                      ? 'bg-blue-50 text-blue-700 border-blue-200'
-                      : 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                  )}
-                >
-                  {isGroupLevel ? '🏢 集团全局大盘视角 (电装宏观总览)' : `🏭 企业工序执行视角 (${selectedOrg.name})`}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                严格按照 ISO 14064-1 与国家电网最新区域排放因子，实现全基地 Scope 1/2/3 动态自动核算
-              </p>
-            </div>
+            <h1 className="text-base font-bold text-slate-800">碳排放核算</h1>
           </div>
 
           {/* 控制按钮组 */}
