@@ -953,7 +953,7 @@ export default function MicrogridMonitoringPage() {
               </button>
             </div>
 
-            {/* 4 项核心绿电指标看板 */}
+            {/* 4 项核心绿电指标看板 (样式完全对齐【电量】Tab 规范) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
                 <div className="flex items-center justify-between text-xs text-slate-500">
@@ -961,16 +961,17 @@ export default function MicrogridMonitoringPage() {
                     <Sun className="size-4 text-emerald-500" />
                     新能源月发电量
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-600 font-mono font-bold">
                     装机: {currentParkDetail.pvCapacity}
                   </span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-emerald-600">
-                  {currentParkDetail.pvGenerationKWh}
+                <div className="text-2xl font-bold font-mono text-slate-900">
+                  {currentParkDetail.pvGenerationKWh.replace(' 万kWh', '')}{' '}
+                  <span className="text-xs font-normal text-slate-500">万kWh</span>
                 </div>
                 <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
                   <span>自用 / 上网</span>
-                  <span className="font-mono text-slate-700">
+                  <span className="text-slate-700 font-mono font-bold">
                     {currentParkDetail.selfUseKWh} / {currentParkDetail.gridExportKWh}
                   </span>
                 </div>
@@ -982,16 +983,17 @@ export default function MicrogridMonitoringPage() {
                     <DollarSign className="size-4 text-amber-500" />
                     新能源综合收益
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-700 font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-600 font-mono font-bold">
                     自用省钱+创收
                   </span>
                 </div>
                 <div className="text-2xl font-bold font-mono text-amber-600">
-                  {currentParkDetail.totalRevenue}
+                  {currentParkDetail.totalRevenue.replace('¥', '').replace(' 万元/月', '')}{' '}
+                  <span className="text-xs font-normal text-slate-500">万元/月</span>
                 </div>
                 <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-                  <span>省电费 / 上网创收</span>
-                  <span className="font-mono text-slate-700">
+                  <span>省电费 / 上网收益</span>
+                  <span className="text-slate-700 font-mono font-bold">
                     {currentParkDetail.pvSavings} / {currentParkDetail.surplusRevenue}
                   </span>
                 </div>
@@ -1000,7 +1002,7 @@ export default function MicrogridMonitoringPage() {
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <FileText className="size-4 text-blue-500" />
+                    <FileText className="size-4 text-blue-600" />
                     绿电与绿证交易
                   </span>
                   <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-50 text-[#1677ff] font-mono font-bold">
@@ -1008,11 +1010,12 @@ export default function MicrogridMonitoringPage() {
                   </span>
                 </div>
                 <div className="text-2xl font-bold font-mono text-[#1677ff]">
-                  {currentParkDetail.purchasedGreenElec}
+                  {currentParkDetail.purchasedGreenElec.replace(' 万kWh', '')}{' '}
+                  <span className="text-xs font-normal text-slate-500">万kWh</span>
                 </div>
                 <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
                   <span>GEC 绿证核销</span>
-                  <span className="font-mono text-slate-700">
+                  <span className="text-slate-700 font-mono font-bold">
                     {currentParkDetail.gecCertificateCount.toLocaleString()} 张
                   </span>
                 </div>
@@ -1021,20 +1024,21 @@ export default function MicrogridMonitoringPage() {
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <Leaf className="size-4 text-teal-600" />
+                    <Leaf className="size-4 text-emerald-600" />
                     绿电综合消纳率
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-teal-50 text-teal-700 font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-600 font-mono font-bold">
                     直供+交易
                   </span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-teal-600">
-                  {currentParkDetail.greenRate}%
+                <div className="text-2xl font-bold font-mono text-emerald-600">
+                  {currentParkDetail.greenRate}{' '}
+                  <span className="text-xs font-normal text-slate-500">%</span>
                 </div>
                 <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-                  <span>碳减排贡献</span>
-                  <span className="font-mono text-emerald-600 font-bold">
-                    -{Math.round(parseFloat(currentParkDetail.pvGenerationKWh || '100') * 0.58)} tCO₂/月
+                  <span>月度碳减排贡献</span>
+                  <span className="text-emerald-600 font-mono font-bold">
+                    -{Math.round(parseFloat(currentParkDetail.pvGenerationKWh || '100') * 0.58)} tCO₂
                   </span>
                 </div>
               </div>
