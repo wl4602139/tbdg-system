@@ -70,7 +70,7 @@ export default function ProcessPage() {
         <div className="p-2 overflow-y-auto flex-1 text-xs font-sans space-y-1.5">
           <div className="flex items-center gap-1.5 py-1 px-1.5 rounded bg-blue-50/70 text-[#1677ff] font-bold">
             <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />
-            <span className="flex-1 truncate">特变电工集团 (1,2级工序)</span>
+            <span className="flex-1 truncate">电装集团</span>
             <span className="text-[9.5px] px-1 py-0.2 rounded bg-blue-100 text-blue-700 font-mono">日更新</span>
           </div>
 

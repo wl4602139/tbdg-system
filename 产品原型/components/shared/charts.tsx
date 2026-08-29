@@ -17,6 +17,7 @@ import {
   PolarGrid,
   Radar,
   RadarChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -60,6 +61,7 @@ export function LineTrend({
   xKey = 'month',
   height = 240,
   yUnit,
+  refLines,
 }: {
   data: any[]
   keys?: SeriesKey[]
@@ -67,6 +69,7 @@ export function LineTrend({
   xKey?: string
   height?: number
   yUnit?: string
+  refLines?: { y: number; label?: string; color?: string; strokeDasharray?: string }[]
 }) {
   const series = normKeys(lines || keys || [])
   return (
@@ -83,6 +86,20 @@ export function LineTrend({
           <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
           <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: '#cbd5e1' }} />
           <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
+          {refLines?.map((rf, i) => (
+            <ReferenceLine
+              key={i}
+              y={rf.y}
+              label={{
+                value: rf.label,
+                fill: rf.color || '#ef4444',
+                fontSize: 10,
+                position: 'insideTopRight',
+              }}
+              stroke={rf.color || '#ef4444'}
+              strokeDasharray={rf.strokeDasharray || '3 3'}
+            />
+          ))}
           {series.map((s) => (
             <Line
               key={s.key}

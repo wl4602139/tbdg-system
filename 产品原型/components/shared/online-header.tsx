@@ -1,18 +1,14 @@
 'use client'
 
-import React from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Activity, Zap, Cpu, Layers } from 'lucide-react'
+import React, { useState } from 'react'
+import { Activity, Calendar, Download } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export const ONLINE_TABS = [
-  { key: 'equipment', label: '1. 重点用能设备监测', href: '/zero-carbon/monitor/online/equipment', icon: Cpu, iconColor: 'text-blue-500' },
-  { key: 'process', label: '2. 关键工序监测', href: '/zero-carbon/monitor/online/process', icon: Layers, iconColor: 'text-purple-500' },
-]
-
 export function OnlineHeader() {
-  const pathname = usePathname()
+  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  const [selectedYear, setSelectedYear] = useState('2026')
 
   return (
     <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
@@ -25,28 +21,104 @@ export function OnlineHeader() {
         </div>
       </div>
 
-      <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 font-sans text-xs">
-        {ONLINE_TABS.map((tab) => {
-          const Icon = tab.icon
-          const isActive =
-            pathname.startsWith(tab.href) ||
-            (pathname === '/zero-carbon/monitor/online' && tab.key === 'equipment')
-          return (
-            <Link
-              key={tab.key}
-              href={tab.href}
-              className={cn(
-                'px-3 py-1.5 rounded-md font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none text-xs',
-                isActive
-                  ? 'bg-[#1677ff] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-              )}
+      <div className="flex flex-wrap items-center gap-2.5">
+        {/* 时间维度切换 (月度 / 季度 / 年度) */}
+        <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
+          <button
+            type="button"
+            onClick={() => setTimeDim('month')}
+            className={cn(
+              'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+              timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            )}
+          >
+            月度
+          </button>
+          <button
+            type="button"
+            onClick={() => setTimeDim('quarter')}
+            className={cn(
+              'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+              timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            )}
+          >
+            季度
+          </button>
+          <button
+            type="button"
+            onClick={() => setTimeDim('year')}
+            className={cn(
+              'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+              timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            )}
+          >
+            年度
+          </button>
+        </div>
+
+        {/* 时间范围选择控件 (随维度自适应切换) */}
+        {timeDim === 'month' && (
+          <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+            <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <input
+              type="month"
+              value={selectedMonthRange.start}
+              onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+              className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+              title="起始月份"
+            />
+            <span className="text-slate-400 font-sans">至</span>
+            <input
+              type="month"
+              value={selectedMonthRange.end}
+              onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+              className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+              title="结束月份"
+            />
+          </div>
+        )}
+
+        {timeDim === 'quarter' && (
+          <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+            <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <select
+              value={selectedQuarter}
+              onChange={(e) => setSelectedQuarter(e.target.value)}
+              className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
             >
-              <Icon className={cn('size-3.5 shrink-0', isActive ? 'text-white' : tab.iconColor)} />
-              <span>{tab.label}</span>
-            </Link>
-          )
-        })}
+              <option value="2026-Q1">2026年 第1季度 (Q1)</option>
+              <option value="2026-Q2">2026年 第2季度 (Q2)</option>
+              <option value="2026-Q3">2026年 第3季度 (Q3)</option>
+              <option value="2026-Q4">2026年 第4季度 (Q4)</option>
+              <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+            </select>
+          </div>
+        )}
+
+        {timeDim === 'year' && (
+          <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+            <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+            >
+              <option value="2026">2026 年度</option>
+              <option value="2025">2025 年度</option>
+              <option value="2024">2024 年度</option>
+            </select>
+          </div>
+        )}
+
+        {/* 导出按钮 */}
+        <button
+          type="button"
+          onClick={() => alert('正在导出【用能在线监测】综合数据报表 (Excel)...')}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+        >
+          <Download className="size-3.5" />
+          <span>导出</span>
+        </button>
       </div>
     </div>
   )

@@ -42,8 +42,8 @@ export interface StandardOrgNode {
 export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
   {
     id: 'ent_root',
-    name: '特变电工集团 (全公汇总)',
-    fullName: '特变电工集团 (全公汇总)',
+    name: '电装集团',
+    fullName: '电装集团',
     level: 'group',
     badge: '全集团',
     children: [
@@ -336,6 +336,7 @@ export interface StandardOrgTreeProps {
   onSelectNode?: (node: StandardOrgNode) => void
   onSelect?: (node: StandardOrgNode) => void
   treeType?: 'enterprise' | 'park'
+  maxSelectableLevel?: number
   className?: string
 }
 
@@ -345,6 +346,7 @@ export function StandardOrgTree({
   onSelectNode,
   onSelect,
   treeType = 'enterprise',
+  maxSelectableLevel,
   className,
 }: StandardOrgTreeProps) {
   const currentSelectedId = selectedId || selectedNodeId || (treeType === 'park' ? 'park_ne' : 'ws_sb_main')
@@ -411,19 +413,29 @@ export function StandardOrgTree({
       const hasChildren = node.children && node.children.length > 0
       const isCollapsed = Boolean(collapsedKeys[node.id])
       const isSelected = node.id === currentSelectedId
+      const currentLevelNum = level + 1
+      const isSelectable = !maxSelectableLevel || currentLevelNum <= maxSelectableLevel
 
       return (
         <div key={node.id} className="relative select-none text-[12px]">
           {/* 节点行 */}
           <div
-            onClick={() => handleSelect(node)}
+            onClick={() => {
+              if (isSelectable) {
+                handleSelect(node)
+              }
+            }}
             className={cn(
-              'flex items-center gap-1.5 py-1 px-1.5 rounded cursor-pointer transition-colors relative group',
+              'flex items-center gap-1.5 py-1 px-1.5 rounded transition-colors relative group',
+              isSelectable ? 'cursor-pointer' : 'cursor-default',
               isSelected
                 ? 'bg-[#e6f4ff] text-[#1677ff] font-semibold shadow-2xs'
-                : 'hover:bg-slate-100/80 text-slate-700'
+                : isSelectable
+                  ? 'hover:bg-slate-100/80 text-slate-700'
+                  : 'text-slate-500 hover:bg-slate-50'
             )}
             style={{ paddingLeft: `${level * 14 + 6}px` }}
+            title={!isSelectable ? `${node.name} (3级节点仅供结构展示)` : (node.fullName || node.name)}
           >
             {/* 折叠箭头 */}
             {hasChildren ? (
@@ -433,7 +445,7 @@ export function StandardOrgTree({
                   e.stopPropagation()
                   toggleCollapse(node.id)
                 }}
-                className="size-4 flex items-center justify-center text-slate-400 hover:text-slate-700 shrink-0"
+                className="size-4 flex items-center justify-center text-slate-400 hover:text-slate-700 shrink-0 cursor-pointer"
               >
                 {isCollapsed ? (
                   <ChevronRight className="size-3.5" />

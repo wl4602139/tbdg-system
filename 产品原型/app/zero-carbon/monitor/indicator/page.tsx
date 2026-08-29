@@ -1591,7 +1591,7 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
         unit: 'tce',
         nodes: [
           // 1级 集团总部
-          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
 
           // 2级 6 大经营制造公司
           { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
@@ -1618,12 +1618,12 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
         ],
         links: [
           // 1级 ➔ 2级
-          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 418.0 },
-          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 362.5 },
-          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 309.5 },
-          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 105.5 },
-          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 58.0 },
-          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 31.0 },
+          { source: '电装集团', target: '沈变公司', value: 418.0 },
+          { source: '电装集团', target: '衡变公司', value: 362.5 },
+          { source: '电装集团', target: '新变厂', value: 309.5 },
+          { source: '电装集团', target: '鲁缆公司', value: 105.5 },
+          { source: '电装集团', target: '新缆厂', value: 58.0 },
+          { source: '电装集团', target: '德缆公司', value: 31.0 },
 
           // 2级 ➔ 3级
           { source: '沈变公司', target: '沈变本部', value: 260.0 },
@@ -1646,7 +1646,7 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
       return {
         unit: 'tCO2',
         nodes: [
-          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
           { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
           { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
           { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
@@ -1669,12 +1669,12 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
           { name: '德缆公司本部', depth: 2, itemStyle: { color: '#c41d7f' } },
         ],
         links: [
-          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 958.0 },
-          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 830.8 },
-          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 710.0 },
-          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 242.0 },
-          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 133.0 },
-          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 73.0 },
+          { source: '电装集团', target: '沈变公司', value: 958.0 },
+          { source: '电装集团', target: '衡变公司', value: 830.8 },
+          { source: '电装集团', target: '新变厂', value: 710.0 },
+          { source: '电装集团', target: '鲁缆公司', value: 242.0 },
+          { source: '电装集团', target: '新缆厂', value: 133.0 },
+          { source: '电装集团', target: '德缆公司', value: 73.0 },
 
           { source: '沈变公司', target: '沈变本部', value: 596.0 },
           { source: '沈变公司', target: '和新套管公司', value: 224.0 },
@@ -1696,7 +1696,7 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
       return {
         unit: 'tCO2/tce',
         nodes: [
-          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
           { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
           { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
           { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
@@ -1712,12 +1712,12 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
           { name: '德缆常规线缆', depth: 2, itemStyle: { color: '#c41d7f' } },
         ],
         links: [
-          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 2.292 },
-          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 2.293 },
-          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 2.294 },
-          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 2.296 },
-          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 2.295 },
-          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 2.355 },
+          { source: '电装集团', target: '沈变公司', value: 2.292 },
+          { source: '电装集团', target: '衡变公司', value: 2.293 },
+          { source: '电装集团', target: '新变厂', value: 2.294 },
+          { source: '电装集团', target: '鲁缆公司', value: 2.296 },
+          { source: '电装集团', target: '新缆厂', value: 2.295 },
+          { source: '电装集团', target: '德缆公司', value: 2.355 },
 
           { source: '沈变公司', target: '沈变变压器制造', value: 2.292 },
           { source: '衡变公司', target: '衡变输变电生产', value: 2.293 },
@@ -1733,7 +1733,7 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
       return {
         unit: 'MWh',
         nodes: [
-          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
           { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
           { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
           { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
@@ -1749,12 +1749,12 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
           { name: '德缆绿色配电', depth: 2, itemStyle: { color: '#c41d7f' } },
         ],
         links: [
-          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 496 },
-          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 418 },
-          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 356 },
-          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 118 },
-          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 62 },
-          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 32 },
+          { source: '电装集团', target: '沈变公司', value: 496 },
+          { source: '电装集团', target: '衡变公司', value: 418 },
+          { source: '电装集团', target: '新变厂', value: 356 },
+          { source: '电装集团', target: '鲁缆公司', value: 118 },
+          { source: '电装集团', target: '新缆厂', value: 62 },
+          { source: '电装集团', target: '德缆公司', value: 32 },
 
           { source: '沈变公司', target: '沈变园区屋顶光伏', value: 496 },
           { source: '衡变公司', target: '衡变园区绿电直供', value: 418 },
@@ -1769,7 +1769,7 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
       return {
         unit: 't',
         nodes: [
-          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
           { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
           { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
           { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
@@ -1788,12 +1788,12 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
           { name: '德缆公司本部', depth: 2, itemStyle: { color: '#c41d7f' } },
         ],
         links: [
-          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 5120 },
-          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 4380 },
-          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 3650 },
-          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 1250 },
-          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 680 },
-          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 400 },
+          { source: '电装集团', target: '沈变公司', value: 5120 },
+          { source: '电装集团', target: '衡变公司', value: 4380 },
+          { source: '电装集团', target: '新变厂', value: 3650 },
+          { source: '电装集团', target: '鲁缆公司', value: 1250 },
+          { source: '电装集团', target: '新缆厂', value: 680 },
+          { source: '电装集团', target: '德缆公司', value: 400 },
 
           { source: '沈变公司', target: '沈变本部', value: 3600 },
           { source: '沈变公司', target: '和新套管公司', value: 1520 },
@@ -1812,7 +1812,7 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
       return {
         unit: '万元',
         nodes: [
-          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
           { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
           { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
           { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
@@ -1828,12 +1828,12 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
           { name: '通用橡套电缆', depth: 2, itemStyle: { color: '#c41d7f' } },
         ],
         links: [
-          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 9500 },
-          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 8200 },
-          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 6800 },
-          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 2400 },
-          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 1100 },
-          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 500 },
+          { source: '电装集团', target: '沈变公司', value: 9500 },
+          { source: '电装集团', target: '衡变公司', value: 8200 },
+          { source: '电装集团', target: '新变厂', value: 6800 },
+          { source: '电装集团', target: '鲁缆公司', value: 2400 },
+          { source: '电装集团', target: '新缆厂', value: 1100 },
+          { source: '电装集团', target: '德缆公司', value: 500 },
 
           { source: '沈变公司', target: '特高压变压器制造', value: 9500 },
           { source: '衡变公司', target: '大型电力变压器制造', value: 8200 },
@@ -1848,7 +1848,7 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
       return {
         unit: 'kW',
         nodes: [
-          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
           { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
           { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
           { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
@@ -1864,12 +1864,12 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
           { name: '德缆高效循环泵', depth: 2, itemStyle: { color: '#c41d7f' } },
         ],
         links: [
-          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 11200 },
-          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 9500 },
-          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 7800 },
-          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 2650 },
-          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 1100 },
-          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 600 },
+          { source: '电装集团', target: '沈变公司', value: 11200 },
+          { source: '电装集团', target: '衡变公司', value: 9500 },
+          { source: '电装集团', target: '新变厂', value: 7800 },
+          { source: '电装集团', target: '鲁缆公司', value: 2650 },
+          { source: '电装集团', target: '新缆厂', value: 1100 },
+          { source: '电装集团', target: '德缆公司', value: 600 },
 
           { source: '沈变公司', target: '沈变节能电机群', value: 11200 },
           { source: '衡变公司', target: '衡变磁悬浮空压机', value: 9500 },
@@ -1884,7 +1884,7 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
       return {
         unit: '类',
         nodes: [
-          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
           { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
           { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
           { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
@@ -1900,12 +1900,12 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
           { name: '矿用橡套电缆 (认证)', depth: 2, itemStyle: { color: '#c41d7f' } },
         ],
         links: [
-          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 3 },
-          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 3 },
-          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 2 },
-          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 2 },
-          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 1 },
-          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 1 },
+          { source: '电装集团', target: '沈变公司', value: 3 },
+          { source: '电装集团', target: '衡变公司', value: 3 },
+          { source: '电装集团', target: '新变厂', value: 2 },
+          { source: '电装集团', target: '鲁缆公司', value: 2 },
+          { source: '电装集团', target: '新缆厂', value: 1 },
+          { source: '电装集团', target: '德缆公司', value: 1 },
 
           { source: '沈变公司', target: '特高压换流变 (认证)', value: 3 },
           { source: '衡变公司', target: '大型电力变 (认证)', value: 3 },
@@ -1918,184 +1918,439 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
   }
 }
 
-// 🌟 生产单位（2级、3级）对应主要产品与关键工序映射表 (依据《生产单位与涉及关键工序对应表》)
-export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; processes: string[] }> = {
+// 🌟 能源介质列定义
+export interface EnergyColumnDef {
+  key: string
+  label: string
+  unit: string
+  headerClass: string
+  valClass: string
+  calcVal: (idx: number, baseFactor: number) => string
+}
+
+export const ENERGY_COLUMN_DEFINITIONS: Record<string, EnergyColumnDef> = {
+  '电力': {
+    key: 'elec',
+    label: '⚡ 用电量',
+    unit: '万kWh',
+    headerClass: 'text-blue-700',
+    valClass: 'text-blue-700 font-bold',
+    calcVal: (idx, bf) => ((324.6 + idx * 2.3) * bf).toFixed(1),
+  },
+  '蒸汽': {
+    key: 'steam',
+    label: '💨 蒸汽量',
+    unit: 't',
+    headerClass: 'text-purple-700',
+    valClass: 'text-purple-700 font-bold',
+    calcVal: (idx, bf) => ((362 + idx * 2.5) * bf).toFixed(0),
+  },
+  '氮气': {
+    key: 'nitrogen',
+    label: '🫧 氮气量',
+    unit: '万m³',
+    headerClass: 'text-teal-700',
+    valClass: 'text-teal-700 font-bold',
+    calcVal: (idx, bf) => ((12.8 + idx * 0.15) * bf).toFixed(2),
+  },
+  '天然气': {
+    key: 'gas',
+    label: '🔥 用气量',
+    unit: '万m³',
+    headerClass: 'text-amber-700',
+    valClass: 'text-amber-700 font-bold',
+    calcVal: (idx, bf) => ((16.7 + idx * 0.12) * bf).toFixed(1),
+  },
+  '水': {
+    key: 'water',
+    label: '💧 用水量',
+    unit: '万t',
+    headerClass: 'text-cyan-700',
+    valClass: 'text-cyan-700 font-bold',
+    calcVal: (idx, bf) => ((4.06 + idx * 0.03) * bf).toFixed(2),
+  },
+}
+
+// 🌟 生产单位（1级、2级、3级）对应主要产品、关键工序及主要消耗能源映射表 (严格100%依据《生产单位与涉及关键工序对应表(1).et》)
+export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; processes: string[]; energies: string[] }> = {
+  // 0. 集团根节点
+  '电装集团': {
+    products: [
+      '变压器-高压',
+      '变压器-中低压-干变',
+      '变压器-中低压-油变',
+      '变压器-铁芯',
+      '线缆-中低压',
+      '线缆-高压',
+      '线缆-特种电缆',
+      '套管',
+      '互感器',
+      '中低压开关柜',
+      'GIS',
+      '干式电抗器',
+      '电容器',
+      'GIL',
+    ],
+    processes: [],
+    energies: ['电力', '蒸汽'],
+  },
+  '特变电工集团': {
+    products: [
+      '变压器-高压',
+      '变压器-中低压-干变',
+      '变压器-中低压-油变',
+      '变压器-铁芯',
+      '线缆-中低压',
+      '线缆-高压',
+      '线缆-特种电缆',
+      '套管',
+      '互感器',
+      '中低压开关柜',
+      'GIS',
+      '干式电抗器',
+      '电容器',
+      'GIL',
+    ],
+    processes: [],
+    energies: ['电力', '蒸汽'],
+  },
+
   // 1. 沈变公司
   '沈变公司': {
     products: ['变压器-高压', '套管', '互感器'],
-    processes: ['变压器-高压-干燥', '变压器-试验', '套管-干燥', '互感器-干燥'],
+    processes: ['①变压器-高压-干燥', '②变压器-试验', '①套管-干燥', '①互感器-干燥'],
+    energies: ['电力', '蒸汽'],
   },
   '沈变本部': {
     products: ['变压器-高压'],
     processes: ['①变压器-高压-干燥', '②变压器-试验'],
+    energies: ['电力', '蒸汽'],
   },
   '和新套管公司': {
     products: ['套管'],
     processes: ['①套管-干燥'],
+    energies: ['电力'],
   },
   '康嘉互感器': {
     products: ['互感器'],
     processes: ['①互感器-干燥', '②变压器-试验'],
-  },
-  '露娜公司 (特变电工露娜智能)': {
-    products: ['智能配电及箱式变电站'],
-    processes: ['①智能装配及集成测试'],
-  },
-  '智慧能源': {
-    products: ['清洁能源系统集成'],
-    processes: ['①微电网联调与综合运维'],
-  },
-  '印能公司': {
-    products: ['电力电子变换装备'],
-    processes: ['①逆变器老化及出厂试验'],
+    energies: ['电力', '蒸汽'],
   },
 
   // 2. 衡变公司
   '衡变公司': {
     products: ['变压器-高压', '中低压开关柜', 'GIS', '干式电抗器', '电容器', 'GIL'],
-    processes: ['变压器-高压-干燥', '变压器-试验', '中低压开关柜-钣金加工及喷涂', 'GIS-抽真空及耐压试验', '干式电抗器-固化及试验', '电容器-真空浸渍及喷漆', 'GIL-螺旋焊管及绝缘子生产'],
+    processes: [
+      '①变压器-高压-干燥',
+      '②变压器-试验',
+      '①中低压开关柜-钣金加工',
+      '②中低压开关柜-钣金喷涂',
+      '①GIS-抽真空',
+      '②GIS-绝缘件干燥',
+      '③GIS-工频耐压试验',
+      '④GIS-空调恒温除湿',
+      '①干式电抗器-固化',
+      '②干式电抗器-试验',
+      '①电容器-芯子卷绕',
+      '②电容器-真空浸渍',
+      '③电容器-喷漆',
+      '④电容器-试验',
+      '①GIL-螺旋焊管生产',
+      '②GIL-绝缘子生产',
+      '③GIL-测试',
+    ],
+    energies: ['电力', '蒸汽'],
   },
   '衡变本部': {
     products: ['变压器-高压'],
     processes: ['①变压器-高压-干燥', '②变压器-试验'],
+    energies: ['电力', '蒸汽'],
   },
   '湖南电气': {
     products: ['变压器-高压'],
     processes: ['①变压器-高压-干燥', '②变压器-试验'],
+    energies: ['电力', '蒸汽'],
   },
   '特能建': {
     products: ['变压器-高压'],
     processes: ['①变压器-高压-干燥', '②变压器-试验'],
+    energies: ['电力', '蒸汽'],
   },
   '云集电气': {
     products: ['中低压开关柜'],
     processes: ['①中低压开关柜-钣金加工', '②中低压开关柜-钣金喷涂'],
+    energies: ['电力'],
   },
   '新疆自控': {
     products: ['中低压开关柜'],
     processes: ['①中低压开关柜-钣金加工', '②中低压开关柜-钣金喷涂'],
+    energies: ['电力'],
   },
   '云集高压开关': {
     products: ['GIS'],
     processes: ['①GIS-抽真空', '②GIS-绝缘件干燥', '③GIS-工频耐压试验', '④GIS-空调恒温除湿'],
-  },
-  '合容电气': {
-    products: ['干式电抗器'],
-    processes: ['①干式电抗器-固化', '②干式电抗器-试验'],
+    energies: ['电力'],
   },
   '合容电气股份': {
     products: ['干式电抗器'],
     processes: ['①干式电抗器-固化', '②干式电抗器-试验'],
+    energies: ['电力'],
+  },
+  '合容电气': {
+    products: ['干式电抗器'],
+    processes: ['①干式电抗器-固化', '②干式电抗器-试验'],
+    energies: ['电力'],
   },
   '合容电力设备': {
     products: ['电容器'],
     processes: ['①电容器-芯子卷绕', '②电容器-真空浸渍', '③电容器-喷漆', '④电容器-试验'],
+    energies: ['电力'],
   },
   '赛杰爱迪': {
     products: ['GIL'],
     processes: ['①GIL-螺旋焊管生产', '②GIL-绝缘子生产', '③GIL-测试'],
-  },
-  '南京电研': {
-    products: ['电网自动化及保护装置'],
-    processes: ['①SMT贴片及整机调试'],
-  },
-  '上开': {
-    products: ['高低压成套开关设备'],
-    processes: ['①母排加工及整柜试验'],
-  },
-  '柯贝尔': {
-    products: ['特种配电开关装置'],
-    processes: ['①高压耐压试验与机械特性调试'],
+    energies: ['电力'],
   },
 
   // 3. 新变厂
   '新变厂': {
     products: ['变压器-高压', '变压器-中低压-干变', '变压器-中低压-油变', '变压器-铁芯'],
-    processes: ['变压器-高压-干燥', '变压器-中低压-干变-固化', '变压器-中低压-油变-干燥', '变压器-试验', '非晶合金铁心-退火', '硅钢铁心-纵剪及叠装'],
+    processes: [
+      '①变压器-高压-干燥',
+      '②变压器-试验',
+      '①变压器-中低压-干变-固化',
+      '①变压器-中低压-油变-干燥',
+      '①非晶合金铁心-退火',
+      '②硅钢铁心-纵剪',
+      '③硅钢铁心-中型叠装',
+      '④硅钢铁心-大型叠装',
+    ],
+    energies: ['电力', '蒸汽'],
   },
   '超高压公司': {
     products: ['变压器-高压'],
     processes: ['①变压器-高压-干燥', '②变压器-试验'],
+    energies: ['电力', '蒸汽'],
   },
   '天变公司': {
     products: ['变压器-中低压-干变'],
     processes: ['①变压器-中低压-干变-固化', '②变压器-试验'],
+    energies: ['电力', '蒸汽'],
   },
   '智能电气公司': {
     products: ['变压器-中低压-干变'],
     processes: ['①变压器-中低压-干变-固化', '②变压器-试验'],
+    energies: ['电力', '蒸汽'],
   },
   '京津冀公司': {
     products: ['变压器-中低压-油变'],
     processes: ['①变压器-中低压-油变-干燥', '②变压器-试验'],
+    energies: ['电力', '蒸汽'],
   },
   '珠峰硅钢': {
     products: ['变压器-铁芯'],
     processes: ['①非晶合金铁心-退火', '②硅钢铁心-纵剪', '③硅钢铁心-中型叠装', '④硅钢铁心-大型叠装'],
-  },
-  '银利电气': {
-    products: ['电磁特种变压器'],
-    processes: ['①电磁铁心装配及试验'],
+    energies: ['电力'],
   },
 
   // 4. 鲁缆公司
   '鲁缆公司': {
     products: ['线缆-中低压', '线缆-高压', '线缆-特种电缆'],
-    processes: ['线缆-拉丝', '线缆-中低压-交联(干法)', '线缆-高压-交联(干法)', '特种橡缆挤出'],
+    processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）', '③线缆-高压-交联（干法）'],
+    energies: ['电力'],
   },
   '鲁缆本部': {
     products: ['线缆-中低压', '线缆-高压'],
     processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）', '③线缆-高压-交联（干法）'],
+    energies: ['电力'],
   },
   '曙光公司': {
     products: ['线缆-特种电缆'],
-    processes: ['①特种橡缆连续挤出与交联'],
-  },
-  '智缆公司': {
-    products: ['智能传感电缆'],
-    processes: ['①光电复合缆加工及测试'],
-  },
-  '昭和公司': {
-    products: ['特种导体及线缆附件'],
-    processes: ['①金属挤压及附件注塑成型'],
+    processes: [],
+    energies: ['电力'],
   },
 
   // 5. 新缆厂
   '新缆厂': {
-    products: ['线缆-中低压', '线缆-高压', '铝合金导线'],
-    processes: ['线缆-拉丝', '线缆-中低压-交联(干法)'],
+    products: ['线缆-中低压'],
+    processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
+    energies: ['电力', '氮气'],
   },
   '特变电工新疆电缆有限公司': {
     products: ['线缆-中低压'],
     processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
+    energies: ['电力', '氮气'],
   },
   '特变电工新疆线缆厂': {
     products: ['线缆-中低压'],
     processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
+    energies: ['电力', '氮气'],
+  },
+  '新缆厂本部': {
+    products: ['线缆-中低压'],
+    processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
+    energies: ['电力', '氮气'],
   },
 
   // 6. 德缆公司
   '德缆公司': {
-    products: ['线缆-中低压', '橡套矿用线缆'],
-    processes: ['线缆-拉丝', '橡套挤塑与硫化'],
+    products: [],
+    processes: ['①线缆-拉丝'],
+    energies: ['电力'],
   },
   '特变电工（德阳）电缆股份有限公司': {
-    products: ['线缆-中低压', '橡套矿用线缆'],
-    processes: ['①线缆-拉丝', '②橡套挤塑与硫化'],
+    products: [],
+    processes: ['①线缆-拉丝'],
+    energies: ['电力'],
+  },
+  '德缆公司本部': {
+    products: [],
+    processes: ['①线缆-拉丝'],
+    energies: ['电力'],
+  },
+}
+
+// 🌟 产品专属指标基准库 (当切换不同产品标签时动态驱动 5 大单耗指标数值与单位)
+export const PRODUCT_SPECIFIC_METRICS: Record<string, {
+  unitSuffix: string
+  energy: { val: string; yoy: string }
+  elec: { val: string; yoy: string }
+  steam: { val: string; yoy: string }
+  gas: { val: string; yoy: string }
+  water: { val: string; yoy: string }
+}> = {
+  '线缆-中低压': {
+    unitSuffix: 'km',
+    energy: { val: '0.317', yoy: '-6.2%' },
+    elec: { val: '2,420.5', yoy: '-5.8%' },
+    steam: { val: '3.85', yoy: '-4.5%' },
+    gas: { val: '45.2', yoy: '-4.1%' },
+    water: { val: '12.4', yoy: '-3.9%' },
+  },
+  '线缆-高压': {
+    unitSuffix: 'km',
+    energy: { val: '0.485', yoy: '-5.4%' },
+    elec: { val: '3,680.0', yoy: '-5.1%' },
+    steam: { val: '5.20', yoy: '-4.1%' },
+    gas: { val: '62.8', yoy: '-3.8%' },
+    water: { val: '18.5', yoy: '-3.5%' },
+  },
+  '线缆-特种电缆': {
+    unitSuffix: 'km',
+    energy: { val: '0.620', yoy: '-4.8%' },
+    elec: { val: '4,850.0', yoy: '-4.2%' },
+    steam: { val: '6.50', yoy: '-3.6%' },
+    gas: { val: '78.0', yoy: '-3.2%' },
+    water: { val: '22.0', yoy: '-3.0%' },
+  },
+  '变压器-高压': {
+    unitSuffix: '万kVA',
+    energy: { val: '0.328', yoy: '-5.8%' },
+    elec: { val: '2,510.0', yoy: '-5.2%' },
+    steam: { val: '3.92', yoy: '-4.8%' },
+    gas: { val: '48.0', yoy: '-4.3%' },
+    water: { val: '13.1', yoy: '-4.0%' },
+  },
+  '变压器-中低压-干变': {
+    unitSuffix: '万kVA',
+    energy: { val: '0.245', yoy: '-4.5%' },
+    elec: { val: '1,880.0', yoy: '-4.1%' },
+    steam: { val: '2.85', yoy: '-3.9%' },
+    gas: { val: '35.0', yoy: '-3.5%' },
+    water: { val: '9.8', yoy: '-3.2%' },
+  },
+  '变压器-中低压-油变': {
+    unitSuffix: '万kVA',
+    energy: { val: '0.280', yoy: '-4.9%' },
+    elec: { val: '2,150.0', yoy: '-4.6%' },
+    steam: { val: '3.30', yoy: '-4.2%' },
+    gas: { val: '41.0', yoy: '-3.9%' },
+    water: { val: '11.5', yoy: '-3.6%' },
+  },
+  '变压器-铁芯': {
+    unitSuffix: 't',
+    energy: { val: '0.115', yoy: '-3.8%' },
+    elec: { val: '890.0', yoy: '-3.5%' },
+    steam: { val: '0.00', yoy: '-0.0%' },
+    gas: { val: '0.0', yoy: '-0.0%' },
+    water: { val: '4.2', yoy: '-2.8%' },
+  },
+  '套管': {
+    unitSuffix: '支',
+    energy: { val: '0.180', yoy: '-4.2%' },
+    elec: { val: '1,380.0', yoy: '-4.0%' },
+    steam: { val: '0.00', yoy: '-0.0%' },
+    gas: { val: '0.0', yoy: '-0.0%' },
+    water: { val: '5.6', yoy: '-3.0%' },
+  },
+  '互感器': {
+    unitSuffix: '台',
+    energy: { val: '0.165', yoy: '-3.9%' },
+    elec: { val: '1,260.0', yoy: '-3.7%' },
+    steam: { val: '1.85', yoy: '-3.5%' },
+    gas: { val: '22.0', yoy: '-3.1%' },
+    water: { val: '6.8', yoy: '-2.9%' },
+  },
+  '中低压开关柜': {
+    unitSuffix: '台',
+    energy: { val: '0.095', yoy: '-4.1%' },
+    elec: { val: '720.0', yoy: '-3.9%' },
+    steam: { val: '0.00', yoy: '-0.0%' },
+    gas: { val: '0.0', yoy: '-0.0%' },
+    water: { val: '3.5', yoy: '-2.5%' },
+  },
+  'GIS': {
+    unitSuffix: '间隔',
+    energy: { val: '1.240', yoy: '-5.1%' },
+    elec: { val: '9,520.0', yoy: '-4.8%' },
+    steam: { val: '0.00', yoy: '-0.0%' },
+    gas: { val: '0.0', yoy: '-0.0%' },
+    water: { val: '28.0', yoy: '-3.8%' },
+  },
+  '干式电抗器': {
+    unitSuffix: '台',
+    energy: { val: '0.420', yoy: '-4.0%' },
+    elec: { val: '3,200.0', yoy: '-3.8%' },
+    steam: { val: '0.00', yoy: '-0.0%' },
+    gas: { val: '0.0', yoy: '-0.0%' },
+    water: { val: '14.5', yoy: '-3.1%' },
+  },
+  '电容器': {
+    unitSuffix: 'kvar',
+    energy: { val: '0.086', yoy: '-3.5%' },
+    elec: { val: '660.0', yoy: '-3.2%' },
+    steam: { val: '0.00', yoy: '-0.0%' },
+    gas: { val: '0.0', yoy: '-0.0%' },
+    water: { val: '2.8', yoy: '-2.4%' },
+  },
+  'GIL': {
+    unitSuffix: '百米',
+    energy: { val: '1.850', yoy: '-4.6%' },
+    elec: { val: '14,200.0', yoy: '-4.4%' },
+    steam: { val: '0.00', yoy: '-0.0%' },
+    gas: { val: '0.0', yoy: '-0.0%' },
+    water: { val: '42.0', yoy: '-3.5%' },
   },
 }
 
 export default function IndicatorControlPage() {
   const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
     id: 'ent_root',
-    name: '特变电工集团 (全公汇总)',
-    fullName: '特变电工集团 (全公汇总)',
+    name: '电装集团',
+    fullName: '电装集团',
     level: 'group',
     badge: '全集团',
   })
 
-  // 时间维度: 'month' | 'quarter' | 'year'
+  // 🌟 当前在板块二中手动选中的产品标签
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null)
+
+  // 时间维度: 'month' | 'quarter' | 'year' (默认月度)
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
+  // 时间范围选择
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  const [selectedYear, setSelectedYear] = useState('2026')
   
   // 🌟 点击卡片激活的 Mode B 详情指标 Mode B (Null 时为 Mode A 全景概览)
   const [activeViewMetric, setActiveViewMetric] = useState<IndicatorMetric | null>(null)
@@ -2119,24 +2374,227 @@ export default function IndicatorControlPage() {
 
   const [procSearchKey, setProcSearchKey] = useState('')
 
-  // 🌟 根据当前选中的组织节点解析其所属的 2、3 级主要产品与关键工序
+  // 🌟 根据当前选中的组织节点解析其所属的 2、3 级主要产品与关键工序 (严格匹配对应表，未登记的严禁随意填造，严格为空)
   const activeUnitInfo = useMemo(() => {
     const nodeName = selectedNode.name || ''
+    // 精确匹配
     if (UNIT_PRODUCT_PROCESS_MAPPING[nodeName]) {
       return UNIT_PRODUCT_PROCESS_MAPPING[nodeName]
     }
+    // 前缀或包含匹配 (仅对确定的企业名有效)
     for (const [key, val] of Object.entries(UNIT_PRODUCT_PROCESS_MAPPING)) {
-      if (nodeName.includes(key) || key.includes(nodeName)) {
+      if (nodeName && (nodeName === key || (nodeName.length >= 3 && key.includes(nodeName)) || (key.length >= 3 && nodeName.includes(key)))) {
         return val
       }
     }
+    // 表中未记录的单位一律为 null，允许为空，不瞎显示
     return null
   }, [selectedNode])
+
+  // 🌟 当前在板块二中选中的产品 (若未手动选，默认取所属单位的第 1 个主要产品)
+  const currentProduct = useMemo(() => {
+    if (selectedProduct && activeUnitInfo?.products?.includes(selectedProduct)) {
+      return selectedProduct
+    }
+    return activeUnitInfo?.products?.[0] || null
+  }, [selectedProduct, activeUnitInfo])
+
+  // 🌟 根据选中的产品动态生成 5 大产品管控指标 (单位产品能耗、电耗、蒸汽耗、天然气耗、水耗)
+  const currentProductControlMetrics = useMemo(() => {
+    const prodKey = currentProduct || ''
+    const spec = PRODUCT_SPECIFIC_METRICS[prodKey]
+    const targetUnit = spec ? spec.unitSuffix : '万kVA'
+
+    return [
+      {
+        id: 'pm-unit-energy',
+        name: currentProduct ? `单位产品能耗 (${currentProduct})` : '单位产品能耗 (型号)',
+        code: 'SEC-PROD-01',
+        category: 'product' as const,
+        categoryName: '二、产品管控指标',
+        unit: spec ? `tce/${spec.unitSuffix}` : 'tce/万kVA',
+        curVal: spec?.energy.val || '0.317',
+        yoy: spec?.energy.yoy || '-6.2%',
+        isYoyDown: true,
+        formula: 'e = E / M',
+        formulaDesc: `月度指标。e: 单位产品能耗，单位为 tce/${targetUnit}；E: 综合能源消耗量，单位 tce；M: 产成品产量，单位为产量单位，如 ${targetUnit}等。`,
+        tipText: `考核统计期内【${currentProduct || '产品'}】每单位合格产成品的综合能源消耗量。`,
+        trendHistory: [
+          { period: '25-09', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.08).toFixed(3)) : 0.352, mom: '-0.8%', yoy: '-5.2%' },
+          { period: '25-10', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.07).toFixed(3)) : 0.349, mom: '-0.9%', yoy: '-5.4%' },
+          { period: '25-11', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.06).toFixed(3)) : 0.346, mom: '-0.9%', yoy: '-5.5%' },
+          { period: '25-12', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.05).toFixed(3)) : 0.342, mom: '-1.2%', yoy: '-5.8%' },
+          { period: '26-01', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.04).toFixed(3)) : 0.339, mom: '-0.9%', yoy: '-5.9%' },
+          { period: '26-02', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.03).toFixed(3)) : 0.336, mom: '-0.9%', yoy: '-6.0%' },
+          { period: '26-03', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.03).toFixed(3)) : 0.333, mom: '-0.9%', yoy: '-6.1%' },
+          { period: '26-04', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.02).toFixed(3)) : 0.330, mom: '-0.9%', yoy: '-6.1%' },
+          { period: '26-05', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.02).toFixed(3)) : 0.327, mom: '-0.9%', yoy: '-6.2%' },
+          { period: '26-06', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.01).toFixed(3)) : 0.324, mom: '-0.9%', yoy: '-6.2%' },
+          { period: '26-07', value: spec ? parseFloat((parseFloat(spec.energy.val) * 1.01).toFixed(3)) : 0.320, mom: '-1.2%', yoy: '-6.2%' },
+          { period: '26-08', value: spec ? parseFloat(spec.energy.val) : 0.317, mom: '-0.9%', yoy: spec?.energy.yoy || '-6.2%' },
+        ],
+      },
+      {
+        id: 'pm-unit-electricity',
+        name: currentProduct ? `单位产品电耗 (${currentProduct})` : '单位产品电耗',
+        code: 'SEC-PROD-02',
+        category: 'product' as const,
+        categoryName: '二、产品管控指标',
+        unit: spec ? `kWh/${spec.unitSuffix}` : 'kWh/万kVA',
+        curVal: spec?.elec.val || '2,420.5',
+        yoy: spec?.elec.yoy || '-5.8%',
+        isYoyDown: true,
+        formula: 'e_elec = E_elec / M',
+        formulaDesc: `月度指标。e_elec: 单位产品电耗，单位为 kWh/${targetUnit}；E_elec: 耗电总量，单位 kWh；M: 产成品产量。`,
+        tipText: `考核统计期内【${currentProduct || '产品'}】每单位产成品消耗的电力量。`,
+        trendHistory: [
+          { period: '25-09', value: 2680.0, mom: '-0.8%', yoy: '-4.8%' },
+          { period: '25-10', value: 2650.0, mom: '-1.1%', yoy: '-5.0%' },
+          { period: '25-11', value: 2620.0, mom: '-1.1%', yoy: '-5.1%' },
+          { period: '25-12', value: 2580.0, mom: '-1.5%', yoy: '-5.3%' },
+          { period: '26-01', value: 2550.0, mom: '-1.2%', yoy: '-5.4%' },
+          { period: '26-02', value: 2520.0, mom: '-1.2%', yoy: '-5.5%' },
+          { period: '26-03', value: 2490.0, mom: '-1.2%', yoy: '-5.6%' },
+          { period: '26-04', value: 2470.0, mom: '-0.8%', yoy: '-5.6%' },
+          { period: '26-05', value: 2450.0, mom: '-0.8%', yoy: '-5.7%' },
+          { period: '26-06', value: 2440.0, mom: '-0.4%', yoy: '-5.7%' },
+          { period: '26-07', value: 2430.0, mom: '-0.4%', yoy: '-5.8%' },
+          { period: '26-08', value: spec ? parseFloat(spec.elec.val.replace(',', '')) : 2420.5, mom: '-0.4%', yoy: spec?.elec.yoy || '-5.8%' },
+        ],
+      },
+      {
+        id: 'pm-unit-steam',
+        name: currentProduct ? `单位产品蒸汽耗 (${currentProduct})` : '单位产品蒸汽耗',
+        code: 'SEC-PROD-03',
+        category: 'product' as const,
+        categoryName: '二、产品管控指标',
+        unit: spec ? `GJ/${spec.unitSuffix}` : 'GJ/万kVA',
+        curVal: spec?.steam.val || '3.85',
+        yoy: spec?.steam.yoy || '-4.5%',
+        isYoyDown: true,
+        formula: 'e_steam = E_steam / M',
+        formulaDesc: `月度指标。e_steam: 单位产品蒸汽耗，单位为 GJ/${targetUnit}；E_steam: 消耗蒸汽总量折算热量，单位 GJ；M: 产成品产量。`,
+        tipText: `考核【${currentProduct || '产品'}】生产工序（如高压干燥、固化等）的蒸汽能效。`,
+        trendHistory: [
+          { period: '25-09', value: 4.25, mom: '-0.7%', yoy: '-3.8%' },
+          { period: '25-10', value: 4.20, mom: '-1.2%', yoy: '-3.9%' },
+          { period: '25-11', value: 4.15, mom: '-1.2%', yoy: '-4.0%' },
+          { period: '25-12', value: 4.10, mom: '-1.2%', yoy: '-4.1%' },
+          { period: '26-01', value: 4.05, mom: '-1.2%', yoy: '-4.2%' },
+          { period: '26-02', value: 4.00, mom: '-1.2%', yoy: '-4.3%' },
+          { period: '26-03', value: 3.96, mom: '-1.0%', yoy: '-4.3%' },
+          { period: '26-04', value: 3.93, mom: '-0.8%', yoy: '-4.4%' },
+          { period: '26-05', value: 3.90, mom: '-0.8%', yoy: '-4.4%' },
+          { period: '26-06', value: 3.88, mom: '-0.5%', yoy: '-4.4%' },
+          { period: '26-07', value: 3.86, mom: '-0.5%', yoy: '-4.5%' },
+          { period: '26-08', value: spec ? parseFloat(spec.steam.val) : 3.85, mom: '-0.3%', yoy: spec?.steam.yoy || '-4.5%' },
+        ],
+      },
+      {
+        id: 'pm-unit-gas',
+        name: currentProduct ? `单位产品天然气耗 (${currentProduct})` : '单位产品天然气耗',
+        code: 'SEC-PROD-04',
+        category: 'product' as const,
+        categoryName: '二、产品管控指标',
+        unit: spec ? `m³/${spec.unitSuffix}` : 'm³/万kVA',
+        curVal: spec?.gas.val || '45.2',
+        yoy: spec?.gas.yoy || '-4.1%',
+        isYoyDown: true,
+        formula: 'e_gas = E_gas / M',
+        formulaDesc: `月度指标。e_gas: 单位产品天然气耗，单位为 m³/${targetUnit}；E_gas: 天然气总耗量，单位 m³；M: 产成品产量。`,
+        tipText: `考核【${currentProduct || '产品'}】生产供热与工艺用气单耗。`,
+        trendHistory: [
+          { period: '25-09', value: 49.5, mom: '-0.8%', yoy: '-3.2%' },
+          { period: '25-10', value: 49.0, mom: '-1.0%', yoy: '-3.4%' },
+          { period: '25-11', value: 48.5, mom: '-1.0%', yoy: '-3.5%' },
+          { period: '25-12', value: 47.8, mom: '-1.4%', yoy: '-3.6%' },
+          { period: '26-01', value: 47.2, mom: '-1.3%', yoy: '-3.8%' },
+          { period: '26-02', value: 46.8, mom: '-0.8%', yoy: '-3.8%' },
+          { period: '26-03', value: 46.3, mom: '-1.1%', yoy: '-3.9%' },
+          { period: '26-04', value: 45.9, mom: '-0.9%', yoy: '-4.0%' },
+          { period: '26-05', value: 45.6, mom: '-0.7%', yoy: '-4.0%' },
+          { period: '26-06', value: 45.4, mom: '-0.4%', yoy: '-4.1%' },
+          { period: '26-07', value: 45.3, mom: '-0.2%', yoy: '-4.1%' },
+          { period: '26-08', value: spec ? parseFloat(spec.gas.val) : 45.2, mom: '-0.2%', yoy: spec?.gas.yoy || '-4.1%' },
+        ],
+      },
+      {
+        id: 'pm-unit-water',
+        name: currentProduct ? `单位产品水耗 (${currentProduct})` : '单位产品水耗',
+        code: 'SEC-PROD-05',
+        category: 'product' as const,
+        categoryName: '二、产品管控指标',
+        unit: spec ? `t/${spec.unitSuffix}` : 't/万kVA',
+        curVal: spec?.water.val || '12.4',
+        yoy: spec?.water.yoy || '-3.9%',
+        isYoyDown: true,
+        formula: 'e_water = W_total / M',
+        formulaDesc: `月度指标。e_water: 单位产品取水量，单位为 t/${targetUnit}；W_total: 新鲜水消耗总量，单位 t；M: 产成品产量。`,
+        tipText: `考核【${currentProduct || '产品'}】每单位产成品的工业新鲜水耗用水平。`,
+        trendHistory: [
+          { period: '25-09', value: 13.5, mom: '-0.7%', yoy: '-3.1%' },
+          { period: '25-10', value: 13.4, mom: '-0.7%', yoy: '-3.2%' },
+          { period: '25-11', value: 13.2, mom: '-1.5%', yoy: '-3.3%' },
+          { period: '25-12', value: 13.0, mom: '-1.5%', yoy: '-3.5%' },
+          { period: '26-01', value: 12.9, mom: '-0.8%', yoy: '-3.6%' },
+          { period: '26-02', value: 12.8, mom: '-0.8%', yoy: '-3.6%' },
+          { period: '26-03', value: 12.7, mom: '-0.8%', yoy: '-3.7%' },
+          { period: '26-04', value: 12.6, mom: '-0.8%', yoy: '-3.8%' },
+          { period: '26-05', value: 12.5, mom: '-0.8%', yoy: '-3.8%' },
+          { period: '26-06', value: 12.5, mom: '0.0%', yoy: '-3.8%' },
+          { period: '26-07', value: 12.4, mom: '-0.8%', yoy: '-3.9%' },
+          { period: '26-08', value: spec ? parseFloat(spec.water.val) : 12.4, mom: '0.0%', yoy: spec?.water.yoy || '-3.9%' },
+        ],
+      },
+    ]
+  }, [currentProduct])
 
   // 判断当前选中节点层级
   const isGroupLevel = selectedNode.level === 'group' || selectedNode.id === 'ent_root'
   const isCompanyLevel = selectedNode.level === 'company'
   const isWorkshopLevel = selectedNode.level === 'workshop'
+
+  // 🌟 根据当前查看的指标与所属单位的“工序主要消耗能源”动态计算数据明细中呈现的能源列
+  const displayedEnergyColumns = useMemo(() => {
+    if (!activeViewMetric) return []
+
+    // 1. 若当前查看的是特定单一介质指标
+    if (activeViewMetric.name.includes('电耗') || activeViewMetric.name.includes('用电')) {
+      return ['电力']
+    }
+    if (activeViewMetric.name.includes('水耗') || activeViewMetric.name.includes('用水')) {
+      return ['水']
+    }
+    if (activeViewMetric.name.includes('天然气') || activeViewMetric.name.includes('用气')) {
+      return ['天然气']
+    }
+    if (activeViewMetric.name.includes('蒸汽')) {
+      return ['蒸汽']
+    }
+    if (activeViewMetric.name.includes('氮气')) {
+      return ['氮气']
+    }
+
+    // 2. 若为工序指标，检查指标自身涉及的能源类型
+    if (activeViewMetric.category === 'process') {
+      const pName = activeViewMetric.name
+      if (pName.includes('干燥') || pName.includes('固化')) {
+        return ['电力', '蒸汽']
+      }
+      if (pName.includes('交联') && (selectedNode.name.includes('新缆') || selectedNode.name.includes('新疆'))) {
+        return ['电力', '氮气']
+      }
+      return ['电力']
+    }
+
+    // 3. 若为综合指标 / 单位产品能耗，根据单位在表格中登记的“工序主要消耗能源”进行展示
+    if (activeUnitInfo?.energies && activeUnitInfo.energies.length > 0) {
+      return activeUnitInfo.energies
+    }
+
+    // 4. 集团层级默认综合四介质
+    return ['电力', '水', '天然气', '蒸汽']
+  }, [activeViewMetric, activeUnitInfo, selectedNode])
 
   // 工序指标搜索过滤
   const filteredProcessMetrics = useMemo(() => {
@@ -2197,28 +2655,20 @@ export default function IndicatorControlPage() {
         {activeViewMetric !== null ? (
           <div className="space-y-3.5 animate-in fade-in zoom-in-95 duration-150">
             {/* 顶部面包屑与全景概览返回导航 */}
-            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setActiveViewMetric(null)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer transition-colors shadow-2xs"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer transition-colors shadow-2xs shrink-0"
                 >
                   <ChevronLeft className="size-4 text-slate-500" />
                   <span>返回</span>
                 </button>
                 <div className="h-4 w-px bg-slate-200" />
-                <div>
-                  <h1 className="text-xs font-extrabold text-slate-900 flex items-center gap-2">
-                    <span>{activeViewMetric.name} ({activeViewMetric.unit})</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-mono font-bold">
-                      {activeViewMetric.categoryName}
-                    </span>
-                  </h1>
-                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    考核单位：【<strong className="text-slate-700">{selectedNode.name}</strong>】 · 数据频率：按月汇总 · 归口中心：零碳园区集控中心
-                  </p>
-                </div>
+                <h1 className="text-sm font-extrabold text-slate-900">
+                  {activeViewMetric.name} ({activeViewMetric.unit})
+                </h1>
               </div>
             </div>
 
@@ -2276,21 +2726,16 @@ export default function IndicatorControlPage() {
               </div>
             </div>
 
-            {/* 中间图表：近 12 个月数据变化趋势走势 */}
+            {/* 中间图表：数据变化趋势 */}
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-[#1677ff]" />
                   <h3 className="text-xs font-bold text-slate-800">
-                    ● 近 12 个月数据变化趋势与基准对比走势
+                    数据变化趋势
                   </h3>
                   <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 font-mono">
                     2025.09 ~ 2026.08
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-xs font-mono">
-                  <span className="flex items-center gap-1 text-[#1677ff] font-bold">
-                    <span className="size-2.5 rounded-full bg-[#1677ff]" /> 实测值走势
                   </span>
                 </div>
               </div>
@@ -2331,10 +2776,15 @@ export default function IndicatorControlPage() {
                   <thead>
                     <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
                       <th className="py-2.5 px-3">时间</th>
-                      <th className="py-2.5 px-3 text-right">⚡ 用电量 (万kWh)</th>
-                      <th className="py-2.5 px-3 text-right">💧 用水量 (万t)</th>
-                      <th className="py-2.5 px-3 text-right">🔥 用气量 (万m³)</th>
-                      <th className="py-2.5 px-3 text-right">💨 蒸汽量 (t)</th>
+                      {displayedEnergyColumns.map((eKey) => {
+                        const col = ENERGY_COLUMN_DEFINITIONS[eKey]
+                        if (!col) return null
+                        return (
+                          <th key={col.key} className={cn('py-2.5 px-3 text-right', col.headerClass)}>
+                            {col.label} ({col.unit})
+                          </th>
+                        )
+                      })}
                       <th className="py-2.5 px-3 font-mono text-right">月度实测值</th>
                       <th className="py-2.5 px-3 font-mono text-right">环比变化 (MoM)</th>
                       <th className="py-2.5 px-3 font-mono text-right">同比变化 (YoY)</th>
@@ -2344,20 +2794,21 @@ export default function IndicatorControlPage() {
                     {[...activeViewMetric.trendHistory].reverse().map((item, revIdx) => {
                       const idx = activeViewMetric.trendHistory.length - 1 - revIdx
                       const baseFactor = item.value / (activeViewMetric.trendHistory[activeViewMetric.trendHistory.length - 1].value || 1)
-                      const elecVal = (324.6 + idx * 2.3).toFixed(1)
-                      const waterVal = (4.06 + idx * 0.03).toFixed(2)
-                      const gasVal = (16.7 + idx * 0.12).toFixed(1)
-                      const steamVal = (362 + idx * 2.5).toFixed(0)
 
                       return (
                         <tr key={item.period} className="hover:bg-slate-50/80 transition-colors">
                           <td className="py-2.5 px-3 font-bold">
                             {item.period === '26-08' ? '2026年08月' : `20${item.period.replace('-', '年')}月`}
                           </td>
-                          <td className="py-2.5 px-3 text-right text-blue-700 font-bold">{elecVal}</td>
-                          <td className="py-2.5 px-3 text-right text-cyan-700 font-bold">{waterVal}</td>
-                          <td className="py-2.5 px-3 text-right text-amber-700 font-bold">{gasVal}</td>
-                          <td className="py-2.5 px-3 text-right text-purple-700 font-bold">{steamVal}</td>
+                          {displayedEnergyColumns.map((eKey) => {
+                            const col = ENERGY_COLUMN_DEFINITIONS[eKey]
+                            if (!col) return null
+                            return (
+                              <td key={col.key} className={cn('py-2.5 px-3 text-right', col.valClass)}>
+                                {col.calcVal(idx, baseFactor)}
+                              </td>
+                            )
+                          })}
                           <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff]">
                             {item.value} {activeViewMetric.unit}
                           </td>
@@ -2389,48 +2840,103 @@ export default function IndicatorControlPage() {
                 <h1 className="text-base font-bold text-slate-800">指标管控</h1>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                {/* 时间维度统一 (月度/季度/年度) */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                {/* 时间维度统一 (月度 / 季度 / 年度) */}
                 <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
                   <button
                     type="button"
                     onClick={() => setTimeDim('month')}
                     className={cn(
-                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                       timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                     )}
                   >
-                    月度 (08月)
+                    月度
                   </button>
                   <button
                     type="button"
                     onClick={() => setTimeDim('quarter')}
                     className={cn(
-                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                       timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                     )}
                   >
-                    季度 (Q3)
+                    季度
                   </button>
                   <button
                     type="button"
                     onClick={() => setTimeDim('year')}
                     className={cn(
-                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                       timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                     )}
                   >
-                    年度 (2026)
+                    年度
                   </button>
                 </div>
 
+                {/* 时间范围选择控件 (随维度自适应切换) */}
+                {timeDim === 'month' && (
+                  <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+                    <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                    <input
+                      type="month"
+                      value={selectedMonthRange.start}
+                      onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+                      className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                      title="起始月份"
+                    />
+                    <span className="text-slate-400 font-sans">至</span>
+                    <input
+                      type="month"
+                      value={selectedMonthRange.end}
+                      onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+                      className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                      title="结束月份"
+                    />
+                  </div>
+                )}
+
+                {timeDim === 'quarter' && (
+                  <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                    <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                    <select
+                      value={selectedQuarter}
+                      onChange={(e) => setSelectedQuarter(e.target.value)}
+                      className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                    >
+                      <option value="2026-Q1">2026年 第1季度 (Q1)</option>
+                      <option value="2026-Q2">2026年 第2季度 (Q2)</option>
+                      <option value="2026-Q3">2026年 第3季度 (Q3)</option>
+                      <option value="2026-Q4">2026年 第4季度 (Q4)</option>
+                      <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+                    </select>
+                  </div>
+                )}
+
+                {timeDim === 'year' && (
+                  <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                    <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(e.target.value)}
+                      className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                    >
+                      <option value="2026">2026 年度</option>
+                      <option value="2025">2025 年度</option>
+                      <option value="2024">2024 年度</option>
+                    </select>
+                  </div>
+                )}
+
+                {/* 导出按钮 */}
                 <button
                   type="button"
                   onClick={() => alert(`正在导出【${selectedNode.name}】指标管控报表 (Excel)...`)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
                 >
                   <Download className="size-3.5" />
-                  <span>导出指标数据表</span>
+                  <span>导出</span>
                 </button>
               </div>
             </div>
@@ -2521,7 +3027,7 @@ export default function IndicatorControlPage() {
                     <div className="flex items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
                       <h3 className="text-xs font-bold text-slate-900">
-                        【二、一级 到 二级、三级节点数据变化桑基图】
+                        【二、数据变化桑基图】
                       </h3>
                     </div>
                   </div>
@@ -2537,61 +3043,65 @@ export default function IndicatorControlPage() {
                   </div>
                 </div>
 
-                {/* 三、6 大经营单位综合能效指标横向对比 */}
+                {/* 三、产品管控指标 (集团全谱系主要产品联动) */}
                 <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-amber-500 shrink-0" />
                       <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                        【三、6 大经营单位综合能效指标横向对比】
+                        【三、产品管控指标】
                       </h2>
+                      {activeUnitInfo?.products && activeUnitInfo.products.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5 font-sans">
+                          {activeUnitInfo.products.map((prod) => {
+                            const isActive = currentProduct === prod
+                            return (
+                              <button
+                                key={prod}
+                                type="button"
+                                onClick={() => setSelectedProduct(prod)}
+                                className={cn(
+                                  'text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-all cursor-pointer shadow-2xs select-none flex items-center gap-1',
+                                  isActive
+                                    ? 'text-white bg-amber-600 border-amber-600 shadow-xs scale-105'
+                                    : 'text-amber-800 bg-amber-50 hover:bg-amber-100/80 border-amber-200/80 hover:border-amber-300'
+                                )}
+                              >
+                                {isActive && <span className="size-1.5 rounded-full bg-white animate-pulse" />}
+                                <span>{prod}</span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
-                    <span className="text-xs text-slate-400 font-mono">
-                      考核周期: 2026年08月 · 6 大制造公司能耗与费用横向占比
-                    </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 font-mono">
-                    {GROUP_COMPANIES_METRICS.map((c, idx) => (
-                      <div
-                        key={c.id}
-                        onClick={() => {
-                          setSelectedNode({
-                            id: c.id,
-                            name: c.name,
-                            fullName: c.fullName,
-                            level: 'company',
-                            badge: c.industryName,
-                          })
-                        }}
-                        className={cn(
-                          'p-3.5 rounded-xl border transition-all cursor-pointer space-y-2 group shadow-2xs select-none',
-                          idx === 0
-                            ? 'bg-blue-50/50 border-blue-200 hover:border-blue-300'
-                            : 'bg-slate-50 border-slate-200 hover:border-blue-300 hover:bg-blue-50/30'
-                        )}
-                      >
-                        <div className="flex justify-between items-center text-xs font-sans">
-                          <span className="font-bold text-slate-900">{idx + 1}. {c.name}</span>
-                          <span className={cn(
-                            'px-1.5 py-0.2 rounded font-bold text-[10px]',
-                            idx === 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-700'
-                          )}>
-                            能耗占比 {c.energyShare}
-                          </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                    {currentProductControlMetrics.map((pm) => {
+                      return (
+                        <div
+                          key={pm.id}
+                          onClick={() => setActiveViewMetric(pm)}
+                          className="p-3.5 bg-amber-50/30 hover:bg-amber-50/80 rounded-xl border border-amber-200/80 hover:border-amber-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                        >
+                          <div className="flex items-center justify-between font-sans">
+                            <span className="text-[11px] font-bold text-slate-800 truncate" title={pm.name}>
+                              {pm.name}
+                            </span>
+                          </div>
+
+                          <div className="text-lg font-extrabold text-slate-900 group-hover:text-amber-700 transition-colors">
+                            {pm.curVal} <span className="text-[10.5px] font-normal text-slate-500 font-sans">{pm.unit}</span>
+                          </div>
+
+                          <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-sans">
+                            <span className="text-slate-500">同比</span>
+                            <span className="font-bold text-emerald-600 font-mono">{pm.yoy} ↓</span>
+                          </div>
                         </div>
-                        <div className={cn(
-                          'text-xl font-bold',
-                          idx === 0 ? 'text-[#1677ff]' : 'text-slate-900'
-                        )}>
-                          {c.costWan.toFixed(1)} <span className="text-xs font-normal text-slate-500 font-sans">万元 ({c.energyTce.toFixed(1)} tce)</span>
-                        </div>
-                        <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200/60 font-sans flex justify-between">
-                          <span>费用占比: <strong className="text-slate-800 font-mono">{c.costShare}</strong></span>
-                          <span className="text-emerald-600 font-bold">同比 {c.yoy} ↓</span>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               </div>
@@ -2635,20 +3145,8 @@ export default function IndicatorControlPage() {
                           )}
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
-                            {m.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{m.unit}</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setActiveViewMetric(m)
-                            }}
-                            className="text-[11px] font-medium text-[#1677ff] hover:text-blue-700 hover:bg-blue-50 px-2 py-0.5 rounded border border-blue-200 transition-all cursor-pointer flex items-center gap-0.5 shrink-0"
-                          >
-                            <span>详情</span>
-                          </button>
+                        <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
+                          {m.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{m.unit}</span>
                         </div>
 
                         <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] font-sans">
@@ -2660,7 +3158,7 @@ export default function IndicatorControlPage() {
                   </div>
                 </div>
 
-                {/* 二、产品管控指标 (5卡片/行 + 跳转链接) */}
+                {/* 二、产品管控指标 (5卡片/行) */}
                 <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                     <div className="flex flex-wrap items-center gap-2">
@@ -2669,26 +3167,33 @@ export default function IndicatorControlPage() {
                         【二、产品管控指标】
                       </h2>
                       {activeUnitInfo?.products && activeUnitInfo.products.length > 0 && (
-                        <div className="flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50/90 px-2.5 py-1 rounded-lg border border-amber-200/90 font-sans shadow-2xs">
-                          <span className="text-amber-700 font-semibold text-[11.5px]">主要产品：</span>
-                          <span className="font-bold text-amber-900">{activeUnitInfo.products.join(' · ')}</span>
+                        <div className="flex flex-wrap items-center gap-1.5 font-sans">
+                          {activeUnitInfo.products.map((prod) => {
+                            const isActive = currentProduct === prod
+                            return (
+                              <button
+                                key={prod}
+                                type="button"
+                                onClick={() => setSelectedProduct(prod)}
+                                className={cn(
+                                  'text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-all cursor-pointer shadow-2xs select-none flex items-center gap-1',
+                                  isActive
+                                    ? 'text-white bg-amber-600 border-amber-600 shadow-xs scale-105'
+                                    : 'text-amber-800 bg-amber-50 hover:bg-amber-100/80 border-amber-200/80 hover:border-amber-300'
+                                )}
+                              >
+                                {isActive && <span className="size-1.5 rounded-full bg-white animate-pulse" />}
+                                <span>{prod}</span>
+                              </button>
+                            )
+                          })}
                         </div>
                       )}
                     </div>
-                    <Link
-                      href="/zero-carbon/energy/unit-product"
-                      className="flex items-center gap-1 text-xs text-[#1677ff] font-bold hover:underline"
-                    >
-                      <span>跳转到【单位产品能耗分析 (产线-产品种类-产品型号)】</span>
-                      <ArrowRight className="size-3.5" />
-                    </Link>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
-                    {PRODUCT_CONTROL_METRICS.map((pm, idx) => {
-                      const dynamicName = idx === 0 && activeUnitInfo?.products?.[0]
-                        ? `单位产品能耗 (${activeUnitInfo.products[0]})`
-                        : pm.name
+                    {currentProductControlMetrics.map((pm) => {
                       return (
                         <div
                           key={pm.id}
@@ -2696,8 +3201,8 @@ export default function IndicatorControlPage() {
                           className="p-3.5 bg-amber-50/30 hover:bg-amber-50/80 rounded-xl border border-amber-200/80 hover:border-amber-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
                         >
                           <div className="flex items-center justify-between font-sans">
-                            <span className="text-[11px] font-bold text-slate-800 truncate" title={dynamicName}>
-                              {dynamicName}
+                            <span className="text-[11px] font-bold text-slate-800 truncate" title={pm.name}>
+                              {pm.name}
                             </span>
                           </div>
 
@@ -2724,9 +3229,15 @@ export default function IndicatorControlPage() {
                         【三、关键制造工序能效管控指标】
                       </h2>
                       {activeUnitInfo?.processes && activeUnitInfo.processes.length > 0 && (
-                        <div className="flex items-center gap-1.5 text-xs text-purple-900 bg-purple-50/90 px-2.5 py-1 rounded-lg border border-purple-200/90 font-sans shadow-2xs">
-                          <span className="text-purple-700 font-semibold text-[11.5px]">涉及关键工序：</span>
-                          <span className="font-bold text-purple-900">{activeUnitInfo.processes.join(' · ')}</span>
+                        <div className="flex flex-wrap items-center gap-1.5 font-sans">
+                          {activeUnitInfo.processes.map((proc) => (
+                            <span
+                              key={proc}
+                              className="text-[11px] font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200/80 shadow-2xs"
+                            >
+                              {proc}
+                            </span>
+                          ))}
                         </div>
                       )}
                     </div>
