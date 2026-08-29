@@ -440,7 +440,7 @@ export default function EnergyStructureAnalysisPage() {
                 type="button"
                 onClick={() => setTimeDim('month')}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  'px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer',
                   timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
@@ -450,7 +450,7 @@ export default function EnergyStructureAnalysisPage() {
                 type="button"
                 onClick={() => setTimeDim('quarter')}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  'px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer',
                   timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
@@ -460,7 +460,7 @@ export default function EnergyStructureAnalysisPage() {
                 type="button"
                 onClick={() => setTimeDim('year')}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  'px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer',
                   timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
@@ -894,42 +894,7 @@ export default function EnergyStructureAnalysisPage() {
         )}
 
         {/* ========================================================================= */}
-        {/* 🌟 3. 各类能源占比的变化趋势 (集团页 & 经营单位页均包含)                    */}
-        {/* ========================================================================= */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-          <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
-            <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-emerald-500" />
-              <h3 className="text-xs font-bold text-slate-900">
-                01月 至 08月 各类能源占比历史变化趋势曲线 (%)
-              </h3>
-            </div>
-            <div className="flex items-center gap-3 text-xs font-sans text-slate-500">
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#1677ff]" /> 市电占比</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-500" /> 直供绿电占比</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-amber-500" /> 天然气占比</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-purple-500" /> 外购蒸汽占比</span>
-            </div>
-          </div>
-
-          <div className="h-[260px]">
-            <LineTrend
-              data={isGroupLevel ? GROUP_STRUCTURE_TREND : companyStructureTrend}
-              xKey="month"
-              height={260}
-              yUnit="%"
-              lines={[
-                { key: '市电占比', name: '市网供电占比 (%)', color: '#1677ff' },
-                { key: '直供绿电占比', name: '直供绿电占比 (%)', color: '#10b981' },
-                { key: '天然气占比', name: '天然气占比 (%)', color: '#f59e0b' },
-                { key: '外购蒸汽占比', name: '外购蒸汽占比 (%)', color: '#8b5cf6' },
-              ]}
-            />
-          </div>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* 🌟 4. 经营单位及项目公司视角：该单位自身用能结构占比分析                    */}
+        {/* 🌟 3. 经营单位及项目公司视角：该单位自身用能结构占比分析 (移至趋势图上方) */}
         {/* ========================================================================= */}
         {!isGroupLevel && (
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
@@ -937,7 +902,7 @@ export default function EnergyStructureAnalysisPage() {
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-[#1677ff]" />
                 <h3 className="text-xs font-bold text-slate-900">
-                  【{activeData.name}】各类能源介质消费构成占比与折标煤对照明细
+                  各类能源介质消费构成占比与折标煤对照明细
                 </h3>
               </div>
               <span className="text-xs text-slate-400 font-mono">
@@ -1073,6 +1038,41 @@ export default function EnergyStructureAnalysisPage() {
             </div>
           </div>
         )}
+
+        {/* ========================================================================= */}
+        {/* 🌟 4. 各类能源占比的变化趋势 (集团页 & 经营单位页均包含，置于下方)          */}
+        {/* ========================================================================= */}
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+          <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
+            <div className="flex items-center gap-2">
+              <span className="size-2 rounded-full bg-emerald-500" />
+              <h3 className="text-xs font-bold text-slate-900">
+                01月 至 08月 各类能源占比历史变化趋势曲线 (%)
+              </h3>
+            </div>
+            <div className="flex items-center gap-3 text-xs font-sans text-slate-500">
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#1677ff]" /> 市电占比</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-500" /> 直供绿电占比</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-amber-500" /> 天然气占比</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-purple-500" /> 外购蒸汽占比</span>
+            </div>
+          </div>
+
+          <div className="h-[260px]">
+            <LineTrend
+              data={isGroupLevel ? GROUP_STRUCTURE_TREND : companyStructureTrend}
+              xKey="month"
+              height={260}
+              yUnit="%"
+              lines={[
+                { key: '市电占比', name: '市网供电占比 (%)', color: '#1677ff' },
+                { key: '直供绿电占比', name: '直供绿电占比 (%)', color: '#10b981' },
+                { key: '天然气占比', name: '天然气占比 (%)', color: '#f59e0b' },
+                { key: '外购蒸汽占比', name: '外购蒸汽占比 (%)', color: '#8b5cf6' },
+              ]}
+            />
+          </div>
+        </div>
       </div>
     </div>
   )
