@@ -6,12 +6,43 @@ import { usePathname } from 'next/navigation'
 import { Activity, Calendar, Download } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export function OnlineHeader() {
+export interface OnlineHeaderProps {
+  startMonth?: string
+  endMonth?: string
+  onMonthRangeChange?: (start: string, end: string) => void
+  timeDim?: 'month' | 'quarter' | 'year'
+  onTimeDimChange?: (dim: 'month' | 'quarter' | 'year') => void
+}
+
+export function OnlineHeader({
+  startMonth: propStartMonth,
+  endMonth: propEndMonth,
+  onMonthRangeChange,
+  timeDim: propTimeDim,
+  onTimeDimChange,
+}: OnlineHeaderProps = {}) {
   const pathname = usePathname()
-  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
-  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+  const [internalTimeDim, setInternalTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
+  const [internalMonthRange, setInternalMonthRange] = useState({ start: '2026-01', end: '2026-08' })
   const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
   const [selectedYear, setSelectedYear] = useState('2026')
+
+  const timeDim = propTimeDim || internalTimeDim
+  const setTimeDim = (dim: 'month' | 'quarter' | 'year') => {
+    setInternalTimeDim(dim)
+    onTimeDimChange?.(dim)
+  }
+
+  const startMonth = propStartMonth || internalMonthRange.start
+  const endMonth = propEndMonth || internalMonthRange.end
+  const handleStartMonthChange = (val: string) => {
+    setInternalMonthRange((prev) => ({ ...prev, start: val }))
+    onMonthRangeChange?.(val, endMonth)
+  }
+  const handleEndMonthChange = (val: string) => {
+    setInternalMonthRange((prev) => ({ ...prev, end: val }))
+    onMonthRangeChange?.(startMonth, val)
+  }
 
   return (
     <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
@@ -91,16 +122,16 @@ export function OnlineHeader() {
             <Calendar className="size-3.5 text-slate-400 shrink-0" />
             <input
               type="month"
-              value={selectedMonthRange.start}
-              onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+              value={startMonth}
+              onChange={(e) => handleStartMonthChange(e.target.value)}
               className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
               title="起始月份"
             />
             <span className="text-slate-400 font-sans">至</span>
             <input
               type="month"
-              value={selectedMonthRange.end}
-              onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+              value={endMonth}
+              onChange={(e) => handleEndMonthChange(e.target.value)}
               className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
               title="结束月份"
             />

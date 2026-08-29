@@ -532,74 +532,14 @@ export default function UsageMonitoringPage() {
       {/* 🌟 右侧主面板 */}
       <div className="flex-1 min-w-0 space-y-3.5">
         {/* 1. 顶部 Header (含在线监测 2 大 Tab: 用能监测 / 设备监测 + 统一时间筛选 + 导出) */}
-        <OnlineHeader />
-
-        {/* 2. 监测对象概览与月份区间快捷控制条 */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="size-8 rounded-lg bg-blue-50 text-[#1677ff] flex items-center justify-center font-bold">
-              {activeData.orgType === 'park' ? <Trees className="size-4 text-emerald-600" /> : <Building2 className="size-4 text-[#1677ff]" />}
-            </div>
-            <div>
-              <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
-                <span>{activeData.name} · 用能在线监测</span>
-                <span className="text-[10.5px] font-mono px-2 py-0.2 rounded bg-emerald-50 text-emerald-700 font-bold">
-                  {activeData.orgType === 'park' ? '零碳园区' : '制造基地'}
-                </span>
-              </div>
-              <div className="text-[11px] text-slate-400 font-sans pt-0.5">
-                区域位置: {activeData.location} · 连续日频采集，按日更新
-              </div>
-            </div>
-          </div>
-
-          {/* 月度区间时间筛选 (几月到几月) */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="text-xs text-slate-600 font-medium font-sans">曲线查看区间:</span>
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
-              <input
-                type="month"
-                value={startMonth}
-                onChange={(e) => setStartMonth(e.target.value)}
-                className="bg-transparent border-0 text-slate-800 font-bold focus:outline-none cursor-pointer"
-                title="起始月份"
-              />
-              <span className="text-slate-400 font-sans">至</span>
-              <input
-                type="month"
-                value={endMonth}
-                onChange={(e) => setEndMonth(e.target.value)}
-                className="bg-transparent border-0 text-slate-800 font-bold focus:outline-none cursor-pointer"
-                title="结束月份"
-              />
-            </div>
-
-            {/* 快捷时段选择 */}
-            <div className="flex items-center gap-1 text-[11px] font-sans">
-              <button
-                type="button"
-                onClick={() => {
-                  setStartMonth('2026-06')
-                  setEndMonth('2026-08')
-                }}
-                className="px-2 py-0.8 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors cursor-pointer"
-              >
-                近3月
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setStartMonth('2026-01')
-                  setEndMonth('2026-08')
-                }}
-                className="px-2 py-0.8 rounded bg-blue-50 text-[#1677ff] hover:bg-blue-100 font-bold transition-colors cursor-pointer"
-              >
-                今年至今
-              </button>
-            </div>
-          </div>
-        </div>
+        <OnlineHeader
+          startMonth={startMonth}
+          endMonth={endMonth}
+          onMonthRangeChange={(start, end) => {
+            setStartMonth(start)
+            setEndMonth(end)
+          }}
+        />
 
         {/* 3. 核心 8 大能源介质消费大盘卡片 */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
