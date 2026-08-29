@@ -68,8 +68,8 @@ export function PortalView() {
             <span>运营平台</span>
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            全面赋能特变电工 <strong className="text-blue-600 font-semibold">15 个零碳产业园区</strong>、<strong className="text-blue-600 font-semibold">21 家项目工厂</strong>能碳时序监控、<strong className="text-slate-800 font-semibold">65+ 项管控指标</strong>穿透、绿电消纳分析、欧盟 CBAM 出口申报与全生命周期碳足迹核算。
+          <p className="text-xs sm:text-sm text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            能碳一体化运营服务特变电工电气装备产业以实测数据牵引各经营单位绿色低碳转型、构建应对市场绿色招采快速响应能力。
           </p>
 
           {/* 核心价值微标签 */}
