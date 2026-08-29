@@ -1664,17 +1664,6 @@ export default function IndicatorControlPage() {
                   </p>
                 </div>
               </div>
-
-              <div className="flex items-center gap-3 font-mono">
-                <div className="text-right">
-                  <span className="text-[10px] text-slate-400 block font-sans">当期实测值</span>
-                  <strong className="text-base text-slate-900 font-extrabold">{activeViewMetric.curVal} <span className="text-xs font-normal text-slate-500">{activeViewMetric.unit}</span></strong>
-                </div>
-                <div className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-xs border border-emerald-200 flex items-center gap-1">
-                  <span className="size-1.5 rounded-full bg-emerald-500" />
-                  <span>常规监测 ({activeViewMetric.yoy} ↓)</span>
-                </div>
-              </div>
             </div>
 
             {/* 顶部 3 栏信息卡片 */}
@@ -1778,7 +1767,6 @@ export default function IndicatorControlPage() {
                       <th className="py-2.5 px-3 font-mono text-right">月度实测值</th>
                       <th className="py-2.5 px-3 font-mono text-right">环比变化 (MoM)</th>
                       <th className="py-2.5 px-3 font-mono text-right">同比变化 (YoY)</th>
-                      <th className="py-2.5 px-3 text-center">合规状态</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-800">
@@ -1806,11 +1794,6 @@ export default function IndicatorControlPage() {
                           </td>
                           <td className={cn('py-2.5 px-3 text-right font-bold', item.yoy.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
                             {item.yoy}
-                          </td>
-                          <td className="py-2.5 px-3 text-center font-sans">
-                            <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200">
-                              ● 常规监测
-                            </span>
                           </td>
                         </tr>
                       )
