@@ -384,28 +384,8 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             </div>
           </div>
 
-          {/* 右侧工具栏：开发手册 + 管理配置 + 用户头像 */}
+          {/* 右侧工具栏：用户头像 */}
           <div className="flex items-center gap-3">
-            <Link
-              href="/docs"
-              className="p-1.5 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 text-xs flex items-center gap-1"
-              title="需求与架构规范文档"
-            >
-              <FileText className="size-4" />
-              <span className="hidden xl:inline">开发手册</span>
-            </Link>
-
-            <Link
-              href="/system"
-              className="p-1.5 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 text-xs flex items-center gap-1"
-              title="系统管理"
-            >
-              <Settings className="size-4" />
-              <span className="hidden xl:inline">管理配置</span>
-            </Link>
-
-            <div className="h-4 w-px bg-slate-200 mx-1" />
-
             {/* 用户头像信息 */}
             <div className="flex items-center gap-2 pl-1">
               <div className="size-7 rounded-full bg-[#1677ff] text-white flex items-center justify-center font-bold text-xs shadow-xs">
