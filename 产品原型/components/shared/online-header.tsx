@@ -7,9 +7,8 @@ import { Activity, Zap, Cpu, Layers } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export const ONLINE_TABS = [
-  { key: 'microgrid', label: '1. 电网全景监测', href: '/zero-carbon/monitor/online/microgrid', icon: Zap, iconColor: 'text-amber-500' },
-  { key: 'equipment', label: '2. 重点用能设备监测', href: '/zero-carbon/monitor/online/equipment', icon: Cpu, iconColor: 'text-blue-500' },
-  { key: 'process', label: '3. 关键工序监测', href: '/zero-carbon/monitor/online/process', icon: Layers, iconColor: 'text-purple-500' },
+  { key: 'equipment', label: '1. 重点用能设备监测', href: '/zero-carbon/monitor/online/equipment', icon: Cpu, iconColor: 'text-blue-500' },
+  { key: 'process', label: '2. 关键工序监测', href: '/zero-carbon/monitor/online/process', icon: Layers, iconColor: 'text-purple-500' },
 ]
 
 export function OnlineHeader() {
@@ -22,7 +21,7 @@ export function OnlineHeader() {
           <Activity className="size-5" />
         </div>
         <div>
-          <h1 className="text-base font-bold text-slate-800">在线监测</h1>
+          <h1 className="text-base font-bold text-slate-800">用能在线监测</h1>
         </div>
       </div>
 
@@ -31,7 +30,7 @@ export function OnlineHeader() {
           const Icon = tab.icon
           const isActive =
             pathname.startsWith(tab.href) ||
-            (pathname === '/zero-carbon/monitor/online' && tab.key === 'microgrid')
+            (pathname === '/zero-carbon/monitor/online' && tab.key === 'equipment')
           return (
             <Link
               key={tab.key}

@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import {
   Area,
   AreaChart,
@@ -276,3 +277,150 @@ export function RadarCompare({
     </ResponsiveContainer>
   )
 }
+
+// 🌟 1、2、3 级全景能流桑基图 (Sankey Flow Chart)
+export interface SankeyNode {
+  name: string
+  itemStyle?: { color?: string; borderColor?: string }
+  depth?: number
+}
+
+export interface SankeyLink {
+  source: string
+  target: string
+  value: number
+}
+
+export function SankeyFlow({
+  nodes,
+  links,
+  height = 320,
+  unit = 'tce',
+  className = '',
+}: {
+  nodes: SankeyNode[]
+  links: SankeyLink[]
+  height?: number
+  unit?: string
+  className?: string
+}) {
+  const chartRef = useRef<HTMLDivElement>(null)
+  const chartInstance = useRef<any>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function initChart() {
+      if (!chartRef.current) return
+      
+      const echarts = await import('echarts')
+      if (!isMounted || !chartRef.current) return
+
+      if (!chartInstance.current) {
+        chartInstance.current = echarts.init(chartRef.current)
+      }
+
+      const option: any = {
+        tooltip: {
+          trigger: 'item',
+          triggerOn: 'mousemove',
+          backgroundColor: 'rgba(255, 255, 255, 0.96)',
+          borderColor: '#cbd5e1',
+          borderWidth: 1,
+          padding: [8, 12],
+          textStyle: {
+            color: '#1e293b',
+            fontSize: 12,
+            fontFamily: 'sans-serif',
+          },
+          formatter: (params: any) => {
+            if (params.dataType === 'node') {
+              return `<div style="font-weight: bold; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px;">${params.name}</div>
+                      <div style="color: #475569;">总通量: <strong style="color: #1677ff; font-family: monospace;">${params.value !== undefined ? params.value.toLocaleString() : '-'}</strong> ${unit}</div>`
+            } else if (params.dataType === 'edge') {
+              return `<div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">能量流向传递</div>
+                      <div style="font-weight: 600; color: #1e293b;">${params.data.source} ➔ ${params.data.target}</div>
+                      <div style="margin-top: 4px; color: #334155;">流转量: <strong style="color: #1677ff; font-family: monospace;">${params.data.value?.toLocaleString()}</strong> ${unit}</div>`
+            }
+            return ''
+          },
+        },
+        series: [
+          {
+            type: 'sankey',
+            layout: 'none',
+            emphasis: {
+              focus: 'adjacency',
+            },
+            nodeWidth: 18,
+            nodeGap: 14,
+            draggable: false,
+            top: 25,
+            bottom: 20,
+            left: 30,
+            right: 30,
+            data: nodes,
+            links: links,
+            lineStyle: {
+              color: 'gradient',
+              curveness: 0.5,
+              opacity: 0.42,
+            },
+            label: {
+              color: '#0f172a',
+              fontSize: 11,
+              fontWeight: 600,
+              fontFamily: 'sans-serif',
+              formatter: (params: any) => {
+                const valStr = params.value !== undefined ? `\n{val|${params.value} ${unit}}` : ''
+                return `${params.name}${valStr}`
+              },
+              rich: {
+                val: {
+                  fontSize: 10,
+                  color: '#64748b',
+                  fontFamily: 'monospace',
+                  padding: [2, 0, 0, 0],
+                },
+              },
+            },
+            itemStyle: {
+              borderWidth: 1,
+              borderColor: '#ffffff',
+              borderRadius: 3,
+            },
+          },
+        ],
+      }
+
+      chartInstance.current.setOption(option, true)
+    }
+
+    initChart()
+
+    const handleResize = () => {
+      chartInstance.current?.resize()
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      isMounted = false
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [nodes, links, height, unit])
+
+  useEffect(() => {
+    return () => {
+      chartInstance.current?.dispose()
+      chartInstance.current = null
+    }
+  }, [])
+
+  return (
+    <div className={`w-full relative select-none ${className}`}>
+      <div ref={chartRef} style={{ width: '100%', height: `${height}px` }} />
+    </div>
+  )
+}
+

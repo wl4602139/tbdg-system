@@ -41,7 +41,8 @@ export const zeroCarbonNav: NavItem[] = [
     icon: MonitorCog,
     children: [
       { title: '指标管控', href: '/zero-carbon/monitor/indicator' },
-      { title: '在线监测', href: '/zero-carbon/monitor/online/microgrid' },
+      { title: '用能在线监测', href: '/zero-carbon/monitor/online/equipment' },
+      { title: '工业微电网监测', href: '/zero-carbon/monitor/online/microgrid' },
       { title: '绿电监测', href: '/zero-carbon/monitor/green' },
       { title: '能源碳排放监测', href: '/zero-carbon/monitor/carbon-emission' },
     ],

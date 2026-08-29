@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -36,25 +36,30 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  // 平台切换下拉框展开状态
-  const [platformMenuOpen, setPlatformMenuOpen] = useState(false)
-  const platformMenuRef = React.useRef<HTMLDivElement>(null)
   const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({})
 
-  // 点击外部自动关闭平台切换下拉框
+  // 双中心下拉框状态与监听
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (platformMenuRef.current && !platformMenuRef.current.contains(event.target as Node)) {
-        setPlatformMenuOpen(false)
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false)
       }
     }
-    if (platformMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setDropdownOpen(false)
+      }
     }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [platformMenuOpen])
+  }, [])
 
   // AI 悬浮窗口状态
   const [isAiOpen, setIsAiOpen] = useState(false)
@@ -75,6 +80,39 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
     (pathname.startsWith('/carbon-footprint') ? 'carbon-footprint' : 'zero-carbon')
 
   const currentPlatform = platformMeta[resolvedPlatformKey]
+
+  // 双中心下拉选项定义
+  const centers = [
+    {
+      key: 'zero-carbon' as const,
+      name: '零碳园区集控中心',
+      shortName: '集控中心',
+      desc: '微电网全景看板 · 47项关键制造工序能效 · 碳核算',
+      href: '/zero-carbon/screen',
+      icon: Globe2,
+      activeColor: 'text-[#1677ff]',
+      activeBg: 'bg-blue-50/90',
+      activeBorder: 'border-blue-200',
+      badgeBg: 'bg-blue-100/70 text-[#1677ff]',
+      iconBg: 'bg-blue-100 text-[#1677ff]',
+    },
+    {
+      key: 'carbon-footprint' as const,
+      name: '产品碳足迹集采中心',
+      shortName: '集采中心',
+      desc: '生命周期LCA建模 · CBAM欧盟关税核算 · 因子库认证',
+      href: '/carbon-footprint/cockpit',
+      icon: Leaf,
+      activeColor: 'text-emerald-600',
+      activeBg: 'bg-emerald-50/90',
+      activeBorder: 'border-emerald-200',
+      badgeBg: 'bg-emerald-100/70 text-emerald-700',
+      iconBg: 'bg-emerald-100 text-emerald-600',
+    },
+  ]
+
+  const currentCenter = centers.find((c) => c.key === resolvedPlatformKey) || centers[0]
+  const CurrentCenterIcon = currentCenter.icon
 
   // 当路径匹配子项时自动展开所属父菜单
   useEffect(() => {
@@ -169,20 +207,6 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
               </div>
             )}
           </Link>
-        </div>
-
-        {/* 左上角当前中心模块标识 */}
-        <div className="px-3 py-2.5 border-b border-blue-400/20 bg-[#0747b0] flex items-center gap-2">
-          {resolvedPlatformKey === 'zero-carbon' ? (
-            <Globe2 className="size-4 shrink-0 text-blue-200" />
-          ) : (
-            <Leaf className="size-4 shrink-0 text-emerald-300" />
-          )}
-          {sidebarOpen && (
-            <span className="text-xs font-bold text-white truncate">
-              {currentPlatform.name}
-            </span>
-          )}
         </div>
 
         {/* 菜单列表 */}
@@ -281,8 +305,8 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
       {/* 2. 右侧主体容器 (flex-col: 顶部主条 + 滚动主内容区) */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
         {/* 右侧顶部白色主导航条 */}
-        <header className="h-14 border-b border-[#e5e7eb] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs z-20 overflow-hidden">
-          {/* 左侧：折叠按钮 + 双中心切换导航 (零碳园区集控中心 / 产品碳足迹集采中心) */}
+        <header className="h-14 border-b border-[#e5e7eb] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs z-20 relative">
+          {/* 左侧：折叠按钮 + 下拉框切换双中心 */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -292,33 +316,118 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
               <Menu className="size-4" />
             </button>
 
-            {/* 🌟 核心双中心导航 Switcher */}
-            <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200/80 gap-1 text-xs">
-              <Link
-                href="/zero-carbon/screen"
+            {/* 🌟 核心双中心下拉切换 Switcher */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setDropdownOpen((prev) => !prev)}
                 className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all',
-                  resolvedPlatformKey === 'zero-carbon'
-                    ? 'bg-[#1677ff] text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                  'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 focus:outline-none cursor-pointer group',
+                  dropdownOpen
+                    ? 'bg-slate-100/90 text-[#1677ff]'
+                    : 'bg-transparent hover:bg-slate-100/80 text-slate-800'
                 )}
+                title="点击切换业务中心"
               >
-                <Globe2 className="size-3.5" />
-                <span>零碳园区集控中心</span>
-              </Link>
+                <div className={cn('size-6 rounded-md flex items-center justify-center shrink-0 transition-transform group-hover:scale-105', currentCenter.iconBg)}>
+                  <CurrentCenterIcon className="size-3.5" />
+                </div>
 
-              <Link
-                href="/carbon-footprint/cockpit"
-                className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all',
-                  resolvedPlatformKey === 'carbon-footprint'
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-                )}
-              >
-                <Leaf className="size-3.5" />
-                <span>产品碳足迹集采中心</span>
-              </Link>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-slate-800 group-hover:text-[#1677ff] text-xs sm:text-sm whitespace-nowrap transition-colors">
+                    {currentCenter.name}
+                  </span>
+                  <span
+                    className={cn(
+                      'hidden sm:inline-flex text-[10px] font-semibold px-1.5 py-0.5 rounded leading-none',
+                      currentCenter.badgeBg
+                    )}
+                  >
+                    {currentCenter.shortName}
+                  </span>
+                </div>
+
+                <ChevronDown
+                  className={cn(
+                    'size-3.5 text-slate-400 ml-0.5 transition-transform duration-200 shrink-0 group-hover:text-slate-600',
+                    dropdownOpen && 'rotate-180 text-[#1677ff]'
+                  )}
+                />
+              </button>
+
+              {/* 下拉面板 Popover */}
+              {dropdownOpen && (
+                <div className="absolute left-0 top-full mt-1.5 w-72 sm:w-80 bg-white rounded-xl shadow-xl border border-slate-200/90 py-1.5 z-50 animate-in fade-in-0 zoom-in-95 duration-150">
+                  <div className="px-3 py-1.5 mb-1 border-b border-slate-100 flex items-center justify-between">
+                    <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                      切换业务中心
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      DUAL CENTER
+                    </span>
+                  </div>
+
+                  <div className="p-1 space-y-1">
+                    {centers.map((center) => {
+                      const isSelected = resolvedPlatformKey === center.key
+                      const CenterIcon = center.icon
+                      return (
+                        <button
+                          key={center.key}
+                          type="button"
+                          onClick={() => {
+                            setDropdownOpen(false)
+                            if (!isSelected) {
+                              router.push(center.href)
+                            }
+                          }}
+                          className={cn(
+                            'w-full text-left flex items-start gap-3 p-2.5 rounded-lg transition-all text-xs group cursor-pointer',
+                            isSelected
+                              ? cn(center.activeBg, 'border', center.activeBorder, 'shadow-2xs')
+                              : 'hover:bg-slate-50 border border-transparent text-slate-700'
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              'size-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 shadow-2xs transition-transform group-hover:scale-105',
+                              center.iconBg
+                            )}
+                          >
+                            <CenterIcon className="size-4" />
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1 mb-0.5">
+                              <span
+                                className={cn(
+                                  'font-bold text-xs truncate',
+                                  isSelected ? center.activeColor : 'text-slate-800'
+                                )}
+                              >
+                                {center.name}
+                              </span>
+                              {isSelected && (
+                                <span
+                                  className={cn(
+                                    'shrink-0 size-4 rounded-full flex items-center justify-center',
+                                    center.activeColor
+                                  )}
+                                >
+                                  <Check className="size-3.5" />
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 line-clamp-1 leading-snug">
+                              {center.desc}
+                            </p>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

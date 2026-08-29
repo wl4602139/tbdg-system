@@ -38,7 +38,7 @@ import {
   Maximize2,
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
-import { LineTrend } from '@/components/shared/charts'
+import { LineTrend, SankeyFlow } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
 
 // 指标数据接口
@@ -249,7 +249,7 @@ const GROUP_COMPANIES_METRICS: CompanyGroupMetrics[] = [
 ]
 
 
-// 🌟 集团大盘 10 项公司整体管控指标定义清单 (与二三级 10 个参数 100% 保持完全一致)
+// 🌟 集团大盘 10 项公司整体管控指标定义清单 (与图片顺序 100% 保持完全一致)
 const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
   {
     id: 'gm-total-energy',
@@ -527,42 +527,42 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     ],
   },
   {
-    id: 'gm-product-unit-energy',
+    id: 'gm-water-consumption',
     code: 'GK-08',
-    name: '单位产品综合能耗',
+    name: '水资源消耗量',
     category: 'company',
     categoryName: '一、经营单位及项目公司整体指标',
-    unit: 'tce/万kVA',
-    curVal: '0.0825',
-    yoy: '-5.8%',
+    unit: 't',
+    curVal: '15,480',
+    yoy: '-4.2%',
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '国家级绿色工厂',
-    tipText: '统计期内综合能源消费总量与合格产品产量（变压器按容量万kVA，线缆按长度km）的比值。',
-    formula: 'e = E / M',
-    formulaDesc: '月度指标。e: 产品单耗 (tce/万kVA)；E: 制造过程综合能源消费量 (tce)；M: 合格产品产出总量 (万kVA)。',
-    numeratorName: '各工段综合能源消费总量 E',
-    numeratorVal: '456.2 tce',
-    denominatorName: '当月完工合格产品产出总量 M',
-    denominatorVal: '5,530 万kVA',
-    dataSource: 'MES 制造执行系统产品合格工单报工与车间分时计量表计系统。',
+    badge: '公司管理要求',
+    tipText: '指统计期内企业组织在生产制造、公辅系统及生活办公中消耗的新鲜水总量。',
+    formula: 'W = ∑ Wi',
+    formulaDesc: '月度指标。W: 水资源消耗总量 (t)；Wi: 各车间、工段及公辅设施水表计量用水量之和。',
+    numeratorName: '各车间工段新鲜水总耗量 W',
+    numeratorVal: '15,480 t',
+    denominatorName: '核算周期 (自然月)',
+    denominatorVal: '1 个月',
+    dataSource: '厂区总进水关口超声波水表及各车间分级智能远传水表系统。',
     rawMeters: [
-      { medium: '工序综合用能与出厂产出', meterCode: 'MES-PROD-OUTPUT-ALL', location: '制造部与总装车间', reading: '456.2 tce / 5,530 万kVA', unit: 'tce/万kVA', coeff: '1.0', tce: '456.2' },
+      { medium: '市政自来水', meterCode: 'WM-MAIN-01', location: '厂区总进水泵房', reading: '15,480 t', unit: 't', coeff: '0.0001', tce: '1.5' },
     ],
     trendHistory: [
-      { period: '25-09', value: 0.0875, yoy: '-4.2%', mom: '-0.3%' },
-      { period: '25-10', value: 0.0870, yoy: '-4.5%', mom: '-0.6%' },
-      { period: '25-11', value: 0.0862, yoy: '-4.8%', mom: '-0.9%' },
-      { period: '25-12', value: 0.0855, yoy: '-5.0%', mom: '-0.8%' },
-      { period: '26-01', value: 0.0850, yoy: '-5.1%', mom: '-0.6%' },
-      { period: '26-02', value: 0.0848, yoy: '-5.2%', mom: '-0.2%' },
-      { period: '26-03', value: 0.0840, yoy: '-5.4%', mom: '-0.9%' },
-      { period: '26-04', value: 0.0838, yoy: '-5.5%', mom: '-0.2%' },
-      { period: '26-05', value: 0.0835, yoy: '-5.6%', mom: '-0.4%' },
-      { period: '26-06', value: 0.0830, yoy: '-5.7%', mom: '-0.6%' },
-      { period: '26-07', value: 0.0828, yoy: '-5.7%', mom: '-0.2%' },
-      { period: '26-08', value: 0.0825, yoy: '-5.8%', mom: '-0.4%' },
+      { period: '25-09', value: 16200, yoy: '-3.1%', mom: '-0.5%' },
+      { period: '25-10', value: 16100, yoy: '-3.4%', mom: '-0.6%' },
+      { period: '25-11', value: 15950, yoy: '-3.8%', mom: '-0.9%' },
+      { period: '25-12', value: 15800, yoy: '-3.9%', mom: '-0.9%' },
+      { period: '26-01', value: 15750, yoy: '-4.0%', mom: '-0.3%' },
+      { period: '26-02', value: 15700, yoy: '-4.0%', mom: '-0.3%' },
+      { period: '26-03', value: 15650, yoy: '-4.1%', mom: '-0.3%' },
+      { period: '26-04', value: 15600, yoy: '-4.1%', mom: '-0.3%' },
+      { period: '26-05', value: 15550, yoy: '-4.2%', mom: '-0.3%' },
+      { period: '26-06', value: 15520, yoy: '-4.2%', mom: '-0.2%' },
+      { period: '26-07', value: 15500, yoy: '-4.2%', mom: '-0.1%' },
+      { period: '26-08', value: 15480, yoy: '-4.2%', mom: '-0.1%' },
     ],
   },
   {
@@ -1576,13 +1576,355 @@ const PROCESS_CONTROL_METRICS: IndicatorMetric[] = [
   },
 ]
 
+// 🌟 1、2、3 级组织节点能流与指标下钻桑基图数据生成器 (一级集团 ➔ 二级公司 ➔ 三级分厂车间)
+function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
+  nodes: { name: string; itemStyle?: { color: string }; depth?: number }[]
+  links: { source: string; target: string; value: number }[]
+  unit: string
+} {
+  const unit = metric.unit || 'tce'
+
+  switch (metricId) {
+    case 'gm-total-energy':
+    default:
+      return {
+        unit: 'tce',
+        nodes: [
+          // 1级 集团总部
+          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+
+          // 2级 6 大经营制造公司
+          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+
+          // 3级 下辖代表性车间与分厂
+          { name: '沈变本部', depth: 2, itemStyle: { color: '#0958d9' } },
+          { name: '和新套管公司', depth: 2, itemStyle: { color: '#1d39c4' } },
+          { name: '露娜智能制造', depth: 2, itemStyle: { color: '#597ef7' } },
+          { name: '衡变本部', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '南京电研', depth: 2, itemStyle: { color: '#36cfc9' } },
+          { name: '云集电气', depth: 2, itemStyle: { color: '#5cdbd3' } },
+          { name: '超高压公司', depth: 2, itemStyle: { color: '#531dab' } },
+          { name: '天变公司', depth: 2, itemStyle: { color: '#9254de' } },
+          { name: '珠峰硅钢', depth: 2, itemStyle: { color: '#b37feb' } },
+          { name: '鲁缆本部', depth: 2, itemStyle: { color: '#d46b08' } },
+          { name: '曙光公司', depth: 2, itemStyle: { color: '#ffc069' } },
+          { name: '新缆厂本部', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '德缆公司本部', depth: 2, itemStyle: { color: '#c41d7f' } },
+        ],
+        links: [
+          // 1级 ➔ 2级
+          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 418.0 },
+          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 362.5 },
+          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 309.5 },
+          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 105.5 },
+          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 58.0 },
+          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 31.0 },
+
+          // 2级 ➔ 3级
+          { source: '沈变公司', target: '沈变本部', value: 260.0 },
+          { source: '沈变公司', target: '和新套管公司', value: 98.0 },
+          { source: '沈变公司', target: '露娜智能制造', value: 60.0 },
+          { source: '衡变公司', target: '衡变本部', value: 220.0 },
+          { source: '衡变公司', target: '南京电研', value: 85.0 },
+          { source: '衡变公司', target: '云集电气', value: 57.5 },
+          { source: '新变厂', target: '超高压公司', value: 180.0 },
+          { source: '新变厂', target: '天变公司', value: 79.5 },
+          { source: '新变厂', target: '珠峰硅钢', value: 50.0 },
+          { source: '鲁缆公司', target: '鲁缆本部', value: 75.5 },
+          { source: '鲁缆公司', target: '曙光公司', value: 30.0 },
+          { source: '新缆厂', target: '新缆厂本部', value: 58.0 },
+          { source: '德缆公司', target: '德缆公司本部', value: 31.0 },
+        ],
+      }
+
+    case 'gm-total-carbon':
+      return {
+        unit: 'tCO2',
+        nodes: [
+          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+
+          { name: '沈变本部', depth: 2, itemStyle: { color: '#0958d9' } },
+          { name: '和新套管公司', depth: 2, itemStyle: { color: '#1d39c4' } },
+          { name: '露娜智能制造', depth: 2, itemStyle: { color: '#597ef7' } },
+          { name: '衡变本部', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '南京电研', depth: 2, itemStyle: { color: '#36cfc9' } },
+          { name: '云集电气', depth: 2, itemStyle: { color: '#5cdbd3' } },
+          { name: '超高压公司', depth: 2, itemStyle: { color: '#531dab' } },
+          { name: '天变公司', depth: 2, itemStyle: { color: '#9254de' } },
+          { name: '珠峰硅钢', depth: 2, itemStyle: { color: '#b37feb' } },
+          { name: '鲁缆本部', depth: 2, itemStyle: { color: '#d46b08' } },
+          { name: '曙光公司', depth: 2, itemStyle: { color: '#ffc069' } },
+          { name: '新缆厂本部', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '德缆公司本部', depth: 2, itemStyle: { color: '#c41d7f' } },
+        ],
+        links: [
+          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 958.0 },
+          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 830.8 },
+          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 710.0 },
+          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 242.0 },
+          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 133.0 },
+          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 73.0 },
+
+          { source: '沈变公司', target: '沈变本部', value: 596.0 },
+          { source: '沈变公司', target: '和新套管公司', value: 224.0 },
+          { source: '沈变公司', target: '露娜智能制造', value: 138.0 },
+          { source: '衡变公司', target: '衡变本部', value: 505.0 },
+          { source: '衡变公司', target: '南京电研', value: 195.0 },
+          { source: '衡变公司', target: '云集电气', value: 130.8 },
+          { source: '新变厂', target: '超高压公司', value: 412.0 },
+          { source: '新变厂', target: '天变公司', value: 183.0 },
+          { source: '新变厂', target: '珠峰硅钢', value: 115.0 },
+          { source: '鲁缆公司', target: '鲁缆本部', value: 172.0 },
+          { source: '鲁缆公司', target: '曙光公司', value: 70.0 },
+          { source: '新缆厂', target: '新缆厂本部', value: 133.0 },
+          { source: '德缆公司', target: '德缆公司本部', value: 73.0 },
+        ],
+      }
+
+    case 'gm-carbon-per-energy':
+      return {
+        unit: 'tCO2/tce',
+        nodes: [
+          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+
+          { name: '沈变变压器制造', depth: 2, itemStyle: { color: '#0958d9' } },
+          { name: '衡变输变电生产', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '新变特高压主线', depth: 2, itemStyle: { color: '#531dab' } },
+          { name: '鲁缆高端挤出', depth: 2, itemStyle: { color: '#d46b08' } },
+          { name: '新缆特种线缆', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '德缆常规线缆', depth: 2, itemStyle: { color: '#c41d7f' } },
+        ],
+        links: [
+          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 2.292 },
+          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 2.293 },
+          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 2.294 },
+          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 2.296 },
+          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 2.295 },
+          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 2.355 },
+
+          { source: '沈变公司', target: '沈变变压器制造', value: 2.292 },
+          { source: '衡变公司', target: '衡变输变电生产', value: 2.293 },
+          { source: '新变厂', target: '新变特高压主线', value: 2.294 },
+          { source: '鲁缆公司', target: '鲁缆高端挤出', value: 2.296 },
+          { source: '新缆厂', target: '新缆特种线缆', value: 2.295 },
+          { source: '德缆公司', target: '德缆常规线缆', value: 2.355 },
+        ],
+      }
+
+    case 'gm-green-energy-ratio':
+    case 'gm-phy-green-ratio':
+      return {
+        unit: 'MWh',
+        nodes: [
+          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+
+          { name: '沈变园区屋顶光伏', depth: 2, itemStyle: { color: '#0958d9' } },
+          { name: '衡变园区绿电直供', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '新变风光互补电站', depth: 2, itemStyle: { color: '#531dab' } },
+          { name: '鲁缆分布式光伏', depth: 2, itemStyle: { color: '#d46b08' } },
+          { name: '新缆绿电微电网', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '德缆绿色配电', depth: 2, itemStyle: { color: '#c41d7f' } },
+        ],
+        links: [
+          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 496 },
+          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 418 },
+          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 356 },
+          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 118 },
+          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 62 },
+          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 32 },
+
+          { source: '沈变公司', target: '沈变园区屋顶光伏', value: 496 },
+          { source: '衡变公司', target: '衡变园区绿电直供', value: 418 },
+          { source: '新变厂', target: '新变风光互补电站', value: 356 },
+          { source: '鲁缆公司', target: '鲁缆分布式光伏', value: 118 },
+          { source: '新缆厂', target: '新缆绿电微电网', value: 62 },
+          { source: '德缆公司', target: '德缆绿色配电', value: 32 },
+        ],
+      }
+
+    case 'gm-water-consumption':
+      return {
+        unit: 't',
+        nodes: [
+          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+
+          { name: '沈变本部', depth: 2, itemStyle: { color: '#0958d9' } },
+          { name: '和新套管公司', depth: 2, itemStyle: { color: '#1d39c4' } },
+          { name: '衡变本部', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '南京电研', depth: 2, itemStyle: { color: '#36cfc9' } },
+          { name: '超高压公司', depth: 2, itemStyle: { color: '#531dab' } },
+          { name: '天变公司', depth: 2, itemStyle: { color: '#9254de' } },
+          { name: '鲁缆本部', depth: 2, itemStyle: { color: '#d46b08' } },
+          { name: '新缆厂本部', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '德缆公司本部', depth: 2, itemStyle: { color: '#c41d7f' } },
+        ],
+        links: [
+          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 5120 },
+          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 4380 },
+          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 3650 },
+          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 1250 },
+          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 680 },
+          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 400 },
+
+          { source: '沈变公司', target: '沈变本部', value: 3600 },
+          { source: '沈变公司', target: '和新套管公司', value: 1520 },
+          { source: '衡变公司', target: '衡变本部', value: 3100 },
+          { source: '衡变公司', target: '南京电研', value: 1280 },
+          { source: '新变厂', target: '超高压公司', value: 2450 },
+          { source: '新变厂', target: '天变公司', value: 1200 },
+          { source: '鲁缆公司', target: '鲁缆本部', value: 1250 },
+          { source: '新缆厂', target: '新缆厂本部', value: 680 },
+          { source: '德缆公司', target: '德缆公司本部', value: 400 },
+        ],
+      }
+
+    case 'gm-unit-industrial-added-value':
+    case 'gm-unit-output':
+      return {
+        unit: '万元',
+        nodes: [
+          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+
+          { name: '特高压变压器制造', depth: 2, itemStyle: { color: '#0958d9' } },
+          { name: '大型电力变压器制造', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '输变电核心零部件', depth: 2, itemStyle: { color: '#531dab' } },
+          { name: '特种交联电力电缆', depth: 2, itemStyle: { color: '#d46b08' } },
+          { name: '工业铝合金导线', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '通用橡套电缆', depth: 2, itemStyle: { color: '#c41d7f' } },
+        ],
+        links: [
+          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 9500 },
+          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 8200 },
+          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 6800 },
+          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 2400 },
+          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 1100 },
+          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 500 },
+
+          { source: '沈变公司', target: '特高压变压器制造', value: 9500 },
+          { source: '衡变公司', target: '大型电力变压器制造', value: 8200 },
+          { source: '新变厂', target: '输变电核心零部件', value: 6800 },
+          { source: '鲁缆公司', target: '特种交联电力电缆', value: 2400 },
+          { source: '新缆厂', target: '工业铝合金导线', value: 1100 },
+          { source: '德缆公司', target: '通用橡套电缆', value: 500 },
+        ],
+      }
+
+    case 'gm-energy-saving-equipment-ratio':
+      return {
+        unit: 'kW',
+        nodes: [
+          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+
+          { name: '沈变节能电机群', depth: 2, itemStyle: { color: '#0958d9' } },
+          { name: '衡变磁悬浮空压机', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '新变高效变压器', depth: 2, itemStyle: { color: '#531dab' } },
+          { name: '鲁缆节能挤出机', depth: 2, itemStyle: { color: '#d46b08' } },
+          { name: '新缆变频动力机', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '德缆高效循环泵', depth: 2, itemStyle: { color: '#c41d7f' } },
+        ],
+        links: [
+          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 11200 },
+          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 9500 },
+          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 7800 },
+          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 2650 },
+          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 1100 },
+          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 600 },
+
+          { source: '沈变公司', target: '沈变节能电机群', value: 11200 },
+          { source: '衡变公司', target: '衡变磁悬浮空压机', value: 9500 },
+          { source: '新变厂', target: '新变高效变压器', value: 7800 },
+          { source: '鲁缆公司', target: '鲁缆节能挤出机', value: 2650 },
+          { source: '新缆厂', target: '新缆变频动力机', value: 1100 },
+          { source: '德缆公司', target: '德缆高效循环泵', value: 600 },
+        ],
+      }
+
+    case 'gm-pcf-ratio':
+      return {
+        unit: '类',
+        nodes: [
+          { name: '特变电工集团 (全公汇总)', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+
+          { name: '特高压换流变 (认证)', depth: 2, itemStyle: { color: '#0958d9' } },
+          { name: '大型电力变 (认证)', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '干式变压器 (认证)', depth: 2, itemStyle: { color: '#531dab' } },
+          { name: '特种交联电缆 (认证)', depth: 2, itemStyle: { color: '#d46b08' } },
+          { name: '铝合金导线 (认证)', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '矿用橡套电缆 (认证)', depth: 2, itemStyle: { color: '#c41d7f' } },
+        ],
+        links: [
+          { source: '特变电工集团 (全公汇总)', target: '沈变公司', value: 3 },
+          { source: '特变电工集团 (全公汇总)', target: '衡变公司', value: 3 },
+          { source: '特变电工集团 (全公汇总)', target: '新变厂', value: 2 },
+          { source: '特变电工集团 (全公汇总)', target: '鲁缆公司', value: 2 },
+          { source: '特变电工集团 (全公汇总)', target: '新缆厂', value: 1 },
+          { source: '特变电工集团 (全公汇总)', target: '德缆公司', value: 1 },
+
+          { source: '沈变公司', target: '特高压换流变 (认证)', value: 3 },
+          { source: '衡变公司', target: '大型电力变 (认证)', value: 3 },
+          { source: '新变厂', target: '干式变压器 (认证)', value: 2 },
+          { source: '鲁缆公司', target: '特种交联电缆 (认证)', value: 2 },
+          { source: '新缆厂', target: '铝合金导线 (认证)', value: 1 },
+          { source: '德缆公司', target: '矿用橡套电缆 (认证)', value: 1 },
+        ],
+      }
+  }
+}
+
 export default function IndicatorControlPage() {
   const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
-    id: 'comp_sb',
-    name: '沈变公司',
-    fullName: '沈变公司 (东北输变电中心)',
-    level: 'company',
-    badge: '5单位',
+    id: 'ent_root',
+    name: '特变电工集团 (全公汇总)',
+    fullName: '特变电工集团 (全公汇总)',
+    level: 'group',
+    badge: '全集团',
   })
 
   // 时间维度: 'month' | 'quarter' | 'year'
@@ -1591,20 +1933,27 @@ export default function IndicatorControlPage() {
   // 🌟 点击卡片激活的 Mode B 详情指标 Mode B (Null 时为 Mode A 全景概览)
   const [activeViewMetric, setActiveViewMetric] = useState<IndicatorMetric | null>(null)
   
-  // 🌟 集团层级综合对比视图切换: 'card' (卡片PK) | 'table' (透视大表)
-  const [groupViewMode, setGroupViewMode] = useState<'card' | 'table'>('card')
+  // 🌟 集团层级选中的指标 ID (默认选中第 1 个: 综合能源消费量 gm-total-energy)
   const [selectedGroupMetricId, setSelectedGroupMetricId] = useState<string>('gm-total-energy')
   const activeGroupMetric = useMemo(() => {
     return (
       GROUP_OVERALL_TOP10_METRICS.find((m) => m.id === selectedGroupMetricId) ||
-      GROUP_OVERALL_TOP10_METRICS[1]
+      GROUP_OVERALL_TOP10_METRICS[0]
     )
   }, [selectedGroupMetricId])
+
+  // 🌟 板块二视图切换: 'sankey' (1/2/3级能流桑基图) | 'trend' (12个月趋势走势)
+  const [section2ViewTab, setSection2ViewTab] = useState<'sankey' | 'trend'>('sankey')
+
+  // 动态计算当前选中指标对应的 1/2/3 级能流桑基图数据
+  const currentSankeyData = useMemo(() => {
+    return getMetricSankeyData(selectedGroupMetricId, activeGroupMetric)
+  }, [selectedGroupMetricId, activeGroupMetric])
 
   const [procSearchKey, setProcSearchKey] = useState('')
 
   // 判断当前选中节点层级
-  const isGroupLevel = selectedNode.level === 'group'
+  const isGroupLevel = selectedNode.level === 'group' || selectedNode.id === 'ent_root'
   const isCompanyLevel = selectedNode.level === 'company'
   const isWorkshopLevel = selectedNode.level === 'workshop'
 
@@ -1620,6 +1969,32 @@ export default function IndicatorControlPage() {
         m.unit.toLowerCase().includes(kw)
     )
   }, [procSearchKey])
+
+  // 动态整体综合指标 (根据选中的组织节点自适应数值与同比)
+  const currentOverallMetrics = useMemo(() => {
+    const isGroup = selectedNode.level === 'group' || selectedNode.id === 'ent_root'
+    const nodeName = selectedNode.name || ''
+    const isCable = nodeName.includes('缆')
+
+    return FACTORY_TOP10_METRICS.map((m) => {
+      let curVal = m.curVal
+      let yoy = m.yoy
+      if (m.id === 'm-total-energy') {
+        curVal = isGroup ? '5,529.1' : (isCable ? '890.4' : (nodeName.includes('衡变') ? '1,420.5' : (nodeName.includes('新变') ? '1,280.0' : m.curVal)))
+        yoy = isGroup ? '-2.4%' : (isCable ? '-3.1%' : m.yoy)
+      } else if (m.id === 'm-total-carbon') {
+        curVal = isGroup ? '12,840.5' : (isCable ? '1,960.2' : (nodeName.includes('衡变') ? '3,120.4' : (nodeName.includes('新变') ? '2,890.0' : m.curVal)))
+        yoy = isGroup ? '-3.1%' : (isCable ? '-2.8%' : m.yoy)
+      } else if (m.id === 'm-water-total') {
+        curVal = isGroup ? '68,450' : (isCable ? '9,820' : (nodeName.includes('衡变') ? '17,200' : (nodeName.includes('新变') ? '14,600' : m.curVal)))
+      }
+      return {
+        ...m,
+        curVal,
+        yoy,
+      }
+    })
+  }, [selectedNode])
 
   return (
     <div className="flex gap-3.5 items-start">
@@ -1879,119 +2254,232 @@ export default function IndicatorControlPage() {
               </div>
             </div>
 
-                        {/* 集团视角 (整体指标呈现 6 大单位能耗与费用占比情况) */}
-            {isGroupLevel && (
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
-                    <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                      【一、经营单位及项目公司整体指标 (6 大单位占比)】
-                    </h2>
-                  </div>
-                  <span className="text-xs text-slate-400 font-mono">
-                    统计周期: 2026年08月 · 6 大制造公司能耗与费用横向占比
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 font-mono">
-                  {GROUP_COMPANIES_METRICS.map((c, idx) => (
-                    <div
-                      key={c.id}
-                      onClick={() => {
-                        setSelectedNode({
-                          id: c.id,
-                          name: c.name,
-                          fullName: c.fullName,
-                          level: 'company',
-                          badge: c.industryName,
-                        })
-                      }}
-                      className={cn(
-                        'p-3.5 rounded-xl border transition-all cursor-pointer space-y-2 group shadow-2xs select-none',
-                        idx === 0
-                          ? 'bg-blue-50/50 border-blue-200 hover:border-blue-300'
-                          : 'bg-slate-50 border-slate-200 hover:border-blue-300 hover:bg-blue-50/30'
-                      )}
-                    >
-                      <div className="flex justify-between items-center text-xs font-sans">
-                        <span className="font-bold text-slate-900">{idx + 1}. {c.name}</span>
-                        <span className={cn(
-                          'px-1.5 py-0.2 rounded font-bold text-[10px]',
-                          idx === 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-700'
-                        )}>
-                          能耗占比 {c.energyShare}
-                        </span>
-                      </div>
-                      <div className={cn(
-                        'text-xl font-bold',
-                        idx === 0 ? 'text-[#1677ff]' : 'text-slate-900'
-                      )}>
-                        {c.costWan.toFixed(1)} <span className="text-xs font-normal text-slate-500 font-sans">万元 ({c.energyTce.toFixed(1)} tce)</span>
-                      </div>
-                      <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200/60 font-sans flex justify-between">
-                        <span>费用占比: <strong className="text-slate-800 font-mono">{c.costShare}</strong></span>
-                        <span className="text-emerald-600 font-bold">同比 {c.yoy} ↓</span>
-                      </div>
+            {/* 🌟 依据节点层级区分呈现：集团级 (1级节点) 呈现 10 大指标联动看板 + 6 大单位横向 PK；单体公司/车间呈现产品与工序指标 */}
+            {isGroupLevel ? (
+              <div className="space-y-3.5">
+                {/* 一、经营单位及项目公司整体指标 (10 项指标卡片) */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        【一、经营单位及项目公司整体指标】
+                      </h2>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 二级单位与项目公司通用整体指标 (10 项指标卡片) */}
-            {(isWorkshopLevel || isCompanyLevel) && (
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
-                    <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                      【一、经营单位及项目公司整体指标】
-                    </h2>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      保留同比变化 · 点击查看 12 个月历史明细与公式
+                    </span>
                   </div>
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    保留同比变化 · 点击查看 12 个月历史明细与公式
-                  </span>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
-                  {FACTORY_TOP10_METRICS.map((m) => (
-                    <div
-                      key={m.id}
-                      onClick={() => setActiveViewMetric(m)}
-                      className="p-3.5 bg-slate-50/70 hover:bg-blue-50/40 rounded-xl border border-slate-200 hover:border-blue-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
-                    >
-                      <div className="flex items-center justify-between font-sans gap-1">
-                        <span className="text-[11px] font-bold text-slate-700 truncate">{m.name}</span>
-                        {m.badge && (
-                          <span
-                            className={cn(
-                              'text-[9px] px-1.5 py-0.5 rounded font-sans font-medium shrink-0 whitespace-nowrap',
-                              m.badge === '国家级零碳工厂' && 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
-                              m.badge === '国家级绿色工厂' && 'bg-teal-50 text-teal-700 border border-teal-200/80',
-                              m.badge === '公司管理要求' && 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                    {GROUP_OVERALL_TOP10_METRICS.map((m) => {
+                      const isSelected = selectedGroupMetricId === m.id
+                      return (
+                        <div
+                          key={m.id}
+                          onClick={() => setSelectedGroupMetricId(m.id)}
+                          className={cn(
+                            'p-3.5 rounded-xl border transition-all cursor-pointer space-y-2 group shadow-2xs relative select-none bg-white',
+                            isSelected
+                              ? 'border-[#1677ff] ring-2 ring-[#1677ff]/20 shadow-xs bg-blue-50/10'
+                              : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50/50'
+                          )}
+                        >
+                          <div className="flex items-center justify-between font-sans gap-1">
+                            <span className={cn('text-[11px] font-bold truncate', isSelected ? 'text-[#1677ff]' : 'text-slate-800')} title={m.name}>
+                              {m.name}
+                            </span>
+                            {m.badge && (
+                              <span
+                                className={cn(
+                                  'text-[9px] px-1.5 py-0.5 rounded font-sans font-medium shrink-0 whitespace-nowrap',
+                                  m.badge === '国家级零碳工厂' && 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
+                                  m.badge === '国家级绿色工厂' && 'bg-teal-50 text-teal-700 border border-teal-200/80',
+                                  m.badge === '公司管理要求' && 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                                )}
+                              >
+                                {m.badge}
+                              </span>
                             )}
-                          >
-                            {m.badge}
-                          </span>
-                        )}
-                      </div>
+                          </div>
 
-                      <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
-                        {m.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{m.unit}</span>
-                      </div>
+                          <div className="flex items-center justify-between">
+                            <div className={cn('text-lg font-extrabold transition-colors', isSelected ? 'text-[#1677ff]' : 'text-slate-900')}>
+                              {m.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{m.unit}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setActiveViewMetric(m)
+                              }}
+                              className="text-[11px] font-medium text-[#1677ff] hover:text-blue-700 hover:bg-blue-50 px-2 py-0.5 rounded border border-blue-200 transition-all cursor-pointer flex items-center gap-0.5 shrink-0"
+                            >
+                              <span>详情</span>
+                            </button>
+                          </div>
 
-                      <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] font-sans">
-                        <span className="text-slate-500">同比</span>
-                        <span className="font-bold text-emerald-600 font-mono">{m.yoy} ↓</span>
-                      </div>
+                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-sans">
+                            <span className="text-slate-500">同比</span>
+                            <span className={cn(
+                              'font-bold font-mono',
+                              m.yoy.startsWith('+') ? 'text-emerald-600' : 'text-emerald-600'
+                            )}>
+                              {m.yoy} {m.isYoyDown ? '↓' : '↑'}
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* 二、1、2、3 级全景能流桑基图 */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                      <h3 className="text-xs font-bold text-slate-900">
+                        【二、一级 到 二级、三级节点数据变化桑基图】
+                      </h3>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* 桑基图 */}
+                  <div className="pt-1">
+                    <SankeyFlow
+                      nodes={currentSankeyData.nodes}
+                      links={currentSankeyData.links}
+                      unit={currentSankeyData.unit}
+                      height={340}
+                    />
+                  </div>
+                </div>
+
+                {/* 三、6 大经营单位综合能效指标横向对比 */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        【三、6 大经营单位综合能效指标横向对比】
+                      </h2>
+                    </div>
+                    <span className="text-xs text-slate-400 font-mono">
+                      考核周期: 2026年08月 · 6 大制造公司能耗与费用横向占比
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 font-mono">
+                    {GROUP_COMPANIES_METRICS.map((c, idx) => (
+                      <div
+                        key={c.id}
+                        onClick={() => {
+                          setSelectedNode({
+                            id: c.id,
+                            name: c.name,
+                            fullName: c.fullName,
+                            level: 'company',
+                            badge: c.industryName,
+                          })
+                        }}
+                        className={cn(
+                          'p-3.5 rounded-xl border transition-all cursor-pointer space-y-2 group shadow-2xs select-none',
+                          idx === 0
+                            ? 'bg-blue-50/50 border-blue-200 hover:border-blue-300'
+                            : 'bg-slate-50 border-slate-200 hover:border-blue-300 hover:bg-blue-50/30'
+                        )}
+                      >
+                        <div className="flex justify-between items-center text-xs font-sans">
+                          <span className="font-bold text-slate-900">{idx + 1}. {c.name}</span>
+                          <span className={cn(
+                            'px-1.5 py-0.2 rounded font-bold text-[10px]',
+                            idx === 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-700'
+                          )}>
+                            能耗占比 {c.energyShare}
+                          </span>
+                        </div>
+                        <div className={cn(
+                          'text-xl font-bold',
+                          idx === 0 ? 'text-[#1677ff]' : 'text-slate-900'
+                        )}>
+                          {c.costWan.toFixed(1)} <span className="text-xs font-normal text-slate-500 font-sans">万元 ({c.energyTce.toFixed(1)} tce)</span>
+                        </div>
+                        <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200/60 font-sans flex justify-between">
+                          <span>费用占比: <strong className="text-slate-800 font-mono">{c.costShare}</strong></span>
+                          <span className="text-emerald-600 font-bold">同比 {c.yoy} ↓</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            )}
+            ) : (
+              /* 单体公司/车间视角: 呈现工厂 10 大整体指标 + 产品管控指标 + 关键工序管控指标 */
+              <div className="space-y-3.5">
+                {/* 一、经营单位及项目公司整体指标 (10 项指标卡片) */}
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        【一、经营单位及项目公司整体指标】
+                      </h2>
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      保留同比变化 · 点击查看 12 个月历史明细与公式
+                    </span>
+                  </div>
 
-            {/* 二、产品管控指标 (5卡片/行 + 跳转链接) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                    {FACTORY_TOP10_METRICS.map((m) => (
+                      <div
+                        key={m.id}
+                        onClick={() => setActiveViewMetric(m)}
+                        className="p-3.5 bg-slate-50/70 hover:bg-blue-50/40 rounded-xl border border-slate-200 hover:border-blue-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between font-sans gap-1">
+                          <span className="text-[11px] font-bold text-slate-700 truncate">{m.name}</span>
+                          {m.badge && (
+                            <span
+                              className={cn(
+                                'text-[9px] px-1.5 py-0.5 rounded font-sans font-medium shrink-0 whitespace-nowrap',
+                                m.badge === '国家级零碳工厂' && 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
+                                m.badge === '国家级绿色工厂' && 'bg-teal-50 text-teal-700 border border-teal-200/80',
+                                m.badge === '公司管理要求' && 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                              )}
+                            >
+                              {m.badge}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
+                            {m.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{m.unit}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setActiveViewMetric(m)
+                            }}
+                            className="text-[11px] font-medium text-[#1677ff] hover:text-blue-700 hover:bg-blue-50 px-2 py-0.5 rounded border border-blue-200 transition-all cursor-pointer flex items-center gap-0.5 shrink-0"
+                          >
+                            <span>详情</span>
+                          </button>
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] font-sans">
+                          <span className="text-slate-500">同比</span>
+                          <span className="font-bold text-emerald-600 font-mono">{m.yoy} ↓</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 二、产品管控指标 (5卡片/行 + 跳转链接) */}
                 <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                     <div className="flex items-center gap-2">
@@ -2093,9 +2581,11 @@ export default function IndicatorControlPage() {
               </div>
             )}
           </div>
-        </div>
-      )
-    }
+        )}
+      </div>
+    </div>
+  )
+}
 // 因子说明生成函数 (依据指标类别动态返回折标煤系数或碳排放因子)
 function getFactorDescription(metric: IndicatorMetric): { title: string; subtitle: string; content: string } {
   const name = metric.name || ''

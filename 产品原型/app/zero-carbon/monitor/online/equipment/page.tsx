@@ -33,15 +33,19 @@ interface KeyEquipmentInfo {
   gasFlowM3?: number
   pressureMpa?: number
   temperatureC?: number
+  powerYoy?: string
+  energyYoy?: string
+  flowYoy?: string
+  pressureYoy?: string
 }
 
 const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
-  { id: 'eq-dry-01', name: '1# 1000kV级气相白真空干燥罐组', code: 'EQ-SB-DRY-01', company: '沈变公司', location: '特高压一车间', status: '运行中', powerKW: 4680, energyKWh: 112340, mediumTag: '电·汽', steamFlowT: 1.85, pressureMpa: 0.005, temperatureC: 135.2 },
-  { id: 'eq-dry-02', name: '2# 特高压变压器煤油汽相干燥罐', code: 'EQ-SB-DRY-02', company: '沈变公司', location: '特高压二车间', status: '运行中', powerKW: 3950, energyKWh: 94800, mediumTag: '电·汽', steamFlowT: 1.62, pressureMpa: 0.006, temperatureC: 132.8 },
-  { id: 'eq-dry-03', name: '3# 500kV 悬垂立塔交联生产线', code: 'EQ-LL-VUL-01', company: '鲁缆公司', location: '超高压立塔车间', status: '运行中', powerKW: 3850, energyKWh: 92400, mediumTag: '电·汽', steamFlowT: 2.10, pressureMpa: 1.85, temperatureC: 210.5 },
-  { id: 'eq-dry-04', name: '4# 连续硫化橡胶挤塑机组', code: 'EQ-LL-VUL-02', company: '鲁缆公司', location: '橡缆挤塑车间', status: '运行中', powerKW: 1620, energyKWh: 38880, mediumTag: '电·水', pressureMpa: 0.65, temperatureC: 175.0 },
-  { id: 'eq-dry-05', name: '5# 铁心纵剪硅钢片十头纵剪线', code: 'EQ-XB-SHR-01', company: '新变厂', location: '铁心智造中心', status: '运行中', powerKW: 2120, energyKWh: 50880, mediumTag: '电', pressureMpa: 0.0, temperatureC: 28.5 },
-  { id: 'eq-dry-06', name: '6# 煤油喷淋回收及热循环系统', code: 'EQ-HB-REC-01', company: '衡变公司', location: '干燥辅助站房', status: '运行中', powerKW: 1050, energyKWh: 25200, mediumTag: '电·气', gasFlowM3: 45.2, pressureMpa: 0.42, temperatureC: 85.0 },
+  { id: 'eq-dry-01', name: '1# 1000kV级气相白真空干燥罐组', code: 'EQ-SB-DRY-01', company: '沈变公司', location: '特高压一车间', status: '运行中', powerKW: 4680, energyKWh: 112340, mediumTag: '电·汽', steamFlowT: 1.85, pressureMpa: 0.005, temperatureC: 135.2, powerYoy: '-4.2% ↓', energyYoy: '-3.8% ↓', flowYoy: '-5.1% ↓', pressureYoy: '+0.2% ↑' },
+  { id: 'eq-dry-02', name: '2# 特高压变压器煤油汽相干燥罐', code: 'EQ-SB-DRY-02', company: '沈变公司', location: '特高压二车间', status: '运行中', powerKW: 3950, energyKWh: 94800, mediumTag: '电·汽', steamFlowT: 1.62, pressureMpa: 0.006, temperatureC: 132.8, powerYoy: '-3.5% ↓', energyYoy: '-4.1% ↓', flowYoy: '-2.8% ↓', pressureYoy: '+0.1% ↑' },
+  { id: 'eq-dry-03', name: '3# 500kV 悬垂立塔交联生产线', code: 'EQ-LL-VUL-01', company: '鲁缆公司', location: '超高压立塔车间', status: '运行中', powerKW: 3850, energyKWh: 92400, mediumTag: '电·汽', steamFlowT: 2.10, pressureMpa: 1.85, temperatureC: 210.5, powerYoy: '+1.8% ↑', energyYoy: '-2.4% ↓', flowYoy: '-3.6% ↓', pressureYoy: '-0.5% ↓' },
+  { id: 'eq-dry-04', name: '4# 连续硫化橡胶挤塑机组', code: 'EQ-LL-VUL-02', company: '鲁缆公司', location: '橡缆挤塑车间', status: '运行中', powerKW: 1620, energyKWh: 38880, mediumTag: '电·水', pressureMpa: 0.65, temperatureC: 175.0, powerYoy: '-5.2% ↓', energyYoy: '-4.7% ↓', flowYoy: '—', pressureYoy: '+0.3% ↑' },
+  { id: 'eq-dry-05', name: '5# 铁心纵剪硅钢片十头纵剪线', code: 'EQ-XB-SHR-01', company: '新变厂', location: '铁心智造中心', status: '运行中', powerKW: 2120, energyKWh: 50880, mediumTag: '电', pressureMpa: 0.0, temperatureC: 28.5, powerYoy: '-2.1% ↓', energyYoy: '-3.3% ↓', flowYoy: '—', pressureYoy: '—' },
+  { id: 'eq-dry-06', name: '6# 煤油喷淋回收及热循环系统', code: 'EQ-HB-REC-01', company: '衡变公司', location: '干燥辅助站房', status: '运行中', powerKW: 1050, energyKWh: 25200, mediumTag: '电·气', gasFlowM3: 45.2, pressureMpa: 0.42, temperatureC: 85.0, powerYoy: '-6.4% ↓', energyYoy: '-5.9% ↓', flowYoy: '-4.8% ↓', pressureYoy: '+0.1% ↑' },
 ]
 
 export default function EquipmentPage() {
@@ -170,13 +174,10 @@ export default function EquipmentPage() {
                 </div>
               </div>
             </div>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              {selectedEq.status}
-            </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-mono">
+            {/* 1. 实时有功功率 */}
             <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-200/80 space-y-1">
               <div className="text-xs text-blue-800 font-sans flex items-center gap-1 font-bold">
                 <Zap className="size-3 text-blue-600" />
@@ -185,8 +186,15 @@ export default function EquipmentPage() {
               <div className="text-2xl font-extrabold text-[#1677ff]">
                 {selectedEq.powerKW?.toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">kW</span>
               </div>
+              <div className="pt-2 border-t border-blue-200/60 flex items-center justify-between text-[11px] font-sans">
+                <span className="text-slate-500">同比</span>
+                <span className={cn('font-bold font-mono', (selectedEq.powerYoy || '-4.2%').includes('+') ? 'text-red-500' : 'text-emerald-600')}>
+                  {selectedEq.powerYoy || '-4.2% ↓'}
+                </span>
+              </div>
             </div>
 
+            {/* 2. 当月累计用电量 */}
             <div className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-200/80 space-y-1">
               <div className="text-xs text-emerald-800 font-sans flex items-center gap-1 font-bold">
                 <Zap className="size-3 text-emerald-600" />
@@ -195,18 +203,32 @@ export default function EquipmentPage() {
               <div className="text-2xl font-extrabold text-emerald-700">
                 {selectedEq.energyKWh?.toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">kWh</span>
               </div>
+              <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between text-[11px] font-sans">
+                <span className="text-slate-500">同比</span>
+                <span className={cn('font-bold font-mono', (selectedEq.energyYoy || '-3.8%').includes('+') ? 'text-red-500' : 'text-emerald-600')}>
+                  {selectedEq.energyYoy || '-3.8% ↓'}
+                </span>
+              </div>
             </div>
 
+            {/* 3. 蒸汽/天然气瞬时流量 */}
             <div className="p-3 bg-purple-50/50 rounded-xl border border-purple-200/80 space-y-1">
               <div className="text-xs text-purple-800 font-sans flex items-center gap-1 font-bold">
                 <Wind className="size-3 text-purple-600" />
-                蒸汽瞬时流量
+                {selectedEq.gasFlowM3 ? '天然气瞬时流量' : '蒸汽瞬时流量'}
               </div>
               <div className="text-2xl font-extrabold text-purple-700">
-                {selectedEq.steamFlowT ? `${selectedEq.steamFlowT} t/h` : '—'}
+                {selectedEq.steamFlowT ? `${selectedEq.steamFlowT} t/h` : selectedEq.gasFlowM3 ? `${selectedEq.gasFlowM3} m³/h` : '—'}
+              </div>
+              <div className="pt-2 border-t border-purple-200/60 flex items-center justify-between text-[11px] font-sans">
+                <span className="text-slate-500">同比</span>
+                <span className={cn('font-bold font-mono', (selectedEq.flowYoy || '-5.1%').includes('+') ? 'text-red-500' : (selectedEq.flowYoy === '—' ? 'text-slate-400' : 'text-emerald-600'))}>
+                  {selectedEq.flowYoy || (selectedEq.steamFlowT || selectedEq.gasFlowM3 ? '-5.1% ↓' : '—')}
+                </span>
               </div>
             </div>
 
+            {/* 4. 管道工作压力 */}
             <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-200/80 space-y-1">
               <div className="text-xs text-amber-800 font-sans flex items-center gap-1 font-bold">
                 <Flame className="size-3 text-amber-600" />
@@ -214,6 +236,12 @@ export default function EquipmentPage() {
               </div>
               <div className="text-2xl font-extrabold text-amber-700">
                 {selectedEq.pressureMpa ? `${selectedEq.pressureMpa} MPa` : '—'}
+              </div>
+              <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-sans">
+                <span className="text-slate-500">同比</span>
+                <span className={cn('font-bold font-mono', (selectedEq.pressureYoy || '+0.2%').includes('+') ? 'text-slate-600' : (selectedEq.pressureYoy === '—' ? 'text-slate-400' : 'text-emerald-600'))}>
+                  {selectedEq.pressureYoy || (selectedEq.pressureMpa ? '+0.2% ↑' : '—')}
+                </span>
               </div>
             </div>
           </div>
@@ -252,11 +280,9 @@ export default function EquipmentPage() {
               <h3 className="text-xs font-bold text-slate-800">
                 【{selectedEq.name}】实时监测数据明细台账 (15分钟/次采样)
               </h3>
-              <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">物联网关直发</span>
             </div>
 
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-400 font-mono">今日采样: 96 点位 · 连续正常</span>
               <button
                 type="button"
                 onClick={() => alert(`正在导出【${selectedEq.name}】实时能耗采集数据 (Excel)...`)}
@@ -273,43 +299,29 @@ export default function EquipmentPage() {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
                   <th className="py-2.5 px-3">采样时间</th>
-                  <th className="py-2.5 px-3">运行状态</th>
                   <th className="py-2.5 px-3">实时有功功率 (kW)</th>
                   <th className="py-2.5 px-3">功率因数 (cosφ)</th>
                   <th className="py-2.5 px-3">瞬时介质消耗</th>
                   <th className="py-2.5 px-3">管道压力 (MPa)</th>
                   <th className="py-2.5 px-3">工况温度 (℃)</th>
                   <th className="py-2.5 px-3">当日累计用电 (kWh)</th>
-                  <th className="py-2.5 px-3">能效预警状态</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {[
-                  { time: '12:00:00', status: '运行中', kw: selectedEq.powerKW || 4680, cos: 0.95, flow: selectedEq.steamFlowT ? `${selectedEq.steamFlowT} t/h` : selectedEq.gasFlowM3 ? `${selectedEq.gasFlowM3} m³/h` : '—', mpa: selectedEq.pressureMpa ? `${selectedEq.pressureMpa} MPa` : '—', temp: `${selectedEq.temperatureC || 32.5} °C`, kwh: (selectedEq.energyKWh || 112340).toLocaleString(), warn: '正常' },
-                  { time: '11:45:00', status: '运行中', kw: Math.round((selectedEq.powerKW || 4680) * 0.98), cos: 0.95, flow: selectedEq.steamFlowT ? `${(selectedEq.steamFlowT * 0.98).toFixed(2)} t/h` : selectedEq.gasFlowM3 ? `${(selectedEq.gasFlowM3 * 0.98).toFixed(1)} m³/h` : '—', mpa: selectedEq.pressureMpa ? `${selectedEq.pressureMpa} MPa` : '—', temp: `${((selectedEq.temperatureC || 32.5) - 0.2).toFixed(1)} °C`, kwh: ((selectedEq.energyKWh || 112340) + 720).toLocaleString(), warn: '正常' },
-                  { time: '11:30:00', status: '运行中', kw: Math.round((selectedEq.powerKW || 4680) * 0.99), cos: 0.95, flow: selectedEq.steamFlowT ? `${(selectedEq.steamFlowT * 0.99).toFixed(2)} t/h` : selectedEq.gasFlowM3 ? `${(selectedEq.gasFlowM3 * 0.99).toFixed(1)} m³/h` : '—', mpa: selectedEq.pressureMpa ? `${selectedEq.pressureMpa} MPa` : '—', temp: `${((selectedEq.temperatureC || 32.5) - 0.5).toFixed(1)} °C`, kwh: ((selectedEq.energyKWh || 112340) + 480).toLocaleString(), warn: '正常' },
-                  { time: '11:15:00', status: '运行中', kw: Math.round((selectedEq.powerKW || 4680) * 0.97), cos: 0.94, flow: selectedEq.steamFlowT ? `${(selectedEq.steamFlowT * 0.97).toFixed(2)} t/h` : selectedEq.gasFlowM3 ? `${(selectedEq.gasFlowM3 * 0.97).toFixed(1)} m³/h` : '—', mpa: selectedEq.pressureMpa ? `${selectedEq.pressureMpa} MPa` : '—', temp: `${((selectedEq.temperatureC || 32.5) - 0.8).toFixed(1)} °C`, kwh: ((selectedEq.energyKWh || 112340) + 240).toLocaleString(), warn: '正常' },
+                  { time: '12:00:00', kw: selectedEq.powerKW || 4680, cos: 0.95, flow: selectedEq.steamFlowT ? `${selectedEq.steamFlowT} t/h` : selectedEq.gasFlowM3 ? `${selectedEq.gasFlowM3} m³/h` : '—', mpa: selectedEq.pressureMpa ? `${selectedEq.pressureMpa} MPa` : '—', temp: `${selectedEq.temperatureC || 32.5} °C`, kwh: (selectedEq.energyKWh || 112340).toLocaleString() },
+                  { time: '11:45:00', kw: Math.round((selectedEq.powerKW || 4680) * 0.98), cos: 0.95, flow: selectedEq.steamFlowT ? `${(selectedEq.steamFlowT * 0.98).toFixed(2)} t/h` : selectedEq.gasFlowM3 ? `${(selectedEq.gasFlowM3 * 0.98).toFixed(1)} m³/h` : '—', mpa: selectedEq.pressureMpa ? `${selectedEq.pressureMpa} MPa` : '—', temp: `${((selectedEq.temperatureC || 32.5) - 0.2).toFixed(1)} °C`, kwh: ((selectedEq.energyKWh || 112340) + 720).toLocaleString() },
+                  { time: '11:30:00', kw: Math.round((selectedEq.powerKW || 4680) * 0.99), cos: 0.95, flow: selectedEq.steamFlowT ? `${(selectedEq.steamFlowT * 0.99).toFixed(2)} t/h` : selectedEq.gasFlowM3 ? `${(selectedEq.gasFlowM3 * 0.99).toFixed(1)} m³/h` : '—', mpa: selectedEq.pressureMpa ? `${selectedEq.pressureMpa} MPa` : '—', temp: `${((selectedEq.temperatureC || 32.5) - 0.5).toFixed(1)} °C`, kwh: ((selectedEq.energyKWh || 112340) + 480).toLocaleString() },
+                  { time: '11:15:00', kw: Math.round((selectedEq.powerKW || 4680) * 0.97), cos: 0.94, flow: selectedEq.steamFlowT ? `${(selectedEq.steamFlowT * 0.97).toFixed(2)} t/h` : selectedEq.gasFlowM3 ? `${(selectedEq.gasFlowM3 * 0.97).toFixed(1)} m³/h` : '—', mpa: selectedEq.pressureMpa ? `${selectedEq.pressureMpa} MPa` : '—', temp: `${((selectedEq.temperatureC || 32.5) - 0.8).toFixed(1)} °C`, kwh: ((selectedEq.energyKWh || 112340) + 240).toLocaleString() },
                 ].map((row, idx) => (
                   <tr key={idx} className="hover:bg-blue-50/40 transition-colors">
                     <td className="py-2.5 px-3 text-slate-600 font-semibold">{row.time}</td>
-                    <td className="py-2.5 px-3 font-sans">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <span className="size-1 rounded-full bg-emerald-500" />
-                        {row.status}
-                      </span>
-                    </td>
                     <td className="py-2.5 px-3 font-bold text-blue-700">{row.kw.toLocaleString()}</td>
                     <td className="py-2.5 px-3 text-slate-700">{row.cos}</td>
                     <td className="py-2.5 px-3 font-bold text-purple-700">{row.flow}</td>
                     <td className="py-2.5 px-3 text-amber-700">{row.mpa}</td>
                     <td className="py-2.5 px-3 text-slate-800">{row.temp}</td>
                     <td className="py-2.5 px-3 font-bold text-emerald-700">{row.kwh}</td>
-                    <td className="py-2.5 px-3 font-sans">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded text-[10.5px] font-semibold bg-emerald-50 text-emerald-700">
-                        <CheckCircle2 className="size-3" />
-                        {row.warn}
-                      </span>
-                    </td>
                   </tr>
                 ))}
               </tbody>

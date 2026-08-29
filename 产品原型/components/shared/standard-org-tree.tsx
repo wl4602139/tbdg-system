@@ -42,8 +42,8 @@ export interface StandardOrgNode {
 export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
   {
     id: 'ent_root',
-    name: '电装集团',
-    fullName: '电装集团',
+    name: '特变电工集团 (全公汇总)',
+    fullName: '特变电工集团 (全公汇总)',
     level: 'group',
     badge: '全集团',
     children: [

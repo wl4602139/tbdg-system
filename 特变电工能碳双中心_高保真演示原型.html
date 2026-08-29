@@ -456,16 +456,51 @@
           </span>
         </div>
 
-        <!-- 双中心切换胶囊 -->
-        <div class="hidden lg:flex items-center p-0.5 rounded-lg bg-slate-100 border border-slate-200 ml-4 text-xs">
-          <button onclick="setPlatformMode('zero')" id="btn-zero-center" class="flex items-center gap-1.5 px-3 py-1 rounded-md font-bold transition-all bg-white text-[#1677ff] shadow-xs">
-            <i data-lucide="globe-2" class="size-3.5 text-[#1677ff]"></i>
-            零碳园区集控中心
+        <!-- 双中心切换下拉框 -->
+        <div class="relative ml-2" id="center-dropdown-container">
+          <button onclick="toggleCenterDropdown()" id="center-dropdown-trigger" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 text-xs font-semibold text-slate-800 transition-all cursor-pointer group">
+            <div id="center-active-icon-bg" class="size-5 rounded flex items-center justify-center bg-blue-100 text-[#1677ff] transition-transform group-hover:scale-105">
+              <i id="center-active-icon" data-lucide="globe-2" class="size-3.5"></i>
+            </div>
+            <span id="center-active-text" class="font-bold group-hover:text-[#1677ff] transition-colors">零碳园区集控中心</span>
+            <span id="center-active-badge" class="text-[10px] px-1.5 py-0.5 rounded leading-none bg-blue-100/70 text-[#1677ff] font-medium">集控中心</span>
+            <i data-lucide="chevron-down" id="center-dropdown-chevron" class="size-3.5 text-slate-400 ml-0.5 transition-transform duration-200 group-hover:text-slate-600"></i>
           </button>
-          <button onclick="setPlatformMode('carbon')" id="btn-carbon-center" class="flex items-center gap-1.5 px-3 py-1 rounded-md font-medium text-slate-600 hover:text-slate-900 transition-all">
-            <i data-lucide="leaf" class="size-3.5 text-emerald-600"></i>
-            产品碳足迹集采中心
-          </button>
+
+          <!-- 下拉菜单浮层 -->
+          <div id="center-dropdown-menu" class="hidden absolute left-0 top-full mt-1.5 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50">
+            <div class="px-3 py-1.5 mb-1 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">切换业务中心平台</span>
+              <span class="text-[10px] text-slate-400 font-mono">DUAL CENTER</span>
+            </div>
+            <div class="p-1 space-y-1">
+              <button onclick="selectCenterOption('zero')" class="w-full text-left flex items-start gap-2.5 p-2 rounded-lg bg-blue-50/80 border border-blue-200 transition-all text-xs group cursor-pointer" id="opt-zero-center">
+                <div class="size-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 bg-blue-100 text-[#1677ff] shadow-2xs">
+                  <i data-lucide="globe-2" class="size-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-1 mb-0.5">
+                    <span class="font-bold text-xs text-[#1677ff]" id="opt-zero-title">零碳园区集控中心</span>
+                    <i data-lucide="check" class="size-3.5 text-[#1677ff]" id="check-zero"></i>
+                  </div>
+                  <p class="text-[11px] text-slate-500 line-clamp-1">微电网全景看板 · 47项制造工序能效 · 碳核算</p>
+                </div>
+              </button>
+
+              <button onclick="selectCenterOption('carbon')" class="w-full text-left flex items-start gap-2.5 p-2 rounded-lg hover:bg-slate-50 border border-transparent transition-all text-xs group cursor-pointer" id="opt-carbon-center">
+                <div class="size-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 bg-emerald-100 text-emerald-600 shadow-2xs">
+                  <i data-lucide="leaf" class="size-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-1 mb-0.5">
+                    <span class="font-bold text-xs text-slate-800" id="opt-carbon-title">产品碳足迹集采中心</span>
+                    <i data-lucide="check" class="size-3.5 text-emerald-600 hidden" id="check-carbon"></i>
+                  </div>
+                  <p class="text-[11px] text-slate-500 line-clamp-1">生命周期LCA建模 · CBAM关税核算 · 因子库</p>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1983,6 +2018,78 @@
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
     }
+
+    function toggleCenterDropdown() {
+      const menu = document.getElementById('center-dropdown-menu');
+      const chevron = document.getElementById('center-dropdown-chevron');
+      if (menu) {
+        const isHidden = menu.classList.contains('hidden');
+        if (isHidden) {
+          menu.classList.remove('hidden');
+          if (chevron) chevron.classList.add('rotate-180', 'text-[#1677ff]');
+        } else {
+          menu.classList.add('hidden');
+          if (chevron) chevron.classList.remove('rotate-180', 'text-[#1677ff]');
+        }
+      }
+    }
+
+    function selectCenterOption(mode) {
+      const isZero = mode === 'zero';
+      const text = document.getElementById('center-active-text');
+      const badge = document.getElementById('center-active-badge');
+      const iconBg = document.getElementById('center-active-icon-bg');
+      const icon = document.getElementById('center-active-icon');
+      const checkZero = document.getElementById('check-zero');
+      const checkCarbon = document.getElementById('check-carbon');
+      const optZero = document.getElementById('opt-zero-center');
+      const optCarbon = document.getElementById('opt-carbon-center');
+      const optZeroTitle = document.getElementById('opt-zero-title');
+      const optCarbonTitle = document.getElementById('opt-carbon-title');
+
+      if (isZero) {
+        if (text) text.innerText = '零碳园区集控中心';
+        if (badge) {
+          badge.innerText = '集控中心';
+          badge.className = 'text-[10px] px-1.5 py-0.5 rounded leading-none bg-blue-100/70 text-[#1677ff] font-medium';
+        }
+        if (iconBg) iconBg.className = 'size-5 rounded flex items-center justify-center bg-blue-100 text-[#1677ff]';
+        if (icon) icon.setAttribute('data-lucide', 'globe-2');
+        if (checkZero) checkZero.classList.remove('hidden');
+        if (checkCarbon) checkCarbon.classList.add('hidden');
+        if (optZero) optZero.className = 'w-full text-left flex items-start gap-2.5 p-2 rounded-lg bg-blue-50/80 border border-blue-200 transition-all text-xs group cursor-pointer';
+        if (optCarbon) optCarbon.className = 'w-full text-left flex items-start gap-2.5 p-2 rounded-lg hover:bg-slate-50 border border-transparent transition-all text-xs group cursor-pointer';
+        if (optZeroTitle) optZeroTitle.className = 'font-bold text-xs text-[#1677ff]';
+        if (optCarbonTitle) optCarbonTitle.className = 'font-bold text-xs text-slate-800';
+      } else {
+        if (text) text.innerText = '产品碳足迹集采中心';
+        if (badge) {
+          badge.innerText = '集采中心';
+          badge.className = 'text-[10px] px-1.5 py-0.5 rounded leading-none bg-emerald-100/70 text-emerald-700 font-medium';
+        }
+        if (iconBg) iconBg.className = 'size-5 rounded flex items-center justify-center bg-emerald-100 text-emerald-600';
+        if (icon) icon.setAttribute('data-lucide', 'leaf');
+        if (checkZero) checkZero.classList.add('hidden');
+        if (checkCarbon) checkCarbon.classList.remove('hidden');
+        if (optZero) optZero.className = 'w-full text-left flex items-start gap-2.5 p-2 rounded-lg hover:bg-slate-50 border border-transparent transition-all text-xs group cursor-pointer';
+        if (optCarbon) optCarbon.className = 'w-full text-left flex items-start gap-2.5 p-2 rounded-lg bg-emerald-50/80 border border-emerald-200 transition-all text-xs group cursor-pointer';
+        if (optZeroTitle) optZeroTitle.className = 'font-bold text-xs text-slate-800';
+        if (optCarbonTitle) optCarbonTitle.className = 'font-bold text-xs text-emerald-600';
+      }
+
+      toggleCenterDropdown();
+      lucide.createIcons();
+    }
+
+    document.addEventListener('click', function(e) {
+      const container = document.getElementById('center-dropdown-container');
+      const menu = document.getElementById('center-dropdown-menu');
+      const chevron = document.getElementById('center-dropdown-chevron');
+      if (container && !container.contains(e.target) && menu && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+        if (chevron) chevron.classList.remove('rotate-180', 'text-[#1677ff]');
+      }
+    });
   </script>
 
 </body>
