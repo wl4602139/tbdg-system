@@ -479,25 +479,6 @@ export function StandardOrgTree({
             <span className="truncate flex-1" title={node.fullName || node.name}>
               {node.name}
             </span>
-
-            {/* 徽标 */}
-            {node.badge && (
-              <span
-                className={cn(
-                  'text-[9.5px] px-1 py-0.2 rounded font-mono shrink-0 scale-95',
-                  node.badge === '全集团' && 'bg-blue-100 text-blue-700 font-bold',
-                  node.badge.includes('园区') && 'bg-emerald-100 text-emerald-800 font-bold',
-                  node.badge === '主体' && 'bg-amber-100 text-amber-800 font-medium',
-                  node.badge === '微网' && 'bg-cyan-100 text-cyan-800 font-medium',
-                  node.badge === '光伏' && 'bg-emerald-100 text-emerald-800 font-medium',
-                  ['沈阳', '衡阳', '昌吉', '新泰', '德阳', '西安', '云集', '南京', '天津', '河北', '湖南', '山东', '武清', '乌市'].includes(node.badge) &&
-                    'bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-sans',
-                  node.badge.endsWith('单位') && 'bg-slate-100 text-slate-600 font-medium'
-                )}
-              >
-                {node.badge}
-              </span>
-            )}
           </div>
 
           {/* 子节点容器 (带 Ant Design 风格垂直导线) */}
