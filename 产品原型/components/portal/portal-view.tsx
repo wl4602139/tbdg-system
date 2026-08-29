@@ -73,18 +73,15 @@ export function PortalView() {
           </p>
 
           {/* 核心价值微标签 */}
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs pt-1">
-            <span className="px-2.5 py-0.5 rounded-md bg-white/80 border border-slate-200 text-slate-600 shadow-2xs font-mono">
-              🌐 GIS 园区全景
+          <div className="flex flex-wrap items-center justify-center gap-2.5 text-xs pt-1">
+            <span className="px-3 py-1 rounded-md bg-white/90 border border-slate-200 text-slate-700 shadow-2xs font-sans font-medium">
+              🏭 国家零碳工厂对标
             </span>
-            <span className="px-2.5 py-0.5 rounded-md bg-white/80 border border-slate-200 text-slate-600 shadow-2xs font-mono">
-              ⚡ 4 维横向 PK 对标
+            <span className="px-3 py-1 rounded-md bg-white/90 border border-slate-200 text-slate-700 shadow-2xs font-sans font-medium">
+              🌿 产品碳足迹在线核算及认证
             </span>
-            <span className="px-2.5 py-0.5 rounded-md bg-white/80 border border-slate-200 text-slate-600 shadow-2xs font-mono">
-              ☀️ 绿电消纳溯源
-            </span>
-            <span className="px-2.5 py-0.5 rounded-md bg-white/80 border border-slate-200 text-slate-600 shadow-2xs font-mono">
-              🌿 ISO 14067 / CBAM 出海合规
+            <span className="px-3 py-1 rounded-md bg-white/90 border border-slate-200 text-slate-700 shadow-2xs font-sans font-medium">
+              ⚡ 产品能耗能效深度分析
             </span>
           </div>
         </div>
