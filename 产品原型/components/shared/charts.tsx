@@ -337,6 +337,19 @@ export function SankeyFlow({
         chartInstance.current = echarts.init(chartRef.current)
       }
 
+      // 计算根节点 (depth === 0) 的总通量值以支持占比计算
+      const rootNode = nodes.find((n: any) => n.depth === 0)
+      let rootTotal = 0
+      if (rootNode && rootNode.value !== undefined) {
+        rootTotal = Number(rootNode.value)
+      } else {
+        const rootLinks = links.filter((l: any) => {
+          const srcNode = nodes.find((n: any) => n.name === l.source)
+          return srcNode ? srcNode.depth === 0 : false
+        })
+        rootTotal = rootLinks.reduce((sum: number, l: any) => sum + (Number(l.value) || 0), 0)
+      }
+
       const option: any = {
         tooltip: {
           trigger: 'item',
@@ -352,12 +365,19 @@ export function SankeyFlow({
           },
           formatter: (params: any) => {
             if (params.dataType === 'node') {
+              const isRoot = params.data?.depth === 0
+              const ratioStr = !isRoot && rootTotal > 0 && params.value !== undefined
+                ? `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占全集团: ${((params.value / rootTotal) * 100).toFixed(1)}%)</span>`
+                : ''
               return `<div style="font-weight: bold; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px;">${params.name}</div>
-                      <div style="color: #475569;">总通量: <strong style="color: #1677ff; font-family: monospace;">${params.value !== undefined ? params.value.toLocaleString() : '-'}</strong> ${unit}</div>`
+                      <div style="color: #475569;">总通量: <strong style="color: #1677ff; font-family: monospace;">${params.value !== undefined ? params.value.toLocaleString() : '-'}</strong> ${unit}${ratioStr}</div>`
             } else if (params.dataType === 'edge') {
-              return `<div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">能量流向传递</div>
+              const edgeRatioStr = rootTotal > 0 && params.data?.value !== undefined
+                ? `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占全集团: ${((params.data.value / rootTotal) * 100).toFixed(1)}%)</span>`
+                : ''
+              return `<div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">能量/介质流向传递</div>
                       <div style="font-weight: 600; color: #1e293b;">${params.data.source} ➔ ${params.data.target}</div>
-                      <div style="margin-top: 4px; color: #334155;">流转量: <strong style="color: #1677ff; font-family: monospace;">${params.data.value?.toLocaleString()}</strong> ${unit}</div>`
+                      <div style="margin-top: 4px; color: #334155;">流转量: <strong style="color: #1677ff; font-family: monospace;">${params.data.value?.toLocaleString()}</strong> ${unit}${edgeRatioStr}</div>`
             }
             return ''
           },
@@ -389,14 +409,26 @@ export function SankeyFlow({
               fontWeight: 600,
               fontFamily: 'sans-serif',
               formatter: (params: any) => {
-                const valStr = params.value !== undefined ? `\n{val|${params.value} ${unit}}` : ''
-                return `${params.name}${valStr}`
+                if (params.value === undefined) return params.name
+                const isRoot = params.data?.depth === 0
+                if (isRoot || !rootTotal) {
+                  return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}}`
+                }
+                const ratio = ((params.value / rootTotal) * 100).toFixed(1)
+                return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}} {ratio|(${ratio}%)}`
               },
               rich: {
                 val: {
                   fontSize: 10,
                   color: '#64748b',
                   fontFamily: 'monospace',
+                  padding: [2, 0, 0, 0],
+                },
+                ratio: {
+                  fontSize: 10,
+                  color: '#10b981',
+                  fontWeight: 'bold',
+                  fontFamily: 'sans-serif',
                   padding: [2, 0, 0, 0],
                 },
               },

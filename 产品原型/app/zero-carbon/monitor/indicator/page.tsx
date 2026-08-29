@@ -2194,20 +2194,41 @@ export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; 
 
   // 6. 德缆公司
   '德缆公司': {
-    products: [],
-    processes: ['①线缆-拉丝'],
+    products: ['线缆-中低压'],
+    processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
     energies: ['电力'],
   },
   '特变电工（德阳）电缆股份有限公司': {
-    products: [],
-    processes: ['①线缆-拉丝'],
+    products: ['线缆-中低压'],
+    processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
     energies: ['电力'],
   },
   '德缆公司本部': {
-    products: [],
-    processes: ['①线缆-拉丝'],
+    products: ['线缆-中低压'],
+    processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
     energies: ['电力'],
   },
+}
+
+// 🌟 产品与关键制造工序对标映射表 (依据《生产单位产品及关键工序对应表》)
+export const PRODUCT_PROCESS_KEYWORD_MAP: Record<string, string[]> = {
+  '变压器-高压': ['高压-干燥', '高压干燥', '变压器-试验', '试验大厅', '特高压', '超高压'],
+  '变压器-中低压-干变': ['干变-固化', '干变固化', '变压器-试验', '试验大厅', '干变'],
+  '变压器-中低压-油变': ['油变-干燥', '油变干燥', '变压器-试验', '试验大厅', '油变'],
+  '变压器-铁芯': ['非晶', '退火', '硅钢', '纵剪', '中型叠装', '大型叠装', '铁心', '铁芯'],
+  '套管': ['套管-干燥', '套管'],
+  '互感器': ['互感器-干燥', '互感器-试验', '互感器'],
+  '中低压开关柜': ['开关柜-钣金加工', '开关柜-钣金喷涂', '开关柜-组装', '开关柜-试验', '开关柜', '钣金'],
+  'GIS': ['GIS-抽真空', 'GIS-绝缘件干燥', 'GIS-工频耐压试验', 'GIS-空调恒温除湿', 'GIS-表面处理', 'GIS-零部件干燥', 'GIS-绝缘装配试验', 'GIS-整机绝缘试验', 'GIS'],
+  '干式电抗器': ['干式电抗器-固化', '干式电抗器-试验', '干式电抗器', '电抗器-固化', '电抗器-试验'],
+  '申抗器': ['电抗器-真空含浸', '电抗器-表面处理', '电抗器-组装', '电抗器-试验', '电抗器'],
+  '电抗器': ['电抗器-真空含浸', '电抗器-表面处理', '电抗器-组装', '电抗器-试验', '电抗器'],
+  '电容器': ['电容器-芯子卷绕', '电容器-真空浸渍', '电容器-喷漆', '电容器-试验', '电容器', '芯子卷绕', '真空浸渍'],
+  'GIL': ['GIL-螺旋焊管生产', 'GIL-绝缘子生产', 'GIL-测试', 'GIL-绝缘件加工', 'GIL-连接', 'GIL'],
+  '二次自动化': ['二次-SMT贴片', '二次-高温老化', '二次-波峰焊', '二次'],
+  '线缆-中低压': ['线缆-拉丝', '线缆-中低压-交联', '铜拉丝', '铝拉丝', '中低压交联', '吨铜电耗', '吨铝电耗'],
+  '线缆-高压': ['线缆-拉丝', '线缆-高压-交联', '铜拉丝', '铝拉丝', '高压交联', '立塔高压', '吨铜电耗', '吨铝电耗'],
+  '线缆-特种电缆': ['线缆-拉丝', '线缆-特种电缆', '特种电缆', '铜拉丝', '铝拉丝', '吨铜电耗'],
 }
 
 // 🌟 产品专属指标基准库 (当切换不同产品标签时动态驱动 5 大单耗指标数值与单位)
@@ -2596,18 +2617,36 @@ export default function IndicatorControlPage() {
     return ['电力', '水', '天然气', '蒸汽']
   }, [activeViewMetric, activeUnitInfo, selectedNode])
 
-  // 工序指标搜索过滤
+  // 🌟 工序指标过滤：依据选中的产品标签动态呈现其对应的关键制造工序对标指标
   const filteredProcessMetrics = useMemo(() => {
-    if (!procSearchKey.trim()) return PROCESS_CONTROL_METRICS
-    const kw = procSearchKey.trim().toLowerCase()
-    return PROCESS_CONTROL_METRICS.filter(
-      (m) =>
-        m.name.toLowerCase().includes(kw) ||
-        m.code.toLowerCase().includes(kw) ||
-        m.formula.toLowerCase().includes(kw) ||
-        m.unit.toLowerCase().includes(kw)
-    )
-  }, [procSearchKey])
+    let list = PROCESS_CONTROL_METRICS
+    if (currentProduct) {
+      const keywords = PRODUCT_PROCESS_KEYWORD_MAP[currentProduct] || [currentProduct]
+      const matched = list.filter((m) =>
+        keywords.some(
+          (kw) =>
+            m.name.includes(kw) ||
+            m.badge.includes(kw) ||
+            m.tipText.includes(kw) ||
+            m.formula.includes(kw)
+        )
+      )
+      if (matched.length > 0) {
+        list = matched
+      }
+    }
+    if (procSearchKey.trim()) {
+      const kw = procSearchKey.trim().toLowerCase()
+      list = list.filter(
+        (m) =>
+          m.name.toLowerCase().includes(kw) ||
+          m.code.toLowerCase().includes(kw) ||
+          m.formula.toLowerCase().includes(kw) ||
+          m.unit.toLowerCase().includes(kw)
+      )
+    }
+    return list
+  }, [currentProduct, procSearchKey])
 
   // 动态整体综合指标 (根据选中的组织节点自适应数值与同比)
   const currentOverallMetrics = useMemo(() => {
@@ -3220,24 +3259,35 @@ export default function IndicatorControlPage() {
                   </div>
                 </div>
 
-                {/* 三、关键制造工序能效管控指标 (4卡片/行) */}
+                {/* 三、关键制造工序能效对标指标 (4卡片/行) */}
                 <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-purple-600 shrink-0" />
                       <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                        【三、关键制造工序能效管控指标】
+                        【三、关键制造工序能效对标指标】
                       </h2>
-                      {activeUnitInfo?.processes && activeUnitInfo.processes.length > 0 && (
+                      {activeUnitInfo?.products && activeUnitInfo.products.length > 0 && (
                         <div className="flex flex-wrap items-center gap-1.5 font-sans">
-                          {activeUnitInfo.processes.map((proc) => (
-                            <span
-                              key={proc}
-                              className="text-[11px] font-bold text-purple-800 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200/80 shadow-2xs"
-                            >
-                              {proc}
-                            </span>
-                          ))}
+                          {activeUnitInfo.products.map((prod) => {
+                            const isActive = currentProduct === prod
+                            return (
+                              <button
+                                key={prod}
+                                type="button"
+                                onClick={() => setSelectedProduct(prod)}
+                                className={cn(
+                                  'text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-all cursor-pointer shadow-2xs select-none flex items-center gap-1',
+                                  isActive
+                                    ? 'text-white bg-purple-600 border-purple-600 shadow-xs scale-105'
+                                    : 'text-purple-800 bg-purple-50 hover:bg-purple-100/80 border-purple-200/80 hover:border-purple-300'
+                                )}
+                              >
+                                {isActive && <span className="size-1.5 rounded-full bg-white animate-pulse" />}
+                                <span>{prod}</span>
+                              </button>
+                            )
+                          })}
                         </div>
                       )}
                     </div>

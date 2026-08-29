@@ -299,7 +299,9 @@ export default function EnergyStructureAnalysisPage() {
 
   // 时间维度
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
-  const [selectedMonth, setSelectedMonth] = useState('2026-08')
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  const [selectedYear, setSelectedYear] = useState('2026')
 
   // 🌟 集团页当前选中的数据项 (用于驱动 6 家单位占电装总量的比重：饼图 + 柱状图)
   const [selectedMetricKey, setSelectedMetricKey] = useState<MetricKey>('totalTce')
@@ -434,13 +436,13 @@ export default function EnergyStructureAnalysisPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* 时间维度切换 (月度/季度/年度) */}
+            {/* 时间维度统一 (月度 / 季度 / 年度) */}
             <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
               <button
                 type="button"
                 onClick={() => setTimeDim('month')}
                 className={cn(
-                  'px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
@@ -450,7 +452,7 @@ export default function EnergyStructureAnalysisPage() {
                 type="button"
                 onClick={() => setTimeDim('quarter')}
                 className={cn(
-                  'px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
@@ -460,7 +462,7 @@ export default function EnergyStructureAnalysisPage() {
                 type="button"
                 onClick={() => setTimeDim('year')}
                 className={cn(
-                  'px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
@@ -468,17 +470,59 @@ export default function EnergyStructureAnalysisPage() {
               </button>
             </div>
 
-            {/* 月份选择器 */}
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
-              <input
-                type="month"
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="选择分析月份"
-              />
-            </div>
+            {/* 时间范围选择控件 (随维度自适应切换) */}
+            {timeDim === 'month' && (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                <input
+                  type="month"
+                  value={selectedMonthRange.start}
+                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  title="起始月份"
+                />
+                <span className="text-slate-400 font-sans">至</span>
+                <input
+                  type="month"
+                  value={selectedMonthRange.end}
+                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  title="结束月份"
+                />
+              </div>
+            )}
+
+            {timeDim === 'quarter' && (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                <select
+                  value={selectedQuarter}
+                  onChange={(e) => setSelectedQuarter(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                >
+                  <option value="2026-Q1">2026年 第1季度 (Q1)</option>
+                  <option value="2026-Q2">2026年 第2季度 (Q2)</option>
+                  <option value="2026-Q3">2026年 第3季度 (Q3)</option>
+                  <option value="2026-Q4">2026年 第4季度 (Q4)</option>
+                  <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+                </select>
+              </div>
+            )}
+
+            {timeDim === 'year' && (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                >
+                  <option value="2026">2026 年度</option>
+                  <option value="2025">2025 年度</option>
+                  <option value="2024">2024 年度</option>
+                </select>
+              </div>
+            )}
 
             {/* 导出按钮 */}
             <button
@@ -487,7 +531,7 @@ export default function EnergyStructureAnalysisPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
             >
               <Download className="size-3.5" />
-              <span>导出报表</span>
+              <span>导出</span>
             </button>
           </div>
         </div>
@@ -527,9 +571,7 @@ export default function EnergyStructureAnalysisPage() {
                   <div className="size-2 rounded-full bg-emerald-500" />
                   综合能源消耗
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-100/80 text-emerald-800 font-sans font-bold">
-                  折标煤基准
-                </span>
+                
               </div>
               <div className="text-xl font-extrabold text-emerald-700 truncate">
                 {activeData.totalTce.toLocaleString()}{' '}
@@ -557,9 +599,7 @@ export default function EnergyStructureAnalysisPage() {
                   <Zap className="size-3.5 text-[#1677ff]" />
                   总用电量
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-50 text-[#1677ff] font-sans font-bold">
-                  电量总和
-                </span>
+                
               </div>
               <div className="text-xl font-extrabold text-[#1677ff] truncate">
                 {activeData.totalElec.toLocaleString()}{' '}
@@ -590,9 +630,7 @@ export default function EnergyStructureAnalysisPage() {
                   <Building2 className="size-3.5 text-slate-600" />
                   市电量 (外购网电)
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700 font-sans font-bold">
-                  外购电
-                </span>
+                
               </div>
               <div className="text-xl font-extrabold text-slate-800 truncate">
                 {activeData.gridElec.toLocaleString()}{' '}
@@ -622,9 +660,7 @@ export default function EnergyStructureAnalysisPage() {
                   <Sun className="size-3.5 text-emerald-600" />
                   直供绿电量
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 font-sans font-bold">
-                  绿色消纳
-                </span>
+                
               </div>
               <div className="text-xl font-extrabold text-emerald-600 truncate">
                 {activeData.greenElec.toLocaleString()}{' '}
@@ -654,9 +690,7 @@ export default function EnergyStructureAnalysisPage() {
                   <Flame className="size-3.5 text-amber-500" />
                   天然气消耗量
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-700 font-sans font-bold">
-                  热力与燃料
-                </span>
+                
               </div>
               <div className="text-xl font-extrabold text-amber-600 truncate">
                 {activeData.gas.toLocaleString()}{' '}
@@ -687,9 +721,7 @@ export default function EnergyStructureAnalysisPage() {
                   <Wind className="size-3.5 text-purple-500" />
                   外购蒸汽量
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-50 text-purple-700 font-sans font-bold">
-                  外购热力
-                </span>
+                
               </div>
               <div className="text-xl font-extrabold text-purple-600 truncate">
                 {activeData.steam.toLocaleString()}{' '}
@@ -720,9 +752,7 @@ export default function EnergyStructureAnalysisPage() {
                   <Fuel className="size-3.5 text-rose-500" />
                   油消耗量
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-rose-50 text-rose-700 font-sans font-bold">
-                  动力与运输
-                </span>
+                
               </div>
               <div className="text-xl font-extrabold text-rose-600 truncate">
                 {activeData.oil.toLocaleString()}{' '}
@@ -753,9 +783,7 @@ export default function EnergyStructureAnalysisPage() {
                   <Snowflake className="size-3.5 text-cyan-500" />
                   液氮消耗量
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-cyan-50 text-cyan-700 font-sans font-bold">
-                  工艺惰化
-                </span>
+                
               </div>
               <div className="text-xl font-extrabold text-cyan-600 truncate">
                 {activeData.nitrogen.toLocaleString()}{' '}
