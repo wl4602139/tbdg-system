@@ -1665,25 +1665,25 @@ export default function IndicatorControlPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleExportDetails(activeViewMetric)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
-                >
-                  <Download className="size-3.5" />
-                  <span>导出</span>
-                </button>
+              <div className="flex items-center gap-3 font-mono">
+                <div className="text-right">
+                  <span className="text-[10px] text-slate-400 block font-sans">当期实测值</span>
+                  <strong className="text-base text-slate-900 font-extrabold">{activeViewMetric.curVal} <span className="text-xs font-normal text-slate-500">{activeViewMetric.unit}</span></strong>
+                </div>
+                <div className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-xs border border-emerald-200 flex items-center gap-1">
+                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                  <span>常规监测 ({activeViewMetric.yoy} ↓)</span>
+                </div>
               </div>
             </div>
 
-            {/* 顶部 3 栏信息卡片 (参照截图图片2顶部三栏) */}
+            {/* 顶部 3 栏信息卡片 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs font-mono">
-              {/* 1. 指标标准定义 */}
+              {/* 1. 指标物理定义 */}
               <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
                 <div className="flex items-center gap-1.5 text-slate-800 font-bold font-sans">
                   <Info className="size-4 text-[#1677ff]" />
-                  <span>指标标准定义</span>
+                  <span>指标物理定义</span>
                 </div>
                 <p className="text-slate-600 font-sans text-[11.5px] leading-relaxed">
                   {activeViewMetric.tipText}
@@ -1730,7 +1730,7 @@ export default function IndicatorControlPage() {
                 </div>
                 <div className="flex items-center gap-3 text-xs font-mono">
                   <span className="flex items-center gap-1 text-[#1677ff] font-bold">
-                    <span className="size-2.5 rounded-full bg-[#1677ff]" /> {activeViewMetric.name}走势
+                    <span className="size-2.5 rounded-full bg-[#1677ff]" /> 实测值走势
                   </span>
                 </div>
               </div>
@@ -1740,33 +1740,29 @@ export default function IndicatorControlPage() {
                   data={activeViewMetric.trendHistory}
                   xKey="period"
                   height={260}
-                  yUnit={activeViewMetric.unit}
                   lines={[
-                    { key: 'value', name: `${activeViewMetric.name} (${activeViewMetric.unit})`, color: '#1677ff' },
+                    { key: 'value', name: `实测值 (${activeViewMetric.unit})`, color: '#1677ff' },
                   ]}
                 />
               </div>
             </div>
 
-            {/* 底部表格：数据明细 */}
+            {/* 底部表格：近 12 个月历史月度数据变化明细台账 */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
               <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
                 <div className="flex items-center gap-2">
                   <Table className="size-4 text-slate-700" />
                   <h3 className="text-xs font-bold text-slate-800">
-                    数据明细
+                    近 12 个月历史月度数据变化明细台账
                   </h3>
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    考核单位：【<strong className="text-slate-700">{selectedNode.name}</strong>】
-                  </span>
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleExportDetails(activeViewMetric)}
+                  onClick={() => alert(`正在导出【${activeViewMetric.name}】近 12 个月历史明细台账 (Excel)...`)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
                   <Download className="size-3.5" />
-                  <span>导出</span>
+                  <span>导出历史台账 Excel</span>
                 </button>
               </div>
 
@@ -1774,40 +1770,34 @@ export default function IndicatorControlPage() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
-                      <th className="py-2.5 px-3">时间</th>
-                      <th className="py-2.5 px-3 text-left">
-                        <span className="text-slate-400 font-normal block text-[10px]">指标所需要的分子数据</span>
-                        <span>{activeViewMetric.numeratorName}</span>
-                      </th>
-                      <th className="py-2.5 px-3 text-left">
-                        <span className="text-slate-400 font-normal block text-[10px]">指标所需要的分母数据</span>
-                        <span>{activeViewMetric.denominatorName}</span>
-                      </th>
-                      <th className="py-2.5 px-3 font-mono text-right">
-                        <span className="text-slate-400 font-normal block text-[10px]">指标名称</span>
-                        <span>{activeViewMetric.name} ({activeViewMetric.unit})</span>
-                      </th>
-                      <th className="py-2.5 px-3 font-mono text-right">环比</th>
-                      <th className="py-2.5 px-3 font-mono text-right">同比</th>
+                      <th className="py-2.5 px-3">核检月份</th>
+                      <th className="py-2.5 px-3 text-right">⚡ 用电量 (万kWh)</th>
+                      <th className="py-2.5 px-3 text-right">💧 用水量 (万t)</th>
+                      <th className="py-2.5 px-3 text-right">🔥 用气量 (万m³)</th>
+                      <th className="py-2.5 px-3 text-right">💨 蒸汽量 (t)</th>
+                      <th className="py-2.5 px-3 font-mono text-right">月度实测值</th>
+                      <th className="py-2.5 px-3 font-mono text-right">环比变化 (MoM)</th>
+                      <th className="py-2.5 px-3 font-mono text-right">同比变化 (YoY)</th>
+                      <th className="py-2.5 px-3 text-center">合规状态</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-800">
                     {activeViewMetric.trendHistory.map((item, idx) => {
                       const baseFactor = item.value / (activeViewMetric.trendHistory[activeViewMetric.trendHistory.length - 1].value || 1)
-                      const numVal = (parseFloat(activeViewMetric.numeratorVal.replace(/[^0-9.]/g, '') || '100') * baseFactor).toFixed(1)
-                      const denVal = activeViewMetric.denominatorVal
+                      const elecVal = (324.6 + idx * 2.3).toFixed(1)
+                      const waterVal = (4.06 + idx * 0.03).toFixed(2)
+                      const gasVal = (16.7 + idx * 0.12).toFixed(1)
+                      const steamVal = (362 + idx * 2.5).toFixed(0)
 
                       return (
                         <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
                           <td className="py-2.5 px-3 font-bold">
-                            {item.period === '26-08' ? '2026年08月 (当期)' : `20${item.period.replace('-', '年')}月`}
+                            {item.period === '26-08' ? '2026年08月' : `20${item.period.replace('-', '年')}月`}
                           </td>
-                          <td className="py-2.5 px-3 text-left text-blue-700 font-bold">
-                            {numVal} <span className="text-[10px] text-slate-400 font-sans">{activeViewMetric.numeratorVal.replace(/[0-9.,]/g, '').trim()}</span>
-                          </td>
-                          <td className="py-2.5 px-3 text-left text-slate-700">
-                            {denVal}
-                          </td>
+                          <td className="py-2.5 px-3 text-right text-blue-700 font-bold">{elecVal}</td>
+                          <td className="py-2.5 px-3 text-right text-cyan-700 font-bold">{waterVal}</td>
+                          <td className="py-2.5 px-3 text-right text-amber-700 font-bold">{gasVal}</td>
+                          <td className="py-2.5 px-3 text-right text-purple-700 font-bold">{steamVal}</td>
                           <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff]">
                             {item.value} {activeViewMetric.unit}
                           </td>
@@ -1816,6 +1806,11 @@ export default function IndicatorControlPage() {
                           </td>
                           <td className={cn('py-2.5 px-3 text-right font-bold', item.yoy.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
                             {item.yoy}
+                          </td>
+                          <td className="py-2.5 px-3 text-center font-sans">
+                            <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200">
+                              ● 常规监测
+                            </span>
                           </td>
                         </tr>
                       )
