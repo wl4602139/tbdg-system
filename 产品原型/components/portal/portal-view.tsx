@@ -1,39 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import {
   Globe2,
   Leaf,
-  ShieldCheck,
-  Zap,
-  Gauge,
-  LineChart as LineIcon,
-  Layers,
   ArrowRight,
-  Sparkles,
-  Building2,
-  FileText,
-  Settings,
-  ChevronRight,
-  Database,
-  Activity,
-  Bot,
-  Factory,
-  Sun,
-  Award,
-  CheckCircle2,
-  Cpu,
-  BarChart3,
-  TrendingDown,
-  Compass,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 export function PortalView() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  const [activeTab, setActiveTab] = useState<'all' | 'zero-carbon' | 'carbon-footprint'>('all')
-
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#f8fafc] via-[#edf3fa] to-[#e6eff9] flex flex-col justify-between overflow-x-hidden selection:bg-blue-100 selection:text-blue-700 font-sans">
       {/* 🌟 1. 高级纯净动态光晕背景（无点阵，清爽通透） */}
@@ -61,7 +36,7 @@ export function PortalView() {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-base tracking-wide text-white drop-shadow-xs">
-                特变电工股份有限公司（电装集团）
+                特变电工电气装备集团
               </span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 text-white font-mono font-bold shadow-xs">
                 v1.01 正式版
@@ -71,23 +46,6 @@ export function PortalView() {
               能碳管控“双中心”数字化运营集成平台 · Always Reliable 全球信赖
             </span>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3 text-xs">
-          <Link
-            href="/docs"
-            className="px-3.5 py-1.5 rounded-lg bg-blue-800/80 hover:bg-blue-800 text-white transition-all flex items-center gap-1.5 font-medium border border-blue-700/80 shadow-xs hover:border-blue-500"
-          >
-            <FileText className="size-3.5 text-blue-200" />
-            <span>开发手册</span>
-          </Link>
-          <Link
-            href="/system"
-            className="px-3.5 py-1.5 rounded-lg bg-blue-800/80 hover:bg-blue-800 text-white transition-all flex items-center gap-1.5 font-medium border border-blue-700/80 shadow-xs hover:border-blue-500"
-          >
-            <Settings className="size-3.5 text-blue-200" />
-            <span>管理配置</span>
-          </Link>
         </div>
       </header>
 
@@ -143,9 +101,6 @@ export function PortalView() {
                 <div className="size-13 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/80 border border-blue-200/80 flex items-center justify-center text-[#1677ff] shadow-xs group-hover:scale-105 transition-transform duration-300">
                   <Globe2 className="size-7 text-[#1677ff]" />
                 </div>
-                <span className="text-xs px-3 py-1 rounded-full bg-blue-50 text-[#1677ff] border border-blue-200/80 font-bold shadow-2xs">
-                  集团 9 大核心功能模块
-                </span>
               </div>
 
               <div>
@@ -171,31 +126,23 @@ export function PortalView() {
                 <span className="text-emerald-700 font-bold">能耗同比 -4.1% ↓</span>
               </div>
 
-              {/* 功能清单 */}
-              <div className="grid grid-cols-2 gap-2.5 text-xs pt-1 text-slate-600">
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-blue-50/50 transition-colors">
+              {/* 描述信息列表 (4 项) */}
+              <div className="space-y-2 text-xs pt-1 text-slate-600 font-sans">
+                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-blue-50/50 transition-colors">
                   <span className="size-1.5 rounded-full bg-[#1677ff] shrink-0" />
-                  <span className="truncate">能源驾驶舱与 GIS 园区分布</span>
+                  <span className="font-medium text-slate-700">集团-经营单位-项目公司多级指标穿透管控</span>
                 </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-blue-50/50 transition-colors">
+                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-blue-50/50 transition-colors">
                   <span className="size-1.5 rounded-full bg-[#1677ff] shrink-0" />
-                  <span className="truncate">65+ 管控指标下钻与 AI 归因</span>
+                  <span className="font-medium text-slate-700">工厂整体-核心产品-关键工序多维指标分类管理</span>
                 </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-blue-50/50 transition-colors">
+                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-blue-50/50 transition-colors">
                   <span className="size-1.5 rounded-full bg-[#1677ff] shrink-0" />
-                  <span className="truncate">水电气四介质与负荷曲线联动</span>
+                  <span className="font-medium text-slate-700">零碳指标集中监管&绿电运行在线监测</span>
                 </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-blue-50/50 transition-colors">
+                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-blue-50/50 transition-colors">
                   <span className="size-1.5 rounded-full bg-[#1677ff] shrink-0" />
-                  <span className="truncate">一键生成绿电消纳分析报告</span>
-                </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-blue-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-[#1677ff] shrink-0" />
-                  <span className="truncate">多工序用能结构桑基图 (Sankey)</span>
-                </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-blue-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-[#1677ff] shrink-0" />
-                  <span className="truncate">线下手工数据合规填报系统</span>
+                  <span className="font-medium text-slate-700">能耗能效多维分析&零碳项目综合评估</span>
                 </div>
               </div>
             </div>
@@ -221,9 +168,6 @@ export function PortalView() {
                 <div className="size-13 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/80 border border-emerald-200/80 flex items-center justify-center text-emerald-600 shadow-xs group-hover:scale-105 transition-transform duration-300">
                   <Leaf className="size-7 text-emerald-600" />
                 </div>
-                <span className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold shadow-2xs">
-                  出海合规与绿色招采
-                </span>
               </div>
 
               <div>
@@ -249,31 +193,23 @@ export function PortalView() {
                 <span className="text-emerald-700 font-bold">CBAM 碳关税已核销</span>
               </div>
 
-              {/* 功能清单 */}
-              <div className="grid grid-cols-2 gap-2.5 text-xs pt-1 text-slate-600">
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-emerald-50/50 transition-colors">
+              {/* 描述信息列表 (4 项) */}
+              <div className="space-y-2 text-xs pt-1 text-slate-600 font-sans">
+                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-emerald-50/50 transition-colors">
                   <span className="size-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span className="truncate">碳足迹全景驾驶舱与红黑榜</span>
+                  <span className="font-medium text-slate-700">产品碳足迹在线核算及快速认证</span>
                 </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-emerald-50/50 transition-colors">
+                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-emerald-50/50 transition-colors">
                   <span className="size-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span className="truncate">BOM 物料与工单能耗实景穿透</span>
+                  <span className="font-medium text-slate-700">碳足迹结果与实测数据的穿透管理</span>
                 </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-emerald-50/50 transition-colors">
+                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-emerald-50/50 transition-colors">
                   <span className="size-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span className="truncate">欧盟 CBAM 申报与碳关税测算</span>
+                  <span className="font-medium text-slate-700">构建电工装备产品碳足迹实景数据库</span>
                 </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-emerald-50/50 transition-colors">
+                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-emerald-50/50 transition-colors">
                   <span className="size-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span className="truncate">ISO 14067 认证材料与证书归档</span>
-                </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-emerald-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span className="truncate">集团标准化因子库同步与下发</span>
-                </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-md hover:bg-emerald-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span className="truncate">供应链碳绩效与前驱物核查</span>
+                  <span className="font-medium text-slate-700">应对CBAM知识库建设</span>
                 </div>
               </div>
             </div>
@@ -289,43 +225,12 @@ export function PortalView() {
             </div>
           </div>
         </div>
-
-        {/* 🌟 5. 底部全集团实时运行遥测指标看板 */}
-        <div className="bg-white/80 backdrop-blur-md rounded-xl border border-[#e5e7eb] p-4 shadow-xs">
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
-            <div className="px-2 py-1">
-              <span className="text-[11px] text-slate-500 block">园区接入总数</span>
-              <div className="text-lg font-bold font-mono text-slate-800 mt-0.5">15 <span className="text-xs text-slate-400 font-sans">个</span></div>
-              <span className="text-[10px] text-blue-600 font-mono">100% 覆盖</span>
-            </div>
-            <div className="px-2 py-1">
-              <span className="text-[11px] text-slate-500 block">产业经营工厂</span>
-              <div className="text-lg font-bold font-mono text-slate-800 mt-0.5">21 <span className="text-xs text-slate-400 font-sans">家</span></div>
-              <span className="text-[10px] text-blue-600 font-mono">全线联网</span>
-            </div>
-            <div className="px-2 py-1">
-              <span className="text-[11px] text-slate-500 block">本月综合能耗</span>
-              <div className="text-lg font-bold font-mono text-slate-800 mt-0.5">1,284.5 <span className="text-xs text-slate-400 font-sans">tce</span></div>
-              <span className="text-[10px] text-emerald-600 font-mono">同比 -2.7%</span>
-            </div>
-            <div className="px-2 py-1">
-              <span className="text-[11px] text-slate-500 block">综合绿电消纳率</span>
-              <div className="text-lg font-bold font-mono text-[#1677ff] mt-0.5">38.6 <span className="text-xs text-slate-400 font-sans">%</span></div>
-              <span className="text-[10px] text-emerald-600 font-mono">直供/交易/绿证</span>
-            </div>
-            <div className="px-2 py-1">
-              <span className="text-[11px] text-slate-500 block">SCADA 测点遥测率</span>
-              <div className="text-lg font-bold font-mono text-emerald-600 mt-0.5">100 <span className="text-xs text-slate-400 font-sans">%</span></div>
-              <span className="text-[10px] text-emerald-600 font-mono">正常在线</span>
-            </div>
-          </div>
-        </div>
       </main>
 
-      {/* 🌟 6. 底部标准版权栏 */}
+      {/* 🌟 5. 底部标准版权栏 */}
       <footer className="relative z-20 h-12 border-t border-[#e5e7eb]/80 bg-white/90 backdrop-blur-md px-6 flex items-center justify-between text-xs text-slate-500">
         <div>
-          <span>© 2026 特变电工股份有限公司（电装集团） · 数字化与能碳管理中心</span>
+          <span>© 2026 特变电工电气装备集团 · 数字化与能碳管理中心</span>
         </div>
         <div className="flex items-center gap-4">
           <span>原型版本：<strong className="text-slate-800 font-mono font-bold">v1.01 (TBEA Corporate Edition)</strong></span>
