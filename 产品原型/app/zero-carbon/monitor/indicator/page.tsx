@@ -263,7 +263,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·总量',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内组织综合能源消费的总吨标准煤。',
     formula: 'E = ∑(Ei × ki)',
     formulaDesc: '月度指标。E: 综合能源消耗量，单位为tce；n: 消耗的能源种类数；Ei: 实际消耗的第i种能源量；ki: 第i种能源的折标准煤系数。',
@@ -304,7 +304,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·碳排放',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内组织产生的温室气体二氧化碳总排放量。',
     formula: 'C = C燃烧 + C过程 + C购入电 - C输出电 + C购入热 - C输出热 - C回收利用',
     formulaDesc: '月度指标。C: 二氧化碳总排放量 (tCO2)；C燃烧: 化石燃料燃烧排放；C购入电: 购入电力排放；C购入热: 购入热力排放。',
@@ -343,7 +343,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·碳强度',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内每消费一吨标准煤产生的二氧化碳排放量，用以衡量企业综合用能结构的绿色低碳化程度。',
     formula: 'I = C / E',
     formulaDesc: '月度指标。I: 单位能耗碳排放 (tCO2/tce)；C: 二氧化碳排放量 (tCO2)；E: 综合能源消耗量 (tce)。',
@@ -382,7 +382,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: false,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·绿能',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内非化石能源消费量与综合能源消费量的比值。月度指标，交易绿电、绿证可纳入分子。',
     formula: 'r = (R / E) × 100%',
     formulaDesc: '月度指标。r: 非化石能源消费占比；R: 各类非化石能源消费量 (不含原料用能, tce)；E: 综合能源消费量 (不含原料用能, tce)。',
@@ -421,7 +421,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: false,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·物理绿电',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内具备物理可溯源条件的非化石能源电力消费量占同期总用电量的比值。月底指标，交易绿电、绿证不纳入分子。',
     formula: 'E_ui = (E_z / Q) × 100%',
     formulaDesc: '月度指标。E_ui: 非化石能源电力消费物理认定量占比；E_z: 具备物理可溯源条件的非化石能源电力消费量 (kWh)；Q: 总用电量 (kWh)。',
@@ -460,7 +460,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·增加值能耗',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内综合能源消费量与工业增加值的比值。月度指标，年度重新汇算。',
     formula: 'E_nva = E / G_nva',
     formulaDesc: '月度指标。E_nva: 单位工业增加值能耗 (tce/万元)；E: 综合能源消费量 (tce)；G_nva: 工业增加值 (万元)。',
@@ -499,7 +499,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '股份管理要求',
+    badge: '公司管理要求',
     tipText: '指统计期内综合能源消费量与产品产值的比值。',
     formula: 'g = E / G',
     formulaDesc: '月度指标。g: 单位产值能耗，单位为tce/万元；E: 综合能源消费量，单位tce；G: 产品产值，单位为万元。',
@@ -538,7 +538,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '战略考核指标',
+    badge: '国家级绿色工厂',
     tipText: '统计期内综合能源消费总量与合格产品产量（变压器按容量万kVA，线缆按长度km）的比值。',
     formula: 'e = E / M',
     formulaDesc: '月度指标。e: 产品单耗 (tce/万kVA)；E: 制造过程综合能源消费量 (tce)；M: 合格产品产出总量 (万kVA)。',
@@ -577,7 +577,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: false,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·节能装备',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内达到或优于能效强制性国家标准 2 级水平和《重点用能产品设备能效先进水平、节能水平和准入水平》节能水平的装备累计额定总功率占纳入统计范围装备累计额定总功率的比例。',
     formula: 'S = (R_es / E_ts) × 100%',
     formulaDesc: '月度指标。S: 节能装备应用占比；R_es: 达到或优于能效国标 2 级水平装备累计额定总功率 (kW)；E_ts: 纳入统计范围装备累计额定总功率 (kW)。',
@@ -616,7 +616,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: false,
     status: '常规监测',
     statusType: 'green',
-    badge: '集采·碳足迹',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内开展主要产品碳足迹分析的产品类别数量占主要产品类别总数的比值。',
     formula: 'R_cf = (N_cf / N) × 100%',
     formulaDesc: '月度指标。R_cf: 开展产品碳足迹分析占比；N_cf: 开展主要产品碳足迹分析的产品类别数量；N: 主要产品类别总数。',
@@ -658,7 +658,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·总量',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内组织综合能源消费的总吨标准煤。',
     formula: 'E = ∑(Ei × ki)',
     formulaDesc: '月度指标。E: 综合能源消耗量，单位为tce；n: 消耗的能源种类数；Ei: 实际消耗的第i种能源量；ki: 第i种能源的折标准煤系数。',
@@ -699,7 +699,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·碳排放',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内企业组织产生的二氧化碳总排放量。由于电装产业在生产过程碳排放、回收利用中固碳非常少，且数据难统计，本次主要考虑能源碳排放。',
     formula: 'C = C燃烧 + C过程 + C购入电 - C输出电 + C购入热 - C输出热 - C回收利用',
     formulaDesc: '月度指标。C: 二氧化碳总排放量 (tCO2)；C燃烧: 化石燃料燃烧排放；C购入电: 购入电力排放；C购入热: 购入热力排放。',
@@ -740,7 +740,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·碳强度',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内每消费一吨标准煤产生的二氧化碳排放量，用以衡量企业综合用能结构的绿色低碳化程度。',
     formula: 'I = C / E',
     formulaDesc: '月度指标。I: 单位能耗碳排放 (tCO2/tce)；C: 二氧化碳排放量 (tCO2)；E: 综合能源消耗量 (tce)。',
@@ -779,7 +779,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: false,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·绿能',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内非化石能源消费量与综合能源消费量的比值。月度指标，交易绿电、绿证可纳入分子。',
     formula: 'r = (R / E) × 100%',
     formulaDesc: '月度指标。r: 非化石能源消费占比；R: 各类非化石能源消费量 (不含原料用能, tce)；E: 综合能源消费量 (不含原料用能, tce)。',
@@ -820,7 +820,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: false,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·物理绿电',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内具备物理可溯源条件的非化石能源电力消费量占同期总用电量的比值。月底指标，交易绿电、绿证不纳入分子。',
     formula: 'E_ui = (E_z / Q) × 100%',
     formulaDesc: '月度指标。E_ui: 非化石能源电力消费物理认定量占比；E_z: 具备物理可溯源条件的非化石能源电力消费量 (kWh)；Q: 总用电量 (kWh)。',
@@ -859,7 +859,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·增加值能耗',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内综合能源消费量与工业增加值的比值。月度指标，年度重新汇算。',
     formula: 'E_nva = E / G_nva',
     formulaDesc: '月度指标。E_nva: 单位工业增加值能耗 (tce/万元)；E: 综合能源消费量 (tce)；G_nva: 工业增加值 (万元)。',
@@ -898,7 +898,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '股份管理要求',
+    badge: '公司管理要求',
     tipText: '指统计期内综合能源消费量与产品产值的比值。',
     formula: 'g = E / G',
     formulaDesc: '月度指标。g: 单位产值能耗，单位为tce/万元；E: 综合能源消费量，单位tce；G: 产品产值，单位为万元。',
@@ -937,7 +937,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '资源节约',
+    badge: '国家级绿色工厂',
     tipText: '指统计期内企业组织在生产制造、公辅系统及生活办公中消耗的新鲜水总量。',
     formula: 'W = ∑ Wi',
     formulaDesc: '月度指标。W: 水资源消耗总量 (t)；Wi: 各车间、工段及公辅设施水表计量用水量之和。',
@@ -976,7 +976,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: false,
     status: '常规监测',
     statusType: 'green',
-    badge: '集控·节能装备',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内达到或优于能效强制性国家标准 2 级水平和《重点用能产品设备能效先进水平、节能水平和准入水平》节能水平的装备累计额定总功率占纳入统计范围装备累计额定总功率的比例。',
     formula: 'S = (R_es / E_ts) × 100%',
     formulaDesc: '月度指标。S: 节能装备应用占比；R_es: 达到或优于能效国标 2 级水平装备累计额定总功率 (kW)；E_ts: 纳入统计范围装备累计额定总功率 (kW)。',
@@ -1015,7 +1015,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: false,
     status: '常规监测',
     statusType: 'green',
-    badge: '集采·碳足迹',
+    badge: '国家级零碳工厂',
     tipText: '指统计期内开展主要产品碳足迹分析的产品类别数量占主要产品类别总数的比值。',
     formula: 'R_cf = (N_cf / N) × 100%',
     formulaDesc: '月度指标。R_cf: 开展产品碳足迹分析占比；N_cf: 开展主要产品碳足迹分析的产品类别数量；N: 主要产品类别总数。',
@@ -1915,10 +1915,22 @@ export default function IndicatorControlPage() {
                               : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/30'
                           )}
                         >
-                          <div className="flex items-center justify-between font-sans">
+                          <div className="flex items-center justify-between font-sans gap-1">
                             <span className={cn('text-[11px] font-bold truncate', isSelected ? 'text-[#1677ff]' : 'text-slate-700 group-hover:text-[#1677ff]')}>
                               {item.name}
                             </span>
+                            {item.badge && (
+                              <span
+                                className={cn(
+                                  'text-[9px] px-1.5 py-0.5 rounded font-sans font-medium shrink-0 whitespace-nowrap',
+                                  item.badge === '国家级零碳工厂' && 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
+                                  item.badge === '国家级绿色工厂' && 'bg-teal-50 text-teal-700 border border-teal-200/80',
+                                  item.badge === '公司管理要求' && 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                                )}
+                              >
+                                {item.badge}
+                              </span>
+                            )}
                           </div>
 
                           <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
@@ -2205,8 +2217,20 @@ export default function IndicatorControlPage() {
                         onClick={() => setActiveViewMetric(m)}
                         className="p-3.5 bg-slate-50/70 hover:bg-blue-50/40 rounded-xl border border-slate-200 hover:border-blue-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
                       >
-                        <div className="flex items-center justify-between font-sans">
+                        <div className="flex items-center justify-between font-sans gap-1">
                           <span className="text-[11px] font-bold text-slate-700 truncate">{m.name}</span>
+                          {m.badge && (
+                            <span
+                              className={cn(
+                                'text-[9px] px-1.5 py-0.5 rounded font-sans font-medium shrink-0 whitespace-nowrap',
+                                m.badge === '国家级零碳工厂' && 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
+                                m.badge === '国家级绿色工厂' && 'bg-teal-50 text-teal-700 border border-teal-200/80',
+                                m.badge === '公司管理要求' && 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                              )}
+                            >
+                              {m.badge}
+                            </span>
+                          )}
                         </div>
 
                         <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
