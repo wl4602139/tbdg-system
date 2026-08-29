@@ -1938,7 +1938,7 @@ export default function IndicatorControlPage() {
                           </div>
 
                           <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-sans">
-                            <span className="text-slate-400">同比变动:</span>
+                            <span className="text-slate-400">同比</span>
                             <span className={cn('font-bold font-mono', item.yoy.startsWith('+') && !item.isYoyDown ? 'text-emerald-600' : 'text-emerald-600')}>
                               {item.yoy} {item.isYoyDown ? '↓' : '↑'}
                             </span>
@@ -1974,7 +1974,7 @@ export default function IndicatorControlPage() {
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span className="size-2.5 rounded-sm bg-emerald-500" />
-                        <span className="font-sans text-slate-600">同比变动:</span>
+                        <span className="font-sans text-slate-600">同比:</span>
                         <strong className="text-emerald-700 font-bold">{activeGroupMetric.yoy}</strong>
                       </div>
                     </div>
@@ -2238,7 +2238,7 @@ export default function IndicatorControlPage() {
                         </div>
 
                         <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] font-sans">
-                          <span className="text-slate-500">同比变动:</span>
+                          <span className="text-slate-500">同比</span>
                           <span className="font-bold text-emerald-600 font-mono">{m.yoy} ↓</span>
                         </div>
                       </div>
@@ -2282,7 +2282,7 @@ export default function IndicatorControlPage() {
                         </div>
 
                         <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-sans">
-                          <span className="text-slate-500">同比降幅:</span>
+                          <span className="text-slate-500">同比</span>
                           <span className="font-bold text-emerald-600 font-mono">{pm.yoy} ↓</span>
                         </div>
                       </div>
