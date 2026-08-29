@@ -937,7 +937,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     isYoyDown: true,
     status: '常规监测',
     statusType: 'green',
-    badge: '国家级绿色工厂',
+    badge: '公司管理要求',
     tipText: '指统计期内企业组织在生产制造、公辅系统及生活办公中消耗的新鲜水总量。',
     formula: 'W = ∑ Wi',
     formulaDesc: '月度指标。W: 水资源消耗总量 (t)；Wi: 各车间、工段及公辅设施水表计量用水量之和。',
