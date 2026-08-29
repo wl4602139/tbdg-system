@@ -1785,7 +1785,8 @@ export default function IndicatorControlPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-800">
-                    {activeViewMetric.trendHistory.map((item, idx) => {
+                    {[...activeViewMetric.trendHistory].reverse().map((item, revIdx) => {
+                      const idx = activeViewMetric.trendHistory.length - 1 - revIdx
                       const baseFactor = item.value / (activeViewMetric.trendHistory[activeViewMetric.trendHistory.length - 1].value || 1)
                       const elecVal = (324.6 + idx * 2.3).toFixed(1)
                       const waterVal = (4.06 + idx * 0.03).toFixed(2)
@@ -1793,7 +1794,7 @@ export default function IndicatorControlPage() {
                       const steamVal = (362 + idx * 2.5).toFixed(0)
 
                       return (
-                        <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                        <tr key={item.period} className="hover:bg-slate-50/80 transition-colors">
                           <td className="py-2.5 px-3 font-bold">
                             {item.period === '26-08' ? '2026年08月' : `20${item.period.replace('-', '年')}月`}
                           </td>
