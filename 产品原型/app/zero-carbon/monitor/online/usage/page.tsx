@@ -541,8 +541,8 @@ export default function UsageMonitoringPage() {
           }}
         />
 
-        {/* 3. 核心 8 大能源介质消费大盘卡片 */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+        {/* 3. 核心 8 大能源介质消费大盘卡片 (2 行显示，每行 4 个卡片) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {/* 卡片 1: 总用电量 */}
           <div className="bg-white p-3 rounded-xl border border-blue-200/80 shadow-xs space-y-1 bg-gradient-to-br from-blue-50/40 via-white to-white">
             <div className="flex items-center justify-between">
