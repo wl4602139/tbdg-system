@@ -1918,6 +1918,173 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
   }
 }
 
+// 🌟 生产单位（2级、3级）对应主要产品与关键工序映射表 (依据《生产单位与涉及关键工序对应表》)
+export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; processes: string[] }> = {
+  // 1. 沈变公司
+  '沈变公司': {
+    products: ['变压器-高压', '套管', '互感器'],
+    processes: ['变压器-高压-干燥', '变压器-试验', '套管-干燥', '互感器-干燥'],
+  },
+  '沈变本部': {
+    products: ['变压器-高压'],
+    processes: ['①变压器-高压-干燥', '②变压器-试验'],
+  },
+  '和新套管公司': {
+    products: ['套管'],
+    processes: ['①套管-干燥'],
+  },
+  '康嘉互感器': {
+    products: ['互感器'],
+    processes: ['①互感器-干燥', '②变压器-试验'],
+  },
+  '露娜公司 (特变电工露娜智能)': {
+    products: ['智能配电及箱式变电站'],
+    processes: ['①智能装配及集成测试'],
+  },
+  '智慧能源': {
+    products: ['清洁能源系统集成'],
+    processes: ['①微电网联调与综合运维'],
+  },
+  '印能公司': {
+    products: ['电力电子变换装备'],
+    processes: ['①逆变器老化及出厂试验'],
+  },
+
+  // 2. 衡变公司
+  '衡变公司': {
+    products: ['变压器-高压', '中低压开关柜', 'GIS', '干式电抗器', '电容器', 'GIL'],
+    processes: ['变压器-高压-干燥', '变压器-试验', '中低压开关柜-钣金加工及喷涂', 'GIS-抽真空及耐压试验', '干式电抗器-固化及试验', '电容器-真空浸渍及喷漆', 'GIL-螺旋焊管及绝缘子生产'],
+  },
+  '衡变本部': {
+    products: ['变压器-高压'],
+    processes: ['①变压器-高压-干燥', '②变压器-试验'],
+  },
+  '湖南电气': {
+    products: ['变压器-高压'],
+    processes: ['①变压器-高压-干燥', '②变压器-试验'],
+  },
+  '特能建': {
+    products: ['变压器-高压'],
+    processes: ['①变压器-高压-干燥', '②变压器-试验'],
+  },
+  '云集电气': {
+    products: ['中低压开关柜'],
+    processes: ['①中低压开关柜-钣金加工', '②中低压开关柜-钣金喷涂'],
+  },
+  '新疆自控': {
+    products: ['中低压开关柜'],
+    processes: ['①中低压开关柜-钣金加工', '②中低压开关柜-钣金喷涂'],
+  },
+  '云集高压开关': {
+    products: ['GIS'],
+    processes: ['①GIS-抽真空', '②GIS-绝缘件干燥', '③GIS-工频耐压试验', '④GIS-空调恒温除湿'],
+  },
+  '合容电气': {
+    products: ['干式电抗器'],
+    processes: ['①干式电抗器-固化', '②干式电抗器-试验'],
+  },
+  '合容电气股份': {
+    products: ['干式电抗器'],
+    processes: ['①干式电抗器-固化', '②干式电抗器-试验'],
+  },
+  '合容电力设备': {
+    products: ['电容器'],
+    processes: ['①电容器-芯子卷绕', '②电容器-真空浸渍', '③电容器-喷漆', '④电容器-试验'],
+  },
+  '赛杰爱迪': {
+    products: ['GIL'],
+    processes: ['①GIL-螺旋焊管生产', '②GIL-绝缘子生产', '③GIL-测试'],
+  },
+  '南京电研': {
+    products: ['电网自动化及保护装置'],
+    processes: ['①SMT贴片及整机调试'],
+  },
+  '上开': {
+    products: ['高低压成套开关设备'],
+    processes: ['①母排加工及整柜试验'],
+  },
+  '柯贝尔': {
+    products: ['特种配电开关装置'],
+    processes: ['①高压耐压试验与机械特性调试'],
+  },
+
+  // 3. 新变厂
+  '新变厂': {
+    products: ['变压器-高压', '变压器-中低压-干变', '变压器-中低压-油变', '变压器-铁芯'],
+    processes: ['变压器-高压-干燥', '变压器-中低压-干变-固化', '变压器-中低压-油变-干燥', '变压器-试验', '非晶合金铁心-退火', '硅钢铁心-纵剪及叠装'],
+  },
+  '超高压公司': {
+    products: ['变压器-高压'],
+    processes: ['①变压器-高压-干燥', '②变压器-试验'],
+  },
+  '天变公司': {
+    products: ['变压器-中低压-干变'],
+    processes: ['①变压器-中低压-干变-固化', '②变压器-试验'],
+  },
+  '智能电气公司': {
+    products: ['变压器-中低压-干变'],
+    processes: ['①变压器-中低压-干变-固化', '②变压器-试验'],
+  },
+  '京津冀公司': {
+    products: ['变压器-中低压-油变'],
+    processes: ['①变压器-中低压-油变-干燥', '②变压器-试验'],
+  },
+  '珠峰硅钢': {
+    products: ['变压器-铁芯'],
+    processes: ['①非晶合金铁心-退火', '②硅钢铁心-纵剪', '③硅钢铁心-中型叠装', '④硅钢铁心-大型叠装'],
+  },
+  '银利电气': {
+    products: ['电磁特种变压器'],
+    processes: ['①电磁铁心装配及试验'],
+  },
+
+  // 4. 鲁缆公司
+  '鲁缆公司': {
+    products: ['线缆-中低压', '线缆-高压', '线缆-特种电缆'],
+    processes: ['线缆-拉丝', '线缆-中低压-交联(干法)', '线缆-高压-交联(干法)', '特种橡缆挤出'],
+  },
+  '鲁缆本部': {
+    products: ['线缆-中低压', '线缆-高压'],
+    processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）', '③线缆-高压-交联（干法）'],
+  },
+  '曙光公司': {
+    products: ['线缆-特种电缆'],
+    processes: ['①特种橡缆连续挤出与交联'],
+  },
+  '智缆公司': {
+    products: ['智能传感电缆'],
+    processes: ['①光电复合缆加工及测试'],
+  },
+  '昭和公司': {
+    products: ['特种导体及线缆附件'],
+    processes: ['①金属挤压及附件注塑成型'],
+  },
+
+  // 5. 新缆厂
+  '新缆厂': {
+    products: ['线缆-中低压', '线缆-高压', '铝合金导线'],
+    processes: ['线缆-拉丝', '线缆-中低压-交联(干法)'],
+  },
+  '特变电工新疆电缆有限公司': {
+    products: ['线缆-中低压'],
+    processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
+  },
+  '特变电工新疆线缆厂': {
+    products: ['线缆-中低压'],
+    processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
+  },
+
+  // 6. 德缆公司
+  '德缆公司': {
+    products: ['线缆-中低压', '橡套矿用线缆'],
+    processes: ['线缆-拉丝', '橡套挤塑与硫化'],
+  },
+  '特变电工（德阳）电缆股份有限公司': {
+    products: ['线缆-中低压', '橡套矿用线缆'],
+    processes: ['①线缆-拉丝', '②橡套挤塑与硫化'],
+  },
+}
+
 export default function IndicatorControlPage() {
   const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
     id: 'ent_root',
@@ -1951,6 +2118,20 @@ export default function IndicatorControlPage() {
   }, [selectedGroupMetricId, activeGroupMetric])
 
   const [procSearchKey, setProcSearchKey] = useState('')
+
+  // 🌟 根据当前选中的组织节点解析其所属的 2、3 级主要产品与关键工序
+  const activeUnitInfo = useMemo(() => {
+    const nodeName = selectedNode.name || ''
+    if (UNIT_PRODUCT_PROCESS_MAPPING[nodeName]) {
+      return UNIT_PRODUCT_PROCESS_MAPPING[nodeName]
+    }
+    for (const [key, val] of Object.entries(UNIT_PRODUCT_PROCESS_MAPPING)) {
+      if (nodeName.includes(key) || key.includes(nodeName)) {
+        return val
+      }
+    }
+    return null
+  }, [selectedNode])
 
   // 判断当前选中节点层级
   const isGroupLevel = selectedNode.level === 'group' || selectedNode.id === 'ent_root'
@@ -2482,11 +2663,17 @@ export default function IndicatorControlPage() {
                 {/* 二、产品管控指标 (5卡片/行 + 跳转链接) */}
                 <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-amber-500 shrink-0" />
                       <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                         【二、产品管控指标】
                       </h2>
+                      {activeUnitInfo?.products && activeUnitInfo.products.length > 0 && (
+                        <div className="flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50/90 px-2.5 py-1 rounded-lg border border-amber-200/90 font-sans shadow-2xs">
+                          <span className="text-amber-700 font-semibold text-[11.5px]">主要产品：</span>
+                          <span className="font-bold text-amber-900">{activeUnitInfo.products.join(' · ')}</span>
+                        </div>
+                      )}
                     </div>
                     <Link
                       href="/zero-carbon/energy/unit-product"
@@ -2498,39 +2685,50 @@ export default function IndicatorControlPage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
-                    {PRODUCT_CONTROL_METRICS.map((pm) => (
-                      <div
-                        key={pm.id}
-                        onClick={() => setActiveViewMetric(pm)}
-                        className="p-3.5 bg-amber-50/30 hover:bg-amber-50/80 rounded-xl border border-amber-200/80 hover:border-amber-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
-                      >
-                        <div className="flex items-center justify-between font-sans">
-                          <span className="text-[11px] font-bold text-slate-800 truncate" title={pm.name}>
-                            {pm.name}
-                          </span>
-                        </div>
+                    {PRODUCT_CONTROL_METRICS.map((pm, idx) => {
+                      const dynamicName = idx === 0 && activeUnitInfo?.products?.[0]
+                        ? `单位产品能耗 (${activeUnitInfo.products[0]})`
+                        : pm.name
+                      return (
+                        <div
+                          key={pm.id}
+                          onClick={() => setActiveViewMetric(pm)}
+                          className="p-3.5 bg-amber-50/30 hover:bg-amber-50/80 rounded-xl border border-amber-200/80 hover:border-amber-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                        >
+                          <div className="flex items-center justify-between font-sans">
+                            <span className="text-[11px] font-bold text-slate-800 truncate" title={dynamicName}>
+                              {dynamicName}
+                            </span>
+                          </div>
 
-                        <div className="text-lg font-extrabold text-slate-900 group-hover:text-amber-700 transition-colors">
-                          {pm.curVal} <span className="text-[10.5px] font-normal text-slate-500 font-sans">{pm.unit}</span>
-                        </div>
+                          <div className="text-lg font-extrabold text-slate-900 group-hover:text-amber-700 transition-colors">
+                            {pm.curVal} <span className="text-[10.5px] font-normal text-slate-500 font-sans">{pm.unit}</span>
+                          </div>
 
-                        <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-sans">
-                          <span className="text-slate-500">同比</span>
-                          <span className="font-bold text-emerald-600 font-mono">{pm.yoy} ↓</span>
+                          <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-sans">
+                            <span className="text-slate-500">同比</span>
+                            <span className="font-bold text-emerald-600 font-mono">{pm.yoy} ↓</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
 
                 {/* 三、关键制造工序能效管控指标 (4卡片/行) */}
                 <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-purple-600 shrink-0" />
                       <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                         【三、关键制造工序能效管控指标】
                       </h2>
+                      {activeUnitInfo?.processes && activeUnitInfo.processes.length > 0 && (
+                        <div className="flex items-center gap-1.5 text-xs text-purple-900 bg-purple-50/90 px-2.5 py-1 rounded-lg border border-purple-200/90 font-sans shadow-2xs">
+                          <span className="text-purple-700 font-semibold text-[11.5px]">涉及关键工序：</span>
+                          <span className="font-bold text-purple-900">{activeUnitInfo.processes.join(' · ')}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2">
