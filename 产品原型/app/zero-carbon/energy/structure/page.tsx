@@ -787,27 +787,9 @@ export default function EnergyStructureAnalysisPage() {
                   【当前指标：{METRICS_META[selectedMetricKey].name}】6 家直属单位占电装总量的比重结构分析
                 </h3>
               </div>
-
-              {/* 快速切换当前指标 Tab */}
-              <div className="flex flex-wrap items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-medium">
-                {(['totalTce', 'totalElec', 'gridElec', 'greenElec', 'gas', 'steam', 'oil', 'nitrogen'] as MetricKey[]).map(
-                  (k) => (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => setSelectedMetricKey(k)}
-                      className={cn(
-                        'px-2.5 py-1 rounded-md transition-all cursor-pointer select-none text-[11px]',
-                        selectedMetricKey === k
-                          ? 'bg-white text-[#1677ff] font-bold shadow-xs'
-                          : 'text-slate-600 hover:text-slate-900'
-                      )}
-                    >
-                      {METRICS_META[k].shortName}
-                    </button>
-                  )
-                )}
-              </div>
+              <span className="text-xs text-slate-400 font-sans">
+                点击上方任意卡片可切换分析指标
+              </span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
