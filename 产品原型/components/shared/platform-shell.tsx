@@ -171,99 +171,17 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
           </Link>
         </div>
 
-        {/* 左上角 LOGO 下方：平台切换下拉选择器 (零碳园区集控中心 ⇄ 产品碳足迹集采中心) */}
-        <div ref={platformMenuRef} className="relative px-2 py-2 border-b border-blue-400/20 bg-[#0747b0]">
-          <button
-            onClick={() => setPlatformMenuOpen((v) => !v)}
-            className={cn(
-              'w-full flex items-center gap-2 rounded-lg transition-all',
-              sidebarOpen
-                ? 'px-2.5 py-2 bg-blue-600/40 hover:bg-blue-600/70 cursor-pointer text-white border border-blue-400/30 shadow-xs group'
-                : 'mx-auto size-8 justify-center hover:bg-blue-600/60'
-            )}
-            title="点击展开平台切换菜单"
-          >
-            {resolvedPlatformKey === 'zero-carbon' ? (
-              <Globe2 className="size-4 shrink-0 text-blue-200" />
-            ) : (
-              <Leaf className="size-4 shrink-0 text-emerald-300" />
-            )}
-            {sidebarOpen && (
-              <>
-                <span className="flex-1 text-left text-xs font-bold text-white truncate">
-                  {currentPlatform.name}
-                </span>
-                <ChevronDown
-                  className={cn(
-                    'size-3.5 shrink-0 text-blue-200 transition-transform duration-200 group-hover:text-white',
-                    platformMenuOpen && 'rotate-180'
-                  )}
-                />
-              </>
-            )}
-          </button>
-
-          {/* 下拉弹出浮层 Popover */}
-          {platformMenuOpen && (
-            <div
-              className={cn(
-                'absolute top-full mt-1.5 z-50 rounded-xl border border-slate-200 bg-white p-1.5 text-xs text-slate-700 shadow-2xl animate-in fade-in zoom-in-95 duration-150',
-                sidebarOpen ? 'left-2 right-2 w-auto' : 'left-14 w-52'
-              )}
-            >
-                <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1 flex items-center justify-between">
-                  <span>切换平台中枢</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-50 text-blue-600 font-mono font-bold">
-                    双中心 v1.01
-                  </span>
-                </div>
-
-                {/* 选项 1: 零碳园区集控中心 */}
-                <Link
-                  href="/zero-carbon/screen"
-                  onClick={() => setPlatformMenuOpen(false)}
-                  className={cn(
-                    'flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg transition-colors',
-                    resolvedPlatformKey === 'zero-carbon'
-                      ? 'bg-blue-50/90 font-bold text-[#1677ff]'
-                      : 'hover:bg-slate-50 text-slate-700 hover:text-[#1677ff]'
-                  )}
-                >
-                  <div className="size-7 rounded-lg bg-blue-100 text-[#1677ff] flex items-center justify-center shrink-0">
-                    <Globe2 className="size-4" />
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <div className="truncate text-xs font-bold leading-tight">零碳园区集控中心</div>
-                    <div className="text-[10px] text-slate-400 font-normal">能碳时序监控 / 统计报表</div>
-                  </div>
-                  {resolvedPlatformKey === 'zero-carbon' && (
-                    <Check className="size-4 text-[#1677ff] shrink-0 font-bold" />
-                  )}
-                </Link>
-
-                {/* 选项 2: 产品碳足迹集采中心 */}
-                <Link
-                  href="/carbon-footprint/cockpit"
-                  onClick={() => setPlatformMenuOpen(false)}
-                  className={cn(
-                    'flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg transition-colors mt-1',
-                    resolvedPlatformKey === 'carbon-footprint'
-                      ? 'bg-emerald-50/90 font-bold text-emerald-700'
-                      : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-600'
-                  )}
-                >
-                  <div className="size-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                    <Leaf className="size-4" />
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <div className="truncate text-xs font-bold leading-tight">产品碳足迹集采中心</div>
-                    <div className="text-[10px] text-slate-400 font-normal">LCA碳足迹 / CBAM出海</div>
-                  </div>
-                  {resolvedPlatformKey === 'carbon-footprint' && (
-                    <Check className="size-4 text-emerald-600 shrink-0 font-bold" />
-                  )}
-                </Link>
-              </div>
+        {/* 左上角当前中心模块标识 */}
+        <div className="px-3 py-2.5 border-b border-blue-400/20 bg-[#0747b0] flex items-center gap-2">
+          {resolvedPlatformKey === 'zero-carbon' ? (
+            <Globe2 className="size-4 shrink-0 text-blue-200" />
+          ) : (
+            <Leaf className="size-4 shrink-0 text-emerald-300" />
+          )}
+          {sidebarOpen && (
+            <span className="text-xs font-bold text-white truncate">
+              {currentPlatform.name}
+            </span>
           )}
         </div>
 
@@ -364,23 +282,43 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
         {/* 右侧顶部白色主导航条 */}
         <header className="h-14 border-b border-[#e5e7eb] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs z-20 overflow-hidden">
-          {/* 左侧：折叠按钮 + 平台标题 */}
+          {/* 左侧：折叠按钮 + 双中心切换导航 (零碳园区集控中心 / 产品碳足迹集采中心) */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1.5 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              className="p-1.5 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0"
               title="折叠/展开侧边栏"
             >
               <Menu className="size-4" />
             </button>
 
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-slate-800 tracking-wide">
-                能碳管控“双中心”数字化集成平台
-              </span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-mono font-bold">
-                v1.01
-              </span>
+            {/* 🌟 核心双中心导航 Switcher */}
+            <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200/80 gap-1 text-xs">
+              <Link
+                href="/zero-carbon/screen"
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all',
+                  resolvedPlatformKey === 'zero-carbon'
+                    ? 'bg-[#1677ff] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                )}
+              >
+                <Globe2 className="size-3.5" />
+                <span>零碳园区集控中心</span>
+              </Link>
+
+              <Link
+                href="/carbon-footprint/cockpit"
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all',
+                  resolvedPlatformKey === 'carbon-footprint'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                )}
+              >
+                <Leaf className="size-3.5" />
+                <span>产品碳足迹集采中心</span>
+              </Link>
             </div>
           </div>
 

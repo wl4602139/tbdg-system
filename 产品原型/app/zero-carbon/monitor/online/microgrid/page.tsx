@@ -50,7 +50,7 @@ interface ParkGridDetail {
 const PARK_GRID_MAP: Record<string, ParkGridDetail> = {
   park_root: {
     id: 'park_root',
-    name: '特变电工所属园区 (15 园区全域汇总)',
+    name: '电装集团',
     fullName: '特变电工（电装集团）15 大工业园区',
     location: '全国多基地汇总',
     company: '全集团汇总',

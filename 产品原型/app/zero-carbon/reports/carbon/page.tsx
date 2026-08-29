@@ -139,8 +139,8 @@ const CARBON_MOCK_ROWS: CarbonRow[] = [
 export default function CarbonReportPage() {
   const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
     id: 'group_root',
-    name: '特变电工集团 (全景汇总)',
-    fullName: '特变电工集团 (全景汇总)',
+    name: '电装集团',
+    fullName: '电装集团',
     level: 'group',
     badge: '全集团',
   })

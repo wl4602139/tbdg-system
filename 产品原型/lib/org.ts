@@ -20,7 +20,7 @@ export interface TreeNodeData {
 /* 1. 🏢 企业结构 */
 export const enterpriseTreeData: TreeNodeData = {
   key: 'root-enterprise',
-  label: '特变电工集团 (全景汇总)',
+  label: '电装集团',
   badge: '全集团',
   level: 0,
   children: [

@@ -49,7 +49,7 @@ interface GreenParkInfo {
 const GREEN_PARK_DATA: Record<string, GreenParkInfo> = {
   park_root: {
     id: 'park_root',
-    name: '特变电工所属园区 (17 园区全域汇总)',
+    name: '电装集团',
     parkName: '特变电工 17 大零碳产业园区',
     location: '全国 17 个产业基地',
     feedInTariff: '0.250 ~ 0.450 元/kWh (各省基准上网价)',

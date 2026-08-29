@@ -211,8 +211,8 @@ export default function CarbonEmissionMonitoringPage() {
   // 左侧组织拓扑树选中节点 (三级驱动)
   const [selectedOrgNode, setSelectedOrgNode] = useState<StandardOrgNode>({
     id: 'ent_root',
-    name: '特变电工集团 (全景汇总)',
-    fullName: '特变电工集团 (全景汇总)',
+    name: '电装集团',
+    fullName: '电装集团',
     level: 'group',
     badge: '全集团',
   })

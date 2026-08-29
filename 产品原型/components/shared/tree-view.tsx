@@ -351,7 +351,7 @@ export function TreeView({
  * ============================================================ */
 export function OrgTopologyTree({
   onSelect,
-  selectedName = '特变电工集团 (全景汇总)',
+  selectedName = '电装集团',
   className,
   defaultExpandAll = true,
   showSearch = true,

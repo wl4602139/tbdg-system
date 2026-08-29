@@ -50,7 +50,7 @@ const FACTORY_CARDS: FactoryCarbonCard[] = [
 export default function CarbonAccountingPage() {
   const [selectedOrg, setSelectedOrg] = useState<OrgNodeItem>({
     id: 'group_all',
-    name: '特变电工集团 (全景汇总)',
+    name: '电装集团',
     fullName: '特变电工集团（电装板块全景）',
     level: 'group',
   })
