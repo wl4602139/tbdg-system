@@ -499,11 +499,7 @@ export default function EnergyStructureAnalysisPage() {
           <div className="flex items-center justify-between text-xs text-slate-500">
             <span className="font-bold text-slate-700 flex items-center gap-1.5">
               <Building2 className="size-3.5 text-[#1677ff]" />
-              <span>
-                {isGroupLevel
-                  ? '【全集团】综合能源消耗与各类型能源构成大盘 (点击卡片可联动查看 6 家单位比重)'
-                  : `【${activeData.name}】综合能源消耗与各类型能源消耗构成`}
-              </span>
+              <span>综合能源消耗与各类型能源构成</span>
             </span>
             {isGroupLevel && (
               <span className="text-[11px] text-[#1677ff] font-sans font-medium flex items-center gap-1">
@@ -784,7 +780,7 @@ export default function EnergyStructureAnalysisPage() {
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-[#1677ff]" />
                 <h3 className="text-xs font-bold text-slate-900">
-                  【当前指标：{METRICS_META[selectedMetricKey].name}】6 家直属单位占电装总量的比重结构分析
+                  【{METRICS_META[selectedMetricKey].name}】各直属单位占比与消耗对比
                 </h3>
               </div>
               <span className="text-xs text-slate-400 font-sans">
@@ -905,9 +901,7 @@ export default function EnergyStructureAnalysisPage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-500" />
               <h3 className="text-xs font-bold text-slate-900">
-                {isGroupLevel
-                  ? '【全集团】01月 至 08月 各类能源占比历史变化趋势曲线 (%)'
-                  : `【${activeData.name}】01月 至 08月 各类能源占比历史变化趋势曲线 (%)`}
+                01月 至 08月 各类能源占比历史变化趋势曲线 (%)
               </h3>
             </div>
             <div className="flex items-center gap-3 text-xs font-sans text-slate-500">
