@@ -1693,15 +1693,30 @@ export default function IndicatorControlPage() {
                 </p>
               </div>
 
-              {/* 3. 数据来源与采集路径 */}
+              {/* 3. 因子说明 (根据指标动态显示折标煤系数或碳排放因子) */}
               <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center gap-1.5 text-slate-800 font-bold font-sans">
-                  <Layers className="size-4 text-emerald-600" />
-                  <span>数据来源与采集路径</span>
-                </div>
-                <p className="text-slate-600 font-sans text-[11.5px] leading-relaxed">
-                  {activeViewMetric.dataSource}
-                </p>
+                {(() => {
+                  const factorInfo = getFactorDescription(activeViewMetric)
+                  return (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-slate-800 font-bold font-sans">
+                          <Layers className="size-4 text-emerald-600" />
+                          <span>因子说明</span>
+                        </div>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/80">
+                          {factorInfo.title}
+                        </span>
+                      </div>
+                      <div className="text-[10.5px] text-slate-400 font-sans">
+                        {factorInfo.subtitle}
+                      </div>
+                      <p className="text-slate-600 font-sans text-[11px] leading-relaxed">
+                        {factorInfo.content}
+                      </p>
+                    </>
+                  )
+                })()}
               </div>
             </div>
 
@@ -2080,4 +2095,53 @@ export default function IndicatorControlPage() {
         </div>
       )
     }
+// 因子说明生成函数 (依据指标类别动态返回折标煤系数或碳排放因子)
+function getFactorDescription(metric: IndicatorMetric): { title: string; subtitle: string; content: string } {
+  const name = metric.name || ''
+  const unit = metric.unit || ''
+
+  // 1. 碳排放相关指标
+  if (name.includes('碳排放') || name.includes('碳足迹') || unit.includes('tCO2')) {
+    return {
+      title: '碳排放因子说明',
+      subtitle: '依据生态环境部最新电网基准与发改委温室气体核算指南',
+      content: '电力碳排放因子：0.5703 tCO2/MWh（全国电网平均因子）；天然气碳排放因子：2.1622 tCO2/万m³（单位热值含碳量 15.32 tC/TJ）；自建分布式光伏与物理直供绿电按 0 排放核算。',
+    }
+  }
+
+  // 2. 绿电与非化石能源占比类指标
+  if (name.includes('非化石') || name.includes('绿电') || name.includes('绿能')) {
+    return {
+      title: '绿能折算与因子说明',
+      subtitle: '依据《零碳工厂评价规范》及国家可再生能源绿证核销机制',
+      content: '物理可溯源绿电直供折算系数：1.0（自建屋顶光伏逆变器关口直供，不含外部市场化凭证）；交易绿电与绿证核销折算：1 绿证等效抵扣 1,000 kWh 可再生能源消纳量。',
+    }
+  }
+
+  // 3. 水资源指标
+  if (name.includes('水资源') || name.includes('水耗') || unit.includes('t/万') || unit === 't') {
+    return {
+      title: '水资源折算因子说明',
+      subtitle: '依据 GB/T 18916 工业取水定额与国家节能标准',
+      content: '新鲜水等效折标煤系数：0.0001 tce/t（折标煤系数 0.0857 kgce/t）；全厂市政自来水经总水表与车间二级远传表精确计量，重复利用水不重复计入新鲜水消耗总量。',
+    }
+  }
+
+  // 4. 节能装备与碳足迹占比
+  if (name.includes('节能装备') || name.includes('设备')) {
+    return {
+      title: '能效等级准入因子说明',
+      subtitle: '依据 GB 18613-2020 与《重点用能产品设备能效先进水平》',
+      content: '先进节能装备额定功率折算系数：1.0（达到强制性国家标准 2 级及以上能效电动机、节能变压器、一级能效空压机）；普通低效设备不计入节能装备额定总功率。',
+    }
+  }
+
+  // 5. 综合能耗 / 单耗 / 工序能耗等各类折标煤指标
+  return {
+    title: '折标煤系数说明',
+    subtitle: '依据 GB/T 2589-2020《综合能耗计算通则》',
+    content: '电力折标系数：0.1229 kgce/kWh（当量值）；天然气折标系数：1.2143 kgce/m³；饱和蒸汽折标系数：0.1286 kgce/kg；新鲜水折标系数：0.0857 kgce/t。按报告期各种能源实物消耗量折标加总。',
+  }
+}
+
 
