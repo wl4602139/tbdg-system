@@ -68,7 +68,7 @@ export function PortalView() {
             <span>运营平台</span>
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 max-w-none mx-auto leading-relaxed md:whitespace-nowrap">
             能碳一体化运营服务特变电工电气装备产业以实测数据牵引各经营单位绿色低碳转型、构建应对市场绿色招采快速响应能力。
           </p>
 
