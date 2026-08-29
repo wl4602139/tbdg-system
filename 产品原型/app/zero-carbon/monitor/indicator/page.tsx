@@ -1885,374 +1885,119 @@ export default function IndicatorControlPage() {
               </div>
             </div>
 
-            {/* ========================================================================= */}
-            {/* 🌟 只有在结构树最顶级 (isGroupLevel) 时显示的全新多 Agent 优化方案 */}
-            {/* ========================================================================= */}
+                        {/* 集团视角 (整体指标呈现 6 大单位能耗与费用占比情况) */}
             {isGroupLevel && (
-              <div className="space-y-3.5">
-                
-                {/* 1. 集团整体 10 项公司整体管控指标卡片矩阵 (GK-01 ~ GK-10) */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
-                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                        【一、经营单位及项目公司整体指标】
-                      </h2>
-                    </div>
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      保留同比变化 · 点击查看 12 个月历史明细与走势
-                    </span>
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                    <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                      【一、经营单位及项目公司整体指标 (6 大单位占比)】
+                    </h2>
                   </div>
-
-                  {/* 10 个卡片网格 (2行5列，与二三级卡片样式 100% 一致) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
-                    {GROUP_OVERALL_TOP10_METRICS.map((item) => {
-                      const isSelected = selectedGroupMetricId === item.id
-                      return (
-                        <div
-                          key={item.id}
-                          onClick={() => setSelectedGroupMetricId(item.id)}
-                          className={cn(
-                            'p-3.5 rounded-xl border transition-all cursor-pointer space-y-2 group shadow-2xs relative select-none',
-                            isSelected
-                              ? 'border-2 border-[#1677ff] bg-blue-50/40 shadow-md ring-2 ring-blue-500/20'
-                              : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/30'
-                          )}
-                        >
-                          <div className="flex items-center justify-between font-sans gap-1">
-                            <span className={cn('text-[11px] font-bold truncate', isSelected ? 'text-[#1677ff]' : 'text-slate-700 group-hover:text-[#1677ff]')}>
-                              {item.name}
-                            </span>
-                            {item.badge && (
-                              <span
-                                className={cn(
-                                  'text-[9px] px-1.5 py-0.5 rounded font-sans font-medium shrink-0 whitespace-nowrap',
-                                  item.badge === '国家级零碳工厂' && 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
-                                  item.badge === '国家级绿色工厂' && 'bg-teal-50 text-teal-700 border border-teal-200/80',
-                                  item.badge === '公司管理要求' && 'bg-blue-50 text-blue-700 border border-blue-200/80'
-                                )}
-                              >
-                                {item.badge}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
-                            {item.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{item.unit}</span>
-                          </div>
-
-                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-sans">
-                            <span className="text-slate-400">同比</span>
-                            <span className={cn('font-bold font-mono', item.yoy.startsWith('+') && !item.isYoyDown ? 'text-emerald-600' : 'text-emerald-600')}>
-                              {item.yoy} {item.isYoyDown ? '↓' : '↑'}
-                            </span>
-                          </div>
-
-                          {isSelected && (
-                            <div className="absolute top-2 right-2 size-2 rounded-full bg-[#1677ff] animate-pulse" />
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
+                  <span className="text-xs text-slate-400 font-mono">
+                    统计周期: 2026年08月 · 6 大制造公司能耗与费用横向占比
+                  </span>
                 </div>
 
-                {/* 2. 选中指标 12 个月数据变化趋势与基准对比区 (即点即显) */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
-                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                        【二、【{activeGroupMetric.name}】近 12 个月数据变化趋势走势】
-                      </h2>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-mono font-bold">
-                        2025.09 ~ 2026.08 (全集团月度采样)
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-xs font-mono">
-                      <div className="flex items-center gap-1.5">
-                        <span className="size-2.5 rounded-full bg-[#1677ff]" />
-                        <span className="font-sans text-slate-600">当前值:</span>
-                        <strong className="text-slate-900">{activeGroupMetric.curVal} {activeGroupMetric.unit}</strong>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 font-mono">
+                  {GROUP_COMPANIES_METRICS.map((c, idx) => (
+                    <div
+                      key={c.id}
+                      onClick={() => {
+                        setSelectedNode({
+                          id: c.id,
+                          name: c.name,
+                          fullName: c.fullName,
+                          level: 'company',
+                          badge: c.industryName,
+                        })
+                      }}
+                      className={cn(
+                        'p-3.5 rounded-xl border transition-all cursor-pointer space-y-2 group shadow-2xs select-none',
+                        idx === 0
+                          ? 'bg-blue-50/50 border-blue-200 hover:border-blue-300'
+                          : 'bg-slate-50 border-slate-200 hover:border-blue-300 hover:bg-blue-50/30'
+                      )}
+                    >
+                      <div className="flex justify-between items-center text-xs font-sans">
+                        <span className="font-bold text-slate-900">{idx + 1}. {c.name}</span>
+                        <span className={cn(
+                          'px-1.5 py-0.2 rounded font-bold text-[10px]',
+                          idx === 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-700'
+                        )}>
+                          能耗占比 {c.energyShare}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="size-2.5 rounded-sm bg-emerald-500" />
-                        <span className="font-sans text-slate-600">同比:</span>
-                        <strong className="text-emerald-700 font-bold">{activeGroupMetric.yoy}</strong>
+                      <div className={cn(
+                        'text-xl font-bold',
+                        idx === 0 ? 'text-[#1677ff]' : 'text-slate-900'
+                      )}>
+                        {c.costWan.toFixed(1)} <span className="text-xs font-normal text-slate-500 font-sans">万元 ({c.energyTce.toFixed(1)} tce)</span>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* 动态平滑趋势折线图 */}
-                  <div className="h-[220px]">
-                    <LineTrend
-                      data={activeGroupMetric.trendHistory}
-                      xKey="period"
-                      height={220}
-                      yUnit={activeGroupMetric.unit}
-                      lines={[
-                        { key: 'value', name: `${activeGroupMetric.name} (${activeGroupMetric.unit})`, color: '#1677ff' },
-                      ]}
-                    />
-                  </div>
-
-                  {/* 计算公式、分子分母与数据源拆解 */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-2 border-t border-slate-100 text-xs font-sans">
-                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-1">
-                      <span className="text-[10.5px] text-slate-500 font-bold block">权威计算公式：</span>
-                      <code className="text-xs font-mono text-[#1677ff] font-bold block">{activeGroupMetric.formula}</code>
-                      <span className="text-[10px] text-slate-400 block">{activeGroupMetric.formulaDesc}</span>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-1">
-                      <span className="text-[10.5px] text-slate-500 font-bold block">分子分母实测拆解：</span>
-                      <div className="text-[11px] text-slate-700 font-mono space-y-0.5">
-                        <div>分子: <strong>{activeGroupMetric.numeratorVal}</strong> <span className="text-slate-400 font-sans">({activeGroupMetric.numeratorName})</span></div>
-                        <div>分母: <strong>{activeGroupMetric.denominatorVal}</strong> <span className="text-slate-400 font-sans">({activeGroupMetric.denominatorName})</span></div>
+                      <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200/60 font-sans flex justify-between">
+                        <span>费用占比: <strong className="text-slate-800 font-mono">{c.costShare}</strong></span>
+                        <span className="text-emerald-600 font-bold">同比 {c.yoy} ↓</span>
                       </div>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-1">
-                      <span className="text-[10.5px] text-slate-500 font-bold block">数据来源与采集路径：</span>
-                      <p className="text-[11px] text-slate-600 leading-relaxed">{activeGroupMetric.dataSource}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 3. 6 大经营单位综合能效横向对比 (支持 📊 卡片 PK 视图 ⇄ 📋 多维数据透视表视图切换) */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
-                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                        【三、6 大经营单位综合能效指标横向对比】
-                      </h2>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-mono font-bold">
-                        点击卡片/行直接穿透下钻至单厂
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* 视图切换按钮 */}
-                      <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
-                        <button
-                          type="button"
-                          onClick={() => setGroupViewMode('card')}
-                          className={cn(
-                            'px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer flex items-center gap-1',
-                            groupViewMode === 'card' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                          )}
-                        >
-                          <BarChart3 className="size-3.5" />
-                          <span>卡片 PK 视图</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setGroupViewMode('table')}
-                          className={cn(
-                            'px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer flex items-center gap-1',
-                            groupViewMode === 'table' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                          )}
-                        >
-                          <Table className="size-3.5" />
-                          <span>数据透视大表</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 模式 1: 卡片 PK 视图 */}
-                  {groupViewMode === 'card' ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 font-mono">
-                      {GROUP_COMPANIES_METRICS.map((c, idx) => (
-                        <div
-                          key={c.id}
-                          onClick={() => {
-                            // 点击卡片平滑切换到该公司的单厂看板
-                            setSelectedNode({
-                              id: c.id,
-                              name: c.name,
-                              fullName: c.fullName,
-                              level: 'company',
-                              badge: c.industryName,
-                            })
-                          }}
-                          className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-blue-50/40 hover:border-blue-300 transition-all cursor-pointer space-y-2.5 shadow-2xs group"
-                        >
-                          <div className="flex justify-between items-center text-xs font-sans">
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-bold text-slate-900 group-hover:text-[#1677ff] transition-colors">
-                                {idx + 1}. {c.name}
-                              </span>
-                              <span className={cn(
-                                'text-[9.5px] px-1.5 py-0.2 rounded font-bold',
-                                c.industry === 'transformer' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'
-                              )}>
-                                {c.industryName}
-                              </span>
-                            </div>
-                            <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">
-                              能耗占比 {c.energyShare}
-                            </span>
-                          </div>
-
-                          <div className="flex items-baseline justify-between">
-                            <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
-                              {c.costWan.toFixed(1)} <span className="text-xs font-normal text-slate-500 font-sans">万元 ({c.energyTce.toFixed(1)} tce)</span>
-                            </div>
-                            <span className="text-emerald-600 font-bold text-xs font-mono">
-                              同比 {c.yoy} ↓
-                            </span>
-                          </div>
-
-                          {/* 占比进度条 */}
-                          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                            <div
-                              className="bg-[#1677ff] h-1.5 rounded-full"
-                              style={{ width: c.energyShare }}
-                            />
-                          </div>
-
-                          {/* 细分指标矩阵 */}
-                          <div className="pt-2 border-t border-slate-200/60 grid grid-cols-3 gap-2 text-[10.5px] font-sans">
-                            <div className="space-y-0.5">
-                              <span className="text-slate-400 text-[10px] block">万元产值能耗</span>
-                              <strong className="text-slate-800 font-mono">{c.unitOutputTce} <span className="text-[9px] text-slate-400 font-sans">tce/万</span></strong>
-                            </div>
-                            <div className="space-y-0.5">
-                              <span className="text-slate-400 text-[10px] block">万元产值电耗</span>
-                              <strong className="text-slate-800 font-mono">{c.unitOutputElec} <span className="text-[9px] text-slate-400 font-sans">kWh</span></strong>
-                            </div>
-                            <div className="space-y-0.5">
-                              <span className="text-slate-400 text-[10px] block">绿电消纳占比</span>
-                              <strong className="text-purple-700 font-mono font-bold">{c.greenRatio}</strong>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    /* 模式 2: 多维数据透视大表 */
-                    <div className="overflow-x-auto rounded-lg border border-slate-200 font-mono text-xs">
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
-                            <th className="py-2.5 px-3">经营单位</th>
-                            <th className="py-2.5 px-3">所属产业</th>
-                            <th className="py-2.5 px-3 text-right">综合能耗 (tce)</th>
-                            <th className="py-2.5 px-3 text-right">能耗占比</th>
-                            <th className="py-2.5 px-3 text-right">能源费用 (万元)</th>
-                            <th className="py-2.5 px-3 text-right">费用占比</th>
-                            <th className="py-2.5 px-3 text-right">万元产值能耗 (tce/万)</th>
-                            <th className="py-2.5 px-3 text-right">万元产值电耗 (kWh/万)</th>
-                            <th className="py-2.5 px-3 text-right">万元产值水耗 (t/万)</th>
-                            <th className="py-2.5 px-3 text-right">绿电占比</th>
-                            <th className="py-2.5 px-3 text-center">同比降幅</th>
-                            <th className="py-2.5 px-3 text-center">操作</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 text-slate-800">
-                          {GROUP_COMPANIES_METRICS.map((c) => (
-                            <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
-                              <td className="py-2.5 px-3 font-bold text-slate-900 font-sans">{c.name}</td>
-                              <td className="py-2.5 px-3 font-sans">
-                                <span className={cn(
-                                  'text-[10px] px-1.5 py-0.2 rounded font-bold',
-                                  c.industry === 'transformer' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                )}>
-                                  {c.industryName}
-                                </span>
-                              </td>
-                              <td className="py-2.5 px-3 text-right font-bold text-slate-900">{c.energyTce.toFixed(1)}</td>
-                              <td className="py-2.5 px-3 text-right text-blue-700 font-bold">{c.energyShare}</td>
-                              <td className="py-2.5 px-3 text-right font-bold">{c.costWan.toFixed(1)}</td>
-                              <td className="py-2.5 px-3 text-right text-slate-600">{c.costShare}</td>
-                              <td className="py-2.5 px-3 text-right font-bold text-emerald-700">{c.unitOutputTce}</td>
-                              <td className="py-2.5 px-3 text-right">{c.unitOutputElec}</td>
-                              <td className="py-2.5 px-3 text-right text-cyan-700">{c.unitOutputWater}</td>
-                              <td className="py-2.5 px-3 text-right text-purple-700 font-bold">{c.greenRatio}</td>
-                              <td className="py-2.5 px-3 text-center font-bold text-emerald-600">{c.yoy} ↓</td>
-                              <td className="py-2.5 px-3 text-center font-sans">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedNode({
-                                      id: c.id,
-                                      name: c.name,
-                                      fullName: c.fullName,
-                                      level: 'company',
-                                      badge: c.industryName,
-                                    })
-                                  }}
-                                  className="text-[#1677ff] hover:underline font-bold text-xs cursor-pointer"
-                                >
-                                  穿透查看 →
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* 二级单位与项目公司通用能耗/产品/工序指标板块 */}
+            {/* 二级单位与项目公司通用整体指标 (10 项指标卡片) */}
             {(isWorkshopLevel || isCompanyLevel) && (
-              <div className="space-y-3.5">
-                {/* 一、经营单位及项目公司整体指标 (前10个指标合并，5卡片/行) */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
-                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                        【一、经营单位及项目公司整体指标】
-                      </h2>
-                    </div>
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      保留同比变化 · 点击查看 12 个月历史明细与公式
-                    </span>
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
+                    <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                      【一、经营单位及项目公司整体指标】
+                    </h2>
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
-                    {FACTORY_TOP10_METRICS.map((m) => (
-                      <div
-                        key={m.id}
-                        onClick={() => setActiveViewMetric(m)}
-                        className="p-3.5 bg-slate-50/70 hover:bg-blue-50/40 rounded-xl border border-slate-200 hover:border-blue-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
-                      >
-                        <div className="flex items-center justify-between font-sans gap-1">
-                          <span className="text-[11px] font-bold text-slate-700 truncate">{m.name}</span>
-                          {m.badge && (
-                            <span
-                              className={cn(
-                                'text-[9px] px-1.5 py-0.5 rounded font-sans font-medium shrink-0 whitespace-nowrap',
-                                m.badge === '国家级零碳工厂' && 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
-                                m.badge === '国家级绿色工厂' && 'bg-teal-50 text-teal-700 border border-teal-200/80',
-                                m.badge === '公司管理要求' && 'bg-blue-50 text-blue-700 border border-blue-200/80'
-                              )}
-                            >
-                              {m.badge}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
-                          {m.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{m.unit}</span>
-                        </div>
-
-                        <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] font-sans">
-                          <span className="text-slate-500">同比</span>
-                          <span className="font-bold text-emerald-600 font-mono">{m.yoy} ↓</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    保留同比变化 · 点击查看 12 个月历史明细与公式
+                  </span>
                 </div>
 
-                {/* 二、产品管控指标 (5卡片/行 + 跳转链接) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                  {FACTORY_TOP10_METRICS.map((m) => (
+                    <div
+                      key={m.id}
+                      onClick={() => setActiveViewMetric(m)}
+                      className="p-3.5 bg-slate-50/70 hover:bg-blue-50/40 rounded-xl border border-slate-200 hover:border-blue-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                    >
+                      <div className="flex items-center justify-between font-sans gap-1">
+                        <span className="text-[11px] font-bold text-slate-700 truncate">{m.name}</span>
+                        {m.badge && (
+                          <span
+                            className={cn(
+                              'text-[9px] px-1.5 py-0.5 rounded font-sans font-medium shrink-0 whitespace-nowrap',
+                              m.badge === '国家级零碳工厂' && 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
+                              m.badge === '国家级绿色工厂' && 'bg-teal-50 text-teal-700 border border-teal-200/80',
+                              m.badge === '公司管理要求' && 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                            )}
+                          >
+                            {m.badge}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
+                        {m.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{m.unit}</span>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] font-sans">
+                        <span className="text-slate-500">同比</span>
+                        <span className="font-bold text-emerald-600 font-mono">{m.yoy} ↓</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 二、产品管控指标 (5卡片/行 + 跳转链接) */}
                 <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                     <div className="flex items-center gap-2">
@@ -2354,9 +2099,7 @@ export default function IndicatorControlPage() {
               </div>
             )}
           </div>
-        )}
+        </div>
+      )
+    }
 
-      </div>
-    </div>
-  )
-}
