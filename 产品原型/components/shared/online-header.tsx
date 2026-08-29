@@ -47,17 +47,6 @@ export function OnlineHeader() {
           >
             设备监测
           </Link>
-          <Link
-            href="/zero-carbon/monitor/online/process"
-            className={cn(
-              'px-3 py-1 rounded-md transition-all select-none',
-              pathname.includes('/online/process')
-                ? 'bg-white text-[#1677ff] font-bold shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            )}
-          >
-            工序监测
-          </Link>
         </div>
       </div>
 

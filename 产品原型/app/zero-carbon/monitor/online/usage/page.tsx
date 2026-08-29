@@ -21,6 +21,8 @@ import {
   PieChart as PieIcon,
   Sun,
   Layers,
+  Sparkles,
+  Sliders,
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend, BarChartGroup, Donut } from '@/components/shared/charts'
@@ -215,6 +217,12 @@ export default function UsageMonitoringPage() {
   const [startMonth, setStartMonth] = useState('2026-01')
   const [endMonth, setEndMonth] = useState('2026-08')
 
+  // 峰平谷查看对象切换：'total' (总用电量 峰平谷) | 'grid' (市电量 峰平谷)
+  const [touTarget, setTouTarget] = useState<'total' | 'grid'>('total')
+
+  // 峰平谷分解查看的具体月份
+  const [touDecomposeMonth, setTouDecomposeMonth] = useState('2026-08')
+
   // 当前选中展示的曲线介质类型
   // 'all_elec' (电量总览: 总用电 vs 市电 vs 直供绿电) | 'water' (水) | 'gas' (气) | 'steam' (蒸汽) | 'oil' (油) | 'nitrogen' (液氮) | 'tce' (综合能耗)
   const [selectedMediumView, setSelectedMediumView] = useState<
@@ -281,7 +289,6 @@ export default function UsageMonitoringPage() {
     const nitrogen = activeData.liquidNitrogenTMonth * mCount
 
     // 综合能耗折标煤 (tce)
-    // 电力: 0.1229 kgce/kWh; 天然气: 1.2143 kgce/m3; 蒸汽: 0.1286 kgce/kg(0.1286 tce/t); 柴油: 1.4571 kgce/kg
     const totalTce = Number(
       (
         (totalElec * 0.1229) / 1000 +
@@ -323,12 +330,10 @@ export default function UsageMonitoringPage() {
       综合能耗: number // tce
     }> = []
 
-    // 针对选中的月份跨度，生成每日数据 (按日更新)
     monthList.forEach((mStr) => {
       const [y, m] = mStr.split('-').map(Number)
-      // 生成该月的日度数据（当月若为当前月则到最新日28日，其余月份30/31天）
       const maxDays = m === 8 && y === 2026 ? 28 : new Date(y, m, 0).getDate()
-      const baseDayElec = (activeData.totalElecKWhMonth / 30) / 10000 // 转换为 万kWh
+      const baseDayElec = (activeData.totalElecKWhMonth / 30) / 10000
       const baseDayGrid = (activeData.gridElecKWhMonth / 30) / 10000
       const baseDaySolar = (activeData.solarElecKWhMonth / 30) / 10000
       const baseDayWater = activeData.waterM3Month / 30
@@ -381,6 +386,67 @@ export default function UsageMonitoringPage() {
 
     return records
   }, [monthList, activeData])
+
+  // =========================================================================
+  // 3. 用电峰平谷监测数据模型 (总用电量 / 市电量，月度总体 + 分解到日)
+  // =========================================================================
+  const touCalculations = useMemo(() => {
+    // 基准电量：根据选中的目标（总用电量 或 市电量）
+    const baseMonthElec =
+      touTarget === 'total'
+        ? activeData.totalElecKWhMonth / 10000 // 万kWh
+        : activeData.gridElecKWhMonth / 10000
+
+    // 月度总体峰平谷比例：尖 16.4%, 峰 41.1%, 平 28.9%, 谷 13.6%
+    const monthTip = Number((baseMonthElec * 0.164).toFixed(1))
+    const monthPeak = Number((baseMonthElec * 0.411).toFixed(1))
+    const monthFlat = Number((baseMonthElec * 0.289).toFixed(1))
+    const monthValley = Number((baseMonthElec * 0.136).toFixed(1))
+
+    const monthDonutData = [
+      { name: '尖峰电量', value: monthTip, color: '#f5222d', ratio: '16.4%' },
+      { name: '高峰电量', value: monthPeak, color: '#fa8c16', ratio: '41.1%' },
+      { name: '平段电量', value: monthFlat, color: '#1677ff', ratio: '28.9%' },
+      { name: '低谷电量', value: monthValley, color: '#52c41a', ratio: '13.6%' },
+    ]
+
+    // 分解到日数据 (针对 touDecomposeMonth 生成每日 尖/峰/平/谷 堆叠数据)
+    const [y, m] = touDecomposeMonth.split('-').map(Number)
+    const maxDays = m === 8 && y === 2026 ? 28 : new Date(y, m, 0).getDate()
+    const baseDay = baseMonthElec / 30
+
+    const dailyDecomposedData = []
+    for (let d = 1; d <= maxDays; d++) {
+      const isWeekend = (d + m) % 7 === 0 || (d + m) % 7 === 6
+      const factor = isWeekend ? 0.72 : 0.95 + ((d * 3 + m * 5) % 12) * 0.015
+
+      const dayTip = Number((baseDay * 0.164 * factor).toFixed(2))
+      const dayPeak = Number((baseDay * 0.411 * factor).toFixed(2))
+      const dayFlat = Number((baseDay * 0.289 * factor).toFixed(2))
+      const dayValley = Number((baseDay * 0.136 * (isWeekend ? 1.3 : 1.0) * factor).toFixed(2))
+      const dayTotal = Number((dayTip + dayPeak + dayFlat + dayValley).toFixed(2))
+
+      dailyDecomposedData.push({
+        day: `${d < 10 ? '0' + d : d}日`,
+        fullDate: `${touDecomposeMonth}-${d < 10 ? '0' + d : d}`,
+        尖峰: dayTip,
+        峰段: dayPeak,
+        平段: dayFlat,
+        谷段: dayValley,
+        日总电量: dayTotal,
+      })
+    }
+
+    return {
+      baseMonthElec,
+      monthTip,
+      monthPeak,
+      monthFlat,
+      monthValley,
+      monthDonutData,
+      dailyDecomposedData,
+    }
+  }, [touTarget, activeData, touDecomposeMonth])
 
   // 综合能耗介质构成饼图数据
   const energyDonutData = useMemo(() => {
@@ -465,7 +531,7 @@ export default function UsageMonitoringPage() {
 
       {/* 🌟 右侧主面板 */}
       <div className="flex-1 min-w-0 space-y-3.5">
-        {/* 1. 顶部 Header (含在线监测 3 大 Tab: 用能监测 / 设备监测 / 工序监测 + 统一时间筛选 + 导出) */}
+        {/* 1. 顶部 Header (含在线监测 2 大 Tab: 用能监测 / 设备监测 + 统一时间筛选 + 导出) */}
         <OnlineHeader />
 
         {/* 2. 监测对象概览与月份区间快捷控制条 */}
@@ -666,7 +732,145 @@ export default function UsageMonitoringPage() {
           </div>
         </div>
 
-        {/* 4. 核心时序曲线：选择几月到几月查看曲线 (月数据，按日更新) */}
+        {/* 🌟 4. 【核心增强】用电峰平谷监测 (总用电量 / 市电量，月度总体 + 可分解到日) */}
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="size-2 rounded-full bg-amber-500" />
+              <h3 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                <span>【{activeData.name}】用电峰平谷时段负荷与结构监测</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 font-bold">
+                  TOU 分时电量
+                </span>
+              </h3>
+            </div>
+
+            {/* 峰平谷控制栏：1. 监测对象 (总用电量 vs 市电量) | 2. 细化分解月份选择 */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* 1. 总用电量 vs 市电量切换 */}
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 font-sans text-xs font-medium">
+                <button
+                  type="button"
+                  onClick={() => setTouTarget('total')}
+                  className={cn(
+                    'px-3 py-1 rounded-md transition-all cursor-pointer select-none',
+                    touTarget === 'total' ? 'bg-white text-[#1677ff] font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  ⚡ 总用电量 峰平谷
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTouTarget('grid')}
+                  className={cn(
+                    'px-3 py-1 rounded-md transition-all cursor-pointer select-none',
+                    touTarget === 'grid' ? 'bg-white text-amber-600 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  🏢 市电量 峰平谷
+                </button>
+              </div>
+
+              {/* 2. 分解到日月份选择 */}
+              <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200 text-xs font-mono">
+                <Calendar className="size-3 text-slate-400" />
+                <span className="text-slate-600 font-sans text-[11px]">分解月份:</span>
+                <select
+                  value={touDecomposeMonth}
+                  onChange={(e) => setTouDecomposeMonth(e.target.value)}
+                  className="bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold focus:outline-none cursor-pointer"
+                >
+                  {monthList.map((mStr) => (
+                    <option key={mStr} value={mStr}>
+                      {mStr}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+            {/* 左侧 4/12: 月度总体峰平谷分布 (Donut + 4 段卡片) */}
+            <div className="lg:col-span-4 flex flex-col justify-between space-y-2 border-r border-slate-100 pr-3">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                <span className="flex items-center gap-1">
+                  <PieIcon className="size-3.5 text-[#1677ff]" />
+                  {touDecomposeMonth} 月度总体峰平谷构成
+                </span>
+                <span className="text-xs font-mono text-[#1677ff] font-bold">
+                  {touCalculations.baseMonthElec.toLocaleString()} 万kWh
+                </span>
+              </div>
+
+              <Donut data={touCalculations.monthDonutData} height={165} unit="万kWh" />
+
+              <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono pt-1">
+                <div className="p-1.5 rounded bg-rose-50/80 border border-rose-100 text-rose-900">
+                  <div className="flex justify-between items-center text-[10px] text-rose-700 font-sans">
+                    <span>尖峰 (10-12, 14-16)</span>
+                    <strong className="font-mono">16.4%</strong>
+                  </div>
+                  <div className="text-xs font-bold font-mono">{touCalculations.monthTip} 万kWh</div>
+                </div>
+
+                <div className="p-1.5 rounded bg-amber-50/80 border border-amber-100 text-amber-900">
+                  <div className="flex justify-between items-center text-[10px] text-amber-700 font-sans">
+                    <span>高峰 (08-10, 16-20)</span>
+                    <strong className="font-mono">41.1%</strong>
+                  </div>
+                  <div className="text-xs font-bold font-mono">{touCalculations.monthPeak} 万kWh</div>
+                </div>
+
+                <div className="p-1.5 rounded bg-blue-50/80 border border-blue-100 text-blue-900">
+                  <div className="flex justify-between items-center text-[10px] text-blue-700 font-sans">
+                    <span>平段 (07-08, 12-14)</span>
+                    <strong className="font-mono">28.9%</strong>
+                  </div>
+                  <div className="text-xs font-bold font-mono">{touCalculations.monthFlat} 万kWh</div>
+                </div>
+
+                <div className="p-1.5 rounded bg-emerald-50/80 border border-emerald-100 text-emerald-900">
+                  <div className="flex justify-between items-center text-[10px] text-emerald-700 font-sans">
+                    <span>低谷 (23:00-07:00)</span>
+                    <strong className="font-mono">13.6%</strong>
+                  </div>
+                  <div className="text-xs font-bold font-mono">{touCalculations.monthValley} 万kWh</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 右侧 8/12: 可分解到日（分日堆叠柱状图） */}
+            <div className="lg:col-span-8 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <BarChart3 className="size-3.5 text-amber-600" />
+                  {touDecomposeMonth} 分解到日峰平谷用电量连续堆叠分布 (万kWh/日)
+                </span>
+                <span className="text-[11px] text-slate-400 font-mono">
+                  尖/峰/平/谷 分时连续采集
+                </span>
+              </div>
+
+              <div className="h-[235px]">
+                <BarChartGroup
+                  data={touCalculations.dailyDecomposedData}
+                  xKey="day"
+                  height={235}
+                  yUnit="万kWh"
+                  bars={[
+                    { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
+                    { key: '峰段', name: '高峰电量', color: '#fa8c16' },
+                    { key: '平段', name: '平段电量', color: '#1677ff' },
+                    { key: '谷段', name: '低谷电量', color: '#52c41a' },
+                  ]}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 5. 核心时序曲线：选择几月到几月查看曲线 (月数据，按日更新) */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
@@ -842,7 +1046,7 @@ export default function UsageMonitoringPage() {
           </div>
         </div>
 
-        {/* 5. 辅助分析图表：月度能源消耗累计柱状堆叠 + 能耗介质结构环形图 */}
+        {/* 6. 辅助分析图表：月度能源消耗累计柱状堆叠 + 能耗介质结构环形图 */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
           {/* 左侧 7/12: 月度能源介质累计柱状堆叠 */}
           <div className="lg:col-span-7 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
@@ -903,7 +1107,7 @@ export default function UsageMonitoringPage() {
           </div>
         </div>
 
-        {/* 6. 底部数据明细：按日更新明细台账表格 (支持导出) */}
+        {/* 7. 底部数据明细：按日更新明细台账表格 (支持导出) */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/80 gap-2">
             <div className="flex items-center gap-2">
