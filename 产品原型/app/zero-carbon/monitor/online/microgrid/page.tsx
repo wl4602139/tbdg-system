@@ -16,6 +16,7 @@ import {
   MapPin,
   Maximize2,
   Search,
+  Gauge,
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { OnlineHeader } from '@/components/shared/online-header'
@@ -266,25 +267,45 @@ export default function MicrogridPage() {
           </button>
         </div>
 
-        {/* 顶部 4 大核心遥测 KPI 监控舱 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 font-mono">
+        {/* 顶部 5 大核心遥测 KPI 监控舱 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 font-mono">
+          {/* 1. 园区总负荷（市电+光伏） */}
           <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs space-y-1">
             <div className="flex items-center justify-between text-xs text-slate-600 font-sans">
               <span className="flex items-center gap-1 font-bold">
-                <Zap className="size-3.5 text-blue-600" />
-                园区受电总负荷 (市电)
+                <Gauge className="size-3.5 text-slate-700" />
+                园区总负荷（市电+光伏）
               </span>
-              <span className="px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] text-[10px] font-bold">受电在线</span>
+              <span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[10px] font-bold">运行总功率</span>
             </div>
             <div className="text-2xl font-extrabold text-slate-900">
               {currentParkDetail.loadKw.toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">kW</span>
             </div>
             <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-100 font-sans flex justify-between">
               <span>进线电压: {currentParkDetail.voltage}</span>
-              <span className="text-blue-600 font-bold">总负荷平稳</span>
+              <span className="text-slate-600 font-bold">总负荷平稳</span>
             </div>
           </div>
 
+          {/* 2. 市电负荷 */}
+          <div className="p-3.5 rounded-xl border border-blue-200 bg-blue-50/40 shadow-xs space-y-1">
+            <div className="flex items-center justify-between text-xs text-blue-800 font-sans">
+              <span className="flex items-center gap-1 font-bold">
+                <Zap className="size-3.5 text-blue-600" />
+                市电负荷
+              </span>
+              <span className="px-1.5 py-0.2 rounded bg-blue-100 text-[#1677ff] text-[10px] font-bold">电网受电</span>
+            </div>
+            <div className="text-2xl font-extrabold text-[#1677ff]">
+              {(currentParkDetail.loadKw - currentParkDetail.pvKw > 0 ? currentParkDetail.loadKw - currentParkDetail.pvKw : 7600).toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">kW</span>
+            </div>
+            <div className="text-[11px] text-slate-600 pt-1 border-t border-blue-200/60 font-sans flex justify-between">
+              <span>电网供电占比: <strong>{(((currentParkDetail.loadKw - currentParkDetail.pvKw) / currentParkDetail.loadKw) * 100).toFixed(1)}%</strong></span>
+              <span className="text-blue-700 font-bold">受电平稳</span>
+            </div>
+          </div>
+
+          {/* 3. 光伏实时出力与收益 */}
           <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/40 shadow-xs space-y-1">
             <div className="flex items-center justify-between text-xs text-emerald-800 font-sans">
               <span className="flex items-center gap-1 font-bold">
@@ -302,6 +323,7 @@ export default function MicrogridPage() {
             </div>
           </div>
 
+          {/* 4. 储能充放电实时功率 */}
           <div className="p-3.5 rounded-xl border border-amber-200 bg-amber-50/40 shadow-xs space-y-1">
             <div className="flex items-center justify-between text-xs text-amber-800 font-sans">
               <span className="flex items-center gap-1 font-bold">
@@ -319,20 +341,21 @@ export default function MicrogridPage() {
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl border border-blue-200 bg-blue-50/40 shadow-xs space-y-1">
-            <div className="flex items-center justify-between text-xs text-blue-800 font-sans">
+          {/* 5. 余电上网收益与电价 */}
+          <div className="p-3.5 rounded-xl border border-indigo-200 bg-indigo-50/40 shadow-xs space-y-1">
+            <div className="flex items-center justify-between text-xs text-indigo-800 font-sans">
               <span className="flex items-center gap-1 font-bold">
-                <Coins className="size-3.5 text-blue-600" />
+                <Coins className="size-3.5 text-indigo-600" />
                 余电上网收益与电价
               </span>
-              <span className="px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 text-[10px] font-bold">收益测算</span>
+              <span className="px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-800 text-[10px] font-bold">收益测算</span>
             </div>
-            <div className="text-2xl font-extrabold text-[#1677ff]">
+            <div className="text-2xl font-extrabold text-indigo-700">
               {currentParkDetail.surplusRevenue}
             </div>
-            <div className="text-[11px] text-slate-600 pt-1 border-t border-blue-200/60 font-sans flex justify-between">
+            <div className="text-[11px] text-slate-600 pt-1 border-t border-indigo-200/60 font-sans flex justify-between">
               <span>基准上网价: 0.375 元/kWh</span>
-              <span className="text-blue-700 font-bold">按月结算</span>
+              <span className="text-indigo-700 font-bold">按月结算</span>
             </div>
           </div>
         </div>
