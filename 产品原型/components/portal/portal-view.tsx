@@ -114,15 +114,6 @@ export function PortalView() {
                 </p>
               </div>
 
-              {/* 实时工况提示条 */}
-              <div className="flex items-center justify-between p-2 rounded-lg bg-blue-50/60 border border-blue-100 text-xs text-blue-900 font-mono">
-                <span className="flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>今日绿电占比：<strong>38.6% (达标)</strong></span>
-                </span>
-                <span className="text-emerald-700 font-bold">能耗同比 -4.1% ↓</span>
-              </div>
-
               {/* 描述信息列表 (4 项) */}
               <div className="space-y-2 text-xs pt-1 text-slate-600 font-sans">
                 <div className="flex items-center gap-2 p-1 rounded-md hover:bg-blue-50/50 transition-colors">
@@ -179,15 +170,6 @@ export function PortalView() {
                 <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
                   面向集团数字化部、外贸出口团队与供应商管理，聚焦 LCA 碳足迹核算、实景溯源与 CBAM 合规。
                 </p>
-              </div>
-
-              {/* 实时合规提示条 */}
-              <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-50/60 border border-emerald-100 text-xs text-emerald-900 font-mono">
-                <span className="flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>ISO 14067 认证：<strong>21 项全覆盖</strong></span>
-                </span>
-                <span className="text-emerald-700 font-bold">CBAM 碳关税已核销</span>
               </div>
 
               {/* 描述信息列表 (4 项) */}
