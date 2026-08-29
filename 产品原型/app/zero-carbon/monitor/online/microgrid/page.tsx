@@ -301,19 +301,17 @@ export default function MicrogridPage() {
               <Zap className="size-5" />
             </div>
             <h1 className="text-base font-bold text-slate-800">工业微电网监测</h1>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* 🌟 选项 “功率、电量” */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 font-sans text-xs">
+            {/* 🌟 参照在线监测页样式设计的 Tab 栏 (白底高亮 + 浅灰背景胶囊容器) */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-medium ml-2">
               <button
                 type="button"
                 onClick={() => setViewMode('power')}
                 className={cn(
-                  'px-3.5 py-1.5 rounded-md font-bold transition-all cursor-pointer select-none',
+                  'px-3 py-1 rounded-md transition-all select-none cursor-pointer',
                   viewMode === 'power'
-                    ? 'bg-[#1677ff] text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                    ? 'bg-white text-[#1677ff] font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 )}
               >
                 功率
@@ -322,17 +320,18 @@ export default function MicrogridPage() {
                 type="button"
                 onClick={() => setViewMode('energy')}
                 className={cn(
-                  'px-3.5 py-1.5 rounded-md font-bold transition-all cursor-pointer select-none',
+                  'px-3 py-1 rounded-md transition-all select-none cursor-pointer',
                   viewMode === 'energy'
-                    ? 'bg-[#1677ff] text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                    ? 'bg-white text-[#1677ff] font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 )}
               >
                 电量
               </button>
             </div>
+          </div>
 
-            <div className="h-4 w-px bg-slate-200" />
+          <div className="flex flex-wrap items-center gap-2.5">
 
             {/* 时间维度切换 (月度 / 季度 / 年度) */}
             <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
