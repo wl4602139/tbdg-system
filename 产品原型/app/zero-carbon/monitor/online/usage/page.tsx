@@ -678,7 +678,7 @@ export default function UsageMonitoringPage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-amber-500" />
               <h3 className="text-xs font-bold text-slate-900 flex items-center gap-2">
-                <span>【{activeData.name}】用电峰平谷时段负荷与结构监测</span>
+                <span>用电峰平谷时段负荷与结构监测</span>
                 <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 font-bold">
                   TOU 分时电量
                 </span>
@@ -816,7 +816,7 @@ export default function UsageMonitoringPage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-[#1677ff]" />
               <h3 className="text-xs font-bold text-slate-900">
-                【{activeData.name}】{startMonth} 至 {endMonth} 能耗时序曲线 (按日连续更新，共 {dailyTimeSeriesData.length} 天)
+                {startMonth} 至 {endMonth} 能耗时序曲线 (按日连续更新，共 {dailyTimeSeriesData.length} 天)
               </h3>
             </div>
 
@@ -1053,7 +1053,7 @@ export default function UsageMonitoringPage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-blue-500" />
               <h3 className="text-xs font-bold text-slate-800">
-                【{activeData.name}】{startMonth} 至 {endMonth} 8 大能源介质按日连续更新明细台账
+                {startMonth} 至 {endMonth} 8 大能源介质按日连续更新明细台账
               </h3>
             </div>
 
