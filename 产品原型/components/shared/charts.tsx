@@ -58,36 +58,45 @@ export function LineTrend({
   lines,
   xKey = 'month',
   height = 240,
+  yUnit,
 }: {
   data: any[]
   keys?: SeriesKey[]
   lines?: SeriesKey[]
   xKey?: string
   height?: number
+  yUnit?: string
 }) {
   const series = normKeys(lines || keys || [])
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
-        <CartesianGrid stroke={gridColor} vertical={false} />
-        <XAxis dataKey={xKey} tick={axisStyle} tickLine={false} axisLine={false} />
-        <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
-        <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: '#cbd5e1' }} />
-        <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
-        {series.map((s) => (
-          <Line
-            key={s.key}
-            type="monotone"
-            dataKey={s.key}
-            name={s.name}
-            stroke={s.color}
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4 }}
-          />
-        ))}
-      </LineChart>
-    </ResponsiveContainer>
+    <div className="relative w-full">
+      {yUnit && (
+        <div className="absolute -top-3 left-2 text-[10.5px] text-slate-500 font-mono z-10 select-none bg-white/80 px-1 rounded">
+          单位: {yUnit}
+        </div>
+      )}
+      <ResponsiveContainer width="100%" height={height}>
+        <LineChart data={data} margin={{ top: yUnit ? 16 : 8, right: 8, bottom: 0, left: -12 }}>
+          <CartesianGrid stroke={gridColor} vertical={false} />
+          <XAxis dataKey={xKey} tick={axisStyle} tickLine={false} axisLine={false} />
+          <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
+          <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: '#cbd5e1' }} />
+          <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
+          {series.map((s) => (
+            <Line
+              key={s.key}
+              type="monotone"
+              dataKey={s.key}
+              name={s.name}
+              stroke={s.color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4 }}
+            />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   )
 }
 
