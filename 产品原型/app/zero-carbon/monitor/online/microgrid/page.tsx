@@ -392,7 +392,7 @@ export default function MicrogridPage() {
           </div>
         </div>
 
-        {/* 监测数据明细台账 (15分钟粒度采样) */}
+        {/* 监测数据明细台账 */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden space-y-0">
           <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/60">
             <div className="flex items-center gap-2">
@@ -400,9 +400,6 @@ export default function MicrogridPage() {
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 【{currentParkDetail.name}】监测数据明细台账
               </h3>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-mono font-bold">
-                15分钟粒度连续采样 · SCADA 实时校准
-              </span>
             </div>
 
             <div className="flex items-center gap-2.5">
@@ -410,10 +407,10 @@ export default function MicrogridPage() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="搜索点位名称/采样时间..."
+                  placeholder="搜索采样时间..."
                   value={tableSearchKey}
                   onChange={(e) => setTableSearchKey(e.target.value)}
-                  className="pl-7 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#1677ff] w-48"
+                  className="pl-7 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#1677ff] w-44"
                 />
                 <Search className="size-3.5 text-slate-400 absolute left-2 top-2" />
               </div>
@@ -436,21 +433,16 @@ export default function MicrogridPage() {
               <thead>
                 <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold font-sans">
                   <th className="py-2.5 px-3">采样时间</th>
-                  <th className="py-2.5 px-3">监测并网点位 / 变电回路</th>
                   <th className="py-2.5 px-3 text-right">园区总负荷 (kW)</th>
                   <th className="py-2.5 px-3 text-right">市电受电 (kW)</th>
                   <th className="py-2.5 px-3 text-right">光伏实时出力 (kW)</th>
                   <th className="py-2.5 px-3 text-right">储能充放 (kW)</th>
-                  <th className="py-2.5 px-3 text-center">母线电压</th>
-                  <th className="py-2.5 px-3 text-center">功率因数</th>
-                  <th className="py-2.5 px-3 text-center">遥测状态</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-800">
                 {filteredLedger.map((row) => (
                   <tr key={row.id} className="hover:bg-blue-50/30 transition-colors">
                     <td className="py-2.5 px-3 font-semibold text-slate-700">{row.time}</td>
-                    <td className="py-2.5 px-3 font-sans font-bold text-slate-900">{row.pointName}</td>
                     <td className="py-2.5 px-3 text-right font-extrabold text-slate-900">{row.totalLoadKw.toLocaleString()}</td>
                     <td className="py-2.5 px-3 text-right text-[#1677ff] font-bold">{row.gridLoadKw.toLocaleString()}</td>
                     <td className="py-2.5 px-3 text-right text-emerald-700 font-bold">{row.pvKw.toLocaleString()}</td>
@@ -460,14 +452,6 @@ export default function MicrogridPage() {
                       ) : (
                         <span className="text-blue-600 font-bold">{row.storageKw} (充)</span>
                       )}
-                    </td>
-                    <td className="py-2.5 px-3 text-center text-slate-600">{row.voltage}</td>
-                    <td className="py-2.5 px-3 text-center font-bold text-slate-700">{row.cosPhi}</td>
-                    <td className="py-2.5 px-3 text-center">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">
-                        <span className="size-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                        正常
-                      </span>
                     </td>
                   </tr>
                 ))}

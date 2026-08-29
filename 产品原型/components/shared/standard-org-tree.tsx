@@ -142,10 +142,10 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
 export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
   {
     id: 'park_root',
-    name: '所属园区 (17 园区汇总)',
-    fullName: '特变电工所属园区 (17 园区全域汇总)',
+    name: '电装集团',
+    fullName: '特变电工电装集团 (15 园区全域汇总)',
     level: 'group',
-    badge: '17园区',
+    badge: '15园区',
     children: [
       {
         id: 'park_01',
@@ -483,7 +483,7 @@ export function StandardOrgTree({
           {treeType === 'park' ? (
             <>
               <Trees className="size-4 text-emerald-600" />
-              <span>零碳园区拓扑 (15大园区)</span>
+              <span>园区拓扑图</span>
             </>
           ) : (
             <>
