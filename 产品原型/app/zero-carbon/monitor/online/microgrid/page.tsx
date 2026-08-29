@@ -551,23 +551,6 @@ export default function MicrogridMonitoringPage() {
         {/* ========================================================================= */}
         {viewMode === 'power' && (
           <>
-            {/* 时间操作栏 */}
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between text-xs">
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                  <Calendar className="size-4 text-[#1677ff]" />
-                  <span>历史数据 15 分钟颗粒度查询:</span>
-                </span>
-                <input
-                  type="date"
-                  value={queryDate}
-                  onChange={(e) => setQueryDate(e.target.value)}
-                  className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md font-mono text-slate-800 focus:outline-none focus:border-[#1677ff]"
-                />
-                <span className="text-slate-400 font-sans">默认显示当天即时高频数据</span>
-              </div>
-            </div>
-
             {/* 4 项核心功率指标看板 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
@@ -764,22 +747,6 @@ export default function MicrogridMonitoringPage() {
         {/* ========================================================================= */}
         {viewMode === 'energy' && (
           <>
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between text-xs">
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                  <Calendar className="size-4 text-[#1677ff]" />
-                  <span>历史数据逐小时电量查询:</span>
-                </span>
-                <input
-                  type="date"
-                  value={queryDate}
-                  onChange={(e) => setQueryDate(e.target.value)}
-                  className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md font-mono text-slate-800 focus:outline-none focus:border-[#1677ff]"
-                />
-                <span className="text-slate-400 font-sans">单位换算为 kWh 累计能耗</span>
-              </div>
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
                 <div className="flex items-center justify-between text-xs text-slate-500">
@@ -931,28 +898,6 @@ export default function MicrogridMonitoringPage() {
         {/* ========================================================================= */}
         {viewMode === 'green' && (
           <>
-            {/* 顶部操作条：绿电凭证录入按钮 */}
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between text-xs">
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                  <Sun className="size-4 text-emerald-600" />
-                  <span>新能源绿电发电消纳与碳汇交易监测</span>
-                </span>
-                <span className="text-slate-400 font-sans">
-                  上网电价: {currentParkDetail.feedInTariff} · 工商业均价: {currentParkDetail.industrialPrice}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setIsEntryModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs cursor-pointer transition-colors"
-              >
-                <Plus className="size-3.5" />
-                <span>录入绿电/绿证交易凭证</span>
-              </button>
-            </div>
-
             {/* 4 项核心绿电指标看板 (样式完全对齐【电量】Tab 规范) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
@@ -1078,6 +1023,14 @@ export default function MicrogridMonitoringPage() {
                   </h3>
                 </div>
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEntryModalOpen(true)}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-medium cursor-pointer shadow-2xs text-xs"
+                  >
+                    <Plus className="size-3.5" />
+                    <span>录入凭证</span>
+                  </button>
                   <div className="relative">
                     <Search className="size-3.5 text-slate-400 absolute left-2.5 top-2" />
                     <input
