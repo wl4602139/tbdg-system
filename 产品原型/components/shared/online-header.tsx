@@ -1,10 +1,13 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Activity, Calendar, Download } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function OnlineHeader() {
+  const pathname = usePathname()
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
   const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
   const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
@@ -18,6 +21,43 @@ export function OnlineHeader() {
         </div>
         <div>
           <h1 className="text-base font-bold text-slate-800">用能在线监测</h1>
+        </div>
+
+        {/* 🌟 3 大子模块 Tab 切换：用能监测 (面向园区/工厂) | 设备监测 (面向重点设备) | 工序监测 (面向关键工序) */}
+        <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-medium ml-2">
+          <Link
+            href="/zero-carbon/monitor/online/usage"
+            className={cn(
+              'px-3 py-1 rounded-md transition-all select-none',
+              pathname.includes('/online/usage') || pathname === '/zero-carbon/monitor/online'
+                ? 'bg-white text-[#1677ff] font-bold shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            )}
+          >
+            用能监测
+          </Link>
+          <Link
+            href="/zero-carbon/monitor/online/equipment"
+            className={cn(
+              'px-3 py-1 rounded-md transition-all select-none',
+              pathname.includes('/online/equipment')
+                ? 'bg-white text-[#1677ff] font-bold shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            )}
+          >
+            设备监测
+          </Link>
+          <Link
+            href="/zero-carbon/monitor/online/process"
+            className={cn(
+              'px-3 py-1 rounded-md transition-all select-none',
+              pathname.includes('/online/process')
+                ? 'bg-white text-[#1677ff] font-bold shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            )}
+          >
+            工序监测
+          </Link>
         </div>
       </div>
 
