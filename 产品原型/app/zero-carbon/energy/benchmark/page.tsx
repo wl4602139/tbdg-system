@@ -47,8 +47,8 @@ import {
 import { TimeRange } from '@/components/shared/time-range'
 import { cn } from '@/lib/utils'
 
-// 4 大 Tab 键名
-type BenchmarkTabKey = 'horizontal' | 'product_model' | 'process' | 'standard_manage'
+// 5 大 Tab 键名
+type BenchmarkTabKey = 'horizontal' | 'product_horizontal' | 'product_vertical' | 'process' | 'standard_manage'
 
 interface BenchmarkTabConfig {
   key: BenchmarkTabKey
@@ -58,7 +58,8 @@ interface BenchmarkTabConfig {
 
 const BENCHMARK_TABS: BenchmarkTabConfig[] = [
   { key: 'horizontal', label: '核心指标对比', icon: BarChart3 },
-  { key: 'product_model', label: '产品单耗对比', icon: Sliders },
+  { key: 'product_horizontal', label: '产品单耗对比（横向）', icon: Sliders },
+  { key: 'product_vertical', label: '产品单耗对比（纵向）', icon: TrendingUp },
   { key: 'process', label: '关键工序单耗对比', icon: Zap },
   { key: 'standard_manage', label: '基准管理', icon: Award },
 ]
@@ -410,6 +411,23 @@ const PROJECT_COMPANIES_BENCHMARK_DATA: ProjectCompanyBenchmarkRow[] = [
     unitAddedValueTce: 0.243,
     unitAddedValueYoy: '-5.1%',
   },
+]
+
+
+// 纵向产品单耗历史时序数据
+const VERTICAL_PRODUCT_TREND_DATA = [
+  { period: '2025-09', value: 107500, benchmark: 105000, dryKWh: 56000, testKWh: 23500, otherKWh: 28000, mom: '+0.5%', yoy: '+1.8%' },
+  { period: '2025-10', value: 106800, benchmark: 105000, dryKWh: 55400, testKWh: 23400, otherKWh: 28000, mom: '-0.7%', yoy: '+1.2%' },
+  { period: '2025-11', value: 105900, benchmark: 105000, dryKWh: 54800, testKWh: 23200, otherKWh: 27900, mom: '-0.8%', yoy: '-0.4%' },
+  { period: '2025-12', value: 105200, benchmark: 105000, dryKWh: 54100, testKWh: 23200, otherKWh: 27900, mom: '-0.7%', yoy: '-1.1%' },
+  { period: '2026-01', value: 104800, benchmark: 105000, dryKWh: 53500, testKWh: 23500, otherKWh: 27800, mom: '-0.4%', yoy: '-1.8%' },
+  { period: '2026-02', value: 104500, benchmark: 105000, dryKWh: 53000, testKWh: 23800, otherKWh: 27700, mom: '-0.3%', yoy: '-2.1%' },
+  { period: '2026-03', value: 103900, benchmark: 105000, dryKWh: 52200, testKWh: 24000, otherKWh: 27700, mom: '-0.6%', yoy: '-2.8%' },
+  { period: '2026-04', value: 103200, benchmark: 105000, dryKWh: 51500, testKWh: 24100, otherKWh: 27600, mom: '-0.7%', yoy: '-3.5%' },
+  { period: '2026-05', value: 102800, benchmark: 105000, dryKWh: 50800, testKWh: 24300, otherKWh: 27700, mom: '-0.4%', yoy: '-4.1%' },
+  { period: '2026-06', value: 101200, benchmark: 105000, dryKWh: 49200, testKWh: 24400, otherKWh: 27600, mom: '-1.6%', yoy: '-5.2%' },
+  { period: '2026-07', value: 101800, benchmark: 105000, dryKWh: 49600, testKWh: 24400, otherKWh: 27800, mom: '+0.6%', yoy: '-4.9%' },
+  { period: '2026-08', value: 102400, benchmark: 105000, dryKWh: 49800, testKWh: 24200, otherKWh: 28400, mom: '+0.6%', yoy: '-4.8%' },
 ]
 
 export default function BenchmarkManagementPage() {
@@ -866,9 +884,9 @@ export default function BenchmarkManagementPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: 产品单耗对比 */}
+      {/* TAB 2: 产品单耗对比（横向） */}
       {/* ========================================================================= */}
-      {activeTab === 'product_model' && (
+      {activeTab === 'product_horizontal' && (
         <div className="space-y-3.5">
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
@@ -881,27 +899,172 @@ export default function BenchmarkManagementPage() {
               <span className="text-xs text-slate-400 font-mono">核算口径: 单台制造总耗电 (kWh/台)</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 font-mono">
               {[
                 { factory: '沈变本部 (超高压车间)', totalKWh: 105900, dryKWh: 54200, testKWh: 23100, otherKWh: 28600, status: '实测偏差 (+2.8%)', tone: 'blue' },
                 { factory: '衡变本部 (特高压车间)', totalKWh: 102400, dryKWh: 49800, testKWh: 24200, otherKWh: 28400, status: '集团最优实测 (基准)', tone: 'emerald' },
                 { factory: '新变特高压制造部', totalKWh: 109800, dryKWh: 58000, testKWh: 22800, otherKWh: 29000, status: '实测偏差 (+6.5%)', tone: 'amber' },
               ].map((item, idx) => (
                 <div key={idx} className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center font-sans">
                     <span className="font-bold text-slate-900 text-xs">{item.factory}</span>
                     <span className={cn('text-[10px] px-1.5 py-0.2 rounded font-bold', item.tone === 'emerald' ? 'bg-emerald-100 text-emerald-800' : item.tone === 'blue' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800')}>{item.status}</span>
                   </div>
-                  <div className="text-xl font-extrabold text-slate-800 font-mono">
-                    {item.totalKWh.toLocaleString()} <span className="text-xs font-normal text-slate-500">kWh/台</span>
+                  <div className="text-xl font-extrabold text-slate-800">
+                    {item.totalKWh.toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">kWh/台</span>
                   </div>
-                  <div className="text-[11px] text-slate-500 space-y-0.5 pt-1 border-t border-slate-200/60 font-mono">
-                    <div className="flex justify-between"><span>干燥工段电耗:</span><strong>{item.dryKWh.toLocaleString()} kWh</strong></div>
-                    <div className="flex justify-between"><span>试验站电耗:</span><strong>{item.testKWh.toLocaleString()} kWh</strong></div>
-                    <div className="flex justify-between"><span>其他工序辅助:</span><strong>{item.otherKWh.toLocaleString()} kWh</strong></div>
+                  <div className="text-[11px] text-slate-500 space-y-0.5 pt-1 border-t border-slate-200/60 font-sans">
+                    <div className="flex justify-between"><span>干燥工段电耗:</span><strong className="font-mono">{item.dryKWh.toLocaleString()} kWh</strong></div>
+                    <div className="flex justify-between"><span>试验站电耗:</span><strong className="font-mono">{item.testKWh.toLocaleString()} kWh</strong></div>
+                    <div className="flex justify-between"><span>其他工序辅助:</span><strong className="font-mono">{item.otherKWh.toLocaleString()} kWh</strong></div>
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 3: 产品单耗对比（纵向） */}
+      {/* ========================================================================= */}
+      {activeTab === 'product_vertical' && (
+        <div className="space-y-3.5">
+          {/* 顶部控制与产品型号选择 */}
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="size-4 text-[#1677ff]" />
+                <h3 className="text-xs font-bold text-slate-900">
+                  重点产品型号历史时序单耗纵向对比与能效演进
+                </h3>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-sans">
+                <span className="text-slate-500">选择对标产品型号:</span>
+                <select className="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-bold text-slate-800 text-xs focus:outline-none focus:border-[#1677ff]">
+                  <option value="p1">ODFS-334MVA/500kV 单相自耦变压器 (超高压)</option>
+                  <option value="p2">SZ11-50000/110kV 节能型油浸式变压器</option>
+                  <option value="p3">110kV 交联聚乙烯电力电缆 (YJLW03-64/110kV)</option>
+                  <option value="p4">SCB13-1600kVA 环氧树脂干式变压器</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 4 维核心能效指标卡片 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-mono">
+              <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 space-y-1">
+                <span className="text-xs text-slate-500 font-sans block">当期单台总耗电</span>
+                <div className="text-xl font-extrabold text-slate-900">102,400 <span className="text-xs font-normal text-slate-500 font-sans">kWh/台</span></div>
+                <div className="text-[11px] text-emerald-600 font-bold font-sans">同比 -4.8% ↓ · 环比 -0.6% ↓</div>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-1">
+                <span className="text-xs text-emerald-800 font-sans block">历史最优单耗纪录</span>
+                <div className="text-xl font-extrabold text-emerald-700">101,200 <span className="text-xs font-normal text-slate-500 font-sans">kWh/台</span></div>
+                <div className="text-[11px] text-slate-600 font-sans">达成月份: 2026年06月</div>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-purple-200 bg-purple-50/40 space-y-1">
+                <span className="text-xs text-purple-800 font-sans block">国家/行业先进标杆定额</span>
+                <div className="text-xl font-extrabold text-purple-700">105,000 <span className="text-xs font-normal text-slate-500 font-sans">kWh/台</span></div>
+                <div className="text-[11px] text-purple-700 font-bold font-sans">优于行业先进线 2.5%</div>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-blue-200 bg-blue-50/40 space-y-1">
+                <span className="text-xs text-blue-800 font-sans block">近 12 个月累计节电效益</span>
+                <div className="text-xl font-extrabold text-[#1677ff]">5,100 <span className="text-xs font-normal text-slate-500 font-sans">kWh/台</span></div>
+                <div className="text-[11px] text-slate-600 font-sans">折合节费 ¥4,080 / 台</div>
+              </div>
+            </div>
+
+            {/* 纵向历史走势图表 */}
+            <div className="pt-2">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-sans">
+                <span className="font-bold text-slate-800">近 12 个月单台产品耗电时序走势与标杆对比 (kWh/台)</span>
+                <div className="flex items-center gap-4 text-xs font-mono">
+                  <span className="flex items-center gap-1 text-[#1677ff] font-bold"><span className="size-2 rounded-full bg-[#1677ff]" />实测单耗</span>
+                  <span className="flex items-center gap-1 text-purple-600 font-bold"><span className="w-3 h-0.5 bg-purple-600" />行业标杆线 (105,000)</span>
+                </div>
+              </div>
+              <div className="h-[260px] pt-3">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={VERTICAL_PRODUCT_TREND_DATA} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="period" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={false} />
+                    <YAxis domain={[95000, 115000]} tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={false} />
+                    <Tooltip
+                      formatter={(value: any) => [`${Number(value).toLocaleString()} kWh/台`, '单台耗电']}
+                      labelFormatter={(label) => `统计月份: ${label}`}
+                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
+                    />
+                    <ReferenceLine y={105000} stroke="#9333ea" strokeDasharray="4 4" label={{ value: '行业先进标杆 (105,000)', position: 'insideTopRight', fill: '#9333ea', fontSize: 11 }} />
+                    <Bar dataKey="value" name="实测单台耗电" fill="#1677ff" radius={[4, 4, 0, 0]} maxBarSize={36}>
+                      {VERTICAL_PRODUCT_TREND_DATA.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.value <= 102400 ? '#10b981' : '#1677ff'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* 纵向历史月度明细数据台账 (倒序排列) */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+              <div className="flex items-center gap-2">
+                <Layers className="size-4 text-slate-700" />
+                <h3 className="text-xs font-bold text-slate-800">近 12 个月历史月度单耗与工序拆解台账</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => alert('正在导出产品纵向时序单耗台账 (Excel)...')}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer"
+              >
+                <Download className="size-3.5" />
+                <span>导出</span>
+              </button>
+            </div>
+
+            <div className="overflow-x-auto font-mono text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
+                    <th className="py-2.5 px-3">时间</th>
+                    <th className="py-2.5 px-3 text-right">单台总耗电 (kWh)</th>
+                    <th className="py-2.5 px-3 text-right">干燥工序 (kWh)</th>
+                    <th className="py-2.5 px-3 text-right">试验站工序 (kWh)</th>
+                    <th className="py-2.5 px-3 text-right">辅助工序 (kWh)</th>
+                    <th className="py-2.5 px-3 text-right">环比变化 (MoM)</th>
+                    <th className="py-2.5 px-3 text-right">同比变化 (YoY)</th>
+                    <th className="py-2.5 px-3 text-center">标杆对标状态</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-800">
+                  {[...VERTICAL_PRODUCT_TREND_DATA].reverse().map((row, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50">
+                      <td className="py-2.5 px-3 font-bold text-slate-900">{row.period.replace('-', '年')}月</td>
+                      <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff]">{row.value.toLocaleString()}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-700">{row.dryKWh.toLocaleString()}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-700">{row.testKWh.toLocaleString()}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-700">{row.otherKWh.toLocaleString()}</td>
+                      <td className={cn('py-2.5 px-3 text-right font-bold', row.mom.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>{row.mom}</td>
+                      <td className={cn('py-2.5 px-3 text-right font-bold', row.yoy.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>{row.yoy}</td>
+                      <td className="py-2.5 px-3 text-center font-sans">
+                        {row.value <= row.benchmark ? (
+                          <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10.5px] font-bold border border-emerald-200">
+                            ● 优于标杆 ({((row.benchmark - row.value) / row.benchmark * 100).toFixed(1)}%)
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[10.5px] font-bold border border-amber-200">
+                            ▲ 偏离标杆
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
