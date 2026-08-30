@@ -330,6 +330,23 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
 
 export const TBEA_ORG_TREE_DATA = ENTERPRISE_TREE_DATA
 
+// 生产变压器、线缆的主流项目公司/车间白名单
+export const PRODUCT_TRANSFORMER_CABLE_WORKSHOP_IDS = new Set([
+  'ws_sb_main',  // 沈变本部 (变压器-高压)
+  'ws_hb_main',  // 衡变本部 (变压器-高压)
+  'ws_hb_hn',    // 湖南电气 (变压器-高压)
+  'ws_hb_tnj',   // 特能建 (变压器-高压)
+  'ws_xb_uhv',   // 超高压公司 (变压器-高压)
+  'ws_xb_tb',    // 天变公司 (变压器-中低压-干变)
+  'ws_xb_zndq',  // 智能电气公司 (变压器-中低压-干变)
+  'ws_xb_jjj',   // 京津冀公司 (变压器-中低压-油变)
+  'ws_ll_main',  // 鲁缆本部 (线缆-高压、中低压)
+  'ws_ll_sg',    // 曙光公司 (线缆-特种电缆)
+  'ws_xl_main',  // 特变电工新疆电缆有限公司 (线缆-中低压)
+  'ws_xl_sub',   // 特变电工新疆线缆厂 (线缆-中低压)
+  'ws_dl_main',  // 特变电工（德阳）电缆股份有限公司 (线缆-中低压、高压)
+])
+
 export interface StandardOrgTreeProps {
   selectedNodeId?: string
   selectedId?: string
@@ -337,6 +354,7 @@ export interface StandardOrgTreeProps {
   onSelect?: (node: StandardOrgNode) => void
   treeType?: 'enterprise' | 'park'
   maxSelectableLevel?: number
+  productUnitOnly?: boolean // 仅允许选择生产变压器、线缆的项目公司，其他项目公司置灰不可交互
   className?: string
 }
 
@@ -347,6 +365,7 @@ export function StandardOrgTree({
   onSelect,
   treeType = 'enterprise',
   maxSelectableLevel,
+  productUnitOnly = false,
   className,
 }: StandardOrgTreeProps) {
   const currentSelectedId = selectedId || selectedNodeId || (treeType === 'park' ? 'park_ne' : 'ws_sb_main')
@@ -414,7 +433,9 @@ export function StandardOrgTree({
       const isCollapsed = Boolean(collapsedKeys[node.id])
       const isSelected = node.id === currentSelectedId
       const currentLevelNum = level + 1
-      const isSelectable = !maxSelectableLevel || currentLevelNum <= maxSelectableLevel
+      // 检查节点是否可交互：若开启 productUnitOnly，项目公司(workshop)若不生产变压器/线缆则置灰禁用
+      const isProductUnitDisabled = productUnitOnly && node.level === 'workshop' && !PRODUCT_TRANSFORMER_CABLE_WORKSHOP_IDS.has(node.id)
+      const isSelectable = (!maxSelectableLevel || currentLevelNum <= maxSelectableLevel) && !isProductUnitDisabled
 
       return (
         <div key={node.id} className="relative select-none text-[12px]">
@@ -427,15 +448,21 @@ export function StandardOrgTree({
             }}
             className={cn(
               'flex items-center gap-1.5 py-1 px-1.5 rounded transition-colors relative group',
-              isSelectable ? 'cursor-pointer' : 'cursor-default',
-              isSelected
-                ? 'bg-[#e6f4ff] text-[#1677ff] font-semibold shadow-2xs'
+              isProductUnitDisabled
+                ? 'opacity-40 text-slate-400 cursor-not-allowed select-none bg-slate-50/50'
                 : isSelectable
+                ? 'cursor-pointer'
+                : 'cursor-default',
+              isSelected && !isProductUnitDisabled
+                ? 'bg-[#e6f4ff] text-[#1677ff] font-semibold shadow-2xs'
+                : !isProductUnitDisabled && isSelectable
                   ? 'hover:bg-slate-100/80 text-slate-700'
-                  : 'text-slate-500 hover:bg-slate-50'
+                  : !isProductUnitDisabled
+                  ? 'text-slate-500 hover:bg-slate-50'
+                  : ''
             )}
             style={{ paddingLeft: `${level * 14 + 6}px` }}
-            title={!isSelectable ? `${node.name} (3级节点仅供结构展示)` : (node.fullName || node.name)}
+            title={isProductUnitDisabled ? `${node.name} (非变压器/线缆生产单位 · 不参与产品单耗核算)` : !isSelectable ? `${node.name} (仅供结构展示)` : (node.fullName || node.name)}
           >
             {/* 折叠箭头 */}
             {hasChildren ? (
