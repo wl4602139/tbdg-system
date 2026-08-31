@@ -4,114 +4,178 @@ import { useState, useMemo } from 'react'
 import {
   Download,
   Calendar,
-  Leaf,
+  Search,
   Globe2,
-  Factory,
-  Zap,
-  Flame,
-  FileSpreadsheet,
-  ArrowUpDown,
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { cn } from '@/lib/utils'
 
 interface CarbonRow {
   id: string
-  name: string
-  industry: '变压器制造' | '线缆制造' | '高压成套'
-  fossilCombustion: number
-  processEmission: number
-  gridElecEmission: number
-  steamEmission: number
-  pvGreenDeduct: number
-  ccerDeduct: number
-  netEmission: number
+  unitId: string
+  unitName: string
+  company: string
+  fossilCombustion: number  // 化石燃料直接燃烧 (tCO2)
+  processEmission: number   // 工业生产过程排放 (tCO2)
+  gridElecEmission: number  // 净购入电力排放 (tCO2)
+  steamEmission: number     // 净购入蒸汽排放 (tCO2)
+  pvGreenDeduct: number     // 光伏与绿电对冲 (-tCO2)
+  ccerDeduct: number        // CCER/碳汇抵扣 (-tCO2)
+  netEmission: number       // 净碳排放总量 (tCO2)
   yoy: string
 }
 
-const CARBON_MOCK_ROWS: CarbonRow[] = [
+const ALL_CARBON_ROWS: CarbonRow[] = [
+  // --- 沈变公司 ---
   {
-    id: '01',
-    name: '沈变公司',
-    industry: '变压器制造',
-    fossilCombustion: 2127.6,
-    processEmission: 480.0,
-    gridElecEmission: 48022.1,
-    steamEmission: 1364.0,
-    pvGreenDeduct: -1550.0,
-    ccerDeduct: -500.0,
-    netEmission: 49943.7,
+    id: 'SB-01',
+    unitId: 'ws_sb_main',
+    unitName: '沈变本部',
+    company: '沈变公司',
+    fossilCombustion: 1480.0,
+    processEmission: 320.0,
+    gridElecEmission: 30850.5,
+    steamEmission: 924.0,
+    pvGreenDeduct: -1050.0,
+    ccerDeduct: -350.0,
+    netEmission: 32174.5,
     yoy: '-6.4%',
   },
   {
-    id: '02',
-    name: '衡变公司',
-    industry: '变压器制造',
-    fossilCombustion: 1863.8,
-    processEmission: 420.0,
-    gridElecEmission: 44768.6,
-    steamEmission: 1078.0,
-    pvGreenDeduct: -1330.0,
-    ccerDeduct: -400.0,
-    netEmission: 46400.4,
-    yoy: '-5.9%',
+    id: 'SB-02',
+    unitId: 'ws_sb_luna',
+    unitName: '露娜公司 (特变电工露娜智能)',
+    company: '沈变公司',
+    fossilCombustion: 310.0,
+    processEmission: 80.0,
+    gridElecEmission: 7068.0,
+    steamEmission: 198.0,
+    pvGreenDeduct: -250.0,
+    ccerDeduct: -80.0,
+    netEmission: 7326.0,
+    yoy: '-5.8%',
   },
   {
-    id: '03',
-    name: '鲁缆公司',
-    industry: '线缆制造',
-    fossilCombustion: 1340.6,
-    processEmission: 310.0,
-    gridElecEmission: 33305.5,
-    steamEmission: 682.0,
-    pvGreenDeduct: -880.0,
-    ccerDeduct: -300.0,
-    netEmission: 34458.1,
+    id: 'SB-03',
+    unitId: 'ws_sb_zh',
+    unitName: '智慧能源',
+    company: '沈变公司',
+    fossilCombustion: 155.0,
+    processEmission: 40.0,
+    gridElecEmission: 3876.0,
+    steamEmission: 104.5,
+    pvGreenDeduct: -140.0,
+    ccerDeduct: -40.0,
+    netEmission: 3995.5,
+    yoy: '-4.9%',
+  },
+  {
+    id: 'SB-04',
+    unitId: 'ws_sb_hx',
+    unitName: '和新套管公司',
+    company: '沈变公司',
+    fossilCombustion: 110.0,
+    processEmission: 25.0,
+    gridElecEmission: 3192.0,
+    steamEmission: 88.0,
+    pvGreenDeduct: -90.0,
+    ccerDeduct: -30.0,
+    netEmission: 3295.0,
     yoy: '-5.2%',
   },
   {
-    id: '04',
-    name: '新变厂',
-    industry: '变压器制造',
-    fossilCombustion: 1611.0,
-    processEmission: 360.0,
-    gridElecEmission: 39464.8,
-    steamEmission: 935.0,
-    pvGreenDeduct: -1120.0,
-    ccerDeduct: -350.0,
-    netEmission: 40900.8,
+    id: 'SB-05',
+    unitId: 'ws_sb_kj',
+    unitName: '康嘉互感器',
+    company: '沈变公司',
+    fossilCombustion: 85.0,
+    processEmission: 20.0,
+    gridElecEmission: 2450.0,
+    steamEmission: 65.0,
+    pvGreenDeduct: -70.0,
+    ccerDeduct: -25.0,
+    netEmission: 2525.0,
+    yoy: '-4.5%',
+  },
+  {
+    id: 'SB-06',
+    unitId: 'ws_sb_yn',
+    unitName: '印能公司',
+    company: '沈变公司',
+    fossilCombustion: 65.0,
+    processEmission: 15.0,
+    gridElecEmission: 1860.0,
+    steamEmission: 45.0,
+    pvGreenDeduct: -50.0,
+    ccerDeduct: -18.0,
+    netEmission: 1917.0,
+    yoy: '-3.9%',
+  },
+
+  // --- 衡变公司 ---
+  {
+    id: 'HB-01',
+    unitId: 'ws_hb_main',
+    unitName: '衡变本部',
+    company: '衡变公司',
+    fossilCombustion: 1220.0,
+    processEmission: 280.0,
+    gridElecEmission: 27645.0,
+    steamEmission: 748.0,
+    pvGreenDeduct: -920.0,
+    ccerDeduct: -280.0,
+    netEmission: 28693.0,
+    yoy: '-5.9%',
+  },
+  {
+    id: 'HB-02',
+    unitId: 'ws_hb_kg',
+    unitName: '云集高压开关',
+    company: '衡变公司',
+    fossilCombustion: 480.0,
+    processEmission: 110.0,
+    gridElecEmission: 10379.5,
+    steamEmission: 198.0,
+    pvGreenDeduct: -280.0,
+    ccerDeduct: -90.0,
+    netEmission: 10797.5,
+    yoy: '-5.0%',
+  },
+  {
+    id: 'HB-03',
+    unitId: 'ws_hb_nj',
+    unitName: '南京电研',
+    company: '衡变公司',
+    fossilCombustion: 220.0,
+    processEmission: 50.0,
+    gridElecEmission: 5850.0,
+    steamEmission: 130.0,
+    pvGreenDeduct: -160.0,
+    ccerDeduct: -50.0,
+    netEmission: 6040.0,
+    yoy: '-5.4%',
+  },
+
+  // --- 新变厂 ---
+  {
+    id: 'XB-01',
+    unitId: 'ws_xb_uhv',
+    unitName: '超高压公司',
+    company: '新变厂',
+    fossilCombustion: 920.0,
+    processEmission: 200.0,
+    gridElecEmission: 23199.0,
+    steamEmission: 627.0,
+    pvGreenDeduct: -680.0,
+    ccerDeduct: -200.0,
+    netEmission: 24066.0,
     yoy: '-5.5%',
   },
   {
-    id: '05',
-    name: '新缆厂',
-    industry: '线缆制造',
-    fossilCombustion: 1167.6,
-    processEmission: 270.0,
-    gridElecEmission: 26347.9,
-    steamEmission: 528.0,
-    pvGreenDeduct: -710.0,
-    ccerDeduct: -250.0,
-    netEmission: 27353.5,
-    yoy: '-5.1%',
-  },
-  {
-    id: '06',
-    name: '德缆公司',
-    industry: '线缆制造',
-    fossilCombustion: 1005.4,
-    processEmission: 230.0,
-    gridElecEmission: 23496.4,
-    steamEmission: 429.0,
-    pvGreenDeduct: -630.0,
-    ccerDeduct: -200.0,
-    netEmission: 24330.8,
-    yoy: '-4.1%',
-  },
-  {
-    id: '07',
-    name: '天变制造',
-    industry: '变压器制造',
+    id: 'XB-02',
+    unitId: 'ws_xb_tb',
+    unitName: '天变公司',
+    company: '新变厂',
     fossilCombustion: 691.9,
     processEmission: 160.0,
     gridElecEmission: 16253.6,
@@ -121,18 +185,95 @@ const CARBON_MOCK_ROWS: CarbonRow[] = [
     netEmission: 16823.5,
     yoy: '-5.3%',
   },
+
+  // --- 鲁缆公司 ---
   {
-    id: '08',
-    name: '中辰开关成套',
-    industry: '高压成套',
-    fossilCombustion: 480.0,
-    processEmission: 110.0,
-    gridElecEmission: 10379.5,
-    steamEmission: 198.0,
-    pvGreenDeduct: -280.0,
+    id: 'LL-01',
+    unitId: 'ws_ll_main',
+    unitName: '鲁缆本部',
+    company: '鲁缆公司',
+    fossilCombustion: 880.0,
+    processEmission: 200.0,
+    gridElecEmission: 21888.0,
+    steamEmission: 462.0,
+    pvGreenDeduct: -580.0,
+    ccerDeduct: -200.0,
+    netEmission: 22650.0,
+    yoy: '-5.2%',
+  },
+  {
+    id: 'LL-02',
+    unitId: 'ws_ll_zl',
+    unitName: '智缆公司',
+    company: '鲁缆公司',
+    fossilCombustion: 280.0,
+    processEmission: 60.0,
+    gridElecEmission: 6840.0,
+    steamEmission: 121.0,
+    pvGreenDeduct: -180.0,
+    ccerDeduct: -60.0,
+    netEmission: 7061.0,
+    yoy: '-4.8%',
+  },
+  {
+    id: 'LL-03',
+    unitId: 'ws_ll_sg',
+    unitName: '曙光公司',
+    company: '鲁缆公司',
+    fossilCombustion: 210.0,
+    processEmission: 45.0,
+    gridElecEmission: 5120.0,
+    steamEmission: 99.0,
+    pvGreenDeduct: -130.0,
+    ccerDeduct: -45.0,
+    netEmission: 5299.0,
+    yoy: '-5.1%',
+  },
+
+  // --- 新缆厂 ---
+  {
+    id: 'XL-01',
+    unitId: 'ws_xl_main',
+    unitName: '特变电工新疆电缆有限公司',
+    company: '新缆厂',
+    fossilCombustion: 740.0,
+    processEmission: 170.0,
+    gridElecEmission: 16644.0,
+    steamEmission: 341.0,
+    pvGreenDeduct: -450.0,
+    ccerDeduct: -160.0,
+    netEmission: 17285.0,
+    yoy: '-5.1%',
+  },
+  {
+    id: 'XL-02',
+    unitId: 'ws_xl_sub',
+    unitName: '特变电工新疆线缆厂',
+    company: '新缆厂',
+    fossilCombustion: 427.6,
+    processEmission: 100.0,
+    gridElecEmission: 9690.0,
+    steamEmission: 187.0,
+    pvGreenDeduct: -260.0,
     ccerDeduct: -90.0,
-    netEmission: 10797.5,
-    yoy: '-5.0%',
+    netEmission: 10054.6,
+    yoy: '-4.9%',
+  },
+
+  // --- 德缆公司 ---
+  {
+    id: 'DL-01',
+    unitId: 'ws_dl_main',
+    unitName: '特变电工（德阳）电缆股份有限公司',
+    company: '德缆公司',
+    fossilCombustion: 1005.4,
+    processEmission: 230.0,
+    gridElecEmission: 23496.4,
+    steamEmission: 429.0,
+    pvGreenDeduct: -630.0,
+    ccerDeduct: -200.0,
+    netEmission: 24330.8,
+    yoy: '-4.1%',
   },
 ]
 
@@ -145,34 +286,45 @@ export default function CarbonReportPage() {
     badge: '全集团',
   })
 
-  const [period, setPeriod] = useState<'month' | 'year' | 'esg'>('year')
-  const [sortField, setSortField] = useState<keyof CarbonRow>('netEmission')
-  const [sortAsc, setSortAsc] = useState(false)
+  // 时间维度与范围
+  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  const [selectedYear, setSelectedYear] = useState('2026')
 
-  const handleSort = (field: keyof CarbonRow) => {
-    if (sortField === field) {
-      setSortAsc(!sortAsc)
-    } else {
-      setSortField(field)
-      setSortAsc(false)
-    }
-  }
+  const [searchKw, setSearchKw] = useState('')
 
-  const sortedRows = useMemo(() => {
-    const rows = [...CARBON_MOCK_ROWS]
-    rows.sort((a, b) => {
-      const va = a[sortField]
-      const vb = b[sortField]
-      if (typeof va === 'number' && typeof vb === 'number') {
-        return sortAsc ? va - vb : vb - va
+  // 组织树与关键词联动过滤
+  const filteredRows = useMemo(() => {
+    let rows = [...ALL_CARBON_ROWS]
+
+    if (selectedNode.id !== 'group_root' && selectedNode.id !== 'ent_root' && selectedNode.id !== 'park_root') {
+      const matchKey = selectedNode.name.slice(0, 2)
+      const matched = rows.filter((r) => {
+        return (
+          r.unitId === selectedNode.id ||
+          r.unitName.includes(selectedNode.name) ||
+          selectedNode.name.includes(r.unitName) ||
+          r.company.includes(matchKey) ||
+          r.unitName.includes(matchKey)
+        )
+      })
+      if (matched.length > 0) {
+        rows = matched
+      } else {
+        rows = rows.filter((r) => r.company.includes(matchKey))
       }
-      return 0
-    })
+    }
+
+    if (searchKw.trim()) {
+      const kw = searchKw.toLowerCase()
+      rows = rows.filter((r) => r.unitName.toLowerCase().includes(kw) || r.company.toLowerCase().includes(kw))
+    }
     return rows
-  }, [sortField, sortAsc])
+  }, [selectedNode, searchKw])
 
   const totals = useMemo(() => {
-    return sortedRows.reduce(
+    return filteredRows.reduce(
       (acc, r) => {
         acc.fossilCombustion += r.fossilCombustion
         acc.processEmission += r.processEmission
@@ -193,7 +345,7 @@ export default function CarbonReportPage() {
         netEmission: 0,
       },
     )
-  }, [sortedRows])
+  }, [filteredRows])
 
   return (
     <div className="flex gap-3.5 items-start">
@@ -218,50 +370,97 @@ export default function CarbonReportPage() {
 
           {/* 工具栏 */}
           <div className="flex flex-wrap items-center gap-2">
+            {/* 时间维度切换 */}
             <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
               <button
-                onClick={() => setPeriod('month')}
+                type="button"
+                onClick={() => setTimeDim('month')}
                 className={cn(
-                  'px-2.5 py-1 rounded-md font-medium transition-all',
-                  period === 'month'
-                    ? 'bg-white text-emerald-700 font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
                 )}
               >
-                月度核算
+                月度
               </button>
               <button
-                onClick={() => setPeriod('year')}
+                type="button"
+                onClick={() => setTimeDim('quarter')}
                 className={cn(
-                  'px-2.5 py-1 rounded-md font-medium transition-all',
-                  period === 'year'
-                    ? 'bg-white text-emerald-700 font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
                 )}
               >
-                年度履约报告
+                季度
               </button>
               <button
-                onClick={() => setPeriod('esg')}
+                type="button"
+                onClick={() => setTimeDim('year')}
                 className={cn(
-                  'px-2.5 py-1 rounded-md font-medium transition-all',
-                  period === 'esg'
-                    ? 'bg-white text-emerald-700 font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
                 )}
               >
-                ESG披露专版
+                年度
               </button>
             </div>
 
-            <div className="flex items-center gap-1.5 h-8 px-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium">
-              <Calendar className="size-3.5 text-slate-400" />
-              <span>2026年度 (累计)</span>
-            </div>
+            {/* 时间范围选择控件 */}
+            {timeDim === 'month' && (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                <input
+                  type="month"
+                  value={selectedMonthRange.start}
+                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  title="起始月份"
+                />
+                <span className="text-slate-400 font-sans">至</span>
+                <input
+                  type="month"
+                  value={selectedMonthRange.end}
+                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  title="结束月份"
+                />
+              </div>
+            )}
+
+            {timeDim === 'quarter' && (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                <select
+                  value={selectedQuarter}
+                  onChange={(e) => setSelectedQuarter(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                >
+                  <option value="2026-Q1">2026年 第1季度 (Q1)</option>
+                  <option value="2026-Q2">2026年 第2季度 (Q2)</option>
+                  <option value="2026-Q3">2026年 第3季度 (Q3)</option>
+                  <option value="2026-Q4">2026年 第4季度 (Q4)</option>
+                  <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+                </select>
+              </div>
+            )}
+
+            {timeDim === 'year' && (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                >
+                  <option value="2026">2026 年度</option>
+                  <option value="2025">2025 年度</option>
+                  <option value="2024">2024 年度</option>
+                </select>
+              </div>
+            )}
 
             <button
-              onClick={() => alert('正在生成并导出【ISO 14064 碳盘查合规报表 (PDF/Excel)】...')}
-              className="h-8 px-3 rounded-lg bg-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-700 shadow-xs transition-colors"
+              onClick={() => alert(`正在导出【${selectedNode.name}】碳排履约核算报表 (Excel/PDF)...`)}
+              className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
             >
               <Download className="size-3.5" />
               <span>导出</span>
@@ -269,179 +468,116 @@ export default function CarbonReportPage() {
           </div>
         </div>
 
-        {/* KPI 汇总卡片 (4列) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* 1. 总净碳排放量 */}
-          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <div className="text-[11px] font-bold text-slate-500">总净碳排放量 (tCO₂e)</div>
-              <div className="text-xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
-                184,210.5 <span className="text-xs font-normal text-slate-500 font-sans">t</span>
-              </div>
-              <div className="text-[11px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
-                <span>↓ 6.1% 同比减排</span>
-              </div>
-            </div>
-            <div className="size-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg shadow-xs">
-              🌍
-            </div>
-          </div>
-
-          {/* 2. 直接排放 Scope 1 */}
-          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <div className="text-[11px] font-bold text-slate-500">直接排放 Scope 1 (tCO₂e)</div>
-              <div className="text-xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
-                14,280.0 <span className="text-xs font-normal text-slate-500 font-sans">t</span>
-              </div>
-              <div className="text-[11px] text-slate-500 font-semibold mt-0.5">
-                占总排 7.7% (天然气/柴油)
-              </div>
-            </div>
-            <div className="size-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-lg shadow-xs">
-              🏭
-            </div>
-          </div>
-
-          {/* 3. 间接排放 Scope 2 */}
-          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <div className="text-[11px] font-bold text-slate-500">间接排放 Scope 2 (tCO₂e)</div>
-              <div className="text-xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
-                174,480.5 <span className="text-xs font-normal text-slate-500 font-sans">t</span>
-              </div>
-              <div className="text-[11px] text-blue-600 font-semibold mt-0.5">
-                外购电力与外购蒸汽
-              </div>
-            </div>
-            <div className="size-10 rounded-xl bg-blue-50 text-[#1677ff] flex items-center justify-center font-bold text-lg shadow-xs">
-              ⚡
-            </div>
-          </div>
-
-          {/* 4. 绿电/CCER 抵扣量 */}
-          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <div className="text-[11px] font-bold text-slate-500">绿电/CCER 抵扣量 (tCO₂e)</div>
-              <div className="text-xl font-bold font-mono text-emerald-600 mt-1 tabular-nums">
-                -4,550.0 <span className="text-xs font-normal text-emerald-600 font-sans">t</span>
-              </div>
-              <div className="text-[11px] text-emerald-600 font-semibold mt-0.5">
-                绿色权益抵扣履约
-              </div>
-            </div>
-            <div className="size-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg shadow-xs">
-              🌿
-            </div>
-          </div>
-        </div>
-
-        {/* 主数据报表卡片 */}
+        {/* 主数据报表 */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
-          <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 bg-[#fafbfc]">
-            <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-emerald-500" />
-              <h3 className="text-xs font-bold text-slate-800">
-                全集团温室气体排放 Scope 1/2 分解与核算透视表 (2026年度)
-              </h3>
+          {/* 操作搜索栏 */}
+          <div className="p-2.5 border-b border-slate-200 bg-[#fafbfc] flex flex-wrap items-center justify-between gap-3">
+            <div className="text-xs font-bold text-slate-700">
+              制造企业与车间碳排核算明细 ({filteredRows.length}家单位)
             </div>
-            <div className="text-xs text-slate-500 font-mono">
-              因子基准：电网 0.5703 tCO₂/MWh | 天然气 2.1622 kgCO₂/m³
+
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchKw}
+                  onChange={(e) => setSearchKw(e.target.value)}
+                  placeholder="搜索制造单位/车间..."
+                  className="h-8 pl-8 pr-2.5 text-xs bg-white border border-slate-200 rounded-md text-slate-700 focus:outline-none focus:border-blue-500 w-60"
+                />
+              </div>
             </div>
           </div>
 
+          {/* 表格区域 */}
           <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
-                  <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 w-12 text-center">序号</th>
-                  <th className="py-2.5 px-3 sticky left-12 bg-slate-50 z-10 min-w-[140px]">制造基地</th>
-                  <th className="py-2.5 px-3 text-right">化石燃料燃烧 (Scope 1)</th>
-                  <th className="py-2.5 px-3 text-right">工业制程逸散 (Scope 1)</th>
-                  <th className="py-2.5 px-3 text-right">外购市电排放 (Scope 2)</th>
-                  <th className="py-2.5 px-3 text-right">外购蒸汽排放 (Scope 2)</th>
-                  <th className="py-2.5 px-3 text-right text-emerald-600">光伏绿电核减</th>
-                  <th className="py-2.5 px-3 text-right text-emerald-600">CCER注销抵销</th>
-                  <th
-                    className="py-2.5 px-3 text-right font-bold text-slate-900 bg-emerald-50/50 cursor-pointer hover:bg-emerald-100/60 transition-colors"
-                    onClick={() => handleSort('netEmission')}
-                  >
-                    <div className="inline-flex items-center gap-1">
-                      <span>净排放总量 (tCO₂e)</span>
-                      <ArrowUpDown className="size-3 text-emerald-700" />
-                    </div>
-                  </th>
-                  <th className="py-2.5 px-3 text-center">同比变动</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
-                {sortedRows.map((r, i) => (
-                  <tr key={r.id} className="hover:bg-emerald-50/30 transition-colors">
-                    <td className="py-2.5 px-3 sticky left-0 bg-white font-sans text-slate-400 text-center">
-                      {String(i + 1).padStart(2, '0')}
-                    </td>
-                    <td className="py-2.5 px-3 sticky left-12 bg-white font-sans font-bold text-slate-900">
-                      {r.name}
-                    </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums">
-                      {r.fossilCombustion.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                    </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums">
-                      {r.processEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                    </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums">
-                      {r.gridElecEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                    </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums">
-                      {r.steamEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                    </td>
-                    <td className="py-2.5 px-3 text-right text-emerald-600 font-bold tabular-nums">
-                      {r.pvGreenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                    </td>
-                    <td className="py-2.5 px-3 text-right text-emerald-600 font-bold tabular-nums">
-                      {r.ccerDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-bold text-slate-900 bg-emerald-50/40 tabular-nums">
-                      {r.netEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                    </td>
-                    <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">
-                      {r.yoy}
-                    </td>
+            {filteredRows.length === 0 ? (
+              <div className="p-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+                <div>所选单位【{selectedNode.name}】暂无碳排数据</div>
+              </div>
+            ) : (
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
+                    <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[160px]">制造单位 / 车间</th>
+                    <th className="py-2.5 px-3 text-right">化石燃料燃烧 (tCO₂)</th>
+                    <th className="py-2.5 px-3 text-right">工业过程排放 (tCO₂)</th>
+                    <th className="py-2.5 px-3 text-right">净购入电力 (tCO₂)</th>
+                    <th className="py-2.5 px-3 text-right">净购入蒸汽 (tCO₂)</th>
+                    <th className="py-2.5 px-3 text-right text-emerald-600 font-bold">光伏/绿电对冲</th>
+                    <th className="py-2.5 px-3 text-right text-emerald-600 font-bold">CCER/碳汇核减</th>
+                    <th className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/50">
+                      净碳排放总量 (tCO₂)
+                    </th>
+                    <th className="py-2.5 px-3 text-center">同比变动</th>
                   </tr>
-                ))}
-              </tbody>
-
-              {/* 汇总行 */}
-              <tfoot>
-                <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
-                  <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans text-center" colSpan={2}>
-                    全集团碳排放汇总
-                  </td>
-                  <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                    {totals.fossilCombustion.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                  </td>
-                  <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                    {totals.processEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                  </td>
-                  <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                    {totals.gridElecEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                  </td>
-                  <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                    {totals.steamEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                  </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-emerald-700 tabular-nums">
-                    {totals.pvGreenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                  </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-emerald-700 tabular-nums">
-                    {totals.ccerDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                  </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-emerald-800 bg-emerald-100/60 tabular-nums text-sm">
-                    {totals.netEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                  </td>
-                  <td className="py-2.5 px-3 text-center text-emerald-700 font-extrabold">-6.1%</td>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
+                  {filteredRows.map((r) => (
+                    <tr key={r.id} className="hover:bg-blue-50/40 transition-colors">
+                      <td className="py-2.5 px-3 sticky left-0 bg-white font-sans font-semibold text-slate-900">
+                        {r.unitName}
+                      </td>
+                      <td className="py-2.5 px-3 text-right tabular-nums">
+                        {r.fossilCombustion.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                      </td>
+                      <td className="py-2.5 px-3 text-right tabular-nums">
+                        {r.processEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                      </td>
+                      <td className="py-2.5 px-3 text-right tabular-nums">
+                        {r.gridElecEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                      </td>
+                      <td className="py-2.5 px-3 text-right tabular-nums">
+                        {r.steamEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-emerald-600 font-bold tabular-nums">
+                        {r.pvGreenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-emerald-600 font-bold tabular-nums">
+                        {r.ccerDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/40 tabular-nums">
+                        {r.netEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                      </td>
+                      <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">
+                        {r.yoy}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                {/* 汇总行 */}
+                <tfoot>
+                  <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
+                    <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans">
+                      全集团总碳排汇总
+                    </td>
+                    <td className="py-2.5 px-3 text-right font-mono tabular-nums">
+                      {totals.fossilCombustion.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    </td>
+                    <td className="py-2.5 px-3 text-right font-mono tabular-nums">
+                      {totals.processEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    </td>
+                    <td className="py-2.5 px-3 text-right font-mono tabular-nums">
+                      {totals.gridElecEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    </td>
+                    <td className="py-2.5 px-3 text-right font-mono tabular-nums">
+                      {totals.steamEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    </td>
+                    <td className="py-2.5 px-3 text-right font-mono text-emerald-700 tabular-nums">
+                      {totals.pvGreenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    </td>
+                    <td className="py-2.5 px-3 text-right font-mono text-emerald-700 tabular-nums">
+                      {totals.ccerDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    </td>
+                    <td className="py-2.5 px-3 text-right font-mono text-blue-700 bg-blue-100/60 tabular-nums text-sm">
+                      {totals.netEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    </td>
+                    <td className="py-2.5 px-3 text-center text-emerald-700 font-bold">-5.7%</td>
+                  </tr>
+                </tfoot>
+              </table>
+            )}
           </div>
         </div>
       </div>

@@ -427,7 +427,7 @@ export default function UnitProductPage() {
   })
 
   // 1. 产业大类选择 (全部 / 变压器 / 线缆)
-  const [category, setCategory] = useState<'all' | 'transformer' | 'cable'>('all')
+  const [category, setCategory] = useState<'transformer' | 'cable'>('transformer')
   // 2. 时间维度 (月度 / 季度 / 年度)
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
   const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
@@ -445,16 +445,40 @@ export default function UnitProductPage() {
 
   // 判断当前选中范围的主要产品产业类型 (变压器 / 线缆 / 综合全谱系)
   const activeIndustry = useMemo(() => {
-    const isCableOnly =
-      selectedNode.id.includes('ll') ||
-      selectedNode.id.includes('xl') ||
-      selectedNode.id.includes('dl') ||
-      selectedNode.name.includes('缆')
-    if (isCableOnly) return 'cable'
-    if (selectedNode.id === 'ent_root' && category === 'cable') return 'cable'
-    if (selectedNode.id === 'ent_root' && category === 'transformer') return 'transformer'
-    return 'transformer'
-  }, [selectedNode, category])
+    return category
+  }, [category])
+
+  // 🌟 组织树选中智能联动分类
+  useEffect(() => {
+    if (selectedNode.id === 'ent_root' || selectedNode.id === 'group_root' || selectedNode.id === 'park_root') {
+      return
+    }
+    const nodeName = selectedNode.name
+    const nodeId = selectedNode.id
+
+    if (
+      nodeName.includes('缆') ||
+      nodeName.includes('线') ||
+      nodeId.includes('ll') ||
+      nodeId.includes('xl') ||
+      nodeId.includes('dl')
+    ) {
+      setCategory('cable')
+      setCurrentPage(1)
+    } else if (
+      nodeName.includes('变') ||
+      nodeName.includes('套管') ||
+      nodeName.includes('互感器') ||
+      nodeName.includes('开关') ||
+      nodeName.includes('超高压') ||
+      nodeId.includes('sb') ||
+      nodeId.includes('hb') ||
+      nodeId.includes('xb')
+    ) {
+      setCategory('transformer')
+      setCurrentPage(1)
+    }
+  }, [selectedNode])
 
   // 当产业类型切换时自动校准介质 (如线缆无蒸汽，变压器无氮气)
   useEffect(() => {
@@ -673,14 +697,9 @@ export default function UnitProductPage() {
   }, [filteredModels, currentPage, pageSize])
 
   // 🌟 4. 判断下方明细台账对应的能源类型展示模式 (变压器: 电/蒸汽/气/水; 线缆: 电/氮气/气/水; 全部产品: 综合全列)
-  const currentTableMode = useMemo<'transformer' | 'cable' | 'all'>(() => {
-    if (category === 'transformer') return 'transformer'
-    if (category === 'cable') return 'cable'
-    // 若在“全部产品”下，如果选中的是线缆厂，则为 cable；若选变压器厂，则为 transformer；集团则为 all
-    if (activeIndustry === 'cable' && selectedNode.id !== 'ent_root') return 'cable'
-    if (activeIndustry === 'transformer' && selectedNode.id !== 'ent_root') return 'transformer'
-    return 'all'
-  }, [category, activeIndustry, selectedNode])
+  const currentTableMode = useMemo<'transformer' | 'cable'>(() => {
+    return category
+  }, [category])
 
   // 🌟 5. 动态 KPI 卡片 (消耗了啥显示啥)
   const dynamicEnergyKPIs = useMemo(() => {
