@@ -1061,7 +1061,7 @@ export default function UsageMonitoringPage() {
               <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono pt-1">
                 <div className="p-1.5 rounded bg-rose-50/80 border border-rose-100 text-rose-900">
                   <div className="flex justify-between items-center text-[10px] text-rose-700 font-sans">
-                    <span>尖峰 (10-12, 14-16)</span>
+                    <span>尖峰</span>
                     <strong className="font-mono">16.4%</strong>
                   </div>
                   <div className="text-xs font-bold font-mono">{touCalculations.monthTip} 万kWh</div>
@@ -1069,7 +1069,7 @@ export default function UsageMonitoringPage() {
 
                 <div className="p-1.5 rounded bg-amber-50/80 border border-amber-100 text-amber-900">
                   <div className="flex justify-between items-center text-[10px] text-amber-700 font-sans">
-                    <span>高峰 (08-10, 16-20)</span>
+                    <span>高峰</span>
                     <strong className="font-mono">41.1%</strong>
                   </div>
                   <div className="text-xs font-bold font-mono">{touCalculations.monthPeak} 万kWh</div>
@@ -1077,7 +1077,7 @@ export default function UsageMonitoringPage() {
 
                 <div className="p-1.5 rounded bg-blue-50/80 border border-blue-100 text-blue-900">
                   <div className="flex justify-between items-center text-[10px] text-blue-700 font-sans">
-                    <span>平段 (07-08, 12-14)</span>
+                    <span>平段</span>
                     <strong className="font-mono">28.9%</strong>
                   </div>
                   <div className="text-xs font-bold font-mono">{touCalculations.monthFlat} 万kWh</div>
@@ -1085,7 +1085,7 @@ export default function UsageMonitoringPage() {
 
                 <div className="p-1.5 rounded bg-emerald-50/80 border border-emerald-100 text-emerald-900">
                   <div className="flex justify-between items-center text-[10px] text-emerald-700 font-sans">
-                    <span>低谷 (23:00-07:00)</span>
+                    <span>低谷</span>
                     <strong className="font-mono">13.6%</strong>
                   </div>
                   <div className="text-xs font-bold font-mono">{touCalculations.monthValley} 万kWh</div>
