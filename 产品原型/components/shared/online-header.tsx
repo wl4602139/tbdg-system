@@ -3,45 +3,109 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Activity, Calendar, Download } from 'lucide-react'
+import { Activity, Calendar, Download, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface OnlineHeaderProps {
+  timeDim?: 'day' | 'month'
+  onTimeDimChange?: (dim: 'day' | 'month') => void
+  startDate?: string
+  endDate?: string
+  onDateRangeChange?: (start: string, end: string) => void
+  selectedMonth?: string
+  onMonthChange?: (month: string) => void
+  onExport?: () => void
+  // 兼容老参数
   startMonth?: string
   endMonth?: string
   onMonthRangeChange?: (start: string, end: string) => void
-  timeDim?: 'month' | 'quarter' | 'year'
-  onTimeDimChange?: (dim: 'month' | 'quarter' | 'year') => void
 }
 
 export function OnlineHeader({
-  startMonth: propStartMonth,
-  endMonth: propEndMonth,
-  onMonthRangeChange,
   timeDim: propTimeDim,
   onTimeDimChange,
+  startDate: propStartDate,
+  endDate: propEndDate,
+  onDateRangeChange,
+  selectedMonth: propSelectedMonth,
+  onMonthChange,
+  onExport,
+  startMonth: legacyStartMonth,
+  endMonth: legacyEndMonth,
+  onMonthRangeChange: legacyOnMonthRangeChange,
 }: OnlineHeaderProps = {}) {
   const pathname = usePathname()
-  const [internalTimeDim, setInternalTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
-  const [internalMonthRange, setInternalMonthRange] = useState({ start: '2026-01', end: '2026-08' })
-  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
-  const [selectedYear, setSelectedYear] = useState('2026')
+  
+  // 默认时间维度：'day' (日) | 'month' (月)
+  const [internalTimeDim, setInternalTimeDim] = useState<'day' | 'month'>('day')
+  const [internalStartDate, setInternalStartDate] = useState(propStartDate || '2026-08-01')
+  const [internalEndDate, setInternalEndDate] = useState(propEndDate || '2026-08-28')
+  const [internalMonth, setInternalMonth] = useState(propSelectedMonth || legacyEndMonth || '2026-08')
 
   const timeDim = propTimeDim || internalTimeDim
-  const setTimeDim = (dim: 'month' | 'quarter' | 'year') => {
+  const startDate = propStartDate || internalStartDate
+  const endDate = propEndDate || internalEndDate
+  const selectedMonth = propSelectedMonth || internalMonth
+
+  const handleTimeDimChange = (dim: 'day' | 'month') => {
     setInternalTimeDim(dim)
     onTimeDimChange?.(dim)
   }
 
-  const startMonth = propStartMonth || internalMonthRange.start
-  const endMonth = propEndMonth || internalMonthRange.end
-  const handleStartMonthChange = (val: string) => {
-    setInternalMonthRange((prev) => ({ ...prev, start: val }))
-    onMonthRangeChange?.(val, endMonth)
+  // 辅助函数：计算两日期相差天数
+  const getDaysDiff = (d1: string, d2: string) => {
+    const t1 = new Date(d1).getTime()
+    const t2 = new Date(d2).getTime()
+    return Math.round(Math.abs(t2 - t1) / (1000 * 60 * 60 * 24)) + 1
   }
-  const handleEndMonthChange = (val: string) => {
-    setInternalMonthRange((prev) => ({ ...prev, end: val }))
-    onMonthRangeChange?.(startMonth, val)
+
+  // 辅助函数：给定起始日期加 N 天生成合法日期字符串
+  const addDays = (dStr: string, days: number) => {
+    const d = new Date(dStr)
+    d.setDate(d.getDate() + days)
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  }
+
+  // 日期变更处理 (限制最大范围为 30 天)
+  const handleStartDateChange = (newStart: string) => {
+    let newEnd = endDate
+    if (newStart > newEnd) {
+      newEnd = newStart
+    } else {
+      const diff = getDaysDiff(newStart, newEnd)
+      if (diff > 30) {
+        newEnd = addDays(newStart, 29)
+      }
+    }
+    setInternalStartDate(newStart)
+    setInternalEndDate(newEnd)
+    onDateRangeChange?.(newStart, newEnd)
+    legacyOnMonthRangeChange?.(newStart.slice(0, 7), newEnd.slice(0, 7))
+  }
+
+  const handleEndDateChange = (newEnd: string) => {
+    let newStart = startDate
+    if (newEnd < newStart) {
+      newStart = newEnd
+    } else {
+      const diff = getDaysDiff(newStart, newEnd)
+      if (diff > 30) {
+        newStart = addDays(newEnd, -29)
+      }
+    }
+    setInternalStartDate(newStart)
+    setInternalEndDate(newEnd)
+    onDateRangeChange?.(newStart, newEnd)
+    legacyOnMonthRangeChange?.(newStart.slice(0, 7), newEnd.slice(0, 7))
+  }
+
+  const handleMonthChange = (newMonth: string) => {
+    setInternalMonth(newMonth)
+    onMonthChange?.(newMonth)
+    legacyOnMonthRangeChange?.(newMonth, newMonth)
   }
 
   return (
@@ -54,7 +118,7 @@ export function OnlineHeader({
           <h1 className="text-base font-bold text-slate-800">用能在线监测</h1>
         </div>
 
-        {/* 🌟 3 大子模块 Tab 切换：用能监测 (面向园区/工厂) | 设备监测 (面向重点设备) | 工序监测 (面向关键工序) */}
+        {/* 🌟 2 大子模块 Tab 切换：用能监测 (面向园区/工厂) | 设备监测 (面向重点设备) */}
         <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-medium ml-2">
           <Link
             href="/zero-carbon/monitor/online/usage"
@@ -82,99 +146,81 @@ export function OnlineHeader({
       </div>
 
       <div className="flex flex-wrap items-center gap-2.5">
-        {/* 时间维度切换 (月度 / 季度 / 年度) */}
+        {/* 时间维度切换：日 / 月 */}
         <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
           <button
             type="button"
-            onClick={() => setTimeDim('month')}
+            onClick={() => handleTimeDimChange('day')}
+            className={cn(
+              'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+              timeDim === 'day' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            )}
+          >
+            日
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTimeDimChange('month')}
             className={cn(
               'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
               timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
             )}
           >
-            月度
-          </button>
-          <button
-            type="button"
-            onClick={() => setTimeDim('quarter')}
-            className={cn(
-              'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-              timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            )}
-          >
-            季度
-          </button>
-          <button
-            type="button"
-            onClick={() => setTimeDim('year')}
-            className={cn(
-              'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-              timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            )}
-          >
-            年度
+            月
           </button>
         </div>
 
-        {/* 时间范围选择控件 (随维度自适应切换) */}
+        {/* 1. 日维度：日期范围 (最多30天) + 15分钟固定频率标识 */}
+        {timeDim === 'day' && (
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => handleStartDateChange(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                title="起始日期 (最多可选30天)"
+              />
+              <span className="text-slate-400 font-sans">至</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => handleEndDateChange(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                title="结束日期 (最多可选30天)"
+              />
+            </div>
+
+
+          </div>
+        )}
+
+        {/* 2. 月维度：选择指定月份 */}
         {timeDim === 'month' && (
           <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
             <Calendar className="size-3.5 text-slate-400 shrink-0" />
             <input
               type="month"
-              value={startMonth}
-              onChange={(e) => handleStartMonthChange(e.target.value)}
-              className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-              title="起始月份"
+              value={selectedMonth}
+              onChange={(e) => handleMonthChange(e.target.value)}
+              className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer font-bold"
+              title="选择指定月份"
             />
-            <span className="text-slate-400 font-sans">至</span>
-            <input
-              type="month"
-              value={endMonth}
-              onChange={(e) => handleEndMonthChange(e.target.value)}
-              className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-              title="结束月份"
-            />
-          </div>
-        )}
-
-        {timeDim === 'quarter' && (
-          <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-            <Calendar className="size-3.5 text-slate-400 shrink-0" />
-            <select
-              value={selectedQuarter}
-              onChange={(e) => setSelectedQuarter(e.target.value)}
-              className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-            >
-              <option value="2026-Q1">2026年 第1季度 (Q1)</option>
-              <option value="2026-Q2">2026年 第2季度 (Q2)</option>
-              <option value="2026-Q3">2026年 第3季度 (Q3)</option>
-              <option value="2026-Q4">2026年 第4季度 (Q4)</option>
-              <option value="2025-Q4">2025年 第4季度 (Q4)</option>
-            </select>
-          </div>
-        )}
-
-        {timeDim === 'year' && (
-          <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-            <Calendar className="size-3.5 text-slate-400 shrink-0" />
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-            >
-              <option value="2026">2026 年度</option>
-              <option value="2025">2025 年度</option>
-              <option value="2024">2024 年度</option>
-            </select>
           </div>
         )}
 
         {/* 导出按钮 */}
         <button
           type="button"
-          onClick={() => alert('正在导出【用能在线监测】综合数据报表 (Excel)...')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+          onClick={() => {
+            if (onExport) {
+              onExport()
+            } else {
+              alert(`正在导出当前${timeDim === 'day' ? '日范围 (15min高频)' : '月度'}在线监测数据 (Excel)...`)
+            }
+          }}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#1677ff] hover:bg-blue-600 text-white font-medium text-xs shadow-2xs cursor-pointer transition-colors select-none"
         >
           <Download className="size-3.5" />
           <span>导出</span>

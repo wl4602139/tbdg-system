@@ -968,21 +968,6 @@ export default function UnitProductPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setCategory('all')
-                  setCurrentPage(1)
-                }}
-                className={cn(
-                  'px-3 py-1.5 rounded-md font-bold transition-all cursor-pointer',
-                  category === 'all'
-                    ? 'bg-white text-[#1677ff] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                全部产品
-              </button>
-              <button
-                type="button"
-                onClick={() => {
                   setCategory('transformer')
                   setCurrentPage(1)
                 }}
@@ -1065,16 +1050,12 @@ export default function UnitProductPage() {
                     <Icon className={cn('size-3.5', isSelected ? 'text-[#1677ff]' : 'text-slate-500')} />
                     {kpi.name}
                   </span>
-                  <span className={cn('px-1.5 py-0.2 rounded text-[10px] font-bold', isSelected ? 'bg-blue-100 text-[#1677ff]' : kpi.badgeClass)}>
-                    {kpi.badge}
-                  </span>
                 </div>
                 <div className={cn('text-xl font-extrabold', isSelected ? 'text-[#1677ff]' : kpi.colorClass)}>
                   {kpi.value} <span className="text-xs font-normal text-slate-500 font-sans">{kpi.unit}</span>
                 </div>
-                <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-100 font-sans flex justify-between items-center">
-                  <span>能效变动</span>
-                  <span className="text-emerald-600 font-bold">{kpi.diffText}</span>
+                <div className="text-[11px] text-slate-600 pt-1 border-t border-slate-100 font-sans flex justify-between items-center">
+                  <span className="text-emerald-600 font-bold font-mono">{kpi.diffText}</span>
                 </div>
               </div>
             )

@@ -1928,6 +1928,598 @@ export interface EnergyColumnDef {
   calcVal: (idx: number, baseFactor: number) => string
 }
 
+// 🌟 根据指标计算公式（依据《“双中心”项目能碳管控指标体系V1.5.xlsx》）动态生成数据明细表格的分子、分母及构成列，与公式字段 100% 保持一致
+export interface DynamicTableColumn {
+  key: string
+  label: string
+  unit?: string
+  headerClass: string
+  valClass: string
+  renderVal: (item: { period: string; value: number; yoy: string; mom: string }, idx: number, total: number) => string
+}
+
+export function getMetricDetailTableColumns(metric: MetricDetail): {
+  columns: DynamicTableColumn[]
+  resultHeader: string
+} {
+  // 1. 综合能源消费量 E = ∑(Ei × ki) -> 展示主要实物消耗构成与综合折标煤 E
+  if (metric.id.includes('energy-sum') || metric.name === '综合能源消费量') {
+    return {
+      columns: [
+        {
+          key: 'elec',
+          label: '消耗电量 Ei_电',
+          unit: '万kWh',
+          headerClass: 'text-blue-700',
+          valClass: 'text-blue-700 font-bold',
+          renderVal: (item, idx) => ((330.0 + idx * 1.8) * (item.value / 1284.5)).toFixed(1),
+        },
+        {
+          key: 'steam',
+          label: '消耗蒸汽 Ei_汽',
+          unit: 't',
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx) => ((380 + idx * 1.5) * (item.value / 1284.5)).toFixed(0),
+        },
+        {
+          key: 'gas',
+          label: '消耗天然气 Ei_气',
+          unit: '万m³',
+          headerClass: 'text-amber-700',
+          valClass: 'text-amber-700 font-bold',
+          renderVal: (item, idx) => ((15.2 + idx * 0.1) * (item.value / 1284.5)).toFixed(1),
+        },
+      ],
+      resultHeader: `综合能源消费量 E (${metric.unit})`,
+    }
+  }
+
+  // 2. 总碳排放量 C = C_燃烧 + C_购入电 + C_购入热 -> 展示各范围排放构成与总碳排 C
+  if (metric.id.includes('carbon-sum') || metric.name === '总碳排放量') {
+    return {
+      columns: [
+        {
+          key: 'c_elec',
+          label: '购入电力碳排 (C购入电)',
+          unit: 'tCO2',
+          headerClass: 'text-blue-700',
+          valClass: 'text-blue-700 font-bold',
+          renderVal: (item, idx) => (item.value * 0.815).toFixed(1),
+        },
+        {
+          key: 'c_burn',
+          label: '化石燃料燃烧 (C燃烧)',
+          unit: 'tCO2',
+          headerClass: 'text-amber-700',
+          valClass: 'text-amber-700 font-bold',
+          renderVal: (item, idx) => (item.value * 0.125).toFixed(1),
+        },
+        {
+          key: 'c_heat',
+          label: '购入热力碳排 (C购入热)',
+          unit: 'tCO2',
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx) => (item.value * 0.060).toFixed(1),
+        },
+      ],
+      resultHeader: `二氧化碳排放量 C (${metric.unit})`,
+    }
+  }
+
+  // 3. 产品碳足迹 -> 展示生命周期阶段碳排构成
+  if (metric.name.includes('产品碳足迹') && !metric.name.includes('占比')) {
+    return {
+      columns: [
+        {
+          key: 'p_raw',
+          label: '原材料获取阶段排放',
+          unit: 'tCO2/台套',
+          headerClass: 'text-slate-700',
+          valClass: 'text-slate-700 font-bold',
+          renderVal: (item) => (item.value * 0.72).toFixed(2),
+        },
+        {
+          key: 'p_mfg',
+          label: '生产制造阶段排放',
+          unit: 'tCO2/台套',
+          headerClass: 'text-blue-700',
+          valClass: 'text-blue-700 font-bold',
+          renderVal: (item) => (item.value * 0.23).toFixed(2),
+        },
+        {
+          key: 'p_trans',
+          label: '运输分销阶段排放',
+          unit: 'tCO2/台套',
+          headerClass: 'text-emerald-700',
+          valClass: 'text-emerald-700 font-bold',
+          renderVal: (item) => (item.value * 0.05).toFixed(2),
+        },
+      ],
+      resultHeader: `产品碳足迹 (${metric.unit})`,
+    }
+  }
+
+  // 4. 单位能耗碳排放 I = C / E
+  if (metric.name.includes('单位能耗碳排放') || metric.formula.includes('I = C / E')) {
+    return {
+      columns: [
+        {
+          key: 'c_num',
+          label: '二氧化碳排放量 C',
+          unit: 'tCO2',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1260 + (idx / Math.max(total - 1, 1)) * 24.5
+            const val = denVal * item.value
+            return val.toFixed(1)
+          },
+        },
+        {
+          key: 'e_den',
+          label: '综合能源消耗量 E',
+          unit: 'tce',
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1260 + (idx / Math.max(total - 1, 1)) * 24.5
+            return denVal.toFixed(1)
+          },
+        },
+      ],
+      resultHeader: `单位能耗碳排放 I (${metric.unit})`,
+    }
+  }
+
+  // 5. 非化石能源消费占比 r = (R / E) * 100%
+  if (metric.name.includes('非化石能源消费占比') || metric.formula.includes('r = (R / E)')) {
+    return {
+      columns: [
+        {
+          key: 'r_num',
+          label: '非化石能源消费量 R',
+          unit: 'tce',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1260 + (idx / Math.max(total - 1, 1)) * 24.5
+            const val = (denVal * item.value) / 100
+            return val.toFixed(1)
+          },
+        },
+        {
+          key: 'e_den',
+          label: '综合能源消费量 E',
+          unit: 'tce',
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1260 + (idx / Math.max(total - 1, 1)) * 24.5
+            return denVal.toFixed(1)
+          },
+        },
+      ],
+      resultHeader: `非化石能源消费占比 r (${metric.unit})`,
+    }
+  }
+
+  // 6. 非化石能源电力消费物理认定量占比 E_ui = (E_z / Q) * 100%
+  if (metric.name.includes('物理认定量占比') || metric.formula.includes('E_ui')) {
+    return {
+      columns: [
+        {
+          key: 'ez_num',
+          label: '物理可溯源非化石电量 Ez',
+          unit: '万kWh',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 510 + (idx / Math.max(total - 1, 1)) * 22.2
+            const val = (denVal * item.value) / 100
+            return val.toFixed(1)
+          },
+        },
+        {
+          key: 'q_den',
+          label: '工业总用电量 Q',
+          unit: '万kWh',
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 510 + (idx / Math.max(total - 1, 1)) * 22.2
+            return denVal.toFixed(1)
+          },
+        },
+      ],
+      resultHeader: `物理认定量占比 E_ui (${metric.unit})`,
+    }
+  }
+
+  // 7. 单位工业增加值能耗 E_nva = E / G_nva
+  if (metric.name.includes('单位工业增加值能耗') || metric.formula.includes('E_nva')) {
+    return {
+      columns: [
+        {
+          key: 'e_num',
+          label: '综合能源消费量 E',
+          unit: 'tce',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 8600 + (idx / Math.max(total - 1, 1)) * 258.6
+            const val = denVal * item.value
+            return val.toFixed(1)
+          },
+        },
+        {
+          key: 'gnva_den',
+          label: '工业增加值 Gnva',
+          unit: '万元',
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 8600 + (idx / Math.max(total - 1, 1)) * 258.6
+            return Math.round(denVal).toLocaleString()
+          },
+        },
+      ],
+      resultHeader: `单位工业增加值能耗 E_nva (${metric.unit})`,
+    }
+  }
+
+  // 8. 单位产值能耗 g = E / G
+  if (metric.name.includes('单位产值能耗') || metric.formula.includes('g = E / G')) {
+    return {
+      columns: [
+        {
+          key: 'e_num',
+          label: '综合能源消费量 E',
+          unit: 'tce',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 27500 + (idx / Math.max(total - 1, 1)) * 1000
+            const val = denVal * item.value
+            return val.toFixed(1)
+          },
+        },
+        {
+          key: 'g_den',
+          label: '企业工业总产值 G',
+          unit: '万元',
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 27500 + (idx / Math.max(total - 1, 1)) * 1000
+            return Math.round(denVal).toLocaleString()
+          },
+        },
+      ],
+      resultHeader: `单位产值能耗 g (${metric.unit})`,
+    }
+  }
+
+  // 9. 节能装备应用占比 S = (R_es / E_ts) * 100%
+  if (metric.name.includes('节能装备应用占比') || metric.formula.includes('S = (R_es / E_ts)')) {
+    return {
+      columns: [
+        {
+          key: 'res_num',
+          label: '节能水平装备额定总功率 Res',
+          unit: 'kW',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 55000 + (idx / Math.max(total - 1, 1)) * 3000
+            const val = (denVal * item.value) / 100
+            return Math.round(val).toLocaleString()
+          },
+        },
+        {
+          key: 'ets_den',
+          label: '纳入统计装备额定总功率 Ets',
+          unit: 'kW',
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 55000 + (idx / Math.max(total - 1, 1)) * 3000
+            return Math.round(denVal).toLocaleString()
+          },
+        },
+      ],
+      resultHeader: `节能装备应用占比 S (${metric.unit})`,
+    }
+  }
+
+  // 10. 开展产品碳足迹分析占比 R_cf = (N_cf / N) * 100%
+  if (metric.name.includes('开展产品碳足迹分析占比') || metric.formula.includes('R_cf')) {
+    return {
+      columns: [
+        {
+          key: 'ncf_num',
+          label: '开展碳足迹分析类别数 Ncf',
+          unit: '个',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item) => Math.round((8 * item.value) / 100).toString(),
+        },
+        {
+          key: 'n_den',
+          label: '主要产品类别总数 N',
+          unit: '个',
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: () => '8',
+        },
+      ],
+      resultHeader: `开展分析占比 R_cf (${metric.unit})`,
+    }
+  }
+
+  // 11. 【产品管控】单位产品综合能耗 e = E / M 或 g = E / M
+  if (metric.name.includes('单位产品能耗') || metric.name.includes('单位产量能耗')) {
+    return {
+      columns: [
+        {
+          key: 'e_num',
+          label: '综合能源消费量 E',
+          unit: 'tce',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
+            const val = denVal * item.value
+            return val.toFixed(1)
+          },
+        },
+        {
+          key: 'm_den',
+          label: '产品产量 M',
+          unit: metric.unit.replace('tce/', ''),
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
+            return denVal.toFixed(1)
+          },
+        },
+      ],
+      resultHeader: `单位产品能耗 e (${metric.unit})`,
+    }
+  }
+
+  // 12. 【产品管控】单位产品电耗 q_电 = Q_电 / M 或 e_elec = E_elec / M
+  if (metric.name.includes('单位产品电耗') || metric.name.includes('单位产量电耗') || metric.name.includes('吨铜电耗') || metric.name.includes('吨铝电耗') || metric.name.includes('交联电耗')) {
+    return {
+      columns: [
+        {
+          key: 'q_num',
+          label: '电能源消费量 Q_电',
+          unit: metric.unit.startsWith('kWh') ? 'kWh' : '万kWh',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
+            const val = denVal * item.value
+            return val >= 10000 ? Math.round(val).toLocaleString() : val.toFixed(1)
+          },
+        },
+        {
+          key: 'm_den',
+          label: '产品产量 M',
+          unit: metric.unit.replace(/.*?\//, ''),
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
+            return denVal >= 10000 ? Math.round(denVal).toLocaleString() : denVal.toFixed(1)
+          },
+        },
+      ],
+      resultHeader: `单位产品电耗 q_电 (${metric.unit})`,
+    }
+  }
+
+  // 13. 【产品管控】单位产品蒸汽耗 q_蒸汽 = Q_蒸汽 / M 或 e_steam = E_steam / M
+  if (metric.name.includes('单位产品蒸汽') || metric.name.includes('单位产量蒸汽')) {
+    return {
+      columns: [
+        {
+          key: 'q_steam',
+          label: '蒸汽能源消费量 Q_蒸汽',
+          unit: metric.unit.startsWith('GJ') ? 'GJ' : 't',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
+            const val = denVal * item.value
+            return val >= 10000 ? Math.round(val).toLocaleString() : val.toFixed(1)
+          },
+        },
+        {
+          key: 'm_den',
+          label: '产品产量 M',
+          unit: metric.unit.replace(/.*?\//, ''),
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
+            return denVal >= 10000 ? Math.round(denVal).toLocaleString() : denVal.toFixed(1)
+          },
+        },
+      ],
+      resultHeader: `单位产品蒸汽耗 q_蒸汽 (${metric.unit})`,
+    }
+  }
+
+  // 14. 【产品管控】单位产品天然气耗 q_气 = Q_气 / M 或 e_gas = E_gas / M
+  if (metric.name.includes('单位产品天然气') || metric.name.includes('单位产量天然气')) {
+    return {
+      columns: [
+        {
+          key: 'q_gas',
+          label: '天然气能源消费量 Q_天然气',
+          unit: 'm³',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
+            const val = denVal * item.value
+            return val >= 10000 ? Math.round(val).toLocaleString() : val.toFixed(1)
+          },
+        },
+        {
+          key: 'm_den',
+          label: '产品产量 M',
+          unit: metric.unit.replace(/.*?\//, ''),
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
+            return denVal >= 10000 ? Math.round(denVal).toLocaleString() : denVal.toFixed(1)
+          },
+        },
+      ],
+      resultHeader: `单位产品天然气耗 q_天然气 (${metric.unit})`,
+    }
+  }
+
+  // 15. 【产品管控】单位产品水耗 q_水 = Q_水 / M 或 e_water = W_total / M
+  if (metric.name.includes('单位产品水耗') || metric.name.includes('单位产量水耗') || metric.name.includes('水资源消耗')) {
+    return {
+      columns: [
+        {
+          key: 'q_water',
+          label: '水能源消费量 Q_水',
+          unit: 't',
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
+            const val = denVal * item.value
+            return val >= 10000 ? Math.round(val).toLocaleString() : val.toFixed(1)
+          },
+        },
+        {
+          key: 'm_den',
+          label: '产品产量 M',
+          unit: metric.unit.replace(/.*?\//, ''),
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
+            return denVal >= 10000 ? Math.round(denVal).toLocaleString() : denVal.toFixed(1)
+          },
+        },
+      ],
+      resultHeader: `单位产品水耗 q_水 (${metric.unit})`,
+    }
+  }
+
+  // 16. 【工序指标】单位产值单耗 (如 变压器干燥/固化/试验单位产值能耗/电耗/蒸汽)
+  if (metric.category === 'process' && metric.unit.includes('万元')) {
+    const isElec = metric.name.includes('电耗')
+    const isSteam = metric.name.includes('蒸汽')
+    const energyLabel = isElec ? '工序电量 Q' : isSteam ? '工序蒸汽量 Q' : '工序综合能耗 E'
+    const energyUnit = isElec ? 'kWh' : isSteam ? 't' : 'tce'
+    return {
+      columns: [
+        {
+          key: 'p_energy',
+          label: energyLabel,
+          unit: energyUnit,
+          headerClass: 'text-[#1677ff]',
+          valClass: 'text-[#1677ff] font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 14000 + (idx / Math.max(total - 1, 1)) * 824
+            const val = denVal * item.value
+            return val >= 10000 ? Math.round(val).toLocaleString() : val.toFixed(1)
+          },
+        },
+        {
+          key: 'p_value',
+          label: '工序产值 G',
+          unit: '万元',
+          headerClass: 'text-purple-700',
+          valClass: 'text-purple-700 font-bold',
+          renderVal: (item, idx, total) => {
+            const denVal = 14000 + (idx / Math.max(total - 1, 1)) * 824
+            return Math.round(denVal).toLocaleString()
+          },
+        },
+      ],
+      resultHeader: `${metric.name} (${metric.unit})`,
+    }
+  }
+
+  // 17. 通用解析回退
+  const parseValAndUnit = (rawStr: string) => {
+    if (!rawStr) return { num: 1000, unit: '' }
+    const cleaned = rawStr.replace(/,/g, '').trim()
+    const match = cleaned.match(/^([\d.]+)\s*(.*)$/)
+    if (match) {
+      return { num: parseFloat(match[1]) || 1000, unit: match[2] || '' }
+    }
+    return { num: 1000, unit: '' }
+  }
+
+  const numInfo = parseValAndUnit(metric.numeratorVal)
+  const denInfo = parseValAndUnit(metric.denominatorVal)
+
+  const cleanName = (name: string) => {
+    return name
+      .replace(/全集团/g, '')
+      .replace(/各直属单位/g, '')
+      .replace(/各车间工段/g, '')
+      .replace(/各介质实物消耗折标煤之和/g, '综合能耗')
+      .replace(/\(.*?\)/g, '')
+      .trim()
+  }
+
+  const numLabel = cleanName(metric.numeratorName) || '分子数据'
+  const denLabel = cleanName(metric.denominatorName) || '分母数据'
+
+  return {
+    columns: [
+      {
+        key: 'numerator',
+        label: numLabel,
+        unit: numInfo.unit || undefined,
+        headerClass: 'text-[#1677ff]',
+        valClass: 'text-[#1677ff] font-bold',
+        renderVal: (item, idx, total) => {
+          const timeFactor = 0.94 + (idx / Math.max(total - 1, 1)) * 0.06
+          let val = numInfo.num * timeFactor
+          if (metric.unit === '%' || metric.unit === 'tCO2/tce' || metric.unit.includes('万元') || metric.unit.includes('产品单位') || metric.unit.includes('万kVA') || metric.unit.includes('km*mm')) {
+            const denVal = denInfo.num * (0.96 + (idx / Math.max(total - 1, 1)) * 0.04)
+            if (metric.unit === '%') {
+              val = (denVal * item.value) / 100
+            } else {
+              val = denVal * item.value
+            }
+          }
+          return val >= 10000 ? Math.round(val).toLocaleString() : val >= 100 ? val.toFixed(1) : val.toFixed(2)
+        },
+      },
+      {
+        key: 'denominator',
+        label: denLabel,
+        unit: denInfo.unit || undefined,
+        headerClass: 'text-purple-700',
+        valClass: 'text-purple-700 font-bold',
+        renderVal: (item, idx, total) => {
+          const timeFactor = 0.96 + (idx / Math.max(total - 1, 1)) * 0.04
+          const val = denInfo.num * timeFactor
+          return val >= 10000 ? Math.round(val).toLocaleString() : val >= 100 ? val.toFixed(1) : val.toFixed(2)
+        },
+      },
+    ],
+    resultHeader: `${metric.name} (${metric.unit})`,
+  }
+}
+
 export const ENERGY_COLUMN_DEFINITIONS: Record<string, EnergyColumnDef> = {
   '电力': {
     key: 'elec',
@@ -2363,8 +2955,11 @@ export default function IndicatorControlPage() {
     badge: '全集团',
   })
 
-  // 🌟 当前在板块二中手动选中的产品标签
+  // 🌟 板块二【产品管控指标】独立选中的产品标签
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null)
+
+  // 🌟 板块三【关键制造工序能效对标指标】独立选中的产品标签 (二、三板块标签解耦，互不联动)
+  const [selectedProcessProduct, setSelectedProcessProduct] = useState<string | null>(null)
 
   // 时间维度: 'month' | 'quarter' | 'year' (默认月度)
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
@@ -2412,13 +3007,21 @@ export default function IndicatorControlPage() {
     return null
   }, [selectedNode])
 
-  // 🌟 当前在板块二中选中的产品 (若未手动选，默认取所属单位的第 1 个主要产品)
+  // 🌟 当前在板块二【产品管控指标】中选中的产品 (若未手动选，默认取所属单位的第 1 个主要产品)
   const currentProduct = useMemo(() => {
     if (selectedProduct && activeUnitInfo?.products?.includes(selectedProduct)) {
       return selectedProduct
     }
     return activeUnitInfo?.products?.[0] || null
   }, [selectedProduct, activeUnitInfo])
+
+  // 🌟 当前在板块三【关键制造工序能效对标指标】中选中的产品 (独立于板块二)
+  const currentProcessProduct = useMemo(() => {
+    if (selectedProcessProduct && activeUnitInfo?.products?.includes(selectedProcessProduct)) {
+      return selectedProcessProduct
+    }
+    return activeUnitInfo?.products?.[0] || null
+  }, [selectedProcessProduct, activeUnitInfo])
 
   // 🌟 根据选中的产品动态生成 5 大产品管控指标 (单位产品能耗、电耗、蒸汽耗、天然气耗、水耗)
   const currentProductControlMetrics = useMemo(() => {
@@ -2617,11 +3220,11 @@ export default function IndicatorControlPage() {
     return ['电力', '水', '天然气', '蒸汽']
   }, [activeViewMetric, activeUnitInfo, selectedNode])
 
-  // 🌟 工序指标过滤：依据选中的产品标签动态呈现其对应的关键制造工序对标指标
+  // 🌟 工序指标过滤：依据板块三选中的产品标签动态呈现其对应的关键制造工序对标指标
   const filteredProcessMetrics = useMemo(() => {
     let list = PROCESS_CONTROL_METRICS
-    if (currentProduct) {
-      const keywords = PRODUCT_PROCESS_KEYWORD_MAP[currentProduct] || [currentProduct]
+    if (currentProcessProduct) {
+      const keywords = PRODUCT_PROCESS_KEYWORD_MAP[currentProcessProduct] || [currentProcessProduct]
       const matched = list.filter((m) =>
         keywords.some(
           (kw) =>
@@ -2646,7 +3249,7 @@ export default function IndicatorControlPage() {
       )
     }
     return list
-  }, [currentProduct, procSearchKey])
+  }, [currentProcessProduct, procSearchKey])
 
   // 动态整体综合指标 (根据选中的组织节点自适应数值与同比)
   const currentOverallMetrics = useMemo(() => {
@@ -2811,57 +3414,56 @@ export default function IndicatorControlPage() {
               </div>
 
               <div className="overflow-x-auto font-mono text-xs">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
-                      <th className="py-2.5 px-3">时间</th>
-                      {displayedEnergyColumns.map((eKey) => {
-                        const col = ENERGY_COLUMN_DEFINITIONS[eKey]
-                        if (!col) return null
-                        return (
-                          <th key={col.key} className={cn('py-2.5 px-3 text-right', col.headerClass)}>
-                            {col.label} ({col.unit})
+                {(() => {
+                  const tableConfig = getMetricDetailTableColumns(activeViewMetric)
+                  return (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
+                          <th className="py-2.5 px-3 whitespace-nowrap min-w-[110px]">时间</th>
+                          {tableConfig.columns.map((col) => (
+                            <th key={col.key} className={cn('py-2.5 px-3 text-right whitespace-nowrap', col.headerClass)}>
+                              {col.label} {col.unit ? `(${col.unit})` : ''}
+                            </th>
+                          ))}
+                          <th className="py-2.5 px-3 font-mono text-right whitespace-nowrap text-[#1677ff]">
+                            {tableConfig.resultHeader}
                           </th>
-                        )
-                      })}
-                      <th className="py-2.5 px-3 font-mono text-right">月度实测值</th>
-                      <th className="py-2.5 px-3 font-mono text-right">环比变化 (MoM)</th>
-                      <th className="py-2.5 px-3 font-mono text-right">同比变化 (YoY)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-800">
-                    {[...activeViewMetric.trendHistory].reverse().map((item, revIdx) => {
-                      const idx = activeViewMetric.trendHistory.length - 1 - revIdx
-                      const baseFactor = item.value / (activeViewMetric.trendHistory[activeViewMetric.trendHistory.length - 1].value || 1)
-
-                      return (
-                        <tr key={item.period} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="py-2.5 px-3 font-bold">
-                            {item.period === '26-08' ? '2026年08月' : `20${item.period.replace('-', '年')}月`}
-                          </td>
-                          {displayedEnergyColumns.map((eKey) => {
-                            const col = ENERGY_COLUMN_DEFINITIONS[eKey]
-                            if (!col) return null
-                            return (
-                              <td key={col.key} className={cn('py-2.5 px-3 text-right', col.valClass)}>
-                                {col.calcVal(idx, baseFactor)}
-                              </td>
-                            )
-                          })}
-                          <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff]">
-                            {item.value} {activeViewMetric.unit}
-                          </td>
-                          <td className={cn('py-2.5 px-3 text-right font-bold', item.mom.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
-                            {item.mom}
-                          </td>
-                          <td className={cn('py-2.5 px-3 text-right font-bold', item.yoy.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
-                            {item.yoy}
-                          </td>
+                          <th className="py-2.5 px-3 font-mono text-right whitespace-nowrap">环比</th>
+                          <th className="py-2.5 px-3 font-mono text-right whitespace-nowrap">同比</th>
                         </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-slate-800">
+                        {[...activeViewMetric.trendHistory].reverse().map((item, revIdx) => {
+                          const idx = activeViewMetric.trendHistory.length - 1 - revIdx
+                          const total = activeViewMetric.trendHistory.length
+
+                          return (
+                            <tr key={item.period} className="hover:bg-slate-50/80 transition-colors">
+                              <td className="py-2.5 px-3 font-bold whitespace-nowrap">
+                                {item.period === '26-08' ? '2026年08月' : `20${item.period.replace('-', '年')}月`}
+                              </td>
+                              {tableConfig.columns.map((col) => (
+                                <td key={col.key} className={cn('py-2.5 px-3 text-right', col.valClass)}>
+                                  {col.renderVal(item, idx, total)}
+                                </td>
+                              ))}
+                              <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff] whitespace-nowrap">
+                                {item.value} {activeViewMetric.unit}
+                              </td>
+                              <td className={cn('py-2.5 px-3 text-right font-bold whitespace-nowrap', item.mom.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
+                                {item.mom}
+                              </td>
+                              <td className={cn('py-2.5 px-3 text-right font-bold whitespace-nowrap', item.yoy.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
+                                {item.yoy}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  )
+                })()}
               </div>
             </div>
           </div>
@@ -3270,12 +3872,12 @@ export default function IndicatorControlPage() {
                       {activeUnitInfo?.products && activeUnitInfo.products.length > 0 && (
                         <div className="flex flex-wrap items-center gap-1.5 font-sans">
                           {activeUnitInfo.products.map((prod) => {
-                            const isActive = currentProduct === prod
+                            const isActive = currentProcessProduct === prod
                             return (
                               <button
                                 key={prod}
                                 type="button"
-                                onClick={() => setSelectedProduct(prod)}
+                                onClick={() => setSelectedProcessProduct(prod)}
                                 className={cn(
                                   'text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-all cursor-pointer shadow-2xs select-none flex items-center gap-1',
                                   isActive

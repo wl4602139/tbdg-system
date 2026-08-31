@@ -1459,7 +1459,7 @@ export default function BenchmarkManagementPage() {
   const [activeZeroCarbonMetric, setActiveZeroCarbonMetric] = useState<ZeroCarbonMetricType>('carbon_per_tce')
 
   // 同型号产品项目公司横向对比状态
-  const [productIndustryFilter, setProductIndustryFilter] = useState<'all' | 'transformer' | 'cable'>('all')
+  const [productIndustryFilter, setProductIndustryFilter] = useState<'transformer' | 'cable'>('transformer')
   const [productSearchKeyword, setProductSearchKeyword] = useState('')
   const [selectedProductModelId, setSelectedProductModelId] = useState<string>('tx-01')
 
@@ -1515,7 +1515,7 @@ export default function BenchmarkManagementPage() {
   // 过滤后的同型号产品对比列表
   const filteredProductBenchmarks = useMemo(() => {
     return CROSS_COMPANY_PRODUCT_BENCHMARKS.filter((p) => {
-      const matchIndustry = productIndustryFilter === 'all' || p.industry === productIndustryFilter
+      const matchIndustry = p.industry === productIndustryFilter
       if (!matchIndustry) return false
       if (!productSearchKeyword.trim()) return true
       const kw = productSearchKeyword.trim().toLowerCase()
@@ -1667,7 +1667,7 @@ export default function BenchmarkManagementPage() {
 
   return (
     <div className="w-full flex flex-col gap-3.5 font-sans">
-      {/* 1. 顶部 Header 与 统一标准时间筛选与操作栏 */}
+      {/* 1. 顶部 Header 与 统一操作栏 */}
       <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
@@ -1676,104 +1676,14 @@ export default function BenchmarkManagementPage() {
           <h1 className="text-base font-bold text-slate-800">对标管理</h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* 时间维度统一 (月度 / 季度 / 年度) */}
-          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
-            <button
-              type="button"
-              onClick={() => setTimeDim('month')}
-              className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              月度
-            </button>
-            <button
-              type="button"
-              onClick={() => setTimeDim('quarter')}
-              className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              季度
-            </button>
-            <button
-              type="button"
-              onClick={() => setTimeDim('year')}
-              className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              年度
-            </button>
-          </div>
-
-          {/* 时间范围选择控件 (随维度自适应切换) */}
-          {timeDim === 'month' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
-              <input
-                type="month"
-                value={selectedMonthRange.start}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="起始月份"
-              />
-              <span className="text-slate-400 font-sans">至</span>
-              <input
-                type="month"
-                value={selectedMonthRange.end}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="结束月份"
-              />
-            </div>
-          )}
-
-          {timeDim === 'quarter' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
-              <select
-                value={selectedQuarter}
-                onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-              >
-                <option value="2026-Q1">2026年 第1季度 (Q1)</option>
-                <option value="2026-Q2">2026年 第2季度 (Q2)</option>
-                <option value="2026-Q3">2026年 第3季度 (Q3)</option>
-                <option value="2026-Q4">2026年 第4季度 (Q4)</option>
-                <option value="2025-Q4">2025年 第4季度 (Q4)</option>
-              </select>
-            </div>
-          )}
-
-          {timeDim === 'year' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-              >
-                <option value="2026">2026 年度</option>
-                <option value="2025">2025 年度</option>
-                <option value="2024">2024 年度</option>
-              </select>
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={() => alert('已生成并导出全集团多维度能效对标分析简报 (Excel)...')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-          >
-            <Download className="size-3.5" />
-            <span>导出</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => alert('已生成并导出全集团多维度能效对标分析简报 (Excel)...')}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+        >
+          <Download className="size-3.5" />
+          <span>导出</span>
+        </button>
       </div>
 
       {/* 2. 🌟 核心 4 大对标维度 Tab 切换栏 */}
@@ -2087,9 +1997,6 @@ export default function BenchmarkManagementPage() {
                   同型号产品项目公司对比
                 </h3>
               </div>
-              <span className="text-xs text-slate-400 font-mono">
-                核算口径：产品综合单耗 (tce) & 能源实物单耗 · 排除工序拆解
-              </span>
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -2097,18 +2004,6 @@ export default function BenchmarkManagementPage() {
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-600">选择产品：</span>
                 <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setProductIndustryFilter('all')}
-                    className={cn(
-                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                      productIndustryFilter === 'all'
-                        ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    全部产品
-                  </button>
                   <button
                     type="button"
                     onClick={() => setProductIndustryFilter('transformer')}
@@ -2173,11 +2068,11 @@ export default function BenchmarkManagementPage() {
           {/* 重点型号可视化对标走势图 (按选定型号展现项目公司 PK 柱图) */}
           {activeSelectedProduct && (
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-2 text-xs font-sans">
+              <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-2.5 text-xs font-sans">
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-[#1677ff]" />
                   <span className="font-bold text-slate-900">
-                    各项目公司单耗横向 PK 对标
+                    同型号产品单耗对比
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-xs font-mono">
@@ -2190,7 +2085,14 @@ export default function BenchmarkManagementPage() {
                 </div>
               </div>
 
-              <div className="h-[220px]">
+              <div className="relative h-[230px]">
+                {/* 🌟 居中产品型号标识 (红框指定位置) */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50/90 border border-slate-200 shadow-2xs text-xs font-mono backdrop-blur-xs pointer-events-none">
+                  <span className="text-slate-500 font-sans text-[11px] font-bold">产品型号:</span>
+                  <span className="text-[#1677ff] font-bold">{activeSelectedProduct.model}</span>
+                  <span className="text-slate-400 font-sans text-[10.5px]">({activeSelectedProduct.categoryName})</span>
+                </div>
+
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={activeSelectedProduct.companies.map((c) => ({
@@ -2200,7 +2102,7 @@ export default function BenchmarkManagementPage() {
                       isOptimal: c.isOptimal,
                       diff: c.diffPercent,
                     }))}
-                    margin={{ top: 15, right: 20, left: 10, bottom: 15 }}
+                    margin={{ top: 28, right: 20, left: 10, bottom: 15 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#334155' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={false} />
@@ -2267,11 +2169,11 @@ export default function BenchmarkManagementPage() {
                             isSelectedProduct && 'bg-blue-50/20'
                           )}
                         >
-                          {/* 产品种类 (合并单元格) */}
+                          {/* 产品种类 (合并单元格，垂直居中) */}
                           {isFirstRow && (
                             <td
                               rowSpan={rowSpan}
-                              className="py-2.5 px-3 font-sans font-bold text-slate-800 border-r border-slate-100 bg-white align-top"
+                              className="py-2.5 px-3 font-sans font-bold text-slate-800 border-r border-slate-100 bg-white align-middle"
                             >
                               <div className="space-y-1">
                                 <span className={cn(
@@ -2289,11 +2191,11 @@ export default function BenchmarkManagementPage() {
                             </td>
                           )}
 
-                          {/* 产品型号 (合并单元格) */}
+                          {/* 产品型号 (合并单元格，垂直居中) */}
                           {isFirstRow && (
                             <td
                               rowSpan={rowSpan}
-                              className="py-2.5 px-3 font-bold text-slate-900 border-r border-slate-100 bg-white align-top"
+                              className="py-2.5 px-3 font-bold text-slate-900 border-r border-slate-100 bg-white align-middle"
                             >
                               <div className="space-y-1">
                                 <div>{productGroup.model}</div>
@@ -2395,12 +2297,12 @@ export default function BenchmarkManagementPage() {
                 </h3>
               </div>
               <span className="text-xs text-slate-400 font-mono">
-                层级路径：选择产品 ➔ 单位 ➔ 产线 ➔ 产品种类 ➔ 型号 · 双周期跨期对比
+                层级路径：选择产品 ➔ 单位 ➔ 产品种类 ➔ 型号 · 双周期跨期对比
               </span>
             </div>
 
             {/* 核心筛选栏：选择产品大类 + 四级联动选择器 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
               {/* ① 选择产品大类 */}
               <div className="space-y-1">
                 <label className="text-slate-600 font-bold block">1. 选择产品大类：</label>
@@ -2451,30 +2353,9 @@ export default function BenchmarkManagementPage() {
                 </select>
               </div>
 
-              {/* ③ 选择产线/车间 */}
+              {/* ③ 选择产品种类 */}
               <div className="space-y-1">
-                <label className="text-slate-600 font-bold block">3. 选择产线/车间：</label>
-                <select
-                  value={verticalLineId}
-                  onChange={(e) => {
-                    const lineId = e.target.value
-                    setVerticalLineId(lineId)
-                    const line = currentSelectedCompany.lines.find((l) => l.id === lineId) || currentSelectedCompany.lines[0]
-                    const firstCat = line.categories[0]
-                    setVerticalCategoryId(firstCat.id)
-                    setVerticalModelId(firstCat.models[0].id)
-                  }}
-                  className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white"
-                >
-                  {currentSelectedCompany.lines.map((l) => (
-                    <option key={l.id} value={l.id}>{l.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* ④ 选择产品种类 */}
-              <div className="space-y-1">
-                <label className="text-slate-600 font-bold block">4. 选择产品种类：</label>
+                <label className="text-slate-600 font-bold block">3. 选择产品种类：</label>
                 <select
                   value={verticalCategoryId}
                   onChange={(e) => {
@@ -2491,9 +2372,9 @@ export default function BenchmarkManagementPage() {
                 </select>
               </div>
 
-              {/* ⑤ 选择产品型号 */}
+              {/* ④ 选择产品型号 */}
               <div className="space-y-1">
-                <label className="text-slate-600 font-bold block">5. 选择具体型号：</label>
+                <label className="text-slate-600 font-bold block">4. 选择具体型号：</label>
                 <select
                   value={verticalModelId}
                   onChange={(e) => setVerticalModelId(e.target.value)}
@@ -2551,30 +2432,6 @@ export default function BenchmarkManagementPage() {
                     className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer font-bold"
                   />
                 </div>
-
-                {/* 快捷对比预设 */}
-                <div className="flex items-center bg-white p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
-                  <button
-                    type="button"
-                    onClick={() => handleSetPeriodPreset('yoy')}
-                    className={cn(
-                      'px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer',
-                      periodPresetMode === 'yoy' ? 'bg-[#1677ff] text-white font-bold' : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    同比对比 (2025同期 vs 2026)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSetPeriodPreset('mom')}
-                    className={cn(
-                      'px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer',
-                      periodPresetMode === 'mom' ? 'bg-[#1677ff] text-white font-bold' : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    环比对比 (上期 vs 本期)
-                  </button>
-                </div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -2585,14 +2442,6 @@ export default function BenchmarkManagementPage() {
                 >
                   <Search className="size-3.5" />
                   <span>执行纵向对比</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => alert('正在导出产品单耗双周期纵向对比台账 (Excel)...')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold shadow-2xs cursor-pointer"
-                >
-                  <Download className="size-3.5" />
-                  <span>导出数据</span>
                 </button>
               </div>
             </div>
@@ -2610,7 +2459,7 @@ export default function BenchmarkManagementPage() {
                 <span className="text-xs text-slate-400">基准: {currentSelectedModel.baseTce}</span>
               </div>
               <div className="text-[11px] text-emerald-600 font-bold font-sans pt-1 border-t border-slate-100 flex items-center justify-between">
-                <span>综合变动率：</span>
+                <span>同比：</span>
                 <span>{(((currentSelectedModel.currTce - currentSelectedModel.baseTce) / currentSelectedModel.baseTce) * 100).toFixed(1)}% ↓</span>
               </div>
             </div>
@@ -2625,7 +2474,7 @@ export default function BenchmarkManagementPage() {
                 <span className="text-xs text-slate-400">{currentSelectedModel.baseElec.toLocaleString()}</span>
               </div>
               <div className="text-[11px] text-emerald-600 font-bold font-sans pt-1 border-t border-blue-100 flex items-center justify-between">
-                <span>电耗变动：</span>
+                <span>同比：</span>
                 <span>{(((currentSelectedModel.currElec - currentSelectedModel.baseElec) / currentSelectedModel.baseElec) * 100).toFixed(1)}% ↓</span>
               </div>
             </div>
@@ -2642,7 +2491,7 @@ export default function BenchmarkManagementPage() {
                     <span className="text-xs text-slate-400">{currentSelectedModel.baseSteam?.toFixed(1)} t</span>
                   </div>
                   <div className="text-[11px] text-emerald-600 font-bold font-sans pt-1 border-t border-purple-100 flex items-center justify-between">
-                    <span>蒸汽变动：</span>
+                    <span>同比：</span>
                     <span>{currentSelectedModel.baseSteam && (((currentSelectedModel.currSteam - currentSelectedModel.baseSteam) / currentSelectedModel.baseSteam) * 100).toFixed(1)}% ↓</span>
                   </div>
                 </>
@@ -2661,7 +2510,7 @@ export default function BenchmarkManagementPage() {
                 <span className="text-xs text-slate-400">{currentSelectedModel.baseGas.toFixed(1)} m³</span>
               </div>
               <div className="text-[11px] text-emerald-600 font-bold font-sans pt-1 border-t border-amber-100 flex items-center justify-between">
-                <span>气耗变动：</span>
+                <span>同比：</span>
                 <span>{(((currentSelectedModel.currGas - currentSelectedModel.baseGas) / currentSelectedModel.baseGas) * 100).toFixed(1)}% ↓</span>
               </div>
             </div>
@@ -2676,7 +2525,7 @@ export default function BenchmarkManagementPage() {
                 <span className="text-xs text-slate-400">{currentSelectedModel.baseWater.toFixed(1)} t</span>
               </div>
               <div className="text-[11px] text-emerald-600 font-bold font-sans pt-1 border-t border-cyan-100 flex items-center justify-between">
-                <span>水耗变动：</span>
+                <span>同比：</span>
                 <span>{(((currentSelectedModel.currWater - currentSelectedModel.baseWater) / currentSelectedModel.baseWater) * 100).toFixed(1)}% ↓</span>
               </div>
             </div>
@@ -2744,7 +2593,7 @@ export default function BenchmarkManagementPage() {
                     <th className="py-2.5 px-3">统计时间 / 月份</th>
                     <th className="py-2.5 px-3 text-right">产品单耗(基准期)</th>
                     <th className="py-2.5 px-3 text-right">产品单耗(对比期)</th>
-                    <th className="py-2.5 px-3 text-center">综合变动率</th>
+                    <th className="py-2.5 px-3 text-center">同比</th>
                     <th className="py-2.5 px-3 text-right text-blue-700">⚡ 电单耗(基准/对比)</th>
                     <th className="py-2.5 px-3 text-right text-purple-700">💨 蒸汽单耗(基准/对比)</th>
                     <th className="py-2.5 px-3 text-right text-amber-700">🔥 天然气单耗(基准/对比)</th>
@@ -3137,9 +2986,8 @@ export default function BenchmarkManagementPage() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
-                    <th className="py-2.5 px-3">项目公司 / 制造车间</th>
                     <th className="py-2.5 px-3">关键工序名称</th>
-                    <th className="py-2.5 px-3">工序主要消耗能源</th>
+                    <th className="py-2.5 px-3">项目公司 / 制造车间</th>
                     <th className="py-2.5 px-3 text-right text-blue-700">实测单耗值 ({currentSelectedProcess.unit})</th>
                     <th className="py-2.5 px-3 text-right">集团平均线</th>
                     <th className="py-2.5 px-3 text-center">较集团平均偏差</th>
@@ -3150,26 +2998,43 @@ export default function BenchmarkManagementPage() {
                 <tbody className="divide-y divide-slate-100 text-slate-800">
                   {currentSelectedProcess.companies.map((c, idx) => (
                     <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
+                      {/* 1. 关键工序名称 (移动到最左侧并合并垂直居中显示) */}
+                      {idx === 0 && (
+                        <td
+                          rowSpan={currentSelectedProcess.companies.length}
+                          className="py-3 px-4 font-sans font-bold text-slate-900 bg-slate-50/60 border-r border-slate-200/80 align-middle text-left"
+                        >
+                          <div className="space-y-1.5">
+                            <div className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                              <Layers className="size-3.5 text-[#1677ff] shrink-0" />
+                              <span>{currentSelectedProcess.processName}</span>
+                            </div>
+                            <div className="text-[11px] text-slate-500 font-mono">
+                              单位：{currentSelectedProcess.unit}
+                            </div>
+                          </div>
+                        </td>
+                      )}
+
+                      {/* 2. 项目公司 / 制造车间 */}
                       <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
                         <div className="flex items-center gap-1.5">
                           <span className={cn('size-1.5 rounded-full', c.isOptimal ? 'bg-emerald-500' : 'bg-slate-400')} />
                           <span>{c.companyName}</span>
                         </div>
                       </td>
-                      <td className="py-2.5 px-3 font-sans text-slate-700">
-                        {currentSelectedProcess.processName}
-                      </td>
-                      <td className="py-2.5 px-3 font-sans font-semibold text-slate-600">
-                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">
-                          {currentSelectedProcess.energyTypes}
-                        </span>
-                      </td>
+
+                      {/* 3. 实测单耗值 */}
                       <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff]">
                         {c.value} <span className="text-[10px] text-slate-400 font-normal font-sans">{currentSelectedProcess.unit}</span>
                       </td>
+
+                      {/* 4. 集团平均线 */}
                       <td className="py-2.5 px-3 text-right text-slate-600">
                         {currentSelectedProcess.groupAvg}
                       </td>
+
+                      {/* 5. 较集团平均偏差 */}
                       <td className="py-2.5 px-3 text-center">
                         <span className={cn(
                           'px-2 py-0.5 rounded text-[11px] font-bold',
@@ -3178,6 +3043,8 @@ export default function BenchmarkManagementPage() {
                           {c.diffGroupPct} {c.diffGroupPct.startsWith('-') ? '↓' : c.diffGroupPct === '0.0%' ? '—' : '↑'}
                         </span>
                       </td>
+
+                      {/* 6. 行业先进基准 */}
                       <td className="py-2.5 px-3 text-right text-purple-700 font-bold">
                         {currentSelectedProcess.industryBenchmark !== undefined ? (
                           <span>{currentSelectedProcess.industryBenchmark} <span className="text-[10px] font-normal text-slate-400 font-sans">{currentSelectedProcess.unit}</span></span>
@@ -3185,6 +3052,8 @@ export default function BenchmarkManagementPage() {
                           <span className="text-slate-300 font-normal font-sans">无行业基准</span>
                         )}
                       </td>
+
+                      {/* 7. 对标评定 */}
                       <td className="py-2.5 px-3 text-center font-sans">
                         {c.isOptimal ? (
                           <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">
@@ -3407,9 +3276,8 @@ export default function BenchmarkManagementPage() {
                     <th className="py-2.5 px-3">对标指标名称 / 适用范围</th>
                     <th className="py-2.5 px-3 text-right">标准基准值 (门槛/标杆)</th>
                     <th className="py-2.5 px-3">标准依据 / 来源出处</th>
-                    <th className="py-2.5 px-3 text-right">集团实测均值</th>
                     <th className="py-2.5 px-3 text-center font-sans">维护部门</th>
-                    <th className="py-2.5 px-3 text-center">生效日期</th>
+                    <th className="py-2.5 px-3 text-center">维护日期</th>
                     <th className="py-2.5 px-3 text-center font-sans">状态</th>
                     <th className="py-2.5 px-3 text-right font-sans">操作</th>
                   </tr>
@@ -3418,7 +3286,7 @@ export default function BenchmarkManagementPage() {
                   {filteredStandards.map((std) => (
                     <tr key={std.id} className="hover:bg-blue-50/30 transition-colors">
                       {/* 基准分类 */}
-                      <td className="py-2.5 px-3 font-sans align-top">
+                      <td className="py-2.5 px-3 font-sans align-middle">
                         <span className={cn(
                           'inline-block px-2 py-0.5 rounded font-mono font-bold text-[10.5px]',
                           std.category === 'process'
@@ -3432,7 +3300,7 @@ export default function BenchmarkManagementPage() {
                       </td>
 
                       {/* 指标名称与适用范围 */}
-                      <td className="py-2.5 px-3 align-top font-sans">
+                      <td className="py-2.5 px-3 align-middle font-sans">
                         <div className="space-y-0.5">
                           <div className="font-bold text-slate-900 text-xs">
                             {std.indicatorName}
@@ -3449,7 +3317,7 @@ export default function BenchmarkManagementPage() {
                       </td>
 
                       {/* 标准基准值 (带比较符) */}
-                      <td className="py-2.5 px-3 text-right align-top font-extrabold text-slate-900">
+                      <td className="py-2.5 px-3 text-right align-middle font-extrabold text-slate-900">
                         <span className={cn(
                           'text-sm',
                           std.category === 'process' ? 'text-purple-700' : std.category === 'zero_carbon' ? 'text-emerald-700' : 'text-[#1677ff]'
@@ -3463,30 +3331,25 @@ export default function BenchmarkManagementPage() {
                       </td>
 
                       {/* 标准出处 */}
-                      <td className="py-2.5 px-3 align-top font-sans text-slate-700 text-[11px]">
+                      <td className="py-2.5 px-3 align-middle font-sans text-slate-700 text-[11px]">
                         <div className="flex items-center gap-1">
                           <FileText className="size-3 text-slate-400 shrink-0" />
                           <span>{std.standardSource}</span>
                         </div>
                       </td>
 
-                      {/* 集团当前均值 */}
-                      <td className="py-2.5 px-3 text-right align-top font-bold text-slate-700">
-                        {std.currentGroupAvg} <span className="text-[10px] text-slate-400 font-normal font-sans">{std.unit}</span>
-                      </td>
-
                       {/* 维护部门 */}
-                      <td className="py-2.5 px-3 text-center align-top font-sans text-[11px] text-slate-600">
+                      <td className="py-2.5 px-3 text-center align-middle font-sans text-[11px] text-slate-600">
                         {std.maintainer}
                       </td>
 
-                      {/* 生效日期 */}
-                      <td className="py-2.5 px-3 text-center align-top text-slate-500 text-[11px]">
+                      {/* 维护日期 */}
+                      <td className="py-2.5 px-3 text-center align-middle text-slate-500 text-[11px]">
                         {std.effectiveDate}
                       </td>
 
                       {/* 状态 */}
-                      <td className="py-2.5 px-3 text-center align-top font-sans">
+                      <td className="py-2.5 px-3 text-center align-middle font-sans">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10.5px] font-bold border border-emerald-200">
                           <span className="size-1.5 rounded-full bg-emerald-500" />
                           启用中
@@ -3494,7 +3357,7 @@ export default function BenchmarkManagementPage() {
                       </td>
 
                       {/* 操作 */}
-                      <td className="py-2.5 px-3 text-right align-top font-sans space-x-2">
+                      <td className="py-2.5 px-3 text-right align-middle font-sans space-x-2">
                         <button
                           type="button"
                           onClick={() => {
@@ -3667,7 +3530,7 @@ export default function BenchmarkManagementPage() {
                 </div>
               </div>
 
-              {/* 4. 标准出处与生效日期 */}
+              {/* 4. 标准出处与维护日期 */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-slate-600 font-bold block">标准出处 / 政策依据：</label>
@@ -3680,7 +3543,7 @@ export default function BenchmarkManagementPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-slate-600 font-bold block">生效日期：</label>
+                  <label className="text-slate-600 font-bold block">维护日期：</label>
                   <input
                     type="date"
                     value={newStandardForm.effectiveDate}

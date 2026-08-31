@@ -33,18 +33,25 @@ export function PortalView() {
           <div className="bg-white/95 rounded-lg px-2.5 py-1 flex items-center justify-center shadow-xs">
             <img src="/logo.png" alt="TBEA 特变电工" className="h-7 w-auto object-contain" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base tracking-wide text-white drop-shadow-xs">
+          <span className="font-extrabold text-base tracking-wide text-white drop-shadow-xs">
+            特变电工电气装备集团能碳数字化运营平台
+          </span>
+        </div>
+
+        {/* 右上角账号信息 */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-white/10 border border-white/15 backdrop-blur-xs shadow-xs">
+            <div className="size-7 rounded-full bg-white/20 border border-white/30 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+              管
+            </div>
+            <div className="hidden sm:block text-left">
+              <span className="text-xs font-semibold text-white block leading-tight">
+                管理员 (倪总)
+              </span>
+              <span className="text-[10px] text-blue-200/80 block">
                 特变电工电气装备集团
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 text-white font-mono font-bold shadow-xs">
-                v1.01 正式版
-              </span>
             </div>
-            <span className="text-xs text-blue-200/90 block -mt-0.5 font-medium">
-              能碳管控“双中心”数字化运营集成平台 · Always Reliable 全球信赖
-            </span>
           </div>
         </div>
       </header>
@@ -109,9 +116,7 @@ export function PortalView() {
                     EMS
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-                  面向集团决策层与各园区/工厂能效工程师，聚焦宏观驾驶舱、集中监管与能碳精细化闭环。
-                </p>
+
               </div>
 
               {/* 描述信息列表 (4 项) */}
@@ -167,9 +172,7 @@ export function PortalView() {
                     PCF & LCA
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-                  面向集团数字化部、外贸出口团队与供应商管理，聚焦 LCA 碳足迹核算、实景溯源与 CBAM 合规。
-                </p>
+
               </div>
 
               {/* 描述信息列表 (4 项) */}
@@ -209,7 +212,7 @@ export function PortalView() {
       {/* 🌟 5. 底部标准版权栏 */}
       <footer className="relative z-20 h-12 border-t border-[#e5e7eb]/80 bg-white/90 backdrop-blur-md px-6 flex items-center justify-between text-xs text-slate-500">
         <div>
-          <span>© 2026 特变电工电气装备集团 · 数字化与能碳管理中心</span>
+          <span>© 2026 特变电工电气装备集团</span>
         </div>
         <div className="flex items-center gap-4">
           <span>原型版本：<strong className="text-slate-800 font-mono font-bold">v1.01 (TBEA Corporate Edition)</strong></span>

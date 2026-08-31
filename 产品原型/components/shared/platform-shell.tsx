@@ -333,17 +333,9 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                   <CurrentCenterIcon className="size-3.5" />
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <span className="font-bold text-slate-800 group-hover:text-[#1677ff] text-xs sm:text-sm whitespace-nowrap transition-colors">
                     {currentCenter.name}
-                  </span>
-                  <span
-                    className={cn(
-                      'hidden sm:inline-flex text-[10px] font-semibold px-1.5 py-0.5 rounded leading-none',
-                      currentCenter.badgeBg
-                    )}
-                  >
-                    {currentCenter.shortName}
                   </span>
                 </div>
 
@@ -382,7 +374,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                             }
                           }}
                           className={cn(
-                            'w-full text-left flex items-start gap-3 p-2.5 rounded-lg transition-all text-xs group cursor-pointer',
+                            'w-full text-left flex items-center gap-3 p-2.5 rounded-lg transition-all text-xs group cursor-pointer',
                             isSelected
                               ? cn(center.activeBg, 'border', center.activeBorder, 'shadow-2xs')
                               : 'hover:bg-slate-50 border border-transparent text-slate-700'
@@ -390,37 +382,32 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                         >
                           <div
                             className={cn(
-                              'size-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 shadow-2xs transition-transform group-hover:scale-105',
+                              'size-8 rounded-lg flex items-center justify-center shrink-0 shadow-2xs transition-transform group-hover:scale-105',
                               center.iconBg
                             )}
                           >
                             <CenterIcon className="size-4" />
                           </div>
 
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-1 mb-0.5">
+                          <div className="flex-1 min-w-0 flex items-center justify-between gap-1">
+                            <span
+                              className={cn(
+                                'font-bold text-xs truncate',
+                                isSelected ? center.activeColor : 'text-slate-800'
+                              )}
+                            >
+                              {center.name}
+                            </span>
+                            {isSelected && (
                               <span
                                 className={cn(
-                                  'font-bold text-xs truncate',
-                                  isSelected ? center.activeColor : 'text-slate-800'
+                                  'shrink-0 size-4 rounded-full flex items-center justify-center',
+                                  center.activeColor
                                 )}
                               >
-                                {center.name}
+                                <Check className="size-3.5" />
                               </span>
-                              {isSelected && (
-                                <span
-                                  className={cn(
-                                    'shrink-0 size-4 rounded-full flex items-center justify-center',
-                                    center.activeColor
-                                  )}
-                                >
-                                  <Check className="size-3.5" />
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-[11px] text-slate-500 line-clamp-1 leading-snug">
-                              {center.desc}
-                            </p>
+                            )}
                           </div>
                         </button>
                       )

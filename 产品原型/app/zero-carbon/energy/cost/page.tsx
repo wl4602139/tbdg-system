@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend, Donut, BarChartGroup } from '@/components/shared/charts'
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { cn } from '@/lib/utils'
 
 // 能源成本指标类型定义
@@ -52,55 +53,55 @@ const COST_METRICS_META: Record<CostMetricKey, CostMetricMeta> = {
   totalCost: {
     key: 'totalCost',
     name: '总用能成本',
-    shortName: '总成本',
+    shortName: '总用能成本',
     unit: '万元',
     color: '#059669',
     description: '全厂区所有能源介质外购与消费总支出',
   },
   gridElecCost: {
     key: 'gridElecCost',
-    name: '市电成本 (外购市电)',
-    shortName: '市电成本',
+    name: '市电',
+    shortName: '市电',
     unit: '万元',
     color: '#1677ff',
     description: '从公共电网外购结算的电力总费用',
   },
   gasCost: {
     key: 'gasCost',
-    name: '天然气成本',
-    shortName: '天然气费',
+    name: '天然气',
+    shortName: '天然气',
     unit: '万元',
     color: '#f59e0b',
     description: '管道天然气用气采购与燃料支出',
   },
   steamCost: {
     key: 'steamCost',
-    name: '外购蒸汽热力成本',
-    shortName: '蒸汽费用',
+    name: '外购蒸汽',
+    shortName: '外购蒸汽',
     unit: '万元',
     color: '#8b5cf6',
     description: '工业园区集中供热与工艺外购蒸汽费用',
   },
   oilCost: {
     key: 'oilCost',
-    name: '用油动力成本',
-    shortName: '燃油费用',
+    name: '油',
+    shortName: '油',
     unit: '万元',
     color: '#f43f5e',
     description: '厂区物流运输车辆及发电机柴汽油消费',
   },
   nitrogenCost: {
     key: 'nitrogenCost',
-    name: '工艺液氮成本',
-    shortName: '液氮费用',
+    name: '氮气',
+    shortName: '氮气',
     unit: '万元',
     color: '#06b6d4',
     description: '特种绝缘干燥与工艺惰化液氮采购支出',
   },
   waterCost: {
     key: 'waterCost',
-    name: '水资源成本 (ESG)',
-    shortName: '水费支出',
+    name: '水',
+    shortName: '水',
     unit: '万元',
     color: '#0284c7',
     description: '生产循环水与生活辅助用水费用',
@@ -217,6 +218,53 @@ const SIX_COMPANIES_COST: CompanyCostData[] = [
   },
 ]
 
+// 🏢 各 2 级经营公司下属 3 级单位 (车间/项目公司) 成本数据字典
+const COMPANY_SUB_UNITS_COST: Record<string, CompanyCostData[]> = {
+  '沈变公司': [
+    { id: 'ws_sb_main', name: '沈变本部', fullName: '沈变本部（特高压制造车间）', province: '辽宁省 (沈阳)', totalCost: 420.0, gridElecCost: 335.0, gasCost: 55.0, steamCost: 22.0, oilCost: 8.0, nitrogenCost: 0, waterCost: 2.8, elecRatio: 79.8, yoyTrend: -3.5 },
+    { id: 'ws_sb_luna', name: '露娜公司', fullName: '特变电工露娜智能电气有限公司', province: '天津市 (武清)', totalCost: 120.0, gridElecCost: 95.0, gasCost: 15.0, steamCost: 6.0, oilCost: 2.5, nitrogenCost: 0, waterCost: 0.8, elecRatio: 79.2, yoyTrend: -2.8 },
+    { id: 'ws_sb_zh', name: '智慧能源', fullName: '沈变智慧能源微网运维', province: '辽宁省 (沈阳)', totalCost: 72.5, gridElecCost: 58.0, gasCost: 9.0, steamCost: 3.5, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, elecRatio: 80.0, yoyTrend: -4.1 },
+    { id: 'ws_sb_hx', name: '和新套管公司', fullName: '沈变和新高压套管车间', province: '辽宁省 (沈阳)', totalCost: 65.0, gridElecCost: 52.0, gasCost: 8.0, steamCost: 3.0, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, elecRatio: 80.0, yoyTrend: -3.0 },
+    { id: 'ws_sb_kj', name: '康嘉互感器', fullName: '沈变康嘉互感器制造车间', province: '辽宁省 (沈阳)', totalCost: 55.0, gridElecCost: 43.5, gasCost: 7.0, steamCost: 2.5, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, elecRatio: 79.1, yoyTrend: -2.5 },
+    { id: 'ws_sb_yn', name: '印能公司', fullName: '沈变印能绝缘材料车间', province: '辽宁省 (沈阳)', totalCost: 30.0, gridElecCost: 21.5, gasCost: 4.0, steamCost: 1.5, oilCost: 1.0, nitrogenCost: 0, waterCost: 0.4, elecRatio: 71.7, yoyTrend: -2.0 },
+  ],
+  '衡变公司': [
+    { id: 'ws_hb_main', name: '衡变本部', fullName: '衡变本部（高压变压器车间）', province: '湖南省 (衡阳)', totalCost: 320.0, gridElecCost: 253.0, gasCost: 40.0, steamCost: 16.0, oilCost: 6.5, nitrogenCost: 0, waterCost: 2.0, elecRatio: 79.1, yoyTrend: -3.1 },
+    { id: 'ws_hb_nj', name: '南京电研', fullName: '南京电气自动化研发基地', province: '江苏省 (南京)', totalCost: 85.0, gridElecCost: 67.5, gasCost: 10.5, steamCost: 4.0, oilCost: 1.8, nitrogenCost: 0, waterCost: 0.5, elecRatio: 79.4, yoyTrend: -2.9 },
+    { id: 'ws_hb_yj', name: '云集电气', fullName: '衡变云集电气成套车间', province: '湖南省 (衡阳)', totalCost: 62.0, gridElecCost: 49.0, gasCost: 8.0, steamCost: 3.0, oilCost: 1.2, nitrogenCost: 0, waterCost: 0.4, elecRatio: 79.0, yoyTrend: -2.5 },
+    { id: 'ws_hb_hn', name: '湖南电气', fullName: '湖南智能输配电设备制造', province: '湖南省 (衡阳)', totalCost: 58.0, gridElecCost: 46.0, gasCost: 7.0, steamCost: 3.0, oilCost: 1.2, nitrogenCost: 0, waterCost: 0.4, elecRatio: 79.3, yoyTrend: -2.6 },
+    { id: 'ws_hb_kg', name: '云集高压开关', fullName: '云集GIS高压开关制造', province: '湖南省 (衡阳)', totalCost: 45.0, gridElecCost: 35.5, gasCost: 6.0, steamCost: 2.0, oilCost: 1.0, nitrogenCost: 0, waterCost: 0.3, elecRatio: 78.9, yoyTrend: -2.4 },
+    { id: 'ws_hb_xj', name: '新疆自控', fullName: '新疆自控系统车间', province: '新疆 (昌吉)', totalCost: 35.0, gridElecCost: 27.5, gasCost: 4.5, steamCost: 1.8, oilCost: 0.8, nitrogenCost: 0, waterCost: 0.2, elecRatio: 78.6, yoyTrend: -2.1 },
+    { id: 'ws_hb_sk', name: '上开', fullName: '上海开关制造车间', province: '上海市', totalCost: 25.0, gridElecCost: 20.0, gasCost: 3.0, steamCost: 1.2, oilCost: 0.5, nitrogenCost: 0, waterCost: 0.15, elecRatio: 80.0, yoyTrend: -1.8 },
+    { id: 'ws_hb_kbe', name: '柯贝尔', fullName: '柯贝尔绝缘器件制造', province: '湖南省 (衡阳)', totalCost: 20.0, gridElecCost: 16.0, gasCost: 2.5, steamCost: 1.0, oilCost: 0.4, nitrogenCost: 0, waterCost: 0.12, elecRatio: 80.0, yoyTrend: -2.0 },
+    { id: 'ws_hb_tnj', name: '特能建', fullName: '特能建电力工程集成', province: '湖南省 (衡阳)', totalCost: 15.0, gridElecCost: 12.0, gasCost: 2.0, steamCost: 0.7, oilCost: 0.3, nitrogenCost: 0, waterCost: 0.1, elecRatio: 80.0, yoyTrend: -3.0 },
+    { id: 'ws_hb_hr', name: '合容电气', fullName: '合容电气电容补偿车间', province: '湖南省 (衡阳)', totalCost: 12.0, gridElecCost: 9.5, gasCost: 1.5, steamCost: 0.6, oilCost: 0.3, nitrogenCost: 0, waterCost: 0.08, elecRatio: 79.2, yoyTrend: -2.2 },
+    { id: 'ws_hb_gil', name: '赛杰爱迪', fullName: '赛杰爱迪GIL管线车间', province: '湖南省 (衡阳)', totalCost: 8.0, gridElecCost: 6.0, gasCost: 1.0, steamCost: 0.7, oilCost: 0.3, nitrogenCost: 0, waterCost: 0.05, elecRatio: 75.0, yoyTrend: -1.5 },
+  ],
+  '新变厂': [
+    { id: 'ws_xb_uhv', name: '超高压公司', fullName: '新变超高压变压器车间', province: '新疆 (昌吉)', totalCost: 280.0, gridElecCost: 223.0, gasCost: 35.0, steamCost: 14.0, oilCost: 6.0, nitrogenCost: 0, waterCost: 1.8, elecRatio: 79.6, yoyTrend: -3.8 },
+    { id: 'ws_xb_tb', name: '天变公司', fullName: '天津变压器制造基地', province: '天津市 (静海)', totalCost: 110.0, gridElecCost: 87.5, gasCost: 14.0, steamCost: 5.5, oilCost: 2.3, nitrogenCost: 0, waterCost: 0.7, elecRatio: 79.5, yoyTrend: -3.4 },
+    { id: 'ws_xb_zndq', name: '智能电气公司', fullName: '新变智能电气制造车间', province: '新疆 (昌吉)', totalCost: 80.0, gridElecCost: 63.5, gasCost: 10.0, steamCost: 4.2, oilCost: 1.7, nitrogenCost: 0, waterCost: 0.5, elecRatio: 79.4, yoyTrend: -3.2 },
+    { id: 'ws_xb_jjj', name: '京津冀公司', fullName: '京津冀变压器集成车间', province: '天津市 (武清)', totalCost: 55.0, gridElecCost: 44.0, gasCost: 7.0, steamCost: 2.8, oilCost: 1.2, nitrogenCost: 0, waterCost: 0.4, elecRatio: 80.0, yoyTrend: -3.0 },
+    { id: 'ws_xb_zf', name: '珠峰硅钢', fullName: '珠峰硅钢深加工车间', province: '新疆 (昌吉)', totalCost: 35.2, gridElecCost: 28.0, gasCost: 4.5, steamCost: 1.8, oilCost: 0.7, nitrogenCost: 0, waterCost: 0.2, elecRatio: 79.5, yoyTrend: -2.8 },
+    { id: 'ws_xb_zhny', name: '智慧能源', fullName: '新变智慧微网运维中心', province: '新疆 (昌吉)', totalCost: 18.0, gridElecCost: 14.5, gasCost: 2.2, steamCost: 0.9, oilCost: 0.4, nitrogenCost: 0, waterCost: 0.1, elecRatio: 80.6, yoyTrend: -4.0 },
+    { id: 'ws_xb_yl', name: '银利电气', fullName: '银利电气电磁线车间', province: '新疆 (昌吉)', totalCost: 12.0, gridElecCost: 9.5, gasCost: 1.3, steamCost: 0.8, oilCost: 0.2, nitrogenCost: 0, waterCost: 0.08, elecRatio: 79.2, yoyTrend: -2.5 },
+  ],
+  '鲁缆公司': [
+    { id: 'ws_ll_main', name: '鲁缆本部', fullName: '鲁能泰山高压电缆车间', province: '山东省 (新泰)', totalCost: 260.0, gridElecCost: 209.0, gasCost: 32.0, steamCost: 13.0, oilCost: 5.0, nitrogenCost: 0, waterCost: 1.6, elecRatio: 80.4, yoyTrend: -2.1 },
+    { id: 'ws_ll_zl', name: '智缆公司', fullName: '智缆特种电缆车间', province: '山东省 (新泰)', totalCost: 75.0, gridElecCost: 60.0, gasCost: 9.5, steamCost: 3.8, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, elecRatio: 80.0, yoyTrend: -1.8 },
+    { id: 'ws_ll_sw', name: '昭和公司', fullName: '昭和铝包钢制造车间', province: '山东省 (新泰)', totalCost: 50.8, gridElecCost: 41.0, gasCost: 6.0, steamCost: 2.5, oilCost: 1.0, nitrogenCost: 0, waterCost: 0.3, elecRatio: 80.7, yoyTrend: -1.6 },
+    { id: 'ws_ll_sg', name: '曙光公司', fullName: '曙光电力金具车间', province: '山东省 (新泰)', totalCost: 35.0, gridElecCost: 28.0, gasCost: 4.5, steamCost: 1.7, oilCost: 0.5, nitrogenCost: 0, waterCost: 0.2, elecRatio: 80.0, yoyTrend: -1.5 },
+  ],
+  '新缆厂': [
+    { id: 'ws_xl_main', name: '特变电工新疆电缆有限公司', fullName: '新疆电缆高压制造车间', province: '新疆 (乌鲁木齐)', totalCost: 200.0, gridElecCost: 168.0, gasCost: 20.0, steamCost: 7.0, oilCost: 3.5, nitrogenCost: 0, waterCost: 0.9, elecRatio: 84.0, yoyTrend: -2.6 },
+    { id: 'ws_xl_sub', name: '特变电工新疆线缆厂', fullName: '新疆线缆民用线缆车间', province: '新疆 (乌鲁木齐)', totalCost: 112.0, gridElecCost: 94.0, gasCost: 12.0, steamCost: 3.0, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, elecRatio: 83.9, yoyTrend: -2.0 },
+  ],
+  '德缆公司': [
+    { id: 'ws_dl_main', name: '特变电工（德阳）电缆股份有限公司', fullName: '德阳电缆制造主体车间', province: '四川省 (德阳)', totalCost: 360.5, gridElecCost: 265.0, gasCost: 43.0, steamCost: 14.5, oilCost: 6.5, nitrogenCost: 36.0, waterCost: 1.8, elecRatio: 73.5, yoyTrend: -4.1 },
+  ],
+}
+
 // 全集团汇总成本数据
 const GROUP_SUMMARY_COST: CompanyCostData = {
   id: 'ent_root',
@@ -238,7 +286,7 @@ const GROUP_SUMMARY_COST: CompanyCostData = {
 const GROUP_COST_STRUCTURE_TREND = [
   { month: '01月', 市电成本占比: 81.5, 天然气成本占比: 11.8, 蒸汽成本占比: 4.5, 用油与其他: 2.2 },
   { month: '02月', 市电成本占比: 81.0, 天然气成本占比: 12.0, 蒸汽成本占比: 4.7, 用油与其他: 2.3 },
-  { month: '03月', 市电占比: 80.4, 天然气成本占比: 12.2, 蒸汽成本占比: 4.8, 用油与其他: 2.6 },
+  { month: '03月', 市电成本占比: 80.4, 天然气成本占比: 12.2, 蒸汽成本占比: 4.8, 用油与其他: 2.6 },
   { month: '04月', 市电成本占比: 79.9, 天然气成本占比: 12.4, 蒸汽成本占比: 4.9, 用油与其他: 2.8 },
   { month: '05月', 市电成本占比: 79.5, 天然气成本占比: 12.3, 蒸汽成本占比: 4.8, 用油与其他: 3.4 },
   { month: '06月', 市电成本占比: 79.2, 天然气成本占比: 12.3, 蒸汽成本占比: 4.8, 用油与其他: 3.7 },
@@ -246,7 +294,38 @@ const GROUP_COST_STRUCTURE_TREND = [
   { month: '08月', 市电成本占比: 79.3, 天然气成本占比: 12.3, 蒸汽成本占比: 4.7, 用油与其他: 3.7 },
 ]
 
+// 极坐标转换辅助计算函数 (用于南丁格尔玫瑰图，控制精度以避免 SSR 与客户端浮点微差导致的 Hydration Mismatch)
+function polarToCartesian(centerX: number, centerY: number, radius: number, angleInDegrees: number) {
+  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0
+  const x = centerX + radius * Math.cos(angleInRadians)
+  const y = centerY + radius * Math.sin(angleInRadians)
+  return {
+    x: Number(x.toFixed(2)),
+    y: Number(y.toFixed(2)),
+  }
+}
+
+function describeRoseSector(x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) {
+  const rOut = Number(outerRadius.toFixed(2))
+  const rIn = Number(innerRadius.toFixed(2))
+  const startOuter = polarToCartesian(x, y, rOut, endAngle)
+  const endOuter = polarToCartesian(x, y, rOut, startAngle)
+  const startInner = polarToCartesian(x, y, rIn, startAngle)
+  const endInner = polarToCartesian(x, y, rIn, endAngle)
+  const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1'
+
+  return [
+    'M', startOuter.x, startOuter.y,
+    'A', rOut, rOut, 0, largeArcFlag, 0, endOuter.x, endOuter.y,
+    'L', startInner.x, startInner.y,
+    'A', rIn, rIn, 0, largeArcFlag, 1, endInner.x, endInner.y,
+    'Z',
+  ].join(' ')
+}
+
 export default function EnergyCostPage() {
+  // 6家直属经营单位南丁格尔玫瑰图悬浮项
+  const [hoveredUnitRose, setHoveredUnitRose] = useState<string | null>(null)
   // 左侧组织拓扑树节点状态
   const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
     id: 'ent_root',
@@ -270,7 +349,7 @@ export default function EnergyCostPage() {
   // 明细弹窗
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
-  // 判断是否处于集团层级
+  // 判断是否处于集团层级 (1级节点)
   const isGroupLevel = useMemo(() => {
     return (
       selectedNode.id === 'ent_root' ||
@@ -280,10 +359,24 @@ export default function EnergyCostPage() {
     )
   }, [selectedNode])
 
-  // 判断是否是车间/项目公司级
+  // 判断是否是车间/项目公司级 (3级节点)
   const isWorkshopLevel = useMemo(() => {
     return selectedNode.level === 'workshop'
   }, [selectedNode])
+
+  // 🌟 当前层级展示的下级单位数据列表 (选1级集团节点 ➔ 6家2级经营公司; 选2级经营公司节点 ➔ 其下属3级车间/项目公司)
+  const currentLevelUnits = useMemo<CompanyCostData[]>(() => {
+    if (isGroupLevel) {
+      return SIX_COMPANIES_COST
+    }
+    const matchedKey = Object.keys(COMPANY_SUB_UNITS_COST).find((k) =>
+      selectedNode.name.includes(k) || k.includes(selectedNode.name.slice(0, 2))
+    )
+    if (matchedKey && COMPANY_SUB_UNITS_COST[matchedKey]) {
+      return COMPANY_SUB_UNITS_COST[matchedKey]
+    }
+    return SIX_COMPANIES_COST
+  }, [isGroupLevel, selectedNode.name])
 
   // 当前选中的公司数据
   const currentCompanyCost = useMemo(() => {
@@ -297,15 +390,19 @@ export default function EnergyCostPage() {
     return found || SIX_COMPANIES_COST[0]
   }, [isGroupLevel, selectedNode])
 
-  // 1. 计算 6 家单位在当前选中成本指标下的数值与占比 (用于饼图与柱状图)
+  // 1. 计算当前单位列表在当前选中成本指标下的数值与占比 (用于饼图与柱状图)
   const metricCompanyBreakdown = useMemo(() => {
-    const totalVal = SIX_COMPANIES_COST.reduce((sum, c) => sum + (c[selectedMetricKey] as number), 0)
+    const list = currentLevelUnits
+    const totalVal = list.reduce((sum, c) => sum + (c[selectedMetricKey] as number), 0)
     const unit = COST_METRICS_META[selectedMetricKey].unit
 
-    const donutData = SIX_COMPANIES_COST.map((c, i) => {
+    const donutData = list.map((c, i) => {
       const val = c[selectedMetricKey] as number
       const ratio = totalVal > 0 ? Number(((val / totalVal) * 100).toFixed(1)) : 0
-      const colors = ['#1677ff', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899']
+      const colors = [
+        '#1677ff', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899',
+        '#3b82f6', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+      ]
       return {
         name: c.name,
         value: val,
@@ -315,7 +412,7 @@ export default function EnergyCostPage() {
       }
     })
 
-    const barData = SIX_COMPANIES_COST.map((c) => {
+    const barData = list.map((c) => {
       const val = c[selectedMetricKey] as number
       const ratio = totalVal > 0 ? Number(((val / totalVal) * 100).toFixed(1)) : 0
       return {
@@ -326,7 +423,7 @@ export default function EnergyCostPage() {
     })
 
     return { totalVal, donutData, barData, unit }
-  }, [selectedMetricKey])
+  }, [currentLevelUnits, selectedMetricKey])
 
   // 2. 经营单位页成本占比走势
   const companyCostTrend = useMemo(() => {
@@ -546,7 +643,7 @@ export default function EnergyCostPage() {
               </div>
             </div>
 
-            {/* 卡片 2: 市电成本 (外购市电) */}
+            {/* 卡片 2: 市电 */}
             <div
               onClick={() => !isWorkshopLevel && setSelectedMetricKey('gridElecCost')}
               className={cn(
@@ -560,21 +657,20 @@ export default function EnergyCostPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5 font-sans">
                   <Zap className="size-3.5 text-[#1677ff]" />
-                  市电成本 (外购市电)
+                  市电
                 </span>
-                
               </div>
               <div className="text-xl font-extrabold text-[#1677ff] truncate">
                 ¥{activeData.gridElecCost.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-slate-400 font-sans">万元</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>占总用能成本比重</span>
+                <span>占比</span>
                 <span className="font-mono font-bold text-blue-700">{costRatios.elecRatio}%</span>
               </div>
             </div>
 
-            {/* 卡片 3: 天然气成本 */}
+            {/* 卡片 3: 天然气 */}
             <div
               onClick={() => !isWorkshopLevel && setSelectedMetricKey('gasCost')}
               className={cn(
@@ -588,21 +684,20 @@ export default function EnergyCostPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 font-sans">
                   <Flame className="size-3.5 text-amber-500" />
-                  管道天然气成本
+                  天然气
                 </span>
-                
               </div>
               <div className="text-xl font-extrabold text-amber-600 truncate">
                 ¥{activeData.gasCost.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-slate-400 font-sans">万元</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>占总用能成本比重</span>
+                <span>占比</span>
                 <span className="font-mono font-bold text-amber-700">{costRatios.gasRatio}%</span>
               </div>
             </div>
 
-            {/* 卡片 4: 外购蒸汽热力成本 */}
+            {/* 卡片 4: 外购蒸汽 */}
             <div
               onClick={() => !isWorkshopLevel && setSelectedMetricKey('steamCost')}
               className={cn(
@@ -616,21 +711,20 @@ export default function EnergyCostPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 font-sans">
                   <Wind className="size-3.5 text-purple-500" />
-                  外购蒸汽热力成本
+                  外购蒸汽
                 </span>
-                
               </div>
               <div className="text-xl font-extrabold text-purple-600 truncate">
                 ¥{activeData.steamCost.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-slate-400 font-sans">万元</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>占总用能成本比重</span>
+                <span>占比</span>
                 <span className="font-mono font-bold text-purple-700">{costRatios.steamRatio}%</span>
               </div>
             </div>
 
-            {/* 卡片 5: 用油动力成本 */}
+            {/* 卡片 5: 油 */}
             <div
               onClick={() => !isWorkshopLevel && setSelectedMetricKey('oilCost')}
               className={cn(
@@ -644,21 +738,20 @@ export default function EnergyCostPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 font-sans">
                   <Fuel className="size-3.5 text-rose-500" />
-                  用油动力成本
+                  油
                 </span>
-                
               </div>
               <div className="text-xl font-extrabold text-rose-600 truncate">
                 ¥{activeData.oilCost.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-slate-400 font-sans">万元</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>占总用能成本比重</span>
+                <span>占比</span>
                 <span className="font-mono font-bold text-rose-700">{costRatios.oilRatio}%</span>
               </div>
             </div>
 
-            {/* 卡片 6: 工艺液氮成本 */}
+            {/* 卡片 6: 氮气 */}
             <div
               onClick={() => !isWorkshopLevel && setSelectedMetricKey('nitrogenCost')}
               className={cn(
@@ -672,23 +765,20 @@ export default function EnergyCostPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 font-sans">
                   <Snowflake className="size-3.5 text-cyan-500" />
-                  工艺液氮成本
+                  氮气
                 </span>
-                
               </div>
               <div className="text-xl font-extrabold text-cyan-600 truncate">
                 ¥{activeData.nitrogenCost.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-slate-400 font-sans">万元</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>主要工艺单位</span>
-                <span className="font-sans font-bold text-slate-700">
-                  {activeData.nitrogenCost > 0 ? '露娜公司 (100%)' : '0 (无液氮项)'}
-                </span>
+                <span>占比</span>
+                <span className="font-mono font-bold text-cyan-700">{costRatios.nitrogenRatio}%</span>
               </div>
             </div>
 
-            {/* 卡片 7: 水资源成本 */}
+            {/* 卡片 7: 水 */}
             <div
               onClick={() => !isWorkshopLevel && setSelectedMetricKey('waterCost')}
               className={cn(
@@ -702,16 +792,15 @@ export default function EnergyCostPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 font-sans">
                   <Droplets className="size-3.5 text-sky-600" />
-                  水资源成本 (ESG)
+                  水
                 </span>
-                
               </div>
               <div className="text-xl font-extrabold text-sky-600 truncate">
                 ¥{activeData.waterCost.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-slate-400 font-sans">万元</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>占总用能成本比重</span>
+                <span>占比</span>
                 <span className="font-mono font-bold text-sky-700">{costRatios.waterRatio}%</span>
               </div>
             </div>
@@ -727,7 +816,7 @@ export default function EnergyCostPage() {
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-[#1677ff]" />
                 <h3 className="text-xs font-bold text-slate-900">
-                  【{COST_METRICS_META[selectedMetricKey].name}】6 家直属单位占电装总能源费用的比重结构分析
+                  【{COST_METRICS_META[selectedMetricKey].name}】6 家直属经营单位占电装总能源费用的比重结构分析
                 </h3>
               </div>
               <span className="text-xs text-slate-400 font-sans">
@@ -736,42 +825,191 @@ export default function EnergyCostPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-              {/* 左侧 5/12: 饼图/环形图 (6 家单位费用占比份额) */}
-              <div className="lg:col-span-5 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+              {/* 左侧 5/12: 南丁格尔玫瑰图 (默认清爽纯净，鼠标指向扇区时触发显示占比与金额) */}
+              <div className="lg:col-span-5 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2 flex flex-col justify-between">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-800 flex items-center gap-1.5">
                     <PieChartIcon className="size-3.5 text-[#1677ff]" />
-                    6 家单位费用比重饼图 (份额 %)
+                    6 家直属经营单位费用比重玫瑰图 (份额与金额)
                   </span>
                   <span className="text-[11px] text-slate-400 font-mono">
                     总量: ¥{metricCompanyBreakdown.totalVal.toFixed(1)} {metricCompanyBreakdown.unit}
                   </span>
                 </div>
-                <div className="h-[230px]">
-                  <Donut
-                    data={metricCompanyBreakdown.donutData}
-                    valueKey="value"
-                    nameKey="name"
-                    height={230}
-                    unit={metricCompanyBreakdown.unit}
-                  />
+
+                {/* 🌟 动态极坐标南丁格尔玫瑰图 SVG (鼠标悬浮指向时动态展现数据提示) */}
+                <div className="relative w-full h-[290px] flex items-center justify-center">
+                  <svg viewBox="0 0 460 300" className="w-full h-full select-none overflow-visible">
+                    <g transform="translate(230, 150)">
+                      {/* 背景同心极坐标网格线 */}
+                      <circle r="32" fill="none" stroke="#e2e8f0" strokeDasharray="2,2" />
+                      <circle r="64" fill="none" stroke="#e2e8f0" strokeDasharray="2,2" />
+                      <circle r="96" fill="none" stroke="#e2e8f0" strokeDasharray="2,2" />
+                      <circle r="126" fill="none" stroke="#cbd5e1" strokeDasharray="2,2" />
+
+                      {/* 各直属经营单位玫瑰扇区 */}
+                      {metricCompanyBreakdown.donutData.map((item, idx) => {
+                        const count = metricCompanyBreakdown.donutData.length
+                        const angleStep = 360 / count
+                        const pad = 1.5
+                        const startAngle = idx * angleStep + pad
+                        const endAngle = (idx + 1) * angleStep - pad
+                        const midAngle = (idx + 0.5) * angleStep
+
+                        // 最大值与极径映射 (¥762.5万最长，¥312.0万最短)
+                        const maxVal = Math.max(...metricCompanyBreakdown.donutData.map((d) => d.value), 1)
+                        const isHovered = hoveredUnitRose === item.name
+                        const baseRadius = Number((44 + (item.value / maxVal) * 78).toFixed(2))
+                        const outerRadius = isHovered ? baseRadius + 7 : baseRadius
+                        const innerRadius = 26
+
+                        const pathD = describeRoseSector(0, 0, innerRadius, outerRadius, startAngle, endAngle)
+
+                        // 引线三点坐标计算
+                        const P1 = polarToCartesian(0, 0, outerRadius + 2, midAngle)
+                        const P2 = polarToCartesian(0, 0, outerRadius + 14, midAngle)
+                        const isRight = P2.x >= 0
+                        const P3 = {
+                          x: Number((P2.x + (isRight ? 16 : -16)).toFixed(2)),
+                          y: P2.y,
+                        }
+
+                        return (
+                          <g
+                            key={item.name}
+                            className="cursor-pointer transition-all select-none"
+                            onMouseEnter={() => setHoveredUnitRose(item.name)}
+                            onMouseLeave={() => setHoveredUnitRose(null)}
+                          >
+                            {/* 花瓣扇面 */}
+                            <path
+                              d={pathD}
+                              fill={item.color}
+                              fillOpacity={hoveredUnitRose ? (isHovered ? 1 : 0.4) : 0.88}
+                              stroke="#ffffff"
+                              strokeWidth={isHovered ? 2.5 : 1.5}
+                              className="transition-all duration-200"
+                            />
+
+                            {/* 🌟 仅在鼠标指向当前扇区时显示折线与数据浮标 */}
+                            {isHovered && (
+                              <g className="transition-opacity duration-200">
+                                {/* 外围引线 (折线) */}
+                                <polyline
+                                  points={`${P1.x},${P1.y} ${P2.x},${P2.y} ${P3.x},${P3.y}`}
+                                  fill="none"
+                                  stroke={item.color}
+                                  strokeWidth={1.8}
+                                />
+                                {/* 引线端点圆点 */}
+                                <circle cx={P3.x} cy={P3.y} r={2.8} fill={item.color} />
+
+                                {/* 浮标气泡卡片 */}
+                                <rect
+                                  x={isRight ? P3.x + 2 : P3.x - 104}
+                                  y={P3.y - 16}
+                                  width="102"
+                                  height="32"
+                                  rx="5"
+                                  fill="#ffffff"
+                                  stroke={item.color}
+                                  strokeWidth="1.5"
+                                  className="shadow-md"
+                                />
+                                <text
+                                  x={isRight ? P3.x + 8 : P3.x - 98}
+                                  y={P3.y - 2}
+                                  fontSize="10.5"
+                                  fontWeight="bold"
+                                  fill="#0f172a"
+                                  fontFamily="sans-serif"
+                                >
+                                  {item.name}{' '}
+                                  <tspan fill={item.color} fontWeight="bold" fontFamily="monospace">
+                                    {item.ratio}%
+                                  </tspan>
+                                </text>
+                                <text
+                                  x={isRight ? P3.x + 8 : P3.x - 98}
+                                  y={P3.y + 11}
+                                  fontSize="9.5"
+                                  fill="#475569"
+                                  fontFamily="monospace"
+                                  fontWeight="bold"
+                                >
+                                  ¥{item.value.toFixed(1)} 万元
+                                </text>
+                              </g>
+                            )}
+                          </g>
+                        )
+                      })}
+
+                      {/* 中心极核悬浮汇总徽章 */}
+                      <circle r="25" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" className="shadow-xs" />
+                      {hoveredUnitRose ? (
+                        (() => {
+                          const activeRose = metricCompanyBreakdown.donutData.find((d) => d.name === hoveredUnitRose)
+                          return (
+                            <>
+                              <text textAnchor="middle" y="-3" fontSize="9" fill="#64748b" fontWeight="bold">
+                                {activeRose?.name}
+                              </text>
+                              <text textAnchor="middle" y="9" fontSize="10.5" fill="#1677ff" fontWeight="bold" fontFamily="monospace">
+                                {activeRose?.ratio}%
+                              </text>
+                            </>
+                          )
+                        })()
+                      ) : (
+                        <>
+                          <text textAnchor="middle" y="-3" fontSize="8.5" fill="#64748b" fontWeight="bold">
+                            总额
+                          </text>
+                          <text textAnchor="middle" y="9" fontSize="9.5" fill="#0f172a" fontWeight="bold" fontFamily="monospace">
+                            ¥{metricCompanyBreakdown.totalVal.toFixed(0)}万
+                          </text>
+                        </>
+                      )}
+                    </g>
+                  </svg>
+                </div>
+
+                {/* 底部简洁图例指示条 */}
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 pt-2 border-t border-slate-100 text-xs">
+                  {metricCompanyBreakdown.donutData.map((item) => (
+                    <div
+                      key={item.name}
+                      onMouseEnter={() => setHoveredUnitRose(item.name)}
+                      onMouseLeave={() => setHoveredUnitRose(null)}
+                      className={cn(
+                        'flex items-center gap-1.5 px-2 py-0.5 rounded-md transition-all cursor-pointer select-none text-[11px]',
+                        hoveredUnitRose === item.name
+                          ? 'bg-blue-50 text-[#1677ff] font-bold ring-1 ring-blue-300'
+                          : 'text-slate-600 hover:bg-slate-100'
+                      )}
+                    >
+                      <span className="size-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                      <span>{item.name}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* 右侧 7/12: 柱状图 (6 家单位费用横向对比与排名) */}
+              {/* 右侧 7/12: 柱状图 */}
               <div className="lg:col-span-7 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-800 flex items-center gap-1.5">
                     <BarChart3 className="size-3.5 text-emerald-600" />
-                    6 家单位费用横向对比 ({metricCompanyBreakdown.unit})
+                    6 家直属经营单位费用横向对比 ({metricCompanyBreakdown.unit})
                   </span>
                   <span className="text-[11px] text-slate-400 font-mono">柱状图对比</span>
                 </div>
-                <div className="h-[230px]">
+                <div className="h-[310px]">
                   <BarChartGroup
                     data={metricCompanyBreakdown.barData}
                     xKey="name"
-                    height={230}
+                    height={310}
                     bars={[
                       { key: '成本费用', name: `${COST_METRICS_META[selectedMetricKey].shortName} (${metricCompanyBreakdown.unit})`, color: COST_METRICS_META[selectedMetricKey].color },
                     ]}
@@ -780,7 +1018,7 @@ export default function EnergyCostPage() {
               </div>
             </div>
 
-            {/* 6 家单位费用明细表格 */}
+            {/* 下级单位费用明细表格 */}
             <div className="border border-slate-200/80 rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse font-mono">
@@ -788,18 +1026,18 @@ export default function EnergyCostPage() {
                     <tr className="bg-slate-100 border-b border-slate-200 text-slate-700 font-semibold font-sans">
                       <th className="py-2 px-3">序号</th>
                       <th className="py-2 px-3">直属经营单位</th>
-                      <th className="py-2 px-3">所属基地与电网</th>
                       <th className="py-2 px-3 text-[#1677ff]">
                         {COST_METRICS_META[selectedMetricKey].name} ({metricCompanyBreakdown.unit})
                       </th>
-                      <th className="py-2 px-3 font-bold text-emerald-700">占全集团费用比重 (%)</th>
-                      <th className="py-2 px-3">市电成本占比 (%)</th>
+                      <th className="py-2 px-3 font-bold text-emerald-700">
+                        {isGroupLevel ? '占全集团费用比重 (%)' : `占${selectedNode.name}比重 (%)`}
+                      </th>
                       <th className="py-2 px-3">同比变化 (%)</th>
                       <th className="py-2 px-3 text-right">穿透操作</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {SIX_COMPANIES_COST.map((comp, idx) => {
+                    {currentLevelUnits.map((comp, idx) => {
                       const val = comp[selectedMetricKey] as number
                       const ratio = metricCompanyBreakdown.totalVal > 0 ? ((val / metricCompanyBreakdown.totalVal) * 100).toFixed(1) : '0.0'
                       return (
@@ -809,10 +1047,8 @@ export default function EnergyCostPage() {
                             <Factory className="size-3.5 text-slate-500" />
                             {comp.name}
                           </td>
-                          <td className="py-2 px-3 font-sans text-slate-500">{comp.province}</td>
                           <td className="py-2 px-3 font-bold text-[#1677ff]">¥{val.toFixed(1)}万</td>
                           <td className="py-2 px-3 font-extrabold text-emerald-700">{ratio}%</td>
-                          <td className="py-2 px-3">{comp.elecRatio}%</td>
                           <td className="py-2 px-3 text-emerald-600 font-bold">{comp.yoyTrend}% ↓</td>
                           <td className="py-2 px-3 text-right">
                             <button
@@ -822,12 +1058,12 @@ export default function EnergyCostPage() {
                                   id: comp.id,
                                   name: comp.name,
                                   fullName: comp.fullName,
-                                  level: 'company',
+                                  level: isGroupLevel ? 'company' : 'workshop',
                                 })
                               }}
                               className="text-[11px] text-[#1677ff] hover:underline font-sans font-medium cursor-pointer"
                             >
-                              查看该单位成本 →
+                              {isGroupLevel ? '下钻查看该单位成本 →' : '查看车间用能明细 →'}
                             </button>
                           </td>
                         </tr>

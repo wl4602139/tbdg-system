@@ -18,6 +18,7 @@ import {
   Radar,
   RadarChart,
   ReferenceLine,
+  ReferenceDot,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -62,6 +63,9 @@ export function LineTrend({
   height = 240,
   yUnit,
   refLines,
+  xInterval,
+  showMinMax = false,
+  markPoints,
 }: {
   data: any[]
   keys?: SeriesKey[]
@@ -70,8 +74,59 @@ export function LineTrend({
   height?: number
   yUnit?: string
   refLines?: { y: number; label?: string; color?: string; strokeDasharray?: string }[]
+  xInterval?: number | 'preserveStartEnd' | 'preserveStart' | 'preserveEnd'
+  showMinMax?: boolean
+  markPoints?: Array<{
+    x: string | number
+    y: number
+    label?: string
+    color?: string
+    position?: 'top' | 'bottom' | 'left' | 'right'
+  }>
 }) {
   const series = normKeys(lines || keys || [])
+
+  // 自动计算图表曲线的最大值点与最小值点
+  let computedMaxPoint: { x: any; y: number; label: string } | null = null
+  let computedMinPoint: { x: any; y: number; label: string } | null = null
+
+  if (showMinMax && data && data.length > 0 && series.length > 0) {
+    const mainKey = series[0].key
+    let maxVal = -Infinity
+    let minVal = Infinity
+    let maxX = data[0][xKey]
+    let minX = data[0][xKey]
+
+    data.forEach((item) => {
+      const val = Number(item[mainKey])
+      if (!isNaN(val)) {
+        if (val > maxVal) {
+          maxVal = val
+          maxX = item[xKey]
+        }
+        if (val < minVal) {
+          minVal = val
+          minX = item[xKey]
+        }
+      }
+    })
+
+    if (maxVal !== -Infinity) {
+      computedMaxPoint = {
+        x: maxX,
+        y: maxVal,
+        label: `最大值: ${maxVal.toLocaleString()}${yUnit ? ' ' + yUnit : ''} (${maxX})`,
+      }
+    }
+    if (minVal !== Infinity) {
+      computedMinPoint = {
+        x: minX,
+        y: minVal,
+        label: `最小值: ${minVal.toLocaleString()}${yUnit ? ' ' + yUnit : ''} (${minX})`,
+      }
+    }
+  }
+
   return (
     <div className="relative w-full">
       {yUnit && (
@@ -80,9 +135,9 @@ export function LineTrend({
         </div>
       )}
       <ResponsiveContainer width="100%" height={height}>
-        <LineChart data={data} margin={{ top: yUnit ? 16 : 8, right: 8, bottom: 0, left: -12 }}>
+        <LineChart data={data} margin={{ top: showMinMax || yUnit ? 24 : 8, right: 16, bottom: 0, left: -12 }}>
           <CartesianGrid stroke={gridColor} vertical={false} />
-          <XAxis dataKey={xKey} tick={axisStyle} tickLine={false} axisLine={false} />
+          <XAxis dataKey={xKey} tick={axisStyle} tickLine={false} axisLine={false} interval={xInterval} />
           <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
           <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: '#cbd5e1' }} />
           <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
@@ -107,9 +162,73 @@ export function LineTrend({
               dataKey={s.key}
               name={s.name}
               stroke={s.color}
-              strokeWidth={2}
+              strokeWidth={2.2}
               dot={false}
               activeDot={{ r: 4 }}
+            />
+          ))}
+
+          {/* 🌟 曲线最大值高亮标点与文字徽章 */}
+          {computedMaxPoint && (
+            <ReferenceDot
+              x={computedMaxPoint.x}
+              y={computedMaxPoint.y}
+              r={6}
+              fill="#e11d48"
+              stroke="#ffffff"
+              strokeWidth={2.5}
+              label={{
+                value: `🔴 ${computedMaxPoint.label}`,
+                position: 'top',
+                fill: '#be123c',
+                fontSize: 11,
+                fontWeight: 'bold',
+                offset: 8,
+              }}
+            />
+          )}
+
+          {/* 🌟 曲线最小值高亮标点与文字徽章 */}
+          {computedMinPoint && (
+            <ReferenceDot
+              x={computedMinPoint.x}
+              y={computedMinPoint.y}
+              r={6}
+              fill="#059669"
+              stroke="#ffffff"
+              strokeWidth={2.5}
+              label={{
+                value: `🟢 ${computedMinPoint.label}`,
+                position: 'bottom',
+                fill: '#047857',
+                fontSize: 11,
+                fontWeight: 'bold',
+                offset: 8,
+              }}
+            />
+          )}
+
+          {/* 自定义标记点 */}
+          {markPoints?.map((mp, i) => (
+            <ReferenceDot
+              key={i}
+              x={mp.x}
+              y={mp.y}
+              r={5}
+              fill={mp.color || '#1677ff'}
+              stroke="#ffffff"
+              strokeWidth={2}
+              label={
+                mp.label
+                  ? {
+                      value: mp.label,
+                      position: mp.position || 'top',
+                      fill: mp.color || '#1677ff',
+                      fontSize: 11,
+                      fontWeight: 'bold',
+                    }
+                  : undefined
+              }
             />
           ))}
         </LineChart>
@@ -296,6 +415,9 @@ export function RadarCompare({
 }
 
 // 🌟 1、2、3 级全景能流桑基图 (Sankey Flow Chart)
+// 业务规范：
+// 1. 仅 tce (综合能耗)、碳 (tCO2)、水 (t/万t) 等实物资源总量显示占比；强度/率指标（如 tCO2/tce、%、tce/万元等）不显示占比。
+// 2. 2级经营单位节点占比为【占全集团比重】；3级分厂车间节点占比为【占所属经营单位比重】。
 export interface SankeyNode {
   name: string
   itemStyle?: { color?: string; borderColor?: string }
@@ -313,16 +435,31 @@ export function SankeyFlow({
   links,
   height = 320,
   unit = 'tce',
+  showRatio,
   className = '',
 }: {
   nodes: SankeyNode[]
   links: SankeyLink[]
   height?: number
   unit?: string
+  showRatio?: boolean
   className?: string
 }) {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<any>(null)
+
+  // 判定当前指标是否应展示占比（仅限 tce、碳 tCO2、水 t/万t、电 kWh/万kWh、气 m³/万m³ 等资源总量指标）
+  const shouldDisplayRatio =
+    showRatio !== undefined
+      ? showRatio
+      : unit === 'tce' ||
+        unit === 'tCO2' ||
+        unit === 't' ||
+        unit === '万t' ||
+        unit === '万kWh' ||
+        unit === 'kWh' ||
+        unit === 'm³' ||
+        unit === '万m³'
 
   useEffect(() => {
     let isMounted = true
@@ -337,11 +474,11 @@ export function SankeyFlow({
         chartInstance.current = echarts.init(chartRef.current)
       }
 
-      // 计算根节点 (depth === 0) 的总通量值以支持占比计算
+      // 1. 计算根节点 (depth === 0) 的全集团总通量
       const rootNode = nodes.find((n: any) => n.depth === 0)
       let rootTotal = 0
-      if (rootNode && rootNode.value !== undefined) {
-        rootTotal = Number(rootNode.value)
+      if (rootNode && (rootNode as any).value !== undefined) {
+        rootTotal = Number((rootNode as any).value)
       } else {
         const rootLinks = links.filter((l: any) => {
           const srcNode = nodes.find((n: any) => n.name === l.source)
@@ -349,6 +486,41 @@ export function SankeyFlow({
         })
         rootTotal = rootLinks.reduce((sum: number, l: any) => sum + (Number(l.value) || 0), 0)
       }
+
+      // 2. 预计算每个节点的父级经营单位名称及其总通量 (支持 3 级节点精准计算占经营单位比重)
+      const nodeParentMap: Record<string, { parentName: string; parentTotal: number; depth: number }> = {}
+      
+      // 先计算各 2 级经营单位的自身总通量（由 1 级流入或流向 3 级的汇总）
+      const companyTotals: Record<string, number> = {}
+      links.forEach((l) => {
+        const srcNode = nodes.find((n) => n.name === l.source)
+        const tgtNode = nodes.find((n) => n.name === l.target)
+        if (srcNode?.depth === 0 && tgtNode?.depth === 1) {
+          companyTotals[tgtNode.name] = Number(l.value) || 0
+        }
+      })
+
+      // 记录每个节点的从属关系
+      nodes.forEach((n) => {
+        const depth = n.depth ?? (n.name === '电装集团' ? 0 : 2)
+        if (depth === 1) {
+          nodeParentMap[n.name] = {
+            parentName: '全集团',
+            parentTotal: rootTotal,
+            depth: 1,
+          }
+        } else if (depth === 2) {
+          // 找到流入该 3 级节点的目标链接
+          const incomingLink = links.find((l) => l.target === n.name)
+          const parentName = incomingLink ? incomingLink.source : ''
+          const parentTotal = companyTotals[parentName] || 0
+          nodeParentMap[n.name] = {
+            parentName: parentName || '经营单位',
+            parentTotal: parentTotal,
+            depth: 2,
+          }
+        }
+      })
 
       const option: any = {
         tooltip: {
@@ -365,19 +537,38 @@ export function SankeyFlow({
           },
           formatter: (params: any) => {
             if (params.dataType === 'node') {
-              const isRoot = params.data?.depth === 0
-              const ratioStr = !isRoot && rootTotal > 0 && params.value !== undefined
-                ? `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占全集团: ${((params.value / rootTotal) * 100).toFixed(1)}%)</span>`
-                : ''
+              const depth = params.data?.depth
+              let ratioStr = ''
+              if (shouldDisplayRatio && params.value !== undefined) {
+                if (depth === 1 && rootTotal > 0) {
+                  const ratio = ((params.value / rootTotal) * 100).toFixed(1)
+                  ratioStr = `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占全集团: ${ratio}%)</span>`
+                } else if (depth === 2) {
+                  const parentInfo = nodeParentMap[params.name]
+                  if (parentInfo && parentInfo.parentTotal > 0) {
+                    const ratio = ((params.value / parentInfo.parentTotal) * 100).toFixed(1)
+                    ratioStr = `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占${parentInfo.parentName}: ${ratio}%)</span>`
+                  }
+                }
+              }
               return `<div style="font-weight: bold; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px;">${params.name}</div>
-                      <div style="color: #475569;">总通量: <strong style="color: #1677ff; font-family: monospace;">${params.value !== undefined ? params.value.toLocaleString() : '-'}</strong> ${unit}${ratioStr}</div>`
+                      <div style="color: #475569;">数值: <strong style="color: #1677ff; font-family: monospace;">${params.value !== undefined ? params.value.toLocaleString() : '-'}</strong> ${unit}${ratioStr}</div>`
             } else if (params.dataType === 'edge') {
-              const edgeRatioStr = rootTotal > 0 && params.data?.value !== undefined
-                ? `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占全集团: ${((params.data.value / rootTotal) * 100).toFixed(1)}%)</span>`
-                : ''
-              return `<div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">能量/介质流向传递</div>
+              let edgeRatioStr = ''
+              if (shouldDisplayRatio && params.data?.value !== undefined) {
+                const srcNode = nodes.find((n) => n.name === params.data.source)
+                if (srcNode?.depth === 0 && rootTotal > 0) {
+                  edgeRatioStr = `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占全集团: ${((params.data.value / rootTotal) * 100).toFixed(1)}%)</span>`
+                } else if (srcNode?.depth === 1) {
+                  const pTotal = companyTotals[params.data.source] || 0
+                  if (pTotal > 0) {
+                    edgeRatioStr = `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占${params.data.source}: ${((params.data.value / pTotal) * 100).toFixed(1)}%)</span>`
+                  }
+                }
+              }
+              return `<div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">能量/数据流向传递</div>
                       <div style="font-weight: 600; color: #1e293b;">${params.data.source} ➔ ${params.data.target}</div>
-                      <div style="margin-top: 4px; color: #334155;">流转量: <strong style="color: #1677ff; font-family: monospace;">${params.data.value?.toLocaleString()}</strong> ${unit}${edgeRatioStr}</div>`
+                      <div style="margin-top: 4px; color: #334155;">数值: <strong style="color: #1677ff; font-family: monospace;">${params.data.value?.toLocaleString()}</strong> ${unit}${edgeRatioStr}</div>`
             }
             return ''
           },
@@ -410,12 +601,22 @@ export function SankeyFlow({
               fontFamily: 'sans-serif',
               formatter: (params: any) => {
                 if (params.value === undefined) return params.name
-                const isRoot = params.data?.depth === 0
-                if (isRoot || !rootTotal) {
+                const depth = params.data?.depth
+                if (!shouldDisplayRatio || depth === 0) {
                   return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}}`
                 }
-                const ratio = ((params.value / rootTotal) * 100).toFixed(1)
-                return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}} {ratio|(${ratio}%)}`
+                if (depth === 1 && rootTotal > 0) {
+                  const ratio = ((params.value / rootTotal) * 100).toFixed(1)
+                  return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}} {ratio|(${ratio}%)}`
+                }
+                if (depth === 2) {
+                  const parentInfo = nodeParentMap[params.name]
+                  if (parentInfo && parentInfo.parentTotal > 0) {
+                    const ratio = ((params.value / parentInfo.parentTotal) * 100).toFixed(1)
+                    return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}} {ratio|(${ratio}%)}`
+                  }
+                }
+                return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}}`
               },
               rich: {
                 val: {
@@ -457,7 +658,7 @@ export function SankeyFlow({
       isMounted = false
       window.removeEventListener('resize', handleResize)
     }
-  }, [nodes, links, height, unit])
+  }, [nodes, links, height, unit, shouldDisplayRatio])
 
   useEffect(() => {
     return () => {

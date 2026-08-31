@@ -808,7 +808,7 @@ export default function EnergyStructureAnalysisPage() {
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-[#1677ff]" />
                 <h3 className="text-xs font-bold text-slate-900">
-                  【{METRICS_META[selectedMetricKey].name}】各直属单位占比与消耗对比
+                  【{METRICS_META[selectedMetricKey].name}】6 家直属经营单位占比与消耗对比
                 </h3>
               </div>
               <span className="text-xs text-slate-400 font-sans">
@@ -817,12 +817,12 @@ export default function EnergyStructureAnalysisPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-              {/* 左侧 5/12: 饼图/环形图 (6 家单位占比份额) */}
+              {/* 左侧 5/12: 饼图/环形图 (6 家直属经营单位占比份额) */}
               <div className="lg:col-span-5 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-800 flex items-center gap-1.5">
                     <PieChartIcon className="size-3.5 text-[#1677ff]" />
-                    6 家单位比重饼图 (份额 %)
+                    6 家直属经营单位比重饼图 (份额 %)
                   </span>
                   <span className="text-[11px] text-slate-400 font-mono">
                     总量: {metricCompanyBreakdown.totalVal.toLocaleString()} {metricCompanyBreakdown.unit}
@@ -839,12 +839,12 @@ export default function EnergyStructureAnalysisPage() {
                 </div>
               </div>
 
-              {/* 右侧 7/12: 柱状图 (6 家单位消耗量绝对值与排名对比) */}
+              {/* 右侧 7/12: 柱状图 (6 家直属经营单位消耗量绝对值与排名对比) */}
               <div className="lg:col-span-7 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-800 flex items-center gap-1.5">
                     <BarChart3 className="size-3.5 text-emerald-600" />
-                    6 家单位消耗数值横向对比 ({metricCompanyBreakdown.unit})
+                    6 家直属经营单位消耗数值横向对比 ({metricCompanyBreakdown.unit})
                   </span>
                   <span className="text-[11px] text-slate-400 font-mono">柱状图对比</span>
                 </div>
@@ -861,7 +861,7 @@ export default function EnergyStructureAnalysisPage() {
               </div>
             </div>
 
-            {/* 6 家单位数据明细表格 */}
+            {/* 6 家直属经营单位数据明细表格 */}
             <div className="border border-slate-200/80 rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse font-mono">

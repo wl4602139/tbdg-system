@@ -192,10 +192,9 @@ export default function MicrogridMonitoringPage() {
   const [viewMode, setViewMode] = useState<'power' | 'energy' | 'green'>('power')
 
   // 时间维度与日期
-  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
-  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
-  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
-  const [selectedYear, setSelectedYear] = useState('2026')
+  const [timeDim, setTimeDim] = useState<'day' | 'month'>('day')
+  const [selectedDateRange, setSelectedDateRange] = useState({ start: '2026-08-01', end: '2026-08-28' })
+  const [selectedMonth, setSelectedMonth] = useState('2026-08')
   const [queryDate, setQueryDate] = useState('2026-08-27')
 
   // 🌟 绿电卡片联动选态：'trade' (各企业绿电购买数量，默认) | 'pv_gen' (新能源发电量) | 'revenue' (新能源综合收益) | 'rate' (绿电综合消纳率)
@@ -267,54 +266,176 @@ export default function MicrogridMonitoringPage() {
     return records
   }, [queryDate, currentParkDetail])
 
-  // 24 小时功率曲线
+  // 🌟 24 小时 15 分钟高频监测点数据生成器 (全天 96 个采样点，每 15 分钟一个监测点)
   const dayTrendData = useMemo(() => {
     const baseLoad = currentParkDetail.loadKw
     const basePv = currentParkDetail.pvKw
-    return [
-      { time: '00:00', 园区总负荷: Math.round(baseLoad * 0.55), 光伏出力: 0, 市电受电: Math.round(baseLoad * 0.55), 储能充放电: -500 },
-      { time: '03:00', 园区总负荷: Math.round(baseLoad * 0.50), 光伏出力: 0, 市电受电: Math.round(baseLoad * 0.50), 储能充放电: -600 },
-      { time: '06:00', 园区总负荷: Math.round(baseLoad * 0.65), 光伏出力: Math.round(basePv * 0.15), 市电受电: Math.round(baseLoad * 0.65 - basePv * 0.15), 储能充放电: 0 },
-      { time: '09:00', 园区总负荷: Math.round(baseLoad * 0.90), 光伏出力: Math.round(basePv * 0.70), 市电受电: Math.round(baseLoad * 0.90 - basePv * 0.70), 储能充放电: 300 },
-      { time: '12:00', 园区总负荷: baseLoad, 光伏出力: basePv, 市电受电: Math.max(0, baseLoad - basePv - 200), 储能充放电: 960 },
-      { time: '15:00', 园区总负荷: Math.round(baseLoad * 0.95), 光伏出力: Math.round(basePv * 0.85), 市电受电: Math.round(baseLoad * 0.95 - basePv * 0.85), 储能充放电: 500 },
-      { time: '18:00', 园区总负荷: Math.round(baseLoad * 0.80), 光伏出力: Math.round(basePv * 0.20), 市电受电: Math.round(baseLoad * 0.80 - basePv * 0.20), 储能充放电: -200 },
-      { time: '21:00', 园区总负荷: Math.round(baseLoad * 0.65), 光伏出力: 0, 市电受电: Math.round(baseLoad * 0.65), 储能充放电: -400 },
-    ]
+    const points: Array<{
+      time: string
+      园区总负荷: number
+      光伏出力: number
+      市电受电: number
+      储能充放电: number
+    }> = []
+
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+        const t = h + m / 60 // 浮点小时数 (0 ~ 23.75)
+
+        // 1. 园区总负荷 (Load): 夜间基础负荷 50~58%，白班 08:30~11:30 与 13:30~17:30 达到高峰 95~102%，午间 11:30~13:00 稍降
+        let loadRatio = 0.52
+        if (t >= 0 && t < 6) {
+          loadRatio = 0.50 + Math.sin(t * 0.5) * 0.04
+        } else if (t >= 6 && t < 8.5) {
+          loadRatio = 0.55 + ((t - 6) / 2.5) * 0.38
+        } else if (t >= 8.5 && t < 11.5) {
+          loadRatio = 0.93 + Math.sin((t - 8.5) * 2) * 0.06
+        } else if (t >= 11.5 && t < 13) {
+          loadRatio = 0.78 + Math.cos((t - 11.5) * 2) * 0.04
+        } else if (t >= 13 && t < 17.5) {
+          loadRatio = 0.96 + Math.sin((t - 13) * 1.5) * 0.05
+        } else if (t >= 17.5 && t < 21) {
+          loadRatio = 0.82 - ((t - 17.5) / 3.5) * 0.16
+        } else {
+          loadRatio = 0.64 - ((t - 21) / 3) * 0.12
+        }
+        const loadVal = Math.round(baseLoad * loadRatio)
+
+        // 2. 光伏实时出力 (PV): 06:15 开始起发，12:15~13:00 达峰值，19:00 归零
+        let pvVal = 0
+        if (t >= 6.25 && t <= 18.75) {
+          const solarAngle = ((t - 6.25) / 12.5) * Math.PI
+          const solarFactor = Math.sin(solarAngle)
+          // 叠加 15 分钟高频微云层扰动
+          const cloudNoise = 0.96 + Math.sin(t * 7) * 0.03 + Math.cos(t * 13) * 0.02
+          pvVal = Math.max(0, Math.round(basePv * solarFactor * cloudNoise))
+        }
+
+        // 3. 储能充放电功率 (Storage): 负为充电(谷充/消纳)，正为放电(尖峰顶峰)
+        let storageVal = 0
+        if (t >= 0 && t < 6) {
+          // 夜间谷电充电 -500 ~ -700 kW
+          storageVal = -Math.round(500 + Math.sin(t * 1.5) * 150)
+        } else if (t >= 8.75 && t < 11.5) {
+          // 早高峰放电 +800 ~ +1100 kW
+          storageVal = Math.round(850 + Math.sin((t - 8.75) * 2) * 200)
+        } else if (t >= 11.75 && t < 13.5 && pvVal > loadVal * 0.4) {
+          // 正午光伏大发消纳充电 -600 ~ -800 kW
+          storageVal = -Math.round(650 + Math.sin((t - 11.75) * 3) * 150)
+        } else if (t >= 18.5 && t < 21) {
+          // 晚高峰顶峰放电 +800 ~ +1150 kW
+          storageVal = Math.round(900 + Math.sin((t - 18.5) * 2.5) * 220)
+        }
+
+        // 4. 市电受电 (Grid Inflow): P_grid = max(0, P_load - P_pv - P_storage)
+        const gridVal = Math.max(0, Math.round(loadVal - pvVal - storageVal))
+
+        points.push({
+          time: timeStr,
+          园区总负荷: loadVal,
+          光伏出力: pvVal,
+          市电受电: gridVal,
+          储能充放电: storageVal,
+        })
+      }
+    }
+
+    return points
   }, [currentParkDetail])
 
-  // 24 小时电量趋势数据
+  // 🌟 24 小时 15 分钟高频电量趋势数据 (全天 96 个监测点，每 15 分钟计量电量 kWh)
   const dayEnergyTrendData = useMemo(() => {
     const baseLoad = currentParkDetail.loadKw
     const basePv = currentParkDetail.pvKw
-    return [
-      { time: '00:00', 园区总用电: Math.round(baseLoad * 0.55 * 3), 光伏发电: 0, 市网购电: Math.round(baseLoad * 0.55 * 3), 储能充放: -1500 },
-      { time: '03:00', 园区总用电: Math.round(baseLoad * 0.50 * 3), 光伏发电: 0, 市网购电: Math.round(baseLoad * 0.50 * 3), 储能充放: -1800 },
-      { time: '06:00', 园区总用电: Math.round(baseLoad * 0.65 * 3), 光伏发电: Math.round(basePv * 0.15 * 3), 市网购电: Math.round((baseLoad * 0.65 - basePv * 0.15) * 3), 储能充放: 0 },
-      { time: '09:00', 园区总用电: Math.round(baseLoad * 0.90 * 3), 光伏发电: Math.round(basePv * 0.70 * 3), 市网购电: Math.round((baseLoad * 0.90 - basePv * 0.70) * 3), 储能充放: 900 },
-      { time: '12:00', 园区总用电: Math.round(baseLoad * 3), 光伏发电: Math.round(basePv * 3), 市网购电: Math.round(Math.max(0, baseLoad - basePv - 200) * 3), 储能充放: 2880 },
-      { time: '15:00', 园区总用电: Math.round(baseLoad * 0.95 * 3), 光伏发电: Math.round(basePv * 0.85 * 3), 市网购电: Math.round((baseLoad * 0.95 - basePv * 0.85) * 3), 储能充放: 1500 },
-      { time: '18:00', 园区总用电: Math.round(baseLoad * 0.80 * 3), 光伏发电: Math.round(basePv * 0.20 * 3), 市网购电: Math.round((baseLoad * 0.80 - basePv * 0.20) * 3), 储能充放: -600 },
-      { time: '21:00', 园区总用电: Math.round(baseLoad * 0.65 * 3), 光伏发电: 0, 市网购电: Math.round(baseLoad * 0.65 * 3), 储能充放: -1200 },
-    ]
+    const points: Array<{
+      time: string
+      园区总用电: number
+      光伏发电: number
+      市网购电: number
+      储能充放: number
+    }> = []
+
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+        const t = h + m / 60
+
+        // 负荷系数
+        let loadRatio = 0.52
+        if (t >= 0 && t < 6) {
+          loadRatio = 0.50 + Math.sin(t * 0.5) * 0.04
+        } else if (t >= 6 && t < 8.5) {
+          loadRatio = 0.55 + ((t - 6) / 2.5) * 0.38
+        } else if (t >= 8.5 && t < 11.5) {
+          loadRatio = 0.93 + Math.sin((t - 8.5) * 2) * 0.06
+        } else if (t >= 11.5 && t < 13) {
+          loadRatio = 0.78 + Math.cos((t - 11.5) * 2) * 0.04
+        } else if (t >= 13 && t < 17.5) {
+          loadRatio = 0.96 + Math.sin((t - 13) * 1.5) * 0.05
+        } else if (t >= 17.5 && t < 21) {
+          loadRatio = 0.82 - ((t - 17.5) / 3.5) * 0.16
+        } else {
+          loadRatio = 0.64 - ((t - 21) / 3) * 0.12
+        }
+        // 15分钟电量 (kWh) = 功率 (kW) * 0.25h
+        const loadKWh = Math.round(baseLoad * loadRatio * 0.25)
+
+        // 光伏 15 分钟发电量 (kWh)
+        let pvKWh = 0
+        if (t >= 6.25 && t <= 18.75) {
+          const solarAngle = ((t - 6.25) / 12.5) * Math.PI
+          const solarFactor = Math.sin(solarAngle)
+          const cloudNoise = 0.96 + Math.sin(t * 7) * 0.03 + Math.cos(t * 13) * 0.02
+          pvKWh = Math.max(0, Math.round(basePv * solarFactor * cloudNoise * 0.25))
+        }
+
+        // 储能 15 分钟充放电量 (kWh)
+        let storageKWh = 0
+        if (t >= 0 && t < 6) {
+          storageKWh = -Math.round((500 + Math.sin(t * 1.5) * 150) * 0.25)
+        } else if (t >= 8.75 && t < 11.5) {
+          storageKWh = Math.round((850 + Math.sin((t - 8.75) * 2) * 200) * 0.25)
+        } else if (t >= 11.75 && t < 13.5 && pvKWh > loadKWh * 0.4) {
+          storageKWh = -Math.round((650 + Math.sin((t - 11.75) * 3) * 150) * 0.25)
+        } else if (t >= 18.5 && t < 21) {
+          storageKWh = Math.round((900 + Math.sin((t - 18.5) * 2.5) * 220) * 0.25)
+        }
+
+        // 市电购电量 (kWh)
+        const gridKWh = Math.max(0, Math.round(loadKWh - pvKWh - storageKWh))
+
+        points.push({
+          time: timeStr,
+          园区总用电: loadKWh,
+          光伏发电: pvKWh,
+          市网购电: gridKWh,
+          储能充放: storageKWh,
+        })
+      }
+    }
+
+    return points
   }, [currentParkDetail])
 
-  // 逐小时电量明细台账数据
+  // 🌟 15 分钟电量高频明细台账数据
   const detailedEnergyLedgerData = useMemo(() => {
     const times = [
-      '12:00', '11:00', '10:00', '09:00', '08:00', '07:00', '06:00', '05:00', '04:00', '03:00', '02:00', '01:00'
+      '12:00:00', '11:45:00', '11:30:00', '11:15:00', '11:00:00', '10:45:00', '10:30:00', '10:15:00',
+      '10:00:00', '09:45:00', '09:30:00', '09:15:00', '09:00:00', '08:45:00', '08:30:00', '08:15:00',
     ]
     return times.map((t, idx) => {
-      const isDaytime = parseInt(t.split(':')[0]) >= 8 && parseInt(t.split(':')[0]) <= 18
-      const totalEnergy = Math.round((currentParkDetail.loadKw * 0.95 + (12 - idx) * 120))
-      const pvEnergy = isDaytime ? Math.round((currentParkDetail.pvKw * 0.82 - idx * 60)) : 0
-      const storageEnergy = idx % 2 === 0 ? 1200 : -800
+      const hour = parseInt(t.split(':')[0])
+      const isDaytime = hour >= 8 && hour <= 18
+      const totalEnergy = Math.round((currentParkDetail.loadKw * 0.95 + (16 - idx) * 80) * 0.25)
+      const pvEnergy = isDaytime ? Math.round((currentParkDetail.pvKw * 0.82 - idx * 40) * 0.25) : 0
+      const storageEnergy = idx % 2 === 0 ? 300 : -200
       const gridEnergy = Math.max(0, totalEnergy - pvEnergy - (storageEnergy > 0 ? storageEnergy : 0))
       const greenRate = totalEnergy > 0 ? ((pvEnergy / totalEnergy) * 100).toFixed(1) + '%' : '0.0%'
 
       return {
         id: `eng-rec-${idx + 1}`,
-        time: `${queryDate} ${t}:00`,
+        time: `${queryDate} ${t}`,
         totalEnergyKWh: totalEnergy,
         gridEnergyKWh: gridEnergy,
         pvEnergyKWh: pvEnergy,
@@ -500,8 +621,18 @@ export default function MicrogridMonitoringPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* 时间维度切换 (月度 / 季度 / 年度) */}
+            {/* 时间维度切换 (日 / 月) */}
             <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
+              <button
+                type="button"
+                onClick={() => setTimeDim('day')}
+                className={cn(
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                  timeDim === 'day' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                )}
+              >
+                日
+              </button>
               <button
                 type="button"
                 onClick={() => setTimeDim('month')}
@@ -510,79 +641,69 @@ export default function MicrogridMonitoringPage() {
                   timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
-                月度
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimeDim('quarter')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                季度
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimeDim('year')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                年度
+                月
               </button>
             </div>
 
-            {/* 时间范围选择控件 */}
+            {/* 1. 日维度：日期范围 (最多30天) + 15分钟固定频率 */}
+            {timeDim === 'day' && (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+                  <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                  <input
+                    type="date"
+                    value={selectedDateRange.start}
+                    onChange={(e) => {
+                      const newStart = e.target.value
+                      let newEnd = selectedDateRange.end
+                      const t1 = new Date(newStart).getTime()
+                      const t2 = new Date(newEnd).getTime()
+                      if (newStart > newEnd || (t2 - t1) / (1000 * 3600 * 24) > 29) {
+                        const d = new Date(newStart)
+                        d.setDate(d.getDate() + 27)
+                        newEnd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                      }
+                      setSelectedDateRange({ start: newStart, end: newEnd })
+                    }}
+                    className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                    title="起始日期 (最多可选30天)"
+                  />
+                  <span className="text-slate-400 font-sans">至</span>
+                  <input
+                    type="date"
+                    value={selectedDateRange.end}
+                    onChange={(e) => {
+                      const newEnd = e.target.value
+                      let newStart = selectedDateRange.start
+                      const t1 = new Date(newStart).getTime()
+                      const t2 = new Date(newEnd).getTime()
+                      if (newEnd < newStart || (t2 - t1) / (1000 * 3600 * 24) > 29) {
+                        const d = new Date(newEnd)
+                        d.setDate(d.getDate() - 27)
+                        newStart = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                      }
+                      setSelectedDateRange({ start: newStart, end: newEnd })
+                    }}
+                    className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                    title="结束日期 (最多可选30天)"
+                  />
+                </div>
+
+
+              </div>
+            )}
+
+            {/* 2. 月维度：选择指定月份 */}
             {timeDim === 'month' && (
               <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
                 <Calendar className="size-3.5 text-slate-400 shrink-0" />
                 <input
                   type="month"
-                  value={selectedMonthRange.start}
-                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                  title="起始月份"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer font-bold"
+                  title="选择指定月份"
                 />
-                <span className="text-slate-400 font-sans">至</span>
-                <input
-                  type="month"
-                  value={selectedMonthRange.end}
-                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                  title="结束月份"
-                />
-              </div>
-            )}
-
-            {timeDim === 'quarter' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <select
-                  value={selectedQuarter}
-                  onChange={(e) => setSelectedQuarter(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-                >
-                  <option value="2026-Q1">2026年 第1季度 (Q1)</option>
-                  <option value="2026-Q2">2026年 第2季度 (Q2)</option>
-                  <option value="2026-Q3">2026年 第3季度 (Q3)</option>
-                  <option value="2026-Q4">2026年 第4季度 (Q4)</option>
-                </select>
-              </div>
-            )}
-
-            {timeDim === 'year' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-                >
-                  <option value="2026">2026 年度</option>
-                  <option value="2025">2025 年度</option>
-                </select>
               </div>
             )}
 
@@ -698,7 +819,7 @@ export default function MicrogridMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-[#1677ff]" />
                   <h3 className="text-xs font-bold text-slate-900">
-                    24 小时源网荷储微电网协同平衡曲线 (实时 / kW)
+                    源网荷储微电网协同平衡曲线
                   </h3>
                 </div>
                 <div className="flex items-center gap-3 text-xs font-sans text-slate-500">
@@ -713,6 +834,7 @@ export default function MicrogridMonitoringPage() {
                 xKey="time"
                 height={260}
                 yUnit="kW"
+                xInterval={7}
                 lines={[
                   { key: '园区总负荷', name: '园区总负荷 (kW)', color: '#1e293b' },
                   { key: '市电受电', name: '市电受电功率 (kW)', color: '#1677ff' },
@@ -728,7 +850,7 @@ export default function MicrogridMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-[#1677ff]" />
                   <h3 className="text-xs font-bold text-slate-800">
-                    15 分钟高频功率监测明细台账
+                    微电网功率监测明细台账
                   </h3>
                 </div>
                 <div className="flex items-center gap-2">
@@ -736,7 +858,7 @@ export default function MicrogridMonitoringPage() {
                     <Search className="size-3.5 text-slate-400 absolute left-2.5 top-2" />
                     <input
                       type="text"
-                      placeholder="搜索采样时间 / 并网点..."
+                      placeholder="搜索采样时间..."
                       value={tableSearchKey}
                       onChange={(e) => setTableSearchKey(e.target.value)}
                       className="pl-8 pr-3 py-1 bg-white border border-slate-200 rounded-md text-xs font-sans text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1677ff]"
@@ -757,7 +879,6 @@ export default function MicrogridMonitoringPage() {
                   <thead className="sticky top-0 bg-slate-100 z-10">
                     <tr className="border-b border-slate-200 text-slate-700 font-semibold font-sans">
                       <th className="py-2.5 px-3">采样时间</th>
-                      <th className="py-2.5 px-3">开户并网点名称</th>
                       <th className="py-2.5 px-3">园区总负荷 (kW)</th>
                       <th className="py-2.5 px-3 text-[#1677ff]">市电受电 (kW)</th>
                       <th className="py-2.5 px-3 text-emerald-600">光伏实时出力 (kW)</th>
@@ -768,7 +889,6 @@ export default function MicrogridMonitoringPage() {
                     {filteredLedger.map((row) => (
                       <tr key={row.id} className="hover:bg-blue-50/40 transition-colors">
                         <td className="py-2 px-3 font-semibold text-slate-900 font-sans">{row.time}</td>
-                        <td className="py-2 px-3 font-sans">{row.pointName}</td>
                         <td className="py-2 px-3 font-bold text-slate-900">{row.loadKw.toLocaleString()}</td>
                         <td className="py-2 px-3 text-[#1677ff] font-bold">{row.gridKw.toLocaleString()}</td>
                         <td className="py-2 px-3 text-emerald-600 font-bold">{row.pvKw.toLocaleString()}</td>
@@ -812,7 +932,7 @@ export default function MicrogridMonitoringPage() {
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-bold flex items-center gap-1.5 text-slate-700">
                     <Building2 className="size-4 text-slate-600" />
-                    市网购电量
+                    市电量
                   </span>
                   <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 font-mono font-bold">外购电</span>
                 </div>
@@ -830,7 +950,7 @@ export default function MicrogridMonitoringPage() {
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-bold flex items-center gap-1.5 text-slate-700">
                     <Sun className="size-4 text-emerald-500" />
-                    光伏发电量
+                    直供绿电量
                   </span>
                   <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-600 font-mono font-bold">自发自用</span>
                 </div>
@@ -848,16 +968,36 @@ export default function MicrogridMonitoringPage() {
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-bold flex items-center gap-1.5 text-slate-700">
                     <BatteryCharging className="size-4 text-amber-500" />
-                    储能充放电量
+                    储能系统
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-600 font-mono font-bold">循环吞吐</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-600 font-mono font-bold">充放计量</span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-amber-600">
-                  {(currentParkDetail.storageKw * 4.0).toFixed(0)}{' '}
-                  <span className="text-xs font-normal text-slate-500">kWh</span>
+                
+                <div className="grid grid-cols-2 gap-2 pt-0.5">
+                  <div>
+                    <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                      <span className="size-1.5 rounded-full bg-amber-500 shrink-0" />
+                      充电量
+                    </div>
+                    <div className="text-lg font-bold font-mono text-amber-600 truncate">
+                      {Math.round(currentParkDetail.storageKw * 2.2).toLocaleString()}{' '}
+                      <span className="text-[10px] font-normal text-slate-400 font-sans">kWh</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                      <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" />
+                      放电量
+                    </div>
+                    <div className="text-lg font-bold font-mono text-emerald-600 truncate">
+                      {Math.round(currentParkDetail.storageKw * 2.2 * 0.894).toLocaleString()}{' '}
+                      <span className="text-[10px] font-normal text-slate-400 font-sans">kWh</span>
+                    </div>
+                  </div>
                 </div>
+
                 <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-                  <span>充放效率</span>
+                  <span>综合效率</span>
                   <span className="text-emerald-600 font-mono font-bold">89.4%</span>
                 </div>
               </div>
@@ -868,7 +1008,7 @@ export default function MicrogridMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-emerald-500" />
                   <h3 className="text-xs font-bold text-slate-900">
-                    24 小时微电网电量统计走势 (kWh)
+                    源网荷储微电网用电量统计走势
                   </h3>
                 </div>
               </div>
@@ -877,10 +1017,11 @@ export default function MicrogridMonitoringPage() {
                 xKey="time"
                 height={260}
                 yUnit="kWh"
+                xInterval={7}
                 lines={[
                   { key: '园区总用电', name: '园区总用电量 (kWh)', color: '#1e293b' },
-                  { key: '市网购电', name: '市网购电量 (kWh)', color: '#1677ff' },
-                  { key: '光伏发电', name: '光伏发电量 (kWh)', color: '#10b981' },
+                  { key: '市网购电', name: '市电量 (kWh)', color: '#1677ff' },
+                  { key: '光伏发电', name: '直供绿电量 (kWh)', color: '#10b981' },
                   { key: '储能充放', name: '储能充放电量 (kWh)', color: '#fa8c16' },
                 ]}
               />
@@ -891,7 +1032,7 @@ export default function MicrogridMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-blue-500" />
                   <h3 className="text-xs font-bold text-slate-800">
-                    逐小时微电网电量明细台账
+                    微电网电量监测明细台账
                   </h3>
                 </div>
                 <button
@@ -909,10 +1050,9 @@ export default function MicrogridMonitoringPage() {
                     <tr className="border-b border-slate-200 text-slate-700 font-semibold font-sans">
                       <th className="py-2.5 px-3">统计时段</th>
                       <th className="py-2.5 px-3">园区总用电量 (kWh)</th>
-                      <th className="py-2.5 px-3 text-[#1677ff]">市网购电量 (kWh)</th>
-                      <th className="py-2.5 px-3 text-emerald-600">光伏发电量 (kWh)</th>
+                      <th className="py-2.5 px-3 text-[#1677ff]">市电量 (kWh)</th>
+                      <th className="py-2.5 px-3 text-emerald-600">直供绿电量 (kWh)</th>
                       <th className="py-2.5 px-3 text-amber-600">储能充放电量 (kWh)</th>
-                      <th className="py-2.5 px-3">实时绿电消纳率</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -925,7 +1065,6 @@ export default function MicrogridMonitoringPage() {
                         <td className="py-2 px-3 text-amber-600 font-bold">
                           {row.storageEnergyKWh > 0 ? `+${row.storageEnergyKWh} (放)` : `${row.storageEnergyKWh} (充)`}
                         </td>
-                        <td className="py-2 px-3 font-extrabold text-emerald-700">{row.greenRate}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1174,14 +1313,6 @@ export default function MicrogridMonitoringPage() {
                   </h3>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsEntryModalOpen(true)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-medium cursor-pointer shadow-2xs text-xs"
-                  >
-                    <Plus className="size-3.5" />
-                    <span>录入凭证</span>
-                  </button>
                   <div className="relative">
                     <Search className="size-3.5 text-slate-400 absolute left-2.5 top-2" />
                     <input

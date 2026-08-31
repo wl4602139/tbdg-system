@@ -738,29 +738,48 @@ export default function EquipmentPage() {
   const standardCompanies = rootNode?.children || []
 
   // =========================================================================
-  // 1. 【电】+【日】：15分钟功率曲线 (标注最大最小值) & 峰平谷 (总饼图 + 分日堆叠图)
+  // 1. 【电】+【日】：15分钟高频功率曲线 (标注最大最小值) & 峰平谷 (总饼图 + 分日堆叠图)
   // =========================================================================
   const elecDayPowerData = useMemo(() => {
-    const hours = [
-      '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
-      '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00',
-      '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'
-    ]
-    return hours.map((t) => {
-      const h = parseInt(t.split(':')[0])
-      let factor = 0.75
-      if (h >= 10 && h <= 12) factor = 1.036 // 峰值 4850 kW
-      else if (h >= 2 && h <= 4) factor = 0.453 // 谷值 2120 kW
-      else if (h >= 8 && h <= 18) factor = 0.90 + (h % 3) * 0.04
-      else factor = 0.60 + (h % 2) * 0.05
+    const points: Array<{ time: string; 实时功率: number }> = []
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+        const t = h + m / 60
+        let kw = 0
 
-      const kw = Math.round(basePower * factor)
-      return {
-        time: t,
-        实时功率: kw,
+        if (timeStr === '11:15') {
+          kw = 4850 // 🌟 全天最大值
+        } else if (timeStr === '03:30') {
+          kw = 2120 // 🌟 全天最小值
+        } else if (t >= 0 && t < 6) {
+          kw = Math.round(2120 + Math.sin(t * 0.8) * 320)
+        } else if (t >= 6 && t < 8.5) {
+          kw = Math.round(2400 + ((t - 6) / 2.5) * 1600)
+        } else if (t >= 8.5 && t < 12) {
+          kw = Math.round(4100 + Math.sin((t - 8.5) * 1.5) * 650)
+        } else if (t >= 12 && t < 13.5) {
+          kw = Math.round(3800 + Math.cos((t - 12) * 2) * 200)
+        } else if (t >= 13.5 && t < 18) {
+          kw = Math.round(4350 + Math.sin((t - 13.5) * 1.2) * 350)
+        } else if (t >= 18 && t < 21) {
+          kw = Math.round(3600 - ((t - 18) / 3) * 800)
+        } else {
+          kw = Math.round(2700 - ((t - 21) / 3) * 400)
+        }
+        // 保证不会超过 4850 或低于 2120
+        kw = Math.min(4840, Math.max(2130, kw))
+        if (timeStr === '11:15') kw = 4850
+        if (timeStr === '03:30') kw = 2120
+
+        points.push({
+          time: timeStr,
+          实时功率: kw,
+        })
       }
-    })
-  }, [basePower])
+    }
+    return points
+  }, [])
 
   // 电-日：峰平谷总饼图数据
   const elecDayDonutData = useMemo(() => {
@@ -1348,6 +1367,8 @@ export default function EquipmentPage() {
                   xKey="time"
                   height={250}
                   yUnit="kW"
+                  xInterval={7}
+                  showMinMax={true}
                   lines={[
                     { key: '实时功率', name: '实时有功功率 (kW)', color: '#1677ff' },
                   ]}

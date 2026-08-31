@@ -213,9 +213,10 @@ export default function UsageMonitoringPage() {
   // 拓扑树视角切换：'enterprise' (企业与工厂) | 'park' (零碳园区)
   const [treeType, setTreeType] = useState<'enterprise' | 'park'>('enterprise')
 
-  // 时间维度：选择几月到几月查看曲线 (默认 2026-01 至 2026-08)
-  const [startMonth, setStartMonth] = useState('2026-01')
-  const [endMonth, setEndMonth] = useState('2026-08')
+  // 时间维度：'day' (日范围，最多30天，15分钟固定频率) | 'month' (指定月份)
+  const [timeDim, setTimeDim] = useState<'day' | 'month'>('day')
+  const [dateRange, setDateRange] = useState({ start: '2026-08-01', end: '2026-08-28' })
+  const [selectedMonth, setSelectedMonth] = useState('2026-08')
 
   // 峰平谷查看对象切换：'total' (总用电量 峰平谷) | 'grid' (市电量 峰平谷)
   const [touTarget, setTouTarget] = useState<'total' | 'grid'>('total')
@@ -249,71 +250,49 @@ export default function UsageMonitoringPage() {
   }
 
   // =========================================================================
-  // 1. 计算所选月份跨度月份数与累计汇总 (几月到几月)
+  // 1. 生成查询日期序列 (日维度：日期范围最多30天，15分钟固定频率；月维度：指定单月)
   // =========================================================================
-  const monthList = useMemo(() => {
-    const startY = parseInt(startMonth.split('-')[0])
-    const startM = parseInt(startMonth.split('-')[1])
-    const endY = parseInt(endMonth.split('-')[0])
-    const endM = parseInt(endMonth.split('-')[1])
+  const queryDaysList = useMemo(() => {
+    if (timeDim === 'day') {
+      const dates: string[] = []
+      const start = new Date(dateRange.start)
+      const end = new Date(dateRange.end)
+      const cur = new Date(start)
 
-    const months: string[] = []
-    let curY = startY
-    let curM = startM
-
-    while (curY < endY || (curY === endY && curM <= endM)) {
-      const mStr = `${curY}-${curM < 10 ? '0' + curM : curM}`
-      months.push(mStr)
-      curM++
-      if (curM > 12) {
-        curM = 1
-        curY++
+      while (cur <= end) {
+        const y = cur.getFullYear()
+        const m = String(cur.getMonth() + 1).padStart(2, '0')
+        const d = String(cur.getDate()).padStart(2, '0')
+        dates.push(`${y}-${m}-${d}`)
+        cur.setDate(cur.getDate() + 1)
       }
+      return dates.length > 0 ? dates : ['2026-08-28']
+    } else {
+      // 月维度：生成该月份全部日期
+      const [y, m] = selectedMonth.split('-').map(Number)
+      const maxDays = m === 8 && y === 2026 ? 28 : new Date(y, m, 0).getDate()
+      const dates: string[] = []
+      for (let d = 1; d <= maxDays; d++) {
+        const dStr = String(d).padStart(2, '0')
+        dates.push(`${selectedMonth}-${dStr}`)
+      }
+      return dates
     }
-    return months.length > 0 ? months : ['2026-08']
-  }, [startMonth, endMonth])
+  }, [timeDim, dateRange, selectedMonth])
 
-  const totalMonthsCount = monthList.length
-
-  // 8 大介质累计核算汇总 (所选月份区间总值)
-  const aggregatedMetrics = useMemo(() => {
-    const mCount = totalMonthsCount
-    const totalElec = activeData.totalElecKWhMonth * mCount
-    const gridElec = activeData.gridElecKWhMonth * mCount
-    const solarElec = activeData.solarElecKWhMonth * mCount
-    const greenElecRatio = Number(((solarElec / (totalElec || 1)) * 100).toFixed(1))
-    const water = activeData.waterM3Month * mCount
-    const gas = activeData.gasM3Month * mCount
-    const steam = activeData.steamTMonth * mCount
-    const oil = activeData.oilLiterMonth * mCount
-    const nitrogen = activeData.liquidNitrogenTMonth * mCount
-
-    // 综合能耗折标煤 (tce)
-    const totalTce = Number(
-      (
-        (totalElec * 0.1229) / 1000 +
-        (gas * 1.2143) / 1000 +
-        steam * 0.1286 +
-        (oil * 0.85 * 1.4571) / 1000
-      ).toFixed(1)
-    )
-
-    return {
-      totalElec,
-      gridElec,
-      solarElec,
-      greenElecRatio,
-      water,
-      gas,
-      steam,
-      oil,
-      nitrogen,
-      totalTce,
+  // 当前涉及的月份列表 (用于月度汇总或峰平谷分解)
+  const monthList = useMemo(() => {
+    if (timeDim === 'day') {
+      const startM = dateRange.start.slice(0, 7)
+      const endM = dateRange.end.slice(0, 7)
+      if (startM === endM) return [startM]
+      return [startM, endM]
     }
-  }, [activeData, totalMonthsCount])
+    return [selectedMonth]
+  }, [timeDim, dateRange, selectedMonth])
 
   // =========================================================================
-  // 2. 按日连续更新的曲线走势数据 (所选几月到几月按日更新)
+  // 2. 按日连续更新的曲线走势与 15 分钟高频采样数据
   // =========================================================================
   const dailyTimeSeriesData = useMemo(() => {
     const records: Array<{
@@ -330,62 +309,100 @@ export default function UsageMonitoringPage() {
       综合能耗: number // tce
     }> = []
 
-    monthList.forEach((mStr) => {
-      const [y, m] = mStr.split('-').map(Number)
-      const maxDays = m === 8 && y === 2026 ? 28 : new Date(y, m, 0).getDate()
-      const baseDayElec = (activeData.totalElecKWhMonth / 30) / 10000
-      const baseDayGrid = (activeData.gridElecKWhMonth / 30) / 10000
-      const baseDaySolar = (activeData.solarElecKWhMonth / 30) / 10000
-      const baseDayWater = activeData.waterM3Month / 30
-      const baseDayGas = activeData.gasM3Month / 30
-      const baseDaySteam = activeData.steamTMonth / 30
-      const baseDayOil = activeData.oilLiterMonth / 30
-      const baseDayNitrogen = activeData.liquidNitrogenTMonth / 30
+    const baseDayElec = (activeData.totalElecKWhMonth / 30) / 10000
+    const baseDayGrid = (activeData.gridElecKWhMonth / 30) / 10000
+    const baseDaySolar = (activeData.solarElecKWhMonth / 30) / 10000
+    const baseDayWater = activeData.waterM3Month / 30
+    const baseDayGas = activeData.gasM3Month / 30
+    const baseDaySteam = activeData.steamTMonth / 30
+    const baseDayOil = activeData.oilLiterMonth / 30
+    const baseDayNitrogen = activeData.liquidNitrogenTMonth / 30
 
-      for (let d = 1; d <= maxDays; d++) {
-        const isWeekend = (d + m) % 7 === 0 || (d + m) % 7 === 6
-        const dailyFluct = isWeekend ? 0.72 : 0.95 + ((d * 3 + m * 7) % 15) * 0.015
-        const solarFluct = isWeekend ? 0.90 : 0.90 + ((d * 5 + m * 3) % 20) * 0.02
+    queryDaysList.forEach((dateStr) => {
+      const parts = dateStr.split('-').map(Number)
+      const m = parts[1]
+      const d = parts[2]
+      const isWeekend = (d + m) % 7 === 0 || (d + m) % 7 === 6
+      const dailyFluct = isWeekend ? 0.72 : 0.95 + ((d * 3 + m * 7) % 15) * 0.015
+      const solarFluct = isWeekend ? 0.90 : 0.90 + ((d * 5 + m * 3) % 20) * 0.02
 
-        const totElec = Number((baseDayElec * dailyFluct).toFixed(2))
-        const solElec = Number((baseDaySolar * solarFluct).toFixed(2))
-        const grdElec = Number(Math.max(0, totElec - solElec).toFixed(2))
-        const wat = Number((baseDayWater * dailyFluct).toFixed(1))
-        const gs = Number((baseDayGas * (0.92 + (d % 5) * 0.03)).toFixed(1))
-        const stm = Number((baseDaySteam * (0.90 + (d % 6) * 0.03)).toFixed(1))
-        const ol = Number((baseDayOil * (0.88 + (d % 4) * 0.05)).toFixed(1))
-        const nit = Number((baseDayNitrogen * (0.92 + (d % 3) * 0.05)).toFixed(2))
+      const totElec = Number((baseDayElec * dailyFluct).toFixed(2))
+      const solElec = Number((baseDaySolar * solarFluct).toFixed(2))
+      const grdElec = Number(Math.max(0, totElec - solElec).toFixed(2))
+      const wat = Number((baseDayWater * dailyFluct).toFixed(1))
+      const gs = Number((baseDayGas * (0.92 + (d % 5) * 0.03)).toFixed(1))
+      const stm = Number((baseDaySteam * (0.90 + (d % 6) * 0.03)).toFixed(1))
+      const ol = Number((baseDayOil * (0.88 + (d % 4) * 0.05)).toFixed(1))
+      const nit = Number((baseDayNitrogen * (0.92 + (d % 3) * 0.05)).toFixed(2))
 
-        const tce = Number(
-          (
-            totElec * 10000 * 0.0001229 +
-            gs * 0.0012143 +
-            stm * 0.1286 +
-            (ol * 0.85 * 0.0014571)
-          ).toFixed(1)
-        )
+      const tce = Number(
+        (
+          totElec * 10000 * 0.0001229 +
+          gs * 0.0012143 +
+          stm * 0.1286 +
+          (ol * 0.85 * 0.0014571)
+        ).toFixed(1)
+      )
 
-        const dateStr = `${mStr}-${d < 10 ? '0' + d : d}`
-        const dayLabel = `${m}月${d < 10 ? '0' + d : d}日`
+      const dayLabel = `${m}月${String(d).padStart(2, '0')}日`
 
-        records.push({
-          date: dateStr,
-          dayLabel,
-          总用电量: totElec,
-          市电量: grdElec,
-          直供绿电量: solElec,
-          用水量: wat,
-          天然气量: gs,
-          外购蒸汽量: stm,
-          油消耗量: ol,
-          液氮消耗量: nit,
-          综合能耗: tce,
-        })
-      }
+      records.push({
+        date: dateStr,
+        dayLabel,
+        总用电量: totElec,
+        市电量: grdElec,
+        直供绿电量: solElec,
+        用水量: wat,
+        天然气量: gs,
+        外购蒸汽量: stm,
+        油消耗量: ol,
+        液氮消耗量: nit,
+        综合能耗: tce,
+      })
     })
 
     return records
-  }, [monthList, activeData])
+  }, [queryDaysList, activeData])
+
+  // 8 大介质累计核算汇总 (所选日范围或指定月份总值)
+  const aggregatedMetrics = useMemo(() => {
+    let totElec = 0
+    let grdElec = 0
+    let solElec = 0
+    let wat = 0
+    let gs = 0
+    let stm = 0
+    let ol = 0
+    let nit = 0
+    let tce = 0
+
+    dailyTimeSeriesData.forEach((row) => {
+      totElec += row.总用电量 * 10000
+      grdElec += row.市电量 * 10000
+      solElec += row.直供绿电量 * 10000
+      wat += row.用水量
+      gs += row.天然气量
+      stm += row.外购蒸汽量
+      ol += row.油消耗量
+      nit += row.液氮消耗量
+      tce += row.综合能耗
+    })
+
+    const greenRatio = Number(((solElec / (totElec || 1)) * 100).toFixed(1))
+
+    return {
+      totalElec: Math.round(totElec),
+      gridElec: Math.round(grdElec),
+      solarElec: Math.round(solElec),
+      greenElecRatio: greenRatio,
+      water: Math.round(wat),
+      gas: Math.round(gs),
+      steam: Number(stm.toFixed(1)),
+      oil: Math.round(ol),
+      nitrogen: Number(nit.toFixed(2)),
+      totalTce: Number(tce.toFixed(1)),
+    }
+  }, [dailyTimeSeriesData])
 
   // =========================================================================
   // 3. 用电峰平谷监测数据模型 (总用电量 / 市电量，月度总体 + 分解到日)
@@ -490,9 +507,6 @@ export default function UsageMonitoringPage() {
               <Building2 className="size-4 text-[#1677ff]" />
               监测对象拓扑选择
             </span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] font-mono font-bold">
-              园区 & 工厂
-            </span>
           </div>
 
           <div className="grid grid-cols-2 gap-1 bg-slate-200/80 p-0.5 rounded-lg text-xs font-medium">
@@ -504,7 +518,7 @@ export default function UsageMonitoringPage() {
                 treeType === 'enterprise' ? 'bg-white text-[#1677ff] font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
               )}
             >
-              🏭 工厂架构
+              组织
             </button>
             <button
               type="button"
@@ -514,7 +528,7 @@ export default function UsageMonitoringPage() {
                 treeType === 'park' ? 'bg-white text-emerald-600 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
               )}
             >
-              🏞️ 零碳园区
+              园区
             </button>
           </div>
         </div>
@@ -531,14 +545,15 @@ export default function UsageMonitoringPage() {
 
       {/* 🌟 右侧主面板 */}
       <div className="flex-1 min-w-0 space-y-3.5">
-        {/* 1. 顶部 Header (含在线监测 2 大 Tab: 用能监测 / 设备监测 + 统一时间筛选 + 导出) */}
+        {/* 1. 顶部 Header (日范围最多30天/15min固定频率 + 指定月份 + 导出) */}
         <OnlineHeader
-          startMonth={startMonth}
-          endMonth={endMonth}
-          onMonthRangeChange={(start, end) => {
-            setStartMonth(start)
-            setEndMonth(end)
-          }}
+          timeDim={timeDim}
+          onTimeDimChange={(dim) => setTimeDim(dim)}
+          startDate={dateRange.start}
+          endDate={dateRange.end}
+          onDateRangeChange={(start, end) => setDateRange({ start, end })}
+          selectedMonth={selectedMonth}
+          onMonthChange={(m) => setSelectedMonth(m)}
         />
 
         {/* 3. 核心 8 大能源介质消费大盘卡片 (点击卡片与下方时序图表、分时负荷深度联动) */}
@@ -639,7 +654,7 @@ export default function UsageMonitoringPage() {
             </div>
           </div>
 
-          {/* 卡片 4: 工业用水量 */}
+          {/* 卡片 4: 水资源消耗量 */}
           <div
             onClick={() => setSelectedMediumView('water')}
             className={cn(
@@ -652,7 +667,7 @@ export default function UsageMonitoringPage() {
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
                 <Droplets className="size-3 text-cyan-500" />
-                工业用水量
+                水资源消耗量
               </span>
               {selectedMediumView === 'water' && (
                 <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-700 font-bold">
@@ -791,90 +806,11 @@ export default function UsageMonitoringPage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-[#1677ff]" />
               <h3 className="text-xs font-bold text-slate-900">
-                {startMonth} 至 {endMonth} 能耗时序曲线 (按日连续更新，共 {dailyTimeSeriesData.length} 天)
+                能耗时序曲线
               </h3>
             </div>
 
-            {/* 介质曲线切换 Tab 按钮 */}
-            <div className="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 font-sans text-xs">
-              <button
-                type="button"
-                onClick={() => setSelectedMediumView('all_elec')}
-                className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
-                  ['all_elec', 'grid_elec', 'solar_elec'].includes(selectedMediumView) ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                <Zap className="size-3" />
-                <span>用电 (总用电/市电/直供绿电)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedMediumView('water')}
-                className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
-                  selectedMediumView === 'water' ? 'font-bold bg-white text-cyan-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                <Droplets className="size-3" />
-                <span>用水量</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedMediumView('gas')}
-                className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
-                  selectedMediumView === 'gas' ? 'font-bold bg-white text-amber-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                <Flame className="size-3" />
-                <span>天然气量</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedMediumView('steam')}
-                className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
-                  selectedMediumView === 'steam' ? 'font-bold bg-white text-purple-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                <Wind className="size-3" />
-                <span>外购蒸汽</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedMediumView('oil')}
-                className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
-                  selectedMediumView === 'oil' ? 'font-bold bg-white text-rose-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                <Fuel className="size-3" />
-                <span>油消耗量</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedMediumView('nitrogen')}
-                className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
-                  selectedMediumView === 'nitrogen' ? 'font-bold bg-white text-indigo-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                <Snowflake className="size-3" />
-                <span>液氮消耗</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedMediumView('tce')}
-                className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
-                  selectedMediumView === 'tce' ? 'font-bold bg-white text-emerald-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                <Layers className="size-3" />
-                <span>综合能耗 (tce)</span>
-              </button>
-            </div>
+
           </div>
 
           {/* 动态折线曲线 */}
@@ -923,7 +859,7 @@ export default function UsageMonitoringPage() {
                 height={280}
                 yUnit="m³"
                 lines={[
-                  { key: '用水量', name: '工业用水量 (m³/日)', color: '#06b6d4' },
+                  { key: '用水量', name: '水资源消耗量 (m³/日)', color: '#06b6d4' },
                 ]}
               />
             )}
@@ -1028,17 +964,12 @@ export default function UsageMonitoringPage() {
               <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200 text-xs font-mono">
                 <Calendar className="size-3 text-slate-400" />
                 <span className="text-slate-600 font-sans text-[11px]">分解月份:</span>
-                <select
+                <input
+                  type="month"
                   value={touDecomposeMonth}
                   onChange={(e) => setTouDecomposeMonth(e.target.value)}
                   className="bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold focus:outline-none cursor-pointer"
-                >
-                  {monthList.map((mStr) => (
-                    <option key={mStr} value={mStr}>
-                      {mStr}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
           </div>
@@ -1111,11 +1042,12 @@ export default function UsageMonitoringPage() {
                   xKey="day"
                   height={235}
                   yUnit="万kWh"
+                  stacked={true}
                   bars={[
-                    { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
-                    { key: '峰段', name: '高峰电量', color: '#fa8c16' },
-                    { key: '平段', name: '平段电量', color: '#1677ff' },
                     { key: '谷段', name: '低谷电量', color: '#52c41a' },
+                    { key: '平段', name: '平段电量', color: '#1677ff' },
+                    { key: '峰段', name: '高峰电量', color: '#fa8c16' },
+                    { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
                   ]}
                 />
               </div>
@@ -1123,66 +1055,7 @@ export default function UsageMonitoringPage() {
           </div>
         </div>
 
-        {/* 6. 辅助分析图表：月度能源消耗累计柱状堆叠 + 能耗介质结构环形图 */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
-          {/* 左侧 7/12: 月度能源介质累计柱状堆叠 */}
-          <div className="lg:col-span-7 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-[#1677ff]" />
-                <h3 className="text-xs font-bold text-slate-800">
-                  {startMonth} ~ {endMonth} 各月用电构成与天然气对比 (万kWh / 万m³)
-                </h3>
-              </div>
-              <span className="text-[11px] text-slate-400 font-mono">月度累计对标</span>
-            </div>
-            <div className="h-[210px]">
-              <BarChartGroup
-                data={monthlyBarData}
-                xKey="month"
-                height={210}
-                yUnit="万"
-                bars={[
-                  { key: '市网供电', name: '市网供电 (万kWh)', color: '#1677ff' },
-                  { key: '直供绿电', name: '直供绿电 (万kWh)', color: '#10b981' },
-                  { key: '天然气量', name: '天然气量 (万m³)', color: '#fa8c16' },
-                ]}
-              />
-            </div>
-          </div>
 
-          {/* 右侧 5/12: 能源消耗介质综合折标煤结构 */}
-          <div className="lg:col-span-5 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-emerald-500" />
-                <h3 className="text-xs font-bold text-slate-800">
-                  综合能耗折标煤结构 ({aggregatedMetrics.totalTce} tce)
-                </h3>
-              </div>
-              <span className="text-[11px] text-slate-400 font-mono">GB/T 2589 标准</span>
-            </div>
-            <Donut data={energyDonutData} height={155} unit="tce" />
-            <div className="grid grid-cols-4 gap-1 text-[10px] font-mono text-center pt-1">
-              <div className="p-1 rounded bg-blue-50 text-blue-900">
-                <span className="text-[9px] text-slate-500 block font-sans">市电</span>
-                <strong>{((energyDonutData[0].value / aggregatedMetrics.totalTce) * 100).toFixed(1)}%</strong>
-              </div>
-              <div className="p-1 rounded bg-emerald-50 text-emerald-900">
-                <span className="text-[9px] text-slate-500 block font-sans">绿电</span>
-                <strong>{((energyDonutData[1].value / aggregatedMetrics.totalTce) * 100).toFixed(1)}%</strong>
-              </div>
-              <div className="p-1 rounded bg-amber-50 text-amber-900">
-                <span className="text-[9px] text-slate-500 block font-sans">燃气</span>
-                <strong>{((energyDonutData[2].value / aggregatedMetrics.totalTce) * 100).toFixed(1)}%</strong>
-              </div>
-              <div className="p-1 rounded bg-purple-50 text-purple-900">
-                <span className="text-[9px] text-slate-500 block font-sans">蒸汽</span>
-                <strong>{((energyDonutData[3].value / aggregatedMetrics.totalTce) * 100).toFixed(1)}%</strong>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* 7. 底部数据明细：按日更新明细台账表格 (支持导出) */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
@@ -1190,7 +1063,7 @@ export default function UsageMonitoringPage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-blue-500" />
               <h3 className="text-xs font-bold text-slate-800">
-                {startMonth} 至 {endMonth} 8 大能源介质按日连续更新明细台账
+                8 大能源介质按日连续更新明细台账
               </h3>
             </div>
 
