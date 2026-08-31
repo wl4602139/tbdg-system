@@ -223,10 +223,10 @@ export default function UsageMonitoringPage() {
   // 峰平谷分解查看的具体月份
   const [touDecomposeMonth, setTouDecomposeMonth] = useState('2026-08')
 
-  // 当前选中展示的曲线介质类型
-  // 'all_elec' (电量总览: 总用电 vs 市电 vs 直供绿电) | 'water' (水) | 'gas' (气) | 'steam' (蒸汽) | 'oil' (油) | 'nitrogen' (液氮) | 'tce' (综合能耗)
+  // 当前选中展示的曲线介质类型 (支持点击上方 8 大 KPI 卡片直接驱动下方图表联动)
+  // 'all_elec' (总用电) | 'grid_elec' (市电) | 'solar_elec' (绿电) | 'water' (水) | 'gas' (气) | 'steam' (蒸汽) | 'oil' (油) | 'nitrogen' (液氮) | 'tce' (综合能耗)
   const [selectedMediumView, setSelectedMediumView] = useState<
-    'all_elec' | 'water' | 'gas' | 'steam' | 'oil' | 'nitrogen' | 'tce'
+    'all_elec' | 'grid_elec' | 'solar_elec' | 'water' | 'gas' | 'steam' | 'oil' | 'nitrogen' | 'tce'
   >('all_elec')
 
   // 当前节点数据对象
@@ -541,15 +541,31 @@ export default function UsageMonitoringPage() {
           }}
         />
 
-        {/* 3. 核心 8 大能源介质消费大盘卡片 (2 行显示，每行 4 个卡片) */}
+        {/* 3. 核心 8 大能源介质消费大盘卡片 (点击卡片与下方时序图表、分时负荷深度联动) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {/* 卡片 1: 总用电量 */}
-          <div className="bg-white p-3 rounded-xl border border-blue-200/80 shadow-xs space-y-1 bg-gradient-to-br from-blue-50/40 via-white to-white">
+          <div
+            onClick={() => {
+              setSelectedMediumView('all_elec')
+              setTouTarget('total')
+            }}
+            className={cn(
+              'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
+              selectedMediumView === 'all_elec'
+                ? 'bg-blue-50/80 border-blue-500 ring-2 ring-blue-400/40 shadow-sm'
+                : 'bg-white border-slate-200 hover:border-blue-300'
+            )}
+          >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-blue-900 flex items-center gap-1">
                 <Zap className="size-3 text-[#1677ff]" />
                 总用电量
               </span>
+              {selectedMediumView === 'all_elec' && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-100 text-[#1677ff] font-bold">
+                  图表联动中
+                </span>
+              )}
             </div>
             <div className="text-base font-extrabold font-mono text-[#1677ff] truncate">
               {(aggregatedMetrics.totalElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-slate-400 font-sans">万kWh</span>
@@ -560,14 +576,30 @@ export default function UsageMonitoringPage() {
           </div>
 
           {/* 卡片 2: 市电量 */}
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs space-y-1">
+          <div
+            onClick={() => {
+              setSelectedMediumView('grid_elec')
+              setTouTarget('grid')
+            }}
+            className={cn(
+              'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
+              selectedMediumView === 'grid_elec'
+                ? 'bg-amber-50/80 border-amber-500 ring-2 ring-amber-400/40 shadow-sm'
+                : 'bg-white border-slate-200 hover:border-amber-300'
+            )}
+          >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
-                <Building2 className="size-3 text-slate-500" />
+                <Building2 className="size-3 text-amber-600" />
                 市电量 (外购)
               </span>
+              {selectedMediumView === 'grid_elec' && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-100 text-amber-700 font-bold">
+                  图表联动中
+                </span>
+              )}
             </div>
-            <div className="text-base font-extrabold font-mono text-slate-800 truncate">
+            <div className="text-base font-extrabold font-mono text-amber-600 truncate">
               {(aggregatedMetrics.gridElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-slate-400 font-sans">万kWh</span>
             </div>
             <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-0.5 font-mono">
@@ -576,12 +608,28 @@ export default function UsageMonitoringPage() {
           </div>
 
           {/* 卡片 3: 直供绿电量 */}
-          <div className="bg-white p-3 rounded-xl border border-emerald-200/80 shadow-xs space-y-1 bg-gradient-to-br from-emerald-50/40 via-white to-white">
+          <div
+            onClick={() => {
+              setSelectedMediumView('solar_elec')
+              setTouTarget('total')
+            }}
+            className={cn(
+              'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
+              selectedMediumView === 'solar_elec'
+                ? 'bg-emerald-50/90 border-emerald-500 ring-2 ring-emerald-400/40 shadow-sm'
+                : 'bg-gradient-to-br from-emerald-50/40 via-white to-white border-emerald-200/80 hover:border-emerald-400'
+            )}
+          >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-emerald-900 flex items-center gap-1">
                 <Sun className="size-3 text-emerald-600" />
                 直供绿电量
               </span>
+              {selectedMediumView === 'solar_elec' && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 font-bold">
+                  图表联动中
+                </span>
+              )}
             </div>
             <div className="text-base font-extrabold font-mono text-emerald-600 truncate">
               {(aggregatedMetrics.solarElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-slate-400 font-sans">万kWh</span>
@@ -592,14 +640,27 @@ export default function UsageMonitoringPage() {
           </div>
 
           {/* 卡片 4: 工业用水量 */}
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs space-y-1">
+          <div
+            onClick={() => setSelectedMediumView('water')}
+            className={cn(
+              'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
+              selectedMediumView === 'water'
+                ? 'bg-cyan-50/80 border-cyan-500 ring-2 ring-cyan-400/40 shadow-sm'
+                : 'bg-white border-slate-200 hover:border-cyan-300'
+            )}
+          >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
                 <Droplets className="size-3 text-cyan-500" />
                 工业用水量
               </span>
+              {selectedMediumView === 'water' && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-700 font-bold">
+                  图表联动中
+                </span>
+              )}
             </div>
-            <div className="text-base font-extrabold font-mono text-slate-800 truncate">
+            <div className="text-base font-extrabold font-mono text-cyan-600 truncate">
               {aggregatedMetrics.water.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">m³</span>
             </div>
             <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-0.5 font-mono">
@@ -608,12 +669,25 @@ export default function UsageMonitoringPage() {
           </div>
 
           {/* 卡片 5: 天然气量 */}
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs space-y-1">
+          <div
+            onClick={() => setSelectedMediumView('gas')}
+            className={cn(
+              'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
+              selectedMediumView === 'gas'
+                ? 'bg-amber-50/80 border-amber-500 ring-2 ring-amber-400/40 shadow-sm'
+                : 'bg-white border-slate-200 hover:border-amber-300'
+            )}
+          >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
                 <Flame className="size-3 text-amber-500" />
                 天然气量
               </span>
+              {selectedMediumView === 'gas' && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-100 text-amber-700 font-bold">
+                  图表联动中
+                </span>
+              )}
             </div>
             <div className="text-base font-extrabold font-mono text-amber-600 truncate">
               {aggregatedMetrics.gas.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">m³</span>
@@ -624,12 +698,25 @@ export default function UsageMonitoringPage() {
           </div>
 
           {/* 卡片 6: 外购蒸汽量 */}
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs space-y-1">
+          <div
+            onClick={() => setSelectedMediumView('steam')}
+            className={cn(
+              'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
+              selectedMediumView === 'steam'
+                ? 'bg-purple-50/80 border-purple-500 ring-2 ring-purple-400/40 shadow-sm'
+                : 'bg-white border-slate-200 hover:border-purple-300'
+            )}
+          >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
                 <Wind className="size-3 text-purple-500" />
                 外购蒸汽量
               </span>
+              {selectedMediumView === 'steam' && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 font-bold">
+                  图表联动中
+                </span>
+              )}
             </div>
             <div className="text-base font-extrabold font-mono text-purple-600 truncate">
               {aggregatedMetrics.steam.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">t</span>
@@ -640,12 +727,25 @@ export default function UsageMonitoringPage() {
           </div>
 
           {/* 卡片 7: 油消耗量 */}
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs space-y-1">
+          <div
+            onClick={() => setSelectedMediumView('oil')}
+            className={cn(
+              'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
+              selectedMediumView === 'oil'
+                ? 'bg-rose-50/80 border-rose-500 ring-2 ring-rose-400/40 shadow-sm'
+                : 'bg-white border-slate-200 hover:border-rose-300'
+            )}
+          >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
                 <Fuel className="size-3 text-rose-500" />
                 油消耗量
               </span>
+              {selectedMediumView === 'oil' && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 font-bold">
+                  图表联动中
+                </span>
+              )}
             </div>
             <div className="text-base font-extrabold font-mono text-rose-600 truncate">
               {aggregatedMetrics.oil.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">L</span>
@@ -656,12 +756,25 @@ export default function UsageMonitoringPage() {
           </div>
 
           {/* 卡片 8: 液氮消耗量 */}
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs space-y-1">
+          <div
+            onClick={() => setSelectedMediumView('nitrogen')}
+            className={cn(
+              'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
+              selectedMediumView === 'nitrogen'
+                ? 'bg-indigo-50/80 border-indigo-500 ring-2 ring-indigo-400/40 shadow-sm'
+                : 'bg-white border-slate-200 hover:border-indigo-300'
+            )}
+          >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
                 <Snowflake className="size-3 text-indigo-500" />
                 液氮消耗量
               </span>
+              {selectedMediumView === 'nitrogen' && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 font-bold">
+                  图表联动中
+                </span>
+              )}
             </div>
             <div className="text-base font-extrabold font-mono text-indigo-600 truncate">
               {aggregatedMetrics.nitrogen.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">t</span>
@@ -689,7 +802,7 @@ export default function UsageMonitoringPage() {
                 onClick={() => setSelectedMediumView('all_elec')}
                 className={cn(
                   'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
-                  selectedMediumView === 'all_elec' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  ['all_elec', 'grid_elec', 'solar_elec'].includes(selectedMediumView) ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
                 <Zap className="size-3" />
@@ -776,6 +889,30 @@ export default function UsageMonitoringPage() {
                   { key: '总用电量', name: '总用电量 (万kWh/日)', color: '#1677ff' },
                   { key: '市电量', name: '市网供电量 (万kWh/日)', color: '#fa8c16' },
                   { key: '直供绿电量', name: '直供绿电量 (光伏自发自用, 万kWh/日)', color: '#10b981' },
+                ]}
+              />
+            )}
+            {selectedMediumView === 'grid_elec' && (
+              <LineTrend
+                data={dailyTimeSeriesData}
+                xKey="dayLabel"
+                height={280}
+                yUnit="万kWh"
+                lines={[
+                  { key: '市电量', name: '市网外购电量 (万kWh/日)', color: '#fa8c16' },
+                  { key: '总用电量', name: '总用电量参考 (万kWh/日)', color: '#94a3b8' },
+                ]}
+              />
+            )}
+            {selectedMediumView === 'solar_elec' && (
+              <LineTrend
+                data={dailyTimeSeriesData}
+                xKey="dayLabel"
+                height={280}
+                yUnit="万kWh"
+                lines={[
+                  { key: '直供绿电量', name: '直供绿电量 (光伏自发自用, 万kWh/日)', color: '#10b981' },
+                  { key: '总用电量', name: '总用电量参考 (万kWh/日)', color: '#94a3b8' },
                 ]}
               />
             )}
