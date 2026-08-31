@@ -941,7 +941,7 @@ export default function UnitProductPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
             >
               <Download className="size-3.5" />
-              <span>导出产品单耗报表</span>
+              <span>导出</span>
             </button>
           </div>
         </div>
