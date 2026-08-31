@@ -161,6 +161,7 @@ interface GreenCertItem {
   dealType: '直供绿电' | '交易绿电' | '交易绿证(GEC)'
   sourceType: '屋顶光伏' | '集中式风电' | '光伏平价项目' | '自备电厂'
   provider: string
+  buyer: string // 购买方 / 消纳企业 (精确到企业级)
   amount: string
   unitPrice: string
   dealDate: string
@@ -169,11 +170,13 @@ interface GreenCertItem {
 }
 
 const INITIAL_CERT_LIST: GreenCertItem[] = [
-  { id: '1', dealCode: 'TX-GE-202608-01', dealType: '直供绿电', sourceType: '屋顶光伏', provider: '沈变超高压厂房5.8MWp光伏电站', amount: '148.2 万kWh', unitPrice: '0.485 元/kWh', dealDate: '2026-08-20', certCode: 'GEC-2026-SY-88902', status: '已核销' },
-  { id: '2', dealCode: 'TX-GE-202608-02', dealType: '交易绿电', sourceType: '集中式风电', provider: '国家电投辽宁康平风电场', amount: '80.1 万kWh', unitPrice: '0.412 元/kWh', dealDate: '2026-08-18', certCode: 'GEC-2026-KP-77312', status: '已交割' },
-  { id: '3', dealCode: 'TX-GC-202608-03', dealType: '交易绿证(GEC)', sourceType: '光伏平价项目', provider: '三峡能源新疆哈密200MW光伏项目', amount: '18,000 张 (等效1800万kWh)', unitPrice: '15.5 元/张', dealDate: '2026-08-15', certCode: 'CN-GEC-2026-HM-00921', status: '已核销' },
-  { id: '4', dealCode: 'TX-GE-202607-04', dealType: '交易绿电', sourceType: '集中式风电', provider: '华能湖南城步风电场', amount: '65.0 万kWh', unitPrice: '0.435 元/kWh', dealDate: '2026-07-28', certCode: 'GEC-2026-CB-55421', status: '已核销' },
-  { id: '5', dealCode: 'TX-GC-202607-05', dealType: '交易绿证(GEC)', sourceType: '集中式风电', provider: '龙源电力内蒙古风电场', amount: '12,000 张', unitPrice: '14.8 元/张', dealDate: '2026-07-10', certCode: 'CN-GEC-2026-NM-33120', status: '已核销' },
+  { id: '1', dealCode: 'TX-GE-202608-01', dealType: '直供绿电', sourceType: '屋顶光伏', provider: '沈变超高压厂房5.8MWp光伏电站', buyer: '沈变本部', amount: '148.2 万kWh', unitPrice: '0.485 元/kWh', dealDate: '2026-08-20', certCode: 'GEC-2026-SY-88902', status: '已核销' },
+  { id: '2', dealCode: 'TX-GE-202608-02', dealType: '交易绿电', sourceType: '集中式风电', provider: '国家电投辽宁康平风电场', buyer: '和新套管公司', amount: '80.1 万kWh', unitPrice: '0.412 元/kWh', dealDate: '2026-08-18', certCode: 'GEC-2026-KP-77312', status: '已交割' },
+  { id: '3', dealCode: 'TX-GC-202608-03', dealType: '交易绿证(GEC)', sourceType: '光伏平价项目', provider: '三峡能源新疆哈密200MW光伏项目', buyer: '衡变本部', amount: '18,000 张 (等效1800万kWh)', unitPrice: '15.5 元/张', dealDate: '2026-08-15', certCode: 'CN-GEC-2026-HM-00921', status: '已核销' },
+  { id: '4', dealCode: 'TX-GE-202607-04', dealType: '交易绿电', sourceType: '集中式风电', provider: '华能湖南城步风电场', buyer: '超高压公司', amount: '65.0 万kWh', unitPrice: '0.435 元/kWh', dealDate: '2026-07-28', certCode: 'GEC-2026-CB-55421', status: '已核销' },
+  { id: '5', dealCode: 'TX-GC-202607-05', dealType: '交易绿证(GEC)', sourceType: '集中式风电', provider: '龙源电力内蒙古风电场', buyer: '鲁缆本部', amount: '12,000 张', unitPrice: '14.8 元/张', dealDate: '2026-07-10', certCode: 'CN-GEC-2026-NM-33120', status: '已核销' },
+  { id: '6', dealCode: 'TX-GE-202607-06', dealType: '交易绿电', sourceType: '集中式风电', provider: '华能新疆达坂城风电场', buyer: '特变电工新疆电缆有限公司', amount: '45.6 万kWh', unitPrice: '0.398 元/kWh', dealDate: '2026-07-08', certCode: 'GEC-2026-XJ-66108', status: '已交割' },
+  { id: '7', dealCode: 'TX-GE-202606-07', dealType: '直供绿电', sourceType: '屋顶光伏', provider: '德缆智能车间2.8MWp光伏电站', buyer: '特变电工（德阳）电缆股份有限公司', amount: '34.0 万kWh', unitPrice: '0.460 元/kWh', dealDate: '2026-06-25', certCode: 'GEC-2026-DY-55190', status: '已核销' },
 ]
 
 export default function MicrogridMonitoringPage() {
@@ -195,14 +198,18 @@ export default function MicrogridMonitoringPage() {
   const [selectedYear, setSelectedYear] = useState('2026')
   const [queryDate, setQueryDate] = useState('2026-08-27')
 
+  // 🌟 绿电卡片联动选态：'trade' (各企业绿电购买数量，默认) | 'pv_gen' (新能源发电量) | 'revenue' (新能源综合收益) | 'rate' (绿电综合消纳率)
+  const [activeGreenCard, setActiveGreenCard] = useState<'trade' | 'pv_gen' | 'revenue' | 'rate'>('trade')
+
   // 表格搜索与绿电弹窗
   const [tableSearchKey, setTableSearchKey] = useState('')
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false)
   const [certList, setCertList] = useState<GreenCertItem[]>(INITIAL_CERT_LIST)
   const [newCert, setNewCert] = useState({
-    dealType: '直供绿电' as '直供绿电' | '交易绿电' | '交易绿证(GEC)',
-    sourceType: '屋顶光伏' as '屋顶光伏' | '集中式风电' | '光伏平价项目' | '自备电厂',
+    dealType: '交易绿电' as '直供绿电' | '交易绿电' | '交易绿证(GEC)',
+    sourceType: '集中式风电' as '屋顶光伏' | '集中式风电' | '光伏平价项目' | '自备电厂',
     provider: '',
+    buyer: '沈变本部',
     amount: '',
     unitPrice: '',
     dealDate: '2026-08-28',
@@ -317,17 +324,59 @@ export default function MicrogridMonitoringPage() {
     })
   }, [queryDate, currentParkDetail])
 
-  // 绿电发电与消纳时序趋势
-  const greenTrendData = useMemo(() => {
+  // 🌟 1. 【各个企业绿电购买数量】时序走势数据 (万kWh)
+  const enterpriseGreenTradeTrendData = useMemo(() => {
     return [
-      { time: '01月', 新能源发电量: 142.5, 自发自用电量: 120.2, 余电上网量: 22.3, 综合收益: 88.5 },
-      { time: '02月', 新能源发电量: 155.0, 自发自用电量: 128.5, 余电上网量: 26.5, 综合收益: 95.2 },
-      { time: '03月', 新能源发电量: 168.2, 自发自用电量: 139.0, 余电上网量: 29.2, 综合收益: 104.6 },
-      { time: '04月', 新能源发电量: 175.4, 自发自用电量: 144.1, 余电上网量: 31.3, 综合收益: 109.8 },
-      { time: '05月', 新能源发电量: 188.0, 自发自用电量: 152.0, 余电上网量: 36.0, 综合收益: 118.2 },
-      { time: '06月', 新能源发电量: 195.6, 自发自用电量: 158.4, 余电上网量: 37.2, 综合收益: 123.5 },
-      { time: '07月', 新能源发电量: 202.1, 自发自用电量: 162.8, 余电上网量: 39.3, 综合收益: 128.0 },
-      { time: '08月', 新能源发电量: 182.6, 自发自用电量: 148.2, 余电上网量: 34.4, 综合收益: 113.7 },
+      { time: '01月', 沈变本部: 42.5, 衡变本部: 38.0, 超高压公司: 28.5, 鲁缆本部: 32.0, 特变电工新疆电缆: 24.5, 德缆公司: 18.2 },
+      { time: '02月', 沈变本部: 45.0, 衡变本部: 41.2, 超高压公司: 30.0, 鲁缆本部: 34.5, 特变电工新疆电缆: 26.0, 德缆公司: 19.5 },
+      { time: '03月', 沈变本部: 52.8, 衡变本部: 46.5, 超高压公司: 35.2, 鲁缆本部: 39.0, 特变电工新疆电缆: 31.2, 德缆公司: 23.0 },
+      { time: '04月', 沈变本部: 58.0, 衡变本部: 50.4, 超高压公司: 38.6, 鲁缆本部: 42.5, 特变电工新疆电缆: 34.0, 德缆公司: 25.8 },
+      { time: '05月', 沈变本部: 65.2, 衡变本部: 56.0, 超高压公司: 44.0, 鲁缆本部: 48.2, 特变电工新疆电缆: 39.5, 德缆公司: 29.4 },
+      { time: '06月', 沈变本部: 72.0, 衡变本部: 61.5, 超高压公司: 49.2, 鲁缆本部: 53.0, 特变电工新疆电缆: 43.8, 德缆公司: 32.5 },
+      { time: '07月', 沈变本部: 80.1, 衡变本部: 68.2, 超高压公司: 55.0, 鲁缆本部: 58.6, 特变电工新疆电缆: 48.0, 德缆公司: 36.2 },
+      { time: '08月', 沈变本部: 80.1, 衡变本部: 65.0, 超高压公司: 52.5, 鲁缆本部: 55.4, 特变电工新疆电缆: 45.6, 德缆公司: 34.0 },
+    ]
+  }, [])
+
+  // 🌟 2. 【新能源月发电量】发电与消纳时序趋势 (万kWh)
+  const pvGenTrendData = useMemo(() => {
+    return [
+      { time: '01月', 新能源发电量: 142.5, 自发自用电量: 120.2, 余电上网量: 22.3 },
+      { time: '02月', 新能源发电量: 155.0, 自发自用电量: 128.5, 余电上网量: 26.5 },
+      { time: '03月', 新能源发电量: 168.2, 自发自用电量: 139.0, 余电上网量: 29.2 },
+      { time: '04月', 新能源发电量: 175.4, 自发自用电量: 144.1, 余电上网量: 31.3 },
+      { time: '05月', 新能源发电量: 188.0, 自发自用电量: 152.0, 余电上网量: 36.0 },
+      { time: '06月', 新能源发电量: 195.6, 自发自用电量: 158.4, 余电上网量: 37.2 },
+      { time: '07月', 新能源发电量: 202.1, 自发自用电量: 162.8, 余电上网量: 39.3 },
+      { time: '08月', 新能源发电量: 182.6, 自发自用电量: 148.2, 余电上网量: 34.4 },
+    ]
+  }, [])
+
+  // 🌟 3. 【新能源综合收益】时序走势 (万元)
+  const revenueTrendData = useMemo(() => {
+    return [
+      { time: '01月', 综合月收益: 88.5, 自用省电费: 78.2, 上网电费收益: 10.3 },
+      { time: '02月', 综合月收益: 95.2, 自用省电费: 83.5, 上网电费收益: 11.7 },
+      { time: '03月', 综合月收益: 104.6, 自用省电费: 91.0, 上网电费收益: 13.6 },
+      { time: '04月', 综合月收益: 109.8, 自用省电费: 95.2, 上网电费收益: 14.6 },
+      { time: '05月', 综合月收益: 118.2, 自用省电费: 101.5, 上网电费收益: 16.7 },
+      { time: '06月', 综合月收益: 123.5, 自用省电费: 105.8, 上网电费收益: 17.7 },
+      { time: '07月', 综合月收益: 128.0, 自用省电费: 109.2, 上网电费收益: 18.8 },
+      { time: '08月', 综合月收益: 113.7, 自用省电费: 100.8, 上网电费收益: 12.9 },
+    ]
+  }, [])
+
+  // 🌟 4. 【绿电综合消纳率与碳减排】时序走势 (% / tCO2)
+  const greenRateTrendData = useMemo(() => {
+    return [
+      { time: '01月', 绿电综合消纳率: 32.4, 碳减排量: 82.6 },
+      { time: '02月', 绿电综合消纳率: 33.8, 碳减排量: 89.9 },
+      { time: '03月', 绿电综合消纳率: 35.1, 碳减排量: 97.5 },
+      { time: '04月', 绿电综合消纳率: 36.2, 碳减排量: 101.7 },
+      { time: '05月', 绿电综合消纳率: 37.8, 碳减排量: 109.0 },
+      { time: '06月', 绿电综合消纳率: 38.5, 碳减排量: 113.4 },
+      { time: '07月', 绿电综合消纳率: 39.2, 碳减排量: 117.2 },
+      { time: '08月', 绿电综合消纳率: 37.5, 碳减排量: 105.9 },
     ]
   }, [])
 
@@ -349,6 +398,7 @@ export default function MicrogridMonitoringPage() {
         !tableSearchKey.trim() ||
         c.dealCode.includes(tableSearchKey) ||
         c.provider.includes(tableSearchKey) ||
+        (c.buyer && c.buyer.includes(tableSearchKey)) ||
         c.certCode.includes(tableSearchKey)
       )
     })
@@ -356,8 +406,8 @@ export default function MicrogridMonitoringPage() {
 
   const handleSaveCert = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newCert.provider || !newCert.amount) {
-      alert('请填写完整的提供方与电量/张数信息')
+    if (!newCert.provider || !newCert.buyer || !newCert.amount) {
+      alert('请填写完整的提供方、购买方企业与电量/张数信息')
       return
     }
     const created: GreenCertItem = {
@@ -366,6 +416,7 @@ export default function MicrogridMonitoringPage() {
       dealType: newCert.dealType,
       sourceType: newCert.sourceType,
       provider: newCert.provider,
+      buyer: newCert.buyer,
       amount: newCert.amount,
       unitPrice: newCert.unitPrice || '0.450 元/kWh',
       dealDate: newCert.dealDate,
@@ -375,9 +426,10 @@ export default function MicrogridMonitoringPage() {
     setCertList([created, ...certList])
     setIsEntryModalOpen(false)
     setNewCert({
-      dealType: '直供绿电',
-      sourceType: '屋顶光伏',
+      dealType: '交易绿电',
+      sourceType: '集中式风电',
       provider: '',
+      buyer: '沈变本部',
       amount: '',
       unitPrice: '',
       dealDate: '2026-08-28',
@@ -884,13 +936,21 @@ export default function MicrogridMonitoringPage() {
         )}
 
         {/* ========================================================================= */}
-        {/* 🌟 TAB 3: 绿电监测看板 (viewMode === 'green', 原绿电监测模块全面合并) */}
-        {/* ========================================================================= */}
+        {/* 🌟 TAB 3: 绿电监测看板 (viewMode === 'green', 点击卡片与下方时序曲线深度联动) */}
         {viewMode === 'green' && (
           <>
-            {/* 4 项核心绿电指标看板 (样式完全对齐【电量】Tab 规范) */}
+            {/* 4 项核心绿电指标看板 (支持点击与下方曲线双向联动，带有选中激活光晕) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              {/* 1. 新能源月发电量 */}
+              <div
+                onClick={() => setActiveGreenCard('pv_gen')}
+                className={cn(
+                  'bg-white p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
+                  activeGreenCard === 'pv_gen'
+                    ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/20 shadow-sm'
+                    : 'border-slate-200 hover:border-slate-300 shadow-xs'
+                )}
+              >
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-bold flex items-center gap-1.5 text-slate-700">
                     <Sun className="size-4 text-emerald-500" />
@@ -912,7 +972,16 @@ export default function MicrogridMonitoringPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              {/* 2. 新能源综合收益 */}
+              <div
+                onClick={() => setActiveGreenCard('revenue')}
+                className={cn(
+                  'bg-white p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
+                  activeGreenCard === 'revenue'
+                    ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/20 shadow-sm'
+                    : 'border-slate-200 hover:border-slate-300 shadow-xs'
+                )}
+              >
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-bold flex items-center gap-1.5 text-slate-700">
                     <DollarSign className="size-4 text-amber-500" />
@@ -934,14 +1003,23 @@ export default function MicrogridMonitoringPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              {/* 3. 绿电与绿证交易 (核心：点击可查看各个企业的绿电购买数量曲线) */}
+              <div
+                onClick={() => setActiveGreenCard('trade')}
+                className={cn(
+                  'bg-white p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
+                  activeGreenCard === 'trade'
+                    ? 'border-[#1677ff] ring-2 ring-blue-500/20 bg-blue-50/20 shadow-sm'
+                    : 'border-slate-200 hover:border-slate-300 shadow-xs'
+                )}
+              >
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-bold flex items-center gap-1.5 text-slate-700">
                     <FileText className="size-4 text-blue-600" />
                     绿电与绿证交易
                   </span>
                   <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-50 text-[#1677ff] font-mono font-bold">
-                    外部购入
+                    各企业购买
                   </span>
                 </div>
                 <div className="text-2xl font-bold font-mono text-[#1677ff]">
@@ -956,7 +1034,16 @@ export default function MicrogridMonitoringPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              {/* 4. 绿电综合消纳率 */}
+              <div
+                onClick={() => setActiveGreenCard('rate')}
+                className={cn(
+                  'bg-white p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
+                  activeGreenCard === 'rate'
+                    ? 'border-emerald-600 ring-2 ring-emerald-600/20 bg-emerald-50/20 shadow-sm'
+                    : 'border-slate-200 hover:border-slate-300 shadow-xs'
+                )}
+              >
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-bold flex items-center gap-1.5 text-slate-700">
                     <Leaf className="size-4 text-emerald-600" />
@@ -979,31 +1066,105 @@ export default function MicrogridMonitoringPage() {
               </div>
             </div>
 
-            {/* 新能源发电与消纳时序走势 */}
+            {/* 🌟 核心时序走势图表 (根据 activeGreenCard 动态联动切换展示对应数据) */}
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-emerald-500" />
+                  <span className={cn(
+                    'size-2 rounded-full',
+                    activeGreenCard === 'trade' ? 'bg-[#1677ff]' :
+                    activeGreenCard === 'pv_gen' ? 'bg-emerald-500' :
+                    activeGreenCard === 'revenue' ? 'bg-amber-500' : 'bg-emerald-600'
+                  )} />
                   <h3 className="text-xs font-bold text-slate-900">
-                    新能源月度发电与自发自用/余电上网消纳时序走势 (万kWh)
+                    {activeGreenCard === 'trade' && '各个企业月度绿电购买数量走势对比 (万kWh)'}
+                    {activeGreenCard === 'pv_gen' && '新能源月度发电量与自发自用/余电上网消纳时序走势 (万kWh)'}
+                    {activeGreenCard === 'revenue' && '新能源月度综合收益走势 (省电费收益 vs 余电上网收益 / 万元)'}
+                    {activeGreenCard === 'rate' && '绿电综合消纳率与月度等效碳减排贡献时序走势 (% / tCO₂)'}
                   </h3>
                 </div>
-                <span className="text-xs text-slate-400 font-mono">直供与消纳月度累计</span>
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="text-slate-400 font-mono">
+                    {activeGreenCard === 'trade' && '按主要企业维度分别统计'}
+                    {activeGreenCard === 'pv_gen' && '直供与消纳月度累计'}
+                    {activeGreenCard === 'revenue' && '财务综合结算月度统计'}
+                    {activeGreenCard === 'rate' && '清洁能源消纳考核口径'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => alert(`正在导出当前绿电时序曲线数据...`)}
+                    className="flex items-center gap-1 text-[#1677ff] hover:underline font-sans cursor-pointer"
+                  >
+                    <Download className="size-3" />
+                    导出曲线
+                  </button>
+                </div>
               </div>
-              <LineTrend
-                data={greenTrendData}
-                xKey="time"
-                height={260}
-                yUnit="万kWh"
-                lines={[
-                  { key: '新能源发电量', name: '新能源发电量 (万kWh)', color: '#10b981' },
-                  { key: '自发自用电量', name: '自发自用电量 (万kWh)', color: '#1677ff' },
-                  { key: '余电上网量', name: '余电上网电量 (万kWh)', color: '#fa8c16' },
-                ]}
-              />
+
+              {/* 1. 绿电与绿证交易 -> 显示各个企业的绿电购买数量对比曲线 */}
+              {activeGreenCard === 'trade' && (
+                <LineTrend
+                  data={enterpriseGreenTradeTrendData}
+                  xKey="time"
+                  height={260}
+                  yUnit="万kWh"
+                  lines={[
+                    { key: '沈变本部', name: '沈变本部 (万kWh)', color: '#1677ff' },
+                    { key: '衡变本部', name: '衡变本部 (万kWh)', color: '#10b981' },
+                    { key: '超高压公司', name: '超高压公司 (万kWh)', color: '#8b5cf6' },
+                    { key: '鲁缆本部', name: '鲁缆本部 (万kWh)', color: '#f59e0b' },
+                    { key: '特变电工新疆电缆', name: '特变电工新疆电缆 (万kWh)', color: '#06b6d4' },
+                    { key: '德缆公司', name: '德缆公司 (万kWh)', color: '#ec4899' },
+                  ]}
+                />
+              )}
+
+              {/* 2. 新能源月发电量走势 */}
+              {activeGreenCard === 'pv_gen' && (
+                <LineTrend
+                  data={pvGenTrendData}
+                  xKey="time"
+                  height={260}
+                  yUnit="万kWh"
+                  lines={[
+                    { key: '新能源发电量', name: '新能源发电量 (万kWh)', color: '#10b981' },
+                    { key: '自发自用电量', name: '自发自用电量 (万kWh)', color: '#1677ff' },
+                    { key: '余电上网量', name: '余电上网电量 (万kWh)', color: '#fa8c16' },
+                  ]}
+                />
+              )}
+
+              {/* 3. 新能源综合收益走势 */}
+              {activeGreenCard === 'revenue' && (
+                <LineTrend
+                  data={revenueTrendData}
+                  xKey="time"
+                  height={260}
+                  yUnit="万元"
+                  lines={[
+                    { key: '综合月收益', name: '综合月收益 (万元)', color: '#d97706' },
+                    { key: '自用省电费', name: '自用省电费 (万元)', color: '#10b981' },
+                    { key: '上网电费收益', name: '上网电费收益 (万元)', color: '#3b82f6' },
+                  ]}
+                />
+              )}
+
+              {/* 4. 绿电消纳率与碳减排 */}
+              {activeGreenCard === 'rate' && (
+                <LineTrend
+                  data={greenRateTrendData}
+                  xKey="time"
+                  height={260}
+                  yUnit="%"
+                  lines={[
+                    { key: '绿电综合消纳率', name: '绿电综合消纳率 (%)', color: '#10b981' },
+                    { key: '碳减排量', name: '等效碳减排量 (tCO₂)', color: '#1677ff' },
+                  ]}
+                />
+              )}
             </div>
 
-            {/* 绿电与绿证交易台账明细 */}
+            {/* 绿电与绿证交易台账明细 (增加购买方/消纳企业列) */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
               <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/80 gap-2">
                 <div className="flex items-center gap-2">
@@ -1025,7 +1186,7 @@ export default function MicrogridMonitoringPage() {
                     <Search className="size-3.5 text-slate-400 absolute left-2.5 top-2" />
                     <input
                       type="text"
-                      placeholder="搜索交易单号 / 发电方 / 证书..."
+                      placeholder="搜索交易单号 / 发电方 / 购买方企业 / 证书..."
                       value={tableSearchKey}
                       onChange={(e) => setTableSearchKey(e.target.value)}
                       className="pl-8 pr-3 py-1 bg-white border border-slate-200 rounded-md text-xs font-sans text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1677ff]"
@@ -1049,6 +1210,7 @@ export default function MicrogridMonitoringPage() {
                       <th className="py-2.5 px-3">交易类型</th>
                       <th className="py-2.5 px-3">能源品种</th>
                       <th className="py-2.5 px-3">绿电提供方 / 项目来源</th>
+                      <th className="py-2.5 px-3 text-[#1677ff] font-bold">购买方 / 消纳企业</th>
                       <th className="py-2.5 px-3 font-bold text-emerald-600">核算电量 / 张数</th>
                       <th className="py-2.5 px-3">结算单价</th>
                       <th className="py-2.5 px-3">交易/交割日期</th>
@@ -1076,6 +1238,12 @@ export default function MicrogridMonitoringPage() {
                         </td>
                         <td className="py-2 px-3 font-sans text-slate-600">{row.sourceType}</td>
                         <td className="py-2 px-3 font-sans text-slate-800">{row.provider}</td>
+                        <td className="py-2 px-3 font-sans">
+                          <span className="inline-flex items-center gap-1 font-bold text-slate-800 bg-blue-50/80 px-2 py-0.5 rounded border border-blue-200/60 text-[11px]">
+                            <Building2 className="size-3 text-[#1677ff]" />
+                            {row.buyer || '沈变本部'}
+                          </span>
+                        </td>
                         <td className="py-2 px-3 font-bold text-emerald-700">{row.amount}</td>
                         <td className="py-2 px-3 font-mono">{row.unitPrice}</td>
                         <td className="py-2 px-3 font-sans">{row.dealDate}</td>
@@ -1151,6 +1319,63 @@ export default function MicrogridMonitoringPage() {
                   className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-medium mb-1">
+                  购买方 / 消纳企业 <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={newCert.buyer}
+                  onChange={(e) => setNewCert({ ...newCert, buyer: e.target.value })}
+                  className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 cursor-pointer font-sans"
+                  required
+                >
+                  <option value="">-- 请选择购买消纳企业 (精确到企业级) --</option>
+                  <optgroup label="🏢 沈变公司">
+                    <option value="沈变本部">沈变本部</option>
+                    <option value="露娜公司 (特变电工露娜智能)">露娜公司 (特变电工露娜智能)</option>
+                    <option value="智慧能源">智慧能源</option>
+                    <option value="和新套管公司">和新套管公司</option>
+                    <option value="康嘉互感器">康嘉互感器</option>
+                    <option value="印能公司">印能公司</option>
+                  </optgroup>
+                  <optgroup label="🏢 衡变公司">
+                    <option value="衡变本部">衡变本部</option>
+                    <option value="南京电研">南京电研</option>
+                    <option value="云集电气">云集电气</option>
+                    <option value="湖南电气">湖南电气</option>
+                    <option value="云集高压开关">云集高压开关</option>
+                    <option value="新疆自控">新疆自控</option>
+                    <option value="上开">上开</option>
+                    <option value="柯贝尔">柯贝尔</option>
+                    <option value="特能建">特能建</option>
+                    <option value="合容电气">合容电气</option>
+                    <option value="赛杰爱迪">赛杰爱迪</option>
+                  </optgroup>
+                  <optgroup label="🏢 新变厂">
+                    <option value="超高压公司">超高压公司</option>
+                    <option value="天变公司">天变公司</option>
+                    <option value="智能电气公司">智能电气公司</option>
+                    <option value="京津冀公司">京津冀公司</option>
+                    <option value="珠峰硅钢">珠峰硅钢</option>
+                    <option value="智慧能源">智慧能源</option>
+                    <option value="银利电气">银利电气</option>
+                  </optgroup>
+                  <optgroup label="🏢 鲁缆公司">
+                    <option value="鲁缆本部">鲁缆本部</option>
+                    <option value="智缆公司">智缆公司</option>
+                    <option value="昭和公司">昭和公司</option>
+                    <option value="曙光公司">曙光公司</option>
+                  </optgroup>
+                  <optgroup label="🏢 新缆厂">
+                    <option value="特变电工新疆电缆有限公司">特变电工新疆电缆有限公司</option>
+                    <option value="特变电工新疆线缆厂">特变电工新疆线缆厂</option>
+                  </optgroup>
+                  <optgroup label="🏢 德缆公司">
+                    <option value="特变电工（德阳）电缆股份有限公司">特变电工（德阳）电缆股份有限公司</option>
+                  </optgroup>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
