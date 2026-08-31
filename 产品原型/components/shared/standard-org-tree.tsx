@@ -557,21 +557,6 @@ export function StandardOrgTree({
           </div>
         )}
       </div>
-
-      {/* 4. 底部统计栏 */}
-      <div className="p-2 border-t border-slate-100 bg-slate-50/70 text-[10.5px] text-slate-500 flex items-center justify-between shrink-0 font-mono">
-        {treeType === 'park' ? (
-          <>
-            <span>15大零碳园区 · 全域微网</span>
-            <span className="text-emerald-600 font-semibold">100% 在线</span>
-          </>
-        ) : (
-          <>
-            <span>6大一级单位 · 30二级单位</span>
-            <span className="text-emerald-600 font-semibold">100% 在线</span>
-          </>
-        )}
-      </div>
     </aside>
   )
 }

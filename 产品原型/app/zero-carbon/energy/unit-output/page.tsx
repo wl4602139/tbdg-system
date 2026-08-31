@@ -790,7 +790,7 @@ export default function UnitOutputPage() {
             <div className="flex items-center gap-2">
               <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
               <h2 className="text-xs font-bold text-slate-800">
-                【{selectedNode.name} 万元产值能源单耗指标】
+                万元产值能源单耗指标
               </h2>
             </div>
           </div>
@@ -850,7 +850,7 @@ export default function UnitOutputPage() {
             <div className="flex items-center gap-2">
               <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
               <h3 className="text-xs font-bold text-slate-800">
-                【{selectedNode.name} {activeMetricMeta.name}变化趋势】
+                {activeMetricMeta.name}变化趋势
               </h3>
               <span className="text-[11px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-mono font-bold border border-blue-200/80">
                 单位: {activeMetricMeta.unit}
@@ -943,8 +943,8 @@ export default function UnitOutputPage() {
                   <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
                   <h3 className="text-xs font-bold text-slate-800">
                     {isGroupLevel
-                      ? '【特变电工集团各经营单位单位产值能耗】'
-                      : `【${selectedNode.name}各项目公司单位产值能耗】`}
+                      ? '各经营单位单位产值能耗'
+                      : '各项目公司单位产值能耗'}
                   </h3>
                 </div>
                 <span className="text-xs text-slate-400 font-mono">
@@ -1018,8 +1018,8 @@ export default function UnitOutputPage() {
                   <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
                   <h3 className="text-xs font-bold text-slate-800">
                     {isGroupLevel
-                      ? '【各经营单位产值综合能耗明细】'
-                      : `【${selectedNode.name}各项目公司产值综合能耗明细】`}
+                      ? '各经营单位产值综合能耗明细'
+                      : '各项目公司产值综合能耗明细'}
                   </h3>
                 </div>
                 <span className="text-xs text-slate-400 font-mono">报告期：2026年08月</span>
@@ -1105,7 +1105,7 @@ export default function UnitOutputPage() {
               <div className="flex items-center gap-2">
                 <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
                 <h3 className="text-xs font-bold text-slate-800">
-                  【{selectedNode.name} 万元产值能耗历史明细台账】
+                  万元产值能耗历史明细台账
                 </h3>
               </div>
               <span className="text-xs text-slate-400 font-mono">近 12 个月月度连续监测</span>

@@ -456,13 +456,10 @@ export default function CarbonEmissionMonitoringPage() {
   return (
     <div className="flex gap-3.5 items-start">
       {/* 左侧标准组织机构树 (270px 树状驱动) */}
-      <aside className="w-[270px] min-w-[270px] max-w-[270px] shrink-0 sticky top-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-84px)] overflow-hidden">
-        <StandardOrgTree
-          selectedNodeId={selectedOrgNode.id}
-          onSelectNode={handleSelectTreeNode}
-          title="集团及下级制造基地拓扑"
-        />
-      </aside>
+      <StandardOrgTree
+        selectedId={selectedOrgNode.id}
+        onSelect={handleSelectTreeNode}
+      />
 
       {/* 右侧主业务看板 */}
       <div className="flex-1 min-w-0 space-y-3.5">
@@ -587,10 +584,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
                     <ShieldCheck className="size-4 text-[#1677ff]" />
-                    集团净碳排放量 (Net Emission)
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 font-mono font-bold">
-                    核算终值
+                    集团净碳排放量
                   </span>
                 </div>
                 <div className="text-3xl font-extrabold font-mono text-[#1677ff] flex items-baseline gap-1.5">
@@ -607,10 +601,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                     <Zap className="size-4 text-amber-500" />
-                    集团初始碳排放量 (Gross Emission)
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 font-mono font-bold">
-                    抵消前基准
+                    集团初始碳排放量
                   </span>
                 </div>
                 <div className="text-3xl font-extrabold font-mono text-slate-800 flex items-baseline gap-1.5">
@@ -627,10 +618,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
                     <Award className="size-4 text-emerald-600" />
-                    集团碳抵消总量 (Carbon Offset)
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-mono font-bold">
-                    3 大抵消合规
+                    集团碳抵消总量
                   </span>
                 </div>
                 <div className="text-3xl font-extrabold font-mono text-emerald-600 flex items-baseline gap-1.5">
@@ -908,10 +896,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
                     <ShieldCheck className="size-4 text-[#1677ff]" />
-                    净碳排放量 (Net Emission)
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 font-mono font-bold">
-                    终值考核
+                    净碳排放量
                   </span>
                 </div>
                 <div className="text-3xl font-extrabold font-mono text-[#1677ff] flex items-baseline gap-1.5">
@@ -928,10 +913,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                     <Zap className="size-4 text-amber-500" />
-                    初始碳排放量 (Gross Emission)
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 font-mono font-bold">
-                    抵消前
+                    初始碳排放量
                   </span>
                 </div>
                 <div className="text-3xl font-extrabold font-mono text-slate-800 flex items-baseline gap-1.5">
@@ -948,10 +930,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
                     <Award className="size-4 text-emerald-600" />
-                    碳抵消总量 (3 大绿电绿证抵消)
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-mono font-bold">
-                    中和核减
+                    碳抵消总量
                   </span>
                 </div>
                 <div className="text-3xl font-extrabold font-mono text-emerald-600 flex items-baseline gap-1.5">
@@ -980,7 +959,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-[#1677ff]" />
                   <h3 className="text-xs font-bold text-slate-900">
-                    【{activeFactory.name}】净碳排放结构与 3 大绿色抵消拆解
+                    净碳排放结构与 3 大绿色抵消拆解
                   </h3>
                 </div>
                 <span className="text-xs text-slate-400 font-mono">
@@ -1075,7 +1054,7 @@ export default function CarbonEmissionMonitoringPage() {
                   <div className="flex items-center gap-2">
                     <span className="size-2 rounded-full bg-[#1677ff]" />
                     <h3 className="text-xs font-bold text-slate-900">
-                      【{activeFactory.name}】碳排放总量历史变化趋势 (tCO₂)
+                      碳排放总量历史变化趋势 (tCO₂)
                     </h3>
                   </div>
                   <span className="text-xs text-slate-400 font-mono">初始排放 vs 净碳排放</span>
@@ -1102,7 +1081,7 @@ export default function CarbonEmissionMonitoringPage() {
                   <div className="flex items-center gap-2">
                     <span className="size-2 rounded-full bg-emerald-500" />
                     <h3 className="text-xs font-bold text-slate-900">
-                      【{activeFactory.name}】万元产值碳排放变化趋势
+                      万元产值碳排放变化趋势
                     </h3>
                   </div>
                   <span className="text-xs text-slate-400 font-mono">单位产值碳强度 (tCO₂/万元)</span>
@@ -1128,7 +1107,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-emerald-500" />
                   <h3 className="text-xs font-bold text-slate-800">
-                    【{activeFactory.name}】月度能源消耗与碳排放核算明细台账
+                    月度能源消耗与碳排放核算明细台账
                   </h3>
                 </div>
 

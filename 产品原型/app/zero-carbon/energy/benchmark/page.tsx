@@ -3231,9 +3231,6 @@ export default function BenchmarkManagementPage() {
                   <Zap className="size-4 text-purple-600" />
                   <span>1. 关键工序行业基准</span>
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold font-mono text-[11px]">
-                  6 项工序标杆
-                </span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans">
                 涵盖拉丝吨铜/吨铝电耗、高压干燥、耐压试验、立塔交联等国家先进标杆
@@ -3255,9 +3252,6 @@ export default function BenchmarkManagementPage() {
                   <ShieldCheck className="size-4 text-emerald-600" />
                   <span>2. 国家零碳工厂3大指标</span>
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold font-mono text-[11px]">
-                  3 大强制/引导门槛
-                </span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans">
                 GB/T 43126 单位能耗碳排放(≤1.8)、非化石能源(≥35%)、物理绿电(≥30%)
@@ -3278,9 +3272,6 @@ export default function BenchmarkManagementPage() {
                 <span className="font-bold text-slate-900 flex items-center gap-1.5">
                   <Award className="size-4 text-[#1677ff]" />
                   <span>3. 集团管控基准与内控红线</span>
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold font-mono text-[11px]">
-                  6 项内控考核
                 </span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans">
@@ -3544,21 +3535,25 @@ export default function BenchmarkManagementPage() {
 
       {/* 🌟 4. 录入 / 维护基准弹窗 (全面支持关键工序/零碳3大指标/集团管控基准) */}
       {showAddStandardModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <div className="flex items-center gap-2">
-                <div className="size-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
-                  <Plus className="size-4 text-[#1677ff]" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 my-auto">
+            {/* 弹窗 Header */}
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+              <div className="flex items-center gap-3">
+                <div className="size-8 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center font-bold shadow-2xs">
+                  <Plus className="size-4.5 text-[#1677ff]" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-800">录入 / 维护能效对标基准与标准值</h3>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800">录入 / 维护能效对标基准与标准值</h3>
+                  <p className="text-[11px] text-slate-400 font-normal">支持国家标准、行业先进值及集团内部对标红线配置</p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddStandardModal(false)}
-                className="size-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center cursor-pointer"
+                className="size-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 flex items-center justify-center cursor-pointer transition-colors"
               >
-                <X className="size-4" />
+                <X className="size-4.5" />
               </button>
             </div>
 
@@ -3594,15 +3589,15 @@ export default function BenchmarkManagementPage() {
                 alert(`已成功保存并发布【${newEntry.indicatorName}】基准标准！`)
                 setShowAddStandardModal(false)
               }}
-              className="p-4 space-y-3 text-xs font-sans"
+              className="p-6 space-y-4 text-xs font-sans"
             >
-              {/* 基准大类选择 */}
-              <div className="space-y-1">
+              {/* 1. 基准大类选择 */}
+              <div className="space-y-1.5">
                 <label className="text-slate-700 font-bold block">1. 基准标准分类：</label>
                 <select
                   value={newStandardForm.category}
                   onChange={(e) => setNewStandardForm({ ...newStandardForm, category: e.target.value as any })}
-                  className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-bold text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white"
+                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-bold text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
                 >
                   <option value="process">1. 关键工序行业基准 (拉丝/干燥/交联/试验等)</option>
                   <option value="zero_carbon">2. 国家零碳工厂3大核心指标 (碳排放/非化石/物理绿电)</option>
@@ -3610,9 +3605,9 @@ export default function BenchmarkManagementPage() {
                 </select>
               </div>
 
-              {/* 指标名称与适用范围 */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
+              {/* 2. 指标名称与适用范围 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
                   <label className="text-slate-600 font-bold block">指标名称：</label>
                   <input
                     type="text"
@@ -3620,35 +3615,35 @@ export default function BenchmarkManagementPage() {
                     placeholder="如：线缆-拉丝 (吨铜电耗)"
                     value={newStandardForm.indicatorName}
                     onChange={(e) => setNewStandardForm({ ...newStandardForm, indicatorName: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
                   />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-slate-600 font-bold block">适用范围 / 产品：</label>
                   <input
                     type="text"
                     placeholder="如：线缆产业拉丝工段"
                     value={newStandardForm.scope}
                     onChange={(e) => setNewStandardForm({ ...newStandardForm, scope: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
                   />
                 </div>
               </div>
 
-              {/* 比较符、基准值与单位 */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-1">
+              {/* 3. 比较符、基准值与单位 */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
                   <label className="text-slate-600 font-bold block">判定规则：</label>
                   <select
                     value={newStandardForm.compareOperator}
                     onChange={(e) => setNewStandardForm({ ...newStandardForm, compareOperator: e.target.value as any })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-bold text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-bold text-xs focus:outline-none focus:border-[#1677ff] transition-colors"
                   >
                     <option value="<=">≤ (小于等于，优于门槛)</option>
                     <option value=">=">≥ (大于等于，达到目标)</option>
                   </select>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-slate-600 font-bold block">标准基准值：</label>
                   <input
                     type="number"
@@ -3657,59 +3652,64 @@ export default function BenchmarkManagementPage() {
                     placeholder="如：320.0"
                     value={newStandardForm.benchmarkValue}
                     onChange={(e) => setNewStandardForm({ ...newStandardForm, benchmarkValue: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[#1677ff] font-mono font-bold text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[#1677ff] font-mono font-bold text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
                   />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-slate-600 font-bold block">计量单位：</label>
                   <input
                     type="text"
                     placeholder="如：kWh/t 或 %"
                     value={newStandardForm.unit}
                     onChange={(e) => setNewStandardForm({ ...newStandardForm, unit: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
                   />
                 </div>
               </div>
 
-              {/* 标准出处与生效日期 */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
+              {/* 4. 标准出处与生效日期 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
                   <label className="text-slate-600 font-bold block">标准出处 / 政策依据：</label>
                   <input
                     type="text"
                     placeholder="如：GB/T 国家先进标准"
                     value={newStandardForm.standardSource}
                     onChange={(e) => setNewStandardForm({ ...newStandardForm, standardSource: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
                   />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-slate-600 font-bold block">生效日期：</label>
                   <input
                     type="date"
                     value={newStandardForm.effectiveDate}
                     onChange={(e) => setNewStandardForm({ ...newStandardForm, effectiveDate: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
                   />
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-[11px]">
-                提示：维护后的基准值将自动实时同步至全集团各项目公司的「核心指标对比」、「关键工序单耗对比」及「产品单耗对比」的基准线中。
+              {/* 5. 提示说明 */}
+              <div className="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200 text-blue-800 text-xs leading-relaxed flex items-start gap-2">
+                <span className="text-[#1677ff] font-bold shrink-0">💡</span>
+                <span>
+                  <strong>数据联动提示：</strong>维护后的基准值将自动实时同步至全集团各项目公司的「核心指标对比」、「关键工序单耗对比」及「产品单耗对比」的基准线与达标阈值中。
+                </span>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              {/* 6. 底部操作按钮 */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowAddStandardModal(false)}
-                  className="px-3.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-600 cursor-pointer"
+                  className="px-5 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-600 cursor-pointer transition-colors"
                 >
                   取消
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-xs font-semibold text-white shadow-2xs cursor-pointer"
+                  className="px-6 py-2 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-xs font-bold text-white shadow-xs cursor-pointer transition-colors"
                 >
                   确认保存并生效
                 </button>

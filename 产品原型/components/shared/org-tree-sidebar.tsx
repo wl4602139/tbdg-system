@@ -352,12 +352,6 @@ export function OrgTreeSidebar({
           <div className="py-8 text-center text-xs text-slate-400">未检索到匹配的组织或单位</div>
         )}
       </div>
-
-      {/* 4. 底部统计栏 */}
-      <div className="p-2 border-t border-slate-100 bg-slate-50/70 text-[10.5px] text-slate-500 flex items-center justify-between shrink-0 font-mono">
-        <span>6大一级单位 · 30二级单位</span>
-        <span className="text-emerald-600 font-semibold">100% 在线</span>
-      </div>
     </aside>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   Calendar,
   Download,
@@ -65,11 +65,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_sb_main',
     companyName: '沈变本部',
     productionVolume: '1,670 MVA (5台)',
-    unitTce: '14.21 tce/台',
-    unitElecKWh: '105,900 kWh/台 (0.317 kWh/kVA)',
-    unitSteamTon: '3.40 t/台',
-    unitGasM3: '48.0 m³/台',
-    unitWaterTon: '19.2 t/台',
+    unitTce: '14.21 tce/万kVA',
+    unitElecKWh: '0.317 kWh/kVA',
+    unitSteamTon: '3.40 t/万kVA',
+    unitGasM3: '48.0 m³/万kVA',
+    unitWaterTon: '19.2 t/万kVA',
     diffYoy: '-6.2%',
     quotaStatus: '先进标杆',
   },
@@ -82,11 +82,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_hb_main',
     companyName: '衡变本部',
     productionVolume: '1,680 MVA (2台)',
-    unitTce: '25.80 tce/台',
-    unitElecKWh: '198,000 kWh/台 (0.306 kWh/kVA)',
-    unitSteamTon: '5.80 t/台',
-    unitGasM3: '82.0 m³/台',
-    unitWaterTon: '32.0 t/台',
+    unitTce: '25.80 tce/万kVA',
+    unitElecKWh: '0.306 kWh/kVA',
+    unitSteamTon: '5.80 t/万kVA',
+    unitGasM3: '82.0 m³/万kVA',
+    unitWaterTon: '32.0 t/万kVA',
     diffYoy: '-7.2%',
     quotaStatus: '先进标杆',
   },
@@ -99,11 +99,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_hb_tnj',
     companyName: '特能建',
     productionVolume: '1,000 MVA (4台)',
-    unitTce: '10.65 tce/台',
-    unitElecKWh: '78,900 kWh/台 (0.315 kWh/kVA)',
-    unitSteamTon: '2.50 t/台',
-    unitGasM3: '35.2 m³/台',
-    unitWaterTon: '14.0 t/台',
+    unitTce: '10.65 tce/万kVA',
+    unitElecKWh: '0.315 kWh/kVA',
+    unitSteamTon: '2.50 t/万kVA',
+    unitGasM3: '35.2 m³/万kVA',
+    unitWaterTon: '14.0 t/万kVA',
     diffYoy: '-5.8%',
     quotaStatus: '达标受控',
   },
@@ -116,11 +116,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_xb_uhv',
     companyName: '超高压公司',
     productionVolume: '1,336 MVA (4台)',
-    unitTce: '14.72 tce/台',
-    unitElecKWh: '109,800 kWh/台 (0.328 kWh/kVA)',
-    unitSteamTon: '3.60 t/台',
-    unitGasM3: '52.0 m³/台',
-    unitWaterTon: '20.1 t/台',
+    unitTce: '14.72 tce/万kVA',
+    unitElecKWh: '0.328 kWh/kVA',
+    unitSteamTon: '3.60 t/万kVA',
+    unitGasM3: '52.0 m³/万kVA',
+    unitWaterTon: '20.1 t/万kVA',
     diffYoy: '-4.2%',
     quotaStatus: '达标受控',
   },
@@ -133,11 +133,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_hb_hn',
     companyName: '湖南电气',
     productionVolume: '720 MVA (3台)',
-    unitTce: '7.85 tce/台',
-    unitElecKWh: '58,900 kWh/台 (0.327 kWh/kVA)',
-    unitSteamTon: '1.90 t/台',
-    unitGasM3: '26.8 m³/台',
-    unitWaterTon: '11.2 t/台',
+    unitTce: '7.85 tce/万kVA',
+    unitElecKWh: '0.327 kWh/kVA',
+    unitSteamTon: '1.90 t/万kVA',
+    unitGasM3: '26.8 m³/万kVA',
+    unitWaterTon: '11.2 t/万kVA',
     diffYoy: '-4.6%',
     quotaStatus: '达标受控',
   },
@@ -150,11 +150,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_sb_main',
     companyName: '沈变本部',
     productionVolume: '540 MVA (3台)',
-    unitTce: '6.20 tce/台',
-    unitElecKWh: '46,500 kWh/台 (0.322 kWh/kVA)',
-    unitSteamTon: '1.50 t/台',
-    unitGasM3: '21.0 m³/台',
-    unitWaterTon: '9.0 t/台',
+    unitTce: '6.20 tce/万kVA',
+    unitElecKWh: '0.322 kWh/kVA',
+    unitSteamTon: '1.50 t/万kVA',
+    unitGasM3: '21.0 m³/万kVA',
+    unitWaterTon: '9.0 t/万kVA',
     diffYoy: '-5.3%',
     quotaStatus: '先进标杆',
   },
@@ -167,11 +167,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_sb_main',
     companyName: '沈变本部',
     productionVolume: '450 MVA (9台)',
-    unitTce: '4.15 tce/台',
-    unitElecKWh: '31,200 kWh/台 (0.330 kWh/kVA)',
-    unitSteamTon: '1.10 t/台',
-    unitGasM3: '15.0 m³/台',
-    unitWaterTon: '8.2 t/台',
+    unitTce: '4.15 tce/万kVA',
+    unitElecKWh: '0.330 kWh/kVA',
+    unitSteamTon: '1.10 t/万kVA',
+    unitGasM3: '15.0 m³/万kVA',
+    unitWaterTon: '8.2 t/万kVA',
     diffYoy: '-4.8%',
     quotaStatus: '达标受控',
   },
@@ -184,11 +184,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_hb_main',
     companyName: '衡变本部',
     productionVolume: '378 MVA (6台)',
-    unitTce: '4.28 tce/台',
-    unitElecKWh: '32,100 kWh/台 (0.321 kWh/kVA)',
-    unitSteamTon: '1.20 t/台',
-    unitGasM3: '16.5 m³/台',
-    unitWaterTon: '8.6 t/台',
+    unitTce: '4.28 tce/万kVA',
+    unitElecKWh: '0.321 kWh/kVA',
+    unitSteamTon: '1.20 t/万kVA',
+    unitGasM3: '16.5 m³/万kVA',
+    unitWaterTon: '8.6 t/万kVA',
     diffYoy: '-5.1%',
     quotaStatus: '先进标杆',
   },
@@ -201,11 +201,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_xb_jjj',
     companyName: '京津冀公司',
     productionVolume: '250 MVA (5台)',
-    unitTce: '4.39 tce/台',
-    unitElecKWh: '33,000 kWh/台 (0.330 kWh/kVA)',
-    unitSteamTon: '1.30 t/台',
-    unitGasM3: '17.0 m³/台',
-    unitWaterTon: '8.9 t/台',
+    unitTce: '4.39 tce/万kVA',
+    unitElecKWh: '0.330 kWh/kVA',
+    unitSteamTon: '1.30 t/万kVA',
+    unitGasM3: '17.0 m³/万kVA',
+    unitWaterTon: '8.9 t/万kVA',
     diffYoy: '-4.9%',
     quotaStatus: '达标受控',
   },
@@ -218,11 +218,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_xb_tb',
     companyName: '天变公司',
     productionVolume: '45 MVA (18台)',
-    unitTce: '0.85 tce/台',
-    unitElecKWh: '6,380 kWh/台 (0.318 kWh/kVA)',
-    unitSteamTon: '0.22 t/台',
-    unitGasM3: '7.8 m³/台',
-    unitWaterTon: '2.6 t/台',
+    unitTce: '0.85 tce/万kVA',
+    unitElecKWh: '0.318 kWh/kVA',
+    unitSteamTon: '0.22 t/万kVA',
+    unitGasM3: '7.8 m³/万kVA',
+    unitWaterTon: '2.6 t/万kVA',
     diffYoy: '-6.5%',
     quotaStatus: '先进标杆',
   },
@@ -235,11 +235,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_xb_zndq',
     companyName: '智能电气公司',
     productionVolume: '48 MVA (24台)',
-    unitTce: '0.70 tce/台',
-    unitElecKWh: '5,260 kWh/台 (0.328 kWh/kVA)',
-    unitSteamTon: '0.19 t/台',
-    unitGasM3: '6.5 m³/台',
-    unitWaterTon: '2.2 t/台',
+    unitTce: '0.70 tce/万kVA',
+    unitElecKWh: '0.328 kWh/kVA',
+    unitSteamTon: '0.19 t/万kVA',
+    unitGasM3: '6.5 m³/万kVA',
+    unitWaterTon: '2.2 t/万kVA',
     diffYoy: '-5.4%',
     quotaStatus: '达标受控',
   },
@@ -252,11 +252,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     companyId: 'ws_sb_main',
     companyName: '沈变本部',
     productionVolume: '32 MVA (20台)',
-    unitTce: '0.72 tce/台',
-    unitElecKWh: '5,410 kWh/台 (0.338 kWh/kVA)',
-    unitSteamTon: '0.20 t/台',
-    unitGasM3: '6.8 m³/台',
-    unitWaterTon: '2.3 t/台',
+    unitTce: '0.72 tce/万kVA',
+    unitElecKWh: '0.338 kWh/kVA',
+    unitSteamTon: '0.20 t/万kVA',
+    unitGasM3: '6.8 m³/万kVA',
+    unitWaterTon: '2.3 t/万kVA',
     diffYoy: '-3.9%',
     quotaStatus: '达标受控',
   },
@@ -430,11 +430,13 @@ export default function UnitProductPage() {
   const [category, setCategory] = useState<'all' | 'transformer' | 'cable'>('all')
   // 2. 时间维度 (月度 近12个月 / 季度 近12个季度 / 年度 近3年)
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
-  // 3. 电压等级过滤 (针对海量型号快捷筛选)
+  // 3. 🌟 当前选中的 KPI 卡片能源介质 (默认综合能耗 'kpi-tce'，点击卡片即时联动图表与坐标轴)
+  const [selectedKpiId, setSelectedKpiId] = useState<string>('kpi-tce')
+  // 4. 电压等级过滤 (针对海量型号快捷筛选)
   const [voltageFilter, setVoltageFilter] = useState<'all' | '500kV级' | '220kV级' | '110kV级' | '35kV级及以下'>('all')
-  // 4. 搜索关键字
+  // 5. 搜索关键字
   const [searchKw, setSearchKw] = useState('')
-  // 5. 分页状态 (每页10条)
+  // 6. 分页状态 (每页10条)
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 10
 
@@ -451,93 +453,180 @@ export default function UnitProductPage() {
     return 'transformer'
   }, [selectedNode, category])
 
-  // 🌟 1. 历史趋势数据构建：近12个月 / 近12个季度 / 近3年 (已彻底移除标杆线！)
-  const trendChartConfig = useMemo(() => {
-    // 依据时间维度生成数据
-    if (timeDim === 'month') {
-      // 近12个月
-      const data = [
-        { period: '25-09', 变压器单耗: 0.335, 线缆单耗: 1.280 },
-        { period: '25-10', 变压器单耗: 0.332, 线缆单耗: 1.265 },
-        { period: '25-11', 变压器单耗: 0.330, 线缆单耗: 1.250 },
-        { period: '25-12', 变压器单耗: 0.328, 线缆单耗: 1.240 },
-        { period: '26-01', 变压器单耗: 0.326, 线缆单耗: 1.230 },
-        { period: '26-02', 变压器单耗: 0.324, 线缆单耗: 1.225 },
-        { period: '26-03', 变压器单耗: 0.322, 线缆单耗: 1.220 },
-        { period: '26-04', 变压器单耗: 0.320, 线缆单耗: 1.215 },
-        { period: '26-05', 变压器单耗: 0.319, 线缆单耗: 1.210 },
-        { period: '26-06', 变压器单耗: 0.318, 线缆单耗: 1.205 },
-        { period: '26-07', 变压器单耗: 0.318, 线缆单耗: 1.200 },
-        { period: '26-08', 变压器单耗: 0.317, 线缆单耗: 1.198 },
-      ]
-      return {
-        data,
-        periodName: '近12个月',
-      }
-    } else if (timeDim === 'quarter') {
-      // 近12个季度
-      const data = [
-        { period: '23-Q4', 变压器单耗: 0.352, 线缆单耗: 1.350 },
-        { period: '24-Q1', 变压器单耗: 0.348, 线缆单耗: 1.330 },
-        { period: '24-Q2', 变压器单耗: 0.345, 线缆单耗: 1.310 },
-        { period: '24-Q3', 变压器单耗: 0.340, 线缆单耗: 1.295 },
-        { period: '24-Q4', 变压器单耗: 0.338, 线缆单耗: 1.280 },
-        { period: '25-Q1', 变压器单耗: 0.335, 线缆单耗: 1.265 },
-        { period: '25-Q2', 变压器单耗: 0.331, 线缆单耗: 1.250 },
-        { period: '25-Q3', 变压器单耗: 0.328, 线缆单耗: 1.235 },
-        { period: '25-Q4', 变压器单耗: 0.326, 线缆单耗: 1.225 },
-        { period: '26-Q1', 变压器单耗: 0.322, 线缆单耗: 1.215 },
-        { period: '26-Q2', 变压器单耗: 0.319, 线缆单耗: 1.205 },
-        { period: '26-Q3', 变压器单耗: 0.317, 线缆单耗: 1.198 },
-      ]
-      return {
-        data,
-        periodName: '近12个季度',
-      }
-    } else {
-      // 近3年
-      const data = [
-        { period: '2024年度', 变压器单耗: 0.345, 线缆单耗: 1.310 },
-        { period: '2025年度', 变压器单耗: 0.330, 线缆单耗: 1.250 },
-        { period: '2026年(累计)', 变压器单耗: 0.317, 线缆单耗: 1.198 },
-      ]
-      return {
-        data,
-        periodName: '近3年',
-      }
+  // 当产业类型切换时自动校准介质 (如线缆无蒸汽，变压器无氮气)
+  useEffect(() => {
+    if (activeIndustry === 'cable' && selectedKpiId === 'kpi-steam') {
+      setSelectedKpiId('kpi-nitrogen')
+    } else if (activeIndustry === 'transformer' && selectedKpiId === 'kpi-nitrogen') {
+      setSelectedKpiId('kpi-steam')
     }
-  }, [timeDim])
+  }, [activeIndustry, selectedKpiId])
 
-  // 🌟 2. 坐标轴单位与曲线根据种类动态配置 (已彻底移除标杆线，仅展示实测单耗走势)
+  // 🌟 1. 历史趋势数据构建：根据选中的介质 (综合/电/汽/氮/气/水) 与时间颗粒度 (近12个月/近12个季度/近3年)
+  const trendChartConfig = useMemo(() => {
+    const periodsMonth = ['25-09', '25-10', '25-11', '25-12', '26-01', '26-02', '26-03', '26-04', '26-05', '26-06', '26-07', '26-08']
+    const periodsQuarter = ['23-Q4', '24-Q1', '24-Q2', '24-Q3', '24-Q4', '25-Q1', '25-Q2', '25-Q3', '25-Q4', '26-Q1', '26-Q2', '26-Q3']
+    const periodsYear = ['2024年度', '2025年度', '2026年(累计)']
+
+    const periodList = timeDim === 'month' ? periodsMonth : timeDim === 'quarter' ? periodsQuarter : periodsYear
+    const periodName = timeDim === 'month' ? '近12个月' : timeDim === 'quarter' ? '近12个季度' : '近3年'
+    const len = periodList.length
+
+    // 动态生成平滑曲线数据 (支持各能源介质)
+    const data = periodList.map((period, idx) => {
+      const ratio = 1 - (idx / (len - 1)) * 0.058
+
+      if (selectedKpiId === 'kpi-tce') {
+        // 单位产品综合能耗 (变压器: tce/万kVA; 线缆: tce/km)
+        return {
+          period,
+          变压器单耗: +(5.12 * ratio).toFixed(3),
+          线缆单耗: +(0.442 * ratio).toFixed(3),
+        }
+      } else if (selectedKpiId === 'kpi-elec') {
+        // 单位产品电耗 (变压器: kWh/kVA; 线缆: kWh/km)
+        return {
+          period,
+          变压器单耗: +(0.336 * ratio).toFixed(3),
+          线缆单耗: +(3360 * ratio).toFixed(0),
+        }
+      } else if (selectedKpiId === 'kpi-steam') {
+        // 单位产品蒸汽消耗 (变压器专用: t/万kVA)
+        return {
+          period,
+          变压器单耗: +(1.36 * ratio).toFixed(3),
+        }
+      } else if (selectedKpiId === 'kpi-nitrogen') {
+        // 单位产品氮气消耗 (线缆专用: m³/km)
+        return {
+          period,
+          线缆单耗: +(9.2 * ratio).toFixed(2),
+        }
+      } else if (selectedKpiId === 'kpi-gas') {
+        // 单位产品天然气消耗 (变压器: m³/万kVA; 线缆: m³/km)
+        return {
+          period,
+          变压器单耗: +(17.8 * ratio).toFixed(2),
+          线缆单耗: +(6.6 * ratio).toFixed(2),
+        }
+      } else if (selectedKpiId === 'kpi-water') {
+        // 单位产品水消耗 (变压器: t/万kVA; 线缆: t/km)
+        return {
+          period,
+          变压器单耗: +(9.0 * ratio).toFixed(2),
+          线缆单耗: +(1.48 * ratio).toFixed(2),
+        }
+      }
+
+      return {
+        period,
+        变压器单耗: +(0.335 * ratio).toFixed(3),
+        线缆单耗: +(1.280 * ratio).toFixed(3),
+      }
+    })
+
+    return {
+      data,
+      periodName,
+    }
+  }, [timeDim, selectedKpiId])
+
+  // 🌟 2. 坐标轴单位与曲线根据选中的介质和种类动态配置
   const chartAxisAndLines = useMemo(() => {
+    const kpiMetaMap: Record<string, { name: string; transUnit: string; cableUnit: string; transLineName: string; cableLineName: string }> = {
+      'kpi-tce': {
+        name: '单位产品综合能耗',
+        transUnit: 'tce/万kVA (变压器综合能耗)',
+        cableUnit: 'tce/km (线缆综合能耗)',
+        transLineName: '变压器综合单耗 (tce/万kVA)',
+        cableLineName: '线缆综合单耗 (tce/km)',
+      },
+      'kpi-elec': {
+        name: '单位产品电耗',
+        transUnit: 'kWh/kVA (变压器电耗)',
+        cableUnit: 'kWh/km (线缆电耗)',
+        transLineName: '变压器实测电耗 (kWh/kVA)',
+        cableLineName: '线缆实测电耗 (kWh/km)',
+      },
+      'kpi-steam': {
+        name: '单位产品蒸汽消耗',
+        transUnit: 't/万kVA (蒸汽消耗)',
+        cableUnit: 't/km',
+        transLineName: '变压器干燥工序蒸汽单耗 (t/万kVA)',
+        cableLineName: '线缆蒸汽单耗',
+      },
+      'kpi-nitrogen': {
+        name: '单位产品氮气消耗',
+        transUnit: 'm³/万kVA',
+        cableUnit: 'm³/km (氮气消耗)',
+        transLineName: '变压器氮气单耗',
+        cableLineName: '线缆立塔交联工序氮气单耗 (m³/km)',
+      },
+      'kpi-gas': {
+        name: '单位产品天然气消耗',
+        transUnit: 'm³/万kVA (变压器燃气耗)',
+        cableUnit: 'm³/km (线缆燃气耗)',
+        transLineName: '变压器天然气单耗 (m³/万kVA)',
+        cableLineName: '线缆天然气单耗 (m³/km)',
+      },
+      'kpi-water': {
+        name: '单位产品水消耗',
+        transUnit: 't/万kVA (变压器水耗)',
+        cableUnit: 't/km (线缆水耗)',
+        transLineName: '变压器水单耗 (t/万kVA)',
+        cableLineName: '线缆水单耗 (t/km)',
+      },
+    }
+
+    const meta = kpiMetaMap[selectedKpiId] || kpiMetaMap['kpi-tce']
+
     if (category === 'transformer' || (category === 'all' && activeIndustry === 'transformer' && selectedNode.id !== 'ent_root')) {
       return {
-        yUnit: 'kWh/kVA (变压器单耗)',
-        titleDesc: `【变压器产品】单耗变化趋势 (${trendChartConfig.periodName})`,
+        yUnit: meta.transUnit,
+        titleDesc: `【变压器产品】${meta.name}变化趋势 (${trendChartConfig.periodName})`,
         lines: [
-          { key: '变压器单耗', name: '变压器实测单耗 (kWh/kVA)', color: '#1677ff' },
+          { key: '变压器单耗', name: meta.transLineName, color: '#1677ff' },
         ],
       }
     } else if (category === 'cable' || (category === 'all' && activeIndustry === 'cable')) {
       return {
-        yUnit: 'kWh/km (线缆单耗)',
-        titleDesc: `【线缆产品】单耗变化趋势 (${trendChartConfig.periodName})`,
+        yUnit: meta.cableUnit,
+        titleDesc: `【线缆产品】${meta.name}变化趋势 (${trendChartConfig.periodName})`,
         lines: [
-          { key: '线缆单耗', name: '线缆实测单耗 (kWh/km)', color: '#a855f7' },
+          { key: '线缆单耗', name: meta.cableLineName, color: '#a855f7' },
         ],
       }
     } else {
-      // 全部产品总览 (双曲线)
+      // 全部产品总览 (双曲线 或 单产业特有介质单曲线)
+      if (selectedKpiId === 'kpi-steam') {
+        return {
+          yUnit: meta.transUnit,
+          titleDesc: `【变压器干燥工序】${meta.name}变化趋势 (${trendChartConfig.periodName})`,
+          lines: [
+            { key: '变压器单耗', name: meta.transLineName, color: '#1677ff' },
+          ],
+        }
+      }
+      if (selectedKpiId === 'kpi-nitrogen') {
+        return {
+          yUnit: meta.cableUnit,
+          titleDesc: `【线缆立塔交联工序】${meta.name}变化趋势 (${trendChartConfig.periodName})`,
+          lines: [
+            { key: '线缆单耗', name: meta.cableLineName, color: '#a855f7' },
+          ],
+        }
+      }
+
       return {
-        yUnit: 'kWh/kVA (变压器) · kWh/km (线缆)',
-        titleDesc: `【全集团两大核心产品】单耗变化趋势 (${trendChartConfig.periodName})`,
+        yUnit: `${meta.transUnit.split(' ')[0]} (变压器) · ${meta.cableUnit.split(' ')[0]} (线缆)`,
+        titleDesc: `【全集团两大核心产品】${meta.name}变化趋势 (${trendChartConfig.periodName})`,
         lines: [
-          { key: '变压器单耗', name: '变压器综合单耗 (kWh/kVA)', color: '#1677ff' },
-          { key: '线缆单耗', name: '线缆综合单耗 (kWh/km)', color: '#a855f7' },
+          { key: '变压器单耗', name: meta.transLineName, color: '#1677ff' },
+          { key: '线缆单耗', name: meta.cableLineName, color: '#a855f7' },
         ],
       }
     }
-  }, [category, activeIndustry, selectedNode, trendChartConfig.periodName])
+  }, [category, activeIndustry, selectedNode, selectedKpiId, trendChartConfig.periodName])
 
   // 🌟 3. 产品型号列表过滤 (支持几千条型号检索与分页)
   const filteredModels = useMemo(() => {
@@ -665,8 +754,8 @@ export default function UnitProductPage() {
       {
         id: 'kpi-tce',
         name: '单位产品综合能耗',
-        value: '4.85',
-        unit: 'tce/台',
+        value: '0.485',
+        unit: 'tce/万kVA',
         diffText: '同比 -5.2% ↓',
         badge: '综合折标',
         icon: Factory,
@@ -677,8 +766,8 @@ export default function UnitProductPage() {
       {
         id: 'kpi-elec',
         name: '单位产品电耗',
-        value: '36,200',
-        unit: 'kWh/台',
+        value: '0.317',
+        unit: 'kWh/kVA',
         diffText: '同比 -5.4% ↓',
         badge: '电力',
         icon: Zap,
@@ -689,8 +778,8 @@ export default function UnitProductPage() {
       {
         id: 'kpi-steam',
         name: '单位产品蒸汽消耗',
-        value: '1.25',
-        unit: 't/台',
+        value: '0.020',
+        unit: 't/万kVA',
         diffText: '同比 -4.8% ↓',
         badge: '蒸汽',
         icon: Flame,
@@ -701,8 +790,8 @@ export default function UnitProductPage() {
       {
         id: 'kpi-gas',
         name: '单位产品天然气消耗',
-        value: '16.8',
-        unit: 'm³/台',
+        value: '0.168',
+        unit: 'm³/万kVA',
         diffText: '同比 -4.1% ↓',
         badge: '天然气',
         icon: Flame,
@@ -713,8 +802,8 @@ export default function UnitProductPage() {
       {
         id: 'kpi-water',
         name: '单位产品水消耗',
-        value: '8.5',
-        unit: 't/台',
+        value: '0.085',
+        unit: 't/万kVA',
         diffText: '同比 -3.9% ↓',
         badge: '新鲜水',
         icon: Droplets,
@@ -884,22 +973,32 @@ export default function UnitProductPage() {
           </div>
         </div>
 
-        {/* 🌟 3. 统计模块：单位产品各类能源消耗看板 (有哪几类能源就显示哪几类) */}
+        {/* 🌟 3. 统计模块：单位产品各类能源消耗看板 (点击卡片即时驱动下方图表联动) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 font-mono text-xs">
           {dynamicEnergyKPIs.map((kpi) => {
             const Icon = kpi.icon
+            const isSelected = selectedKpiId === kpi.id
             return (
-              <div key={kpi.id} className={cn('p-3.5 rounded-xl border shadow-xs space-y-1.5', kpi.bgClass)}>
+              <div
+                key={kpi.id}
+                onClick={() => setSelectedKpiId(kpi.id)}
+                className={cn(
+                  'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all cursor-pointer select-none relative group',
+                  isSelected
+                    ? 'bg-gradient-to-br from-blue-50/95 via-white to-blue-50/40 border-2 border-[#1677ff] ring-2 ring-[#1677ff]/20 shadow-sm scale-[1.01]'
+                    : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/60'
+                )}
+              >
                 <div className="flex items-center justify-between text-xs text-slate-600 font-sans">
-                  <span className="flex items-center gap-1 font-bold text-slate-800">
-                    <Icon className="size-3.5 text-[#1677ff]" />
+                  <span className={cn('flex items-center gap-1 font-bold', isSelected ? 'text-[#1677ff]' : 'text-slate-800')}>
+                    <Icon className={cn('size-3.5', isSelected ? 'text-[#1677ff]' : 'text-slate-500')} />
                     {kpi.name}
                   </span>
-                  <span className={cn('px-1.5 py-0.2 rounded text-[10px] font-bold', kpi.badgeClass)}>
+                  <span className={cn('px-1.5 py-0.2 rounded text-[10px] font-bold', isSelected ? 'bg-blue-100 text-[#1677ff]' : kpi.badgeClass)}>
                     {kpi.badge}
                   </span>
                 </div>
-                <div className={cn('text-xl font-extrabold', kpi.colorClass)}>
+                <div className={cn('text-xl font-extrabold', isSelected ? 'text-[#1677ff]' : kpi.colorClass)}>
                   {kpi.value} <span className="text-xs font-normal text-slate-500 font-sans">{kpi.unit}</span>
                 </div>
                 <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-100 font-sans flex justify-between items-center">
@@ -987,17 +1086,14 @@ export default function UnitProductPage() {
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
                   <th className="py-2.5 px-3">序号</th>
                   <th className="py-2.5 px-3">产品型号规格</th>
-                  {currentTableMode === 'all' && (
-                    <th className="py-2.5 px-3 text-center">所属分类</th>
-                  )}
+
                   <th className="py-2.5 px-3 text-center">电压等级</th>
                   <th className="py-2.5 px-3">主要制造单位</th>
-                  <th className="py-2.5 px-3">统计期总产量</th>
                   
                   {/* 单位产品综合能耗 */}
                   <th className="py-2.5 px-3 text-right text-slate-900 font-bold">
                     {currentTableMode === 'transformer'
-                      ? '单位产品综合能耗 (tce/台)'
+                      ? '单位产品综合能耗 (tce/万kVA)'
                       : currentTableMode === 'cable'
                       ? '单位产品综合能耗 (tce/km)'
                       : '单位产品综合能耗'}
@@ -1006,7 +1102,7 @@ export default function UnitProductPage() {
                   {/* 单位产品电耗 */}
                   <th className="py-2.5 px-3 text-right text-blue-700">
                     {currentTableMode === 'transformer'
-                      ? '⚡ 单位电耗 (kWh/台)'
+                      ? '⚡ 单位电耗 (kWh/kVA)'
                       : currentTableMode === 'cable'
                       ? '⚡ 单位电耗 (kWh/km)'
                       : '⚡ 单位产品电耗'}
@@ -1035,8 +1131,6 @@ export default function UnitProductPage() {
                   <th className="py-2.5 px-3 text-right text-cyan-700">
                     💧 工艺水耗 (t)
                   </th>
-
-                  <th className="py-2.5 px-3 text-center">同比变动</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -1054,25 +1148,13 @@ export default function UnitProductPage() {
                           型号编码: {m.modelCode}
                         </div>
                       </td>
-                      {currentTableMode === 'all' && (
-                        <td className="py-2.5 px-3 text-center font-sans">
-                          <span className={cn(
-                            'px-2 py-0.5 rounded text-[10px] font-bold',
-                            m.category === 'transformer'
-                              ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                              : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                          )}>
-                            {m.category === 'transformer' ? '变压器' : '线缆'}
-                          </span>
-                        </td>
-                      )}
+
                       <td className="py-2.5 px-3 text-center font-mono">
                         <span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[10px]">
                           {m.voltageLevel}
                         </span>
                       </td>
                       <td className="py-2.5 px-3 font-sans text-slate-700">{m.companyName}</td>
-                      <td className="py-2.5 px-3 font-bold text-slate-900 font-mono">{m.productionVolume}</td>
                       
                       {/* 1. 单位产品综合能耗 */}
                       <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff]">
@@ -1114,12 +1196,6 @@ export default function UnitProductPage() {
                       {/* 6. 工艺耗水 */}
                       <td className="py-2.5 px-3 text-right text-cyan-700">
                         {m.unitWaterTon || <span className="text-slate-300 font-sans">—</span>}
-                      </td>
-
-                      <td className="py-2.5 px-3 text-center">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700">
-                          {m.diffYoy} ↓
-                        </span>
                       </td>
                     </tr>
                   ))
