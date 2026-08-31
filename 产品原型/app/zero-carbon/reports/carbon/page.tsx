@@ -264,7 +264,7 @@ export default function CarbonReportPage() {
               className="h-8 px-3 rounded-lg bg-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-700 shadow-xs transition-colors"
             >
               <Download className="size-3.5" />
-              <span>导出合规清单</span>
+              <span>导出</span>
             </button>
           </div>
         </div>

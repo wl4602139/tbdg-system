@@ -315,7 +315,7 @@ export default function UnitReportPage() {
               className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors"
             >
               <Download className="size-3.5" />
-              <span>导出产业单耗报表</span>
+              <span>导出</span>
             </button>
           </div>
         </div>
