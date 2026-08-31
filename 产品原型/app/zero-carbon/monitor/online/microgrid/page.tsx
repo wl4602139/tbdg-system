@@ -1214,7 +1214,6 @@ export default function MicrogridMonitoringPage() {
                       <th className="py-2.5 px-3 font-bold text-emerald-600">核算电量 / 张数</th>
                       <th className="py-2.5 px-3">结算单价</th>
                       <th className="py-2.5 px-3">交易/交割日期</th>
-                      <th className="py-2.5 px-3">GEC凭证/合约编码</th>
                       <th className="py-2.5 px-3">交割状态</th>
                     </tr>
                   </thead>
@@ -1247,7 +1246,6 @@ export default function MicrogridMonitoringPage() {
                         <td className="py-2 px-3 font-bold text-emerald-700">{row.amount}</td>
                         <td className="py-2 px-3 font-mono">{row.unitPrice}</td>
                         <td className="py-2 px-3 font-sans">{row.dealDate}</td>
-                        <td className="py-2 px-3 font-mono text-slate-500">{row.certCode}</td>
                         <td className="py-2 px-3">
                           <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-700 font-sans">
                             {row.status}

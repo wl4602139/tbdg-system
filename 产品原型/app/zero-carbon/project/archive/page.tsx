@@ -46,7 +46,7 @@ export interface ProjectArchiveItem {
   name: string
   park: string
   company: string
-  category: '节能技改' | '绿电替代' | '储能配置' | '智慧微网'
+  category: '节能技改' | '绿电替代' | '储能配置'
   subType: string // 细分技术路线，如 屋顶分布式光伏、用户侧磷酸铁锂、永磁变频、真空余热利用
   capacity: string
   investment: number // 万元
@@ -212,8 +212,8 @@ const INITIAL_PROJECTS: ProjectArchiveItem[] = [
     name: '新疆电缆智慧微电网 EMS 与柔性负荷控制系统',
     park: '特变电工新疆电缆产业园',
     company: '新缆厂',
-    category: '智慧微网',
-    subType: '微网智能协同控制 EMS',
+    category: '节能技改',
+    subType: '微电网智能协同节电系统',
     capacity: '全厂 35kV 变电站接入',
     investment: 450.0,
     fundSource: '自筹资金',
@@ -511,8 +511,16 @@ export default function ProjectArchivePage() {
   // 过滤数据 (直属单位 + 类别 + 状态 + 关键字)
   const filteredProjects = useMemo(() => {
     return projects.filter((p) => {
-      if (companyFilter !== 'all' && !p.company.includes(companyFilter.replace('公司', '').replace('厂', ''))) {
-        return false
+      if (companyFilter !== 'all') {
+        const cleanKey = companyFilter.replace('公司', '').replace('厂', '').replace('本部', '')
+        const match =
+          p.company === companyFilter ||
+          p.company.includes(companyFilter) ||
+          p.company.includes(cleanKey) ||
+          p.name.includes(companyFilter) ||
+          p.name.includes(cleanKey) ||
+          (p.park && p.park.includes(cleanKey))
+        if (!match) return false
       }
       if (categoryFilter !== 'all' && p.category !== categoryFilter) return false
       if (statusFilter !== 'all' && p.status !== statusFilter) return false
@@ -622,7 +630,7 @@ export default function ProjectArchivePage() {
               className="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <Download className="size-3.5 text-slate-500" />
-              导出项目库 (Excel)
+              导出
             </button>
             <button
               type="button"
@@ -635,72 +643,7 @@ export default function ProjectArchivePage() {
           </div>
         </div>
 
-        {/* 2. 4 大核心汇总 KPI 卡片 (全集团/所选单位自动汇总) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <span className="text-xs text-slate-500 block font-medium">统一项目库总数</span>
-              <div className="text-2xl font-extrabold font-mono text-slate-900 mt-0.5">
-                {stats.totalCount} <span className="text-xs font-sans text-slate-500 font-normal">个项目</span>
-              </div>
-              <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-1 font-mono">
-                <span className="text-emerald-700 font-bold">运行: {stats.runningCount}</span> · 
-                <span className="text-blue-700 font-bold">在建: {stats.buildingCount}</span> · 
-                <span className="text-amber-700 font-bold">规划: {stats.planCount}</span>
-              </div>
-            </div>
-            <div className="size-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff]">
-              <FolderKanban className="size-5" />
-            </div>
-          </div>
-
-          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <span className="text-xs text-slate-500 block font-medium">累计总投资额 (CapEx)</span>
-              <div className="text-2xl font-extrabold font-mono text-emerald-700 mt-0.5">
-                {(stats.totalInvestment / 10000).toFixed(2)} <span className="text-xs font-sans text-slate-500 font-normal">亿元</span>
-              </div>
-              <span className="text-[10px] text-emerald-600 block mt-1 font-mono">
-                折合 ¥{stats.totalInvestment.toLocaleString()} 万元
-              </span>
-            </div>
-            <div className="size-10 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
-              <Coins className="size-5" />
-            </div>
-          </div>
-
-          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <span className="text-xs text-slate-500 block font-medium">预期年化碳减排总量</span>
-              <div className="text-2xl font-extrabold font-mono text-purple-700 mt-0.5">
-                {stats.totalCarbonSaving.toLocaleString()} <span className="text-xs font-sans text-slate-500 font-normal">tCO₂/年</span>
-              </div>
-              <span className="text-[10px] text-purple-600 block mt-1 font-mono">
-                折合标煤 {(stats.totalCarbonSaving * 0.214).toFixed(0)} tce/年
-              </span>
-            </div>
-            <div className="size-10 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
-              <Leaf className="size-5" />
-            </div>
-          </div>
-
-          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <span className="text-xs text-slate-500 block font-medium">预期年化总效益 / 节费</span>
-              <div className="text-2xl font-extrabold font-mono text-amber-700 mt-0.5">
-                ¥{stats.totalRevenue.toLocaleString()} <span className="text-xs font-sans text-slate-500 font-normal">万元/年</span>
-              </div>
-              <span className="text-[10px] text-amber-600 block mt-1 font-mono">
-                平均静态回收期 ~4.6 年
-              </span>
-            </div>
-            <div className="size-10 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
-              <TrendingUp className="size-5" />
-            </div>
-          </div>
-        </div>
-
-        {/* 3. 筛选与多维过滤 Toolbar (四大技术类别 + 状态 + 搜索) */}
+        {/* 2. 筛选与多维过滤 Toolbar (三大技术类别 + 状态 + 搜索) */}
         <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             {/* 四大技术类别快速切换 */}
@@ -710,7 +653,6 @@ export default function ProjectArchivePage() {
                 { key: '节能技改', label: '⚡ 节能技改' },
                 { key: '绿电替代', label: '☀️ 绿电替代' },
                 { key: '储能配置', label: '🔋 储能配置' },
-                { key: '智慧微网', label: '🌐 智慧微网' },
               ].map((tab) => (
                 <button
                   key={tab.key}
@@ -728,21 +670,59 @@ export default function ProjectArchivePage() {
               ))}
             </div>
 
-            {/* 直属单位过滤 */}
+            {/* 直属单位过滤 (纯企业结构树层级) */}
             <select
               value={companyFilter}
               onChange={(e) => setCompanyFilter(e.target.value)}
               className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:border-blue-500 font-medium"
             >
-              <option value="all">全部直属单位</option>
-              <option value="沈变公司">沈变公司 (沈阳基地)</option>
-              <option value="衡变公司">衡变公司 (南方基地)</option>
-              <option value="新变厂">新变厂 (新疆特高压)</option>
-              <option value="鲁缆公司">鲁缆公司 (山东线缆)</option>
-              <option value="新缆厂">新缆厂 (新疆线缆)</option>
-              <option value="德缆公司">德缆公司 (德阳基地)</option>
-              <option value="天变公司">天变公司 (天津基地)</option>
-              <option value="露娜公司">露娜公司 (智能电气)</option>
+              <option value="all">全部所属单位 (全集团)</option>
+              <optgroup label="🏢 沈变公司 (一级单位)">
+                <option value="沈变公司">沈变公司 (全部)</option>
+                <option value="沈变本部">└ 沈变本部</option>
+                <option value="露娜公司">└ 露娜公司 (特变电工露娜智能)</option>
+                <option value="智慧能源">└ 智慧能源</option>
+                <option value="和新套管公司">└ 和新套管公司</option>
+                <option value="康嘉互感器">└ 康嘉互感器</option>
+                <option value="印能公司">└ 印能公司</option>
+              </optgroup>
+              <optgroup label="🏢 衡变公司 (一级单位)">
+                <option value="衡变公司">衡变公司 (全部)</option>
+                <option value="衡变本部">└ 衡变本部</option>
+                <option value="南京电研">└ 南京电研</option>
+                <option value="云集电气">└ 云集电气</option>
+                <option value="湖南电气">└ 湖南电气</option>
+                <option value="云集高压开关">└ 云集高压开关</option>
+                <option value="新疆自控">└ 新疆自控</option>
+                <option value="特能建">└ 特能建</option>
+                <option value="合容电气">└ 合容电气</option>
+                <option value="赛杰爱迪">└ 赛杰爱迪</option>
+              </optgroup>
+              <optgroup label="🏢 新变厂 (一级单位)">
+                <option value="新变厂">新变厂 (全部)</option>
+                <option value="超高压公司">└ 超高压公司</option>
+                <option value="天变公司">└ 天变公司</option>
+                <option value="智能电气公司">└ 智能电气公司</option>
+                <option value="京津冀公司">└ 京津冀公司</option>
+                <option value="珠峰硅钢">└ 珠峰硅钢</option>
+                <option value="银利电气">└ 银利电气</option>
+              </optgroup>
+              <optgroup label="🏢 鲁缆公司 (一级单位)">
+                <option value="鲁缆公司">鲁缆公司 (全部)</option>
+                <option value="鲁缆本部">└ 鲁缆本部</option>
+                <option value="智缆公司">└ 智缆公司</option>
+                <option value="昭和公司">└ 昭和公司</option>
+                <option value="曙光公司">└ 曙光公司</option>
+              </optgroup>
+              <optgroup label="🏢 新缆厂 (一级单位)">
+                <option value="新缆厂">新缆厂 (全部)</option>
+                <option value="特变电工新疆电缆有限公司">└ 特变电工新疆电缆有限公司</option>
+                <option value="特变电工新疆线缆厂">└ 特变电工新疆线缆厂</option>
+              </optgroup>
+              <optgroup label="🏢 德缆公司 (一级单位)">
+                <option value="德缆公司">德缆公司 (全部)</option>
+                <option value="特变电工（德阳）电缆股份有限公司">└ 特变电工（德阳）电缆股份有限公司</option>
+              </optgroup>
             </select>
 
             {/* 状态过滤 */}
@@ -992,14 +972,52 @@ export default function ProjectArchivePage() {
                         onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                         className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-bold text-slate-800"
                       >
-                        <option value="沈变公司">沈变公司 (超高压基地)</option>
-                        <option value="衡变公司">衡变公司 (南方特高压)</option>
-                        <option value="新变厂">新变厂 (新疆特高压)</option>
-                        <option value="鲁缆公司">鲁缆公司 (山东线缆基地)</option>
-                        <option value="新缆厂">新缆厂 (新疆电缆基地)</option>
-                        <option value="德缆公司">德缆公司 (德阳电缆基地)</option>
-                        <option value="天变公司">天变公司 (天津变压器)</option>
-                        <option value="露娜公司">露娜公司 (智能电气)</option>
+                        <optgroup label="🏢 沈变公司 (一级单位)">
+                          <option value="沈变公司">沈变公司</option>
+                          <option value="沈变本部">└ 沈变本部</option>
+                          <option value="露娜公司">└ 露娜公司 (特变电工露娜智能)</option>
+                          <option value="智慧能源">└ 智慧能源</option>
+                          <option value="和新套管公司">└ 和新套管公司</option>
+                          <option value="康嘉互感器">└ 康嘉互感器</option>
+                          <option value="印能公司">└ 印能公司</option>
+                        </optgroup>
+                        <optgroup label="🏢 衡变公司 (一级单位)">
+                          <option value="衡变公司">衡变公司</option>
+                          <option value="衡变本部">└ 衡变本部</option>
+                          <option value="南京电研">└ 南京电研</option>
+                          <option value="云集电气">└ 云集电气</option>
+                          <option value="湖南电气">└ 湖南电气</option>
+                          <option value="云集高压开关">└ 云集高压开关</option>
+                          <option value="新疆自控">└ 新疆自控</option>
+                          <option value="特能建">└ 特能建</option>
+                          <option value="合容电气">└ 合容电气</option>
+                          <option value="赛杰爱迪">└ 赛杰爱迪</option>
+                        </optgroup>
+                        <optgroup label="🏢 新变厂 (一级单位)">
+                          <option value="新变厂">新变厂</option>
+                          <option value="超高压公司">└ 超高压公司</option>
+                          <option value="天变公司">└ 天变公司</option>
+                          <option value="智能电气公司">└ 智能电气公司</option>
+                          <option value="京津冀公司">└ 京津冀公司</option>
+                          <option value="珠峰硅钢">└ 珠峰硅钢</option>
+                          <option value="银利电气">└ 银利电气</option>
+                        </optgroup>
+                        <optgroup label="🏢 鲁缆公司 (一级单位)">
+                          <option value="鲁缆公司">鲁缆公司</option>
+                          <option value="鲁缆本部">└ 鲁缆本部</option>
+                          <option value="智缆公司">└ 智缆公司</option>
+                          <option value="昭和公司">└ 昭和公司</option>
+                          <option value="曙光公司">└ 曙光公司</option>
+                        </optgroup>
+                        <optgroup label="🏢 新缆厂 (一级单位)">
+                          <option value="新缆厂">新缆厂</option>
+                          <option value="特变电工新疆电缆有限公司">└ 特变电工新疆电缆有限公司</option>
+                          <option value="特变电工新疆线缆厂">└ 特变电工新疆线缆厂</option>
+                        </optgroup>
+                        <optgroup label="🏢 德缆公司 (一级单位)">
+                          <option value="德缆公司">德缆公司</option>
+                          <option value="特变电工（德阳）电缆股份有限公司">└ 特变电工（德阳）电缆股份有限公司</option>
+                        </optgroup>
                       </select>
                     </div>
 
@@ -1076,15 +1094,13 @@ export default function ProjectArchivePage() {
                           let defaultSub = '屋顶分布式光伏 (BAPV)'
                           if (cat === '储能配置') defaultSub = '用户侧磷酸铁锂储能'
                           if (cat === '节能技改') defaultSub = '永磁变频电机节能技改'
-                          if (cat === '智慧微网') defaultSub = '微网协同 EMS 与柔性负荷'
                           setFormData({ ...formData, category: cat, subType: defaultSub })
                         }}
                         className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-bold"
                       >
+                        <option value="节能技改">⚡ 节能技改 (电机变频 / 余热梯级利用 / 磁悬浮)</option>
                         <option value="绿电替代">☀️ 绿电替代 (分布式光伏 / 风电 / 热泵)</option>
                         <option value="储能配置">🔋 储能配置 (用户侧电化学储能 / 飞轮)</option>
-                        <option value="节能技改">⚡ 节能技改 (电机变频 / 余热梯级利用 / 磁悬浮)</option>
-                        <option value="智慧微网">🌐 智慧微网 (微电网 EMS / 柔性调控)</option>
                       </select>
                     </div>
 

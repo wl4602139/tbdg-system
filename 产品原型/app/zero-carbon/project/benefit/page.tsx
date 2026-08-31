@@ -26,7 +26,7 @@ interface ProjectBenefitItem {
   name: string
   base: string
   park: string
-  type: '分布式光伏' | '用户侧储能' | '工业热泵' | '余热利用' | '电机技改'
+  type: '分布式光伏' | '用户侧储能' | '工业热泵'
   capacity: string
   investment: number // 万元
   actualGenKwh: string // 实际发电/节电/替代能耗
@@ -97,37 +97,39 @@ const ALL_PROJECT_BENEFITS: ProjectBenefitItem[] = [
   },
   {
     id: 'p-04',
-    name: '天变公司真空干燥罐冷凝余热梯级利用改造',
-    base: '天变公司',
-    park: '特变电工天变产业园',
-    type: '余热利用',
-    capacity: '1.8 MWth',
-    investment: 380.0,
-    actualGenKwh: '节约工业蒸汽 310 吨',
-    savingsYuan: 8.5,
-    carbonReduction: 124.0,
-    tceSaving: 39.8,
-    irr: '22.0%',
-    paybackYears: 3.5,
-    macc: -95.0,
-    npv: 98.0,
+    name: '新疆变压器厂区 20MWp 分布式光伏三期',
+    base: '新变厂',
+    park: '特变电工新疆产业园',
+    type: '分布式光伏',
+    capacity: '20.0 MWp',
+    investment: 7600.0,
+    actualGenKwh: '210.0 万kWh',
+    savingsYuan: 135.0,
+    arbitrageYuan: 15.0,
+    carbonReduction: 1482.0,
+    tceSaving: 320.0,
+    irr: '14.8%',
+    paybackYears: 5.6,
+    macc: -148.0,
+    npv: 1350.0,
   },
   {
     id: 'p-05',
-    name: '鲁缆公司连续挤塑线电机永磁变频节能技改',
+    name: '鲁缆公司 3MW/6MWh 智慧储能调峰电站',
     base: '鲁缆公司',
     park: '特变电工华东输变电科技产业园',
-    type: '电机技改',
-    capacity: '48 台套 IE5 电机',
-    investment: 290.0,
-    actualGenKwh: '节电 16.2 万kWh',
-    savingsYuan: 11.0,
-    carbonReduction: 92.0,
-    tceSaving: 19.9,
-    irr: '33.5%',
-    paybackYears: 2.1,
-    macc: -210.0,
-    npv: 125.0,
+    type: '用户侧储能',
+    capacity: '3MW / 6MWh',
+    investment: 890.0,
+    actualGenKwh: '充放 31.0 万kWh',
+    savingsYuan: 16.5,
+    arbitrageYuan: 9.8,
+    carbonReduction: 98.0,
+    tceSaving: 38.5,
+    irr: '16.5%',
+    paybackYears: 4.5,
+    macc: -52.0,
+    npv: 185.0,
   },
   {
     id: 'p-06',
@@ -380,54 +382,34 @@ export default function BenefitEvaluationPage() {
               注：负值代表项目自带自偿性财务回报（节费覆盖投资）
             </p>
 
-            <div className="space-y-3 font-mono text-xs pt-1">
+            <div className="space-y-4 font-mono text-xs pt-2">
               <div>
-                <div className="flex items-center justify-between text-slate-700 mb-0.5">
-                  <span className="font-bold truncate max-w-[150px]">电机与变频技改</span>
-                  <span className="text-emerald-600 font-bold">-210 元/吨</span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-1.5">
-                  <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '90%' }} />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between text-slate-700 mb-0.5">
+                <div className="flex items-center justify-between text-slate-700 mb-1">
                   <span className="font-bold truncate max-w-[150px]">屋顶分布式光伏</span>
                   <span className="text-emerald-600 font-bold">-145 元/吨</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-1.5">
-                  <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '75%' }} />
+                <div className="w-full bg-slate-100 rounded-full h-2">
+                  <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '85%' }} />
                 </div>
               </div>
 
               <div>
-                <div className="flex items-center justify-between text-slate-700 mb-0.5">
+                <div className="flex items-center justify-between text-slate-700 mb-1">
                   <span className="font-bold truncate max-w-[150px]">工业水源热泵</span>
                   <span className="text-emerald-600 font-bold">-112 元/吨</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-1.5">
-                  <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '65%' }} />
+                <div className="w-full bg-slate-100 rounded-full h-2">
+                  <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '70%' }} />
                 </div>
               </div>
 
               <div>
-                <div className="flex items-center justify-between text-slate-700 mb-0.5">
-                  <span className="font-bold truncate max-w-[150px]">工业余热回收利用</span>
-                  <span className="text-emerald-600 font-bold">-95 元/吨</span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-1.5">
-                  <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '55%' }} />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between text-slate-700 mb-0.5">
+                <div className="flex items-center justify-between text-slate-700 mb-1">
                   <span className="font-bold truncate max-w-[150px]">用户侧储能调峰</span>
                   <span className="text-blue-600 font-bold">-48 元/吨</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-1.5">
-                  <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '40%' }} />
+                <div className="w-full bg-slate-100 rounded-full h-2">
+                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '45%' }} />
                 </div>
               </div>
             </div>
@@ -458,8 +440,6 @@ export default function BenefitEvaluationPage() {
               { key: '分布式光伏', label: '光伏项目' },
               { key: '用户侧储能', label: '储能项目' },
               { key: '工业热泵', label: '热泵项目' },
-              { key: '余热利用', label: '余热利用' },
-              { key: '电机技改', label: '电机技改' },
             ].map((tab) => (
               <button
                 key={tab.key}

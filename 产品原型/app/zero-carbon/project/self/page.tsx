@@ -478,11 +478,16 @@ export default function ParkSelfAssessmentPage() {
 
   return (
     <div className="flex gap-3.5 items-start font-sans">
-      {/* 🌟 左侧 270px 17 个零碳园区拓扑树 */}
+      {/* 🌟 左侧 270px 零碳园区拓扑树 (完整展示3级结构、仅可选择到2级园区节点) */}
       <StandardOrgTree
         selectedId={selectedNode.id}
-        onSelect={(node) => setSelectedNode(node)}
+        onSelect={(node) => {
+          if (node.level === 'group' || node.level === 'park') {
+            setSelectedNode(node)
+          }
+        }}
         treeType="park"
+        maxSelectableLevel={2}
       />
 
       {/* 🌟 右侧主面板 */}

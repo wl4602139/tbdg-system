@@ -65,7 +65,7 @@ export const zeroCarbonNav: NavItem[] = [
     icon: ClipboardCheck,
     children: [
       { title: '项目档案管理', href: '/zero-carbon/project/archive' },
-      { title: '模型管理', href: '/zero-carbon/project/model/monitoring' },
+      { title: '模型管理', href: '/zero-carbon/project/model' },
       { title: '实时监控与项目效益评估', href: '/zero-carbon/project/benefit' },
       { title: '零碳园区自评估', href: '/zero-carbon/project/self' },
     ],
