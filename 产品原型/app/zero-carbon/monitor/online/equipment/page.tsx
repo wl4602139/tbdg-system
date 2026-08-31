@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import { LineTrend, BarChartGroup, Donut, AreaTrend } from '@/components/shared/charts'
 import { OnlineHeader } from '@/components/shared/online-header'
+import { ENTERPRISE_TREE_DATA } from '@/components/shared/standard-org-tree'
 import { cn } from '@/lib/utils'
 
 export interface KeyEquipmentInfo {
@@ -33,7 +34,7 @@ export interface KeyEquipmentInfo {
   name: string
   code: string
   company: string      // 2级 经营单位
-  enterprise: string   // 3级 企业级单位
+  enterprise: string   // 3级 企业级单位 (严格与 ENTERPRISE_TREE_DATA 对齐)
   location: string     // 车间/工段
   status: '运行中' | '待机' | '检修'
   powerKW: number
@@ -50,7 +51,9 @@ export interface KeyEquipmentInfo {
 }
 
 export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
+  // -------------------------------------------------------------
   // 1. 沈变公司
+  // -------------------------------------------------------------
   {
     id: 'eq-dry-01',
     name: '1# 1000kV级气相白真空干燥罐组',
@@ -108,6 +111,42 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     pressureYoy: '—',
   },
   {
+    id: 'eq-ln-cryo-01',
+    name: '1# 液氮深冷装配与惰化循环机组',
+    code: 'EQ-LN-CRYO-01',
+    company: '沈变公司',
+    enterprise: '露娜公司 (特变电工露娜智能)',
+    location: '智能制造中心',
+    status: '运行中',
+    powerKW: 1420,
+    energyKWh: 34080,
+    mediumTag: '电·水',
+    pressureMpa: 0.45,
+    temperatureC: -196.0,
+    powerYoy: '-5.1% ↓',
+    energyYoy: '-4.6% ↓',
+    flowYoy: '—',
+    pressureYoy: '-0.1% ↓',
+  },
+  {
+    id: 'eq-sb-ems-01',
+    name: '1# 厂区光储充微电网并网变流机组',
+    code: 'EQ-SB-EMS-01',
+    company: '沈变公司',
+    enterprise: '智慧能源',
+    location: '智慧能源调度站',
+    status: '运行中',
+    powerKW: 1650,
+    energyKWh: 39600,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 38.0,
+    powerYoy: '-3.6% ↓',
+    energyYoy: '-3.4% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
     id: 'eq-hx-furn-01',
     name: '1# 800kV特高压干式电容套管固化炉',
     code: 'EQ-HX-FURN-01',
@@ -127,25 +166,46 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     pressureYoy: '+0.1% ↑',
   },
   {
-    id: 'eq-ln-cryo-01',
-    name: '1# 液氮深冷装配与惰化循环机组',
-    code: 'EQ-LN-CRYO-01',
+    id: 'eq-kj-vac-01',
+    name: '1# 500kV互感器绝缘注油真空机组',
+    code: 'EQ-KJ-VAC-01',
     company: '沈变公司',
-    enterprise: '露娜智能制造',
-    location: '智能装配中心',
+    enterprise: '康嘉互感器',
+    location: '互感器总装车间',
     status: '运行中',
-    powerKW: 1420,
-    energyKWh: 34080,
-    mediumTag: '电·水',
-    pressureMpa: 0.45,
-    temperatureC: -196.0,
-    powerYoy: '-5.1% ↓',
-    energyYoy: '-4.6% ↓',
+    powerKW: 1120,
+    energyKWh: 26880,
+    mediumTag: '电·油',
+    pressureMpa: 0.003,
+    temperatureC: 60.0,
+    powerYoy: '-4.5% ↓',
+    energyYoy: '-4.1% ↓',
     flowYoy: '—',
-    pressureYoy: '-0.1% ↓',
+    pressureYoy: '-0.2% ↓',
+  },
+  {
+    id: 'eq-yn-prs-01',
+    name: '1# 变压器绝缘纸板热压整形生产线',
+    code: 'EQ-YN-PRS-01',
+    company: '沈变公司',
+    enterprise: '印能公司',
+    location: '绝缘加工车间',
+    status: '运行中',
+    powerKW: 980,
+    energyKWh: 23520,
+    mediumTag: '电·汽',
+    steamFlowT: 0.65,
+    pressureMpa: 0.80,
+    temperatureC: 145.0,
+    powerYoy: '-3.2% ↓',
+    energyYoy: '-3.0% ↓',
+    flowYoy: '-2.5% ↓',
+    pressureYoy: '—',
   },
 
+  // -------------------------------------------------------------
   // 2. 衡变公司
+  // -------------------------------------------------------------
   {
     id: 'eq-hb-rec-01',
     name: '6# 煤油喷淋回收及热循环系统',
@@ -185,6 +245,42 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     pressureYoy: '+0.1% ↑',
   },
   {
+    id: 'eq-nj-test-01',
+    name: '1# 继电保护与智能控制综测平台',
+    code: 'EQ-NJ-TEST-01',
+    company: '衡变公司',
+    enterprise: '南京电研',
+    location: '电研综测车间',
+    status: '运行中',
+    powerKW: 680,
+    energyKWh: 16320,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 24.0,
+    powerYoy: '-3.0% ↓',
+    energyYoy: '-2.8% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
+    id: 'eq-yj-gis-01',
+    name: '1# 220kV GIS断路器自动化装配检测线',
+    code: 'EQ-YJ-GIS-01',
+    company: '衡变公司',
+    enterprise: '云集电气',
+    location: 'GIS总装车间',
+    status: '运行中',
+    powerKW: 1560,
+    energyKWh: 37440,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 25.5,
+    powerYoy: '-4.1% ↓',
+    energyYoy: '-3.7% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
     id: 'eq-hn-robot-01',
     name: '1# 220kV箱变自动焊接机器人工作站',
     code: 'EQ-HN-ROBOT-01',
@@ -203,62 +299,82 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     pressureYoy: '—',
   },
   {
-    id: 'eq-nj-test-01',
-    name: '1# 继电保护与智能控制综测平台',
-    code: 'EQ-NJ-TEST-01',
+    id: 'eq-yj-sw-01',
+    name: '1# 500kV隔离开关触头精密加工机组',
+    code: 'EQ-YJ-SW-01',
     company: '衡变公司',
-    enterprise: '南京电研',
-    location: '电研综测车间',
+    enterprise: '云集高压开关',
+    location: '精密数控车间',
     status: '运行中',
-    powerKW: 680,
-    energyKWh: 16320,
+    powerKW: 850,
+    energyKWh: 20400,
     mediumTag: '电',
     pressureMpa: 0.0,
-    temperatureC: 24.0,
-    powerYoy: '-3.0% ↓',
-    energyYoy: '-2.8% ↓',
-    flowYoy: '—',
-    pressureYoy: '—',
-  },
-
-  // 3. 新变厂
-  {
-    id: 'eq-xb-shr-01',
-    name: '5# 铁心纵剪硅钢片十头纵剪线',
-    code: 'EQ-XB-SHR-01',
-    company: '新变厂',
-    enterprise: '新变厂本部',
-    location: '铁心智造中心',
-    status: '运行中',
-    powerKW: 2120,
-    energyKWh: 50880,
-    mediumTag: '电',
-    pressureMpa: 0.0,
-    temperatureC: 28.5,
-    powerYoy: '-2.1% ↓',
-    energyYoy: '-3.3% ↓',
+    temperatureC: 28.0,
+    powerYoy: '-3.3% ↓',
+    energyYoy: '-3.1% ↓',
     flowYoy: '—',
     pressureYoy: '—',
   },
   {
-    id: 'eq-xb-cast-01',
-    name: '1# 110kV环氧树脂真空浇注罐',
-    code: 'EQ-XB-CAST-01',
-    company: '新变厂',
-    enterprise: '新变厂本部',
-    location: '干变浇注车间',
+    id: 'eq-tnj-eng-01',
+    name: '1# 输变电工程模块化预制舱组装工位',
+    code: 'EQ-TNJ-ENG-01',
+    company: '衡变公司',
+    enterprise: '特能建',
+    location: '预制舱拼装中心',
     status: '运行中',
-    powerKW: 1750,
-    energyKWh: 42000,
+    powerKW: 1250,
+    energyKWh: 30000,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 30.0,
+    powerYoy: '-3.5% ↓',
+    energyYoy: '-3.2% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
+    id: 'eq-hr-cap-01',
+    name: '1# 500kV高压并联电容器真空浸渍罐',
+    code: 'EQ-HR-CAP-01',
+    company: '衡变公司',
+    enterprise: '合容电气',
+    location: '电容器真空车间',
+    status: '运行中',
+    powerKW: 1720,
+    energyKWh: 41280,
+    mediumTag: '电·油',
+    pressureMpa: 0.004,
+    temperatureC: 75.0,
+    powerYoy: '-4.6% ↓',
+    energyYoy: '-4.2% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
+    id: 'eq-gil-asm-01',
+    name: '1# 1100kV特高压GIL气体绝缘输电线路装配线',
+    code: 'EQ-GIL-ASM-01',
+    company: '衡变公司',
+    enterprise: '赛杰爱迪',
+    location: 'GIL百级净化大厅',
+    status: '运行中',
+    powerKW: 2150,
+    energyKWh: 51600,
     mediumTag: '电·气',
-    gasFlowM3: 32.5,
-    pressureMpa: 0.002,
-    temperatureC: 140.0,
-    powerYoy: '-4.1% ↓',
-    energyYoy: '-3.9% ↓',
-    flowYoy: '-3.5% ↓',
+    gasFlowM3: 28.0,
+    pressureMpa: 0.50,
+    temperatureC: 22.0,
+    powerYoy: '-4.0% ↓',
+    energyYoy: '-3.8% ↓',
+    flowYoy: '-3.2% ↓',
     pressureYoy: '+0.1% ↑',
   },
+
+  // -------------------------------------------------------------
+  // 3. 新变厂
+  // -------------------------------------------------------------
   {
     id: 'eq-xb-wind-01',
     name: '1# 750kV级超高压线圈立式绕线机',
@@ -296,6 +412,61 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     pressureYoy: '-0.2% ↓',
   },
   {
+    id: 'eq-xb-box-01',
+    name: '1# 110kV智能箱式变电站装配检测线',
+    code: 'EQ-XB-BOX-01',
+    company: '新变厂',
+    enterprise: '智能电气公司',
+    location: '智能化箱变车间',
+    status: '运行中',
+    powerKW: 1450,
+    energyKWh: 34800,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 25.0,
+    powerYoy: '-3.8% ↓',
+    energyYoy: '-3.5% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
+    id: 'eq-xb-cast-01',
+    name: '1# 110kV环氧树脂真空浇注罐',
+    code: 'EQ-XB-CAST-01',
+    company: '新变厂',
+    enterprise: '京津冀公司',
+    location: '干变浇注车间',
+    status: '运行中',
+    powerKW: 1750,
+    energyKWh: 42000,
+    mediumTag: '电·气',
+    gasFlowM3: 32.5,
+    pressureMpa: 0.002,
+    temperatureC: 140.0,
+    powerYoy: '-4.1% ↓',
+    energyYoy: '-3.9% ↓',
+    flowYoy: '-3.5% ↓',
+    pressureYoy: '+0.1% ↑',
+  },
+  {
+    id: 'eq-xb-shr-01',
+    name: '5# 铁心纵剪硅钢片十头纵剪线',
+    code: 'EQ-XB-SHR-01',
+    company: '新变厂',
+    enterprise: '珠峰硅钢',
+    location: '铁心智造中心',
+    status: '运行中',
+    powerKW: 2120,
+    energyKWh: 50880,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 28.5,
+    powerYoy: '-2.1% ↓',
+    energyYoy: '-3.3% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
     id: 'eq-zf-cut-01',
     name: '1# 高导磁取向硅钢连续横剪线',
     code: 'EQ-ZF-CUT-01',
@@ -314,7 +485,9 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     pressureYoy: '—',
   },
 
+  // -------------------------------------------------------------
   // 4. 鲁缆公司
+  // -------------------------------------------------------------
   {
     id: 'eq-dry-03',
     name: '3# 500kV 悬垂立塔交联生产线',
@@ -335,24 +508,6 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     pressureYoy: '-0.5% ↓',
   },
   {
-    id: 'eq-dry-04',
-    name: '4# 连续硫化橡胶挤塑机组',
-    code: 'EQ-LL-VUL-02',
-    company: '鲁缆公司',
-    enterprise: '鲁缆本部',
-    location: '橡缆挤塑车间',
-    status: '运行中',
-    powerKW: 1620,
-    energyKWh: 38880,
-    mediumTag: '电·水',
-    pressureMpa: 0.65,
-    temperatureC: 175.0,
-    powerYoy: '-5.2% ↓',
-    energyYoy: '-4.7% ↓',
-    flowYoy: '—',
-    pressureYoy: '+0.3% ↑',
-  },
-  {
     id: 'eq-ll-str-01',
     name: '1# 35kV铝合金绞线机组',
     code: 'EQ-LL-STR-01',
@@ -369,6 +524,24 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     energyYoy: '-3.4% ↓',
     flowYoy: '—',
     pressureYoy: '—',
+  },
+  {
+    id: 'eq-dry-04',
+    name: '4# 连续硫化橡胶挤塑机组',
+    code: 'EQ-LL-VUL-02',
+    company: '鲁缆公司',
+    enterprise: '曙光公司',
+    location: '橡缆挤塑车间',
+    status: '运行中',
+    powerKW: 1620,
+    energyKWh: 38880,
+    mediumTag: '电·水',
+    pressureMpa: 0.65,
+    temperatureC: 175.0,
+    powerYoy: '-5.2% ↓',
+    energyYoy: '-4.7% ↓',
+    flowYoy: '—',
+    pressureYoy: '+0.3% ↑',
   },
   {
     id: 'eq-sg-ext-01',
@@ -389,13 +562,15 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     pressureYoy: '+0.1% ↑',
   },
 
+  // -------------------------------------------------------------
   // 5. 新缆厂
+  // -------------------------------------------------------------
   {
     id: 'eq-dry-07',
     name: '7# 35kV及以下三层共挤交联生产线',
     code: 'EQ-XL-VUL-01',
     company: '新缆厂',
-    enterprise: '新缆厂本部',
+    enterprise: '特变电工新疆电缆有限公司',
     location: '中压交联车间',
     status: '运行中',
     powerKW: 2350,
@@ -414,7 +589,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     name: '1# 大拉连续退火铜大拉机组',
     code: 'EQ-XL-DRAW-01',
     company: '新缆厂',
-    enterprise: '新缆厂本部',
+    enterprise: '特变电工新疆电缆有限公司',
     location: '拉丝车间',
     status: '运行中',
     powerKW: 1890,
@@ -427,14 +602,34 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     flowYoy: '—',
     pressureYoy: '-0.1% ↓',
   },
+  {
+    id: 'eq-xl-str-01',
+    name: '1# 铝合金架空导线高速框绞机组',
+    code: 'EQ-XL-STR-01',
+    company: '新缆厂',
+    enterprise: '特变电工新疆线缆厂',
+    location: '线缆制造车间',
+    status: '运行中',
+    powerKW: 1420,
+    energyKWh: 34080,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 28.0,
+    powerYoy: '-3.5% ↓',
+    energyYoy: '-3.2% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
 
+  // -------------------------------------------------------------
   // 6. 德缆公司
+  // -------------------------------------------------------------
   {
     id: 'eq-dry-08',
     name: '8# 铝合金杆连铸连轧机组',
     code: 'EQ-DL-CAS-01',
     company: '德缆公司',
-    enterprise: '德缆公司本部',
+    enterprise: '特变电工（德阳）电缆股份有限公司',
     location: '连铸连轧车间',
     status: '运行中',
     powerKW: 3100,
@@ -452,7 +647,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     name: '1# 轨道交通特种扁线挤压包覆机',
     code: 'EQ-DL-EXT-01',
     company: '德缆公司',
-    enterprise: '德缆公司本部',
+    enterprise: '特变电工（德阳）电缆股份有限公司',
     location: '特缆车间',
     status: '运行中',
     powerKW: 1220,
@@ -468,15 +663,6 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
 ]
 
-// 4 级组织与设备映射结构
-interface TreeCompanyNode {
-  name: string
-  enterprises: {
-    name: string
-    equipments: KeyEquipmentInfo[]
-  }[]
-}
-
 export default function EquipmentPage() {
   const [selectedEqId, setSelectedEqId] = useState<string>('eq-dry-01')
   const [eqSearchKw, setEqSearchKw] = useState('')
@@ -491,14 +677,27 @@ export default function EquipmentPage() {
     德缆公司: true,
   })
   const [collapsedEnterprises, setCollapsedEnterprises] = useState<Record<string, boolean>>({
-    和新套管公司: true,
-    露娜智能制造: true,
-    湖南电气: true,
-    南京电研: true,
-    超高压公司: true,
-    天变公司: true,
-    珠峰硅钢: true,
-    曙光公司: true,
+    '露娜公司 (特变电工露娜智能)': true,
+    '智慧能源': true,
+    '和新套管公司': true,
+    '康嘉互感器': true,
+    '印能公司': true,
+    '南京电研': true,
+    '云集电气': true,
+    '湖南电气': true,
+    '云集高压开关': true,
+    '特能建': true,
+    '合容电气': true,
+    '赛杰爱迪': true,
+    '超高压公司': true,
+    '天变公司': true,
+    '智能电气公司': true,
+    '京津冀公司': true,
+    '珠峰硅钢': true,
+    '智缆公司': true,
+    '昭和公司': true,
+    '曙光公司': true,
+    '特变电工新疆线缆厂': true,
   })
 
   const toggleCompanyCollapse = (compName: string) => {
@@ -530,35 +729,9 @@ export default function EquipmentPage() {
   const basePower = selectedEq.powerKW || 4680
   const baseSteam = selectedEq.steamFlowT || 1.85
 
-  // 构造 4 级树状结构
-  const hierarchyTree = useMemo<TreeCompanyNode[]>(() => {
-    const companies = ['沈变公司', '衡变公司', '新变厂', '鲁缆公司', '新缆厂', '德缆公司']
-    const result: TreeCompanyNode[] = []
-
-    companies.forEach((comp) => {
-      const compEqs = KEY_EQUIPMENT_LIST.filter((e) => e.company === comp)
-      const enterpriseMap = new Map<string, KeyEquipmentInfo[]>()
-
-      compEqs.forEach((eq) => {
-        if (!enterpriseMap.has(eq.enterprise)) {
-          enterpriseMap.set(eq.enterprise, [])
-        }
-        enterpriseMap.get(eq.enterprise)!.push(eq)
-      })
-
-      const enterprises = Array.from(enterpriseMap.entries()).map(([entName, eqs]) => ({
-        name: entName,
-        equipments: eqs,
-      }))
-
-      result.push({
-        name: comp,
-        enterprises,
-      })
-    })
-
-    return result
-  }, [])
+  // 🌟 直接基于全局标准的 ENTERPRISE_TREE_DATA 构建 4 级树，保证 3 级单位名称与企业组织拓扑 100% 绝对一致
+  const rootNode = ENTERPRISE_TREE_DATA[0]
+  const standardCompanies = rootNode?.children || []
 
   // =========================================================================
   // 1. 【电】+【日】：15分钟功率曲线 (标注最大最小值) & 峰平谷 (总饼图 + 分日堆叠图)
@@ -781,36 +954,43 @@ export default function EquipmentPage() {
               )}
             </button>
             <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />
-            <span className="flex-1 truncate">电装集团</span>
+            <span className="flex-1 truncate">{rootNode?.name || '电装集团'}</span>
           </div>
 
-          {/* 1级节点展开后的 2级经营单位列表 */}
+          {/* 1级节点展开后的 2级经营单位列表 (与 ENTERPRISE_TREE_DATA 严格对齐) */}
           {!isRootCollapsed && (
             <div className="border-l border-slate-200 ml-3.5 pl-2 space-y-1">
-              {hierarchyTree.map((compNode) => {
+              {standardCompanies.map((compNode) => {
                 const compName = compNode.name
+                const enterprises = compNode.children || []
+
                 // 搜索过滤匹配
-                const matchedEnterprises = compNode.enterprises.map((ent) => {
-                  const filteredEqs = ent.equipments.filter(
+                const matchedEnterprises = enterprises.map((ent) => {
+                  const filteredEqs = KEY_EQUIPMENT_LIST.filter(
                     (e) =>
-                      !eqSearchKw.trim() ||
-                      e.name.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
-                      e.code.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
-                      ent.name.includes(eqSearchKw.trim()) ||
-                      compName.includes(eqSearchKw.trim())
+                      e.company === compName &&
+                      e.enterprise === ent.name &&
+                      (!eqSearchKw.trim() ||
+                        e.name.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
+                        e.code.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
+                        ent.name.includes(eqSearchKw.trim()) ||
+                        compName.includes(eqSearchKw.trim()))
                   )
                   return {
                     name: ent.name,
+                    id: ent.id,
+                    badge: ent.badge,
                     equipments: filteredEqs,
+                    isMatched: !eqSearchKw.trim() || ent.name.includes(eqSearchKw.trim()) || compName.includes(eqSearchKw.trim()) || filteredEqs.length > 0
                   }
-                }).filter((ent) => !eqSearchKw.trim() || ent.equipments.length > 0)
+                }).filter((ent) => ent.isMatched)
 
                 if (eqSearchKw.trim() && matchedEnterprises.length === 0) return null
 
                 const isCompanyCollapsed = !eqSearchKw.trim() && Boolean(collapsedCompanies[compName])
 
                 return (
-                  <div key={compName} className="space-y-0.5">
+                  <div key={compNode.id} className="space-y-0.5">
                     {/* 2级节点：各经营单位 (支持点击展开/收起) */}
                     <div
                       onClick={() => toggleCompanyCollapse(compName)}
@@ -833,15 +1013,16 @@ export default function EquipmentPage() {
                       <span className="flex-1 truncate">{compName}</span>
                     </div>
 
-                    {/* 2级节点展开后的 3级企业级单位列表 */}
+                    {/* 2级节点展开后的 3级企业级单位列表 (与 ENTERPRISE_TREE_DATA 100% 绝对一致) */}
                     {!isCompanyCollapsed && (
                       <div className="border-l border-slate-200 ml-3 pl-2 space-y-1">
                         {matchedEnterprises.map((ent) => {
                           const entName = ent.name
+                          const hasEqs = ent.equipments.length > 0
                           const isEntCollapsed = !eqSearchKw.trim() && Boolean(collapsedEnterprises[entName])
 
                           return (
-                            <div key={entName} className="space-y-0.5">
+                            <div key={ent.id} className="space-y-0.5">
                               {/* 3级节点：企业级单位 (支持点击展开/收起) */}
                               <div
                                 onClick={() => toggleEnterpriseCollapse(entName)}
@@ -862,7 +1043,7 @@ export default function EquipmentPage() {
                                   )}
                                 </button>
                                 <Factory className="size-3 text-slate-500 shrink-0" />
-                                <span className="flex-1 truncate">{entName}</span>
+                                <span className="flex-1 truncate" title={entName}>{entName}</span>
                                 <span className="text-[10px] text-slate-400 font-mono">
                                   ({ent.equipments.length})
                                 </span>
@@ -871,29 +1052,35 @@ export default function EquipmentPage() {
                               {/* 4级节点：重点设备列表 */}
                               {!isEntCollapsed && (
                                 <div className="border-l border-slate-200 ml-2.5 pl-2 space-y-0.5">
-                                  {ent.equipments.map((eq) => {
-                                    const isSelected = selectedEqId === eq.id
-                                    return (
-                                      <div
-                                        key={eq.id}
-                                        onClick={() => setSelectedEqId(eq.id)}
-                                        className={cn(
-                                          'flex items-center justify-between py-1 px-1.5 rounded cursor-pointer transition-colors text-[11px] group',
-                                          isSelected
-                                            ? 'bg-[#e6f4ff] text-[#1677ff] font-bold shadow-2xs'
-                                            : 'hover:bg-slate-100 text-slate-600'
-                                        )}
-                                      >
-                                        <div className="flex items-center gap-1.5 truncate">
-                                          <Cpu className={cn('size-3 shrink-0', isSelected ? 'text-[#1677ff]' : 'text-slate-400')} />
-                                          <span className="truncate" title={eq.name}>
-                                            {eq.name}
-                                          </span>
+                                  {hasEqs ? (
+                                    ent.equipments.map((eq) => {
+                                      const isSelected = selectedEqId === eq.id
+                                      return (
+                                        <div
+                                          key={eq.id}
+                                          onClick={() => setSelectedEqId(eq.id)}
+                                          className={cn(
+                                            'flex items-center justify-between py-1 px-1.5 rounded cursor-pointer transition-colors text-[11px] group',
+                                            isSelected
+                                              ? 'bg-[#e6f4ff] text-[#1677ff] font-bold shadow-2xs'
+                                              : 'hover:bg-slate-100 text-slate-600'
+                                          )}
+                                        >
+                                          <div className="flex items-center gap-1.5 truncate">
+                                            <Cpu className={cn('size-3 shrink-0', isSelected ? 'text-[#1677ff]' : 'text-slate-400')} />
+                                            <span className="truncate" title={eq.name}>
+                                              {eq.name}
+                                            </span>
+                                          </div>
+                                          <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" title="在线运行" />
                                         </div>
-                                        <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" title="在线运行" />
-                                      </div>
-                                    )
-                                  })}
+                                      )
+                                    })
+                                  ) : (
+                                    <div className="py-0.5 px-2 text-[10.5px] text-slate-400 font-sans italic">
+                                      暂无重点监测设备
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>
