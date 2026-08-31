@@ -342,7 +342,7 @@ export default function CarbonReportPage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-500" />
               <h3 className="text-xs font-bold text-slate-800">
-                全集团 8 大基地温室气体排放 Scope 1/2 分解与核算透视表 (2026年度)
+                全集团温室气体排放 Scope 1/2 分解与核算透视表 (2026年度)
               </h3>
             </div>
             <div className="text-xs text-slate-500 font-mono">
@@ -415,7 +415,7 @@ export default function CarbonReportPage() {
               <tfoot>
                 <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
                   <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans text-center" colSpan={2}>
-                    全集团碳排放汇总 (8大基地)
+                    全集团碳排放汇总
                   </td>
                   <td className="py-2.5 px-3 text-right font-mono tabular-nums">
                     {totals.fossilCombustion.toLocaleString('en-US', { minimumFractionDigits: 1 })}

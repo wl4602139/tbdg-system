@@ -443,7 +443,7 @@ export default function CostReportPage() {
               <tfoot>
                 <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
                   <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans text-center" colSpan={2}>
-                    全集团总费用汇总 (8大基地)
+                    全集团总费用汇总
                   </td>
                   <td className="py-2.5 px-3 text-right font-mono text-rose-600 tabular-nums">
                     {totals.tipElec.toLocaleString('en-US', { minimumFractionDigits: 1 })}

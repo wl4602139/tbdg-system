@@ -367,7 +367,7 @@ export default function UsageReportPage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-[#1677ff]" />
               <h3 className="text-xs font-bold text-slate-800">
-                全集团 8 大制造基地月度用能汇总透视报表 (2026年08月)
+                全集团月度用能汇总透视报表 (2026年08月)
               </h3>
               <span className="text-[10px] text-slate-400 font-mono">按产业板块聚合 · 支持列排序</span>
             </div>
@@ -484,7 +484,7 @@ export default function UsageReportPage() {
               <tfoot>
                 <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
                   <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans text-center" colSpan={2}>
-                    全集团综合汇总 ({filteredRows.length}大基地)
+                    全集团综合汇总
                   </td>
                   <td className="py-2.5 px-3 font-sans text-blue-700">全板块聚合</td>
                   <td className="py-2.5 px-3 text-right font-mono tabular-nums">
