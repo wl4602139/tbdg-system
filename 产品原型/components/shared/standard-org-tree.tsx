@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   ChevronRight,
   ChevronDown,
@@ -402,6 +402,8 @@ export function StandardOrgTree({
         const id = `park_${i < 10 ? '0' + i : i}`
         keys[id] = true
       }
+      keys['park_07_hr'] = true
+      keys['park_10_tb'] = true
       return keys
     }
     return {
@@ -414,6 +416,30 @@ export function StandardOrgTree({
       ws_xb_tb: true,
     }
   })
+
+  // 🌟 当 treeType 改变时（如点击切换到“零碳园区”维度），保证全部 15 个园区节点默认收起
+  useEffect(() => {
+    if (treeType === 'park') {
+      const keys: Record<string, boolean> = {}
+      for (let i = 1; i <= 15; i++) {
+        const id = `park_${i < 10 ? '0' + i : i}`
+        keys[id] = true
+      }
+      keys['park_07_hr'] = true
+      keys['park_10_tb'] = true
+      setCollapsedKeys(keys)
+    } else {
+      setCollapsedKeys({
+        comp_hb: true,
+        comp_xb: true,
+        comp_ll: true,
+        comp_xl: true,
+        comp_dl: true,
+        ws_hb_hr: true,
+        ws_xb_tb: true,
+      })
+    }
+  }, [treeType])
 
   const toggleCollapse = (id: string) => {
     setCollapsedKeys((prev) => ({
