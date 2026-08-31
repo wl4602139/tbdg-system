@@ -678,10 +678,10 @@ export default function FactorPage() {
                 })
                 setEditVal('0.5500')
               }}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-xs font-semibold text-white shadow-2xs transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-xs font-semibold text-white shadow-2xs transition-colors cursor-pointer"
             >
               <Plus className="size-3.5" />
-              <span>+ 新增因子</span>
+              <span>新增因子</span>
             </button>
           </div>
         </div>
