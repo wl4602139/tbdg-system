@@ -838,12 +838,7 @@ export default function UnitProductPage() {
             <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
               <Factory className="size-5" />
             </div>
-            <div>
-              <h1 className="text-base font-bold text-slate-800">单位产品能耗</h1>
-              <div className="text-[11px] text-slate-400 font-mono">
-                当前核算范围：<strong className="text-slate-700">{selectedNode.fullName || selectedNode.name}</strong>
-              </div>
-            </div>
+            <h1 className="text-base font-bold text-slate-800">单位产品能耗</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
