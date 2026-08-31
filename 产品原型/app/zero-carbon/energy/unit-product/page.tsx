@@ -428,8 +428,11 @@ export default function UnitProductPage() {
 
   // 1. 产业大类选择 (全部 / 变压器 / 线缆)
   const [category, setCategory] = useState<'all' | 'transformer' | 'cable'>('all')
-  // 2. 时间维度 (月度 近12个月 / 季度 近12个季度 / 年度 近3年)
+  // 2. 时间维度 (月度 / 季度 / 年度)
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  const [selectedYear, setSelectedYear] = useState('2026')
   // 3. 🌟 当前选中的 KPI 卡片能源介质 (默认综合能耗 'kpi-tce'，点击卡片即时联动图表与坐标轴)
   const [selectedKpiId, setSelectedKpiId] = useState<string>('kpi-tce')
   // 4. 电压等级过滤 (针对海量型号快捷筛选)
@@ -843,40 +846,94 @@ export default function UnitProductPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {/* 时间维度切换：月度 (近12个月) / 季度 (近12个季度) / 年度 (近3年) */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* 时间维度统一 (月度 / 季度 / 年度) */}
             <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
               <button
                 type="button"
                 onClick={() => setTimeDim('month')}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
-                月度 (近12个月)
+                月度
               </button>
               <button
                 type="button"
                 onClick={() => setTimeDim('quarter')}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
-                季度 (近12个季度)
+                季度
               </button>
               <button
                 type="button"
                 onClick={() => setTimeDim('year')}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
-                年度 (近3年)
+                年度
               </button>
             </div>
+
+            {/* 时间范围选择控件 (随维度自适应切换) */}
+            {timeDim === 'month' && (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                <input
+                  type="month"
+                  value={selectedMonthRange.start}
+                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  title="起始月份"
+                />
+                <span className="text-slate-400 font-sans">至</span>
+                <input
+                  type="month"
+                  value={selectedMonthRange.end}
+                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  title="结束月份"
+                />
+              </div>
+            )}
+
+            {timeDim === 'quarter' && (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                <select
+                  value={selectedQuarter}
+                  onChange={(e) => setSelectedQuarter(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                >
+                  <option value="2026-Q1">2026年 第1季度 (Q1)</option>
+                  <option value="2026-Q2">2026年 第2季度 (Q2)</option>
+                  <option value="2026-Q3">2026年 第3季度 (Q3)</option>
+                  <option value="2026-Q4">2026年 第4季度 (Q4)</option>
+                  <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+                </select>
+              </div>
+            )}
+
+            {timeDim === 'year' && (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                >
+                  <option value="2026">2026 年度</option>
+                  <option value="2025">2025 年度</option>
+                  <option value="2024">2024 年度</option>
+                </select>
+              </div>
+            )}
 
             <button
               type="button"

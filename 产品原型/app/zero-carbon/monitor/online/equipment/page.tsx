@@ -22,17 +22,19 @@ import {
   Layers,
   Info,
   Activity,
+  Factory,
 } from 'lucide-react'
 import { LineTrend, BarChartGroup, Donut, AreaTrend } from '@/components/shared/charts'
 import { OnlineHeader } from '@/components/shared/online-header'
 import { cn } from '@/lib/utils'
 
-interface KeyEquipmentInfo {
+export interface KeyEquipmentInfo {
   id: string
   name: string
   code: string
-  company: string
-  location: string
+  company: string      // 2级 经营单位
+  enterprise: string   // 3级 企业级单位
+  location: string     // 车间/工段
   status: '运行中' | '待机' | '检修'
   powerKW: number
   energyKWh: number
@@ -47,22 +49,439 @@ interface KeyEquipmentInfo {
   pressureYoy?: string
 }
 
-const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
-  { id: 'eq-dry-01', name: '1# 1000kV级气相白真空干燥罐组', code: 'EQ-SB-DRY-01', company: '沈变公司', location: '特高压一车间', status: '运行中', powerKW: 4680, energyKWh: 112340, mediumTag: '电·汽', steamFlowT: 1.85, pressureMpa: 0.005, temperatureC: 135.2, powerYoy: '-4.2% ↓', energyYoy: '-3.8% ↓', flowYoy: '-5.1% ↓', pressureYoy: '+0.2% ↑' },
-  { id: 'eq-dry-02', name: '2# 特高压变压器煤油汽相干燥罐', code: 'EQ-SB-DRY-02', company: '沈变公司', location: '特高压二车间', status: '运行中', powerKW: 3950, energyKWh: 94800, mediumTag: '电·汽', steamFlowT: 1.62, pressureMpa: 0.006, temperatureC: 132.8, powerYoy: '-3.5% ↓', energyYoy: '-4.1% ↓', flowYoy: '-2.8% ↓', pressureYoy: '+0.1% ↑' },
-  { id: 'eq-dry-03', name: '3# 500kV 悬垂立塔交联生产线', code: 'EQ-LL-VUL-01', company: '鲁缆公司', location: '超高压立塔车间', status: '运行中', powerKW: 3850, energyKWh: 92400, mediumTag: '电·汽', steamFlowT: 2.10, pressureMpa: 1.85, temperatureC: 210.5, powerYoy: '+1.8% ↑', energyYoy: '-2.4% ↓', flowYoy: '-3.6% ↓', pressureYoy: '-0.5% ↓' },
-  { id: 'eq-dry-04', name: '4# 连续硫化橡胶挤塑机组', code: 'EQ-LL-VUL-02', company: '鲁缆公司', location: '橡缆挤塑车间', status: '运行中', powerKW: 1620, energyKWh: 38880, mediumTag: '电·水', pressureMpa: 0.65, temperatureC: 175.0, powerYoy: '-5.2% ↓', energyYoy: '-4.7% ↓', flowYoy: '—', pressureYoy: '+0.3% ↑' },
-  { id: 'eq-dry-05', name: '5# 铁心纵剪硅钢片十头纵剪线', code: 'EQ-XB-SHR-01', company: '新变厂', location: '铁心智造中心', status: '运行中', powerKW: 2120, energyKWh: 50880, mediumTag: '电', pressureMpa: 0.0, temperatureC: 28.5, powerYoy: '-2.1% ↓', energyYoy: '-3.3% ↓', flowYoy: '—', pressureYoy: '—' },
-  { id: 'eq-dry-06', name: '6# 煤油喷淋回收及热循环系统', code: 'EQ-HB-REC-01', company: '衡变公司', location: '干燥辅助站房', status: '运行中', powerKW: 1050, energyKWh: 25200, mediumTag: '电·气', gasFlowM3: 45.2, pressureMpa: 0.42, temperatureC: 85.0, powerYoy: '-6.4% ↓', energyYoy: '-5.9% ↓', flowYoy: '-4.8% ↓', pressureYoy: '+0.1% ↑' },
-  { id: 'eq-dry-07', name: '7# 35kV及以下三层共挤交联生产线', code: 'EQ-XL-VUL-01', company: '新缆厂', location: '中压交联车间', status: '运行中', powerKW: 2350, energyKWh: 56400, mediumTag: '电·汽', steamFlowT: 1.45, pressureMpa: 1.20, temperatureC: 198.0, powerYoy: '-3.1% ↓', energyYoy: '-2.8% ↓', flowYoy: '-3.0% ↓', pressureYoy: '+0.1% ↑' },
-  { id: 'eq-dry-08', name: '8# 铝合金杆连铸连轧机组', code: 'EQ-DL-CAS-01', company: '德缆公司', location: '连铸连轧车间', status: '运行中', powerKW: 3100, energyKWh: 74400, mediumTag: '电·水', pressureMpa: 0.55, temperatureC: 85.0, powerYoy: '-4.5% ↓', energyYoy: '-3.9% ↓', flowYoy: '—', pressureYoy: '-0.2% ↓' },
+export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
+  // 1. 沈变公司
+  {
+    id: 'eq-dry-01',
+    name: '1# 1000kV级气相白真空干燥罐组',
+    code: 'EQ-SB-DRY-01',
+    company: '沈变公司',
+    enterprise: '沈变本部',
+    location: '特高压一车间',
+    status: '运行中',
+    powerKW: 4680,
+    energyKWh: 112340,
+    mediumTag: '电·汽',
+    steamFlowT: 1.85,
+    pressureMpa: 0.005,
+    temperatureC: 135.2,
+    powerYoy: '-4.2% ↓',
+    energyYoy: '-3.8% ↓',
+    flowYoy: '-5.1% ↓',
+    pressureYoy: '+0.2% ↑',
+  },
+  {
+    id: 'eq-dry-02',
+    name: '2# 特高压变压器煤油汽相干燥罐',
+    code: 'EQ-SB-DRY-02',
+    company: '沈变公司',
+    enterprise: '沈变本部',
+    location: '特高压二车间',
+    status: '运行中',
+    powerKW: 3950,
+    energyKWh: 94800,
+    mediumTag: '电·汽',
+    steamFlowT: 1.62,
+    pressureMpa: 0.006,
+    temperatureC: 132.8,
+    powerYoy: '-3.5% ↓',
+    energyYoy: '-4.1% ↓',
+    flowYoy: '-2.8% ↓',
+    pressureYoy: '+0.1% ↑',
+  },
+  {
+    id: 'eq-sb-tst-01',
+    name: '1# 1000kV特高压工频耐压试验机组',
+    code: 'EQ-SB-TST-01',
+    company: '沈变公司',
+    enterprise: '沈变本部',
+    location: '特高压试验大厅',
+    status: '运行中',
+    powerKW: 2850,
+    energyKWh: 68400,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 25.0,
+    powerYoy: '-2.8% ↓',
+    energyYoy: '-3.2% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
+    id: 'eq-hx-furn-01',
+    name: '1# 800kV特高压干式电容套管固化炉',
+    code: 'EQ-HX-FURN-01',
+    company: '沈变公司',
+    enterprise: '和新套管公司',
+    location: '套管生产车间',
+    status: '运行中',
+    powerKW: 1850,
+    energyKWh: 44400,
+    mediumTag: '电·汽',
+    steamFlowT: 0.95,
+    pressureMpa: 0.35,
+    temperatureC: 160.0,
+    powerYoy: '-3.8% ↓',
+    energyYoy: '-4.0% ↓',
+    flowYoy: '-3.1% ↓',
+    pressureYoy: '+0.1% ↑',
+  },
+  {
+    id: 'eq-ln-cryo-01',
+    name: '1# 液氮深冷装配与惰化循环机组',
+    code: 'EQ-LN-CRYO-01',
+    company: '沈变公司',
+    enterprise: '露娜智能制造',
+    location: '智能装配中心',
+    status: '运行中',
+    powerKW: 1420,
+    energyKWh: 34080,
+    mediumTag: '电·水',
+    pressureMpa: 0.45,
+    temperatureC: -196.0,
+    powerYoy: '-5.1% ↓',
+    energyYoy: '-4.6% ↓',
+    flowYoy: '—',
+    pressureYoy: '-0.1% ↓',
+  },
+
+  // 2. 衡变公司
+  {
+    id: 'eq-hb-rec-01',
+    name: '6# 煤油喷淋回收及热循环系统',
+    code: 'EQ-HB-REC-01',
+    company: '衡变公司',
+    enterprise: '衡变本部',
+    location: '干燥辅助站房',
+    status: '运行中',
+    powerKW: 1050,
+    energyKWh: 25200,
+    mediumTag: '电·气',
+    gasFlowM3: 45.2,
+    pressureMpa: 0.42,
+    temperatureC: 85.0,
+    powerYoy: '-6.4% ↓',
+    energyYoy: '-5.9% ↓',
+    flowYoy: '-4.8% ↓',
+    pressureYoy: '+0.1% ↑',
+  },
+  {
+    id: 'eq-hb-main-01',
+    name: '1# 750kV大型发电机主变压罐装线',
+    code: 'EQ-HB-MAIN-01',
+    company: '衡变公司',
+    enterprise: '衡变本部',
+    location: '总装一车间',
+    status: '运行中',
+    powerKW: 3600,
+    energyKWh: 86400,
+    mediumTag: '电·汽',
+    steamFlowT: 1.55,
+    pressureMpa: 0.008,
+    temperatureC: 128.0,
+    powerYoy: '-3.9% ↓',
+    energyYoy: '-3.5% ↓',
+    flowYoy: '-2.5% ↓',
+    pressureYoy: '+0.1% ↑',
+  },
+  {
+    id: 'eq-hn-robot-01',
+    name: '1# 220kV箱变自动焊接机器人工作站',
+    code: 'EQ-HN-ROBOT-01',
+    company: '衡变公司',
+    enterprise: '湖南电气',
+    location: '箱变智造车间',
+    status: '运行中',
+    powerKW: 980,
+    energyKWh: 23520,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 32.0,
+    powerYoy: '-4.8% ↓',
+    energyYoy: '-4.2% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
+    id: 'eq-nj-test-01',
+    name: '1# 继电保护与智能控制综测平台',
+    code: 'EQ-NJ-TEST-01',
+    company: '衡变公司',
+    enterprise: '南京电研',
+    location: '电研综测车间',
+    status: '运行中',
+    powerKW: 680,
+    energyKWh: 16320,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 24.0,
+    powerYoy: '-3.0% ↓',
+    energyYoy: '-2.8% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+
+  // 3. 新变厂
+  {
+    id: 'eq-xb-shr-01',
+    name: '5# 铁心纵剪硅钢片十头纵剪线',
+    code: 'EQ-XB-SHR-01',
+    company: '新变厂',
+    enterprise: '新变厂本部',
+    location: '铁心智造中心',
+    status: '运行中',
+    powerKW: 2120,
+    energyKWh: 50880,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 28.5,
+    powerYoy: '-2.1% ↓',
+    energyYoy: '-3.3% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
+    id: 'eq-xb-cast-01',
+    name: '1# 110kV环氧树脂真空浇注罐',
+    code: 'EQ-XB-CAST-01',
+    company: '新变厂',
+    enterprise: '新变厂本部',
+    location: '干变浇注车间',
+    status: '运行中',
+    powerKW: 1750,
+    energyKWh: 42000,
+    mediumTag: '电·气',
+    gasFlowM3: 32.5,
+    pressureMpa: 0.002,
+    temperatureC: 140.0,
+    powerYoy: '-4.1% ↓',
+    energyYoy: '-3.9% ↓',
+    flowYoy: '-3.5% ↓',
+    pressureYoy: '+0.1% ↑',
+  },
+  {
+    id: 'eq-xb-wind-01',
+    name: '1# 750kV级超高压线圈立式绕线机',
+    code: 'EQ-XB-WIND-01',
+    company: '新变厂',
+    enterprise: '超高压公司',
+    location: '超高压绕线车间',
+    status: '运行中',
+    powerKW: 1280,
+    energyKWh: 30720,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 26.0,
+    powerYoy: '-3.2% ↓',
+    energyYoy: '-2.9% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
+    id: 'eq-tb-tank-01',
+    name: '1# 牵引变压器波纹油箱成型机组',
+    code: 'EQ-TB-TANK-01',
+    company: '新变厂',
+    enterprise: '天变公司',
+    location: '油箱制造车间',
+    status: '运行中',
+    powerKW: 1650,
+    energyKWh: 39600,
+    mediumTag: '电·水',
+    pressureMpa: 0.85,
+    temperatureC: 35.0,
+    powerYoy: '-4.5% ↓',
+    energyYoy: '-4.0% ↓',
+    flowYoy: '—',
+    pressureYoy: '-0.2% ↓',
+  },
+  {
+    id: 'eq-zf-cut-01',
+    name: '1# 高导磁取向硅钢连续横剪线',
+    code: 'EQ-ZF-CUT-01',
+    company: '新变厂',
+    enterprise: '珠峰硅钢',
+    location: '硅钢加工中心',
+    status: '运行中',
+    powerKW: 1480,
+    energyKWh: 35520,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 27.0,
+    powerYoy: '-3.6% ↓',
+    energyYoy: '-3.1% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+
+  // 4. 鲁缆公司
+  {
+    id: 'eq-dry-03',
+    name: '3# 500kV 悬垂立塔交联生产线',
+    code: 'EQ-LL-VUL-01',
+    company: '鲁缆公司',
+    enterprise: '鲁缆本部',
+    location: '超高压立塔车间',
+    status: '运行中',
+    powerKW: 3850,
+    energyKWh: 92400,
+    mediumTag: '电·汽',
+    steamFlowT: 2.10,
+    pressureMpa: 1.85,
+    temperatureC: 210.5,
+    powerYoy: '+1.8% ↑',
+    energyYoy: '-2.4% ↓',
+    flowYoy: '-3.6% ↓',
+    pressureYoy: '-0.5% ↓',
+  },
+  {
+    id: 'eq-dry-04',
+    name: '4# 连续硫化橡胶挤塑机组',
+    code: 'EQ-LL-VUL-02',
+    company: '鲁缆公司',
+    enterprise: '鲁缆本部',
+    location: '橡缆挤塑车间',
+    status: '运行中',
+    powerKW: 1620,
+    energyKWh: 38880,
+    mediumTag: '电·水',
+    pressureMpa: 0.65,
+    temperatureC: 175.0,
+    powerYoy: '-5.2% ↓',
+    energyYoy: '-4.7% ↓',
+    flowYoy: '—',
+    pressureYoy: '+0.3% ↑',
+  },
+  {
+    id: 'eq-ll-str-01',
+    name: '1# 35kV铝合金绞线机组',
+    code: 'EQ-LL-STR-01',
+    company: '鲁缆公司',
+    enterprise: '鲁缆本部',
+    location: '绞线一车间',
+    status: '运行中',
+    powerKW: 1150,
+    energyKWh: 27600,
+    mediumTag: '电',
+    pressureMpa: 0.0,
+    temperatureC: 30.0,
+    powerYoy: '-3.7% ↓',
+    energyYoy: '-3.4% ↓',
+    flowYoy: '—',
+    pressureYoy: '—',
+  },
+  {
+    id: 'eq-sg-ext-01',
+    name: '1# 船用特种防火阻燃挤出机组',
+    code: 'EQ-SG-EXT-01',
+    company: '鲁缆公司',
+    enterprise: '曙光公司',
+    location: '特缆制造车间',
+    status: '运行中',
+    powerKW: 1350,
+    energyKWh: 32400,
+    mediumTag: '电·水',
+    pressureMpa: 0.50,
+    temperatureC: 185.0,
+    powerYoy: '-4.9% ↓',
+    energyYoy: '-4.3% ↓',
+    flowYoy: '—',
+    pressureYoy: '+0.1% ↑',
+  },
+
+  // 5. 新缆厂
+  {
+    id: 'eq-dry-07',
+    name: '7# 35kV及以下三层共挤交联生产线',
+    code: 'EQ-XL-VUL-01',
+    company: '新缆厂',
+    enterprise: '新缆厂本部',
+    location: '中压交联车间',
+    status: '运行中',
+    powerKW: 2350,
+    energyKWh: 56400,
+    mediumTag: '电·汽',
+    steamFlowT: 1.45,
+    pressureMpa: 1.20,
+    temperatureC: 198.0,
+    powerYoy: '-3.1% ↓',
+    energyYoy: '-2.8% ↓',
+    flowYoy: '-3.0% ↓',
+    pressureYoy: '+0.1% ↑',
+  },
+  {
+    id: 'eq-xl-draw-01',
+    name: '1# 大拉连续退火铜大拉机组',
+    code: 'EQ-XL-DRAW-01',
+    company: '新缆厂',
+    enterprise: '新缆厂本部',
+    location: '拉丝车间',
+    status: '运行中',
+    powerKW: 1890,
+    energyKWh: 45360,
+    mediumTag: '电·水',
+    pressureMpa: 0.40,
+    temperatureC: 65.0,
+    powerYoy: '-4.0% ↓',
+    energyYoy: '-3.6% ↓',
+    flowYoy: '—',
+    pressureYoy: '-0.1% ↓',
+  },
+
+  // 6. 德缆公司
+  {
+    id: 'eq-dry-08',
+    name: '8# 铝合金杆连铸连轧机组',
+    code: 'EQ-DL-CAS-01',
+    company: '德缆公司',
+    enterprise: '德缆公司本部',
+    location: '连铸连轧车间',
+    status: '运行中',
+    powerKW: 3100,
+    energyKWh: 74400,
+    mediumTag: '电·水',
+    pressureMpa: 0.55,
+    temperatureC: 85.0,
+    powerYoy: '-4.5% ↓',
+    energyYoy: '-3.9% ↓',
+    flowYoy: '—',
+    pressureYoy: '-0.2% ↓',
+  },
+  {
+    id: 'eq-dl-ext-01',
+    name: '1# 轨道交通特种扁线挤压包覆机',
+    code: 'EQ-DL-EXT-01',
+    company: '德缆公司',
+    enterprise: '德缆公司本部',
+    location: '特缆车间',
+    status: '运行中',
+    powerKW: 1220,
+    energyKWh: 29280,
+    mediumTag: '电·气',
+    gasFlowM3: 18.0,
+    pressureMpa: 0.30,
+    temperatureC: 165.0,
+    powerYoy: '-3.4% ↓',
+    energyYoy: '-3.0% ↓',
+    flowYoy: '-2.1% ↓',
+    pressureYoy: '+0.1% ↑',
+  },
 ]
+
+// 4 级组织与设备映射结构
+interface TreeCompanyNode {
+  name: string
+  enterprises: {
+    name: string
+    equipments: KeyEquipmentInfo[]
+  }[]
+}
 
 export default function EquipmentPage() {
   const [selectedEqId, setSelectedEqId] = useState<string>('eq-dry-01')
   const [eqSearchKw, setEqSearchKw] = useState('')
 
-  // 拓扑树折叠展开状态 (1级节点默认展开，支持用户点击收起/展开；2级节点也可独立收起/展开)
+  // 拓扑树折叠展开状态 (1级节点默认展开，2级与3级节点支持独立收起/展开)
   const [isRootCollapsed, setIsRootCollapsed] = useState(false)
   const [collapsedCompanies, setCollapsedCompanies] = useState<Record<string, boolean>>({
     鲁缆公司: true,
@@ -71,11 +490,28 @@ export default function EquipmentPage() {
     新缆厂: true,
     德缆公司: true,
   })
+  const [collapsedEnterprises, setCollapsedEnterprises] = useState<Record<string, boolean>>({
+    和新套管公司: true,
+    露娜智能制造: true,
+    湖南电气: true,
+    南京电研: true,
+    超高压公司: true,
+    天变公司: true,
+    珠峰硅钢: true,
+    曙光公司: true,
+  })
 
   const toggleCompanyCollapse = (compName: string) => {
     setCollapsedCompanies((prev) => ({
       ...prev,
       [compName]: !prev[compName],
+    }))
+  }
+
+  const toggleEnterpriseCollapse = (entName: string) => {
+    setCollapsedEnterprises((prev) => ({
+      ...prev,
+      [entName]: !prev[entName],
     }))
   }
 
@@ -93,6 +529,36 @@ export default function EquipmentPage() {
 
   const basePower = selectedEq.powerKW || 4680
   const baseSteam = selectedEq.steamFlowT || 1.85
+
+  // 构造 4 级树状结构
+  const hierarchyTree = useMemo<TreeCompanyNode[]>(() => {
+    const companies = ['沈变公司', '衡变公司', '新变厂', '鲁缆公司', '新缆厂', '德缆公司']
+    const result: TreeCompanyNode[] = []
+
+    companies.forEach((comp) => {
+      const compEqs = KEY_EQUIPMENT_LIST.filter((e) => e.company === comp)
+      const enterpriseMap = new Map<string, KeyEquipmentInfo[]>()
+
+      compEqs.forEach((eq) => {
+        if (!enterpriseMap.has(eq.enterprise)) {
+          enterpriseMap.set(eq.enterprise, [])
+        }
+        enterpriseMap.get(eq.enterprise)!.push(eq)
+      })
+
+      const enterprises = Array.from(enterpriseMap.entries()).map(([entName, eqs]) => ({
+        name: entName,
+        equipments: eqs,
+      }))
+
+      result.push({
+        name: comp,
+        enterprises,
+      })
+    })
+
+    return result
+  }, [])
 
   // =========================================================================
   // 1. 【电】+【日】：15分钟功率曲线 (标注最大最小值) & 峰平谷 (总饼图 + 分日堆叠图)
@@ -251,16 +717,16 @@ export default function EquipmentPage() {
     return days
   }, [baseSteam])
 
-  // 蒸汽-月：每日累计蒸汽消耗柱状图
-  const steamMonthAccumulatedData = useMemo(() => {
+  // 蒸汽-月：每日累计蒸汽用量柱状图
+  const steamMonthDailyAccumulatedData = useMemo(() => {
     const days = []
     for (let d = 1; d <= 31; d++) {
       const dayStr = d < 10 ? `0${d}日` : `${d}日`
       const isWeekend = d % 7 === 0 || d % 7 === 6
-      const val = Number((isWeekend ? 22.4 + (d % 3) : 38.6 + (d % 5) * 1.2).toFixed(1))
+      const baseVal = isWeekend ? 18.5 : 36.2
       days.push({
         day: dayStr,
-        日用量: val,
+        蒸汽用量: Number((baseVal + Math.sin(d) * 4).toFixed(1)),
       })
     }
     return days
@@ -268,15 +734,15 @@ export default function EquipmentPage() {
 
   return (
     <div className="flex gap-3.5 items-start">
-      {/* 左侧 270px 企业及重点设备拓扑树 */}
-      <aside className="w-[270px] min-w-[270px] max-w-[270px] shrink-0 sticky top-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-84px)] overflow-hidden">
-        <div className="p-3 border-b border-slate-100 space-y-2 shrink-0 bg-slate-50/50">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-slate-800 flex items-center gap-1.5">
+      {/* 🌟 左侧 270px 4 级组织与重点设备拓扑树 (1级集团 ➔ 2级单位 ➔ 3级企业 ➔ 4级重点设备) */}
+      <aside className="w-[270px] shrink-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-130px)] sticky top-[72px]">
+        <div className="p-3 border-b border-slate-100 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <Cpu className="size-4 text-[#1677ff]" />
-              企业及下级推送设备拓扑
+              企业及重点设备拓扑 (4级)
             </span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 font-mono font-bold">
+            <span className="text-[10px] font-medium bg-blue-50 text-[#1677ff] px-1.5 py-0.5 rounded">
               设备感知
             </span>
           </div>
@@ -293,7 +759,7 @@ export default function EquipmentPage() {
           </div>
         </div>
 
-        <div className="p-2 overflow-y-auto flex-1 text-xs font-sans space-y-1.5">
+        <div className="p-2 overflow-y-auto flex-1 text-xs font-sans space-y-1.5 custom-scrollbar">
           {/* 1级节点：电装集团 (支持点击展开/收起) */}
           <div
             onClick={() => setIsRootCollapsed(!isRootCollapsed)}
@@ -318,25 +784,34 @@ export default function EquipmentPage() {
             <span className="flex-1 truncate">电装集团</span>
           </div>
 
-          {/* 1级节点展开后的下级公司与设备列表 */}
+          {/* 1级节点展开后的 2级经营单位列表 */}
           {!isRootCollapsed && (
             <div className="border-l border-slate-200 ml-3.5 pl-2 space-y-1">
-              {['沈变公司', '鲁缆公司', '新变厂', '衡变公司', '新缆厂', '德缆公司'].map((compName) => {
-                const compEqs = KEY_EQUIPMENT_LIST.filter(
-                  (e) =>
-                    e.company === compName &&
-                    (!eqSearchKw.trim() ||
+              {hierarchyTree.map((compNode) => {
+                const compName = compNode.name
+                // 搜索过滤匹配
+                const matchedEnterprises = compNode.enterprises.map((ent) => {
+                  const filteredEqs = ent.equipments.filter(
+                    (e) =>
+                      !eqSearchKw.trim() ||
                       e.name.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
                       e.code.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
-                      compName.includes(eqSearchKw.trim()))
-                )
-                const isCompanyCollapsed = !eqSearchKw.trim() && Boolean(collapsedCompanies[compName])
+                      ent.name.includes(eqSearchKw.trim()) ||
+                      compName.includes(eqSearchKw.trim())
+                  )
+                  return {
+                    name: ent.name,
+                    equipments: filteredEqs,
+                  }
+                }).filter((ent) => !eqSearchKw.trim() || ent.equipments.length > 0)
 
-                if (eqSearchKw.trim() && compEqs.length === 0) return null
+                if (eqSearchKw.trim() && matchedEnterprises.length === 0) return null
+
+                const isCompanyCollapsed = !eqSearchKw.trim() && Boolean(collapsedCompanies[compName])
 
                 return (
                   <div key={compName} className="space-y-0.5">
-                    {/* 2级节点：各制造基地 (支持点击展开/收起) */}
+                    {/* 2级节点：各经营单位 (支持点击展开/收起) */}
                     <div
                       onClick={() => toggleCompanyCollapse(compName)}
                       className="flex items-center gap-1.5 py-1 px-1.5 rounded text-slate-800 font-bold hover:bg-slate-100 cursor-pointer select-none transition-colors"
@@ -358,25 +833,69 @@ export default function EquipmentPage() {
                       <span className="flex-1 truncate">{compName}</span>
                     </div>
 
-                    {/* 3级节点：重点设备列表 */}
+                    {/* 2级节点展开后的 3级企业级单位列表 */}
                     {!isCompanyCollapsed && (
-                      <div className="border-l border-slate-200 ml-3 pl-2 space-y-0.5">
-                        {compEqs.map((eq) => {
-                          const isSelected = selectedEqId === eq.id
+                      <div className="border-l border-slate-200 ml-3 pl-2 space-y-1">
+                        {matchedEnterprises.map((ent) => {
+                          const entName = ent.name
+                          const isEntCollapsed = !eqSearchKw.trim() && Boolean(collapsedEnterprises[entName])
+
                           return (
-                            <div
-                              key={eq.id}
-                              onClick={() => setSelectedEqId(eq.id)}
-                              className={cn(
-                                'flex items-center justify-between py-1 px-1.5 rounded cursor-pointer transition-colors text-[11px] group',
-                                isSelected
-                                  ? 'bg-[#e6f4ff] text-[#1677ff] font-bold shadow-2xs'
-                                  : 'hover:bg-slate-100 text-slate-700'
-                              )}
-                            >
-                              <div className="flex items-center gap-1.5 truncate">
-                                <span className="truncate" title={eq.name}>{eq.name}</span>
+                            <div key={entName} className="space-y-0.5">
+                              {/* 3级节点：企业级单位 (支持点击展开/收起) */}
+                              <div
+                                onClick={() => toggleEnterpriseCollapse(entName)}
+                                className="flex items-center gap-1 py-0.5 px-1 rounded text-slate-700 font-semibold hover:bg-slate-100 cursor-pointer select-none transition-colors text-[11.5px]"
+                              >
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    toggleEnterpriseCollapse(entName)
+                                  }}
+                                  className="size-3 flex items-center justify-center text-slate-400 hover:text-slate-600 shrink-0 cursor-pointer"
+                                >
+                                  {isEntCollapsed ? (
+                                    <ChevronRight className="size-2.5 text-slate-400" />
+                                  ) : (
+                                    <ChevronDown className="size-2.5 text-slate-500" />
+                                  )}
+                                </button>
+                                <Factory className="size-3 text-slate-500 shrink-0" />
+                                <span className="flex-1 truncate">{entName}</span>
+                                <span className="text-[10px] text-slate-400 font-mono">
+                                  ({ent.equipments.length})
+                                </span>
                               </div>
+
+                              {/* 4级节点：重点设备列表 */}
+                              {!isEntCollapsed && (
+                                <div className="border-l border-slate-200 ml-2.5 pl-2 space-y-0.5">
+                                  {ent.equipments.map((eq) => {
+                                    const isSelected = selectedEqId === eq.id
+                                    return (
+                                      <div
+                                        key={eq.id}
+                                        onClick={() => setSelectedEqId(eq.id)}
+                                        className={cn(
+                                          'flex items-center justify-between py-1 px-1.5 rounded cursor-pointer transition-colors text-[11px] group',
+                                          isSelected
+                                            ? 'bg-[#e6f4ff] text-[#1677ff] font-bold shadow-2xs'
+                                            : 'hover:bg-slate-100 text-slate-600'
+                                        )}
+                                      >
+                                        <div className="flex items-center gap-1.5 truncate">
+                                          <Cpu className={cn('size-3 shrink-0', isSelected ? 'text-[#1677ff]' : 'text-slate-400')} />
+                                          <span className="truncate" title={eq.name}>
+                                            {eq.name}
+                                          </span>
+                                        </div>
+                                        <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" title="在线运行" />
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              )}
                             </div>
                           )
                         })}
@@ -409,11 +928,11 @@ export default function EquipmentPage() {
                     {selectedEq.code}
                   </span>
                   <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] font-bold font-sans">
-                    {selectedEq.company}
+                    {selectedEq.company} · {selectedEq.enterprise}
                   </span>
                 </h2>
                 <div className="text-[11px] text-slate-500 flex items-center gap-3 pt-0.5">
-                  <span>安装位置: {selectedEq.location}</span>
+                  <span>安装车间: {selectedEq.location}</span>
                   <span>多能介质: {selectedEq.mediumTag}</span>
                   <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
                     <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -448,7 +967,7 @@ export default function EquipmentPage() {
                 <Zap className="size-3 text-emerald-600" />
                 当月累计用电量
               </div>
-              <div className="text-2xl font-extrabold text-emerald-700">
+              <div className="text-2xl font-extrabold text-emerald-600">
                 {selectedEq.energyKWh?.toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">kWh</span>
               </div>
               <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between text-[11px] font-sans">
@@ -459,387 +978,249 @@ export default function EquipmentPage() {
               </div>
             </div>
 
-            {/* 3. 蒸汽/天然气瞬时流量 */}
+            {/* 3. 瞬时蒸汽流量 / 瞬时天然气量 */}
             <div className="p-3 bg-purple-50/50 rounded-xl border border-purple-200/80 space-y-1">
               <div className="text-xs text-purple-800 font-sans flex items-center gap-1 font-bold">
                 <Wind className="size-3 text-purple-600" />
-                {selectedEq.gasFlowM3 ? '天然气瞬时流量' : '蒸汽瞬时流量'}
+                {selectedEq.gasFlowM3 ? '瞬时天然气量' : '瞬时蒸汽流量'}
               </div>
-              <div className="text-2xl font-extrabold text-purple-700">
-                {selectedEq.steamFlowT ? `${selectedEq.steamFlowT} t/h` : selectedEq.gasFlowM3 ? `${selectedEq.gasFlowM3} m³/h` : '—'}
+              <div className="text-2xl font-extrabold text-purple-600">
+                {selectedEq.gasFlowM3 ? `${selectedEq.gasFlowM3} ` : `${selectedEq.steamFlowT || 0} `}
+                <span className="text-xs font-normal text-slate-500 font-sans">
+                  {selectedEq.gasFlowM3 ? 'm³/h' : 't/h'}
+                </span>
               </div>
               <div className="pt-2 border-t border-purple-200/60 flex items-center justify-between text-[11px] font-sans">
                 <span className="text-slate-500">同比</span>
-                <span className={cn('font-bold font-mono', (selectedEq.flowYoy || '-5.1%').includes('+') ? 'text-red-500' : (selectedEq.flowYoy === '—' ? 'text-slate-400' : 'text-emerald-600'))}>
-                  {selectedEq.flowYoy || (selectedEq.steamFlowT || selectedEq.gasFlowM3 ? '-5.1% ↓' : '—')}
+                <span className={cn('font-bold font-mono', (selectedEq.flowYoy || '-5.1%').includes('+') ? 'text-red-500' : 'text-emerald-600')}>
+                  {selectedEq.flowYoy || '-5.1% ↓'}
                 </span>
               </div>
             </div>
 
-            {/* 4. 管道工作压力 */}
+            {/* 4. 管道工作压力 / 运行温度 */}
             <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-200/80 space-y-1">
               <div className="text-xs text-amber-800 font-sans flex items-center gap-1 font-bold">
                 <Flame className="size-3 text-amber-600" />
                 管道工作压力
               </div>
-              <div className="text-2xl font-extrabold text-amber-700">
-                {selectedEq.pressureMpa ? `${selectedEq.pressureMpa} MPa` : '—'}
+              <div className="text-2xl font-extrabold text-amber-600">
+                {selectedEq.pressureMpa ?? '0.005'} <span className="text-xs font-normal text-slate-500 font-sans">MPa</span>
               </div>
               <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-sans">
-                <span className="text-slate-500">同比</span>
-                <span className={cn('font-bold font-mono', (selectedEq.pressureYoy || '+0.2%').includes('+') ? 'text-slate-600' : (selectedEq.pressureYoy === '—' ? 'text-slate-400' : 'text-emerald-600'))}>
-                  {selectedEq.pressureYoy || (selectedEq.pressureMpa ? '+0.2% ↑' : '—')}
-                </span>
+                <span className="text-slate-500">运行温度</span>
+                <span className="font-bold text-slate-800 font-mono">{selectedEq.temperatureC ?? 135.2}°C</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* 🌟 核心监测区域（红框深度重构）：电/蒸汽 × 日/月 4维监测与峰平谷/累计分析 */}
-        {/* ========================================================================= */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-4">
-          
-          {/* 顶部控制栏：能源类型选择 (电 / 蒸汽) + 时间维度切换 (日 / 月) + 日期筛选 + 综合导出 */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
-            <div className="flex flex-wrap items-center gap-3">
-              {/* 1. 能源类型切换 (电 / 蒸汽) */}
-              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 font-sans text-xs">
-                <button
-                  type="button"
-                  onClick={() => setEnergyType('elec')}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3.5 py-1.5 rounded-md font-bold transition-all cursor-pointer select-none',
-                    energyType === 'elec'
-                      ? 'bg-[#1677ff] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                  )}
-                >
-                  <Zap className="size-3.5" />
-                  <span>电力监测 (电)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEnergyType('steam')}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3.5 py-1.5 rounded-md font-bold transition-all cursor-pointer select-none',
-                    energyType === 'steam'
-                      ? 'bg-purple-600 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                  )}
-                >
-                  <Wind className="size-3.5" />
-                  <span>蒸汽监测 (汽)</span>
-                </button>
-              </div>
-
-              <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-
-              {/* 2. 查询维度切换 (日 / 月) */}
-              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 font-sans text-xs">
-                <button
-                  type="button"
-                  onClick={() => setTimeDim('day')}
-                  className={cn(
-                    'px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer select-none',
-                    timeDim === 'day' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                  )}
-                >
-                  按日监测 (日)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTimeDim('month')}
-                  className={cn(
-                    'px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer select-none',
-                    timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                  )}
-                >
-                  按月监测 (月)
-                </button>
-              </div>
-
-              {/* 3. 具体日期/月份选择器 */}
-              {timeDim === 'day' ? (
-                <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-mono">
-                  <Calendar className="size-3.5 text-slate-400" />
-                  <span className="text-slate-600 font-sans">监测日期:</span>
-                  <input
-                    type="date"
-                    value={selectedDay}
-                    onChange={(e) => setSelectedDay(e.target.value)}
-                    className="bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold focus:outline-none focus:border-[#1677ff]"
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-mono">
-                  <Calendar className="size-3.5 text-slate-400" />
-                  <span className="text-slate-600 font-sans">监测账期:</span>
-                  <input
-                    type="month"
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold focus:outline-none focus:border-[#1677ff]"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* 导出按钮 */}
+        {/* 3. 核心图表控制栏：能源类型选择 (电 / 蒸汽) + 时间维度切换 (日 / 月) */}
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
+          {/* 左侧：能源类型切换 (电力监测 / 蒸汽监测) */}
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => alert(`正在导出【${selectedEq.name}】${energyType === 'elec' ? '电力' : '蒸汽'}(${timeDim === 'day' ? selectedDay : selectedMonth})用能全景监测报表 (Excel)...`)}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors"
+              onClick={() => setEnergyType('elec')}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer shadow-xs',
+                energyType === 'elec'
+                  ? 'bg-[#1677ff] text-white shadow-blue-200'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              )}
+            >
+              <Zap className="size-3.5" />
+              <span>电力监测 (电)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setEnergyType('steam')}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer shadow-xs',
+                energyType === 'steam'
+                  ? 'bg-purple-600 text-white shadow-purple-200'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              )}
+            >
+              <Wind className="size-3.5" />
+              <span>蒸汽监测 (汽)</span>
+            </button>
+          </div>
+
+          {/* 右侧：日/月 维度切换与日期选择 */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setTimeDim('day')}
+                className={cn(
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  timeDim === 'day'
+                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                )}
+              >
+                按日监测 (日)
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimeDim('month')}
+                className={cn(
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
+                  timeDim === 'month'
+                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                )}
+              >
+                按月监测 (月)
+              </button>
+            </div>
+
+            {/* 日期选择器 */}
+            {timeDim === 'day' ? (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-slate-400" />
+                <span className="text-slate-500 font-sans">监测日期:</span>
+                <input
+                  type="date"
+                  value={selectedDay}
+                  onChange={(e) => setSelectedDay(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 font-mono text-xs focus:outline-none cursor-pointer"
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-slate-400" />
+                <span className="text-slate-500 font-sans">监测月份:</span>
+                <input
+                  type="month"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 font-mono text-xs focus:outline-none cursor-pointer"
+                />
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => alert(`正在导出【${selectedEq.name}】运行监测数据...`)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
             >
               <Download className="size-3.5" />
               <span>导出</span>
             </button>
           </div>
+        </div>
 
-          {/* ========================================================================= */}
-          {/* 🌟 1. 上部分图表：功率走势 (电) / 瞬时流量走势 (蒸汽) + 标注最大最小值 */}
-          {/* ========================================================================= */}
-          <div className="p-3.5 bg-slate-50/60 rounded-xl border border-slate-200/80 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className={cn('size-2.5 rounded-full', energyType === 'elec' ? 'bg-[#1677ff]' : 'bg-purple-600')} />
-                <h3 className="text-xs font-bold text-slate-900">
-                  {energyType === 'elec'
-                    ? (timeDim === 'day'
-                        ? `【${selectedEq.name}】15分钟实时有功功率负荷走势曲线 (标注最大最小值 / kW)`
-                        : `【${selectedEq.name}】当月每日最大负荷功率走势曲线 (标注最大最小值 / kW)`)
-                    : (timeDim === 'day'
-                        ? `【${selectedEq.name}】15分钟瞬时蒸汽流量走势曲线 (标注最大最小值 / t/h)`
-                        : `【${selectedEq.name}】当月每日最大蒸汽流量走势曲线 (标注最大最小值 / t/h)`)}
-                </h3>
+        {/* 4. 核心图表区域 (根据 电/汽 和 日/月 动态切换 4 种视图) */}
+
+        {/* ========================================================================= */}
+        {/* 模式 1: 【电】+【日】                                                     */}
+        {/* ========================================================================= */}
+        {energyType === 'elec' && timeDim === 'day' && (
+          <div className="space-y-3.5">
+            {/* 15分钟实时有功功率负荷连续曲线 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-[#1677ff]" />
+                  <h3 className="text-xs font-bold text-slate-900">
+                    【{selectedEq.name}】15分钟实时有功功率负荷走势曲线 (标注最大最小值 / kW)
+                  </h3>
+                </div>
+                <div className="flex items-center gap-4 text-xs font-mono">
+                  <span className="text-rose-600 font-bold flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-rose-500" /> 最大值: 4,850 kW (11:15)
+                  </span>
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-emerald-500" /> 最小值: 2,120 kW (03:30)
+                  </span>
+                  <span className="text-slate-500 font-sans">
+                    平均: 3,728 kW
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => alert('正在导出 15分钟功率负荷曲线数据...')}
+                    className="flex items-center gap-1 text-[#1677ff] hover:underline font-sans cursor-pointer"
+                  >
+                    <Download className="size-3" />
+                    导出曲线
+                  </button>
+                </div>
               </div>
 
-              {/* 🌟 曲线最大值、最小值醒目标注徽章卡片 */}
-              <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-                {energyType === 'elec' ? (
-                  timeDim === 'day' ? (
-                    <>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200/80 font-bold">
-                        <span className="size-1.5 rounded-full bg-red-500" />
-                        最大值: 4,850 kW (11:15)
-                      </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold">
-                        <span className="size-1.5 rounded-full bg-emerald-500" />
-                        最小值: 2,120 kW (03:30)
-                      </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200/80">
-                        平均: 3,720 kW
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200/80 font-bold">
-                        <span className="size-1.5 rounded-full bg-red-500" />
-                        当月最高: 5,120 kW (08-15)
-                      </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold">
-                        <span className="size-1.5 rounded-full bg-emerald-500" />
-                        当月最低: 2,860 kW (08-03)
-                      </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200/80">
-                        日均最高: 4,180 kW
-                      </span>
-                    </>
-                  )
-                ) : (
-                  timeDim === 'day' ? (
-                    <>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200/80 font-bold">
-                        <span className="size-1.5 rounded-full bg-red-500" />
-                        最大流量: 2.35 t/h (10:45)
-                      </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold">
-                        <span className="size-1.5 rounded-full bg-emerald-500" />
-                        最小流量: 0.62 t/h (04:15)
-                      </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200/80">
-                        平均流量: 1.65 t/h
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200/80 font-bold">
-                        <span className="size-1.5 rounded-full bg-red-500" />
-                        当月最高: 2.68 t/h (08-18)
-                      </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold">
-                        <span className="size-1.5 rounded-full bg-emerald-500" />
-                        当月最低: 0.85 t/h (08-04)
-                      </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200/80">
-                        日均最高: 1.92 t/h
-                      </span>
-                    </>
-                  )
-                )}
+              <div className="h-[250px]">
+                <LineTrend
+                  data={elecDayPowerData}
+                  xKey="time"
+                  height={250}
+                  yUnit="kW"
+                  lines={[
+                    { key: '实时功率', name: '实时有功功率 (kW)', color: '#1677ff' },
+                  ]}
+                />
+              </div>
+            </div>
 
+            {/* 峰平谷电量 (总饼图 + 分日堆叠图) */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-amber-500" />
+                  <h3 className="text-xs font-bold text-slate-900">
+                    【{selectedEq.name}】当日用电峰平谷构成分析与逐时段负荷 (总饼图 + 分日堆叠图)
+                  </h3>
+                </div>
                 <button
                   type="button"
-                  onClick={() => alert(`正在导出【上部分走势曲线数据】(Excel)...`)}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs"
-                  title="导出上部曲线数据"
+                  onClick={() => alert('正在导出当日峰平谷分时台账...')}
+                  className="flex items-center gap-1 text-xs text-[#1677ff] hover:underline cursor-pointer font-sans"
                 >
-                  <Download className="size-3 text-slate-500" />
-                  <span>导出曲线</span>
+                  <Download className="size-3" />
+                  导出分时数据
                 </button>
               </div>
-            </div>
 
-            {/* 折线图渲染 (含 ReferenceLine 最大/最小值标记) */}
-            <div className="h-[250px] bg-white p-2.5 rounded-lg border border-slate-200/60 shadow-2xs">
-              {energyType === 'elec' ? (
-                timeDim === 'day' ? (
-                  <LineTrend
-                    data={elecDayPowerData}
-                    xKey="time"
-                    height={230}
-                    yUnit="kW"
-                    lines={[{ key: '实时功率', name: '实时有功功率 (kW)', color: '#1677ff' }]}
-                    refLines={[
-                      { y: 4850, label: '最大值: 4,850 kW (11:15)', color: '#ef4444' },
-                      { y: 2120, label: '最小值: 2,120 kW (03:30)', color: '#10b981' },
-                    ]}
-                  />
-                ) : (
-                  <LineTrend
-                    data={elecMonthMaxPowerData}
-                    xKey="day"
-                    height={230}
-                    yUnit="kW"
-                    lines={[{ key: '每日最大功率', name: '每日最高功率 (kW)', color: '#1677ff' }]}
-                    refLines={[
-                      { y: 5120, label: '最高值: 5,120 kW (08-15)', color: '#ef4444' },
-                      { y: 2860, label: '最低值: 2,860 kW (08-03)', color: '#10b981' },
-                    ]}
-                  />
-                )
-              ) : (
-                timeDim === 'day' ? (
-                  <LineTrend
-                    data={steamDayFlowData}
-                    xKey="time"
-                    height={230}
-                    yUnit="t/h"
-                    lines={[{ key: '瞬时流量', name: '瞬时蒸汽流量 (t/h)', color: '#9333ea' }]}
-                    refLines={[
-                      { y: 2.35, label: '最大流量: 2.35 t/h (10:45)', color: '#ef4444' },
-                      { y: 0.62, label: '最小流量: 0.62 t/h (04:15)', color: '#10b981' },
-                    ]}
-                  />
-                ) : (
-                  <LineTrend
-                    data={steamMonthMaxFlowData}
-                    xKey="day"
-                    height={230}
-                    yUnit="t/h"
-                    lines={[{ key: '每日最大流量', name: '每日最大蒸汽流量 (t/h)', color: '#9333ea' }]}
-                    refLines={[
-                      { y: 2.68, label: '最高流量: 2.68 t/h (08-18)', color: '#ef4444' },
-                      { y: 0.85, label: '最低流量: 0.85 t/h (08-04)', color: '#10b981' },
-                    ]}
-                  />
-                )
-              )}
-            </div>
-          </div>
-
-          {/* ========================================================================= */}
-          {/* 🌟 2. 下部分图表：电量峰平谷 (总饼图 + 分日/分月堆叠图) / 蒸汽累计用量 */}
-          {/* ========================================================================= */}
-          <div className="p-3.5 bg-slate-50/60 rounded-xl border border-slate-200/80 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className={cn('size-2.5 rounded-full', energyType === 'elec' ? 'bg-amber-500' : 'bg-purple-500')} />
-                <h3 className="text-xs font-bold text-slate-900">
-                  {energyType === 'elec'
-                    ? (timeDim === 'day'
-                        ? `【${selectedEq.name}】当日用电量峰平谷构成分析与逐时段负荷 (总饼图 + 分日堆叠图)`
-                        : `【${selectedEq.name}】当月用电量峰平谷累计构成与每日用电 (总饼图 + 分月堆叠图)`)
-                    : (timeDim === 'day'
-                        ? `【${selectedEq.name}】当日蒸汽逐时累计用量走势与总量分析 (t)`
-                        : `【${selectedEq.name}】当月蒸汽每日累计用量分布与月度消耗汇总 (t)`)}
-                </h3>
-              </div>
-
-              <div className="flex items-center gap-2 font-mono text-xs">
-                <button
-                  type="button"
-                  onClick={() => alert(`正在导出【下部分峰平谷/累计用能数据】(Excel)...`)}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs"
-                  title="导出下部数据"
-                >
-                  <Download className="size-3 text-slate-500" />
-                  <span>导出分析数据</span>
-                </button>
-              </div>
-            </div>
-
-            {/* 下部展示区 */}
-            {energyType === 'elec' ? (
-              /* 【电】：总的饼图 + 分日/分月堆叠图 */
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
-                {/* 左侧 4/12：总的峰平谷饼图 */}
-                <div className="lg:col-span-4 bg-white p-3 rounded-lg border border-slate-200/60 shadow-2xs flex flex-col justify-between">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 font-sans">
-                      <PieIcon className="size-3.5 text-amber-500" />
-                      {timeDim === 'day' ? '当日峰平谷电量总占比' : '当月峰平谷电量总占比'}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                {/* 左侧 4/12: 峰平谷总饼图 */}
+                <div className="lg:col-span-4 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <PieIcon className="size-3.5 text-amber-600" />
+                      当日峰平谷电量总占比
                     </span>
-                    <span className="text-[10.5px] font-mono font-bold text-[#1677ff]">
-                      {timeDim === 'day' ? '总量 112,340 kWh' : '总量 2,822,000 kWh'}
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      总电量: {selectedEq.energyKWh?.toLocaleString()} kWh
                     </span>
                   </div>
-
-                  <div className="py-1">
+                  <div className="h-[210px]">
                     <Donut
-                      data={timeDim === 'day' ? elecDayDonutData : elecMonthDonutData}
-                      height={190}
+                      data={elecDayDonutData}
+                      valueKey="value"
+                      nameKey="name"
+                      height={210}
                       unit="kWh"
                     />
                   </div>
-
-                  {/* 峰平谷指标明细栏 */}
-                  <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono pt-1.5 border-t border-slate-100">
-                    <div className="p-1.5 rounded bg-red-50/70 border border-red-100 flex items-center justify-between">
-                      <span className="text-red-700 font-sans font-medium">尖峰:</span>
-                      <strong className="text-red-800">{timeDim === 'day' ? '18,400 (16.4%)' : '48.5万 (17.2%)'}</strong>
-                    </div>
-                    <div className="p-1.5 rounded bg-amber-50/70 border border-amber-100 flex items-center justify-between">
-                      <span className="text-amber-700 font-sans font-medium">高峰:</span>
-                      <strong className="text-amber-800">{timeDim === 'day' ? '46,200 (41.1%)' : '118.0万 (41.8%)'}</strong>
-                    </div>
-                    <div className="p-1.5 rounded bg-blue-50/70 border border-blue-100 flex items-center justify-between">
-                      <span className="text-blue-700 font-sans font-medium">平段:</span>
-                      <strong className="text-blue-800">{timeDim === 'day' ? '32,500 (28.9%)' : '79.5万 (28.2%)'}</strong>
-                    </div>
-                    <div className="p-1.5 rounded bg-emerald-50/70 border border-emerald-100 flex items-center justify-between">
-                      <span className="text-emerald-700 font-sans font-medium">低谷:</span>
-                      <strong className="text-emerald-800">{timeDim === 'day' ? '15,240 (13.6%)' : '36.2万 (12.8%)'}</strong>
-                    </div>
-                  </div>
                 </div>
 
-                {/* 右侧 8/12：分日/分月峰平谷堆叠柱状图 */}
-                <div className="lg:col-span-8 bg-white p-3 rounded-lg border border-slate-200/60 shadow-2xs flex flex-col justify-between">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 font-sans">
-                      <BarChart3 className="size-3.5 text-[#1677ff]" />
-                      {timeDim === 'day' ? '逐时段峰平谷电量堆叠 (kWh)' : '当月每日峰平谷电量堆叠 (kWh)'}
+                {/* 右侧 8/12: 逐时段分时峰平谷堆叠柱状图 */}
+                <div className="lg:col-span-8 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <BarChart3 className="size-3.5 text-blue-600" />
+                      逐时段峰平谷电量堆叠 (kWh)
                     </span>
-                    <span className="text-[11px] text-slate-400 font-mono">尖/峰/平/谷 四色堆叠</span>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      尖/峰/平/谷 分色堆叠
+                    </span>
                   </div>
-
-                  <div className="h-[250px] pt-1">
+                  <div className="h-[210px]">
                     <BarChartGroup
-                      data={timeDim === 'day' ? elecDayStackedBarData : elecMonthStackedBarData}
-                      xKey={timeDim === 'day' ? 'time' : 'day'}
-                      height={240}
-                      stacked={true}
+                      data={elecDayStackedBarData}
+                      xKey="time"
+                      height={210}
+                      stacked
                       bars={[
                         { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
                         { key: '峰段', name: '高峰电量', color: '#fa8c16' },
@@ -850,229 +1231,283 @@ export default function EquipmentPage() {
                   </div>
                 </div>
               </div>
-            ) : (
-              /* 【蒸汽】：日累计用量 / 月累计用量 */
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
-                {/* 左侧 4/12：累计蒸汽指标统计卡片 */}
-                <div className="lg:col-span-4 bg-white p-3.5 rounded-lg border border-slate-200/60 shadow-2xs flex flex-col justify-between space-y-3">
-                  <div className="border-b border-slate-100 pb-2 flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 font-sans">
-                      <Wind className="size-3.5 text-purple-600" />
-                      {timeDim === 'day' ? '当日蒸汽累计总量' : '当月蒸汽累计总量'}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* 模式 2: 【电】+【月】                                                     */}
+        {/* ========================================================================= */}
+        {energyType === 'elec' && timeDim === 'month' && (
+          <div className="space-y-3.5">
+            {/* 每日最大功率连续走势曲线 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-[#1677ff]" />
+                  <h3 className="text-xs font-bold text-slate-900">
+                    【{selectedEq.name}】{selectedMonth} 每日最大有功功率走势曲线 (标注最大最小值 / kW)
+                  </h3>
+                </div>
+                <div className="flex items-center gap-4 text-xs font-mono">
+                  <span className="text-rose-600 font-bold flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-rose-500" /> 月最大值: 5,120 kW (15日)
+                  </span>
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-emerald-500" /> 月最小值: 2,860 kW (03日)
+                  </span>
+                  <span className="text-slate-500 font-sans">
+                    月平均最大: 4,320 kW
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => alert('正在导出月度每日最大功率数据...')}
+                    className="flex items-center gap-1 text-[#1677ff] hover:underline font-sans cursor-pointer"
+                  >
+                    <Download className="size-3" />
+                    导出数据
+                  </button>
+                </div>
+              </div>
+
+              <div className="h-[250px]">
+                <LineTrend
+                  data={elecMonthMaxPowerData}
+                  xKey="day"
+                  height={250}
+                  yUnit="kW"
+                  lines={[
+                    { key: '每日最大功率', name: '每日最大功率 (kW)', color: '#1677ff' },
+                  ]}
+                />
+              </div>
+            </div>
+
+            {/* 峰平谷电量 (总饼图 + 分月分日堆叠图) */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-amber-500" />
+                  <h3 className="text-xs font-bold text-slate-900">
+                    【{selectedEq.name}】{selectedMonth} 月度累计峰平谷构成分析与分日用电堆叠分布
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => alert('正在导出月度分日峰平谷数据...')}
+                  className="flex items-center gap-1 text-xs text-[#1677ff] hover:underline cursor-pointer font-sans"
+                >
+                  <Download className="size-3" />
+                  导出月度台账
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                {/* 左侧 4/12: 月度峰平谷总饼图 */}
+                <div className="lg:col-span-4 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <PieIcon className="size-3.5 text-amber-600" />
+                      月度峰平谷累计总占比
                     </span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 font-mono font-bold">
-                      流量计计量
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      月总电量: {Math.round((selectedEq.energyKWh || 112340) * 25.1).toLocaleString()} kWh
                     </span>
                   </div>
-
-                  <div className="p-3 bg-purple-50/40 rounded-lg border border-purple-100 space-y-1">
-                    <div className="text-xs text-slate-500 font-sans">累计蒸汽用量</div>
-                    <div className="text-2xl font-extrabold font-mono text-purple-700">
-                      {timeDim === 'day' ? '38.60' : '1,142.80'} <span className="text-xs font-normal text-slate-500 font-sans">t (吨)</span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 pt-1 border-t border-purple-200/50 flex justify-between font-sans">
-                      <span>折合标煤:</span>
-                      <strong className="text-slate-800 font-mono">{timeDim === 'day' ? '15.15 tce' : '448.55 tce'}</strong>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                    <div className="p-2 rounded bg-slate-50 border border-slate-200/80">
-                      <span className="text-[11px] text-slate-500 font-sans block">平均管道压力</span>
-                      <strong className="text-amber-700 text-sm">{selectedEq.pressureMpa || 0.005} MPa</strong>
-                    </div>
-                    <div className="p-2 rounded bg-slate-50 border border-slate-200/80">
-                      <span className="text-[11px] text-slate-500 font-sans block">平均工况温度</span>
-                      <strong className="text-purple-700 text-sm">{selectedEq.temperatureC || 135.2} ℃</strong>
-                    </div>
-                  </div>
-
-                  <div className="text-[11px] text-slate-400 font-sans leading-relaxed">
-                    * 实时采集自供汽管网流量传感器与温压补偿计量表，数据经工业网关每15分钟高频上传校核。
+                  <div className="h-[210px]">
+                    <Donut
+                      data={elecMonthDonutData}
+                      valueKey="value"
+                      nameKey="name"
+                      height={210}
+                      unit="kWh"
+                    />
                   </div>
                 </div>
 
-                {/* 右侧 8/12：蒸汽逐时累计 / 分日消耗柱状图 */}
-                <div className="lg:col-span-8 bg-white p-3 rounded-lg border border-slate-200/60 shadow-2xs flex flex-col justify-between">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 font-sans">
-                      <BarChart3 className="size-3.5 text-purple-600" />
-                      {timeDim === 'day' ? '当日逐时消耗蒸汽柱状图 (t)' : '当月每日累计蒸汽消耗 (t)'}
+                {/* 右侧 8/12: 1日~31日分日峰平谷堆叠柱状图 */}
+                <div className="lg:col-span-8 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <BarChart3 className="size-3.5 text-blue-600" />
+                      1日~31日 分日峰平谷用电量堆叠 (kWh)
                     </span>
                     <span className="text-[11px] text-slate-400 font-mono">
-                      {timeDim === 'day' ? '逐时用量统计' : '31天逐日消耗'}
+                      按日连续分时统计
                     </span>
                   </div>
-
-                  <div className="h-[250px] pt-1">
+                  <div className="h-[210px]">
                     <BarChartGroup
-                      data={timeDim === 'day' ? steamDayAccumulatedData : steamMonthAccumulatedData}
-                      xKey={timeDim === 'day' ? 'time' : 'day'}
-                      height={240}
+                      data={elecMonthStackedBarData}
+                      xKey="day"
+                      height={210}
+                      stacked
                       bars={[
-                        {
-                          key: timeDim === 'day' ? '小时用量' : '日用量',
-                          name: timeDim === 'day' ? '小时蒸汽用量 (t)' : '每日蒸汽消耗 (t)',
-                          color: '#a855f7',
-                        },
+                        { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
+                        { key: '峰段', name: '高峰电量', color: '#fa8c16' },
+                        { key: '平段', name: '平段电量', color: '#1677ff' },
+                        { key: '谷段', name: '低谷电量', color: '#52c41a' },
                       ]}
                     />
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
+        )}
 
-          {/* ========================================================================= */}
-          {/* 🌟 3. 底部明细台账：随能源类型与时间维度自适应切换 + 统一导出 */}
-          {/* ========================================================================= */}
-          <div className="rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
-            <div className="p-3 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/80 gap-2">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-emerald-500" />
-                <h3 className="text-xs font-bold text-slate-800">
-                  【{selectedEq.name}】{energyType === 'elec' ? '电力监测数据明细台账' : '蒸汽监测数据明细台账'} (
-                  {timeDim === 'day' ? `${selectedDay} 逐时段采样` : `${selectedMonth} 每日汇总`})
-                </h3>
+        {/* ========================================================================= */}
+        {/* 模式 3: 【蒸汽】+【日】                                                   */}
+        {/* ========================================================================= */}
+        {energyType === 'steam' && timeDim === 'day' && (
+          <div className="space-y-3.5">
+            {/* 瞬时蒸汽流量连续走势曲线 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-purple-600" />
+                  <h3 className="text-xs font-bold text-slate-900">
+                    【{selectedEq.name}】当日瞬时蒸汽流量走势曲线 (标注最大最小值 / t/h)
+                  </h3>
+                </div>
+                <div className="flex items-center gap-4 text-xs font-mono">
+                  <span className="text-rose-600 font-bold flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-rose-500" /> 最大流量: 2.35 t/h (10:00)
+                  </span>
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-emerald-500" /> 最小流量: 0.62 t/h (04:00)
+                  </span>
+                  <span className="text-slate-500 font-sans">
+                    平均流量: 1.82 t/h
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => alert('正在导出当日瞬时流量曲线...')}
+                    className="flex items-center gap-1 text-purple-600 hover:underline font-sans cursor-pointer"
+                  >
+                    <Download className="size-3" />
+                    导出数据
+                  </button>
+                </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => alert(`正在导出【${selectedEq.name}】${energyType === 'elec' ? '电力' : '蒸汽'}明细台账 (Excel)...`)}
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer shadow-2xs text-xs"
-              >
-                <Download className="size-3.5 text-slate-500" />
-                <span>导出</span>
-              </button>
+              <div className="h-[250px]">
+                <LineTrend
+                  data={steamDayFlowData}
+                  xKey="time"
+                  height={250}
+                  yUnit="t/h"
+                  lines={[
+                    { key: '瞬时流量', name: '瞬时蒸汽流量 (t/h)', color: '#9333ea' },
+                  ]}
+                />
+              </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse font-mono">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
-                    <th className="py-2.5 px-3">时间</th>
-                    {energyType === 'elec' ? (
-                      timeDim === 'day' ? (
-                        <>
-                          <th className="py-2.5 px-3">实时有功功率 (kW)</th>
-                          <th className="py-2.5 px-3">功率因数 (cosφ)</th>
-                          <th className="py-2.5 px-3">尖峰电量 (kWh)</th>
-                          <th className="py-2.5 px-3">高峰电量 (kWh)</th>
-                          <th className="py-2.5 px-3">平段电量 (kWh)</th>
-                          <th className="py-2.5 px-3">低谷电量 (kWh)</th>
-                          <th className="py-2.5 px-3">时段总电量 (kWh)</th>
-                        </>
-                      ) : (
-                        <>
-                          <th className="py-2.5 px-3">当日最高功率 (kW)</th>
-                          <th className="py-2.5 px-3">平均负荷率</th>
-                          <th className="py-2.5 px-3">尖峰电量 (kWh)</th>
-                          <th className="py-2.5 px-3">高峰电量 (kWh)</th>
-                          <th className="py-2.5 px-3">平段电量 (kWh)</th>
-                          <th className="py-2.5 px-3">低谷电量 (kWh)</th>
-                          <th className="py-2.5 px-3">当日总电量 (kWh)</th>
-                        </>
-                      )
-                    ) : (
-                      timeDim === 'day' ? (
-                        <>
-                          <th className="py-2.5 px-3">瞬时流量 (t/h)</th>
-                          <th className="py-2.5 px-3">管道压力 (MPa)</th>
-                          <th className="py-2.5 px-3">工况温度 (℃)</th>
-                          <th className="py-2.5 px-3">小时蒸汽消耗 (t)</th>
-                          <th className="py-2.5 px-3">当日累计用量 (t)</th>
-                          <th className="py-2.5 px-3">折合标煤 (tce)</th>
-                        </>
-                      ) : (
-                        <>
-                          <th className="py-2.5 px-3">当日最大流量 (t/h)</th>
-                          <th className="py-2.5 px-3">平均管道压力 (MPa)</th>
-                          <th className="py-2.5 px-3">平均温度 (℃)</th>
-                          <th className="py-2.5 px-3">当日蒸汽消耗 (t)</th>
-                          <th className="py-2.5 px-3">月度累计用量 (t)</th>
-                          <th className="py-2.5 px-3">折合标煤 (tce)</th>
-                        </>
-                      )
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {energyType === 'elec' ? (
-                    timeDim === 'day' ? (
-                      elecDayStackedBarData.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-blue-50/40 transition-colors">
-                          <td className="py-2.5 px-3 font-semibold text-slate-800">{row.time}</td>
-                          <td className="py-2.5 px-3 font-bold text-blue-700">
-                            {(basePower * (0.8 + idx * 0.01)).toFixed(0)}
-                          </td>
-                          <td className="py-2.5 px-3">0.95</td>
-                          <td className="py-2.5 px-3 text-red-600 font-bold">{row.尖峰}</td>
-                          <td className="py-2.5 px-3 text-amber-600 font-bold">{row.峰段}</td>
-                          <td className="py-2.5 px-3 text-blue-600 font-bold">{row.平段}</td>
-                          <td className="py-2.5 px-3 text-emerald-600 font-bold">{row.谷段}</td>
-                          <td className="py-2.5 px-3 font-extrabold text-slate-900">
-                            {(row.尖峰 + row.峰段 + row.平段 + row.谷段).toLocaleString()}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      elecMonthStackedBarData.slice(0, 15).map((row, idx) => (
-                        <tr key={idx} className="hover:bg-blue-50/40 transition-colors">
-                          <td className="py-2.5 px-3 font-semibold text-slate-800">{selectedMonth}-{row.day}</td>
-                          <td className="py-2.5 px-3 font-bold text-blue-700">
-                            {(basePower * (0.9 + (idx % 4) * 0.03)).toFixed(0)}
-                          </td>
-                          <td className="py-2.5 px-3">82.5%</td>
-                          <td className="py-2.5 px-3 text-red-600 font-bold">{row.尖峰.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 text-amber-600 font-bold">{row.峰段.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 text-blue-600 font-bold">{row.平段.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 text-emerald-600 font-bold">{row.谷段.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 font-extrabold text-slate-900">
-                            {(row.尖峰 + row.峰段 + row.平段 + row.谷段).toLocaleString()}
-                          </td>
-                        </tr>
-                      ))
-                    )
-                  ) : (
-                    timeDim === 'day' ? (
-                      steamDayAccumulatedData.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-purple-50/40 transition-colors">
-                          <td className="py-2.5 px-3 font-semibold text-slate-800">{row.time}</td>
-                          <td className="py-2.5 px-3 font-bold text-purple-700">
-                            {(baseSteam * (0.85 + (idx % 3) * 0.1)).toFixed(2)}
-                          </td>
-                          <td className="py-2.5 px-3 text-amber-700">{selectedEq.pressureMpa || 0.005}</td>
-                          <td className="py-2.5 px-3">{selectedEq.temperatureC || 135.2}</td>
-                          <td className="py-2.5 px-3 font-bold text-purple-700">{row.小时用量}</td>
-                          <td className="py-2.5 px-3 font-extrabold text-slate-900">{row.当日累计}</td>
-                          <td className="py-2.5 px-3 text-emerald-700 font-bold">{(row.当日累计 * 0.392).toFixed(2)}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      steamMonthAccumulatedData.slice(0, 15).map((row, idx) => (
-                        <tr key={idx} className="hover:bg-purple-50/40 transition-colors">
-                          <td className="py-2.5 px-3 font-semibold text-slate-800">{selectedMonth}-{row.day}</td>
-                          <td className="py-2.5 px-3 font-bold text-purple-700">
-                            {(baseSteam * (1.1 + (idx % 4) * 0.05)).toFixed(2)}
-                          </td>
-                          <td className="py-2.5 px-3 text-amber-700">{selectedEq.pressureMpa || 0.005}</td>
-                          <td className="py-2.5 px-3">{selectedEq.temperatureC || 135.2}</td>
-                          <td className="py-2.5 px-3 font-bold text-purple-700">{row.日用量}</td>
-                          <td className="py-2.5 px-3 font-extrabold text-slate-900">
-                            {(row.日用量 * (idx + 1)).toFixed(1)}
-                          </td>
-                          <td className="py-2.5 px-3 text-emerald-700 font-bold">
-                            {(row.日用量 * 0.392).toFixed(2)}
-                          </td>
-                        </tr>
-                      ))
-                    )
-                  )}
-                </tbody>
-              </table>
+            {/* 逐时蒸汽累计消耗走势 (AreaTrend 面积图) */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-indigo-500" />
+                  <h3 className="text-xs font-bold text-slate-900">
+                    【{selectedEq.name}】当日逐时蒸汽累计消耗量连续走势 (t)
+                  </h3>
+                </div>
+                <span className="text-xs text-slate-400 font-mono">
+                  当日累计用汽: 44.5 t
+                </span>
+              </div>
+
+              <div className="h-[220px]">
+                <AreaTrend
+                  data={steamDayAccumulatedData}
+                  xKey="time"
+                  height={220}
+                  yUnit="t"
+                  areas={[
+                    { key: '当日累计', name: '当日累计蒸汽用量 (t)', color: '#6366f1' },
+                  ]}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* 模式 4: 【蒸汽】+【月】                                                   */}
+        {/* ========================================================================= */}
+        {energyType === 'steam' && timeDim === 'month' && (
+          <div className="space-y-3.5">
+            {/* 每日最大蒸汽流量连续走势曲线 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-purple-600" />
+                  <h3 className="text-xs font-bold text-slate-900">
+                    【{selectedEq.name}】{selectedMonth} 每日最大蒸汽流量走势曲线 (标注最大最小值 / t/h)
+                  </h3>
+                </div>
+                <div className="flex items-center gap-4 text-xs font-mono">
+                  <span className="text-rose-600 font-bold flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-rose-500" /> 月最大流量: 2.68 t/h (18日)
+                  </span>
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-emerald-500" /> 月最小流量: 0.85 t/h (04日)
+                  </span>
+                  <span className="text-slate-500 font-sans">
+                    月平均最大: 2.15 t/h
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => alert('正在导出月度每日最大流量数据...')}
+                    className="flex items-center gap-1 text-purple-600 hover:underline font-sans cursor-pointer"
+                  >
+                    <Download className="size-3" />
+                    导出数据
+                  </button>
+                </div>
+              </div>
+
+              <div className="h-[250px]">
+                <LineTrend
+                  data={steamMonthMaxFlowData}
+                  xKey="day"
+                  height={250}
+                  yUnit="t/h"
+                  lines={[
+                    { key: '每日最大流量', name: '每日最大流量 (t/h)', color: '#9333ea' },
+                  ]}
+                />
+              </div>
+            </div>
+
+            {/* 每日累计蒸汽用量柱状图 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-purple-500" />
+                  <h3 className="text-xs font-bold text-slate-900">
+                    【{selectedEq.name}】{selectedMonth} 1日~31日每日蒸汽累计消耗分布 (t/日)
+                  </h3>
+                </div>
+                <span className="text-xs text-slate-400 font-mono">
+                  月总消耗量: 1,028.5 t
+                </span>
+              </div>
+
+              <div className="h-[220px]">
+                <BarChartGroup
+                  data={steamMonthDailyAccumulatedData}
+                  xKey="day"
+                  height={220}
+                  bars={[
+                    { key: '蒸汽用量', name: '日蒸汽用量 (t)', color: '#a855f7' },
+                  ]}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
