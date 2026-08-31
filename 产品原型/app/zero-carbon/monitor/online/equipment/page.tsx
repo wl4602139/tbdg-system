@@ -26,7 +26,7 @@ import {
 } from 'lucide-react'
 import { LineTrend, BarChartGroup, Donut, AreaTrend } from '@/components/shared/charts'
 import { OnlineHeader } from '@/components/shared/online-header'
-import { ENTERPRISE_TREE_DATA } from '@/components/shared/standard-org-tree'
+import { ENTERPRISE_TREE_DATA, PARK_ORG_TREE_DATA } from '@/components/shared/standard-org-tree'
 import { cn } from '@/lib/utils'
 
 export interface KeyEquipmentInfo {
@@ -664,6 +664,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
 ]
 
 export default function EquipmentPage() {
+  const [treeType, setTreeType] = useState<'enterprise' | 'park'>('enterprise')
   const [selectedEqId, setSelectedEqId] = useState<string>('eq-dry-01')
   const [eqSearchKw, setEqSearchKw] = useState('')
 
@@ -730,6 +731,9 @@ export default function EquipmentPage() {
   const baseSteam = selectedEq.steamFlowT || 1.85
 
   // 🌟 直接基于全局标准的 ENTERPRISE_TREE_DATA 构建 4 级树，保证 3 级单位名称与企业组织拓扑 100% 绝对一致
+  // 🌟 园区模式下的 4 级树状结构
+  const parkRootNode = PARK_ORG_TREE_DATA[0]
+  const standardParks = parkRootNode?.children || []
   const rootNode = ENTERPRISE_TREE_DATA[0]
   const standardCompanies = rootNode?.children || []
 
@@ -907,15 +911,52 @@ export default function EquipmentPage() {
 
   return (
     <div className="flex gap-3.5 items-start">
-      {/* 🌟 左侧 270px 4 级组织与重点设备拓扑树 (1级集团 ➔ 2级单位 ➔ 3级企业 ➔ 4级重点设备) */}
-      <aside className="w-[270px] shrink-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-130px)] sticky top-[72px]">
-        <div className="p-3 border-b border-slate-100 space-y-2">
+      {/* 🌟 左侧 270px 组织拓扑树 (支持企业工厂架构 / 零碳园区，严格四级结构) */}
+      <aside className="w-[270px] min-w-[270px] max-w-[270px] shrink-0 sticky top-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-84px)] overflow-hidden">
+        {/* 顶部企业工厂 / 零碳园区 视角切换 Tab */}
+        <div className="p-2.5 border-b border-slate-100 bg-slate-50/70 shrink-0 space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+            <span className="flex items-center gap-1.5">
+              <Building2 className="size-4 text-[#1677ff]" />
+              监测对象拓扑选择
+            </span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] font-mono font-bold">
+              园区 & 工厂
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-1 bg-slate-200/80 p-0.5 rounded-lg text-xs font-medium">
+            <button
+              type="button"
+              onClick={() => setTreeType('enterprise')}
+              className={cn(
+                'py-1 rounded-md transition-all cursor-pointer text-center select-none',
+                treeType === 'enterprise' ? 'bg-white text-[#1677ff] font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              )}
+            >
+              🏭 工厂架构
+            </button>
+            <button
+              type="button"
+              onClick={() => setTreeType('park')}
+              className={cn(
+                'py-1 rounded-md transition-all cursor-pointer text-center select-none',
+                treeType === 'park' ? 'bg-white text-emerald-600 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              )}
+            >
+              🏞️ 零碳园区
+            </button>
+          </div>
+        </div>
+
+        {/* 搜索与树标题 */}
+        <div className="p-2.5 border-b border-slate-100 space-y-2 bg-white shrink-0">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-              <Cpu className="size-4 text-[#1677ff]" />
-              企业及重点设备拓扑 (4级)
+              <Cpu className="size-3.5 text-[#1677ff]" />
+              {treeType === 'enterprise' ? '企业组织拓扑 (6大单位)' : '零碳园区拓扑 (15园区)'}
             </span>
-            <span className="text-[10px] font-medium bg-blue-50 text-[#1677ff] px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-medium bg-blue-50 text-[#1677ff] px-1.5 py-0.2 rounded">
               设备感知
             </span>
           </div>
@@ -927,11 +968,12 @@ export default function EquipmentPage() {
               value={eqSearchKw}
               onChange={(e) => setEqSearchKw(e.target.value)}
               placeholder="搜索企业 / 重点设备..."
-              className="w-full pl-8 pr-2.5 py-1 text-xs bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:border-[#1677ff]"
+              className="w-full pl-8 pr-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:border-[#1677ff]"
             />
           </div>
         </div>
 
+        {/* 树节点内容 (自适应滚动) */}
         <div className="p-2 overflow-y-auto flex-1 text-xs font-sans space-y-1.5 custom-scrollbar">
           {/* 1级节点：电装集团 (支持点击展开/收起) */}
           <div
@@ -954,13 +996,15 @@ export default function EquipmentPage() {
               )}
             </button>
             <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />
-            <span className="flex-1 truncate">{rootNode?.name || '电装集团'}</span>
+            <span className="flex-1 truncate">
+              {treeType === 'enterprise' ? (rootNode?.name || '电装集团') : (parkRootNode?.name || '电装集团 (15园区)')}
+            </span>
           </div>
 
-          {/* 1级节点展开后的 2级经营单位列表 (与 ENTERPRISE_TREE_DATA 严格对齐) */}
+          {/* 1级节点展开后的下级列表 */}
           {!isRootCollapsed && (
             <div className="border-l border-slate-200 ml-3.5 pl-2 space-y-1">
-              {standardCompanies.map((compNode) => {
+              {(treeType === 'enterprise' ? standardCompanies : standardParks).map((compNode) => {
                 const compName = compNode.name
                 const enterprises = compNode.children || []
 
@@ -968,8 +1012,8 @@ export default function EquipmentPage() {
                 const matchedEnterprises = enterprises.map((ent) => {
                   const filteredEqs = KEY_EQUIPMENT_LIST.filter(
                     (e) =>
-                      e.company === compName &&
-                      e.enterprise === ent.name &&
+                      (treeType === 'enterprise' ? e.company === compName : true) &&
+                      (e.enterprise.includes(ent.name.slice(0, 4)) || ent.name.includes(e.enterprise.slice(0, 4))) &&
                       (!eqSearchKw.trim() ||
                         e.name.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
                         e.code.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
@@ -991,7 +1035,7 @@ export default function EquipmentPage() {
 
                 return (
                   <div key={compNode.id} className="space-y-0.5">
-                    {/* 2级节点：各经营单位 (支持点击展开/收起) */}
+                    {/* 2级节点：各经营单位 / 所属园区 (支持点击展开/收起) */}
                     <div
                       onClick={() => toggleCompanyCollapse(compName)}
                       className="flex items-center gap-1.5 py-1 px-1.5 rounded text-slate-800 font-bold hover:bg-slate-100 cursor-pointer select-none transition-colors"
@@ -1010,7 +1054,7 @@ export default function EquipmentPage() {
                           <ChevronDown className="size-3 text-slate-500" />
                         )}
                       </button>
-                      <span className="flex-1 truncate">{compName}</span>
+                      <span className="flex-1 truncate" title={compName}>{compName}</span>
                     </div>
 
                     {/* 2级节点展开后的 3级企业级单位列表 (与 ENTERPRISE_TREE_DATA 100% 绝对一致) */}
