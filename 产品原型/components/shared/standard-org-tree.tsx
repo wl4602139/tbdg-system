@@ -137,16 +137,18 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
 ]
 
 /**
- * 🏞️ 零碳园区拓扑数据 (15 个零碳产业园区)
+ * 🏞️ 零碳园区拓扑数据 (严格依据官方核定表构建：1级集团 ➔ 2级所属园区 ➔ 3级二级单位)
+ * 15 个零碳产业园区 ➔ 包含对应的二级单位（及所属三级单位）
  */
 export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
   {
     id: 'park_root',
     name: '电装集团',
-    fullName: '特变电工电装集团 (15 园区全域汇总)',
+    fullName: '特变电工电装集团 (15 零碳园区)',
     level: 'group',
     badge: '15园区',
     children: [
+      // 1. 特变电工东北输变电产业园 (4个二级单位)
       {
         id: 'park_01',
         name: '特变电工东北输变电产业园',
@@ -154,12 +156,13 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         level: 'park',
         badge: '沈阳',
         children: [
-          { id: 'park_01_main', name: '沈变本部 (超高压厂房)', level: 'workshop', badge: '主体' },
-          { id: 'park_01_hx', name: '和新套管制造基地', level: 'workshop', badge: '主体' },
-          { id: 'park_01_kj', name: '康嘉互感器制造基地', level: 'workshop', badge: '主体' },
-          { id: 'park_01_grid', name: '园区微电网与储能站', level: 'workshop', badge: '微网' },
+          { id: 'park_01_sb', name: '沈变本部', fullName: '沈变本部', level: 'workshop', badge: '主体' },
+          { id: 'park_01_zh', name: '智慧能源', fullName: '智慧能源', level: 'workshop', badge: '主体' },
+          { id: 'park_01_hx', name: '和新套管公司', fullName: '和新套管公司', level: 'workshop', badge: '主体' },
+          { id: 'park_01_kj', name: '康嘉互感器', fullName: '康嘉互感器', level: 'workshop', badge: '主体' },
         ],
       },
+      // 2. 特变电工南方输变电产业园 (1个二级单位)
       {
         id: 'park_02',
         name: '特变电工南方输变电产业园',
@@ -167,11 +170,10 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         level: 'park',
         badge: '衡阳',
         children: [
-          { id: 'park_02_main', name: '衡变本部制造厂区', level: 'workshop', badge: '主体' },
-          { id: 'park_02_gc', name: '国创油箱车间', level: 'workshop', badge: '主体' },
-          { id: 'park_02_pv', name: '南方园区屋顶光伏电站', level: 'workshop', badge: '光伏' },
+          { id: 'park_02_hb', name: '衡变本部', fullName: '衡变本部', level: 'workshop', badge: '主体' },
         ],
       },
+      // 3. 特变电工二次产业园区 (1个二级单位)
       {
         id: 'park_03',
         name: '特变电工二次产业园区',
@@ -179,9 +181,10 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         level: 'park',
         badge: '南京',
         children: [
-          { id: 'park_03_smt', name: '南京电研自动化 SMT 车间', level: 'workshop' },
+          { id: 'park_03_nj', name: '南京电研', fullName: '南京电研', level: 'workshop', badge: '主体' },
         ],
       },
+      // 4. 特变电工云集5G科技产业园 (3个二级单位)
       {
         id: 'park_04',
         name: '特变电工云集5G科技产业园',
@@ -189,19 +192,24 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         level: 'park',
         badge: '衡阳',
         children: [
-          { id: 'park_04_switch', name: '云集高压开关与钣金智能车间', level: 'workshop' },
+          { id: 'park_04_yj', name: '云集电气', fullName: '云集电气', level: 'workshop', badge: '主体' },
+          { id: 'park_04_hn', name: '湖南电气', fullName: '湖南电气', level: 'workshop', badge: '主体' },
+          { id: 'park_04_kg', name: '云集高压开关', fullName: '云集高压开关', level: 'workshop', badge: '主体' },
         ],
       },
+      // 5. 特变电工智能电气产业园 (2个二级单位)
       {
         id: 'park_05',
         name: '特变电工智能电气产业园',
-        fullName: '特变电工智能电气产业园 (自控)',
+        fullName: '特变电工智能电气产业园',
         level: 'park',
         badge: '昌吉',
         children: [
-          { id: 'park_05_main', name: '新疆自控成套开关车间', level: 'workshop' },
+          { id: 'park_05_xj', name: '新疆自控', fullName: '新疆自控', level: 'workshop', badge: '主体' },
+          { id: 'park_05_zn', name: '智能电气公司', fullName: '智能电气公司', level: 'workshop', badge: '主体' },
         ],
       },
+      // 6. 特变电工湖南能源建设园区 (1个二级单位)
       {
         id: 'park_06',
         name: '特变电工湖南能源建设园区',
@@ -209,9 +217,10 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         level: 'park',
         badge: '衡阳',
         children: [
-          { id: 'park_06_main', name: '特能建新能源集成装配区', level: 'workshop' },
+          { id: 'park_06_tnj', name: '特能建', fullName: '特能建', level: 'workshop', badge: '主体' },
         ],
       },
+      // 7. 特变电工西安智能装备产业园 (1个二级单位，含3个三级单位)
       {
         id: 'park_07',
         name: '特变电工西安智能装备产业园',
@@ -219,10 +228,21 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         level: 'park',
         badge: '西安',
         children: [
-          { id: 'park_07_rnd', name: '电力电子与储能逆变研发基地', level: 'workshop' },
-          { id: 'park_07_hr', name: '合容电气电力电容器生产区', level: 'workshop' },
+          {
+            id: 'park_07_hr',
+            name: '合容电气',
+            fullName: '合容电气',
+            level: 'workshop',
+            badge: '主体',
+            children: [
+              { id: 'park_07_hr_gf', name: '合容电气股份', fullName: '合容电气股份', level: 'workshop' },
+              { id: 'park_07_hr_kg', name: '合容开关', fullName: '合容开关', level: 'workshop' },
+              { id: 'park_07_hr_sb', name: '合容电力设备', fullName: '合容电力设备', level: 'workshop' },
+            ],
+          },
         ],
       },
+      // 8. 特变电工GIL产业园 (1个二级单位)
       {
         id: 'park_08',
         name: '特变电工GIL产业园',
@@ -230,19 +250,22 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         level: 'park',
         badge: '衡阳',
         children: [
-          { id: 'park_08_main', name: '赛杰爱迪特高压GIL管道车间', level: 'workshop' },
+          { id: 'park_08_gil', name: '赛杰爱迪', fullName: '赛杰爱迪', level: 'workshop', badge: '主体' },
         ],
       },
+      // 9. 特变电工输变电产业园 (2个二级单位)
       {
         id: 'park_09',
         name: '特变电工输变电产业园',
-        fullName: '特变电工输变电产业园 (超高压变压器)',
+        fullName: '特变电工输变电产业园',
         level: 'park',
         badge: '昌吉',
         children: [
-          { id: 'park_09_trans', name: '新变超高压变压器厂区', level: 'workshop', badge: '主体' },
+          { id: 'park_09_uhv', name: '超高压公司', fullName: '超高压公司', level: 'workshop', badge: '主体' },
+          { id: 'park_09_xl', name: '特变电工新疆线缆厂', fullName: '特变电工新疆线缆厂', level: 'workshop', badge: '主体' },
         ],
       },
+      // 10. 特变电工天变产业园 (1个二级单位，含5个三级基地)
       {
         id: 'park_10',
         name: '特变电工天变产业园',
@@ -250,78 +273,77 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         level: 'park',
         badge: '天津',
         children: [
-          { id: 'park_10_main', name: '天变干式变压器生产基地', level: 'workshop' },
+          {
+            id: 'park_10_tb',
+            name: '天变公司',
+            fullName: '天变公司',
+            level: 'workshop',
+            badge: '主体',
+            children: [
+              { id: 'park_10_tb_tj', name: '天变天津基地', fullName: '天变天津基地', level: 'workshop' },
+              { id: 'park_10_tb_zh', name: '天变智慧能源', fullName: '天变智慧能源', level: 'workshop' },
+              { id: 'park_10_tb_zn', name: '天变智能科技', fullName: '天变智能科技', level: 'workshop' },
+              { id: 'park_10_tb_hy', name: '天变衡阳基地', fullName: '天变衡阳基地', level: 'workshop' },
+              { id: 'park_10_tb_sy', name: '天变沈阳基地', fullName: '天变沈阳基地', level: 'workshop' },
+            ],
+          },
         ],
       },
+      // 11. 特变电工京津冀智能科技产业园 (2个二级单位)
       {
         id: 'park_11',
-        name: '特变电工智能电气产业园',
-        fullName: '特变电工智能电气产业园 (配电智能)',
-        level: 'park',
-        badge: '昌吉',
-        children: [
-          { id: 'park_11_main', name: '配电变压器智能装配车间', level: 'workshop' },
-        ],
-      },
-      {
-        id: 'park_12',
         name: '特变电工京津冀智能科技产业园',
         fullName: '特变电工京津冀智能科技产业园',
         level: 'park',
         badge: '武清',
         children: [
-          { id: 'park_12_box', name: '箱式变电站与环网柜制造厂区', level: 'workshop' },
+          { id: 'park_11_jjj', name: '京津冀公司', fullName: '京津冀公司', level: 'workshop', badge: '主体' },
+          { id: 'park_11_zf', name: '珠峰硅钢', fullName: '珠峰硅钢', level: 'workshop', badge: '主体' },
         ],
       },
+      // 12. 特变电工华东输变电科技产业园 (2个二级单位)
       {
-        id: 'park_13',
+        id: 'park_12',
         name: '特变电工华东输变电科技产业园',
         fullName: '特变电工华东输变电科技产业园',
         level: 'park',
         badge: '新泰',
         children: [
-          { id: 'park_13_tower', name: '鲁缆高压交联立塔厂区', level: 'workshop', badge: '主体' },
-          { id: 'park_13_smart', name: '智缆科技制造中心', level: 'workshop', badge: '主体' },
+          { id: 'park_12_ll', name: '鲁缆本部', fullName: '鲁缆本部', level: 'workshop', badge: '主体' },
+          { id: 'park_12_zl', name: '智缆公司', fullName: '智缆公司', level: 'workshop', badge: '主体' },
         ],
       },
+      // 13. 特变电工曙光电缆产业园 (1个二级单位)
       {
-        id: 'park_14',
+        id: 'park_13',
         name: '特变电工曙光电缆产业园',
         fullName: '特变电工曙光电缆产业园',
         level: 'park',
         badge: '新泰',
         children: [
-          { id: 'park_14_main', name: '曙光中低压环保交联线缆车间', level: 'workshop' },
+          { id: 'park_13_sg', name: '曙光公司', fullName: '曙光公司', level: 'workshop', badge: '主体' },
         ],
       },
+      // 14. 特变电工新疆电缆产业园 (1个二级单位)
       {
-        id: 'park_15',
+        id: 'park_14',
         name: '特变电工新疆电缆产业园',
         fullName: '特变电工新疆电缆产业园',
         level: 'park',
         badge: '乌市',
         children: [
-          { id: 'park_15_main', name: '新疆电缆超高压阻燃交联电缆生产区', level: 'workshop' },
+          { id: 'park_14_xl', name: '特变电工新疆电缆有限公司', fullName: '特变电工新疆电缆有限公司', level: 'workshop', badge: '主体' },
         ],
       },
+      // 15. 特变电工(德阳)电缆园区 (1个二级单位)
       {
-        id: 'park_16',
-        name: '特变电工输变电产业园',
-        fullName: '特变电工输变电产业园 (线缆车间)',
-        level: 'park',
-        badge: '昌吉',
-        children: [
-          { id: 'park_16_cable', name: '新疆线缆厂动力线缆车间', level: 'workshop', badge: '主体' },
-        ],
-      },
-      {
-        id: 'park_17',
+        id: 'park_15',
         name: '特变电工(德阳)电缆园区',
         fullName: '特变电工(德阳)电缆园区',
         level: 'park',
         badge: '德阳',
         children: [
-          { id: 'park_17_main', name: '德缆股份交联与连铸连轧厂区', level: 'workshop', badge: '主体' },
+          { id: 'park_15_dl', name: '特变电工（德阳）电缆股份有限公司', fullName: '特变电工（德阳）电缆股份有限公司', level: 'workshop', badge: '主体' },
         ],
       },
     ],
@@ -375,8 +397,8 @@ export function StandardOrgTree({
   const [collapsedKeys, setCollapsedKeys] = useState<Record<string, boolean>>(() => {
     if (treeType === 'park') {
       const keys: Record<string, boolean> = {}
-      // 默认收起全部 17 个园区的下级子车间/微网节点
-      for (let i = 1; i <= 17; i++) {
+      // 默认收起全部 15 个园区的下级二级单位节点
+      for (let i = 1; i <= 15; i++) {
         const id = `park_${i < 10 ? '0' + i : i}`
         keys[id] = true
       }
