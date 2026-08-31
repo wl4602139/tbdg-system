@@ -719,7 +719,129 @@ export default function EnergyCostPage() {
         </div>
 
         {/* ========================================================================= */}
-        {/* 🌟 2. 保留现有南丁格尔玫瑰图 (全层级均保留展示)                            */}
+        {/* 🌟 2. 集团页和经营单位：展示 6 家单位占总能源费用的比重 (饼图 + 柱状图)     */}
+        {/* ========================================================================= */}
+        {!isWorkshopLevel && (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+            <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
+              <div className="flex items-center gap-2">
+                <span className="size-2 rounded-full bg-[#1677ff]" />
+                <h3 className="text-xs font-bold text-slate-900">
+                  【{COST_METRICS_META[selectedMetricKey].name}】6 家直属单位占电装总能源费用的比重结构分析
+                </h3>
+              </div>
+              <span className="text-xs text-slate-400 font-sans">
+                点击上方任意成本卡片可切换分析指标
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+              {/* 左侧 5/12: 饼图/环形图 (6 家单位费用占比份额) */}
+              <div className="lg:col-span-5 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <PieChartIcon className="size-3.5 text-[#1677ff]" />
+                    6 家单位费用比重饼图 (份额 %)
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    总量: ¥{metricCompanyBreakdown.totalVal.toFixed(1)} {metricCompanyBreakdown.unit}
+                  </span>
+                </div>
+                <div className="h-[230px]">
+                  <Donut
+                    data={metricCompanyBreakdown.donutData}
+                    valueKey="value"
+                    nameKey="name"
+                    height={230}
+                    unit={metricCompanyBreakdown.unit}
+                  />
+                </div>
+              </div>
+
+              {/* 右侧 7/12: 柱状图 (6 家单位费用横向对比与排名) */}
+              <div className="lg:col-span-7 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <BarChart3 className="size-3.5 text-emerald-600" />
+                    6 家单位费用横向对比 ({metricCompanyBreakdown.unit})
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-mono">柱状图对比</span>
+                </div>
+                <div className="h-[230px]">
+                  <BarChartGroup
+                    data={metricCompanyBreakdown.barData}
+                    xKey="name"
+                    height={230}
+                    bars={[
+                      { key: '成本费用', name: `${COST_METRICS_META[selectedMetricKey].shortName} (${metricCompanyBreakdown.unit})`, color: COST_METRICS_META[selectedMetricKey].color },
+                    ]}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 6 家单位费用明细表格 */}
+            <div className="border border-slate-200/80 rounded-xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse font-mono">
+                  <thead>
+                    <tr className="bg-slate-100 border-b border-slate-200 text-slate-700 font-semibold font-sans">
+                      <th className="py-2 px-3">序号</th>
+                      <th className="py-2 px-3">直属经营单位</th>
+                      <th className="py-2 px-3">所属基地与电网</th>
+                      <th className="py-2 px-3 text-[#1677ff]">
+                        {COST_METRICS_META[selectedMetricKey].name} ({metricCompanyBreakdown.unit})
+                      </th>
+                      <th className="py-2 px-3 font-bold text-emerald-700">占全集团费用比重 (%)</th>
+                      <th className="py-2 px-3">市电成本占比 (%)</th>
+                      <th className="py-2 px-3">同比变化 (%)</th>
+                      <th className="py-2 px-3 text-right">穿透操作</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {SIX_COMPANIES_COST.map((comp, idx) => {
+                      const val = comp[selectedMetricKey] as number
+                      const ratio = metricCompanyBreakdown.totalVal > 0 ? ((val / metricCompanyBreakdown.totalVal) * 100).toFixed(1) : '0.0'
+                      return (
+                        <tr key={comp.id} className="hover:bg-blue-50/40 transition-colors">
+                          <td className="py-2 px-3 font-semibold text-slate-400">{idx + 1}</td>
+                          <td className="py-2 px-3 font-bold text-slate-900 font-sans flex items-center gap-1.5">
+                            <Factory className="size-3.5 text-slate-500" />
+                            {comp.name}
+                          </td>
+                          <td className="py-2 px-3 font-sans text-slate-500">{comp.province}</td>
+                          <td className="py-2 px-3 font-bold text-[#1677ff]">¥{val.toFixed(1)}万</td>
+                          <td className="py-2 px-3 font-extrabold text-emerald-700">{ratio}%</td>
+                          <td className="py-2 px-3">{comp.elecRatio}%</td>
+                          <td className="py-2 px-3 text-emerald-600 font-bold">{comp.yoyTrend}% ↓</td>
+                          <td className="py-2 px-3 text-right">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedNode({
+                                  id: comp.id,
+                                  name: comp.name,
+                                  fullName: comp.fullName,
+                                  level: 'company',
+                                })
+                              }}
+                              className="text-[11px] text-[#1677ff] hover:underline font-sans font-medium cursor-pointer"
+                            >
+                              查看该单位成本 →
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* 🌟 3. 能源成本构成南丁格尔玫瑰图与各介质成本对比 (全层级均保留展示)                            */}
         {/* ========================================================================= */}
         <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-3.5">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
@@ -909,128 +1031,6 @@ export default function EnergyCostPage() {
             </div>
           </div>
         </div>
-
-        {/* ========================================================================= */}
-        {/* 🌟 3. 集团页和经营单位：展示 6 家单位占总能源费用的比重 (饼图 + 柱状图)     */}
-        {/* ========================================================================= */}
-        {!isWorkshopLevel && (
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-            <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-[#1677ff]" />
-                <h3 className="text-xs font-bold text-slate-900">
-                  【{COST_METRICS_META[selectedMetricKey].name}】6 家直属单位占电装总能源费用的比重结构分析
-                </h3>
-              </div>
-              <span className="text-xs text-slate-400 font-sans">
-                点击上方任意成本卡片可切换分析指标
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-              {/* 左侧 5/12: 饼图/环形图 (6 家单位费用占比份额) */}
-              <div className="lg:col-span-5 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <PieChartIcon className="size-3.5 text-[#1677ff]" />
-                    6 家单位费用比重饼图 (份额 %)
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    总量: ¥{metricCompanyBreakdown.totalVal.toFixed(1)} {metricCompanyBreakdown.unit}
-                  </span>
-                </div>
-                <div className="h-[230px]">
-                  <Donut
-                    data={metricCompanyBreakdown.donutData}
-                    valueKey="value"
-                    nameKey="name"
-                    height={230}
-                    unit={metricCompanyBreakdown.unit}
-                  />
-                </div>
-              </div>
-
-              {/* 右侧 7/12: 柱状图 (6 家单位费用横向对比与排名) */}
-              <div className="lg:col-span-7 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <BarChart3 className="size-3.5 text-emerald-600" />
-                    6 家单位费用横向对比 ({metricCompanyBreakdown.unit})
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-mono">柱状图对比</span>
-                </div>
-                <div className="h-[230px]">
-                  <BarChartGroup
-                    data={metricCompanyBreakdown.barData}
-                    xKey="name"
-                    height={230}
-                    bars={[
-                      { key: '成本费用', name: `${COST_METRICS_META[selectedMetricKey].shortName} (${metricCompanyBreakdown.unit})`, color: COST_METRICS_META[selectedMetricKey].color },
-                    ]}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 6 家单位费用明细表格 */}
-            <div className="border border-slate-200/80 rounded-xl overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse font-mono">
-                  <thead>
-                    <tr className="bg-slate-100 border-b border-slate-200 text-slate-700 font-semibold font-sans">
-                      <th className="py-2 px-3">序号</th>
-                      <th className="py-2 px-3">直属经营单位</th>
-                      <th className="py-2 px-3">所属基地与电网</th>
-                      <th className="py-2 px-3 text-[#1677ff]">
-                        {COST_METRICS_META[selectedMetricKey].name} ({metricCompanyBreakdown.unit})
-                      </th>
-                      <th className="py-2 px-3 font-bold text-emerald-700">占全集团费用比重 (%)</th>
-                      <th className="py-2 px-3">市电成本占比 (%)</th>
-                      <th className="py-2 px-3">同比变化 (%)</th>
-                      <th className="py-2 px-3 text-right">穿透操作</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {SIX_COMPANIES_COST.map((comp, idx) => {
-                      const val = comp[selectedMetricKey] as number
-                      const ratio = metricCompanyBreakdown.totalVal > 0 ? ((val / metricCompanyBreakdown.totalVal) * 100).toFixed(1) : '0.0'
-                      return (
-                        <tr key={comp.id} className="hover:bg-blue-50/40 transition-colors">
-                          <td className="py-2 px-3 font-semibold text-slate-400">{idx + 1}</td>
-                          <td className="py-2 px-3 font-bold text-slate-900 font-sans flex items-center gap-1.5">
-                            <Factory className="size-3.5 text-slate-500" />
-                            {comp.name}
-                          </td>
-                          <td className="py-2 px-3 font-sans text-slate-500">{comp.province}</td>
-                          <td className="py-2 px-3 font-bold text-[#1677ff]">¥{val.toFixed(1)}万</td>
-                          <td className="py-2 px-3 font-extrabold text-emerald-700">{ratio}%</td>
-                          <td className="py-2 px-3">{comp.elecRatio}%</td>
-                          <td className="py-2 px-3 text-emerald-600 font-bold">{comp.yoyTrend}% ↓</td>
-                          <td className="py-2 px-3 text-right">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedNode({
-                                  id: comp.id,
-                                  name: comp.name,
-                                  fullName: comp.fullName,
-                                  level: 'company',
-                                })
-                              }}
-                              className="text-[11px] text-[#1677ff] hover:underline font-sans font-medium cursor-pointer"
-                            >
-                              查看该单位成本 →
-                            </button>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ========================================================================= */}
         {/* 🌟 4. 各类能源成本占比的变化趋势 (集团、经营单位及项目公司均包含)          */}
