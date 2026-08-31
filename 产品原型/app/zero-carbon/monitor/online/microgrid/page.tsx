@@ -710,9 +710,6 @@ export default function MicrogridMonitoringPage() {
                       <th className="py-2.5 px-3 text-[#1677ff]">市电受电 (kW)</th>
                       <th className="py-2.5 px-3 text-emerald-600">光伏实时出力 (kW)</th>
                       <th className="py-2.5 px-3 text-amber-600">储能充放 (kW)</th>
-                      <th className="py-2.5 px-3">母线电压</th>
-                      <th className="py-2.5 px-3">功率因数 (cosφ)</th>
-                      <th className="py-2.5 px-3">状态</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -725,13 +722,6 @@ export default function MicrogridMonitoringPage() {
                         <td className="py-2 px-3 text-emerald-600 font-bold">{row.pvKw.toLocaleString()}</td>
                         <td className="py-2 px-3 font-bold text-amber-600">
                           {row.storageKw > 0 ? `+${row.storageKw} (放)` : `${row.storageKw} (充)`}
-                        </td>
-                        <td className="py-2 px-3 font-mono">{row.voltage}</td>
-                        <td className="py-2 px-3 font-mono">{row.cosPhi}</td>
-                        <td className="py-2 px-3">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 font-sans font-medium">
-                            {row.status}
-                          </span>
                         </td>
                       </tr>
                     ))}
