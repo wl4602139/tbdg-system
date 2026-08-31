@@ -1263,181 +1263,215 @@ export default function MicrogridMonitoringPage() {
         )}
       </div>
 
-      {/* 绿电录入模态框 */}
+      {/* 绿电录入模态框 (宽屏舒适双列排版，尺寸适配 max-w-4xl) */}
       {isEntryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                <Plus className="size-4 text-emerald-600" />
-                录入绿电与绿证交易凭据
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 sm:p-6">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+            {/* 模态框 Header */}
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="size-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
+                  <Plus className="size-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-800">
+                    录入绿电与绿证交易凭据
+                  </h3>
+                  <p className="text-xs text-slate-500 font-sans mt-0.5">
+                    录入企业分布式绿电直供、市场化交易电量及国家绿色电力证书 (GEC) 核销交易台账
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={() => setIsEntryModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="size-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
               >
-                <X className="size-4" />
+                <X className="size-5" />
               </button>
             </div>
-            <form onSubmit={handleSaveCert} className="p-4 space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-3">
+
+            {/* 模态框 表单主体 */}
+            <form onSubmit={handleSaveCert} className="p-6 space-y-4 text-xs overflow-y-auto flex-1 custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                {/* 1. 交易类型 */}
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">交易类型</label>
+                  <label className="block text-slate-700 font-semibold mb-1.5">
+                    交易类型 <span className="text-rose-500">*</span>
+                  </label>
                   <select
                     value={newCert.dealType}
                     onChange={(e) => setNewCert({ ...newCert, dealType: e.target.value as any })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-sans cursor-pointer transition-colors"
                   >
-                    <option value="直供绿电">直供绿电 (分布式自发自用)</option>
                     <option value="交易绿电">交易绿电 (双边市场化交易)</option>
+                    <option value="直供绿电">直供绿电 (分布式自发自用)</option>
                     <option value="交易绿证(GEC)">交易绿证(GEC) (国家可再生能源绿证)</option>
                   </select>
                 </div>
+
+                {/* 2. 能源发电类型 */}
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">能源发电类型</label>
+                  <label className="block text-slate-700 font-semibold mb-1.5">
+                    能源发电类型 <span className="text-rose-500">*</span>
+                  </label>
                   <select
                     value={newCert.sourceType}
                     onChange={(e) => setNewCert({ ...newCert, sourceType: e.target.value as any })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-sans cursor-pointer transition-colors"
                   >
-                    <option value="屋顶光伏">屋顶分布式光伏</option>
                     <option value="集中式风电">集中式陆上风电</option>
+                    <option value="屋顶光伏">屋顶分布式光伏</option>
                     <option value="光伏平价项目">集中式光伏平价项目</option>
                     <option value="自备电厂">生物质/其他绿电</option>
                   </select>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-slate-700 font-medium mb-1">绿电提供方 / 项目来源</label>
-                <input
-                  type="text"
-                  placeholder="例如: 衡变特高压智造产业园4.2MWp光伏电站"
-                  value={newCert.provider}
-                  onChange={(e) => setNewCert({ ...newCert, provider: e.target.value })}
-                  className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-medium mb-1">
-                  购买方 / 消纳企业 <span className="text-rose-500">*</span>
-                </label>
-                <select
-                  value={newCert.buyer}
-                  onChange={(e) => setNewCert({ ...newCert, buyer: e.target.value })}
-                  className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 cursor-pointer font-sans"
-                  required
-                >
-                  <option value="">-- 请选择购买消纳企业 (精确到企业级) --</option>
-                  <optgroup label="🏢 沈变公司">
-                    <option value="沈变本部">沈变本部</option>
-                    <option value="露娜公司 (特变电工露娜智能)">露娜公司 (特变电工露娜智能)</option>
-                    <option value="智慧能源">智慧能源</option>
-                    <option value="和新套管公司">和新套管公司</option>
-                    <option value="康嘉互感器">康嘉互感器</option>
-                    <option value="印能公司">印能公司</option>
-                  </optgroup>
-                  <optgroup label="🏢 衡变公司">
-                    <option value="衡变本部">衡变本部</option>
-                    <option value="南京电研">南京电研</option>
-                    <option value="云集电气">云集电气</option>
-                    <option value="湖南电气">湖南电气</option>
-                    <option value="云集高压开关">云集高压开关</option>
-                    <option value="新疆自控">新疆自控</option>
-                    <option value="上开">上开</option>
-                    <option value="柯贝尔">柯贝尔</option>
-                    <option value="特能建">特能建</option>
-                    <option value="合容电气">合容电气</option>
-                    <option value="赛杰爱迪">赛杰爱迪</option>
-                  </optgroup>
-                  <optgroup label="🏢 新变厂">
-                    <option value="超高压公司">超高压公司</option>
-                    <option value="天变公司">天变公司</option>
-                    <option value="智能电气公司">智能电气公司</option>
-                    <option value="京津冀公司">京津冀公司</option>
-                    <option value="珠峰硅钢">珠峰硅钢</option>
-                    <option value="智慧能源">智慧能源</option>
-                    <option value="银利电气">银利电气</option>
-                  </optgroup>
-                  <optgroup label="🏢 鲁缆公司">
-                    <option value="鲁缆本部">鲁缆本部</option>
-                    <option value="智缆公司">智缆公司</option>
-                    <option value="昭和公司">昭和公司</option>
-                    <option value="曙光公司">曙光公司</option>
-                  </optgroup>
-                  <optgroup label="🏢 新缆厂">
-                    <option value="特变电工新疆电缆有限公司">特变电工新疆电缆有限公司</option>
-                    <option value="特变电工新疆线缆厂">特变电工新疆线缆厂</option>
-                  </optgroup>
-                  <optgroup label="🏢 德缆公司">
-                    <option value="特变电工（德阳）电缆股份有限公司">特变电工（德阳）电缆股份有限公司</option>
-                  </optgroup>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+                {/* 3. 绿电提供方 / 项目来源 */}
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">结算电量 / 绿证张数</label>
+                  <label className="block text-slate-700 font-semibold mb-1.5">
+                    绿电提供方 / 项目来源 <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="例如: 衡变特高压智造产业园4.2MWp光伏电站"
+                    value={newCert.provider}
+                    onChange={(e) => setNewCert({ ...newCert, provider: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-sans transition-colors placeholder:text-slate-400"
+                    required
+                  />
+                </div>
+
+                {/* 4. 购买方 / 消纳企业 */}
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1.5">
+                    购买方 / 消纳企业 <span className="text-rose-500">*</span>
+                  </label>
+                  <select
+                    value={newCert.buyer}
+                    onChange={(e) => setNewCert({ ...newCert, buyer: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 cursor-pointer font-sans text-xs transition-colors"
+                    required
+                  >
+                    <option value="">-- 请选择购买消纳企业 (精确到企业级) --</option>
+                    <optgroup label="🏢 沈变公司">
+                      <option value="沈变本部">沈变本部</option>
+                      <option value="露娜公司 (特变电工露娜智能)">露娜公司 (特变电工露娜智能)</option>
+                      <option value="智慧能源">智慧能源 (沈变)</option>
+                      <option value="和新套管公司">和新套管公司</option>
+                      <option value="康嘉互感器">康嘉互感器</option>
+                      <option value="印能公司">印能公司</option>
+                    </optgroup>
+                    <optgroup label="🏢 衡变公司">
+                      <option value="衡变本部">衡变本部</option>
+                      <option value="南京电研">南京电研</option>
+                      <option value="云集电气">云集电气</option>
+                      <option value="湖南电气">湖南电气</option>
+                      <option value="云集高压开关">云集高压开关</option>
+                      <option value="新疆自控">新疆自控</option>
+                      <option value="上开">上开</option>
+                      <option value="柯贝尔">柯贝尔</option>
+                      <option value="特能建">特能建</option>
+                      <option value="合容电气">合容电气</option>
+                      <option value="赛杰爱迪">赛杰爱迪</option>
+                    </optgroup>
+                    <optgroup label="🏢 新变厂">
+                      <option value="超高压公司">超高压公司</option>
+                      <option value="天变公司">天变公司</option>
+                      <option value="智能电气公司">智能电气公司</option>
+                      <option value="京津冀公司">京津冀公司</option>
+                      <option value="珠峰硅钢">珠峰硅钢</option>
+                      <option value="智慧能源 (新变)">智慧能源 (新变)</option>
+                      <option value="银利电气">银利电气</option>
+                    </optgroup>
+                    <optgroup label="🏢 鲁缆公司">
+                      <option value="鲁缆本部">鲁缆本部</option>
+                      <option value="智缆公司">智缆公司</option>
+                      <option value="昭和公司">昭和公司</option>
+                      <option value="曙光公司">曙光公司</option>
+                    </optgroup>
+                    <optgroup label="🏢 新缆厂">
+                      <option value="特变电工新疆电缆有限公司">特变电工新疆电缆有限公司</option>
+                      <option value="特变电工新疆线缆厂">特变电工新疆线缆厂</option>
+                    </optgroup>
+                    <optgroup label="🏢 德缆公司">
+                      <option value="特变电工（德阳）电缆股份有限公司">特变电工（德阳）电缆股份有限公司</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                {/* 5. 结算电量 / 绿证张数 */}
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1.5">
+                    结算电量 / 绿证张数 <span className="text-rose-500">*</span>
+                  </label>
                   <input
                     type="text"
                     placeholder="例如: 120.5 万kWh 或 15,000 张"
                     value={newCert.amount}
                     onChange={(e) => setNewCert({ ...newCert, amount: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-mono transition-colors placeholder:font-sans placeholder:text-slate-400"
                     required
                   />
                 </div>
+
+                {/* 6. 结算单价 */}
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">结算单价</label>
+                  <label className="block text-slate-700 font-semibold mb-1.5">结算单价</label>
                   <input
                     type="text"
-                    placeholder="例如: 0.450 元/kWh"
+                    placeholder="例如: 0.450 元/kWh 或 15.5 元/张"
                     value={newCert.unitPrice}
                     onChange={(e) => setNewCert({ ...newCert, unitPrice: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-mono transition-colors placeholder:font-sans placeholder:text-slate-400"
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
+                {/* 7. 交易与核销交割日期 */}
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">交易与核销日期</label>
+                  <label className="block text-slate-700 font-semibold mb-1.5">交易与交割核销日期</label>
                   <input
                     type="date"
                     value={newCert.dealDate}
                     onChange={(e) => setNewCert({ ...newCert, dealDate: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-mono cursor-pointer transition-colors"
                   />
                 </div>
+
+                {/* 8. GEC 证书/交割合约编码 */}
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">GEC 证书/交割合约编码</label>
+                  <label className="block text-slate-700 font-semibold mb-1.5">GEC 证书 / 交割合约编码</label>
                   <input
                     type="text"
-                    placeholder="GEC-2026-HB-XXXX"
+                    placeholder="例如: GEC-2026-HB-88902 或 合约编号"
                     value={newCert.certCode}
                     onChange={(e) => setNewCert({ ...newCert, certCode: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-mono transition-colors placeholder:font-sans placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsEntryModalOpen(false)}
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium"
-                >
-                  取消
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs cursor-pointer"
-                >
-                  确认入账
-                </button>
+              {/* 模态框 Footer 操作区 */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100 mt-2">
+                <span className="text-[11px] text-slate-400 font-sans flex items-center gap-1">
+                  💡 录入凭据将自动记入工业微电网绿电台账，并实时联动测算园区消纳率。
+                </span>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsEntryModalOpen(false)}
+                    className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold cursor-pointer transition-colors"
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs cursor-pointer transition-colors flex items-center gap-1.5"
+                  >
+                    <Check className="size-4" />
+                    <span>确认入账</span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>
