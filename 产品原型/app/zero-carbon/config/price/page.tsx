@@ -215,31 +215,7 @@ export default function TariffPricePage() {
         </div>
       )}
 
-      {/* 当前版本状态信息横条 */}
-      <div className="bg-gradient-to-r from-blue-50/70 via-slate-50 to-white p-3 rounded-xl border border-blue-100 flex flex-wrap items-center justify-between text-xs gap-2">
-        <div className="flex items-center gap-3">
-          <span
-            className={cn(
-              'px-2 py-0.5 rounded text-[11px] font-bold border',
-              currentVer.status === '生效中'
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                : currentVer.status === '待生效'
-                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                : 'bg-slate-100 text-slate-600 border-slate-200'
-            )}
-          >
-            {currentVer.status}
-          </span>
-          <span className="font-bold text-slate-800">{currentVer.name}</span>
-          <span className="text-slate-400 font-mono">({currentVer.versionCode})</span>
-        </div>
 
-        <div className="flex items-center gap-4 text-slate-500 font-mono text-[11px]">
-          <span>生效周期: <strong className="text-slate-700">{currentVer.effectiveDate} ~ {currentVer.expiryDate}</strong></span>
-          <span>已应用单位: <strong className="text-[#1677ff]">{currentVer.appliedUnitsCount} 家</strong></span>
-          <span>维护人: <strong className="text-slate-700">{currentVer.operator}</strong></span>
-        </div>
-      </div>
 
       {/* Tab 选项卡 */}
       <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-xs flex items-center gap-1 font-sans text-xs">
@@ -307,32 +283,11 @@ export default function TariffPricePage() {
         <div className="space-y-3.5">
           {/* 1. 分时电价段与 24 小时时段分布 */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-3.5">
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-amber-500" />
-                <h3 className="text-xs font-bold text-slate-900">
-                  一、大工业用电分时时段电价配置 (元/kWh)
-                </h3>
-              </div>
-
-              <div className="flex items-center gap-1.5 text-xs">
-                <span className="text-slate-500">季节执行标准：</span>
-                {(['summer', 'winter', 'normal'] as const).map((season) => (
-                  <button
-                    key={season}
-                    type="button"
-                    onClick={() => setPowerSeason(season)}
-                    className={cn(
-                      'px-2.5 py-1 rounded text-xs font-medium cursor-pointer transition-colors',
-                      powerSeason === season
-                        ? 'bg-[#1677ff] text-white font-bold'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    )}
-                  >
-                    {season === 'summer' ? '夏令执行 (7~8月)' : season === 'winter' ? '冬令执行 (12~1月)' : '平时月份'}
-                  </button>
-                ))}
-              </div>
+            <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100">
+              <span className="size-2 rounded-full bg-amber-500" />
+              <h3 className="text-xs font-bold text-slate-900">
+                一、大工业用电分时时段电价配置 (元/kWh)
+              </h3>
             </div>
 
             {/* 5 大分时电价卡片输入 */}

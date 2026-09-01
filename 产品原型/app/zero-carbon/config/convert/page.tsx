@@ -264,58 +264,7 @@ export default function ConvertPage() {
         </div>
       </div>
       
-      {/* 🌟 1. 顶部 4 大国家标准与基准概览 KPI 卡片 */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs text-slate-500 block">现行国家标准版次</span>
-            <div className="text-lg font-bold font-mono text-slate-800 mt-0.5">GB/T 2589-2020</div>
-            <span className="text-[10px] text-blue-600 font-sans block mt-0.5">《综合能耗计算通则》</span>
-          </div>
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff]">
-            <BookOpen className="size-4.5" />
-          </div>
-        </div>
 
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs text-slate-500 block">标准折标煤基准热值</span>
-            <div className="text-lg font-bold font-mono text-amber-600 mt-0.5">
-              29,307.6 <span className="text-xs font-sans text-slate-500">kJ/kgce</span>
-            </div>
-            <span className="text-[10px] text-slate-400 font-mono block mt-0.5">等效 7,000 kcal / 29.3076 MJ</span>
-          </div>
-          <div className="size-9 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
-            <Flame className="size-4.5" />
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs text-slate-500 block">电力折标口径基准</span>
-            <div className="text-lg font-bold font-mono text-emerald-600 mt-0.5">
-              0.1229 / 0.3150
-            </div>
-            <span className="text-[10px] text-slate-400 font-mono block mt-0.5">kgce/kWh (物理当量 ⇄ 供电等价)</span>
-          </div>
-          <div className="size-9 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
-            <Zap className="size-4.5" />
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs text-slate-500 block">全国电网平均排放因子</span>
-            <div className="text-lg font-bold font-mono text-purple-600 mt-0.5">
-              0.5703 <span className="text-xs font-sans text-slate-500">tCO2/MWh</span>
-            </div>
-            <span className="text-[10px] text-purple-600 font-sans block mt-0.5">生态环境部最新公告核算因子</span>
-          </div>
-          <div className="size-9 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
-            <Atom className="size-4.5" />
-          </div>
-        </div>
-      </div>
 
       {/* 🌟 2. 核心主控制区：智能换算器 */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4.5 space-y-4">

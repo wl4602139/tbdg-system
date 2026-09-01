@@ -635,7 +635,7 @@ export default function ProjectArchivePage() {
               className="px-3.5 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="size-4" />
-              在线填报新项目
+              添加项目
             </button>
           </div>
         </div>
@@ -754,11 +754,8 @@ export default function ProjectArchivePage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-[#1677ff]" />
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                特变电工统一零碳项目全景台账档案库
+                项目台账档案库
               </h3>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-mono font-bold">
-                已自动汇总 {filteredProjects.length} 个项目
-              </span>
             </div>
             <span className="text-xs text-slate-400 font-mono">点击任意行可查看详细档案与附件批复</span>
           </div>
@@ -767,17 +764,16 @@ export default function ProjectArchivePage() {
             <table className="w-full text-xs text-left border-collapse font-mono">
               <thead>
                 <tr className="bg-slate-50 text-slate-600 font-bold font-sans border-b border-slate-200">
-                  <th className="py-2.5 px-3 min-w-[220px]">项目全称</th>
-                  <th className="py-2.5 px-3 whitespace-nowrap">技术主类</th>
-                  <th className="py-2.5 px-3 whitespace-nowrap">所属直属单位 / 园区</th>
+                  <th className="py-2.5 px-3 min-w-[220px]">项目名称</th>
+                  <th className="py-2.5 px-3 whitespace-nowrap">项目类型</th>
+                  <th className="py-2.5 px-3 whitespace-nowrap">所属园区</th>
                   <th className="py-2.5 px-3 whitespace-nowrap">建设规模容量</th>
                   <th className="py-2.5 px-3 whitespace-nowrap text-right">总投资 (万元)</th>
-                  <th className="py-2.5 px-3 whitespace-nowrap text-right">年减碳 (tCO2)</th>
                   <th className="py-2.5 px-3 whitespace-nowrap text-right">年收益 (万元)</th>
                   <th className="py-2.5 px-3 whitespace-nowrap text-center">预期IRR</th>
                   <th className="py-2.5 px-3 whitespace-nowrap text-center">投运/并网日</th>
                   <th className="py-2.5 px-3 whitespace-nowrap text-center">建设状态</th>
-                  <th className="py-2.5 px-3 whitespace-nowrap text-center">档案操作</th>
+                  <th className="py-2.5 px-3 whitespace-nowrap text-center">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-800">
@@ -797,9 +793,6 @@ export default function ProjectArchivePage() {
                     <td className="py-2.5 px-3 font-bold text-slate-900">{item.capacity}</td>
                     <td className="py-2.5 px-3 text-right font-extrabold text-slate-900">
                       ¥{item.investment.toLocaleString()}
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-bold text-purple-700">
-                      {item.annualCarbonSaving.toLocaleString()}
                     </td>
                     <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
                       ¥{item.annualRevenue.toLocaleString()}
@@ -859,36 +852,33 @@ export default function ProjectArchivePage() {
       {/* 🌟 5. 在线填报/维护零碳项目档案 4 步向导模态框 (Form Modal) */}
       {showFormModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-200 font-sans">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-7xl max-h-[92vh] flex flex-col overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl min-h-[560px] max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <div className="flex items-center gap-2.5">
                 <div className="size-8 rounded-lg bg-blue-50 text-[#1677ff] flex items-center justify-center border border-blue-200">
                   <FolderKanban className="size-4.5" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-900">
-                    {isEditing ? '在线维护与更新零碳项目档案' : '新建零碳项目档案在线填报'}
+                    {isEditing ? '编辑项目档案' : '添加项目'}
                   </h3>
-                  <p className="text-[11px] text-slate-500 font-mono">
-                    填报单位：【{formData.company}】 · 自动同步至全集团统一项目库
-                  </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowFormModal(false)}
-                className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition-colors"
+                className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
               >
                 <X className="size-4" />
               </button>
             </div>
 
             {/* 4 步进度指示条 */}
-            <div className="bg-slate-100/70 p-2.5 border-b border-slate-200 flex items-center justify-around text-xs">
+            <div className="bg-slate-100/70 px-6 py-3 border-b border-slate-200 flex items-center justify-between text-xs gap-1">
               {[
                 { step: 1, title: '1. 基本信息与单位归属' },
-                { step: 2, title: '2. 技改类型与投资容量' },
+                { step: 2, title: '2. 项目类型与系统容量' },
                 { step: 3, title: '3. 关键节点与预期效益' },
                 { step: 4, title: '4. 附件上传与归档' },
               ].map((s) => (
@@ -923,7 +913,7 @@ export default function ProjectArchivePage() {
             </div>
 
             {/* Modal Body (分步内容) */}
-            <div className="p-6 overflow-y-auto space-y-4 text-xs">
+            <div className="p-6 overflow-y-auto space-y-4 text-xs flex-1">
               {/* Step 1: 项目基本信息 */}
               {formStep === 1 && (
                 <div className="space-y-3.5 animate-in fade-in duration-150">
@@ -932,17 +922,18 @@ export default function ProjectArchivePage() {
                       <span className="size-2 rounded-full bg-[#1677ff]" />
                       一、填报单位与项目基础定义
                     </span>
-                    <span className="text-[11px] text-slate-400 font-mono">项目编码自动生成</span>
+                    <span className="text-[11px] text-slate-400 font-mono">支持手动输入或沿用默认编码</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3.5">
                     <div>
-                      <label className="block text-slate-700 font-medium mb-1">项目编码 (档案唯一标识)</label>
+                      <label className="block text-slate-700 font-medium mb-1">项目编码 (档案唯一标识) *</label>
                       <input
                         type="text"
-                        disabled
+                        placeholder="例如：PRJ-2026-PV-008"
                         value={formData.code}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-500 font-mono font-bold"
+                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 focus:border-blue-500 focus:outline-none text-slate-800 font-mono font-bold"
                       />
                     </div>
 
@@ -1003,7 +994,7 @@ export default function ProjectArchivePage() {
                     </div>
 
                     <div className="col-span-2">
-                      <label className="block text-slate-700 font-medium mb-1">项目全称 *</label>
+                      <label className="block text-slate-700 font-medium mb-1">项目名称 *</label>
                       <input
                         type="text"
                         placeholder="例如：特变电工沈阳变压器厂区 15MWp 屋顶分布式光伏二期项目"
@@ -1054,13 +1045,13 @@ export default function ProjectArchivePage() {
                 </div>
               )}
 
-              {/* Step 2: 技改类型与投资容量 */}
+              {/* Step 2: 项目类型与系统容量 */}
               {formStep === 2 && (
                 <div className="space-y-3.5 animate-in fade-in duration-150">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                     <span className="font-bold text-slate-800 flex items-center gap-1.5">
                       <span className="size-2 rounded-full bg-emerald-600" />
-                      二、零碳技术路线、建设容量与资金投资
+                      二、项目类型、系统容量与资金投资
                     </span>
                     <span className="text-[11px] text-slate-400">支持 4 大类零碳技术</span>
                   </div>
@@ -1319,7 +1310,7 @@ export default function ProjectArchivePage() {
             </div>
 
             {/* Modal Footer (上一步/下一步/提交) */}
-            <div className="p-3.5 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+            <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
               <div>
                 {formStep > 1 && (
                   <button

@@ -28,8 +28,98 @@ import {
   Radio,
   ExternalLink,
   Code2,
+  ChevronRight,
+  ChevronDown,
+  Folder,
+  FolderOpen,
+  Building2,
+  Factory,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+// 全集团 6 大直属制造公司与 31 个车间工序层级树定义
+interface OrgTopologyCompany {
+  id: string
+  name: string
+  province: string
+  workshops: { id: string; name: string; badge: string }[]
+}
+
+const ORG_TREE_COMPANIES: OrgTopologyCompany[] = [
+  {
+    id: 'comp_sb',
+    name: '沈变公司',
+    province: '辽宁沈阳',
+    workshops: [
+      { id: 'ws_sb_main', name: '沈变本部', badge: '主体' },
+      { id: 'ws_sb_luna', name: '露娜智能制造', badge: '智能' },
+      { id: 'ws_sb_zh', name: '智慧能源中心', badge: '综合' },
+      { id: 'ws_sb_hx', name: '和新套管公司', badge: '主体' },
+      { id: 'ws_sb_kj', name: '康嘉互感器', badge: '主体' },
+      { id: 'ws_sb_yn', name: '印能制造分厂', badge: '制造' },
+    ],
+  },
+  {
+    id: 'comp_hb',
+    name: '衡变公司',
+    province: '湖南衡阳',
+    workshops: [
+      { id: 'ws_hb_main', name: '衡变本部', badge: '主体' },
+      { id: 'ws_hb_nj', name: '南京电研', badge: '主体' },
+      { id: 'ws_hb_yj', name: '云集电气', badge: '主体' },
+      { id: 'ws_hb_hn', name: '湖南电气', badge: '主体' },
+      { id: 'ws_hb_kg', name: '云集高压开关', badge: '主体' },
+      { id: 'ws_hb_xj', name: '新疆自控', badge: '主体' },
+      { id: 'ws_hb_sk', name: '上开制造部', badge: '制造' },
+      { id: 'ws_hb_kbe', name: '柯贝尔材料', badge: '制造' },
+      { id: 'ws_hb_tnj', name: '特能建', badge: '主体' },
+      { id: 'ws_hb_hr', name: '合容电气', badge: '主体' },
+      { id: 'ws_hb_gil', name: '赛杰爱迪', badge: '主体' },
+    ],
+  },
+  {
+    id: 'comp_xb',
+    name: '新变厂',
+    province: '新疆昌吉',
+    workshops: [
+      { id: 'ws_xb_uhv', name: '超高压公司', badge: '主体' },
+      { id: 'ws_xb_tb', name: '天变公司', badge: '主体' },
+      { id: 'ws_xb_zndq', name: '智能电气公司', badge: '主体' },
+      { id: 'ws_xb_jjj', name: '京津冀公司', badge: '主体' },
+      { id: 'ws_xb_zf', name: '珠峰硅钢', badge: '主体' },
+      { id: 'ws_xb_zhny', name: '智慧能源', badge: '综合' },
+      { id: 'ws_xb_yl', name: '银利电气', badge: '制造' },
+    ],
+  },
+  {
+    id: 'comp_ll',
+    name: '鲁缆公司',
+    province: '山东新泰',
+    workshops: [
+      { id: 'ws_ll_main', name: '鲁缆本部', badge: '主体' },
+      { id: 'ws_ll_zl', name: '智缆公司', badge: '智能' },
+      { id: 'ws_ll_sw', name: '昭和公司', badge: '制造' },
+      { id: 'ws_ll_sg', name: '曙光公司', badge: '主体' },
+    ],
+  },
+  {
+    id: 'comp_xl',
+    name: '新缆厂',
+    province: '新疆乌鲁木齐',
+    workshops: [
+      { id: 'ws_xl_main', name: '新疆电缆', badge: '主体' },
+      { id: 'ws_xl_sub', name: '新疆线缆厂', badge: '主体' },
+    ],
+  },
+  {
+    id: 'comp_dl',
+    name: '德缆公司',
+    province: '四川德阳',
+    workshops: [
+      { id: 'ws_dl_main', name: '德缆股份', badge: '主体' },
+    ],
+  },
+]
 
 // 接口定义接口
 interface SubsystemInterface {
@@ -267,6 +357,12 @@ export default function InterfaceConfigPage() {
   const [testTargetIf, setTestTargetIf] = useState<SubsystemInterface | null>(null)
   const [editIfModalOpen, setEditIfModalOpen] = useState(false)
   const [editingIf, setEditingIf] = useState<SubsystemInterface | null>(null)
+  const [selectedFactoryVal, setSelectedFactoryVal] = useState<string>('沈变公司 · 沈变本部')
+  const [treeSelectOpen, setTreeSelectOpen] = useState(false)
+  const [treeSelectSearch, setTreeSelectSearch] = useState('')
+  const [expandedTreeCompanies, setExpandedTreeCompanies] = useState<Set<string>>(
+    new Set(['comp_sb', 'comp_hb', 'comp_xb', 'comp_ll', 'comp_xl', 'comp_dl'])
+  )
   const [mappingDrawerOpen, setMappingDrawerOpen] = useState(false)
 
   // Toast
@@ -307,6 +403,8 @@ export default function InterfaceConfigPage() {
             type="button"
             onClick={() => {
               setEditingIf(null)
+              setSelectedFactoryVal('沈变公司 · 沈变本部')
+              setTreeSelectOpen(false)
               setEditIfModalOpen(true)
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors"
@@ -336,61 +434,7 @@ export default function InterfaceConfigPage() {
         </div>
       )}
 
-      {/* 4 大核心接口监控指标 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
-            <span>已接入子系统接口</span>
-            <Server className="size-4 text-[#1677ff]" />
-          </div>
-          <div className="text-2xl font-extrabold font-mono text-slate-800">
-            {interfaces.length} <span className="text-xs font-normal text-slate-400 font-sans">个通道</span>
-          </div>
-          <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-            <span>正常在线: <strong className="font-mono text-emerald-600">5 个</strong></span>
-            <span>延迟告警: <strong className="font-mono text-amber-600">1 个</strong></span>
-          </div>
-        </div>
 
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
-            <span>今日实时数据拉取量</span>
-            <Activity className="size-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-extrabold font-mono text-emerald-600">
-            184.2 <span className="text-xs font-normal text-slate-400 font-sans">万条点位</span>
-          </div>
-          <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-            <span>数据吞吐成功率: <strong className="font-mono text-emerald-700">99.98%</strong></span>
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
-            <span>全网平均响应延迟</span>
-            <Wifi className="size-4 text-purple-600" />
-          </div>
-          <div className="text-2xl font-extrabold font-mono text-purple-600">
-            118 <span className="text-xs font-normal text-slate-400 font-sans">ms</span>
-          </div>
-          <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-            <span>最优节点 (新疆新变): <strong className="font-mono text-slate-700">45ms</strong></span>
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
-            <span>字段映射规则库</span>
-            <ArrowRightLeft className="size-4 text-amber-500" />
-          </div>
-          <div className="text-2xl font-extrabold font-mono text-amber-600">
-            90 <span className="text-xs font-normal text-slate-400 font-sans">条映射规则</span>
-          </div>
-          <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-            <span>覆盖电/气/热/水/产值全部标准字段</span>
-          </div>
-        </div>
-      </div>
 
       {/* Tab 导航 */}
       <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-xs flex items-center gap-1 font-sans text-xs">
@@ -446,11 +490,11 @@ export default function InterfaceConfigPage() {
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
-                  <th className="py-2.5 px-3">所属单位 / 子系统名称</th>
+                  <th className="py-2.5 px-3">所属单位 / 接入工厂</th>
                   <th className="py-2.5 px-3">接口访问地址 (URL)</th>
                   <th className="py-2.5 px-3">通信协议</th>
                   <th className="py-2.5 px-3">认证方式</th>
-                  <th className="py-2.5 px-3">超时 / 重试</th>
+                  <th className="py-2.5 px-3">超时时间</th>
                   <th className="py-2.5 px-3">运行状态</th>
                   <th className="py-2.5 px-3">响应延迟</th>
                   <th className="py-2.5 px-3">最近同步时间</th>
@@ -462,10 +506,6 @@ export default function InterfaceConfigPage() {
                   <tr key={item.id} className="hover:bg-blue-50/40 transition-colors">
                     <td className="py-3 px-3">
                       <div className="font-bold text-slate-900">{item.factory}</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5">
-                        <span className="bg-slate-100 text-slate-600 px-1 rounded text-[10px]">{item.systemType}</span>
-                        <span>{item.systemName}</span>
-                      </div>
                     </td>
 
                     <td className="py-3 px-3 font-mono text-[11px] text-slate-600 max-w-xs truncate" title={item.url}>
@@ -480,8 +520,7 @@ export default function InterfaceConfigPage() {
                     </td>
 
                     <td className="py-3 px-3 font-mono text-slate-600">
-                      <div>{item.timeoutSec}s 超时</div>
-                      <div className="text-[10px] text-slate-400">{item.retryCount} 次 {item.retryStrategy}</div>
+                      {item.timeoutSec}s
                     </td>
 
                     <td className="py-3 px-3">
@@ -531,6 +570,8 @@ export default function InterfaceConfigPage() {
                           type="button"
                           onClick={() => {
                             setEditingIf(item)
+                            setSelectedFactoryVal(item.factory)
+                            setTreeSelectOpen(false)
                             setEditIfModalOpen(true)
                           }}
                           className="text-slate-600 hover:text-slate-900 hover:underline cursor-pointer"
@@ -576,11 +617,8 @@ export default function InterfaceConfigPage() {
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
-                  <th className="py-2.5 px-3">工厂侧原始字段 Key</th>
-                  <th className="py-2.5 px-3">源字段描述 / 单位</th>
-                  <th className="py-2.5 px-3 text-center">映射方向</th>
-                  <th className="py-2.5 px-3">平台标准目标字段 Key</th>
-                  <th className="py-2.5 px-3">标准名称 / 单位</th>
+                  <th className="py-2.5 px-3">工厂原始数据项 / 采集单位</th>
+                  <th className="py-2.5 px-3">平台标准指标项 / 目标单位</th>
                   <th className="py-2.5 px-3">单位换算 / 转换公式</th>
                   <th className="py-2.5 px-3">模拟测算效果</th>
                   <th className="py-2.5 px-3 text-right">状态</th>
@@ -589,19 +627,16 @@ export default function InterfaceConfigPage() {
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {mappings.map((row) => (
                   <tr key={row.id} className="hover:bg-blue-50/30 transition-colors">
-                    <td className="py-3 px-3 font-mono font-bold text-slate-900">{row.sourceField}</td>
                     <td className="py-3 px-3">
-                      <div>{row.sourceFieldName}</div>
-                      <span className="text-[10px] bg-slate-100 text-slate-600 px-1 rounded font-mono">{row.sourceUnit}</span>
+                      <div className="font-bold text-slate-900">{row.sourceFieldName}</div>
+                      <span className="text-[10px] bg-slate-100 text-slate-600 px-1 rounded font-mono mt-0.5 inline-block">{row.sourceUnit}</span>
                     </td>
-                    <td className="py-3 px-3 text-center text-slate-400">➔</td>
-                    <td className="py-3 px-3 font-mono font-bold text-[#1677ff]">{row.targetField}</td>
                     <td className="py-3 px-3">
-                      <div>{row.targetFieldName}</div>
-                      <span className="text-[10px] bg-blue-100 text-blue-700 px-1 rounded font-mono">{row.targetUnit}</span>
+                      <div className="font-bold text-slate-900">{row.targetFieldName}</div>
+                      <span className="text-[10px] bg-blue-100 text-[#1677ff] px-1 rounded font-mono mt-0.5 inline-block">{row.targetUnit}</span>
                     </td>
-                    <td className="py-3 px-3 font-mono text-purple-700 font-bold bg-purple-50/40 px-2 rounded">
-                      {row.transformRule}
+                    <td className="py-3 px-3 font-mono text-purple-700 font-bold">
+                      <span className="bg-purple-50 px-2 py-0.5 rounded border border-purple-200/60 inline-block">{row.transformRule}</span>
                     </td>
                     <td className="py-3 px-3 font-mono text-[11px]">
                       <span className="text-slate-400">{row.sampleSourceVal}</span> ➔ <strong className="text-emerald-600">{row.sampleTargetVal}</strong>
@@ -733,8 +768,8 @@ export default function InterfaceConfigPage() {
       {/* ========================================================================= */}
       {editIfModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full overflow-hidden animate-in fade-in zoom-in-95">
+            <div className="px-6 py-4.5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                 <Settings className="size-4 text-[#1677ff]" />
                 {editingIf ? '编辑子系统接口连接参数' : '接入新子系统接口'}
@@ -754,29 +789,139 @@ export default function InterfaceConfigPage() {
                 showToast('已成功保存接口连接参数！')
                 setEditIfModalOpen(false)
               }}
-              className="p-5 space-y-3.5 text-xs font-sans"
+              className="p-6 space-y-4 text-xs font-sans"
             >
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5 relative">
                   <label className="text-slate-700 font-medium">所属工厂 / 制造基地 *</label>
-                  <select
-                    defaultValue={editingIf?.factory || '沈变公司 · 沈变本部'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                  <input type="hidden" name="factory" value={selectedFactoryVal} />
+                  
+                  {/* 树状选择器触发按钮 */}
+                  <button
+                    type="button"
+                    onClick={() => setTreeSelectOpen(!treeSelectOpen)}
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs flex items-center justify-between text-left focus:outline-none focus:border-[#1677ff] cursor-pointer transition-all hover:border-slate-300"
                   >
-                    <option value="沈变公司 · 沈变本部">沈变公司 · 沈变本部</option>
-                    <option value="衡变公司 · 衡变本部">衡变公司 · 衡变本部</option>
-                    <option value="新变厂 · 超高压公司">新变厂 · 超高压公司</option>
-                    <option value="鲁缆公司 · 鲁缆本部">鲁缆公司 · 鲁缆本部</option>
-                    <option value="新缆厂 · 新疆电缆">新缆厂 · 新疆电缆</option>
-                    <option value="德缆公司 · 德缆股份">德缆公司 · 德缆股份</option>
-                  </select>
+                    <div className="flex items-center gap-1.5 truncate">
+                      <Factory className="size-3.5 text-[#1677ff] shrink-0" />
+                      <span className="font-bold text-slate-800 truncate">{selectedFactoryVal}</span>
+                    </div>
+                    <ChevronDown className={cn("size-3.5 text-slate-400 shrink-0 transition-transform", treeSelectOpen && "rotate-180")} />
+                  </button>
+
+                  {/* 下拉层级树状弹出层 */}
+                  {treeSelectOpen && (
+                    <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-white border border-slate-200 rounded-xl shadow-xl p-2.5 space-y-2 max-h-72 overflow-y-auto animate-in fade-in">
+                      {/* 搜索框 */}
+                      <div className="relative">
+                        <Search className="size-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          placeholder="搜索公司或车间..."
+                          value={treeSelectSearch}
+                          onChange={(e) => setTreeSelectSearch(e.target.value)}
+                          className="w-full pl-7 pr-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] focus:outline-none focus:border-[#1677ff]"
+                        />
+                      </div>
+
+                      {/* 树状节点列表 */}
+                      <div className="space-y-1 select-none">
+                        {ORG_TREE_COMPANIES.map((comp) => {
+                          const isCompExpanded = expandedTreeCompanies.has(comp.id)
+                          const filteredWorkshops = comp.workshops.filter((w) =>
+                            !treeSelectSearch ||
+                            comp.name.includes(treeSelectSearch) ||
+                            w.name.includes(treeSelectSearch)
+                          )
+
+                          if (treeSelectSearch && filteredWorkshops.length === 0 && !comp.name.includes(treeSelectSearch)) {
+                            return null
+                          }
+
+                          return (
+                            <div key={comp.id} className="space-y-0.5">
+                              {/* 公司父节点 */}
+                              <div
+                                onClick={() => {
+                                  setExpandedTreeCompanies((prev) => {
+                                    const next = new Set(prev)
+                                    if (next.has(comp.id)) next.delete(comp.id)
+                                    else next.add(comp.id)
+                                    return next
+                                  })
+                                }}
+                                className="flex items-center justify-between py-1 px-1.5 rounded-lg hover:bg-slate-100 cursor-pointer text-slate-800 text-[11px] font-semibold"
+                              >
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setExpandedTreeCompanies((prev) => {
+                                        const next = new Set(prev)
+                                        if (next.has(comp.id)) next.delete(comp.id)
+                                        else next.add(comp.id)
+                                        return next
+                                      })
+                                    }}
+                                    className="size-3.5 flex items-center justify-center text-slate-400 hover:text-slate-600"
+                                  >
+                                    {isCompExpanded ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
+                                  </button>
+                                  <Folder className="size-3.5 text-[#1677ff]" />
+                                  <span>{comp.name}</span>
+                                  <span className="text-[10px] text-slate-400 font-mono font-normal">({comp.province})</span>
+                                </div>
+                                <span className="text-[10px] bg-slate-100 text-slate-500 px-1 rounded font-mono">
+                                  {comp.workshops.length}车间
+                                </span>
+                              </div>
+
+                              {/* 车间子节点列表 */}
+                              {isCompExpanded && (
+                                <div className="pl-4 border-l border-slate-200 ml-2.5 space-y-0.5 py-0.5">
+                                  {filteredWorkshops.map((ws) => {
+                                    const fullVal = `${comp.name} · ${ws.name}`
+                                    const isSelected = selectedFactoryVal === fullVal
+                                    return (
+                                      <div
+                                        key={ws.id}
+                                        onClick={() => {
+                                          setSelectedFactoryVal(fullVal)
+                                          setTreeSelectOpen(false)
+                                        }}
+                                        className={cn(
+                                          "flex items-center justify-between py-1 px-2 rounded-lg cursor-pointer text-[11px] transition-colors",
+                                          isSelected
+                                            ? "bg-blue-50 text-[#1677ff] font-bold"
+                                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                        )}
+                                      >
+                                        <div className="flex items-center gap-1.5">
+                                          <Factory className={cn("size-3", isSelected ? "text-[#1677ff]" : "text-slate-400")} />
+                                          <span>{ws.name}</span>
+                                        </div>
+                                        <span className="text-[9px] bg-slate-100 text-slate-500 px-1 rounded font-mono">
+                                          {ws.badge}
+                                        </span>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-slate-700 font-medium">系统类型 *</label>
                   <select
                     defaultValue={editingIf?.systemType || 'SCADA'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
                   >
                     <option value="SCADA">SCADA 自动化监控</option>
                     <option value="MES">MES 生产执行系统</option>
@@ -787,21 +932,21 @@ export default function InterfaceConfigPage() {
                 </div>
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <label className="text-slate-700 font-medium">接口访问端点 (URL / Host:Port) *</label>
                 <input
                   defaultValue={editingIf?.url || 'https://api.factory.tbea.local/v1/metrics'}
                   required
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
                   <label className="text-slate-700 font-medium">通信协议 *</label>
                   <select
                     defaultValue={editingIf?.protocol || 'RESTful API'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
                   >
                     <option value="RESTful API">RESTful API (HTTPS/JSON)</option>
                     <option value="MQTT">MQTT 消息流 (TCP/SSL)</option>
@@ -811,11 +956,11 @@ export default function InterfaceConfigPage() {
                   </select>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-slate-700 font-medium">认证方式 *</label>
                   <select
                     defaultValue={editingIf?.authType || 'Bearer Token'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
                   >
                     <option value="Bearer Token">Bearer Token</option>
                     <option value="AppKey & AppSecret">AppKey & AppSecret</option>
@@ -826,30 +971,30 @@ export default function InterfaceConfigPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-1">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1.5">
                   <label className="text-slate-700 font-medium">超时时间 (秒)</label>
                   <input
                     type="number"
                     defaultValue={editingIf?.timeoutSec || 15}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
                   />
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-slate-700 font-medium">最大重试次数</label>
                   <input
                     type="number"
                     defaultValue={editingIf?.retryCount || 3}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
                   />
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-slate-700 font-medium">重试策略</label>
                   <select
                     defaultValue={editingIf?.retryStrategy || '指数退避'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
                   >
                     <option value="指数退避">指数退避 (推荐)</option>
                     <option value="线性重试">线性重试</option>
@@ -858,17 +1003,17 @@ export default function InterfaceConfigPage() {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setEditIfModalOpen(false)}
-                  className="px-3.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer"
                 >
                   取消
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-5 py-2 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
                   确认保存
                 </button>

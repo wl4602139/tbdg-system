@@ -552,7 +552,6 @@ export default function ModelManagePage() {
                 <th className="py-2.5 px-3 whitespace-nowrap min-w-[200px]">模型名称</th>
                 <th className="py-2.5 px-3 whitespace-nowrap">模型类别</th>
                 <th className="py-2.5 px-3 whitespace-nowrap text-center">当前版本</th>
-                <th className="py-2.5 px-3 whitespace-nowrap min-w-[280px]">核心算法与描述</th>
                 <th className="py-2.5 px-3 whitespace-nowrap text-center">历史版本</th>
                 <th className="py-2.5 px-3 whitespace-nowrap">更新时间</th>
                 <th className="py-2.5 px-3 whitespace-nowrap text-center min-w-[140px]">操作</th>
@@ -561,7 +560,7 @@ export default function ModelManagePage() {
             <tbody className="divide-y divide-slate-100 text-slate-800">
               {filteredModels.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-slate-400">
+                  <td colSpan={6} className="p-8 text-center text-slate-400">
                     暂无符合条件的模型数据
                   </td>
                 </tr>
@@ -598,16 +597,6 @@ export default function ModelManagePage() {
                       <span className="px-2 py-0.5 rounded-full text-xs font-extrabold font-mono bg-blue-100 text-[#1677ff]">
                         {m.version}
                       </span>
-                    </td>
-
-                    {/* 描述 */}
-                    <td className="py-2.5 px-3">
-                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                        {m.description}
-                      </p>
-                      <div className="text-[10.5px] font-mono text-blue-700 mt-1 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 truncate max-w-[340px]">
-                        {m.formula}
-                      </div>
                     </td>
 
                     {/* 历史版本 (可点击下钻回溯) */}

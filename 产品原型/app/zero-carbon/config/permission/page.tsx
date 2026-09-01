@@ -17,6 +17,7 @@ import {
   RotateCcw,
   CheckSquare,
   Square,
+  MinusSquare,
   ChevronRight,
   ChevronDown,
   Layers,
@@ -28,11 +29,28 @@ import {
   Eye,
   SlidersHorizontal,
   FolderTree,
-  UserCog,
-  FileSpreadsheet,
+  Folder,
+  FolderOpen,
+  FileCode,
+  Key,
+  Shield,
+  LayoutDashboard,
+  MonitorCog,
+  Gauge,
+  ClipboardCheck,
+  FileBarChart,
+  Settings2,
+  MapPin,
+  Factory,
+  Radio,
+  Activity,
+  Info,
+  ExternalLink,
+  Cpu,
+  Zap,
+  MoreHorizontal,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ENTERPRISE_TREE_DATA, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 
 // 账号数据接口
 interface UserAccount {
@@ -65,156 +83,449 @@ interface RoleModel {
   menuPermissions: string[] // 选中的菜单与按钮权限 Key
 }
 
-// 权限菜单树定义
-interface PermissionNode {
+// 权限菜单树节点定义
+interface PermissionTreeNode {
   id: string
   title: string
-  children?: PermissionNode[]
-  actions?: { id: string; label: string }[]
+  code?: string
+  icon?: any
+  children?: PermissionTreeNode[]
+  actions?: { id: string; label: string; code?: string }[]
 }
 
-const PERMISSION_TREE_DATA: PermissionNode[] = [
+const PERMISSION_TREE_DATA: PermissionTreeNode[] = [
   {
     id: 'menu_screen',
-    title: '1. 集控中心大屏 (/zero-carbon/screen)',
+    title: '集控中心大屏',
+    code: 'MOD_SCREEN',
+    icon: LayoutDashboard,
     actions: [
-      { id: 'screen_view', label: '查看大屏' },
-      { id: 'screen_3d', label: '3D拓扑交互' },
-      { id: 'screen_export', label: '投屏控制' },
+      { id: 'screen_view', label: '查阅大屏看板', code: 'screen:view' },
+      { id: 'screen_3d', label: '3D 拓扑潮流交互', code: 'screen:3d:interact' },
+      { id: 'screen_export', label: '投屏控制与报告导出', code: 'screen:export' },
     ],
   },
   {
     id: 'menu_monitor',
-    title: '2. 集中监管模块 (/zero-carbon/monitor)',
+    title: '集中监管',
+    code: 'MOD_MONITOR',
+    icon: MonitorCog,
     children: [
       {
         id: 'menu_indicator',
-        title: '指标管控 (/zero-carbon/monitor/indicator)',
+        title: '指标管控',
+        code: 'MENU_INDICATOR',
         actions: [
-          { id: 'ind_view', label: '指标查看' },
-          { id: 'ind_detail', label: 'Mode B 穿透' },
-          { id: 'ind_export', label: '台账导出' },
+          { id: 'ind_view', label: '指标大盘查看', code: 'indicator:view' },
+          { id: 'ind_detail', label: 'Mode B 穿透详情', code: 'indicator:detail' },
+          { id: 'ind_export', label: '指标台账导出', code: 'indicator:export' },
         ],
       },
       {
         id: 'menu_online_usage',
-        title: '用能在线监测 (/zero-carbon/monitor/online/usage)',
+        title: '用能在线监测',
+        code: 'MENU_ONLINE_USAGE',
         actions: [
-          { id: 'online_view', label: '在线时序监控' },
-          { id: 'online_realtime', label: '15分钟高频数据' },
-          { id: 'online_export', label: '导出原始流水' },
+          { id: 'online_view', label: '在线时序监控', code: 'usage:view' },
+          { id: 'online_realtime', label: '15分钟高频数据解析', code: 'usage:realtime' },
+          { id: 'online_export', label: '导出原始时序流水', code: 'usage:export' },
         ],
       },
       {
         id: 'menu_online_microgrid',
-        title: '工业微电网监测 (/zero-carbon/monitor/online/microgrid)',
+        title: '工业微电网监测',
+        code: 'MENU_MICROGRID',
         actions: [
-          { id: 'grid_view', label: '微网潮流监测' },
-          { id: 'grid_ctrl', label: '储能/光伏调控' },
+          { id: 'grid_view', label: '微网潮流与储能监测', code: 'microgrid:view' },
+          { id: 'grid_ctrl', label: '储能充放/光伏策略调控', code: 'microgrid:control' },
         ],
       },
       {
         id: 'menu_carbon_emission',
-        title: '能源碳排放监测 (/zero-carbon/monitor/carbon-emission)',
+        title: '能源碳排放监测',
+        code: 'MENU_CARBON_EMISSION',
         actions: [
-          { id: 'carbon_view', label: '碳排大盘查看' },
-          { id: 'carbon_offset', label: '绿电抵消核算' },
-          { id: 'carbon_export', label: '导出对标明细' },
+          { id: 'carbon_view', label: '碳排大盘与对标查看', code: 'carbon:view' },
+          { id: 'carbon_offset', label: '三大绿色抵消核算', code: 'carbon:offset:calc' },
+          { id: 'carbon_export', label: '导出对标明细台账', code: 'carbon:export' },
         ],
       },
     ],
   },
   {
     id: 'menu_energy',
-    title: '3. 能耗能效分析 (/zero-carbon/energy)',
+    title: '能耗能效分析',
+    code: 'MOD_ENERGY',
+    icon: Gauge,
     children: [
       {
         id: 'menu_energy_structure',
         title: '用能结构分析',
+        code: 'MENU_STRUCTURE',
         actions: [
-          { id: 'str_view', label: '结构占比查看' },
-          { id: 'str_export', label: '导出明细' },
+          { id: 'str_view', label: '能源结构与介质占比查看', code: 'structure:view' },
+          { id: 'str_export', label: '导出结构明细报表', code: 'structure:export' },
         ],
       },
       {
         id: 'menu_energy_cost',
         title: '能源成本分析',
+        code: 'MENU_COST',
         actions: [
-          { id: 'cost_view', label: '成本玫瑰图查看' },
-          { id: 'cost_optimize', label: '降本建议测算' },
+          { id: 'cost_view', label: '成本玫瑰图与时段电费查看', code: 'cost:view' },
+          { id: 'cost_optimize', label: '容需量测算与降本建议', code: 'cost:optimize' },
         ],
       },
       {
         id: 'menu_energy_unit_product',
         title: '单位产品能耗',
+        code: 'MENU_UNIT_PROD',
         actions: [
-          { id: 'prod_view', label: '产品分类单耗' },
-          { id: 'prod_ledger', label: '型号明细台账' },
+          { id: 'prod_view', label: '产品分类单耗看板', code: 'unit:prod:view' },
+          { id: 'prod_ledger', label: '型号明细能耗台账', code: 'unit:prod:ledger' },
         ],
       },
       {
         id: 'menu_energy_unit_output',
         title: '单位产值能耗',
+        code: 'MENU_UNIT_OUT',
         actions: [
-          { id: 'out_view', label: '产值单耗看板' },
-          { id: 'out_yoy', label: '同比环比分析' },
+          { id: 'out_view', label: '万元产值单耗看板', code: 'unit:out:view' },
+          { id: 'out_yoy', label: '产值单耗同比环比分析', code: 'unit:out:yoy' },
         ],
       },
       {
         id: 'menu_energy_benchmark',
         title: '对标管理',
+        code: 'MENU_BENCHMARK',
         actions: [
-          { id: 'bm_view', label: '行业标杆查看' },
-          { id: 'bm_edit', label: '维护基准值' },
-          { id: 'bm_audit', label: '对标审批发布' },
+          { id: 'bm_view', label: '行业标杆值与领跑者对标', code: 'bm:view' },
+          { id: 'bm_edit', label: '维护领跑者基准线', code: 'bm:edit' },
+          { id: 'bm_audit', label: '对标报告审批与发布', code: 'bm:audit' },
         ],
       },
     ],
   },
   {
     id: 'menu_project',
-    title: '4. 零碳项目评估 (/zero-carbon/project)',
+    title: '零碳项目评估',
+    code: 'MOD_PROJECT',
+    icon: ClipboardCheck,
     children: [
       {
         id: 'menu_project_archive',
         title: '项目档案管理',
+        code: 'MENU_ARCHIVE',
         actions: [
-          { id: 'proj_view', label: '档案浏览' },
-          { id: 'proj_add', label: '项目立项录入' },
-          { id: 'proj_audit', label: '项目验收归档' },
+          { id: 'proj_view', label: '档案清单与立项浏览', code: 'proj:view' },
+          { id: 'proj_add', label: '新建节能降碳项目', code: 'proj:add' },
+          { id: 'proj_audit', label: '项目验收与闭环归档', code: 'proj:audit' },
+        ],
+      },
+      {
+        id: 'menu_project_model',
+        title: '模型管理',
+        code: 'MENU_MODEL',
+        actions: [
+          { id: 'proj_model_view', label: '节能量预测模型查阅', code: 'proj:model:view' },
+          { id: 'proj_model_tune', label: '模型算法参数调优', code: 'proj:model:tune' },
+          { id: 'proj_model_pub', label: '模型版本更新发布', code: 'proj:model:publish' },
         ],
       },
       {
         id: 'menu_project_benefit',
-        title: '效益评估与自评估',
+        title: '实时监控与项目效益评估',
+        code: 'MENU_BENEFIT',
         actions: [
-          { id: 'proj_eval', label: '减排效益核算' },
-          { id: 'proj_self_score', label: '园区自评估打分' },
+          { id: 'proj_eval', label: '实时减碳效益核算', code: 'proj:benefit:calc' },
+          { id: 'proj_eval_roi', label: '投资回收期与节能量分析', code: 'proj:benefit:roi' },
+        ],
+      },
+      {
+        id: 'menu_project_self',
+        title: '零碳园区自评估',
+        code: 'MENU_SELF',
+        actions: [
+          { id: 'proj_self_score', label: '零碳园区自评估打分评级', code: 'proj:self:score' },
+          { id: 'proj_self_gap', label: '标准差距诊断分析', code: 'proj:self:gap' },
         ],
       },
     ],
   },
   {
     id: 'menu_reports',
-    title: '5. 统计报表 (/zero-carbon/reports)',
-    actions: [
-      { id: 'rep_usage', label: '用能报表' },
-      { id: 'rep_cost', label: '成本报表' },
-      { id: 'rep_unit', label: '单耗报表' },
-      { id: 'rep_carbon', label: '碳排报表' },
-      { id: 'rep_print', label: '批量打印/导出' },
+    title: '统计报表',
+    code: 'MOD_REPORTS',
+    icon: FileBarChart,
+    children: [
+      {
+        id: 'menu_rep_usage',
+        title: '用能报表',
+        code: 'MENU_REP_USAGE',
+        actions: [
+          { id: 'rep_usage', label: '查阅用能日报/月报/年报', code: 'rep:usage:view' },
+          { id: 'rep_usage_exp', label: '导出用能报表 Excel', code: 'rep:usage:export' },
+        ],
+      },
+      {
+        id: 'menu_rep_cost',
+        title: '成本报表',
+        code: 'MENU_REP_COST',
+        actions: [
+          { id: 'rep_cost', label: '查阅能源成本结算报表', code: 'rep:cost:view' },
+          { id: 'rep_cost_exp', label: '导出成本报表 Excel', code: 'rep:cost:export' },
+        ],
+      },
+      {
+        id: 'menu_rep_unit',
+        title: '单耗报表',
+        code: 'MENU_REP_UNIT',
+        actions: [
+          { id: 'rep_unit', label: '查阅单位产品/产值单耗报表', code: 'rep:unit:view' },
+          { id: 'rep_unit_exp', label: '导出单耗报表 Excel', code: 'rep:unit:export' },
+        ],
+      },
+      {
+        id: 'menu_rep_carbon',
+        title: '碳排报表',
+        code: 'MENU_REP_CARBON',
+        actions: [
+          { id: 'rep_carbon', label: '查阅温室气体碳盘查报告', code: 'rep:carbon:view' },
+          { id: 'rep_print', label: '批量打印与 PDF 导出', code: 'rep:print' },
+        ],
+      },
     ],
   },
   {
     id: 'menu_config',
-    title: '6. 基础配置模块 (/zero-carbon/config)',
-    actions: [
-      { id: 'cfg_permission', label: '账号权限管理' },
-      { id: 'cfg_factor', label: '碳排因子维护与重算' },
-      { id: 'cfg_price', label: '费价模型与分时电价' },
-      { id: 'cfg_convert', label: '折标煤系数与转换' },
-      { id: 'cfg_interface', label: '接口连接与字段映射' },
-      { id: 'cfg_entry', label: '离线数据填报与审批' },
+    title: '基础配置',
+    code: 'MOD_CONFIG',
+    icon: Settings2,
+    children: [
+      {
+        id: 'menu_cfg_permission',
+        title: '账号权限',
+        code: 'MENU_CFG_PERM',
+        actions: [
+          { id: 'cfg_permission', label: '账号管理与角色权限授权', code: 'cfg:perm:manage' },
+          { id: 'cfg_perm_pwd', label: '重置登录密码', code: 'cfg:perm:pwd' },
+        ],
+      },
+      {
+        id: 'menu_cfg_factor',
+        title: '碳排因子',
+        code: 'MENU_CFG_FACTOR',
+        actions: [
+          { id: 'cfg_factor', label: '因子库维护与变更审批', code: 'cfg:factor:manage' },
+          { id: 'cfg_factor_recalc', label: '历史数据一键重算', code: 'cfg:factor:recalc' },
+        ],
+      },
+      {
+        id: 'menu_cfg_price',
+        title: '费价模型',
+        code: 'MENU_CFG_PRICE',
+        actions: [
+          { id: 'cfg_price', label: '分时电价与阶梯气价配置', code: 'cfg:price:manage' },
+          { id: 'cfg_price_dispatch', label: '价格方案全集团统一下发', code: 'cfg:price:dispatch' },
+        ],
+      },
+      {
+        id: 'menu_cfg_convert',
+        title: '折标煤系数',
+        code: 'MENU_CFG_CONVERT',
+        actions: [
+          { id: 'cfg_convert', label: '国家标准折标系数维护', code: 'cfg:convert:manage' },
+          { id: 'cfg_convert_calc', label: '多介质单位实时换算工具', code: 'cfg:convert:calc' },
+        ],
+      },
+      {
+        id: 'menu_cfg_interface',
+        title: '接口配置管理',
+        code: 'MENU_CFG_IF',
+        actions: [
+          { id: 'cfg_interface', label: '子系统接口参数与字段映射', code: 'cfg:interface:manage' },
+          { id: 'cfg_if_test', label: '在线连通性心跳探测', code: 'cfg:interface:test' },
+        ],
+      },
+      {
+        id: 'menu_cfg_entry',
+        title: '数据录入',
+        code: 'MENU_CFG_ENTRY',
+        actions: [
+          { id: 'cfg_entry', label: '非电介质月度实物量填报', code: 'cfg:entry:medium' },
+          { id: 'cfg_entry_output', label: '财务产值与完工产量填报', code: 'cfg:entry:output' },
+          { id: 'cfg_entry_audit', label: '填报台账审核与归档', code: 'cfg:entry:audit' },
+        ],
+      },
+    ],
+  },
+]
+
+// 收集节点及其所有后代 Action ID
+function getAllActionIds(node: PermissionTreeNode): string[] {
+  const ids: string[] = []
+  if (node.actions) {
+    node.actions.forEach((a) => ids.push(a.id))
+  }
+  if (node.children) {
+    node.children.forEach((c) => {
+      ids.push(...getAllActionIds(c))
+    })
+  }
+  return ids
+}
+
+// 收集所有全部 Action ID
+function collectAllSystemActionIds(): string[] {
+  const all: string[] = []
+  PERMISSION_TREE_DATA.forEach((m) => {
+    all.push(...getAllActionIds(m))
+  })
+  return all
+}
+
+// ============================================================================
+// 企业组织结构层级关系数据定义
+// ============================================================================
+interface WorkshopNode {
+  id: string
+  name: string
+  code: string
+  badge: '主体' | '智能' | '综合' | '制造'
+  status: '在线' | '同步中'
+  meters: number
+  lead: string
+  craftDesc: string
+}
+
+interface CompanyTopologyNode {
+  id: string
+  code: string
+  name: string
+  sector: 'transformer' | 'cable'
+  sectorName: string
+  province: string
+  city: string
+  manager: string
+  managerPhone: string
+  meterCount: number
+  workshops: WorkshopNode[]
+}
+
+const INITIAL_ORG_COMPANIES: CompanyTopologyNode[] = [
+  {
+    id: 'comp_sb',
+    code: 'COMP_SB_01',
+    name: '沈变公司',
+    sector: 'transformer',
+    sectorName: '输变电变压器产业',
+    province: '辽宁省',
+    city: '沈阳市铁西区',
+    manager: '王少华',
+    managerPhone: '137****3388',
+    meterCount: 320,
+    workshops: [
+      { id: 'ws_sb_main', name: '沈变本部', code: 'WS_SB_MAIN', badge: '主体', status: '在线', meters: 120, lead: '刘海波', craftDesc: '1000kV特高压变压器装配、干燥窑炉与绝缘试验' },
+      { id: 'ws_sb_luna', name: '露娜智能制造', code: 'WS_SB_LUNA', badge: '智能', status: '在线', meters: 45, lead: '张晓明', craftDesc: '智能化数字装配车间与微网动力配电' },
+      { id: 'ws_sb_zh', name: '智慧能源中心', code: 'WS_SB_ZH', badge: '综合', status: '在线', meters: 52, lead: '李晨', craftDesc: '分布式光伏屋顶、储能电站与主变热力泵房' },
+      { id: 'ws_sb_hx', name: '和新套管公司', code: 'WS_SB_HX', badge: '主体', status: '在线', meters: 40, lead: '王鹏', craftDesc: '特高压胶浸纸电容式套管卷制与真空固化' },
+      { id: 'ws_sb_kj', name: '康嘉互感器', code: 'WS_SB_KJ', badge: '主体', status: '在线', meters: 35, lead: '赵宇', craftDesc: '气体绝缘互感器 GIS 装配与高压试验' },
+      { id: 'ws_sb_yn', name: '印能制造分厂', code: 'WS_SB_YN', badge: '制造', status: '在线', meters: 28, lead: '孙强', craftDesc: '高密度绝缘纸板热压、层压木及印制电路' },
+    ],
+  },
+  {
+    id: 'comp_hb',
+    code: 'COMP_HB_02',
+    name: '衡变公司',
+    sector: 'transformer',
+    sectorName: '输变电变压器产业',
+    province: '湖南省',
+    city: '衡阳市雁峰区',
+    manager: '陈志明',
+    managerPhone: '136****5522',
+    meterCount: 480,
+    workshops: [
+      { id: 'ws_hb_main', name: '衡变本部', code: 'WS_HB_MAIN', badge: '主体', status: '在线', meters: 140, lead: '周伟', craftDesc: '特高压直流换流变压器总装及出厂试验大厅' },
+      { id: 'ws_hb_nj', name: '南京电研', code: 'WS_HB_NJ', badge: '主体', status: '在线', meters: 60, lead: '吴强', craftDesc: '电力系统自动化与继电保护中试基地' },
+      { id: 'ws_hb_yj', name: '云集电气', code: 'WS_HB_YJ', badge: '主体', status: '在线', meters: 42, lead: '黄俊', craftDesc: '智能配网成套开关设备加工与涂装' },
+      { id: 'ws_hb_hn', name: '湖南电气', code: 'WS_HB_HN', badge: '主体', status: '在线', meters: 38, lead: '郑勇', craftDesc: '箱式变电站及新能源升压成套' },
+      { id: 'ws_hb_kg', name: '云集高压开关', code: 'WS_HB_KG', badge: '主体', status: '在线', meters: 45, lead: '罗敏', craftDesc: 'GIS 气体绝缘组合电器装配清洁间' },
+      { id: 'ws_hb_xj', name: '新疆自控', code: 'WS_HB_XJ', badge: '主体', status: '在线', meters: 30, lead: '钱辉', craftDesc: '工业过程综合监控与变电所自动化' },
+      { id: 'ws_hb_sk', name: '上开制造部', code: 'WS_HB_SK', badge: '制造', status: '在线', meters: 25, lead: '许博', craftDesc: '精密钣金加工与母线冲剪成型' },
+      { id: 'ws_hb_kbe', name: '柯贝尔材料', code: 'WS_HB_KBE', badge: '制造', status: '在线', meters: 22, lead: '蒋平', craftDesc: '特种绝缘件精密数控机加工' },
+      { id: 'ws_hb_tnj', name: '特能建', code: 'WS_HB_TNJ', badge: '主体', status: '在线', meters: 28, lead: '彭飞', craftDesc: '新能源微电网示范工程运维中枢' },
+      { id: 'ws_hb_hr', name: '合容电气', code: 'WS_HB_HR', badge: '主体', status: '在线', meters: 30, lead: '邓超', craftDesc: '高压并联电容器与电力滤波成套' },
+      { id: 'ws_hb_gil', name: '赛杰爱迪', code: 'WS_HB_GIL', badge: '主体', status: '在线', meters: 20, lead: '蔡华', craftDesc: '特高压气体绝缘金属封闭输电线路 (GIL)' },
+    ],
+  },
+  {
+    id: 'comp_xb',
+    code: 'COMP_XB_03',
+    name: '新变厂',
+    sector: 'transformer',
+    sectorName: '输变电变压器产业',
+    province: '新疆维吾尔自治区',
+    city: '昌吉市延安北路',
+    manager: '马俊杰',
+    managerPhone: '138****7711',
+    meterCount: 360,
+    workshops: [
+      { id: 'ws_xb_uhv', name: '超高压公司', code: 'WS_XB_UHV', badge: '主体', status: '在线', meters: 110, lead: '马俊杰', craftDesc: '昌吉 ±1100kV 特高压变压器研制基地' },
+      { id: 'ws_xb_tb', name: '天变公司', code: 'WS_XB_TB', badge: '主体', status: '在线', meters: 55, lead: '冯刚', craftDesc: '环氧树脂浇注干式变压器智能产线' },
+      { id: 'ws_xb_zndq', name: '智能电气公司', code: 'WS_XB_ZNDQ', badge: '主体', status: '在线', meters: 48, lead: '丁亮', craftDesc: '新能源储能一体化升压变集成工位' },
+      { id: 'ws_xb_jjj', name: '京津冀公司', code: 'WS_XB_JJJ', badge: '主体', status: '在线', meters: 36, lead: '薛涛', craftDesc: '华北区域试验与智慧运维中心' },
+      { id: 'ws_xb_zf', name: '珠峰硅钢', code: 'WS_XB_ZF', badge: '主体', status: '在线', meters: 50, lead: '袁帅', craftDesc: '高磁感取向硅钢纵剪与横剪自动化' },
+      { id: 'ws_xb_zhny', name: '智慧能源', code: 'WS_XB_ZHNY', badge: '综合', status: '在线', meters: 35, lead: '严冬', craftDesc: '源网荷储微电网及地源热泵站' },
+      { id: 'ws_xb_yl', name: '银利电气', code: 'WS_XB_YL', badge: '制造', status: '在线', meters: 26, lead: '顾磊', craftDesc: '换位导线与电磁线高温漆包工序' },
+    ],
+  },
+  {
+    id: 'comp_ll',
+    code: 'COMP_LL_04',
+    name: '鲁缆公司',
+    sector: 'cable',
+    sectorName: '智慧线缆产业',
+    province: '山东省',
+    city: '泰安市新泰',
+    manager: '赵立峰',
+    managerPhone: '139****8833',
+    meterCount: 240,
+    workshops: [
+      { id: 'ws_ll_main', name: '鲁缆本部', code: 'WS_LL_MAIN', badge: '主体', status: '在线', meters: 90, lead: '赵立峰', craftDesc: '500kV 超高压交联电缆 VCV 超高立塔车间' },
+      { id: 'ws_ll_zl', name: '智缆公司', code: 'WS_LL_ZL', badge: '智能', status: '在线', meters: 55, lead: '谭斌', craftDesc: '智慧工业柔性特种控制线缆产线' },
+      { id: 'ws_ll_sw', name: '昭和公司', code: 'WS_LL_SW', badge: '制造', status: '在线', meters: 45, lead: '陆成', craftDesc: '高导耐热铝合金杆连铸连轧车间' },
+      { id: 'ws_ll_sg', name: '曙光公司', code: 'WS_LL_SG', badge: '主体', status: '在线', meters: 50, lead: '尹健', craftDesc: '新能源汽车与充电桩专用高压线束' },
+    ],
+  },
+  {
+    id: 'comp_xl',
+    code: 'COMP_XL_05',
+    name: '新缆厂',
+    sector: 'cable',
+    sectorName: '智慧线缆产业',
+    province: '新疆维吾尔自治区',
+    city: '乌鲁木齐市新市区',
+    manager: '张海涛',
+    managerPhone: '138****6621',
+    meterCount: 160,
+    workshops: [
+      { id: 'ws_xl_main', name: '特变电工新疆电缆有限公司', code: 'WS_XL_MAIN', badge: '主体', status: '在线', meters: 95, lead: '张海涛', craftDesc: '高低压交联电力电缆与阻燃耐火缆' },
+      { id: 'ws_xl_sub', name: '特变电工新疆线缆厂', code: 'WS_XL_SUB', badge: '主体', status: '在线', meters: 65, lead: '董亮', craftDesc: '钢芯铝绞线、铝包钢及架空绝缘导线' },
+    ],
+  },
+  {
+    id: 'comp_dl',
+    code: 'COMP_DL_06',
+    name: '德缆公司',
+    sector: 'cable',
+    sectorName: '智慧线缆产业',
+    province: '四川省',
+    city: '德阳市旌阳区',
+    manager: '许建国',
+    managerPhone: '139****1108',
+    meterCount: 120,
+    workshops: [
+      { id: 'ws_dl_main', name: '特变电工（德阳）电缆股份有限公司', code: 'WS_DL_MAIN', badge: '主体', status: '在线', meters: 120, lead: '许建国', craftDesc: '西南特高压线缆、轨道交通专用电缆与环保BTTZ矿物绝缘缆' },
     ],
   },
 ]
@@ -369,22 +680,7 @@ const INITIAL_ROLES: RoleModel[] = [
     desc: '拥有特变电工电装集团全平台最高管理权限，可执行全部功能与配置变更',
     userCount: 2,
     dataScopeDefault: 'all',
-    menuPermissions: [
-      'screen_view', 'screen_3d', 'screen_export',
-      'ind_view', 'ind_detail', 'ind_export',
-      'online_view', 'online_realtime', 'online_export',
-      'grid_view', 'grid_ctrl',
-      'carbon_view', 'carbon_offset', 'carbon_export',
-      'str_view', 'str_export',
-      'cost_view', 'cost_optimize',
-      'prod_view', 'prod_ledger',
-      'out_view', 'out_yoy',
-      'bm_view', 'bm_edit', 'bm_audit',
-      'proj_view', 'proj_add', 'proj_audit',
-      'proj_eval', 'proj_self_score',
-      'rep_usage', 'rep_cost', 'rep_unit', 'rep_carbon', 'rep_print',
-      'cfg_permission', 'cfg_factor', 'cfg_price', 'cfg_convert', 'cfg_interface', 'cfg_entry',
-    ],
+    menuPermissions: collectAllSystemActionIds(),
   },
   {
     id: 'role_director',
@@ -460,13 +756,65 @@ export default function AccountPermissionPage() {
   const [roles, setRoles] = useState<RoleModel[]>(INITIAL_ROLES)
   const [selectedRoleId, setSelectedRoleId] = useState<string>('role_admin')
 
+  // 树展开状态 (默认全展开)
+  const allTreeKeys = useMemo(() => {
+    const keys: string[] = []
+    PERMISSION_TREE_DATA.forEach((m) => {
+      keys.push(m.id)
+      if (m.children) {
+        m.children.forEach((c) => keys.push(c.id))
+      }
+    })
+    return keys
+  }, [])
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set(allTreeKeys))
+  const [treeSearchKw, setTreeSearchKw] = useState('')
+
+  // 组织架构公司与车间列表可变 State
+  const [orgCompanies, setOrgCompanies] = useState<CompanyTopologyNode[]>(INITIAL_ORG_COMPANIES)
+  const [topologySearchKw, setTopologySearchKw] = useState('')
+  const [expandedCompanyIds, setExpandedCompanyIds] = useState<Set<string>>(
+    new Set(['comp_sb', 'comp_hb', 'comp_xb', 'comp_ll', 'comp_xl', 'comp_dl'])
+  )
+  const [selectedNodeModal, setSelectedNodeModal] = useState<{
+    type: 'group' | 'company' | 'workshop'
+    data: any
+  }>({
+    type: 'group',
+    data: {
+      name: '特变电工（电装集团）双中心能碳管控平台',
+      code: 'TBEA_GROUP_ROOT',
+      sub: '集团总指挥中枢',
+      desc: '统筹全集团 2 大产业集群、6 大直属制造公司、31 个车间工厂的能耗双控、碳排放配额核算与实时微电网调优',
+      stat: '6 大公司 · 31 个工厂 · 1,680 个在线测点 · 48 位在册能管人员',
+      manager: '张建国 (超级管理员)',
+      province: '集团总部',
+      city: '能碳管理中心',
+      meterCount: 1680,
+    },
+  })
+
+  // 组织架构增删改弹窗状态
+  const [orgModalOpen, setOrgModalOpen] = useState(false)
+  const [orgModalMode, setOrgModalMode] = useState<'add_company' | 'edit_company' | 'add_workshop' | 'edit_workshop'>('add_company')
+  const [orgModalParentCompanyId, setOrgModalParentCompanyId] = useState<string>('comp_sb')
+  const [orgModalTarget, setOrgModalTarget] = useState<any>(null)
+
+  // 删除确认框
+  const [orgDeleteConfirm, setOrgDeleteConfirm] = useState<{
+    type: 'company' | 'workshop'
+    id: string
+    name: string
+    parentCompanyId?: string
+  } | null>(null)
+
   // 筛选状态
   const [searchKw, setSearchKw] = useState('')
   const [filterCompany, setFilterCompany] = useState('all')
   const [filterRole, setFilterRole] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
 
-  // 弹窗状态
+  // 用户弹窗状态
   const [userModalOpen, setUserModalOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<UserAccount | null>(null)
   const [pwdModalOpen, setPwdModalOpen] = useState(false)
@@ -480,6 +828,11 @@ export default function AccountPermissionPage() {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(null), 3000)
   }
+
+  // 计算当前组织架构总车间数
+  const totalWorkshopCount = useMemo(() => {
+    return orgCompanies.reduce((sum, c) => sum + c.workshops.length, 0)
+  }, [orgCompanies])
 
   // 过滤后的用户列表
   const filteredUsers = useMemo(() => {
@@ -505,8 +858,61 @@ export default function AccountPermissionPage() {
     return roles.find((r) => r.id === selectedRoleId) || roles[0]
   }, [roles, selectedRoleId])
 
-  // 切换角色权限勾选
-  const handleTogglePermission = (actId: string) => {
+  // 展开 / 折叠单个权限树节点
+  const toggleExpand = (nodeId: string) => {
+    setExpandedKeys((prev) => {
+      const next = new Set(prev)
+      if (next.has(nodeId)) {
+        next.delete(nodeId)
+      } else {
+        next.add(nodeId)
+      }
+      return next
+    })
+  }
+
+  // 全部展开
+  const handleExpandAll = () => {
+    setExpandedKeys(new Set(allTreeKeys))
+  }
+
+  // 全部折叠
+  const handleCollapseAll = () => {
+    setExpandedKeys(new Set())
+  }
+
+  // 企业组织公司节点展开/收起切换
+  const toggleCompanyTopology = (compCode: string) => {
+    setExpandedCompanyIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(compCode)) {
+        next.delete(compCode)
+      } else {
+        next.add(compCode)
+      }
+      return next
+    })
+  }
+
+  // 全选系统全部权限
+  const handleSelectAllPermissions = () => {
+    const all = collectAllSystemActionIds()
+    setRoles((prev) =>
+      prev.map((r) => (r.id === selectedRoleId ? { ...r, menuPermissions: all } : r))
+    )
+    showToast(`已全选角色【${selectedRole.name}】的全部功能与按钮权限`)
+  }
+
+  // 全不选
+  const handleDeselectAllPermissions = () => {
+    setRoles((prev) =>
+      prev.map((r) => (r.id === selectedRoleId ? { ...r, menuPermissions: [] } : r))
+    )
+    showToast(`已清空角色【${selectedRole.name}】的权限`)
+  }
+
+  // 切换单个 Action 权限
+  const handleToggleAction = (actId: string) => {
     setRoles((prev) =>
       prev.map((r) => {
         if (r.id !== selectedRoleId) return r
@@ -519,28 +925,19 @@ export default function AccountPermissionPage() {
     )
   }
 
-  // 全选/反选某一模块权限
-  const handleToggleModuleAll = (node: PermissionNode) => {
-    const allActIds: string[] = []
-    const collect = (n: PermissionNode) => {
-      if (n.actions) {
-        n.actions.forEach((a) => allActIds.push(a.id))
-      }
-      if (n.children) {
-        n.children.forEach(collect)
-      }
-    }
-    collect(node)
+  // 切换父节点（递归勾选/反选其下所有子节点与 actions）
+  const handleToggleNode = (node: PermissionTreeNode) => {
+    const nodeActionIds = getAllActionIds(node)
+    const isAllChecked = nodeActionIds.every((id) => selectedRole.menuPermissions.includes(id))
 
-    const isAllChecked = allActIds.every((id) => selectedRole.menuPermissions.includes(id))
     setRoles((prev) =>
       prev.map((r) => {
         if (r.id !== selectedRoleId) return r
         let nextPerms = [...r.menuPermissions]
         if (isAllChecked) {
-          nextPerms = nextPerms.filter((id) => !allActIds.includes(id))
+          nextPerms = nextPerms.filter((id) => !nodeActionIds.includes(id))
         } else {
-          allActIds.forEach((id) => {
+          nodeActionIds.forEach((id) => {
             if (!nextPerms.includes(id)) nextPerms.push(id)
           })
         }
@@ -631,6 +1028,336 @@ export default function AccountPermissionPage() {
 
     setUserModalOpen(false)
     setEditingUser(null)
+  }
+
+  // =========================================================================
+  // 组织架构增加/编辑处理函数
+  // =========================================================================
+  const handleSaveOrgNode = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const form = e.currentTarget
+    const formData = new FormData(form)
+
+    if (orgModalMode === 'add_company') {
+      const name = formData.get('name') as string
+      const code = formData.get('code') as string
+      const province = formData.get('province') as string
+      const city = formData.get('city') as string
+      const manager = formData.get('manager') as string
+      const managerPhone = formData.get('managerPhone') as string
+      const meterCount = Number(formData.get('meterCount')) || 100
+
+      const newCompany: CompanyTopologyNode = {
+        id: `comp_${Date.now()}`,
+        code: code || `COMP_${Date.now().toString().slice(-4)}`,
+        name,
+        sector: 'transformer',
+        sectorName: '制造板块',
+        province,
+        city,
+        manager,
+        managerPhone,
+        meterCount,
+        workshops: [],
+      }
+
+      setOrgCompanies((prev) => [...prev, newCompany])
+      setExpandedCompanyIds((prev) => new Set([...prev, newCompany.id]))
+      setSelectedNodeModal({ type: 'company', data: newCompany })
+      showToast(`已成功创建直属公司【${name}】`)
+    } else if (orgModalMode === 'edit_company' && orgModalTarget) {
+      const name = formData.get('name') as string
+      const code = formData.get('code') as string
+      const province = formData.get('province') as string
+      const city = formData.get('city') as string
+      const manager = formData.get('manager') as string
+      const managerPhone = formData.get('managerPhone') as string
+      const meterCount = Number(formData.get('meterCount')) || orgModalTarget.meterCount
+
+      const updatedCompany: CompanyTopologyNode = {
+        ...orgModalTarget,
+        name,
+        code,
+        province,
+        city,
+        manager,
+        managerPhone,
+        meterCount,
+      }
+
+      setOrgCompanies((prev) =>
+        prev.map((c) => (c.id === orgModalTarget.id ? updatedCompany : c))
+      )
+      setSelectedNodeModal({ type: 'company', data: updatedCompany })
+      showToast(`已成功修改直属公司【${name}】档案资料`)
+    } else if (orgModalMode === 'add_workshop') {
+      const parentCompId = (formData.get('parentCompanyId') as string) || orgModalParentCompanyId
+      const name = formData.get('name') as string
+      const code = formData.get('code') as string
+      const badge = formData.get('badge') as any
+      const lead = formData.get('lead') as string
+      const meters = Number(formData.get('meters')) || 30
+      const craftDesc = formData.get('craftDesc') as string
+
+      const newWorkshop: WorkshopNode = {
+        id: `ws_${Date.now()}`,
+        name,
+        code: code || `WS_${Date.now().toString().slice(-4)}`,
+        badge,
+        status: '在线',
+        meters,
+        lead,
+        craftDesc,
+      }
+
+      setOrgCompanies((prev) =>
+        prev.map((c) => {
+          if (c.id === parentCompId) {
+            return {
+              ...c,
+              meterCount: c.meterCount + meters,
+              workshops: [...c.workshops, newWorkshop],
+            }
+          }
+          return c
+        })
+      )
+      const parentComp = orgCompanies.find((c) => c.id === parentCompId)
+      setSelectedNodeModal({
+        type: 'workshop',
+        data: {
+          ...newWorkshop,
+          companyName: parentComp?.name || '直属公司',
+          province: parentComp?.province || '辽宁省',
+          city: parentComp?.city || '沈阳市',
+        },
+      })
+      showToast(`已成功添加车间工序【${name}】`)
+    } else if (orgModalMode === 'edit_workshop' && orgModalTarget) {
+      const name = formData.get('name') as string
+      const code = formData.get('code') as string
+      const badge = formData.get('badge') as any
+      const lead = formData.get('lead') as string
+      const meters = Number(formData.get('meters')) || orgModalTarget.meters
+      const craftDesc = formData.get('craftDesc') as string
+
+      const updatedWorkshop: WorkshopNode = {
+        ...orgModalTarget,
+        name,
+        code,
+        badge,
+        lead,
+        meters,
+        craftDesc,
+      }
+
+      setOrgCompanies((prev) =>
+        prev.map((c) => {
+          const hasWs = c.workshops.some((w) => w.id === orgModalTarget.id)
+          if (!hasWs) return c
+          return {
+            ...c,
+            workshops: c.workshops.map((w) => (w.id === orgModalTarget.id ? updatedWorkshop : w)),
+          }
+        })
+      )
+      setSelectedNodeModal((prev) =>
+        prev ? { ...prev, data: { ...prev.data, ...updatedWorkshop } } : null
+      )
+      showToast(`已成功更新车间【${name}】档案资料`)
+    }
+
+    setOrgModalOpen(false)
+    setOrgModalTarget(null)
+  }
+
+  // 执行删除组织节点
+  const handleConfirmDeleteOrg = () => {
+    if (!orgDeleteConfirm) return
+
+    if (orgDeleteConfirm.type === 'company') {
+      setOrgCompanies((prev) => prev.filter((c) => c.id !== orgDeleteConfirm.id))
+      showToast(`已成功删除直属公司【${orgDeleteConfirm.name}】及其全部下属车间`)
+      setSelectedNodeModal({
+        type: 'group',
+        data: {
+          name: '特变电工（电装集团）双中心能碳管控平台',
+          code: 'TBEA_GROUP_ROOT',
+          sub: '集团总指挥中枢',
+          desc: '统筹全集团 2 大产业集群、6 大直属制造公司、31 个车间工厂的能耗双控、碳排放配额核算与实时微电网调优',
+          stat: '6 大公司 · 31 个工厂 · 1,680 个在线测点 · 48 位在册能管人员',
+          manager: '张建国 (超级管理员)',
+          province: '集团总部',
+          city: '能碳管理中心',
+          meterCount: 1680,
+        },
+      })
+    } else if (orgDeleteConfirm.type === 'workshop') {
+      setOrgCompanies((prev) =>
+        prev.map((c) => {
+          const targetWs = c.workshops.find((w) => w.id === orgDeleteConfirm.id)
+          if (!targetWs) return c
+          return {
+            ...c,
+            meterCount: Math.max(0, c.meterCount - targetWs.meters),
+            workshops: c.workshops.filter((w) => w.id !== orgDeleteConfirm.id),
+          }
+        })
+      )
+      showToast(`已成功删除车间工序【${orgDeleteConfirm.name}】`)
+      const parentComp = orgCompanies.find((c) => c.id === orgDeleteConfirm.parentCompanyId)
+      if (parentComp) {
+        setSelectedNodeModal({ type: 'company', data: parentComp })
+      }
+    }
+
+    setOrgDeleteConfirm(null)
+  }
+
+  // 递归权限树节点渲染组件
+  const renderTreeNode = (node: PermissionTreeNode, depth = 0) => {
+    const nodeActionIds = getAllActionIds(node)
+    const checkedCount = nodeActionIds.filter((id) => selectedRole.menuPermissions.includes(id)).length
+    const isAllChecked = nodeActionIds.length > 0 && checkedCount === nodeActionIds.length
+    const isIndeterminate = checkedCount > 0 && checkedCount < nodeActionIds.length
+    const isExpanded = expandedKeys.has(node.id)
+    const hasChildren = (node.children && node.children.length > 0) || (node.actions && node.actions.length > 0)
+
+    // 搜索过滤匹配
+    if (treeSearchKw) {
+      const kw = treeSearchKw.toLowerCase()
+      const matchSelf = node.title.toLowerCase().includes(kw)
+      const matchActions = node.actions?.some((a) => a.label.toLowerCase().includes(kw))
+      const matchChildren = node.children?.some((c) => getAllActionIds(c).some((id) => id.includes(kw)))
+      if (!matchSelf && !matchActions && !matchChildren) {
+        return null
+      }
+    }
+
+    return (
+      <div key={node.id} className="select-none">
+        {/* 节点行 */}
+        <div
+          className={cn(
+            'flex items-center justify-between py-1.5 px-2 rounded-lg transition-colors hover:bg-blue-50/50 group',
+            depth === 0 ? 'bg-slate-50/70 border border-slate-200/80 mb-1' : 'ml-4'
+          )}
+        >
+          <div className="flex items-center gap-2 flex-1">
+            {/* 展开折叠三角 */}
+            {hasChildren ? (
+              <button
+                type="button"
+                onClick={() => toggleExpand(node.id)}
+                className="size-5 rounded hover:bg-slate-200/60 flex items-center justify-center text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                {isExpanded ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+              </button>
+            ) : (
+              <span className="size-5" />
+            )}
+
+            {/* Checkbox */}
+            <button
+              type="button"
+              onClick={() => handleToggleNode(node)}
+              className="cursor-pointer text-slate-700 hover:opacity-80 flex items-center justify-center"
+            >
+              {isAllChecked ? (
+                <CheckSquare className="size-4 text-[#1677ff]" />
+              ) : isIndeterminate ? (
+                <MinusSquare className="size-4 text-[#1677ff]" />
+              ) : (
+                <Square className="size-4 text-slate-300 group-hover:text-slate-400" />
+              )}
+            </button>
+
+            {/* 图标 */}
+            {depth === 0 ? (
+              <Folder className={cn('size-4', isAllChecked ? 'text-[#1677ff]' : 'text-slate-500')} />
+            ) : (
+              <FolderOpen className={cn('size-3.5', isAllChecked ? 'text-blue-500' : 'text-slate-400')} />
+            )}
+
+            {/* 标题 */}
+            <span
+              onClick={() => toggleExpand(node.id)}
+              className={cn(
+                'text-xs cursor-pointer',
+                depth === 0 ? 'font-bold text-slate-900' : 'font-medium text-slate-800'
+              )}
+            >
+              {node.title}
+            </span>
+
+            {/* 编码 */}
+            {node.code && (
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-1 py-0.2 rounded">
+                {node.code}
+              </span>
+            )}
+          </div>
+
+          {/* 右侧统计 */}
+          <div className="flex items-center gap-2 text-[11px] font-mono">
+            <span
+              className={cn(
+                'px-1.5 py-0.5 rounded text-[10px]',
+                isAllChecked
+                  ? 'bg-blue-100 text-[#1677ff] font-bold'
+                  : checkedCount > 0
+                  ? 'bg-blue-50 text-blue-700'
+                  : 'bg-slate-100 text-slate-400'
+              )}
+            >
+              {checkedCount} / {nodeActionIds.length} 项
+            </span>
+          </div>
+        </div>
+
+        {/* 展开的子节点 & Actions */}
+        {isExpanded && (
+          <div className={cn('space-y-1', depth === 0 ? 'pl-4 border-l-2 border-slate-200 ml-4.5 my-1.5' : 'pl-4 border-l border-slate-200/80 ml-4.5')}>
+            {/* 渲染二级子菜单 */}
+            {node.children && node.children.map((child) => renderTreeNode(child, depth + 1))}
+
+            {/* 渲染叶子 Action 按钮权限 */}
+            {node.actions && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 py-1 pl-6">
+                {node.actions.map((act) => {
+                  const isActChecked = selectedRole.menuPermissions.includes(act.id)
+                  return (
+                    <label
+                      key={act.id}
+                      onClick={() => handleToggleAction(act.id)}
+                      className={cn(
+                        'flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer select-none transition-all',
+                        isActChecked
+                          ? 'bg-blue-50/70 border-blue-200 text-blue-900 font-medium shadow-2xs'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      )}
+                    >
+                      {isActChecked ? (
+                        <CheckSquare className="size-3.5 text-[#1677ff] shrink-0" />
+                      ) : (
+                        <Square className="size-3.5 text-slate-300 shrink-0" />
+                      )}
+                      <Key className={cn('size-3 shrink-0', isActChecked ? 'text-[#1677ff]' : 'text-slate-400')} />
+                      <span className="truncate flex-1">{act.label}</span>
+                      {act.code && (
+                        <span className="text-[9px] font-mono text-slate-400 bg-slate-100 px-1 rounded shrink-0">
+                          {act.code}
+                        </span>
+                      )}
+                    </label>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -743,7 +1470,7 @@ export default function AccountPermissionPage() {
           )}
         >
           <FolderTree className="size-3.5" />
-          <span>组织架构与权责拓扑</span>
+          <span>组织架构</span>
         </button>
       </div>
 
@@ -773,12 +1500,11 @@ export default function AccountPermissionPage() {
               >
                 <option value="all">全部所属公司</option>
                 <option value="电装集团">电装集团总部</option>
-                <option value="沈变">沈变公司</option>
-                <option value="衡变">衡变公司</option>
-                <option value="新变">新变厂</option>
-                <option value="鲁缆">鲁缆公司</option>
-                <option value="新缆">新缆厂</option>
-                <option value="德缆">德缆公司</option>
+                {orgCompanies.map((c) => (
+                  <option key={c.id} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
 
               <select
@@ -931,7 +1657,7 @@ export default function AccountPermissionPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* Tab 2: 角色与功能权限树 */}
+      {/* Tab 2: 角色与功能权限树 (树状结构展示与勾选) */}
       {/* ========================================================================= */}
       {activeTab === 'roles' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
@@ -959,7 +1685,7 @@ export default function AccountPermissionPage() {
                   className={cn(
                     'p-3 rounded-lg border text-xs cursor-pointer transition-all space-y-1.5',
                     selectedRoleId === r.id
-                      ? 'bg-blue-50/70 border-[#1677ff] ring-2 ring-blue-100'
+                      ? 'bg-blue-50/70 border-[#1677ff] ring-2 ring-blue-100 shadow-xs'
                       : 'bg-white border-slate-200 hover:border-slate-300'
                   )}
                 >
@@ -967,9 +1693,9 @@ export default function AccountPermissionPage() {
                     <span className="font-bold text-slate-900 flex items-center gap-1.5">
                       {r.name}
                       {r.type === 'preset' ? (
-                        <span className="text-[10px] bg-slate-100 text-slate-600 px-1 rounded font-normal">预设</span>
+                        <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-normal">预设</span>
                       ) : (
-                        <span className="text-[10px] bg-purple-50 text-purple-700 px-1 rounded font-normal">自定义</span>
+                        <span className="text-[10px] bg-purple-50 text-purple-700 px-1.5 py-0.2 rounded font-normal">自定义</span>
                       )}
                     </span>
                     <span className="text-[11px] text-slate-400 font-mono">{r.userCount} 人</span>
@@ -980,12 +1706,14 @@ export default function AccountPermissionPage() {
             </div>
           </div>
 
-          {/* 右侧 8/12: 功能菜单与按钮权限配置树 */}
+          {/* 右侧 8/12: 功能菜单与按钮权限树状勾选面板 */}
           <div className="lg:col-span-8 bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-4">
+            {/* 顶栏信息与操作按钮 */}
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <span>【{selectedRole.name}】功能菜单与按钮操作权限授权</span>
+                  <FolderTree className="size-4 text-[#1677ff]" />
+                  <span>【{selectedRole.name}】功能菜单与按钮权限树</span>
                   <span className="text-xs font-mono text-slate-400 font-normal">({selectedRole.code})</span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">{selectedRole.desc}</p>
@@ -993,105 +1721,66 @@ export default function AccountPermissionPage() {
 
               <button
                 type="button"
-                onClick={() => showToast(`已成功保存并下发角色【${selectedRole.name}】的全新权限配置！`)}
-                className="px-3.5 py-1.5 bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer transition-colors"
+                onClick={() => showToast(`已成功保存并下发角色【${selectedRole.name}】的全新权限树配置！`)}
+                className="px-4 py-1.5 bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer transition-colors"
               >
                 保存权限设定
               </button>
             </div>
 
-            {/* 权限树列表 */}
-            <div className="space-y-3">
-              {PERMISSION_TREE_DATA.map((module) => {
-                return (
-                  <div key={module.id} className="border border-slate-200 rounded-lg overflow-hidden text-xs">
-                    {/* 模块标题栏 */}
-                    <div className="bg-slate-50/80 px-3.5 py-2.5 flex items-center justify-between border-b border-slate-200">
-                      <span className="font-bold text-slate-800 font-sans flex items-center gap-2">
-                        <FolderTree className="size-4 text-blue-600" />
-                        {module.title}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleToggleModuleAll(module)}
-                        className="text-[11px] text-[#1677ff] font-medium hover:underline cursor-pointer"
-                      >
-                        模块全选 / 反选
-                      </button>
-                    </div>
+            {/* 树控制工具条 */}
+            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-50/80 rounded-xl border border-slate-200 text-xs">
+              {/* 搜索框 */}
+              <div className="relative">
+                <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="搜索菜单或权限项名称..."
+                  value={treeSearchKw}
+                  onChange={(e) => setTreeSearchKw(e.target.value)}
+                  className="pl-8 pr-3 py-1 bg-white border border-slate-200 rounded-lg text-xs w-60 focus:outline-none focus:border-[#1677ff]"
+                />
+              </div>
 
-                    <div className="p-3 bg-white space-y-3">
-                      {/* 直接 actions */}
-                      {module.actions && (
-                        <div className="flex flex-wrap gap-3">
-                          {module.actions.map((act) => {
-                            const isChecked = selectedRole.menuPermissions.includes(act.id)
-                            return (
-                              <label
-                                key={act.id}
-                                onClick={() => handleTogglePermission(act.id)}
-                                className={cn(
-                                  'flex items-center gap-1.5 px-2.5 py-1.5 rounded border text-xs cursor-pointer select-none transition-all',
-                                  isChecked
-                                    ? 'bg-blue-50/70 border-blue-300 text-blue-900 font-medium'
-                                    : 'bg-slate-50/50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                                )}
-                              >
-                                {isChecked ? (
-                                  <CheckSquare className="size-3.5 text-[#1677ff]" />
-                                ) : (
-                                  <Square className="size-3.5 text-slate-400" />
-                                )}
-                                <span>{act.label}</span>
-                              </label>
-                            )
-                          })}
-                        </div>
-                      )}
+              {/* 快捷批量操作 */}
+              <div className="flex items-center gap-2 font-medium">
+                <button
+                  type="button"
+                  onClick={handleExpandAll}
+                  className="text-slate-600 hover:text-slate-900 hover:underline px-2 py-0.5 cursor-pointer"
+                >
+                  全部展开
+                </button>
+                <span className="text-slate-300">|</span>
+                <button
+                  type="button"
+                  onClick={handleCollapseAll}
+                  className="text-slate-600 hover:text-slate-900 hover:underline px-2 py-0.5 cursor-pointer"
+                >
+                  全部折叠
+                </button>
+                <span className="text-slate-300">|</span>
+                <button
+                  type="button"
+                  onClick={handleSelectAllPermissions}
+                  className="text-[#1677ff] hover:underline px-2 py-0.5 cursor-pointer"
+                >
+                  全选全部
+                </button>
+                <span className="text-slate-300">|</span>
+                <button
+                  type="button"
+                  onClick={handleDeselectAllPermissions}
+                  className="text-slate-500 hover:text-slate-800 hover:underline px-2 py-0.5 cursor-pointer"
+                >
+                  清空全不选
+                </button>
+              </div>
+            </div>
 
-                      {/* 子菜单 children */}
-                      {module.children && (
-                        <div className="space-y-2 pl-2 border-l-2 border-slate-100">
-                          {module.children.map((child) => (
-                            <div key={child.id} className="space-y-1.5">
-                              <div className="font-medium text-slate-700 flex items-center gap-1.5">
-                                <span className="size-1.5 rounded-full bg-slate-400" />
-                                {child.title}
-                              </div>
-                              {child.actions && (
-                                <div className="flex flex-wrap gap-2.5 pl-3">
-                                  {child.actions.map((act) => {
-                                    const isChecked = selectedRole.menuPermissions.includes(act.id)
-                                    return (
-                                      <label
-                                        key={act.id}
-                                        onClick={() => handleTogglePermission(act.id)}
-                                        className={cn(
-                                          'flex items-center gap-1.5 px-2.5 py-1 rounded border text-xs cursor-pointer select-none transition-all',
-                                          isChecked
-                                            ? 'bg-blue-50/70 border-blue-300 text-blue-900 font-medium'
-                                            : 'bg-slate-50/50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                                        )}
-                                      >
-                                        {isChecked ? (
-                                          <CheckSquare className="size-3.5 text-[#1677ff]" />
-                                        ) : (
-                                          <Square className="size-3.5 text-slate-400" />
-                                        )}
-                                        <span>{act.label}</span>
-                                      </label>
-                                    )
-                                  })}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
+            {/* 树状结构视图主体 */}
+            <div className="space-y-1.5 border border-slate-200 rounded-xl p-3 bg-white max-h-[620px] overflow-y-auto">
+              {PERMISSION_TREE_DATA.map((moduleNode) => renderTreeNode(moduleNode, 0))}
             </div>
           </div>
         </div>
@@ -1117,59 +1806,45 @@ export default function AccountPermissionPage() {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
                   <th className="py-2.5 px-3">角色名称</th>
-                  <th className="py-2.5 px-3">沈变公司 (6单位)</th>
-                  <th className="py-2.5 px-3">衡变公司 (11单位)</th>
-                  <th className="py-2.5 px-3">新变厂 (7单位)</th>
-                  <th className="py-2.5 px-3">鲁缆公司 (4单位)</th>
-                  <th className="py-2.5 px-3">新缆厂 (4单位)</th>
-                  <th className="py-2.5 px-3">德缆公司 (3单位)</th>
+                  {orgCompanies.map((c) => (
+                    <th key={c.id} className="py-2.5 px-3">
+                      {c.name} ({c.workshops.length}单位)
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 <tr>
                   <td className="py-3 px-3 font-bold text-slate-900">集团超级管理员</td>
-                  <td className="py-3 px-3 text-emerald-600 font-medium">全量读写 · 审计</td>
-                  <td className="py-3 px-3 text-emerald-600 font-medium">全量读写 · 审计</td>
-                  <td className="py-3 px-3 text-emerald-600 font-medium">全量读写 · 审计</td>
-                  <td className="py-3 px-3 text-emerald-600 font-medium">全量读写 · 审计</td>
-                  <td className="py-3 px-3 text-emerald-600 font-medium">全量读写 · 审计</td>
-                  <td className="py-3 px-3 text-emerald-600 font-medium">全量读写 · 审计</td>
+                  {orgCompanies.map((c) => (
+                    <td key={c.id} className="py-3 px-3 text-emerald-600 font-medium">全量读写 · 审计</td>
+                  ))}
                 </tr>
                 <tr>
                   <td className="py-3 px-3 font-bold text-slate-900">集团能碳总监</td>
-                  <td className="py-3 px-3 text-blue-600 font-medium">全量查看 · 报表审批</td>
-                  <td className="py-3 px-3 text-blue-600 font-medium">全量查看 · 报表审批</td>
-                  <td className="py-3 px-3 text-blue-600 font-medium">全量查看 · 报表审批</td>
-                  <td className="py-3 px-3 text-blue-600 font-medium">全量查看 · 报表审批</td>
-                  <td className="py-3 px-3 text-blue-600 font-medium">全量查看 · 报表审批</td>
-                  <td className="py-3 px-3 text-blue-600 font-medium">全量查看 · 报表审批</td>
+                  {orgCompanies.map((c) => (
+                    <td key={c.id} className="py-3 px-3 text-blue-600 font-medium">全量查看 · 报表审批</td>
+                  ))}
                 </tr>
                 <tr>
                   <td className="py-3 px-3 font-bold text-slate-900">园区能管主管</td>
                   <td className="py-3 px-3 text-blue-700 font-bold bg-blue-50/50">沈变辖区读写</td>
-                  <td className="py-3 px-3 text-slate-400">无权限</td>
-                  <td className="py-3 px-3 text-slate-400">无权限</td>
-                  <td className="py-3 px-3 text-slate-400">无权限</td>
-                  <td className="py-3 px-3 text-slate-400">无权限</td>
-                  <td className="py-3 px-3 text-slate-400">无权限</td>
+                  {orgCompanies.slice(1).map((c) => (
+                    <td key={c.id} className="py-3 px-3 text-slate-400">无权限</td>
+                  ))}
                 </tr>
                 <tr>
                   <td className="py-3 px-3 font-bold text-slate-900">工厂能耗申报员</td>
                   <td className="py-3 px-3 text-amber-700 font-medium bg-amber-50/40">沈变本部数据填报</td>
-                  <td className="py-3 px-3 text-slate-400">无权限</td>
-                  <td className="py-3 px-3 text-slate-400">无权限</td>
-                  <td className="py-3 px-3 text-slate-400">无权限</td>
-                  <td className="py-3 px-3 text-slate-400">无权限</td>
-                  <td className="py-3 px-3 text-slate-400">无权限</td>
+                  {orgCompanies.slice(1).map((c) => (
+                    <td key={c.id} className="py-3 px-3 text-slate-400">无权限</td>
+                  ))}
                 </tr>
                 <tr>
                   <td className="py-3 px-3 font-bold text-slate-900">审计合规专员</td>
-                  <td className="py-3 px-3 text-slate-600 font-medium">只读留痕</td>
-                  <td className="py-3 px-3 text-slate-600 font-medium">只读留痕</td>
-                  <td className="py-3 px-3 text-slate-600 font-medium">只读留痕</td>
-                  <td className="py-3 px-3 text-slate-600 font-medium">只读留痕</td>
-                  <td className="py-3 px-3 text-slate-600 font-medium">只读留痕</td>
-                  <td className="py-3 px-3 text-slate-600 font-medium">只读留痕</td>
+                  {orgCompanies.map((c) => (
+                    <td key={c.id} className="py-3 px-3 text-slate-600 font-medium">只读留痕</td>
+                  ))}
                 </tr>
               </tbody>
             </table>
@@ -1178,46 +1853,725 @@ export default function AccountPermissionPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* Tab 4: 组织架构与权责拓扑 */}
+      {/* Tab 4: 组织架构 (支持企业结构层级 增加、编辑、删除 CRUD) */}
       {/* ========================================================================= */}
       {activeTab === 'org' && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-4">
-          <div className="border-b border-slate-100 pb-3">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <FolderTree className="size-4 text-emerald-600" />
-              特变电工（电装集团）多级组织架构管理与权限归属
-            </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              维护 1 级集团、6 大二级直属制造单位与 30 个三级车间工厂的层级拓扑与负责人绑定
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {ENTERPRISE_TREE_DATA[0].children?.map((comp) => (
-              <div key={comp.id} className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2.5">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200/80">
-                  <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+        <div className="space-y-3.5 font-sans">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
+            {/* 左侧 5/12: 企业结构层级树状面板 */}
+            <div className="lg:col-span-5 bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3">
+              {/* 树主体 */}
+              <div className="space-y-1 text-xs select-none max-h-[660px] overflow-y-auto pr-1">
+                {/* 根节点：集团总部 */}
+                <div
+                  onClick={() =>
+                    setSelectedNodeModal({
+                      type: 'group',
+                      data: {
+                        name: '特变电工（电装集团）双中心能碳管控平台',
+                        code: 'TBEA_GROUP_ROOT',
+                        sub: '集团总指挥中枢',
+                        desc: '统筹全集团 2 大产业集群、直属制造公司与基层车间工厂的能耗双控、碳排放配额核算与实时微电网调优',
+                        stat: `${orgCompanies.length} 大公司 · ${totalWorkshopCount} 个工厂 · 1,680 个在线测点 · 48 位在册能管人员`,
+                        manager: '张建国 (超级管理员)',
+                        province: '集团总部',
+                        city: '能碳管理中心',
+                        meterCount: orgCompanies.reduce((s, c) => s + c.meterCount, 0),
+                      },
+                    })
+                  }
+                  className={cn(
+                    'flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer group',
+                    selectedNodeModal?.type === 'group'
+                      ? 'bg-blue-50/80 border-[#1677ff] ring-2 ring-blue-100 shadow-2xs font-bold text-blue-900'
+                      : 'bg-slate-50/80 border-slate-200 text-slate-800 hover:bg-slate-100'
+                  )}
+                >
+                  <div className="flex items-center gap-2">
                     <Building2 className="size-4 text-[#1677ff]" />
-                    {comp.name}
-                  </span>
-                  <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono">
-                    {comp.children?.length || 0} 个下属单位
-                  </span>
+                    <span className="font-bold">特变电工（电装集团）总部</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded font-mono font-bold">
+                      集团级
+                    </span>
+                    <button
+                      type="button"
+                      title="新增直属公司"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setOrgModalMode('add_company')
+                        setOrgModalTarget(null)
+                        setOrgModalOpen(true)
+                      }}
+                      className="hidden group-hover:flex items-center gap-0.5 p-1 rounded hover:bg-blue-200 text-[#1677ff] text-[10px] font-bold cursor-pointer"
+                    >
+                      <Plus className="size-3" />
+                      <span>新增公司</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="space-y-1.5 text-xs">
-                  {comp.children?.map((child) => (
-                    <div
-                      key={child.id}
-                      className="p-2 bg-white rounded-lg border border-slate-200 flex items-center justify-between hover:border-blue-300 transition-colors"
-                    >
-                      <span className="text-slate-700 font-medium">{child.name}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">已配置权限</span>
-                    </div>
-                  ))}
+                {/* 直属公司与车间层级树 (不区分产业集群) */}
+                <div className="pl-3 border-l-2 border-slate-200 ml-3 space-y-1.5 mt-2">
+                  {orgCompanies.map((comp) => {
+                    const isExpanded = expandedCompanyIds.has(comp.id)
+                    const isSelected = selectedNodeModal?.type === 'company' && selectedNodeModal.data.id === comp.id
+                    return (
+                      <div key={comp.id} className="space-y-1">
+                        {/* 公司节点 */}
+                        <div
+                          className={cn(
+                            'flex items-center justify-between py-1.5 px-2 rounded-lg border transition-all cursor-pointer group',
+                            isSelected
+                              ? 'bg-blue-50/70 border-blue-300 ring-1 ring-blue-200 font-bold text-blue-900'
+                              : 'bg-white border-slate-200 text-slate-800 hover:bg-slate-50'
+                          )}
+                        >
+                          <div
+                            onClick={() => setSelectedNodeModal({ type: 'company', data: comp })}
+                            className="flex items-center gap-1.5 flex-1 truncate"
+                          >
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                toggleCompanyTopology(comp.id)
+                              }}
+                              className="size-4 rounded hover:bg-slate-200/60 flex items-center justify-center text-slate-400 cursor-pointer"
+                            >
+                              {isExpanded ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
+                            </button>
+                            <Folder className="size-3.5 text-[#1677ff] shrink-0" />
+                            <span className="font-semibold truncate">{comp.name}</span>
+                            <span className="text-[10px] text-slate-400 font-mono">({comp.province.slice(0, 2)})</span>
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <span
+                              onClick={() => setSelectedNodeModal({ type: 'company', data: comp })}
+                              className="text-[10px] bg-slate-100 text-slate-600 px-1.5 rounded font-mono"
+                            >
+                              {comp.workshops.length}
+                            </span>
+
+                            {/* 悬浮快捷操作 */}
+                            <div className="hidden group-hover:flex items-center gap-1 pl-1">
+                              <button
+                                type="button"
+                                title="添加车间"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOrgModalMode('add_workshop')
+                                  setOrgModalParentCompanyId(comp.id)
+                                  setOrgModalTarget(null)
+                                  setOrgModalOpen(true)
+                                }}
+                                className="p-1 rounded hover:bg-blue-100 text-[#1677ff] cursor-pointer"
+                              >
+                                <Plus className="size-3" />
+                              </button>
+                              <button
+                                type="button"
+                                title="编辑公司"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOrgModalMode('edit_company')
+                                  setOrgModalTarget(comp)
+                                  setOrgModalOpen(true)
+                                }}
+                                className="p-1 rounded hover:bg-slate-200 text-slate-600 cursor-pointer"
+                              >
+                                <Edit className="size-3" />
+                              </button>
+                              <button
+                                type="button"
+                                title="删除公司"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOrgDeleteConfirm({
+                                    type: 'company',
+                                    id: comp.id,
+                                    name: comp.name,
+                                  })
+                                }}
+                                className="p-1 rounded hover:bg-red-100 text-red-600 cursor-pointer"
+                              >
+                                <Trash2 className="size-3" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 车间子列表 */}
+                        {isExpanded && (
+                          <div className="pl-4 border-l border-blue-200/80 ml-3 space-y-1 py-0.5">
+                            {comp.workshops.map((ws) => {
+                              const isWsSelected = selectedNodeModal?.type === 'workshop' && selectedNodeModal.data.id === ws.id
+                              return (
+                                <div
+                                  key={ws.id}
+                                  onClick={() =>
+                                    setSelectedNodeModal({
+                                      type: 'workshop',
+                                      data: { ...ws, companyName: comp.name, province: comp.province, city: comp.city },
+                                    })
+                                  }
+                                  className={cn(
+                                    'flex items-center justify-between py-1 px-2 rounded-md transition-all cursor-pointer text-[11px] group/ws',
+                                    isWsSelected
+                                      ? 'bg-blue-100/70 text-[#1677ff] font-bold shadow-2xs'
+                                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                  )}
+                                >
+                                  <div className="flex items-center gap-1.5 truncate flex-1">
+                                    <Factory className={cn('size-3 shrink-0', isWsSelected ? 'text-[#1677ff]' : 'text-slate-400')} />
+                                    <span className="truncate">{ws.name}</span>
+                                  </div>
+
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[9px] bg-slate-100 text-slate-500 px-1 rounded font-mono shrink-0">
+                                      {ws.badge}
+                                    </span>
+
+                                    {/* 车间快捷编辑/删除 */}
+                                    <div className="hidden group-hover/ws:flex items-center gap-0.5 pl-1">
+                                      <button
+                                        type="button"
+                                        title="编辑车间"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setOrgModalMode('edit_workshop')
+                                          setOrgModalTarget(ws)
+                                          setOrgModalOpen(true)
+                                        }}
+                                        className="p-0.5 rounded hover:bg-blue-200 text-[#1677ff] cursor-pointer"
+                                      >
+                                        <Edit className="size-2.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        title="删除车间"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setOrgDeleteConfirm({
+                                            type: 'workshop',
+                                            id: ws.id,
+                                            name: ws.name,
+                                            parentCompanyId: comp.id,
+                                          })
+                                        }}
+                                        className="p-0.5 rounded hover:bg-red-200 text-red-600 cursor-pointer"
+                                      >
+                                        <Trash2 className="size-2.5" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* 右侧 7/12: 选中组织机构详细权责与能管档案面板 */}
+            <div className="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4">
+              {selectedNodeModal ? (
+                <div className="space-y-4 text-xs">
+                  {/* 头部标题与层级 + 操作工具 */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                    <div className="flex items-center gap-2.5">
+                      <div className="size-9 rounded-xl bg-blue-50 border border-blue-200 text-[#1677ff] flex items-center justify-center font-bold">
+                        {selectedNodeModal.type === 'group' ? (
+                          <Building2 className="size-5" />
+                        ) : selectedNodeModal.type === 'company' ? (
+                          <Folder className="size-5" />
+                        ) : (
+                          <Factory className="size-5" />
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900">{selectedNodeModal.data.name}</h4>
+                        <span className="text-[11px] font-mono text-slate-400">
+                          组织代码: {selectedNodeModal.data.code || 'TBEA_ROOT'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          'px-2.5 py-1 rounded-full text-[11px] font-bold',
+                          selectedNodeModal.type === 'group'
+                            ? 'bg-blue-100 text-[#1677ff]'
+                            : selectedNodeModal.type === 'company'
+                            ? 'bg-purple-100 text-purple-700'
+                            : 'bg-emerald-100 text-emerald-700'
+                        )}
+                      >
+                        {selectedNodeModal.type === 'group'
+                          ? '1级 集团总部'
+                          : selectedNodeModal.type === 'company'
+                          ? '2级 直属制造公司'
+                          : '3级 基层车间工厂'}
+                      </span>
+
+                      {/* 编辑 / 删除按钮 */}
+                      {selectedNodeModal.type === 'company' && (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOrgModalMode('add_workshop')
+                              setOrgModalParentCompanyId(selectedNodeModal.data.id)
+                              setOrgModalTarget(null)
+                              setOrgModalOpen(true)
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#1677ff] border border-blue-200 hover:bg-blue-100 font-bold cursor-pointer transition-colors"
+                          >
+                            + 添加车间
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOrgModalMode('edit_company')
+                              setOrgModalTarget(selectedNodeModal.data)
+                              setOrgModalOpen(true)
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium cursor-pointer"
+                          >
+                            编辑
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOrgDeleteConfirm({
+                                type: 'company',
+                                id: selectedNodeModal.data.id,
+                                name: selectedNodeModal.data.name,
+                              })
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-medium cursor-pointer"
+                          >
+                            删除
+                          </button>
+                        </div>
+                      )}
+
+                      {selectedNodeModal.type === 'workshop' && (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOrgModalMode('edit_workshop')
+                              setOrgModalTarget(selectedNodeModal.data)
+                              setOrgModalOpen(true)
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium cursor-pointer"
+                          >
+                            编辑车间
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOrgDeleteConfirm({
+                                type: 'workshop',
+                                id: selectedNodeModal.data.id,
+                                name: selectedNodeModal.data.name,
+                              })
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-medium cursor-pointer"
+                          >
+                            删除车间
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 核心指标 4 宫格 */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                      <span className="text-slate-500 text-[11px]">能管责任人 / 申报专员</span>
+                      <div className="font-bold text-slate-800 text-xs">
+                        {selectedNodeModal.data.lead || selectedNodeModal.data.manager || '张建国 (总管)'}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono">
+                        联系电话: {selectedNodeModal.data.managerPhone || '138****0001'}
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                      <span className="text-slate-500 text-[11px]">在线遥测测点规模</span>
+                      <div className="font-bold font-mono text-[#1677ff] text-sm">
+                        {selectedNodeModal.data.meters || selectedNodeModal.data.meterCount || 1680}{' '}
+                        <span className="text-xs font-normal text-slate-500">个点位</span>
+                      </div>
+                      <div className="text-[10px] text-emerald-600 flex items-center gap-1 font-mono">
+                        <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        SCADA / IoT 数据采集正常
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 工艺与用能描述 */}
+                  {selectedNodeModal.data.craftDesc && (
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-bold">主要制造工艺与用能特征：</label>
+                      <div className="p-3 bg-blue-50/40 rounded-xl border border-blue-200 text-slate-700 leading-relaxed">
+                        {selectedNodeModal.data.craftDesc}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 地理信息与数据权限范围 */}
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">地理辖区 / 厂址：</span>
+                      <span className="font-medium text-slate-800">
+                        {selectedNodeModal.data.province || '辽宁省'} {selectedNodeModal.data.city || '沈阳市铁西区'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
+                      <span className="text-slate-500">数据范围隔离模式：</span>
+                      <span className="font-bold text-[#1677ff]">
+                        {selectedNodeModal.type === 'group'
+                          ? '全集团 (跨公司穿透)'
+                          : selectedNodeModal.type === 'company'
+                          ? '本直属公司 (含辖区全部车间)'
+                          : '仅限本车间 (单工序填报)'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 若选中的是公司或集团，展示下属车间清单 */}
+                  {selectedNodeModal.type === 'company' && selectedNodeModal.data.workshops && (
+                    <div className="space-y-2">
+                      <div className="font-bold text-slate-800 flex items-center justify-between">
+                        <span>下属车间工序清单 ({selectedNodeModal.data.workshops.length} 个)</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOrgModalMode('add_workshop')
+                            setOrgModalParentCompanyId(selectedNodeModal.data.id)
+                            setOrgModalTarget(null)
+                            setOrgModalOpen(true)
+                          }}
+                          className="text-[#1677ff] hover:underline font-bold cursor-pointer text-xs"
+                        >
+                          + 添加车间
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {selectedNodeModal.data.workshops.map((w: any) => (
+                          <div
+                            key={w.id}
+                            className="p-2.5 bg-white rounded-lg border border-slate-200 flex items-center justify-between group"
+                          >
+                            <div>
+                              <div className="font-medium text-slate-800">{w.name}</div>
+                              <div className="text-[10px] text-slate-400 font-mono">管辖: {w.lead}</div>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] bg-blue-50 text-[#1677ff] px-1.5 py-0.5 rounded font-mono">
+                                {w.meters} 测点
+                              </span>
+                              <button
+                                type="button"
+                                title="编辑车间"
+                                onClick={() => {
+                                  setOrgModalMode('edit_workshop')
+                                  setOrgModalTarget(w)
+                                  setOrgModalOpen(true)
+                                }}
+                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-100 text-slate-600 rounded cursor-pointer"
+                              >
+                                <Edit className="size-3" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="py-20 flex flex-col items-center justify-center text-center text-slate-400 space-y-2">
+                  <Building2 className="size-10 text-slate-300" />
+                  <p className="text-xs">请在左侧企业组织树中点击任意机构或车间节点，查看详细权责与能管档案</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 弹窗: 组织机构 增加 / 编辑 Modal (公司 / 车间) */}
+      {/* ========================================================================= */}
+      {orgModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95">
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <FolderTree className="size-4 text-[#1677ff]" />
+                {orgModalMode === 'add_company' && '新增直属制造公司'}
+                {orgModalMode === 'edit_company' && '编辑直属制造公司档案'}
+                {orgModalMode === 'add_workshop' && '新增基层车间工序'}
+                {orgModalMode === 'edit_workshop' && '编辑基层车间工序档案'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setOrgModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveOrgNode} className="p-5 space-y-3.5 text-xs font-sans">
+              {/* 如果是增加/编辑公司 */}
+              {(orgModalMode === 'add_company' || orgModalMode === 'edit_company') && (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">公司全称 *</label>
+                      <input
+                        name="name"
+                        required
+                        defaultValue={orgModalTarget?.name || ''}
+                        placeholder="如：天津特变电工公司"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">组织机构代码 *</label>
+                      <input
+                        name="code"
+                        required
+                        defaultValue={orgModalTarget?.code || `COMP_TB_${Math.floor(10 + Math.random() * 90)}`}
+                        placeholder="如：COMP_TJ_07"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+                  </div>
+
+
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">省份 *</label>
+                      <input
+                        name="province"
+                        required
+                        defaultValue={orgModalTarget?.province || '天津市'}
+                        placeholder="如：天津市"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">城市/园区厂址 *</label>
+                      <input
+                        name="city"
+                        required
+                        defaultValue={orgModalTarget?.city || '武清区京滨工业园'}
+                        placeholder="如：武清区京滨工业园"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">能管负责人 *</label>
+                      <input
+                        name="manager"
+                        required
+                        defaultValue={orgModalTarget?.manager || '李明'}
+                        placeholder="如：李明"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">联系电话</label>
+                      <input
+                        name="managerPhone"
+                        defaultValue={orgModalTarget?.managerPhone || '138****6688'}
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">测点总数</label>
+                      <input
+                        name="meterCount"
+                        type="number"
+                        defaultValue={orgModalTarget?.meterCount || 100}
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* 如果是增加/编辑车间 */}
+              {(orgModalMode === 'add_workshop' || orgModalMode === 'edit_workshop') && (
+                <>
+                  {orgModalMode === 'add_workshop' && (
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">所属直属公司 *</label>
+                      <select
+                        name="parentCompanyId"
+                        defaultValue={orgModalParentCompanyId}
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                      >
+                        {orgCompanies.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} ({c.province})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">车间/工序名称 *</label>
+                      <input
+                        name="name"
+                        required
+                        defaultValue={orgModalTarget?.name || ''}
+                        placeholder="如：超高压换流变智能装配车间"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">车间代码 *</label>
+                      <input
+                        name="code"
+                        required
+                        defaultValue={orgModalTarget?.code || `WS_${Date.now().toString().slice(-4)}`}
+                        placeholder="如：WS_TJ_MAIN"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">工序分类 *</label>
+                      <select
+                        name="badge"
+                        defaultValue={orgModalTarget?.badge || '主体'}
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                      >
+                        <option value="主体">主体制造</option>
+                        <option value="智能">智能产线</option>
+                        <option value="综合">综合能源/微网</option>
+                        <option value="制造">配套精工制造</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">现场管辖专员 *</label>
+                      <input
+                        name="lead"
+                        required
+                        defaultValue={orgModalTarget?.lead || '张强'}
+                        placeholder="如：张强"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-slate-700 font-medium">在线测点规模</label>
+                      <input
+                        name="meters"
+                        type="number"
+                        defaultValue={orgModalTarget?.meters || 35}
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-slate-700 font-medium">主要制造工艺与用能特征描述</label>
+                    <textarea
+                      name="craftDesc"
+                      rows={2}
+                      defaultValue={orgModalTarget?.craftDesc || '特高压变压器装配、全自动真空干燥窑炉与绝缘油加注试验'}
+                      placeholder="描述该车间主要工序的重点用能介质（如高温热风、大功率干燥、立塔挤出等）..."
+                      className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOrgModalOpen(false)}
+                  className="px-4 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer"
+                >
+                  取消
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
+                >
+                  确认保存
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 弹窗: 删除确认 Dialog */}
+      {/* ========================================================================= */}
+      {orgDeleteConfirm && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in">
+            <div className="p-5 space-y-3 text-xs font-sans">
+              <div className="size-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+                <AlertCircle className="size-6" />
+              </div>
+
+              <div className="text-center space-y-1">
+                <h4 className="text-sm font-bold text-slate-900">
+                  确认删除【{orgDeleteConfirm.name}】？
+                </h4>
+                <p className="text-slate-500 text-[11px] leading-relaxed">
+                  {orgDeleteConfirm.type === 'company'
+                    ? '删除该直属公司将同步移除其下属全部车间工序及数据采集绑定，此操作不可撤销！'
+                    : '删除该车间工序将同步解除其在线测点与单耗台账映射，请确认是否继续？'}
+                </p>
+              </div>
+
+              <div className="pt-3 flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOrgDeleteConfirm(null)}
+                  className="px-4 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteOrg}
+                  className="px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-xs cursor-pointer"
+                >
+                  确认删除
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -1283,16 +2637,15 @@ export default function AccountPermissionPage() {
                   <label className="text-slate-700 font-medium">所属直属公司 *</label>
                   <select
                     name="company"
-                    defaultValue={editingUser?.company || '沈变公司'}
+                    defaultValue={editingUser?.company || orgCompanies[0]?.name || '沈变公司'}
                     className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
                   >
                     <option value="电装集团总部">电装集团总部</option>
-                    <option value="沈变公司">沈变公司</option>
-                    <option value="衡变公司">衡变公司</option>
-                    <option value="新变厂">新变厂</option>
-                    <option value="鲁缆公司">鲁缆公司</option>
-                    <option value="新缆厂">新缆厂</option>
-                    <option value="德缆公司">德缆公司</option>
+                    {orgCompanies.map((c) => (
+                      <option key={c.id} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -1329,7 +2682,7 @@ export default function AccountPermissionPage() {
                   defaultValue={editingUser?.dataScopeType || 'company'}
                   className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
                 >
-                  <option value="all">全集团 (可查阅全部6大公司及下属工厂)</option>
+                  <option value="all">全集团 (可查阅全部直属公司及下属工厂)</option>
                   <option value="company">本直属公司 (仅本公司及辖区内全部车间)</option>
                   <option value="factory">仅限本车间/工厂 (细粒度工厂级填报)</option>
                 </select>
@@ -1487,7 +2840,7 @@ export default function AccountPermissionPage() {
                 setRoles((prev) => [...prev, newRole])
                 setSelectedRoleId(newRole.id)
                 setRoleModalOpen(false)
-                showToast(`已成功创建自定义角色【${roleName}】！请在右侧继续配置详细功能权限。`)
+                showToast(`已成功创建自定义角色【${roleName}】！请在右侧树中继续配置详细权限。`)
               }}
               className="p-5 space-y-3.5 text-xs font-sans"
             >

@@ -694,10 +694,7 @@ export default function FactorPage() {
                   <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
                     <th className="py-2.5 px-3">省份 / 区域电网</th>
                     <th className="py-2.5 px-3">大区归属</th>
-                    <th className="py-2.5 px-3">特变电工基地</th>
                     <th className="py-2.5 px-3 font-mono">综合电力碳排因子 (tCO2/MWh)</th>
-                                        <th className="py-2.5 px-3 font-mono">绿电交易核算</th>
-                    <th className="py-2.5 px-3">核算版本</th>
                     <th className="py-2.5 px-3">发布依据与来源出处</th>
                     <th className="py-2.5 px-3">状态</th>
                     <th className="py-2.5 px-3 text-center">操作</th>
@@ -715,24 +712,10 @@ export default function FactorPage() {
                           {row.region}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 font-sans">
-                        {row.isTbeaPark ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-emerald-100 text-emerald-800">
-                            <Building2 className="size-3" />
-                            <span>核心工业基地</span>
-                          </span>
-                        ) : (
-                          <span className="text-slate-400">—</span>
-                        )}
-                      </td>
                       <td className="py-2.5 px-3 font-bold text-blue-700 text-sm">
                         {row.factorTotal.toFixed(4)}
                         <span className="text-[10px] text-slate-400 font-normal ml-1">tCO2/MWh</span>
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-emerald-600">
-                        0.0000 <span className="text-[10px] font-sans text-emerald-700">(零碳核算)</span>
-                      </td>
-                      <td className="py-2.5 px-3 font-mono text-purple-700 font-semibold">{row.version}</td>
                       <td className="py-2.5 px-3 font-sans text-slate-500 text-[11px] max-w-xs truncate" title={row.source}>
                         {row.source}
                       </td>
