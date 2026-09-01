@@ -2378,22 +2378,20 @@ export default function BenchmarkManagementPage() {
           {activeSelectedProduct && (
             <div className="bg-white p-3 px-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2 text-xs font-sans">
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="size-2 rounded-full bg-[#1677ff]" />
-                    <span className="font-bold text-slate-900">
-                      同型号产品单耗对比
-                    </span>
-                  </div>
-
-                  {/* 🌟 紧凑产品型号标识直接置于 Header 中 */}
-                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50/80 border border-blue-200 text-xs font-mono">
-                    <span className="text-slate-500 font-sans text-[11px] font-bold">当前型号:</span>
-                    <span className="text-[#1677ff] font-bold">{activeSelectedProduct.model}</span>
-                    <span className="text-slate-400 font-sans text-[10.5px]">({activeSelectedProduct.categoryName})</span>
-                  </div>
+                {/* 左侧：标题 */}
+                <div className="flex items-center gap-1.5">
+                  <span className="size-2 rounded-full bg-[#1677ff]" />
+                  <span className="font-bold text-slate-900">
+                    同型号产品单耗对比
+                  </span>
                 </div>
 
+                {/* 🌟 中间：仅显示纯型号信息徽章 */}
+                <div className="flex items-center px-3 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-mono font-bold text-[#1677ff] shadow-2xs">
+                  <span>{activeSelectedProduct.model}</span>
+                </div>
+
+                {/* 右侧：图例 */}
                 <div className="flex items-center gap-3 text-xs font-mono">
                   <span className="flex items-center gap-1 text-[#1677ff] font-bold">
                     <span className="size-2 rounded-full bg-[#1677ff]" /> 综合产品单耗 (tce/{activeSelectedProduct.unit})
