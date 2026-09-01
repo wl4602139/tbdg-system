@@ -337,6 +337,7 @@ export default function CarbonEmissionMonitoringPage() {
   // 层级模式：isGroupLevel 表示是否在全集团总览页
   const isGroupLevel = selectedOrgNode.id === 'ent_root' || selectedOrgNode.id === 'group_root' || selectedOrgNode.level === 'group'
   const isCompanyLevel = selectedOrgNode.level === 'company' || selectedOrgNode.id.startsWith('comp_')
+  const isLevel3 = !isGroupLevel && !isCompanyLevel
 
   const [selectedUnitKey, setSelectedUnitKey] = useState<string>('ws_sb_main')
 
@@ -876,13 +877,13 @@ export default function CarbonEmissionMonitoringPage() {
           /* 场景 B：经营单位和项目公司页 (Unit / Factory Level) */
           /* ========================================================================= */
           <div className="space-y-3.5">
-            {/* 1. 顶部电力因子提示条 (仅在公司层级显示) */}
-            {isCompanyLevel && (
+            {/* 1. 顶部电力因子提示条 (仅在3级车间/工厂层级显示) */}
+            {isLevel3 && (
               <div className="p-3 bg-blue-50/80 rounded-xl border border-blue-200/90 flex flex-wrap items-center justify-between gap-2 text-xs">
                 <div className="flex items-center gap-2 text-blue-900">
                   <Info className="size-4 text-[#1677ff] shrink-0" />
                   <span>
-                    <strong>电力核算基准因子提示：</strong>当前【{selectedOrgNode.name || activeFactory.parentCompany}】所在区域为<strong>【{activeFactory.province}】</strong>，依<strong>【国家温室气体排放数据库】</strong>选用分省电网电力排放因子：
+                    <strong>电力核算基准因子提示：</strong>当前【{activeFactory.name}】所在区域为<strong>【{activeFactory.province}】</strong>，依<strong>【国家温室气体排放数据库】</strong>选用分省电网电力排放因子：
                     <span className="font-mono font-bold text-[#1677ff] ml-1 bg-white px-1.5 py-0.5 rounded border border-blue-200">
                       {activeFactory.gridFactor} tCO₂/MWh
                     </span>
