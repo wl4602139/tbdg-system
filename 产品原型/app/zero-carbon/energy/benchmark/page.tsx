@@ -1742,6 +1742,10 @@ export default function BenchmarkManagementPage() {
     maintainer: '集团双碳办公室',
   })
 
+  // 🌟 纵向对比当前选中的能源介质单耗 ('tce' | 'elec' | 'steam' | 'gas' | 'water')
+  const [verticalMetricKey, setVerticalMetricKey] = useState<'tce' | 'elec' | 'steam' | 'gas' | 'water'>('tce')
+  const [isVerticalQuerying, setIsVerticalQuerying] = useState(false)
+
   // 当前激活指标元信息
   const currentMetricMeta = ZERO_CARBON_METRICS_META[activeZeroCarbonMetric]
 
@@ -2670,21 +2674,45 @@ export default function BenchmarkManagementPage() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => alert(`已成功完成【${currentSelectedCompany.name} - ${currentSelectedModel.name}】双周期能耗纵向对比计算！`)}
+                  onClick={() => {
+                    setIsVerticalQuerying(true)
+                    setTimeout(() => {
+                      setIsVerticalQuerying(false)
+                      alert(`已成功根据【基准期: ${basePeriodRange.start}~${basePeriodRange.end}】与【对比期: ${comparePeriodRange.start}~${comparePeriodRange.end}】完成【${currentSelectedCompany.name} - ${currentSelectedModel.name}】全介质能耗双套数据对比检索！`)
+                    }, 400)
+                  }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
-                  <Search className="size-3.5" />
-                  <span>执行纵向对比</span>
+                  <Search className={cn("size-3.5", isVerticalQuerying && "animate-spin")} />
+                  <span>{isVerticalQuerying ? '正在检索两套数据...' : '执行纵向对比'}</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* 3. 核心对比数据 KPI 看板：时间跨期、综合产品单耗、各类能源单耗 */}
+          {/* 3. 核心对比数据 KPI 看板：时间跨期、综合产品单耗、各类能源单耗 (点击直接切换图表对比介质) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono text-xs">
             {/* ① 综合产品单耗对比 */}
-            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
-              <span className="text-slate-500 font-sans block font-bold">综合产品单耗 (tce/{currentSelectedModel.unit})</span>
+            <div
+              onClick={() => setVerticalMetricKey('tce')}
+              className={cn(
+                'p-3.5 rounded-xl border shadow-xs space-y-1.5 cursor-pointer transition-all duration-150',
+                verticalMetricKey === 'tce'
+                  ? 'ring-2 ring-emerald-500 bg-emerald-50/50 border-emerald-300 shadow-sm'
+                  : 'bg-white border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/20'
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-slate-800 font-sans block font-bold">📊 综合产品单耗</span>
+                {verticalMetricKey === 'tce' && (
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
+                    图表已聚焦
+                  </span>
+                )}
+              </div>
+              <div className="text-[11px] text-slate-400 font-mono">
+                (tce/{currentSelectedModel.unit})
+              </div>
               <div className="flex items-baseline justify-between pt-1">
                 <div className="text-lg font-extrabold text-slate-900">
                   {currentSelectedModel.currTce} <span className="text-xs font-normal text-slate-400 font-sans">当期</span>
@@ -2698,8 +2726,26 @@ export default function BenchmarkManagementPage() {
             </div>
 
             {/* ② 电单耗对比 */}
-            <div className="bg-white p-3.5 rounded-xl border border-blue-200 bg-blue-50/20 shadow-xs space-y-1.5">
-              <span className="text-blue-800 font-sans block font-bold">⚡ 产品电单耗 (kWh/{currentSelectedModel.unit})</span>
+            <div
+              onClick={() => setVerticalMetricKey('elec')}
+              className={cn(
+                'p-3.5 rounded-xl border shadow-xs space-y-1.5 cursor-pointer transition-all duration-150',
+                verticalMetricKey === 'elec'
+                  ? 'ring-2 ring-blue-500 bg-blue-50/50 border-blue-300 shadow-sm'
+                  : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/20'
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-blue-800 font-sans block font-bold">⚡ 产品电单耗</span>
+                {verticalMetricKey === 'elec' && (
+                  <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded">
+                    图表已聚焦
+                  </span>
+                )}
+              </div>
+              <div className="text-[11px] text-slate-400 font-mono">
+                (kWh/{currentSelectedModel.unit})
+              </div>
               <div className="flex items-baseline justify-between pt-1">
                 <div className="text-lg font-extrabold text-[#1677ff]">
                   {currentSelectedModel.currElec.toLocaleString()}
@@ -2713,8 +2759,31 @@ export default function BenchmarkManagementPage() {
             </div>
 
             {/* ③ 蒸汽单耗对比 */}
-            <div className="bg-white p-3.5 rounded-xl border border-purple-200 bg-purple-50/20 shadow-xs space-y-1.5">
-              <span className="text-purple-800 font-sans block font-bold">💨 蒸汽单耗 (t/{currentSelectedModel.unit})</span>
+            <div
+              onClick={() => {
+                if (currentSelectedModel.currSteam !== undefined) {
+                  setVerticalMetricKey('steam')
+                }
+              }}
+              className={cn(
+                'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all duration-150',
+                currentSelectedModel.currSteam !== undefined ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed',
+                verticalMetricKey === 'steam'
+                  ? 'ring-2 ring-purple-500 bg-purple-50/50 border-purple-300 shadow-sm'
+                  : 'bg-white border-slate-200 hover:border-purple-300 hover:bg-purple-50/20'
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-purple-800 font-sans block font-bold">💨 蒸汽单耗</span>
+                {verticalMetricKey === 'steam' && (
+                  <span className="text-[10px] bg-purple-100 text-purple-800 font-bold px-1.5 py-0.5 rounded">
+                    图表已聚焦
+                  </span>
+                )}
+              </div>
+              <div className="text-[11px] text-slate-400 font-mono">
+                (t/{currentSelectedModel.unit})
+              </div>
               {currentSelectedModel.currSteam !== undefined ? (
                 <>
                   <div className="flex items-baseline justify-between pt-1">
@@ -2734,8 +2803,26 @@ export default function BenchmarkManagementPage() {
             </div>
 
             {/* ④ 天然气单耗对比 */}
-            <div className="bg-white p-3.5 rounded-xl border border-amber-200 bg-amber-50/20 shadow-xs space-y-1.5">
-              <span className="text-amber-800 font-sans block font-bold">🔥 天然气单耗 (m³/{currentSelectedModel.unit})</span>
+            <div
+              onClick={() => setVerticalMetricKey('gas')}
+              className={cn(
+                'p-3.5 rounded-xl border shadow-xs space-y-1.5 cursor-pointer transition-all duration-150',
+                verticalMetricKey === 'gas'
+                  ? 'ring-2 ring-amber-500 bg-amber-50/50 border-amber-300 shadow-sm'
+                  : 'bg-white border-slate-200 hover:border-amber-300 hover:bg-amber-50/20'
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-amber-800 font-sans block font-bold">🔥 天然气单耗</span>
+                {verticalMetricKey === 'gas' && (
+                  <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded">
+                    图表已聚焦
+                  </span>
+                )}
+              </div>
+              <div className="text-[11px] text-slate-400 font-mono">
+                (m³/{currentSelectedModel.unit})
+              </div>
               <div className="flex items-baseline justify-between pt-1">
                 <div className="text-lg font-extrabold text-amber-700">
                   {currentSelectedModel.currGas.toFixed(1)} <span className="text-xs font-normal text-slate-400 font-sans">m³</span>
@@ -2749,8 +2836,26 @@ export default function BenchmarkManagementPage() {
             </div>
 
             {/* ⑤ 水单耗对比 */}
-            <div className="bg-white p-3.5 rounded-xl border border-cyan-200 bg-cyan-50/20 shadow-xs space-y-1.5">
-              <span className="text-cyan-800 font-sans block font-bold">💧 水单耗 (t/{currentSelectedModel.unit})</span>
+            <div
+              onClick={() => setVerticalMetricKey('water')}
+              className={cn(
+                'p-3.5 rounded-xl border shadow-xs space-y-1.5 cursor-pointer transition-all duration-150',
+                verticalMetricKey === 'water'
+                  ? 'ring-2 ring-cyan-500 bg-cyan-50/50 border-cyan-300 shadow-sm'
+                  : 'bg-white border-slate-200 hover:border-cyan-300 hover:bg-cyan-50/20'
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-cyan-800 font-sans block font-bold">💧 水单耗</span>
+                {verticalMetricKey === 'water' && (
+                  <span className="text-[10px] bg-cyan-100 text-cyan-800 font-bold px-1.5 py-0.5 rounded">
+                    图表已聚焦
+                  </span>
+                )}
+              </div>
+              <div className="text-[11px] text-slate-400 font-mono">
+                (t/{currentSelectedModel.unit})
+              </div>
               <div className="flex items-baseline justify-between pt-1">
                 <div className="text-lg font-extrabold text-cyan-700">
                   {currentSelectedModel.currWater.toFixed(1)} <span className="text-xs font-normal text-slate-400 font-sans">t</span>
@@ -2764,42 +2869,157 @@ export default function BenchmarkManagementPage() {
             </div>
           </div>
 
-          {/* 4. 双周期时序演进走势图 (对比基准期各月 vs 对比期各月电单耗与综合单耗) */}
+          {/* 4. 双周期时序演进走势图 (对比基准期各月 vs 对比期各月两套数据动态对比) */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-            <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-2 text-xs font-sans">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5 text-xs font-sans">
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-[#1677ff]" />
-                <span className="font-bold text-slate-900">
-                  双周期各月份综合单耗与电单耗走势对比
+                <span className="font-bold text-slate-900 text-sm">
+                  双周期各月份【
+                  {verticalMetricKey === 'tce'
+                    ? `综合产品单耗 (tce/${currentSelectedModel.unit})`
+                    : verticalMetricKey === 'elec'
+                    ? `产品电单耗 (kWh/${currentSelectedModel.unit})`
+                    : verticalMetricKey === 'steam'
+                    ? `蒸汽单耗 (t/${currentSelectedModel.unit})`
+                    : verticalMetricKey === 'gas'
+                    ? `天然气单耗 (m³/${currentSelectedModel.unit})`
+                    : `水单耗 (t/${currentSelectedModel.unit})`
+                  }】对比呈现
                 </span>
               </div>
+
+              {/* 介质快捷切换药丸组件 */}
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
+                {[
+                  { key: 'tce' as const, name: '综合单耗', icon: '📊' },
+                  { key: 'elec' as const, name: '电单耗', icon: '⚡' },
+                  { key: 'steam' as const, name: '蒸汽单耗', icon: '💨' },
+                  { key: 'gas' as const, name: '天然气单耗', icon: '🔥' },
+                  { key: 'water' as const, name: '水单耗', icon: '💧' },
+                ].map((item) => {
+                  if (item.key === 'steam' && currentSelectedModel.currSteam === undefined) return null
+                  const isActive = verticalMetricKey === item.key
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() => setVerticalMetricKey(item.key)}
+                      className={cn(
+                        'px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer flex items-center gap-1',
+                        isActive
+                          ? 'bg-white text-slate-900 shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      )}
+                    >
+                      <span>{item.icon}</span>
+                      <span>{item.name}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* 图表副标题及图例 */}
+            <div className="flex items-center justify-between text-xs font-mono text-slate-500 px-1">
+              <span className="text-[11px] text-slate-400 font-sans">
+                基准期 ({basePeriodRange.start} ~ {basePeriodRange.end}) VS 对比期 ({comparePeriodRange.start} ~ {comparePeriodRange.end})
+              </span>
               <div className="flex items-center gap-4 font-mono text-xs">
                 <span className="flex items-center gap-1 text-slate-500">
-                  <span className="size-2 rounded-full bg-slate-400" /> 基准期单耗 ({basePeriodRange.start.slice(0, 4)}年)
+                  <span className="size-2 rounded-full bg-slate-400" />
+                  <span>基准期单耗 ({basePeriodRange.start.slice(0, 4)}年)</span>
                 </span>
-                <span className="flex items-center gap-1 text-[#1677ff] font-bold">
-                  <span className="size-2 rounded-full bg-[#1677ff]" /> 对比期单耗 ({comparePeriodRange.start.slice(0, 4)}年)
+                <span className="flex items-center gap-1 text-slate-800 font-bold">
+                  <span className={cn(
+                    "size-2 rounded-full",
+                    verticalMetricKey === 'tce' ? "bg-emerald-500" : verticalMetricKey === 'elec' ? "bg-[#1677ff]" : verticalMetricKey === 'steam' ? "bg-purple-500" : verticalMetricKey === 'gas' ? "bg-amber-500" : "bg-cyan-500"
+                  )} />
+                  <span>对比期单耗 ({comparePeriodRange.start.slice(0, 4)}年)</span>
                 </span>
               </div>
             </div>
 
-            <div className="h-[240px]">
+            <div className="h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={verticalMonthlyComparisonList} margin={{ top: 10, right: 20, left: 10, bottom: 15 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="monthName" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={false} />
                   <Tooltip
-                    formatter={(value: any, name: any) => [
-                      `${value} ${currentSelectedModel.unit === '台' ? 'kWh/台' : 'kWh/km'}`,
-                      name === 'currElec' ? `对比期电单耗 (${comparePeriodRange.start.slice(0, 4)})` : `基准期电单耗 (${basePeriodRange.start.slice(0, 4)})`
-                    ]}
-                    labelFormatter={(label) => `对应统计月份: ${label}`}
-                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
+                    formatter={(value: any, name: any, item: any) => {
+                      const unitStr =
+                        verticalMetricKey === 'tce'
+                          ? `tce/${currentSelectedModel.unit}`
+                          : verticalMetricKey === 'elec'
+                          ? `kWh/${currentSelectedModel.unit}`
+                          : verticalMetricKey === 'steam'
+                          ? `t/${currentSelectedModel.unit}`
+                          : verticalMetricKey === 'gas'
+                          ? `m³/${currentSelectedModel.unit}`
+                          : `t/${currentSelectedModel.unit}`
+                      const diffPct =
+                        verticalMetricKey === 'tce'
+                          ? item?.payload?.tceDiffPct
+                          : verticalMetricKey === 'elec'
+                          ? item?.payload?.elecDiffPct
+                          : verticalMetricKey === 'steam'
+                          ? item?.payload?.steamDiffPct
+                          : verticalMetricKey === 'gas'
+                          ? item?.payload?.gasDiffPct
+                          : item?.payload?.waterDiffPct
+                      return [
+                        `${value} ${unitStr} ${name.includes('对比期') && diffPct ? `(较基准期 ${diffPct}% ↓)` : ''}`,
+                        name
+                      ]
+                    }}
+                    labelFormatter={(label) => `统计月份: ${label} (${basePeriodRange.start.slice(0, 4)}年 vs ${comparePeriodRange.start.slice(0, 4)}年)`}
+                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.98)', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
                   />
-                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
-                  <Bar dataKey="baseElec" name={`基准期电单耗 (${basePeriodRange.start.slice(0, 4)}年)`} fill="#94a3b8" radius={[3, 3, 0, 0]} maxBarSize={24} />
-                  <Bar dataKey="currElec" name={`对比期电单耗 (${comparePeriodRange.start.slice(0, 4)}年)`} fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={24} />
+                  <Bar
+                    dataKey={
+                      verticalMetricKey === 'tce'
+                        ? 'baseTce'
+                        : verticalMetricKey === 'elec'
+                        ? 'baseElec'
+                        : verticalMetricKey === 'steam'
+                        ? 'baseSteam'
+                        : verticalMetricKey === 'gas'
+                        ? 'baseGas'
+                        : 'baseWater'
+                    }
+                    name={`基准期单耗 (${basePeriodRange.start.slice(0, 4)}年)`}
+                    fill="#94a3b8"
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={26}
+                  />
+                  <Bar
+                    dataKey={
+                      verticalMetricKey === 'tce'
+                        ? 'currTce'
+                        : verticalMetricKey === 'elec'
+                        ? 'currElec'
+                        : verticalMetricKey === 'steam'
+                        ? 'currSteam'
+                        : verticalMetricKey === 'gas'
+                        ? 'currGas'
+                        : 'currWater'
+                    }
+                    name={`对比期单耗 (${comparePeriodRange.start.slice(0, 4)}年)`}
+                    fill={
+                      verticalMetricKey === 'tce'
+                        ? '#10b981'
+                        : verticalMetricKey === 'elec'
+                        ? '#1677ff'
+                        : verticalMetricKey === 'steam'
+                        ? '#8b5cf6'
+                        : verticalMetricKey === 'gas'
+                        ? '#f59e0b'
+                        : '#06b6d4'
+                    }
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={26}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
