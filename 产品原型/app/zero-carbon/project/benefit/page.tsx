@@ -152,10 +152,12 @@ const ALL_PROJECT_BENEFITS: ProjectBenefitItem[] = [
 ]
 
 export default function BenefitEvaluationPage() {
-  // 1. 自定义核算周期选择
-  const [periodType, setPeriodType] = useState<'day' | 'month' | 'quarter' | 'year' | 'custom'>('month')
-  const [customStartDate, setCustomStartDate] = useState('2026-01-01')
-  const [customEndDate, setCustomEndDate] = useState('2026-08-28')
+  // 1. 时间维度与范围选择 (参照指标管控页面标准)
+  const [timeDim, setTimeDim] = useState<'day' | 'month' | 'quarter' | 'year'>('month')
+  const [selectedDate, setSelectedDate] = useState('2026-08-28')
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  const [selectedYear, setSelectedYear] = useState('2026')
 
   // 2. 技术类型分类筛选
   const [selectedType, setSelectedType] = useState<string>('all')
@@ -171,10 +173,10 @@ export default function BenefitEvaluationPage() {
   // 动态自动汇总宏观 KPI 指标 (基于选定周期与项目)
   const summaryStats = useMemo(() => {
     let multiplier = 1.0
-    if (periodType === 'day') multiplier = 1 / 30
-    else if (periodType === 'quarter') multiplier = 3.0
-    else if (periodType === 'year') multiplier = 12.0
-    else if (periodType === 'custom') multiplier = 8.0
+    if (timeDim === 'day') multiplier = 1 / 30
+    else if (timeDim === 'quarter') multiplier = 3.0
+    else if (timeDim === 'year') multiplier = 12.0
+    else if (timeDim === 'month') multiplier = 1.0
 
     const totalSavingsWan = filteredProjects.reduce((acc, p) => acc + (p.savingsYuan + (p.arbitrageYuan || 0)) * multiplier, 0)
     const totalCarbonTons = filteredProjects.reduce((acc, p) => acc + p.carbonReduction * multiplier, 0)
@@ -193,7 +195,7 @@ export default function BenefitEvaluationPage() {
       avgIrr: `${avgIrr}%`,
       avgPayback: `${avgPayback} 年`,
     }
-  }, [filteredProjects, periodType])
+  }, [filteredProjects, timeDim])
 
   // 24小时时序监控出力与节费曲线数据
   const hourlyMonitoringData = [
@@ -209,7 +211,7 @@ export default function BenefitEvaluationPage() {
 
   return (
     <div className="space-y-3.5 font-sans">
-      {/* 1. 顶部 Header (单行主标题 + 自定义周期控制器 + 数据导出) */}
+      {/* 1. 顶部 Header (单行主标题 + 参照指标管控页面的时间控件 + 数据导出) */}
       <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
@@ -220,25 +222,24 @@ export default function BenefitEvaluationPage() {
           </div>
         </div>
 
-        {/* 右侧：自定义周期快捷选择与数据导出 */}
+        {/* 右侧：参照指标管控页面的时间控件体系 */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* 周期切换按钮组 */}
-          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs font-mono">
+          {/* 维度切换按钮组 */}
+          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-sans border border-slate-200">
             {[
-              { key: 'day', label: '日核算' },
-              { key: 'month', label: '月度核算' },
-              { key: 'quarter', label: '季度核算' },
-              { key: 'year', label: '年度结算' },
-              { key: 'custom', label: '自定义周期' },
+              { key: 'day', label: '日' },
+              { key: 'month', label: '月度' },
+              { key: 'quarter', label: '季度' },
+              { key: 'year', label: '年度' },
             ].map((p) => (
               <button
                 key={p.key}
                 type="button"
-                onClick={() => setPeriodType(p.key as any)}
+                onClick={() => setTimeDim(p.key as any)}
                 className={cn(
-                  'px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer',
-                  periodType === p.key
-                    ? 'bg-white text-[#1677ff] shadow-xs'
+                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                  timeDim === p.key
+                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 )}
               >
@@ -247,32 +248,80 @@ export default function BenefitEvaluationPage() {
             ))}
           </div>
 
-          {/* 自定义起止日期区间输入 (当选择自定义时展开) */}
-          {periodType === 'custom' && (
-            <div className="flex items-center gap-1.5 text-xs font-mono bg-white border border-slate-200 px-2 py-1 rounded-lg">
+          {/* 时间范围选择控件 (随维度自适应切换) */}
+          {timeDim === 'day' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
               <input
                 type="date"
-                value={customStartDate}
-                onChange={(e) => setCustomStartDate(e.target.value)}
-                className="h-6 px-1 border border-slate-200 rounded text-slate-700 bg-slate-50 focus:bg-white"
-              />
-              <span className="text-slate-400">至</span>
-              <input
-                type="date"
-                value={customEndDate}
-                onChange={(e) => setCustomEndDate(e.target.value)}
-                className="h-6 px-1 border border-slate-200 rounded text-slate-700 bg-slate-50 focus:bg-white"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
               />
             </div>
           )}
 
+          {timeDim === 'month' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <input
+                type="month"
+                value={selectedMonthRange.start}
+                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                title="起始月份"
+              />
+              <span className="text-slate-400 font-sans">至</span>
+              <input
+                type="month"
+                value={selectedMonthRange.end}
+                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                title="结束月份"
+              />
+            </div>
+          )}
+
+          {timeDim === 'quarter' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <select
+                value={selectedQuarter}
+                onChange={(e) => setSelectedQuarter(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="2026-Q1">2026年 第1季度 (Q1)</option>
+                <option value="2026-Q2">2026年 第2季度 (Q2)</option>
+                <option value="2026-Q3">2026年 第3季度 (Q3)</option>
+                <option value="2026-Q4">2026年 第4季度 (Q4)</option>
+                <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+              </select>
+            </div>
+          )}
+
+          {timeDim === 'year' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="2026">2026 年度</option>
+                <option value="2025">2025 年度</option>
+                <option value="2024">2024 年度</option>
+              </select>
+            </div>
+          )}
+
+          {/* 导出按钮 */}
           <button
             type="button"
             onClick={() => alert('已导出项目经济效益与环保减排客观数据台账 (Excel/PDF)！')}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
             <Download className="size-3.5 text-slate-500" />
-            导出数据报告
+            <span>导出</span>
           </button>
         </div>
       </div>

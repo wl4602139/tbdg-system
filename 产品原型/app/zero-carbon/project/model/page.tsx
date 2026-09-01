@@ -555,14 +555,13 @@ export default function ModelManagePage() {
                 <th className="py-2.5 px-3 whitespace-nowrap min-w-[280px]">核心算法与描述</th>
                 <th className="py-2.5 px-3 whitespace-nowrap text-center">历史版本</th>
                 <th className="py-2.5 px-3 whitespace-nowrap">更新时间</th>
-                <th className="py-2.5 px-3 whitespace-nowrap text-center">状态</th>
                 <th className="py-2.5 px-3 whitespace-nowrap text-center min-w-[140px]">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-800">
               {filteredModels.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-400">
+                  <td colSpan={7} className="p-8 text-center text-slate-400">
                     暂无符合条件的模型数据
                   </td>
                 </tr>
@@ -578,7 +577,6 @@ export default function ModelManagePage() {
                       <div className="font-bold text-slate-900 group-hover:text-[#1677ff] transition-colors flex items-center gap-1.5">
                         <span>{m.name}</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono mt-0.5">{m.code} · {m.standard}</div>
                     </td>
 
                     {/* 模型类别 */}
@@ -630,13 +628,6 @@ export default function ModelManagePage() {
                       {m.updateTime}
                     </td>
 
-                    {/* 状态 */}
-                    <td className="py-2.5 px-3 text-center whitespace-nowrap">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        ● {m.status}
-                      </span>
-                    </td>
-
                     {/* 操作列 */}
                     <td className="py-2.5 px-3 text-center whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-1">
@@ -686,9 +677,6 @@ export default function ModelManagePage() {
           <div>
             当前模型库总计：<strong className="text-slate-800 font-mono">{filteredModels.length}</strong> 套模型在线受控 · 
             全生命周期版本追踪受区块链审计保护
-          </div>
-          <div className="text-slate-400 font-mono text-[11px]">
-            特变电工能碳计算引擎统一调度中心
           </div>
         </div>
       </div>

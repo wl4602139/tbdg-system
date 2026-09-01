@@ -248,7 +248,21 @@ export default function ConvertPage() {
   }
 
   return (
-    <div className="space-y-4 font-sans text-slate-800">
+    <div className="space-y-3.5 font-sans text-slate-800">
+      {/* 顶部 Header */}
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <ArrowRightLeft className="size-5" />
+          </div>
+          <div>
+            <h1 className="text-base font-bold text-slate-800">折标煤系数与能源转换工具</h1>
+            <p className="text-xs text-slate-500 font-sans">
+              维护 GB/T 2589-2020 现行国家标准及各能源介质折标煤系数（当量/等价值），提供多物理单位与碳排放实时换算工具
+            </p>
+          </div>
+        </div>
+      </div>
       
       {/* 🌟 1. 顶部 4 大国家标准与基准概览 KPI 卡片 */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

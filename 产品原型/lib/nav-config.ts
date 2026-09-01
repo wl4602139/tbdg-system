@@ -82,17 +82,14 @@ export const zeroCarbonNav: NavItem[] = [
     ],
   },
   {
-    title: '数据采集清单',
-    href: '/zero-carbon/data-catalog',
-    icon: Database,
-  },
-  {
     title: '基础配置',
     href: '/zero-carbon/config',
     icon: Settings2,
     children: [
+      { title: '账号权限', href: '/zero-carbon/config/permission' },
       { title: '碳排因子', href: '/zero-carbon/config/factor' },
-      { title: '能源转换工具', href: '/zero-carbon/config/convert' },
+      { title: '费价模型', href: '/zero-carbon/config/price' },
+      { title: '折标煤系数', href: '/zero-carbon/config/convert' },
       { title: '接口配置管理', href: '/zero-carbon/config/interface' },
       { title: '数据录入', href: '/zero-carbon/config/entry' },
     ],
@@ -152,11 +149,6 @@ export const carbonFootprintNav: NavItem[] = [
       { title: '股份因子同步', href: '/carbon-footprint/factor#sync' },
       { title: '因子集构建与下发', href: '/carbon-footprint/factor#dispatch' },
     ],
-  },
-  {
-    title: '数据采集清单',
-    href: '/carbon-footprint/data-catalog',
-    icon: Database,
   },
   {
     title: '系统配置',

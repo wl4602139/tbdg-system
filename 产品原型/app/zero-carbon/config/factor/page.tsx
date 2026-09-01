@@ -545,57 +545,6 @@ export default function FactorPage() {
           </div>
       </div>
 
-      {/* 🌟 1. 顶部 4 大核心资产与版本 KPI 卡片 */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs text-slate-500 block">省级电力因子库</span>
-            <div className="text-lg font-bold font-mono text-slate-800 mt-0.5">
-              31 <span className="text-xs font-sans text-slate-500">省份独立维护</span>
-            </div>
-            <span className="text-[10px] text-blue-600 font-sans block mt-0.5">覆盖 8 大特变电工园区基地</span>
-          </div>
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff]">
-            <MapPin className="size-4.5" />
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs text-slate-500 block">能源碳排放因子</span>
-            <div className="text-lg font-bold font-mono text-emerald-600 mt-0.5">
-              14 <span className="text-xs font-sans text-slate-500">种工业燃料/热力</span>
-            </div>
-            <span className="text-[10px] text-slate-400 font-sans block mt-0.5">GB/T 32150 官方缺省值</span>
-          </div>
-          <div className="size-9 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
-            <Flame className="size-4.5" />
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs text-slate-500 block">折标煤国家标准库</span>
-            <div className="text-lg font-bold font-mono text-amber-600 mt-0.5">GB/T 2589-2020</div>
-            <span className="text-[10px] text-amber-700 font-sans block mt-0.5">当量值 ⇄ 等价值双口径</span>
-          </div>
-          <div className="size-9 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
-            <Scale className="size-4.5" />
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs text-slate-500 block">生效基准版本</span>
-            <div className="text-lg font-bold font-mono text-purple-600 mt-0.5">v2025.1 (现行)</div>
-            <span className="text-[10px] text-purple-600 font-sans block mt-0.5">生态环境部最新公告因子</span>
-          </div>
-          <div className="size-9 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
-            <ShieldCheck className="size-4.5" />
-          </div>
-        </div>
-      </div>
-
       {/* 🌟 2. 核心主控制区 (三大独立维护 Tab) */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         
