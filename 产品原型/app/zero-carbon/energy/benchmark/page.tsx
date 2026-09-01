@@ -1213,6 +1213,239 @@ export interface BenchmarkStandardItem {
   notes?: string
 }
 
+// ============================================================================
+// 系统已有管控指标库字典 (供对标基准录入与维护时单选映射，实现与系统指标强对应)
+// ============================================================================
+export interface SystemControlMetricOption {
+  id: string
+  code: string
+  name: string
+  category: 'process' | 'zero_carbon' | 'group_control'
+  categoryLabel: string
+  scope: string
+  unit: string
+  defaultCompare: '<=' | '>='
+  defaultBenchmark: number
+  defaultSource: string
+  groupAvg: number
+}
+
+export const SYSTEM_CONTROL_METRIC_OPTIONS: SystemControlMetricOption[] = [
+  // 1. 关键工序单耗指标 (拉丝 / 干燥 / 交联 / 试验 / 固化 / 退火)
+  {
+    id: 'proc_draw_copper',
+    code: 'KPI-PROC-01',
+    name: '线缆-拉丝 (单位吨铜电耗)',
+    category: 'process',
+    categoryLabel: '关键工序行业基准',
+    scope: '线缆产业 · 鲁缆本部 / 新疆电缆 / 德阳电缆拉丝车间',
+    unit: 'kWh/t (铜)',
+    defaultCompare: '<=',
+    defaultBenchmark: 320.0,
+    defaultSource: 'GB/T 3956 铜材拉丝能效先进限值',
+    groupAvg: 330.0,
+  },
+  {
+    id: 'proc_draw_aluminum',
+    code: 'KPI-PROC-02',
+    name: '线缆-拉丝 (单位吨铝电耗)',
+    category: 'process',
+    categoryLabel: '关键工序行业基准',
+    scope: '线缆产业 · 铝线及铝合金连铸连轧拉丝工段',
+    unit: 'kWh/t (铝)',
+    defaultCompare: '<=',
+    defaultBenchmark: 185.0,
+    defaultSource: 'GB/T 3190 铝及铝合金加工能耗定额',
+    groupAvg: 192.0,
+  },
+  {
+    id: 'proc_crosslink_tower',
+    code: 'KPI-PROC-03',
+    name: '线缆-高压-交联 (干法立塔悬垂挤塑)',
+    category: 'process',
+    categoryLabel: '关键工序行业基准',
+    scope: '线缆产业 · 500kV / 220kV / 110kV 超高压立塔交联',
+    unit: 'kWh/km',
+    defaultCompare: '<=',
+    defaultBenchmark: 1150.0,
+    defaultSource: '超高压交联立塔挤塑行业能效先进标杆',
+    groupAvg: 1202.0,
+  },
+  {
+    id: 'proc_dry_steam',
+    code: 'KPI-PROC-04',
+    name: '变压器-高压-干燥 (煤油气相真空干燥)',
+    category: 'process',
+    categoryLabel: '关键工序行业基准',
+    scope: '变压器产业 · 沈变 / 衡变 / 新变超高压车间',
+    unit: 'kWh/t',
+    defaultCompare: '<=',
+    defaultBenchmark: 48.0,
+    defaultSource: 'GB/T 变压器气相真空干燥先进标杆',
+    groupAvg: 51.8,
+  },
+  {
+    id: 'proc_transformer_test',
+    code: 'KPI-PROC-05',
+    name: '变压器-试验 (绝缘耐压与全负荷温升试验)',
+    category: 'process',
+    categoryLabel: '关键工序行业基准',
+    scope: '变压器产业 · 大型变压器高压试验大厅',
+    unit: 'kWh/kVA',
+    defaultCompare: '<=',
+    defaultBenchmark: 0.022,
+    defaultSource: '行业试验站节能先进限值',
+    groupAvg: 0.024,
+  },
+  {
+    id: 'proc_dry_epoxy',
+    code: 'KPI-PROC-06',
+    name: '变压器-中低压-干变-固化 (环氧树脂浇注固化)',
+    category: 'process',
+    categoryLabel: '关键工序行业基准',
+    scope: '变压器产业 · 天变 / 智能电气 / 沈变干变车间',
+    unit: 'kWh/台',
+    defaultCompare: '<=',
+    defaultBenchmark: 160.0,
+    defaultSource: '干式变压器节能工艺指导规程',
+    groupAvg: 165.0,
+  },
+  {
+    id: 'proc_silicon_anneal',
+    code: 'KPI-PROC-07',
+    name: '变压器-铁心制造 (硅钢铁心横剪与叠装电耗)',
+    category: 'process',
+    categoryLabel: '关键工序行业基准',
+    scope: '变压器核心部件 · 珠峰硅钢及各厂铁心制造车间',
+    unit: 'kWh/t',
+    defaultCompare: '<=',
+    defaultBenchmark: 42.0,
+    defaultSource: '变压器铁心制造节能工序指标',
+    groupAvg: 44.5,
+  },
+
+  // 2. 国家零碳工厂 3 大核心指标
+  {
+    id: 'zc_carbon_intensity',
+    code: 'KPI-ZC-01',
+    name: '国家零碳工厂门槛：单位能耗碳排放 (tCO2/tce)',
+    category: 'zero_carbon',
+    categoryLabel: '国家零碳工厂3大指标',
+    scope: '全集团 15 个零碳园区 / 21 家直属工厂',
+    unit: 'tCO₂/tce',
+    defaultCompare: '<=',
+    defaultBenchmark: 1.80,
+    defaultSource: 'T/CECA-G 0154-2022 零碳工厂评价通则',
+    groupAvg: 1.62,
+  },
+  {
+    id: 'zc_non_fossil',
+    code: 'KPI-ZC-02',
+    name: '国家零碳工厂门槛：非化石能源消费占比 (%)',
+    category: 'zero_carbon',
+    categoryLabel: '国家零碳工厂3大指标',
+    scope: '全集团各直属园区与制造工厂',
+    unit: '%',
+    defaultCompare: '>=',
+    defaultBenchmark: 35.0,
+    defaultSource: '工信部工业绿色低碳与零碳工厂国家标准',
+    groupAvg: 41.5,
+  },
+  {
+    id: 'zc_physical_green',
+    code: 'KPI-ZC-03',
+    name: '国家零碳工厂门槛：非化石电力物理认定电量占比 (%)',
+    category: 'zero_carbon',
+    categoryLabel: '国家零碳工厂3大指标',
+    scope: '全集团园区分布式光伏与物理直供绿电',
+    unit: '%',
+    defaultCompare: '>=',
+    defaultBenchmark: 30.0,
+    defaultSource: '国家发改委/能源局绿电消费认证导则',
+    groupAvg: 38.6,
+  },
+
+  // 3. 集团管控基准与内控红线
+  {
+    id: 'gc_output_tce',
+    code: 'KPI-GC-01',
+    name: '万元产值综合能耗 (集团红线)',
+    category: 'group_control',
+    categoryLabel: '集团管控基准',
+    scope: '全集团 6 大直属经营单位及各项目公司',
+    unit: 'tce/万元',
+    defaultCompare: '<=',
+    defaultBenchmark: 0.088,
+    defaultSource: '集团“十四五”双碳行动规划下达指标',
+    groupAvg: 0.087,
+  },
+  {
+    id: 'gc_output_elec',
+    code: 'KPI-GC-02',
+    name: '万元产值外购市电单耗',
+    category: 'group_control',
+    categoryLabel: '集团管控基准',
+    scope: '全集团直属制造企业',
+    unit: 'kWh/万元',
+    defaultCompare: '<=',
+    defaultBenchmark: 350.0,
+    defaultSource: '集团年度能源预算管控指标',
+    groupAvg: 312.0,
+  },
+  {
+    id: 'gc_added_value_tce',
+    code: 'KPI-GC-03',
+    name: '单位工业增加值综合能耗 (红线考核)',
+    category: 'group_control',
+    categoryLabel: '集团管控基准',
+    scope: '全集团直属制造企业',
+    unit: 'tce/万元',
+    defaultCompare: '<=',
+    defaultBenchmark: 0.220,
+    defaultSource: '自治区重点用能单位“十四五”目标责任考核',
+    groupAvg: 0.218,
+  },
+  {
+    id: 'gc_prod_tx_500kv',
+    code: 'KPI-GC-04',
+    name: 'ODFS-334MVA/500kV 单相自耦变压器台综合单耗',
+    category: 'group_control',
+    categoryLabel: '集团管控基准',
+    scope: '变压器产业特高压制造 (衡变 / 沈变 / 新变)',
+    unit: 'tce/台',
+    defaultCompare: '<=',
+    defaultBenchmark: 14.50,
+    defaultSource: '特变电工变压器产品能效内控标杆',
+    groupAvg: 13.82,
+  },
+  {
+    id: 'gc_prod_cb_110kv',
+    code: 'KPI-GC-05',
+    name: '110kV 交联聚乙烯电缆公里综合单耗',
+    category: 'group_control',
+    categoryLabel: '集团管控基准',
+    scope: '线缆产业超高压交联 (鲁缆 / 新缆 / 德缆)',
+    unit: 'tce/km',
+    defaultCompare: '<=',
+    defaultBenchmark: 0.600,
+    defaultSource: '特变电工线缆产品能耗内控基准',
+    groupAvg: 0.582,
+  },
+  {
+    id: 'gc_water_output',
+    code: 'KPI-GC-06',
+    name: '万元产值工业新鲜水耗',
+    category: 'group_control',
+    categoryLabel: '集团管控基准',
+    scope: '全集团直属制造企业 (ESG 节水核算)',
+    unit: 'm³/万元',
+    defaultCompare: '<=',
+    defaultBenchmark: 0.50,
+    defaultSource: '国家节水型企业标准评价导则 (GB/T 7119)',
+    groupAvg: 0.42,
+  },
+]
+
 const BENCHMARK_STANDARDS_DATA: BenchmarkStandardItem[] = [
   // ------------------ 1. 关键工序行业基准 ------------------
   {
@@ -3454,44 +3687,97 @@ export default function BenchmarkManagementPage() {
               }}
               className="p-6 space-y-4 text-xs font-sans"
             >
-              {/* 1. 基准大类选择 */}
+              {/* 1. 单选：从系统中已有的管控指标中选择 */}
               <div className="space-y-1.5">
-                <label className="text-slate-700 font-bold block">1. 基准标准分类：</label>
+                <label className="text-slate-700 font-bold block flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-2 rounded-full bg-[#1677ff]" />
+                    从系统中已有的管控指标中选择（单选对应）：
+                  </span>
+                  <span className="text-[11px] text-[#1677ff] font-normal font-sans">
+                    * 选择后自动关联并映射指标参数与适用范围
+                  </span>
+                </label>
                 <select
-                  value={newStandardForm.category}
-                  onChange={(e) => setNewStandardForm({ ...newStandardForm, category: e.target.value as any })}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-bold text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
+                  required
+                  value={
+                    SYSTEM_CONTROL_METRIC_OPTIONS.find(
+                      (m) => m.name === newStandardForm.indicatorName
+                    )?.id || ''
+                  }
+                  onChange={(e) => {
+                    const selected = SYSTEM_CONTROL_METRIC_OPTIONS.find((m) => m.id === e.target.value)
+                    if (selected) {
+                      setNewStandardForm({
+                        ...newStandardForm,
+                        category: selected.category,
+                        indicatorName: selected.name,
+                        scope: selected.scope,
+                        unit: selected.unit,
+                        compareOperator: selected.defaultCompare,
+                        benchmarkValue: String(selected.defaultBenchmark),
+                        standardSource: selected.defaultSource,
+                        currentGroupAvg: String(selected.groupAvg),
+                      })
+                    }
+                  }}
+                  className="w-full px-3.5 py-2.5 bg-blue-50/50 border border-blue-200 rounded-lg text-slate-800 font-bold text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors cursor-pointer"
                 >
-                  <option value="process">1. 关键工序行业基准 (拉丝/干燥/交联/试验等)</option>
-                  <option value="zero_carbon">2. 国家零碳工厂3大核心指标 (碳排放/非化石/物理绿电)</option>
-                  <option value="group_control">3. 集团管控基准与内控红线 (产值能耗/增加值能耗/历史最优)</option>
+                  <option value="">-- 请选择系统中已有的管控指标（单选） --</option>
+                  <optgroup label="🏭 1. 关键工序行业基准指标 (拉丝 / 干燥 / 交联 / 试验 / 固化 / 铁心退火)">
+                    {SYSTEM_CONTROL_METRIC_OPTIONS.filter((m) => m.category === 'process').map((m) => (
+                      <option key={m.id} value={m.id}>
+                        [{m.code}] {m.name} ({m.unit})
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="🌱 2. 国家零碳工厂 3 大核心指标 (碳排放强度 / 非化石消费 / 物理绿电)">
+                    {SYSTEM_CONTROL_METRIC_OPTIONS.filter((m) => m.category === 'zero_carbon').map((m) => (
+                      <option key={m.id} value={m.id}>
+                        [{m.code}] {m.name} ({m.unit})
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="📊 3. 集团管控基准与内控红线 (产值能耗 / 增加值能耗 / 产品单耗 / 产值水耗)">
+                    {SYSTEM_CONTROL_METRIC_OPTIONS.filter((m) => m.category === 'group_control').map((m) => (
+                      <option key={m.id} value={m.id}>
+                        [{m.code}] {m.name} ({m.unit})
+                      </option>
+                    ))}
+                  </optgroup>
                 </select>
               </div>
 
-              {/* 2. 指标名称与适用范围 */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-600 font-bold block">指标名称：</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="如：线缆-拉丝 (吨铜电耗)"
-                    value={newStandardForm.indicatorName}
-                    onChange={(e) => setNewStandardForm({ ...newStandardForm, indicatorName: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
-                  />
+              {/* 2. 已选指标联动信息展示卡片 */}
+              {newStandardForm.indicatorName ? (
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 animate-in fade-in duration-150">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <span className={cn(
+                        'size-2 rounded-full',
+                        newStandardForm.category === 'process'
+                          ? 'bg-purple-500'
+                          : newStandardForm.category === 'zero_carbon'
+                          ? 'bg-emerald-500'
+                          : 'bg-blue-500'
+                      )} />
+                      {newStandardForm.indicatorName}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      集团实测均值: <strong className="text-slate-700">{newStandardForm.currentGroupAvg}</strong> {newStandardForm.unit}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                    <span className="font-bold text-slate-700">适用范围 / 产业：</span>
+                    <span>{newStandardForm.scope}</span>
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-slate-600 font-bold block">适用范围 / 产品：</label>
-                  <input
-                    type="text"
-                    placeholder="如：线缆产业拉丝工段"
-                    value={newStandardForm.scope}
-                    onChange={(e) => setNewStandardForm({ ...newStandardForm, scope: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
-                  />
+              ) : (
+                <div className="p-3 bg-amber-50/70 border border-amber-200/70 rounded-xl text-amber-800 text-xs flex items-center gap-2">
+                  <span className="font-bold">⚠️</span>
+                  <span>请先在上方的下拉列表中单选目标管控指标，系统将自动映射对应的单位、适用范围及出处。</span>
                 </div>
-              </div>
+              )}
 
               {/* 3. 比较符、基准值与单位 */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
