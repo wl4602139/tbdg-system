@@ -2295,34 +2295,37 @@ export default function BenchmarkManagementPage() {
             </div>
           </div>
 
-          {/* 重点型号可视化对标走势图 (按选定型号展现项目公司 PK 柱图) */}
+          {/* 重点型号可视化对标走势图 (按选定型号展现项目公司 PK 柱图 - 紧凑高度设计) */}
           {activeSelectedProduct && (
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-2.5 text-xs font-sans">
-                <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
-                  <span className="font-bold text-slate-900">
-                    同型号产品单耗对比
-                  </span>
+            <div className="bg-white p-3 px-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2 text-xs font-sans">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="size-2 rounded-full bg-[#1677ff]" />
+                    <span className="font-bold text-slate-900">
+                      同型号产品单耗对比
+                    </span>
+                  </div>
+
+                  {/* 🌟 紧凑产品型号标识直接置于 Header 中 */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50/80 border border-blue-200 text-xs font-mono">
+                    <span className="text-slate-500 font-sans text-[11px] font-bold">当前型号:</span>
+                    <span className="text-[#1677ff] font-bold">{activeSelectedProduct.model}</span>
+                    <span className="text-slate-400 font-sans text-[10.5px]">({activeSelectedProduct.categoryName})</span>
+                  </div>
                 </div>
+
                 <div className="flex items-center gap-3 text-xs font-mono">
                   <span className="flex items-center gap-1 text-[#1677ff] font-bold">
                     <span className="size-2 rounded-full bg-[#1677ff]" /> 综合产品单耗 (tce/{activeSelectedProduct.unit})
                   </span>
                   <span className="flex items-center gap-1 text-emerald-600 font-bold">
-                    <span className="size-2 rounded-full bg-emerald-500" /> 电单耗 (kWh/{activeSelectedProduct.unit})
+                    <span className="size-2 rounded-full bg-emerald-500" /> 集团最优标杆
                   </span>
                 </div>
               </div>
 
-              <div className="relative h-[230px]">
-                {/* 🌟 居中产品型号标识 (红框指定位置) */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50/90 border border-slate-200 shadow-2xs text-xs font-mono backdrop-blur-xs pointer-events-none">
-                  <span className="text-slate-500 font-sans text-[11px] font-bold">产品型号:</span>
-                  <span className="text-[#1677ff] font-bold">{activeSelectedProduct.model}</span>
-                  <span className="text-slate-400 font-sans text-[10.5px]">({activeSelectedProduct.categoryName})</span>
-                </div>
-
+              <div className="h-[155px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={activeSelectedProduct.companies.map((c) => ({
@@ -2332,19 +2335,19 @@ export default function BenchmarkManagementPage() {
                       isOptimal: c.isOptimal,
                       diff: c.diffPercent,
                     }))}
-                    margin={{ top: 28, right: 20, left: 10, bottom: 15 }}
+                    margin={{ top: 8, right: 20, left: 10, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#334155' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={false} />
                     <Tooltip
-                      formatter={(value: any, name: any) => [
-                        name === '综合单耗 (tce)' ? `${value} tce/${activeSelectedProduct.unit}` : `${Number(value).toLocaleString()} kWh/${activeSelectedProduct.unit}`,
-                        name === '综合单耗 (tce)' ? '综合单耗' : '电单耗'
+                      formatter={(value: any, name: any, item: any) => [
+                        `${value} tce/${activeSelectedProduct.unit} (${item?.payload?.isOptimal ? '🏆 集团最优' : item?.payload?.diff})`,
+                        '综合单耗'
                       ]}
-                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
+                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.98)', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
                     />
-                    <Bar dataKey="tce" name="综合单耗 (tce)" fill="#1677ff" radius={[4, 4, 0, 0]} maxBarSize={32}>
+                    <Bar dataKey="tce" name="综合单耗 (tce)" fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={28}>
                       {activeSelectedProduct.companies.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.isOptimal ? '#10b981' : '#1677ff'} />
                       ))}
