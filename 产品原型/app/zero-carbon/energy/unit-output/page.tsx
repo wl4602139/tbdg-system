@@ -1084,9 +1084,6 @@ export default function UnitOutputPage() {
                           <span className="size-2 rounded-full bg-[#1677ff]" />
                           {r.name}
                         </span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 font-sans">
-                          {r.industry}
-                        </span>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-200/60">
@@ -1133,7 +1130,6 @@ export default function UnitOutputPage() {
                       <th className="py-2.5 px-3 sticky left-12 bg-slate-50 z-10 min-w-[140px]">
                         {isGroupLevel ? '经营单位' : '项目公司 / 制造车间'}
                       </th>
-                      <th className="py-2.5 px-3 min-w-[110px]">主营业务板块</th>
                       <th className="py-2.5 px-3 text-right">工业总产值 (亿元)</th>
                       <th className="py-2.5 px-3 text-right">综合能源消费 (tce)</th>
                       <th className="py-2.5 px-3 text-right font-bold text-blue-700 bg-blue-50/40">
@@ -1153,20 +1149,6 @@ export default function UnitOutputPage() {
                         </td>
                         <td className="py-2.5 px-3 sticky left-12 bg-white font-sans font-bold text-slate-900">
                           {r.name}
-                        </td>
-                        <td className="py-2.5 px-3 font-sans">
-                          <span
-                            className={cn(
-                              'px-2 py-0.5 rounded text-[10px] font-bold',
-                              r.industry.includes('变压器')
-                                ? 'bg-blue-50 text-blue-700'
-                                : r.industry.includes('线缆') || r.industry.includes('电缆')
-                                ? 'bg-amber-50 text-amber-700'
-                                : 'bg-purple-50 text-purple-700'
-                            )}
-                          >
-                            {r.industry}
-                          </span>
                         </td>
                         <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                           {r.outputBillion.toFixed(2)}
