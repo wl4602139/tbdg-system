@@ -688,63 +688,6 @@ export default function AccountPermissionPage() {
         </div>
       )}
 
-      {/* 4 大概览统计指标卡片 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
-            <span>平台注册账号总数</span>
-            <Users className="size-4 text-[#1677ff]" />
-          </div>
-          <div className="text-2xl font-extrabold font-mono text-slate-800">
-            {users.length} <span className="text-xs font-normal text-slate-400 font-sans">人</span>
-          </div>
-          <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-            <span>正常启用: <strong className="font-mono text-emerald-600">{users.filter((u) => u.status === '启用').length}</strong></span>
-            <span>已停用: <strong className="font-mono text-slate-400">{users.filter((u) => u.status === '停用').length}</strong></span>
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
-            <span>角色权限配置模型</span>
-            <ShieldCheck className="size-4 text-purple-600" />
-          </div>
-          <div className="text-2xl font-extrabold font-mono text-purple-600">
-            {roles.length} <span className="text-xs font-normal text-slate-400 font-sans">个角色</span>
-          </div>
-          <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-            <span>系统预设: <strong className="font-mono text-purple-700">5 个</strong></span>
-            <span>自定义: <strong className="font-mono text-blue-600">{roles.length - 5} 个</strong></span>
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
-            <span>覆盖组织机构节点</span>
-            <Building2 className="size-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-extrabold font-mono text-emerald-600">
-            37 <span className="text-xs font-normal text-slate-400 font-sans">家单位/车间</span>
-          </div>
-          <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-            <span>1级集团 · 6大二级公司 · 30车间工厂</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
-            <span>细粒度权限控制粒度</span>
-            <Lock className="size-4 text-amber-500" />
-          </div>
-          <div className="text-2xl font-extrabold font-mono text-amber-600">
-            100% <span className="text-xs font-normal text-slate-400 font-sans">按钮与数据级</span>
-          </div>
-          <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-            <span>支持按菜单功能树与园区数据范围授权</span>
-          </div>
-        </div>
-      </div>
-
       {/* Tab 导航 */}
       <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-xs flex items-center gap-1 font-sans text-xs">
         <button
