@@ -1716,11 +1716,17 @@ export default function BenchmarkManagementPage() {
   const [comparePeriodRange, setComparePeriodRange] = useState({ start: '2026-01', end: '2026-08' })
   const [periodPresetMode, setPeriodPresetMode] = useState<'yoy' | 'mom' | 'custom'>('yoy')
 
-  // 时间维度 (与用能结构/成本页面完全一致)
-  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
-  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
-  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
-  const [selectedYear, setSelectedYear] = useState('2026')
+  // 🌟 对标管理统一时间查询模块状态 (月度/季度/年度，统一放置在顶部Tab栏右侧)
+  const [benchmarkTimeDim, setBenchmarkTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
+  const [benchmarkSelectedMonth, setBenchmarkSelectedMonth] = useState('2026-08')
+  const [benchmarkSelectedQuarter, setBenchmarkSelectedQuarter] = useState('2026-Q3')
+  const [benchmarkSelectedYear, setBenchmarkSelectedYear] = useState('2026')
+
+  const benchmarkTimeLabel = useMemo(() => {
+    if (benchmarkTimeDim === 'month') return `${benchmarkSelectedMonth.slice(0, 4)}年${benchmarkSelectedMonth.slice(5, 7)}月`
+    if (benchmarkTimeDim === 'quarter') return benchmarkSelectedQuarter
+    return `${benchmarkSelectedYear}年度`
+  }, [benchmarkTimeDim, benchmarkSelectedMonth, benchmarkSelectedQuarter, benchmarkSelectedYear])
 
   // 基准管理状态：分类筛选、搜索关键词、基准数据列表、弹窗维护
   const [standardCategoryFilter, setStandardCategoryFilter] = useState<BenchmarkStandardCategory>('all')
@@ -1924,28 +1930,110 @@ export default function BenchmarkManagementPage() {
         </button>
       </div>
 
-      {/* 2. 🌟 核心 4 大对标维度 Tab 切换栏 */}
-      <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs flex items-center gap-1.5 flex-wrap">
-        {BENCHMARK_TABS.map((tab) => {
-          const Icon = tab.icon
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={cn(
-                'px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border select-none',
-                isActive
-                  ? 'bg-[#1677ff] text-white border-blue-600 shadow-xs'
-                  : 'bg-white text-slate-600 hover:text-[#1677ff] hover:bg-slate-50 border-slate-200/80'
-              )}
-            >
-              <Icon className={cn('size-4', isActive ? 'text-white' : 'text-slate-500')} />
-              <span>{tab.label}</span>
-            </button>
-          )
-        })}
+      {/* 2. 🌟 核心 4 大对标维度 Tab 切换栏 + 统一时间查询模块 (统一放置在顶部右侧红框位置) */}
+      <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        {/* 左侧：5 大 Tab 切换按钮 */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {BENCHMARK_TABS.map((tab) => {
+            const Icon = tab.icon
+            const isActive = activeTab === tab.key
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border select-none',
+                  isActive
+                    ? 'bg-[#1677ff] text-white border-blue-600 shadow-xs'
+                    : 'bg-white text-slate-600 hover:text-[#1677ff] hover:bg-slate-50 border-slate-200/80'
+                )}
+              >
+                <Icon className={cn('size-4', isActive ? 'text-white' : 'text-slate-500')} />
+                <span>{tab.label}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* 右侧（红框位置）：统一时间查询模块 */}
+        <div className="flex items-center gap-2 text-xs font-sans">
+          {/* 月度 / 季度 / 年度 粒度切换药丸 */}
+          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+            {(['month', 'quarter', 'year'] as const).map((dim) => (
+              <button
+                key={dim}
+                type="button"
+                onClick={() => {
+                  setBenchmarkTimeDim(dim)
+                  setProcessTimeDim(dim)
+                }}
+                className={cn(
+                  'px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                  benchmarkTimeDim === dim
+                    ? 'bg-white text-[#1677ff] font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                )}
+              >
+                {dim === 'month' ? '月度' : dim === 'quarter' ? '季度' : '年度'}
+              </button>
+            ))}
+          </div>
+
+          {/* 时间选择器 */}
+          <div className="flex items-center">
+            {benchmarkTimeDim === 'month' && (
+              <input
+                type="month"
+                value={benchmarkSelectedMonth}
+                onChange={(e) => {
+                  setBenchmarkSelectedMonth(e.target.value)
+                  setProcessMonth(e.target.value)
+                }}
+                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-[#1677ff] focus:bg-white cursor-pointer"
+              />
+            )}
+            {benchmarkTimeDim === 'quarter' && (
+              <select
+                value={benchmarkSelectedQuarter}
+                onChange={(e) => {
+                  setBenchmarkSelectedQuarter(e.target.value)
+                  setProcessQuarter(e.target.value)
+                }}
+                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-[#1677ff] focus:bg-white cursor-pointer"
+              >
+                <option value="2026-Q1">2026年 第一季度 (Q1)</option>
+                <option value="2026-Q2">2026年 第二季度 (Q2)</option>
+                <option value="2026-Q3">2026年 第三季度 (Q3)</option>
+                <option value="2026-Q4">2026年 第四季度 (Q4)</option>
+              </select>
+            )}
+            {benchmarkTimeDim === 'year' && (
+              <select
+                value={benchmarkSelectedYear}
+                onChange={(e) => {
+                  setBenchmarkSelectedYear(e.target.value)
+                  setProcessYear(e.target.value)
+                }}
+                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-[#1677ff] focus:bg-white cursor-pointer"
+              >
+                <option value="2026">2026 年度</option>
+                <option value="2025">2025 年度</option>
+                <option value="2024">2024 年度</option>
+              </select>
+            )}
+          </div>
+
+          {/* 查询按钮 */}
+          <button
+            type="button"
+            onClick={() => alert(`已根据对标统计周期【${benchmarkTimeLabel}】更新全集团能效对标数据！`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
+          >
+            <Search className="size-3.5" />
+            <span>查询</span>
+          </button>
+        </div>
       </div>
 
       {/* ========================================================================= */}
@@ -3129,163 +3217,82 @@ export default function BenchmarkManagementPage() {
       {/* ========================================================================= */}
       {activeTab === 'process' && (
         <div className="space-y-3.5">
-          {/* 1. 顶部控制面板：选择产业 -> 选择关键工序 -> 对比时间 (月度/季度/年度) */}
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          {/* 1. 顶部控制面板：选择产业 -> 选择关键工序 (时间查询已统一移至顶部Tab导航栏) */}
+          <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-2">
                 <Zap className="size-4 text-purple-600" />
                 <h3 className="text-xs font-bold text-slate-900">
                   相同关键工序跨项目公司单耗对标
                 </h3>
               </div>
-            </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
               {/* ① 选择产业大类 (变压器 / 线缆 / 中低压开关) */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-600">选择产业：</span>
-                <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProcessIndustry('transformer')
-                      setSelectedProcessId('proc-tx-01')
-                    }}
-                    className={cn(
-                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                      processIndustry === 'transformer'
-                        ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    ⚡ 变压器
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProcessIndustry('cable')
-                      setSelectedProcessId('proc-cb-01')
-                    }}
-                    className={cn(
-                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                      processIndustry === 'cable'
-                        ? 'font-bold bg-white text-emerald-700 shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    🔌 线缆
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProcessIndustry('switch')
-                      setSelectedProcessId('proc-sw-01')
-                    }}
-                    className={cn(
-                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                      processIndustry === 'switch'
-                        ? 'font-bold bg-white text-purple-700 shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    ⚙️ 中低压开关
-                  </button>
-                </div>
-              </div>
-
-              {/* ② 选择关键工序 */}
-              <div className="flex items-center gap-2 text-xs">
-                <span className="font-bold text-slate-600">选择关键工序：</span>
-                <select
-                  value={selectedProcessId}
-                  onChange={(e) => setSelectedProcessId(e.target.value)}
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-bold text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white min-w-[240px]"
-                >
-                  {currentIndustryProcessList.map((proc) => (
-                    <option key={proc.id} value={proc.id}>
-                      {proc.processName} ({proc.unit})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* ③ 对比时间 (月度 / 季度 / 年度) */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-600">对比时间：</span>
-                <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
-                  <button
-                    type="button"
-                    onClick={() => setProcessTimeDim('month')}
-                    className={cn(
-                      'px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer',
-                      processTimeDim === 'month' ? 'bg-white text-[#1677ff] font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    月度
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setProcessTimeDim('quarter')}
-                    className={cn(
-                      'px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer',
-                      processTimeDim === 'quarter' ? 'bg-white text-[#1677ff] font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    季度
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setProcessTimeDim('year')}
-                    className={cn(
-                      'px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer',
-                      processTimeDim === 'year' ? 'bg-white text-[#1677ff] font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    年度
-                  </button>
-                </div>
-
-                {/* 时间选择器 */}
-                {processTimeDim === 'month' && (
-                  <input
-                    type="month"
-                    value={processMonth}
-                    onChange={(e) => setProcessMonth(e.target.value)}
-                    className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-700 focus:outline-none cursor-pointer"
-                  />
-                )}
-                {processTimeDim === 'quarter' && (
-                  <select
-                    value={processQuarter}
-                    onChange={(e) => setProcessQuarter(e.target.value)}
-                    className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-700 focus:outline-none cursor-pointer"
-                  >
-                    <option value="2026-Q1">2026年 Q1</option>
-                    <option value="2026-Q2">2026年 Q2</option>
-                    <option value="2026-Q3">2026年 Q3</option>
-                    <option value="2026-Q4">2026年 Q4</option>
-                  </select>
-                )}
-                {processTimeDim === 'year' && (
-                  <select
-                    value={processYear}
-                    onChange={(e) => setProcessYear(e.target.value)}
-                    className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-700 focus:outline-none cursor-pointer"
-                  >
-                    <option value="2026">2026 年度</option>
-                    <option value="2025">2025 年度</option>
-                  </select>
-                )}
-
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
                 <button
                   type="button"
-                  onClick={() => alert(`正在导出【${currentSelectedProcess.processName}】工序单耗对比数据 (Excel)...`)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer ml-1"
+                  onClick={() => {
+                    setProcessIndustry('transformer')
+                    setSelectedProcessId('proc-tx-01')
+                  }}
+                  className={cn(
+                    'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                    processIndustry === 'transformer'
+                      ? 'font-bold bg-white text-[#1677ff] shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  )}
                 >
-                  <Download className="size-3.5" />
-                  <span>导出</span>
+                  ⚡ 变压器
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProcessIndustry('cable')
+                    setSelectedProcessId('proc-cb-01')
+                  }}
+                  className={cn(
+                    'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                    processIndustry === 'cable'
+                      ? 'font-bold bg-white text-emerald-700 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  🔌 线缆
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProcessIndustry('switch')
+                    setSelectedProcessId('proc-sw-01')
+                  }}
+                  className={cn(
+                    'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                    processIndustry === 'switch'
+                      ? 'font-bold bg-white text-purple-700 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  ⚙️ 中低压开关
                 </button>
               </div>
+            </div>
+
+            {/* ② 选择关键工序 */}
+            <div className="flex items-center gap-2 text-xs">
+              <span className="font-bold text-slate-600">选择关键工序：</span>
+              <select
+                value={selectedProcessId}
+                onChange={(e) => setSelectedProcessId(e.target.value)}
+                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-bold text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white min-w-[240px]"
+              >
+                {currentIndustryProcessList.map((proc) => (
+                  <option key={proc.id} value={proc.id}>
+                    {proc.processName} ({proc.unit})
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
