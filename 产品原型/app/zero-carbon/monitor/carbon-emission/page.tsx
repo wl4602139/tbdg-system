@@ -880,7 +880,7 @@ export default function CarbonEmissionMonitoringPage() {
               <div className="flex items-center gap-2 text-blue-900">
                 <Info className="size-4 text-[#1677ff] shrink-0" />
                 <span>
-                  <strong>电力核算基准因子提示：</strong>当前【{activeFactory.name}】所在区域为<strong>【{activeFactory.province}】</strong>，依据国家生态环境部最新行业标准选用分省电网电力排放因子：
+                  <strong>电力核算基准因子提示：</strong>当前【{activeFactory.name}】所在区域为<strong>【{activeFactory.province}】</strong>，依<strong>【国家温室气体排放数据库】</strong>选用分省电网电力排放因子：
                   <span className="font-mono font-bold text-[#1677ff] ml-1 bg-white px-1.5 py-0.5 rounded border border-blue-200">
                     {activeFactory.gridFactor} tCO₂/MWh
                   </span>
