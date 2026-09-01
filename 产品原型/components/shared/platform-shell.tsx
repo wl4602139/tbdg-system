@@ -114,10 +114,47 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
   const currentCenter = centers.find((c) => c.key === resolvedPlatformKey) || centers[0]
   const CurrentCenterIcon = currentCenter.icon
 
+  // 🌟 核心导航路由高亮匹配逻辑 (兼容多Tab子路由、动态参数与哈希路由)
+  const isNavActive = (currentPath: string, targetHref: string): boolean => {
+    if (!currentPath || !targetHref) return false
+    const cleanTarget = targetHref.split('#')[0].split('?')[0]
+
+    // 1. 精确匹配
+    if (currentPath === cleanTarget) return true
+
+    // 2. 特殊业务多 Tab 子路由归属规则：
+    // 【用能在线监测】包含「用能监测」(/usage) 与「设备监测」(/equipment) 两个子 Tab
+    if (cleanTarget === '/zero-carbon/monitor/online/usage') {
+      return (
+        currentPath === '/zero-carbon/monitor/online' ||
+        currentPath.startsWith('/zero-carbon/monitor/online/usage') ||
+        currentPath.startsWith('/zero-carbon/monitor/online/equipment')
+      )
+    }
+
+    // 【工业微电网监测】独立前缀匹配
+    if (cleanTarget === '/zero-carbon/monitor/online/microgrid') {
+      return currentPath.startsWith('/zero-carbon/monitor/online/microgrid')
+    }
+
+    // 3. 通用子路由深度前缀匹配 (如 /project/model/monitoring 匹配 /project/model)
+    if (
+      cleanTarget !== '/' &&
+      cleanTarget !== '/zero-carbon' &&
+      cleanTarget !== '/carbon-footprint' &&
+      cleanTarget !== '/zero-carbon/screen' &&
+      cleanTarget !== '/carbon-footprint/cockpit'
+    ) {
+      if (currentPath.startsWith(cleanTarget + '/')) return true
+    }
+
+    return false
+  }
+
   // 当路径匹配子项时自动展开所属父菜单
   useEffect(() => {
     for (const item of currentPlatform.nav) {
-      if (item.children?.some((c) => pathname === c.href || pathname.startsWith(c.href.split('#')[0]))) {
+      if (item.children?.some((c) => isNavActive(pathname, c.href))) {
         setOpenSubMenus((prev) => ({ ...prev, [item.title]: true }))
       }
     }
@@ -215,9 +252,9 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             const Icon = item.icon
             const hasChildren = item.children && item.children.length > 0
             const isSubOpen = openSubMenus[item.title]
-            const isDirectActive = pathname === item.href
+            const isDirectActive = isNavActive(pathname, item.href)
             const isChildActive =
-              hasChildren && item.children!.some((c) => pathname === c.href || pathname.startsWith(c.href.split('#')[0]))
+              hasChildren && item.children!.some((c) => isNavActive(pathname, c.href))
             const isActive = isDirectActive || isChildActive
 
             if (!hasChildren) {
@@ -268,7 +305,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                 {sidebarOpen && isSubOpen && (
                   <div className="ml-4 pl-2 border-l border-blue-400/40 space-y-0.5 py-0.5">
                     {item.children!.map((sub) => {
-                      const isSubActive = pathname === sub.href || pathname.startsWith(sub.href)
+                      const isSubActive = isNavActive(pathname, sub.href)
                       return (
                         <Link
                           key={sub.href}
