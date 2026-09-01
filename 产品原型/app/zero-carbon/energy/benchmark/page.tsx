@@ -1328,7 +1328,7 @@ export const SYSTEM_CONTROL_METRIC_OPTIONS: SystemControlMetricOption[] = [
   {
     id: 'zc_carbon_intensity',
     code: 'KPI-ZC-01',
-    name: '国家零碳工厂门槛：单位能耗碳排放 (tCO2/tce)',
+    name: '国家零碳工厂门槛：单位能耗碳排放',
     category: 'zero_carbon',
     categoryLabel: '国家零碳工厂3大指标',
     scope: '全集团 15 个零碳园区 / 21 家直属工厂',
@@ -1341,7 +1341,7 @@ export const SYSTEM_CONTROL_METRIC_OPTIONS: SystemControlMetricOption[] = [
   {
     id: 'zc_non_fossil',
     code: 'KPI-ZC-02',
-    name: '国家零碳工厂门槛：非化石能源消费占比 (%)',
+    name: '国家零碳工厂门槛：非化石能源消费占比',
     category: 'zero_carbon',
     categoryLabel: '国家零碳工厂3大指标',
     scope: '全集团各直属园区与制造工厂',
@@ -1354,7 +1354,7 @@ export const SYSTEM_CONTROL_METRIC_OPTIONS: SystemControlMetricOption[] = [
   {
     id: 'zc_physical_green',
     code: 'KPI-ZC-03',
-    name: '国家零碳工厂门槛：非化石电力物理认定电量占比 (%)',
+    name: '国家零碳工厂门槛：非化石电力物理认定电量占比',
     category: 'zero_carbon',
     categoryLabel: '国家零碳工厂3大指标',
     scope: '全集团园区分布式光伏与物理直供绿电',
@@ -3727,21 +3727,21 @@ export default function BenchmarkManagementPage() {
                   <optgroup label="🏭 1. 关键工序行业基准指标 (拉丝 / 干燥 / 交联 / 试验 / 固化 / 铁心退火)">
                     {SYSTEM_CONTROL_METRIC_OPTIONS.filter((m) => m.category === 'process').map((m) => (
                       <option key={m.id} value={m.id}>
-                        [{m.code}] {m.name} ({m.unit})
+                        {m.name} ({m.unit})
                       </option>
                     ))}
                   </optgroup>
                   <optgroup label="🌱 2. 国家零碳工厂 3 大核心指标 (碳排放强度 / 非化石消费 / 物理绿电)">
                     {SYSTEM_CONTROL_METRIC_OPTIONS.filter((m) => m.category === 'zero_carbon').map((m) => (
                       <option key={m.id} value={m.id}>
-                        [{m.code}] {m.name} ({m.unit})
+                        {m.name} ({m.unit})
                       </option>
                     ))}
                   </optgroup>
                   <optgroup label="📊 3. 集团管控基准与内控红线 (产值能耗 / 增加值能耗 / 产品单耗 / 产值水耗)">
                     {SYSTEM_CONTROL_METRIC_OPTIONS.filter((m) => m.category === 'group_control').map((m) => (
                       <option key={m.id} value={m.id}>
-                        [{m.code}] {m.name} ({m.unit})
+                        {m.name} ({m.unit})
                       </option>
                     ))}
                   </optgroup>
