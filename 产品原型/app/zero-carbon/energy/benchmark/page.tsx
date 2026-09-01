@@ -3225,7 +3225,6 @@ export default function BenchmarkManagementPage() {
                     <th className="py-2.5 px-3 text-right">集团平均线</th>
                     <th className="py-2.5 px-3 text-center">较集团平均偏差</th>
                     <th className="py-2.5 px-3 text-right text-purple-700">行业先进基准</th>
-                    <th className="py-2.5 px-3 text-center">对标评定</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-800">
@@ -3283,23 +3282,6 @@ export default function BenchmarkManagementPage() {
                           <span>{currentSelectedProcess.industryBenchmark} <span className="text-[10px] font-normal text-slate-400 font-sans">{currentSelectedProcess.unit}</span></span>
                         ) : (
                           <span className="text-slate-300 font-normal font-sans">无行业基准</span>
-                        )}
-                      </td>
-
-                      {/* 7. 对标评定 */}
-                      <td className="py-2.5 px-3 text-center font-sans">
-                        {c.isOptimal ? (
-                          <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">
-                            🏆 集团最优
-                          </span>
-                        ) : currentSelectedProcess.industryBenchmark !== undefined && c.value <= currentSelectedProcess.industryBenchmark ? (
-                          <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[11px] font-bold border border-blue-200">
-                            达行业先进
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[11px]">
-                            正常受控
-                          </span>
                         )}
                       </td>
                     </tr>
