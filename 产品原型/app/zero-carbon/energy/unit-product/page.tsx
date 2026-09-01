@@ -1722,40 +1722,15 @@ export default function UnitProductPage() {
         {/* 🌟 5. 产品型号单耗明细台账 (根据选择的产品，精准匹配对应的能源消耗类型) */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/70 gap-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2">
-                <FileSpreadsheet className="size-4 text-slate-700" />
-                <h3 className="text-xs font-bold text-slate-800">
-                  {currentTableMode === 'transformer'
-                    ? '【变压器产品】型号单耗明细台账 (电耗 · 蒸汽耗 · 气水耗)'
-                    : currentTableMode === 'cable'
-                    ? '【线缆产品】型号单耗明细台账 (电耗 · 氮气耗 · 气水耗)'
-                    : '全集团产品型号单耗明细台账'}
-                </h3>
-              </div>
-
-              {/* 电压等级快速筛选标签 */}
-              <div className="flex items-center gap-1 text-[11px] font-sans">
-                <span className="text-slate-400">电压等级:</span>
-                {(['all', '500kV级', '220kV级', '110kV级', '35kV级及以下'] as const).map((lvl) => (
-                  <button
-                    key={lvl}
-                    type="button"
-                    onClick={() => {
-                      setVoltageFilter(lvl)
-                      setCurrentPage(1)
-                    }}
-                    className={cn(
-                      'px-2 py-0.5 rounded transition-all cursor-pointer font-medium',
-                      voltageFilter === lvl
-                        ? 'bg-[#1677ff] text-white font-bold'
-                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
-                    )}
-                  >
-                    {lvl === 'all' ? '全部等级' : lvl}
-                  </button>
-                ))}
-              </div>
+            <div className="flex items-center gap-2">
+              <FileSpreadsheet className="size-4 text-slate-700" />
+              <h3 className="text-xs font-bold text-slate-800">
+                {currentTableMode === 'transformer'
+                  ? '【变压器产品】型号单耗明细台账 (电耗 · 蒸汽耗 · 气水耗)'
+                  : currentTableMode === 'cable'
+                  ? '【线缆产品】型号单耗明细台账 (电耗 · 氮气耗 · 气水耗)'
+                  : '全集团产品型号单耗明细台账'}
+              </h3>
             </div>
 
             <div className="text-xs text-slate-500 font-mono">
@@ -1769,9 +1744,6 @@ export default function UnitProductPage() {
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
                   <th className="py-2.5 px-3">序号</th>
                   <th className="py-2.5 px-3">产品型号规格</th>
-
-                  <th className="py-2.5 px-3 text-center">电压等级</th>
-                  <th className="py-2.5 px-3">主要制造单位</th>
                   
                   {/* 单位产品综合能耗 */}
                   <th className="py-2.5 px-3 text-right text-slate-900 font-bold">
@@ -1831,13 +1803,6 @@ export default function UnitProductPage() {
                           型号编码: {m.modelCode}
                         </div>
                       </td>
-
-                      <td className="py-2.5 px-3 text-center font-mono">
-                        <span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[10px]">
-                          {m.voltageLevel}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 font-sans text-slate-700">{m.companyName}</td>
                       
                       {/* 1. 单位产品综合能耗 */}
                       <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff]">
