@@ -1911,23 +1911,14 @@ export default function BenchmarkManagementPage() {
 
   return (
     <div className="w-full flex flex-col gap-3.5 font-sans">
-      {/* 1. 顶部 Header 与 统一操作栏 */}
-      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      {/* 1. 顶部 Header 标题栏 */}
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
             <BarChart3 className="size-5" />
           </div>
           <h1 className="text-base font-bold text-slate-800">对标管理</h1>
         </div>
-
-        <button
-          type="button"
-          onClick={() => alert('已生成并导出全集团多维度能效对标分析简报 (Excel)...')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-        >
-          <Download className="size-3.5" />
-          <span>导出</span>
-        </button>
       </div>
 
       {/* 2. 🌟 核心 4 大对标维度 Tab 切换栏 + 统一时间查询模块 (统一放置在顶部右侧红框位置) */}
