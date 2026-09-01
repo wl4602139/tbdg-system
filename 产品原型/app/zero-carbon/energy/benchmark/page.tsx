@@ -2039,8 +2039,8 @@ export default function BenchmarkManagementPage() {
                 </div>
               </div>
 
-              <div className="h-[290px] w-full">
-                <ResponsiveContainer width="100%" height={290}>
+              <div className="h-[350px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 12, right: 12, bottom: 24, left: 16 }}>
                     <CartesianGrid stroke="#f1f5f9" vertical={false} />
                     <XAxis
@@ -2936,9 +2936,9 @@ export default function BenchmarkManagementPage() {
               </div>
             </div>
 
-            <div className="h-[250px]">
+            <div className="h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={verticalMonthlyComparisonList} margin={{ top: 10, right: 20, left: 10, bottom: 15 }}>
+                <BarChart data={verticalMonthlyComparisonList} margin={{ top: 15, right: 20, left: 10, bottom: 15 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="monthName" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={false} />
@@ -3329,7 +3329,7 @@ export default function BenchmarkManagementPage() {
               </div>
             </div>
 
-            <div className="h-[280px]">
+            <div className="h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={currentSelectedProcess.companies.map((c) => ({
