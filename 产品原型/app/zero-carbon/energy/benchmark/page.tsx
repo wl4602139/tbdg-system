@@ -2325,7 +2325,7 @@ export default function BenchmarkManagementPage() {
                 </div>
               </div>
 
-              <div className="h-[155px]">
+              <div className="h-[350px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={activeSelectedProduct.companies.map((c) => ({
@@ -2335,7 +2335,7 @@ export default function BenchmarkManagementPage() {
                       isOptimal: c.isOptimal,
                       diff: c.diffPercent,
                     }))}
-                    margin={{ top: 8, right: 20, left: 10, bottom: 5 }}
+                    margin={{ top: 15, right: 25, left: 10, bottom: 15 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#334155' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={false} />
