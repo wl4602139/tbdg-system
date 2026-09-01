@@ -2529,9 +2529,6 @@ export default function BenchmarkManagementPage() {
                   产品单耗时序纵向对比与能效演进分析
                 </h3>
               </div>
-              <span className="text-xs text-slate-400 font-mono">
-                层级路径：选择产品 ➔ 单位 ➔ 产品种类 ➔ 型号 · 双周期跨期对比
-              </span>
             </div>
 
             {/* 核心筛选栏：选择产品大类 + 四级联动选择器 */}
