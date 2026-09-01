@@ -3138,9 +3138,6 @@ export default function BenchmarkManagementPage() {
                   相同关键工序跨项目公司单耗对标
                 </h3>
               </div>
-              <span className="text-xs text-slate-400 font-mono">
-                对标范围：变压器、线缆、中低压开关各项目公司相同关键工序
-              </span>
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3">
