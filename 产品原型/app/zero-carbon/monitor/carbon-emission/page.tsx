@@ -965,11 +965,11 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-[#1677ff]" />
                   <h3 className="text-xs font-bold text-slate-900">
-                    净碳排放结构与 3 大绿色抵消拆解
+                    净碳排放结构与 3 大绿色抵消构成全景
                   </h3>
                 </div>
                 <span className="text-xs text-slate-400 font-mono">
-                  净碳排放量 ({unitCalculations.netCarbon} tCO₂) = 初始排放 ({unitCalculations.initialCarbon} tCO₂) - 碳抵消 ({unitCalculations.totalOffset} tCO₂)
+                  公式：净碳排放量 ({unitCalculations.netCarbon.toLocaleString()} tCO₂) = 初始碳排放量 ({unitCalculations.initialCarbon.toLocaleString()} tCO₂) - 碳抵消量 ({unitCalculations.totalOffset.toLocaleString()} tCO₂)
                 </span>
               </div>
 
@@ -978,12 +978,12 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="lg:col-span-5 flex flex-col justify-between space-y-2 border-r border-slate-100 pr-2">
                   <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5 font-sans">
                     <PieIcon className="size-3.5 text-[#1677ff]" />
-                    净碳排放介质结构
+                    净碳排放介质结构占比
                   </div>
                   <Donut data={unitNetCarbonDonutData} height={190} unit="tCO₂" />
                   <div className="grid grid-cols-3 gap-1.5 text-[11px] font-mono pt-1 text-center">
                     <div className="p-1.5 rounded bg-blue-50 text-blue-900 border border-blue-100">
-                      <span className="text-[10px] text-slate-500 font-sans block">电力剩余</span>
+                      <span className="text-[10px] text-slate-500 font-sans block">外购电力</span>
                       <strong>{((unitNetCarbonDonutData[0].value / unitCalculations.netCarbon) * 100).toFixed(1)}%</strong>
                     </div>
                     <div className="p-1.5 rounded bg-purple-50 text-purple-900 border border-purple-100">
@@ -991,61 +991,84 @@ export default function CarbonEmissionMonitoringPage() {
                       <strong>{((unitCalculations.steamGrossCarbon / unitCalculations.netCarbon) * 100).toFixed(1)}%</strong>
                     </div>
                     <div className="p-1.5 rounded bg-amber-50 text-amber-900 border border-amber-100">
-                      <span className="text-[10px] text-slate-500 font-sans block">燃气排放</span>
+                      <span className="text-[10px] text-slate-500 font-sans block">化石燃气</span>
                       <strong>{((unitCalculations.gasGrossCarbon / unitCalculations.netCarbon) * 100).toFixed(1)}%</strong>
                     </div>
                   </div>
                 </div>
 
-                {/* 右侧 7/12: 3 大绿色抵消途径明细 */}
-                <div className="lg:col-span-7 space-y-2.5">
+                {/* 右侧 7/12: 3 大绿色抵消途径深度剖析 */}
+                <div className="lg:col-span-7 space-y-3">
                   <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5 font-sans">
                     <Award className="size-3.5 text-emerald-600" />
-                    三大绿色抵消途径详细构成与核销凭证
+                    三大碳抵消量执行结构与中和进度
                   </div>
 
-                  {/* 1. 直供绿电抵消 */}
-                  <div className="p-3 rounded-lg bg-emerald-50/50 border border-emerald-100 space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-emerald-900 flex items-center gap-1">
-                        <CheckCircle2 className="size-3.5 text-emerald-600" />
-                        1. 直供绿电抵消 (自建屋顶分布式光伏自发自用)
-                      </span>
-                      <strong className="font-mono text-emerald-700">{unitCalculations.solarOffset} tCO₂</strong>
+                  <div className="space-y-2.5">
+                    {/* 1. 直供绿电 */}
+                    <div className="p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-100 space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-emerald-900 flex items-center gap-1">
+                          <CheckCircle2 className="size-3.5 text-emerald-600" />
+                          1. 直供绿电抵消
+                        </span>
+                        <span className="font-mono font-bold text-emerald-700">
+                          {unitCalculations.solarOffset.toLocaleString()} tCO₂ (占总抵消 {((unitCalculations.solarOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%)
+                        </span>
+                      </div>
+                      <div className="w-full bg-emerald-200/60 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-emerald-500 h-2 rounded-full"
+                          style={{ width: `${((unitCalculations.solarOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%` }}
+                        />
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        直供绿电量: {(activeFactory.solarSelfKWh / 10000).toFixed(1)} 万 kWh
+                      </div>
                     </div>
-                    <div className="text-[11px] text-slate-500 flex justify-between font-mono">
-                      <span>消纳绿电电量: {(activeFactory.solarSelfKWh / 10000).toFixed(1)} 万 kWh</span>
-                      <span>折抵比例: {((unitCalculations.solarOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
 
-                  {/* 2. 交易绿电抵消 */}
-                  <div className="p-3 rounded-lg bg-blue-50/50 border border-blue-100 space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-blue-900 flex items-center gap-1">
-                        <CheckCircle2 className="size-3.5 text-[#1677ff]" />
-                        2. 交易绿电抵消 (市场化跨省绿电中长期交易)
-                      </span>
-                      <strong className="font-mono text-blue-700">{unitCalculations.greenElecOffset} tCO₂</strong>
+                    {/* 2. 交易绿电 */}
+                    <div className="p-2.5 rounded-lg bg-blue-50/50 border border-blue-100 space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-blue-900 flex items-center gap-1">
+                          <CheckCircle2 className="size-3.5 text-[#1677ff]" />
+                          2. 交易绿电抵消
+                        </span>
+                        <span className="font-mono font-bold text-blue-700">
+                          {unitCalculations.greenElecOffset.toLocaleString()} tCO₂ (占总抵消 {((unitCalculations.greenElecOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%)
+                        </span>
+                      </div>
+                      <div className="w-full bg-blue-200/60 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-[#1677ff] h-2 rounded-full"
+                          style={{ width: `${((unitCalculations.greenElecOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%` }}
+                        />
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        交易绿电量: {(activeFactory.greenElecKWh / 10000).toFixed(1)} 万 kWh
+                      </div>
                     </div>
-                    <div className="text-[11px] text-slate-500 flex justify-between font-mono">
-                      <span>市场化交割绿电: {(activeFactory.greenElecKWh / 10000).toFixed(1)} 万 kWh</span>
-                      <span>折抵比例: {((unitCalculations.greenElecOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
 
-                  {/* 3. 交易绿证抵消 */}
-                  <div className="p-3 rounded-lg bg-purple-50/50 border border-purple-100 space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-purple-900 flex items-center gap-1">
-                        <CheckCircle2 className="size-3.5 text-purple-600" />
-                        3. 交易绿证抵消 (国家绿色电力证书 GEC 采购核销)
-                      </span>
-                      <strong className="font-mono text-purple-700">{unitCalculations.gecOffset} tCO₂</strong>
-                    </div>
-                    <div className="text-[11px] text-slate-500 flex justify-between font-mono">
-                      <span>核销绿证数量: {activeFactory.gecCertificateCount} 张 GEC</span>
-                      <span>折抵比例: {((unitCalculations.gecOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%</span>
+                    {/* 3. 交易绿证 */}
+                    <div className="p-2.5 rounded-lg bg-purple-50/50 border border-purple-100 space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-purple-900 flex items-center gap-1">
+                          <CheckCircle2 className="size-3.5 text-purple-600" />
+                          3. 交易绿证抵消
+                        </span>
+                        <span className="font-mono font-bold text-purple-700">
+                          {unitCalculations.gecOffset.toLocaleString()} tCO₂ (占总抵消 {((unitCalculations.gecOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%)
+                        </span>
+                      </div>
+                      <div className="w-full bg-purple-200/60 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-purple-600 h-2 rounded-full"
+                          style={{ width: `${((unitCalculations.gecOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%` }}
+                        />
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        交易绿证量: {activeFactory.gecCertificateCount.toLocaleString()} 张 GEC
+                      </div>
                     </div>
                   </div>
                 </div>
