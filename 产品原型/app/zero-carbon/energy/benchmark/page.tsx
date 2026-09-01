@@ -2289,15 +2289,6 @@ export default function BenchmarkManagementPage() {
                     </button>
                   )}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => alert(`正在导出【同型号产品项目公司单耗对比台账】(Excel)...`)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
-                >
-                  <Download className="size-3.5" />
-                  <span>导出对比数据</span>
-                </button>
               </div>
             </div>
           </div>
