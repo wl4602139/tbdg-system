@@ -2225,19 +2225,19 @@ export default function BenchmarkManagementPage() {
       {/* ========================================================================= */}
       {activeTab === 'product_horizontal' && (
         <div className="space-y-3.5">
-          {/* 顶部控制面板：产品大类筛选 + 模糊搜索框 + 导出 */}
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          {/* 顶部控制面板：压缩为单行 (标题 + 产品大类筛选 + 模糊搜索框) */}
+          <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+            {/* 左侧：标题 + 分割线 + 选择产品 (变压器 / 线缆) */}
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-2">
                 <Sliders className="size-4 text-[#1677ff]" />
                 <h3 className="text-xs font-bold text-slate-900">
                   同型号产品项目公司对比
                 </h3>
               </div>
-            </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              {/* 1. 选择产品种类 (变压器 / 线缆) */}
+              <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-600">选择产品：</span>
                 <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
@@ -2267,29 +2267,27 @@ export default function BenchmarkManagementPage() {
                   </button>
                 </div>
               </div>
+            </div>
 
-              {/* 2. 搜索框 (按产品种类/型号模糊查询) + 同型号对比快捷触发 */}
-              <div className="flex items-center gap-2.5">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="按产品种类/型号模糊查询..."
-                    value={productSearchKeyword}
-                    onChange={(e) => setProductSearchKeyword(e.target.value)}
-                    className="pl-7 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#1677ff] focus:bg-white w-56 transition-colors"
-                  />
-                  <Search className="size-3.5 text-slate-400 absolute left-2 top-2 pointer-events-none" />
-                  {productSearchKeyword && (
-                    <button
-                      type="button"
-                      onClick={() => setProductSearchKeyword('')}
-                      className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                    >
-                      <X className="size-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
+            {/* 右侧：搜索框 (按产品种类/型号模糊查询) */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="按产品种类/型号模糊查询..."
+                value={productSearchKeyword}
+                onChange={(e) => setProductSearchKeyword(e.target.value)}
+                className="pl-7 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#1677ff] focus:bg-white w-60 transition-colors"
+              />
+              <Search className="size-3.5 text-slate-400 absolute left-2 top-2 pointer-events-none" />
+              {productSearchKeyword && (
+                <button
+                  type="button"
+                  onClick={() => setProductSearchKeyword('')}
+                  className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
             </div>
           </div>
 
