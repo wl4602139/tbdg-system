@@ -2238,9 +2238,7 @@ export default function BenchmarkManagementPage() {
 
               <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-600">选择产品：</span>
-                <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
                   <button
                     type="button"
                     onClick={() => setProductIndustryFilter('transformer')}
@@ -2266,7 +2264,6 @@ export default function BenchmarkManagementPage() {
                     <span>🔌 线缆</span>
                   </button>
                 </div>
-              </div>
             </div>
 
             {/* 右侧：搜索框 (按产品种类/型号模糊查询) */}
