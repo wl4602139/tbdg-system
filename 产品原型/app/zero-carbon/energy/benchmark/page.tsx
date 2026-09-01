@@ -3530,27 +3530,16 @@ export default function BenchmarkManagementPage() {
                 </div>
               </div>
 
-              {/* 4. 标准出处与维护日期 */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-600 font-bold block">标准出处 / 政策依据：</label>
-                  <input
-                    type="text"
-                    placeholder="如：GB/T 国家先进标准"
-                    value={newStandardForm.standardSource}
-                    onChange={(e) => setNewStandardForm({ ...newStandardForm, standardSource: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-slate-600 font-bold block">维护日期：</label>
-                  <input
-                    type="date"
-                    value={newStandardForm.effectiveDate}
-                    onChange={(e) => setNewStandardForm({ ...newStandardForm, effectiveDate: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
-                  />
-                </div>
+              {/* 4. 标准出处 / 政策依据 */}
+              <div className="space-y-1.5">
+                <label className="text-slate-600 font-bold block">标准出处 / 政策依据：</label>
+                <input
+                  type="text"
+                  placeholder="如：GB/T 国家先进标准"
+                  value={newStandardForm.standardSource}
+                  onChange={(e) => setNewStandardForm({ ...newStandardForm, standardSource: e.target.value })}
+                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#1677ff] focus:bg-white transition-colors"
+                />
               </div>
 
               {/* 5. 提示说明 */}
