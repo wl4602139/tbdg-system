@@ -609,7 +609,7 @@ export default function CarbonEmissionMonitoringPage() {
                 </div>
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-sans text-slate-500">
                   <span>外购电力: <strong className="font-mono text-slate-700">48,210.0 t</strong></span>
-                  <span>蒸汽/燃气: <strong className="font-mono text-slate-700">10,410.0 t</strong></span>
+                  <span>其他: <strong className="font-mono text-slate-700">10,410.0 t</strong></span>
                 </div>
               </div>
 
@@ -692,16 +692,15 @@ export default function CarbonEmissionMonitoringPage() {
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-bold text-emerald-900 flex items-center gap-1">
                           <CheckCircle2 className="size-3.5 text-emerald-600" />
-                          1. 直供绿电抵消 (自建分布式光伏自发自用)
+                          1. 直供绿电抵消
                         </span>
                         <span className="font-mono font-bold text-emerald-700">8,450.2 tCO₂ (占总抵消 48.6%)</span>
                       </div>
                       <div className="w-full bg-emerald-200/60 rounded-full h-2 overflow-hidden">
                         <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '48.6%' }} />
                       </div>
-                      <div className="text-[11px] text-slate-500 flex justify-between font-mono">
-                        <span>集团厂房屋顶光伏消纳电量: 1,481.8 万 kWh</span>
-                        <span>抵消因子: 分省电网基准</span>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        直供绿电量: 1,481.8 万 kWh
                       </div>
                     </div>
 
@@ -710,16 +709,15 @@ export default function CarbonEmissionMonitoringPage() {
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-bold text-blue-900 flex items-center gap-1">
                           <CheckCircle2 className="size-3.5 text-[#1677ff]" />
-                          2. 交易绿电抵消 (跨省市场化绿电中长期交易)
+                          2. 交易绿电抵消
                         </span>
                         <span className="font-mono font-bold text-blue-700">5,680.0 tCO₂ (占总抵消 32.7%)</span>
                       </div>
                       <div className="w-full bg-blue-200/60 rounded-full h-2 overflow-hidden">
                         <div className="bg-[#1677ff] h-2 rounded-full" style={{ width: '32.7%' }} />
                       </div>
-                      <div className="text-[11px] text-slate-500 flex justify-between font-mono">
-                        <span>集团统一组织市场化交易电量: 996.0 万 kWh</span>
-                        <span>北京电力交易中心核发</span>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        交易绿电量: 996.0 万 kWh
                       </div>
                     </div>
 
@@ -728,16 +726,15 @@ export default function CarbonEmissionMonitoringPage() {
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-bold text-purple-900 flex items-center gap-1">
                           <CheckCircle2 className="size-3.5 text-purple-600" />
-                          3. 交易绿证抵消 (国家绿色电力证书 GEC 采购核销)
+                          3. 交易绿证抵消
                         </span>
                         <span className="font-mono font-bold text-purple-700">3,239.2 tCO₂ (占总抵消 18.7%)</span>
                       </div>
                       <div className="w-full bg-purple-200/60 rounded-full h-2 overflow-hidden">
                         <div className="bg-purple-600 h-2 rounded-full" style={{ width: '18.7%' }} />
                       </div>
-                      <div className="text-[11px] text-slate-500 flex justify-between font-mono">
-                        <span>国家可再生能源信息中心核销: 5,680 张 GEC</span>
-                        <span>1张绿证 = 1000 kWh 绿电当量</span>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        交易绿证量: 5,680 张 GEC
                       </div>
                     </div>
                   </div>
@@ -771,38 +768,43 @@ export default function CarbonEmissionMonitoringPage() {
                     <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
                       <th className="py-2.5 px-3">单位名称</th>
                       <th className="py-2.5 px-3">所属电网 / 电力因子</th>
+                      <th className="py-2.5 px-3 text-[#1677ff] font-extrabold">净碳排放量 (tCO₂)</th>
+                      <th className="py-2.5 px-3 text-blue-800 font-bold">净碳排放量占比 (%)</th>
                       <th className="py-2.5 px-3">初始碳排放 (tCO₂)</th>
                       <th className="py-2.5 px-3 text-emerald-700">直供绿电抵消 (t)</th>
                       <th className="py-2.5 px-3 text-blue-700">交易绿电抵消 (t)</th>
                       <th className="py-2.5 px-3 text-purple-700">交易绿证抵消 (t)</th>
                       <th className="py-2.5 px-3 text-emerald-800 font-bold">总抵消量 (tCO₂)</th>
-                      <th className="py-2.5 px-3 text-[#1677ff] font-extrabold">净碳排放量 (tCO₂)</th>
                       <th className="py-2.5 px-3">万元产值碳排放</th>
                       <th className="py-2.5 px-3">同比变动</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {GROUP_6_COMPANIES_DATA.map((row) => (
-                      <tr key={row.id} className="hover:bg-blue-50/40 transition-colors">
-                        <td className="py-2.5 px-3 font-semibold text-slate-900 font-sans flex items-center gap-1.5">
-                          <Factory className="size-3.5 text-slate-400" />
-                          {row.name}
-                        </td>
-                        <td className="py-2.5 px-3 text-slate-600">
-                          {row.province} ({row.factor})
-                        </td>
-                        <td className="py-2.5 px-3 font-bold text-slate-800">{row.initialCarbon.toLocaleString()}</td>
-                        <td className="py-2.5 px-3 text-emerald-600 font-bold">{row.solarOffset.toLocaleString()}</td>
-                        <td className="py-2.5 px-3 text-blue-600 font-bold">{row.greenElecOffset.toLocaleString()}</td>
-                        <td className="py-2.5 px-3 text-purple-600 font-bold">{row.gecOffset.toLocaleString()}</td>
-                        <td className="py-2.5 px-3 text-emerald-700 font-extrabold">{row.totalOffset.toLocaleString()}</td>
-                        <td className="py-2.5 px-3 text-[#1677ff] font-extrabold text-sm">{row.netCarbon.toLocaleString()}</td>
-                        <td className="py-2.5 px-3 font-bold text-slate-800">
-                          {row.carbonIntensity} <span className="text-[10px] text-slate-400 font-normal">t/万元</span>
-                        </td>
-                        <td className="py-2.5 px-3 font-bold text-emerald-600">{row.yoyRate}</td>
-                      </tr>
-                    ))}
+                    {GROUP_6_COMPANIES_DATA.map((row) => {
+                      const netRatio = ((row.netCarbon / 39303.7) * 100).toFixed(1)
+                      return (
+                        <tr key={row.id} className="hover:bg-blue-50/40 transition-colors">
+                          <td className="py-2.5 px-3 font-semibold text-slate-900 font-sans flex items-center gap-1.5">
+                            <Factory className="size-3.5 text-slate-400" />
+                            {row.name}
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-600">
+                            {row.province} ({row.factor})
+                          </td>
+                          <td className="py-2.5 px-3 text-[#1677ff] font-extrabold text-sm">{row.netCarbon.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 font-extrabold text-blue-700">{netRatio}%</td>
+                          <td className="py-2.5 px-3 font-bold text-slate-800">{row.initialCarbon.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-emerald-600 font-bold">{row.solarOffset.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-blue-600 font-bold">{row.greenElecOffset.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-purple-600 font-bold">{row.gecOffset.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-emerald-700 font-extrabold">{row.totalOffset.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 font-bold text-slate-800">
+                            {row.carbonIntensity} <span className="text-[10px] text-slate-400 font-normal">t/万元</span>
+                          </td>
+                          <td className="py-2.5 px-3 font-bold text-emerald-600">{row.yoyRate}</td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -921,7 +923,7 @@ export default function CarbonEmissionMonitoringPage() {
                 </div>
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-sans text-slate-500">
                   <span>外购电力: <strong className="font-mono text-slate-700">{unitCalculations.elecGrossCarbon} t</strong></span>
-                  <span>蒸汽/燃气: <strong className="font-mono text-slate-700">{(unitCalculations.gasGrossCarbon + unitCalculations.steamGrossCarbon).toFixed(1)} t</strong></span>
+                  <span>其他: <strong className="font-mono text-slate-700">{(unitCalculations.gasGrossCarbon + unitCalculations.steamGrossCarbon).toFixed(1)} t</strong></span>
                 </div>
               </div>
 

@@ -39,19 +39,25 @@ import {
   Cell,
   AreaChart,
   Area,
+  LineChart,
   Line,
 } from 'recharts'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
 
-// 🌟 产品细分类别 (分类层级) 接口定义 (支持数十种产品种类)
+// 🌟 生产单位产品及关键工序对应表 (基于 0829 需求文档) - 主要产品分类接口定义
 export interface ProductCategoryItem {
   id: string
-  name: string
+  name: string // 主要产品名称 (如 "变压器-高压", "变压器-中低压-干变", "套管", "GIS", "线缆-高压" 等)
   shortName: string
   category: 'transformer' | 'cable'
-  groupTag: string // 二级分组标签
+  groupTag: string // 二级品类分组
+  producerUnits: string // 生产单位 (如 "沈变本部、衡变本部、湖南电气、特能建、超高压公司")
+  producerUnitIds: string[] // 对应的组织树节点 ID 列表，用于左侧组织树智能联动
+  keyProcesses: string[] // 涉及关键工序 (如 ["①变压器-高压-干燥", "②变压器-试验"])
+  energyTypes: string // 工序主要消耗能源 (如 "电力、蒸汽"、"电力、氮气")
+  kpiIndicators: string // 关键工序对应指标
   voltageLevel: '500kV级' | '220kV级' | '110kV级' | '35kV级及以下' | 'all'
   desc: string
   unitTce: number
@@ -67,83 +73,22 @@ export interface ProductCategoryItem {
   trend12Months: { period: string; tce: number; elec: number }[]
 }
 
-// 🌟 变压器产业 20 种核心产品种类全景能效库 (涵盖特高压/超高压、中高压、干变配电变、新能源箱变与特种变)
+// 🌟 变压器产业主要产品库 (严格对应《生产单位产品及关键工序对应表》中的 11 大主要产品)
 export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
-  // --- 1. 特高压及超高压类 ---
+  // 1. 变压器-高压
   {
-    id: 'cat-tr-1000',
-    name: '1000kV 特高压单相自耦变压器',
-    shortName: '1000kV特高压自耦变',
+    id: 'cat-mp-tr-high',
+    name: '变压器-高压',
+    shortName: '变压器-高压',
     category: 'transformer',
-    groupTag: '特高压/超高压',
+    groupTag: '主变与大型电力变',
+    producerUnits: '沈变本部、衡变本部、湖南电气、特能建、超高压公司',
+    producerUnitIds: ['ws_sb_main', 'ws_hb_main', 'ws_hb_hn', 'ws_hb_tnj', 'ws_xb_uhv', 'comp_sb', 'comp_hb', 'comp_xb'],
+    keyProcesses: ['①变压器-高压-干燥', '②变压器-试验'],
+    energyTypes: '电力、蒸汽',
+    kpiIndicators: '单位产值/产量综合能耗、单位电耗、单位蒸汽消耗',
     voltageLevel: '500kV级',
-    desc: '国家特高压交直流示范工程主力主变，容量达 1000MVA/相',
-    unitTce: 16.85,
-    unitTceStr: '16.85 tce/万kVA',
-    unitElec: 0.312,
-    unitElecStr: '0.312 kWh/kVA',
-    steamOrNitrogen: '4.20 t/万kVA (蒸汽)',
-    gasStr: '56.0 m³/万kVA',
-    waterStr: '22.5 t/万kVA',
-    modelCount: 18,
-    outputShare: '12.5%',
-    diffYoy: '-6.8%',
-    trend12Months: [
-      { period: '25-09', tce: 17.95, elec: 0.334 },
-      { period: '25-10', tce: 17.80, elec: 0.330 },
-      { period: '25-11', tce: 17.65, elec: 0.328 },
-      { period: '25-12', tce: 17.50, elec: 0.325 },
-      { period: '26-01', tce: 17.35, elec: 0.322 },
-      { period: '26-02', tce: 17.20, elec: 0.320 },
-      { period: '26-03', tce: 17.10, elec: 0.318 },
-      { period: '26-04', tce: 17.02, elec: 0.316 },
-      { period: '26-05', tce: 16.95, elec: 0.314 },
-      { period: '26-06', tce: 16.90, elec: 0.313 },
-      { period: '26-07', tce: 16.88, elec: 0.312 },
-      { period: '26-08', tce: 16.85, elec: 0.312 },
-    ],
-  },
-  {
-    id: 'cat-tr-750',
-    name: '750kV 超高压单相自耦变压器',
-    shortName: '750kV超高压自耦变',
-    category: 'transformer',
-    groupTag: '特高压/超高压',
-    voltageLevel: '500kV级',
-    desc: '西北电网主干枢纽变电站核心自耦变压器',
-    unitTce: 15.20,
-    unitTceStr: '15.20 tce/万kVA',
-    unitElec: 0.315,
-    unitElecStr: '0.315 kWh/kVA',
-    steamOrNitrogen: '3.80 t/万kVA (蒸汽)',
-    gasStr: '51.0 m³/万kVA',
-    waterStr: '20.6 t/万kVA',
-    modelCount: 24,
-    outputShare: '10.2%',
-    diffYoy: '-6.5%',
-    trend12Months: [
-      { period: '25-09', tce: 16.20, elec: 0.336 },
-      { period: '25-10', tce: 16.05, elec: 0.333 },
-      { period: '25-11', tce: 15.92, elec: 0.330 },
-      { period: '25-12', tce: 15.78, elec: 0.327 },
-      { period: '26-01', tce: 15.65, elec: 0.325 },
-      { period: '26-02', tce: 15.52, elec: 0.322 },
-      { period: '26-03', tce: 15.42, elec: 0.320 },
-      { period: '26-04', tce: 15.35, elec: 0.318 },
-      { period: '26-05', tce: 15.28, elec: 0.317 },
-      { period: '26-06', tce: 15.24, elec: 0.316 },
-      { period: '26-07', tce: 15.22, elec: 0.315 },
-      { period: '26-08', tce: 15.20, elec: 0.315 },
-    ],
-  },
-  {
-    id: 'cat-tr-500',
-    name: '500kV 单相自耦无励磁调压变压器 (ODFS)',
-    shortName: '500kV自耦变(ODFS)',
-    category: 'transformer',
-    groupTag: '特高压/超高压',
-    voltageLevel: '500kV级',
-    desc: '单相自耦变压器旗舰产品，广泛用于 500kV 枢纽变电站',
+    desc: '超高压及特高压骨干变压器，涵盖 110kV~1000kV 单相自耦变与大型发电机主变',
     unitTce: 14.21,
     unitTceStr: '14.21 tce/万kVA',
     unitElec: 0.317,
@@ -151,8 +96,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     steamOrNitrogen: '3.40 t/万kVA (蒸汽)',
     gasStr: '48.0 m³/万kVA',
     waterStr: '19.2 t/万kVA',
-    modelCount: 42,
-    outputShare: '18.5%',
+    modelCount: 186,
+    outputShare: '42.5%',
     diffYoy: '-6.2%',
     trend12Months: [
       { period: '25-09', tce: 15.15, elec: 0.338 },
@@ -169,282 +114,61 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
       { period: '26-08', tce: 14.21, elec: 0.317 },
     ],
   },
-  {
-    id: 'cat-tr-500-ssp',
-    name: '500kV 三相发电机主变压器 (SSP)',
-    shortName: '500kV发电机主变(SSP)',
-    category: 'transformer',
-    groupTag: '特高压/超高压',
-    voltageLevel: '500kV级',
-    desc: '百万千瓦大型核电、火电机组配套三相升压主变',
-    unitTce: 13.80,
-    unitTceStr: '13.80 tce/万kVA',
-    unitElec: 0.318,
-    unitElecStr: '0.318 kWh/kVA',
-    steamOrNitrogen: '3.20 t/万kVA (蒸汽)',
-    gasStr: '46.5 m³/万kVA',
-    waterStr: '18.6 t/万kVA',
-    modelCount: 35,
-    outputShare: '14.2%',
-    diffYoy: '-5.9%',
-    trend12Months: [
-      { period: '25-09', tce: 14.65, elec: 0.338 },
-      { period: '25-10', tce: 14.52, elec: 0.335 },
-      { period: '25-11', tce: 14.40, elec: 0.332 },
-      { period: '25-12', tce: 14.28, elec: 0.329 },
-      { period: '26-01', tce: 14.16, elec: 0.326 },
-      { period: '26-02', tce: 14.05, elec: 0.324 },
-      { period: '26-03', tce: 13.98, elec: 0.322 },
-      { period: '26-04', tce: 13.92, elec: 0.320 },
-      { period: '26-05', tce: 13.88, elec: 0.319 },
-      { period: '26-06', tce: 13.84, elec: 0.319 },
-      { period: '26-07', tce: 13.82, elec: 0.318 },
-      { period: '26-08', tce: 13.80, elec: 0.318 },
-    ],
-  },
-  {
-    id: 'cat-tr-500-osfps',
-    name: '500kV 三相自耦有载调压变压器 (OSFPS)',
-    shortName: '500kV有载自耦变(OSFPS)',
-    category: 'transformer',
-    groupTag: '特高压/超高压',
-    voltageLevel: '500kV级',
-    desc: '有载分接调压结构复杂，综合能效控制标杆产品',
-    unitTce: 14.50,
-    unitTceStr: '14.50 tce/万kVA',
-    unitElec: 0.320,
-    unitElecStr: '0.320 kWh/kVA',
-    steamOrNitrogen: '3.50 t/万kVA (蒸汽)',
-    gasStr: '49.0 m³/万kVA',
-    waterStr: '19.8 t/万kVA',
-    modelCount: 28,
-    outputShare: '9.8%',
-    diffYoy: '-5.5%',
-    trend12Months: [
-      { period: '25-09', tce: 15.35, elec: 0.339 },
-      { period: '25-10', tce: 15.22, elec: 0.336 },
-      { period: '25-11', tce: 15.10, elec: 0.333 },
-      { period: '25-12', tce: 14.98, elec: 0.330 },
-      { period: '26-01', tce: 14.86, elec: 0.328 },
-      { period: '26-02', tce: 14.75, elec: 0.326 },
-      { period: '26-03', tce: 14.68, elec: 0.324 },
-      { period: '26-04', tce: 14.62, elec: 0.322 },
-      { period: '26-05', tce: 14.58, elec: 0.321 },
-      { period: '26-06', tce: 14.54, elec: 0.321 },
-      { period: '26-07', tce: 14.52, elec: 0.320 },
-      { period: '26-08', tce: 14.50, elec: 0.320 },
-    ],
-  },
 
-  // --- 2. 中高压电力变类 ---
+  // 2. 变压器-中低压-干变
   {
-    id: 'cat-tr-330',
-    name: '330kV 三相三绕组电力变压器 (SFZ)',
-    shortName: '330kV三绕组变压器',
+    id: 'cat-mp-tr-dry',
+    name: '变压器-中低压-干变',
+    shortName: '中低压-干变',
     category: 'transformer',
-    groupTag: '中高压电力变',
-    voltageLevel: '220kV级',
-    desc: '330kV 输变电核心电力变压器',
-    unitTce: 9.80,
-    unitTceStr: '9.80 tce/万kVA',
-    unitElec: 0.322,
-    unitElecStr: '0.322 kWh/kVA',
-    steamOrNitrogen: '2.30 t/万kVA (蒸汽)',
-    gasStr: '32.5 m³/万kVA',
-    waterStr: '13.8 t/万kVA',
-    modelCount: 32,
-    outputShare: '7.5%',
-    diffYoy: '-5.4%',
-    trend12Months: [
-      { period: '25-09', tce: 10.36, elec: 0.340 },
-      { period: '25-10', tce: 10.28, elec: 0.338 },
-      { period: '25-11', tce: 10.19, elec: 0.335 },
-      { period: '25-12', tce: 10.10, elec: 0.332 },
-      { period: '26-01', tce: 10.02, elec: 0.330 },
-      { period: '26-02', tce: 9.95, elec: 0.328 },
-      { period: '26-03', tce: 9.90, elec: 0.326 },
-      { period: '26-04', tce: 9.87, elec: 0.324 },
-      { period: '26-05', tce: 9.84, elec: 0.323 },
-      { period: '26-06', tce: 9.82, elec: 0.323 },
-      { period: '26-07', tce: 9.81, elec: 0.322 },
-      { period: '26-08', tce: 9.80, elec: 0.322 },
-    ],
-  },
-  {
-    id: 'cat-tr-220',
-    name: '220kV 三相三绕组有载调压变压器 (SFZ11/13)',
-    shortName: '220kV有载调压变(SFZ)',
-    category: 'transformer',
-    groupTag: '中高压电力变',
-    voltageLevel: '220kV级',
-    desc: '三相三绕组有载调压变压器，省域电网骨干主力设备',
-    unitTce: 7.02,
-    unitTceStr: '7.02 tce/万kVA',
-    unitElec: 0.325,
-    unitElecStr: '0.325 kWh/kVA',
-    steamOrNitrogen: '1.70 t/万kVA (蒸汽)',
-    gasStr: '24.0 m³/万kVA',
-    waterStr: '10.5 t/万kVA',
-    modelCount: 68,
-    outputShare: '15.6%',
-    diffYoy: '-5.3%',
-    trend12Months: [
-      { period: '25-09', tce: 7.42, elec: 0.342 },
-      { period: '25-10', tce: 7.36, elec: 0.340 },
-      { period: '25-11', tce: 7.30, elec: 0.338 },
-      { period: '25-12', tce: 7.25, elec: 0.335 },
-      { period: '26-01', tce: 7.20, elec: 0.332 },
-      { period: '26-02', tce: 7.16, elec: 0.330 },
-      { period: '26-03', tce: 7.12, elec: 0.328 },
-      { period: '26-04', tce: 7.09, elec: 0.327 },
-      { period: '26-05', tce: 7.07, elec: 0.326 },
-      { period: '26-06', tce: 7.05, elec: 0.325 },
-      { period: '26-07', tce: 7.03, elec: 0.325 },
-      { period: '26-08', tce: 7.02, elec: 0.325 },
-    ],
-  },
-  {
-    id: 'cat-tr-220-sfp',
-    name: '220kV 双绕组无励磁发电机变压器 (SFP)',
-    shortName: '220kV发电机变(SFP)',
-    category: 'transformer',
-    groupTag: '中高压电力变',
-    voltageLevel: '220kV级',
-    desc: '30万/60万千瓦发电机组主变',
-    unitTce: 6.20,
-    unitTceStr: '6.20 tce/万kVA',
-    unitElec: 0.322,
-    unitElecStr: '0.322 kWh/kVA',
-    steamOrNitrogen: '1.50 t/万kVA (蒸汽)',
-    gasStr: '21.0 m³/万kVA',
-    waterStr: '9.0 t/万kVA',
-    modelCount: 45,
-    outputShare: '8.4%',
-    diffYoy: '-5.3%',
-    trend12Months: [
-      { period: '25-09', tce: 6.55, elec: 0.338 },
-      { period: '25-10', tce: 6.50, elec: 0.336 },
-      { period: '25-11', tce: 6.45, elec: 0.334 },
-      { period: '25-12', tce: 6.40, elec: 0.332 },
-      { period: '26-01', tce: 6.35, elec: 0.330 },
-      { period: '26-02', tce: 6.30, elec: 0.328 },
-      { period: '26-03', tce: 6.27, elec: 0.326 },
-      { period: '26-04', tce: 6.25, elec: 0.324 },
-      { period: '26-05', tce: 6.23, elec: 0.323 },
-      { period: '26-06', tce: 6.22, elec: 0.323 },
-      { period: '26-07', tce: 6.21, elec: 0.322 },
-      { period: '26-08', tce: 6.20, elec: 0.322 },
-    ],
-  },
-  {
-    id: 'cat-tr-110',
-    name: '110kV 节能型有载调压油浸变压器 (SZ11/18)',
-    shortName: '110kV节能有载油变',
-    category: 'transformer',
-    groupTag: '中高压电力变',
-    voltageLevel: '110kV级',
-    desc: '城市电网与工业园区核心供电变压器，产销量大',
-    unitTce: 4.25,
-    unitTceStr: '4.25 tce/万kVA',
-    unitElec: 0.327,
-    unitElecStr: '0.327 kWh/kVA',
-    steamOrNitrogen: '1.18 t/万kVA (蒸汽)',
-    gasStr: '15.5 m³/万kVA',
-    waterStr: '8.4 t/万kVA',
-    modelCount: 126,
-    outputShare: '18.2%',
-    diffYoy: '-4.9%',
-    trend12Months: [
-      { period: '25-09', tce: 4.48, elec: 0.344 },
-      { period: '25-10', tce: 4.45, elec: 0.342 },
-      { period: '25-11', tce: 4.41, elec: 0.339 },
-      { period: '25-12', tce: 4.38, elec: 0.336 },
-      { period: '26-01', tce: 4.35, elec: 0.334 },
-      { period: '26-02', tce: 4.32, elec: 0.332 },
-      { period: '26-03', tce: 4.30, elec: 0.330 },
-      { period: '26-04', tce: 4.28, elec: 0.329 },
-      { period: '26-05', tce: 4.27, elec: 0.328 },
-      { period: '26-06', tce: 4.26, elec: 0.328 },
-      { period: '26-07', tce: 4.25, elec: 0.327 },
-      { period: '26-08', tce: 4.25, elec: 0.327 },
-    ],
-  },
-  {
-    id: 'cat-tr-66',
-    name: '66kV 级油浸式电力变压器 (SZ11/S11)',
-    shortName: '66kV电力油浸变压器',
-    category: 'transformer',
-    groupTag: '中高压电力变',
-    voltageLevel: '110kV级',
-    desc: '东北及华北区域特色 66kV 输配电网主变',
-    unitTce: 2.65,
-    unitTceStr: '2.65 tce/万kVA',
+    groupTag: '配电及干式变压器',
+    producerUnits: '天变公司、智能电气公司',
+    producerUnitIds: ['ws_xb_tb', 'ws_xb_zndq'],
+    keyProcesses: ['①变压器-中低压-干变-固化', '②变压器-试验'],
+    energyTypes: '电力、蒸汽',
+    kpiIndicators: '单位产值/产量综合能耗、单位电耗、单位蒸汽消耗',
+    voltageLevel: '35kV级及以下',
+    desc: '环氧树脂浇注干式变压器及非晶合金立体卷铁芯干变',
+    unitTce: 0.76,
+    unitTceStr: '0.76 tce/万kVA',
     unitElec: 0.328,
     unitElecStr: '0.328 kWh/kVA',
-    steamOrNitrogen: '0.75 t/万kVA (蒸汽)',
-    gasStr: '10.2 m³/万kVA',
-    waterStr: '5.2 t/万kVA',
-    modelCount: 52,
-    outputShare: '5.4%',
-    diffYoy: '-4.5%',
+    steamOrNitrogen: '0.20 t/万kVA (蒸汽)',
+    gasStr: '6.8 m³/万kVA',
+    waterStr: '2.3 t/万kVA',
+    modelCount: 520,
+    outputShare: '18.5%',
+    diffYoy: '-5.8%',
     trend12Months: [
-      { period: '25-09', tce: 2.78, elec: 0.342 },
-      { period: '25-10', tce: 2.75, elec: 0.340 },
-      { period: '25-11', tce: 2.73, elec: 0.338 },
-      { period: '25-12', tce: 2.71, elec: 0.335 },
-      { period: '26-01', tce: 2.69, elec: 0.333 },
-      { period: '26-02', tce: 2.68, elec: 0.331 },
-      { period: '26-03', tce: 2.67, elec: 0.330 },
-      { period: '26-04', tce: 2.66, elec: 0.329 },
-      { period: '26-05', tce: 2.66, elec: 0.329 },
-      { period: '26-06', tce: 2.65, elec: 0.328 },
-      { period: '26-07', tce: 2.65, elec: 0.328 },
-      { period: '26-08', tce: 2.65, elec: 0.328 },
+      { period: '25-09', tce: 0.81, elec: 0.345 },
+      { period: '25-10', tce: 0.80, elec: 0.342 },
+      { period: '25-11', tce: 0.79, elec: 0.340 },
+      { period: '25-12', tce: 0.79, elec: 0.338 },
+      { period: '26-01', tce: 0.78, elec: 0.335 },
+      { period: '26-02', tce: 0.77, elec: 0.333 },
+      { period: '26-03', tce: 0.77, elec: 0.331 },
+      { period: '26-04', tce: 0.765, elec: 0.330 },
+      { period: '26-05', tce: 0.763, elec: 0.329 },
+      { period: '26-06', tce: 0.762, elec: 0.329 },
+      { period: '26-07', tce: 0.761, elec: 0.328 },
+      { period: '26-08', tce: 0.760, elec: 0.328 },
     ],
   },
 
-  // --- 3. 干式与配电变类 ---
+  // 3. 变压器-中低压-油变
   {
-    id: 'cat-tr-35',
-    name: '35kV 环氧树脂浇注干式变压器 (SCB13/14)',
-    shortName: '35kV环氧树脂干变',
+    id: 'cat-mp-tr-oil',
+    name: '变压器-中低压-油变',
+    shortName: '中低压-油变',
     category: 'transformer',
-    groupTag: '干式与配电变',
+    groupTag: '配电及干式变压器',
+    producerUnits: '京津冀公司',
+    producerUnitIds: ['ws_xb_jjj'],
+    keyProcesses: ['①变压器-中低压-油变-干燥', '②变压器-试验'],
+    energyTypes: '电力、蒸汽',
+    kpiIndicators: '单位产值/产量综合能耗、单位电耗、单位蒸汽消耗',
     voltageLevel: '35kV级及以下',
-    desc: '环氧树脂薄绝缘真空浇注工艺，耐火防爆免维护',
-    unitTce: 0.85,
-    unitTceStr: '0.85 tce/万kVA',
-    unitElec: 0.318,
-    unitElecStr: '0.318 kWh/kVA',
-    steamOrNitrogen: '0.22 t/万kVA (蒸汽)',
-    gasStr: '7.8 m³/万kVA',
-    waterStr: '2.6 t/万kVA',
-    modelCount: 180,
-    outputShare: '12.0%',
-    diffYoy: '-6.5%',
-    trend12Months: [
-      { period: '25-09', tce: 0.91, elec: 0.340 },
-      { period: '25-10', tce: 0.90, elec: 0.338 },
-      { period: '25-11', tce: 0.89, elec: 0.335 },
-      { period: '25-12', tce: 0.88, elec: 0.332 },
-      { period: '26-01', tce: 0.87, elec: 0.330 },
-      { period: '26-02', tce: 0.86, elec: 0.326 },
-      { period: '26-03', tce: 0.86, elec: 0.324 },
-      { period: '26-04', tce: 0.855, elec: 0.322 },
-      { period: '26-05', tce: 0.853, elec: 0.320 },
-      { period: '26-06', tce: 0.852, elec: 0.319 },
-      { period: '26-07', tce: 0.851, elec: 0.318 },
-      { period: '26-08', tce: 0.850, elec: 0.318 },
-    ],
-  },
-  {
-    id: 'cat-tr-35-oil',
-    name: '35kV 级节能油浸式配电变压器 (S13/S20)',
-    shortName: '35kV节能配电油变',
-    category: 'transformer',
-    groupTag: '干式与配电变',
-    voltageLevel: '35kV级及以下',
-    desc: '35kV 农网与工矿配电主力油浸变',
+    desc: '35kV 及 10kV 节能型油浸式配电变压器、非晶配变',
     unitTce: 0.92,
     unitTceStr: '0.92 tce/万kVA',
     unitElec: 0.322,
@@ -452,8 +176,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     steamOrNitrogen: '0.25 t/万kVA (蒸汽)',
     gasStr: '8.2 m³/万kVA',
     waterStr: '2.8 t/万kVA',
-    modelCount: 145,
-    outputShare: '9.2%',
+    modelCount: 355,
+    outputShare: '12.0%',
     diffYoy: '-5.8%',
     trend12Months: [
       { period: '25-09', tce: 0.98, elec: 0.342 },
@@ -470,285 +194,344 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
       { period: '26-08', tce: 0.920, elec: 0.322 },
     ],
   },
+
+  // 4. 变压器-铁芯
   {
-    id: 'cat-tr-10-scb',
-    name: '10kV 新一代节能干式配电变压器 (SCB14/18)',
-    shortName: '10kV节能干变(SCB)',
+    id: 'cat-mp-tr-core',
+    name: '变压器-铁芯',
+    shortName: '变压器-铁芯',
     category: 'transformer',
-    groupTag: '干式与配电变',
-    voltageLevel: '35kV级及以下',
-    desc: '一级能效国标配电干式变压器，建筑与医院商圈标配',
-    unitTce: 0.70,
-    unitTceStr: '0.70 tce/万kVA',
-    unitElec: 0.328,
-    unitElecStr: '0.328 kWh/kVA',
-    steamOrNitrogen: '0.19 t/万kVA (蒸汽)',
-    gasStr: '6.5 m³/万kVA',
-    waterStr: '2.2 t/万kVA',
-    modelCount: 340,
-    outputShare: '16.5%',
-    diffYoy: '-5.4%',
-    trend12Months: [
-      { period: '25-09', tce: 0.74, elec: 0.345 },
-      { period: '25-10', tce: 0.73, elec: 0.342 },
-      { period: '25-11', tce: 0.725, elec: 0.340 },
-      { period: '25-12', tce: 0.72, elec: 0.338 },
-      { period: '26-01', tce: 0.715, elec: 0.335 },
-      { period: '26-02', tce: 0.71, elec: 0.333 },
-      { period: '26-03', tce: 0.708, elec: 0.331 },
-      { period: '26-04', tce: 0.705, elec: 0.330 },
-      { period: '26-05', tce: 0.703, elec: 0.329 },
-      { period: '26-06', tce: 0.702, elec: 0.329 },
-      { period: '26-07', tce: 0.701, elec: 0.328 },
-      { period: '26-08', tce: 0.700, elec: 0.328 },
-    ],
-  },
-  {
-    id: 'cat-tr-10-amorphous',
-    name: '10kV 非晶合金立体卷铁芯干变 (SCBH15)',
-    shortName: '10kV非晶合金干变',
-    category: 'transformer',
-    groupTag: '干式与配电变',
-    voltageLevel: '35kV级及以下',
-    desc: '非晶合金铁芯空载损耗降低 60% 以上的绿色低碳干变',
-    unitTce: 0.65,
-    unitTceStr: '0.65 tce/万kVA',
-    unitElec: 0.315,
-    unitElecStr: '0.315 kWh/kVA',
-    steamOrNitrogen: '0.18 t/万kVA (蒸汽)',
-    gasStr: '6.0 m³/万kVA',
-    waterStr: '2.0 t/万kVA',
+    groupTag: '变压器核心组部件',
+    producerUnits: '珠峰硅钢',
+    producerUnitIds: ['ws_xb_zf'],
+    keyProcesses: ['①非晶合金铁心-退火', '②硅钢铁心-纵剪', '③硅钢铁心-中型叠装', '④硅钢铁心-大型叠装'],
+    energyTypes: '电力',
+    kpiIndicators: '单位产量电耗 (退火/纵剪/中大型叠装)',
+    voltageLevel: 'all',
+    desc: '取向硅钢铁心剪切叠装与非晶合金铁心真空退火加工',
+    unitTce: 0.175,
+    unitTceStr: '0.175 tce/t',
+    unitElec: 142.5,
+    unitElecStr: '142.5 kWh/t',
+    steamOrNitrogen: '— (无蒸汽)',
+    gasStr: '3.5 m³/t',
+    waterStr: '0.6 t/t',
     modelCount: 160,
-    outputShare: '7.8%',
-    diffYoy: '-7.0%',
+    outputShare: '6.5%',
+    diffYoy: '-6.5%',
     trend12Months: [
-      { period: '25-09', tce: 0.70, elec: 0.338 },
-      { period: '25-10', tce: 0.69, elec: 0.335 },
-      { period: '25-11', tce: 0.685, elec: 0.332 },
-      { period: '25-12', tce: 0.68, elec: 0.328 },
-      { period: '26-01', tce: 0.672, elec: 0.325 },
-      { period: '26-02', tce: 0.665, elec: 0.322 },
-      { period: '26-03', tce: 0.66, elec: 0.320 },
-      { period: '26-04', tce: 0.656, elec: 0.318 },
-      { period: '26-05', tce: 0.654, elec: 0.317 },
-      { period: '26-06', tce: 0.652, elec: 0.316 },
-      { period: '26-07', tce: 0.651, elec: 0.315 },
-      { period: '26-08', tce: 0.650, elec: 0.315 },
-    ],
-  },
-  {
-    id: 'cat-tr-10-oil-amorphous',
-    name: '10kV 油浸式非晶合金配电变压器 (SBH15)',
-    shortName: '10kV非晶配电油变',
-    category: 'transformer',
-    groupTag: '干式与配电变',
-    voltageLevel: '35kV级及以下',
-    desc: '农村电网及低负荷率台区专用超低损耗油浸配电变',
-    unitTce: 0.58,
-    unitTceStr: '0.58 tce/万kVA',
-    unitElec: 0.312,
-    unitElecStr: '0.312 kWh/kVA',
-    steamOrNitrogen: '0.16 t/万kVA (蒸汽)',
-    gasStr: '5.5 m³/万kVA',
-    waterStr: '1.8 t/万kVA',
-    modelCount: 210,
-    outputShare: '10.5%',
-    diffYoy: '-6.2%',
-    trend12Months: [
-      { period: '25-09', tce: 0.62, elec: 0.332 },
-      { period: '25-10', tce: 0.615, elec: 0.330 },
-      { period: '25-11', tce: 0.61, elec: 0.327 },
-      { period: '25-12', tce: 0.605, elec: 0.324 },
-      { period: '26-01', tce: 0.598, elec: 0.320 },
-      { period: '26-02', tce: 0.592, elec: 0.318 },
-      { period: '26-03', tce: 0.588, elec: 0.316 },
-      { period: '26-04', tce: 0.585, elec: 0.314 },
-      { period: '26-05', tce: 0.583, elec: 0.313 },
-      { period: '26-06', tce: 0.582, elec: 0.313 },
-      { period: '26-07', tce: 0.581, elec: 0.312 },
-      { period: '26-08', tce: 0.580, elec: 0.312 },
+      { period: '25-09', tce: 0.188, elec: 152.0 },
+      { period: '25-10', tce: 0.185, elec: 150.0 },
+      { period: '25-11', tce: 0.183, elec: 148.5 },
+      { period: '25-12', tce: 0.180, elec: 146.0 },
+      { period: '26-01', tce: 0.178, elec: 145.0 },
+      { period: '26-02', tce: 0.177, elec: 144.2 },
+      { period: '26-03', tce: 0.176, elec: 143.5 },
+      { period: '26-04', tce: 0.175, elec: 143.0 },
+      { period: '26-05', tce: 0.175, elec: 142.8 },
+      { period: '26-06', tce: 0.175, elec: 142.6 },
+      { period: '26-07', tce: 0.175, elec: 142.5 },
+      { period: '26-08', tce: 0.175, elec: 142.5 },
     ],
   },
 
-  // --- 4. 新能源与特种变类 ---
+  // 5. 套管
   {
-    id: 'cat-tr-pv',
-    name: '光伏/风电专用升压华式箱变 (ZGS/YB)',
-    shortName: '光伏/风电升压箱变',
+    id: 'cat-mp-bushing',
+    name: '套管',
+    shortName: '套管',
     category: 'transformer',
-    groupTag: '新能源与特种变',
-    voltageLevel: '35kV级及以下',
-    desc: '戈壁荒漠及海上风电基地专用一体化智能箱式变电站',
-    unitTce: 0.95,
-    unitTceStr: '0.95 tce/万kVA',
-    unitElec: 0.325,
-    unitElecStr: '0.325 kWh/kVA',
-    steamOrNitrogen: '0.26 t/万kVA (蒸汽)',
-    gasStr: '8.6 m³/万kVA',
-    waterStr: '2.9 t/万kVA',
-    modelCount: 195,
-    outputShare: '13.5%',
-    diffYoy: '-5.6%',
-    trend12Months: [
-      { period: '25-09', tce: 1.01, elec: 0.344 },
-      { period: '25-10', tce: 1.00, elec: 0.341 },
-      { period: '25-11', tce: 0.99, elec: 0.338 },
-      { period: '25-12', tce: 0.98, elec: 0.335 },
-      { period: '26-01', tce: 0.972, elec: 0.332 },
-      { period: '26-02', tce: 0.965, elec: 0.330 },
-      { period: '26-03', tce: 0.96, elec: 0.328 },
-      { period: '26-04', tce: 0.956, elec: 0.327 },
-      { period: '26-05', tce: 0.954, elec: 0.326 },
-      { period: '26-06', tce: 0.952, elec: 0.326 },
-      { period: '26-07', tce: 0.951, elec: 0.325 },
-      { period: '26-08', tce: 0.950, elec: 0.325 },
-    ],
-  },
-  {
-    id: 'cat-tr-ess',
-    name: '储能专用变流升压一体舱变压器',
-    shortName: '储能一体升压变',
-    category: 'transformer',
-    groupTag: '新能源与特种变',
-    voltageLevel: '35kV级及以下',
-    desc: '大容量电化学储能电站并网变流升压一体化设备',
-    unitTce: 1.05,
-    unitTceStr: '1.05 tce/万kVA',
-    unitElec: 0.328,
-    unitElecStr: '0.328 kWh/kVA',
-    steamOrNitrogen: '0.30 t/万kVA (蒸汽)',
-    gasStr: '9.2 m³/万kVA',
-    waterStr: '3.1 t/万kVA',
+    groupTag: '变压器核心组部件',
+    producerUnits: '和新套管公司',
+    producerUnitIds: ['ws_sb_hx'],
+    keyProcesses: ['①套管-干燥'],
+    energyTypes: '电力',
+    kpiIndicators: '单位产值电耗、套管干燥电耗',
+    voltageLevel: '500kV级',
+    desc: '特高压胶浸纸电容式套管及油纸电容式高压穿墙套管',
+    unitTce: 0.420,
+    unitTceStr: '0.420 tce/支',
+    unitElec: 315,
+    unitElecStr: '315 kWh/支',
+    steamOrNitrogen: '— (无蒸汽)',
+    gasStr: '4.8 m³/支',
+    waterStr: '1.2 t/支',
     modelCount: 85,
-    outputShare: '6.5%',
-    diffYoy: '-6.0%',
+    outputShare: '3.5%',
+    diffYoy: '-5.4%',
     trend12Months: [
-      { period: '25-09', tce: 1.12, elec: 0.348 },
-      { period: '25-10', tce: 1.11, elec: 0.345 },
-      { period: '25-11', tce: 1.095, elec: 0.341 },
-      { period: '25-12', tce: 1.085, elec: 0.338 },
-      { period: '26-01', tce: 1.075, elec: 0.335 },
-      { period: '26-02', tce: 1.068, elec: 0.333 },
-      { period: '26-03', tce: 1.062, elec: 0.331 },
-      { period: '26-04', tce: 1.058, elec: 0.330 },
-      { period: '26-05', tce: 1.055, elec: 0.329 },
-      { period: '26-06', tce: 1.053, elec: 0.329 },
-      { period: '26-07', tce: 1.051, elec: 0.328 },
-      { period: '26-08', tce: 1.050, elec: 0.328 },
+      { period: '25-09', tce: 0.445, elec: 334 },
+      { period: '25-10', tce: 0.440, elec: 330 },
+      { period: '25-11', tce: 0.436, elec: 327 },
+      { period: '25-12', tce: 0.432, elec: 324 },
+      { period: '26-01', tce: 0.428, elec: 321 },
+      { period: '26-02', tce: 0.425, elec: 319 },
+      { period: '26-03', tce: 0.423, elec: 317 },
+      { period: '26-04', tce: 0.421, elec: 316 },
+      { period: '26-05', tce: 0.421, elec: 316 },
+      { period: '26-06', tce: 0.420, elec: 315 },
+      { period: '26-07', tce: 0.420, elec: 315 },
+      { period: '26-08', tce: 0.420, elec: 315 },
     ],
   },
+
+  // 6. 互感器
   {
-    id: 'cat-tr-rectifier',
-    name: '工业大功率整流变压器 (ZHSFT)',
-    shortName: '大功率工业整流变',
+    id: 'cat-mp-ct',
+    name: '互感器',
+    shortName: '互感器',
     category: 'transformer',
-    groupTag: '新能源与特种变',
-    voltageLevel: '110kV级',
-    desc: '电解铝、绿氢电解槽供电专用大功率整流变压器',
-    unitTce: 3.40,
-    unitTceStr: '3.40 tce/万kVA',
-    unitElec: 0.335,
-    unitElecStr: '0.335 kWh/kVA',
-    steamOrNitrogen: '0.95 t/万kVA (蒸汽)',
-    gasStr: '12.5 m³/万kVA',
-    waterStr: '5.8 t/万kVA',
-    modelCount: 48,
-    outputShare: '4.5%',
-    diffYoy: '-4.2%',
-    trend12Months: [
-      { period: '25-09', tce: 3.55, elec: 0.350 },
-      { period: '25-10', tce: 3.52, elec: 0.347 },
-      { period: '25-11', tce: 3.49, elec: 0.344 },
-      { period: '25-12', tce: 3.47, elec: 0.341 },
-      { period: '26-01', tce: 3.45, elec: 0.339 },
-      { period: '26-02', tce: 3.43, elec: 0.338 },
-      { period: '26-03', tce: 3.42, elec: 0.337 },
-      { period: '26-04', tce: 3.41, elec: 0.336 },
-      { period: '26-05', tce: 3.41, elec: 0.336 },
-      { period: '26-06', tce: 3.405, elec: 0.335 },
-      { period: '26-07', tce: 3.402, elec: 0.335 },
-      { period: '26-08', tce: 3.400, elec: 0.335 },
-    ],
-  },
-  {
-    id: 'cat-tr-traction',
-    name: '电气化铁道牵引变压器 (QSFP/TB)',
-    shortName: '高铁专用牵引变压器',
-    category: 'transformer',
-    groupTag: '新能源与特种变',
+    groupTag: '变压器核心组部件',
+    producerUnits: '康嘉互感器',
+    producerUnitIds: ['ws_sb_kj'],
+    keyProcesses: ['①互感器-干燥', '②变压器-试验'],
+    energyTypes: '电力、蒸汽',
+    kpiIndicators: '单位产值综合能耗、单位产值电耗、单位产值蒸汽消耗',
     voltageLevel: '220kV级',
-    desc: '350km/h 高铁客运专线及重载铁路牵引变电所专用主变',
-    unitTce: 5.60,
-    unitTceStr: '5.60 tce/万kVA',
-    unitElec: 0.330,
-    unitElecStr: '0.330 kWh/kVA',
-    steamOrNitrogen: '1.45 t/万kVA (蒸汽)',
-    gasStr: '19.8 m³/万kVA',
-    waterStr: '8.5 t/万kVA',
-    modelCount: 42,
-    outputShare: '4.8%',
+    desc: '高压及超高压电流互感器、电压互感器 (CT/PT)',
+    unitTce: 0.385,
+    unitTceStr: '0.385 tce/台',
+    unitElec: 280,
+    unitElecStr: '280 kWh/台',
+    steamOrNitrogen: '0.08 t/台 (蒸汽)',
+    gasStr: '4.2 m³/台',
+    waterStr: '1.0 t/台',
+    modelCount: 110,
+    outputShare: '3.8%',
+    diffYoy: '-5.2%',
+    trend12Months: [
+      { period: '25-09', tce: 0.408, elec: 296 },
+      { period: '25-10', tce: 0.402, elec: 292 },
+      { period: '25-11', tce: 0.398, elec: 289 },
+      { period: '25-12', tce: 0.394, elec: 286 },
+      { period: '26-01', tce: 0.390, elec: 284 },
+      { period: '26-02', tce: 0.388, elec: 282 },
+      { period: '26-03', tce: 0.386, elec: 281 },
+      { period: '26-04', tce: 0.385, elec: 280 },
+      { period: '26-05', tce: 0.385, elec: 280 },
+      { period: '26-06', tce: 0.385, elec: 280 },
+      { period: '26-07', tce: 0.385, elec: 280 },
+      { period: '26-08', tce: 0.385, elec: 280 },
+    ],
+  },
+
+  // 7. 中低压开关柜
+  {
+    id: 'cat-mp-switchgear',
+    name: '中低压开关柜',
+    shortName: '中低压开关柜',
+    category: 'transformer',
+    groupTag: '配电及开关设备',
+    producerUnits: '云集电气、新疆自控',
+    producerUnitIds: ['ws_hb_yj', 'ws_hb_xj'],
+    keyProcesses: ['①中低压开关柜-钣金加工', '②中低压开关柜-钣金喷涂'],
+    energyTypes: '电力',
+    kpiIndicators: '单位产值电耗、钣金加工及涂装单耗',
+    voltageLevel: '35kV级及以下',
+    desc: 'KYN28/HXGN 铠装移开式金属封闭开关柜、智能低压柜',
+    unitTce: 0.210,
+    unitTceStr: '0.210 tce/面',
+    unitElec: 165,
+    unitElecStr: '165 kWh/面',
+    steamOrNitrogen: '— (无蒸汽)',
+    gasStr: '5.2 m³/面',
+    waterStr: '0.8 t/面',
+    modelCount: 240,
+    outputShare: '4.5%',
     diffYoy: '-4.8%',
     trend12Months: [
-      { period: '25-09', tce: 5.88, elec: 0.346 },
-      { period: '25-10', tce: 5.83, elec: 0.343 },
-      { period: '25-11', tce: 5.78, elec: 0.340 },
-      { period: '25-12', tce: 5.73, elec: 0.338 },
-      { period: '26-01', tce: 5.69, elec: 0.335 },
-      { period: '26-02', tce: 5.66, elec: 0.333 },
-      { period: '26-03', tce: 5.64, elec: 0.332 },
-      { period: '26-04', tce: 5.62, elec: 0.331 },
-      { period: '26-05', tce: 5.61, elec: 0.331 },
-      { period: '26-06', tce: 5.605, elec: 0.330 },
-      { period: '26-07', tce: 5.602, elec: 0.330 },
-      { period: '26-08', tce: 5.600, elec: 0.330 },
+      { period: '25-09', tce: 0.222, elec: 174 },
+      { period: '25-10', tce: 0.219, elec: 172 },
+      { period: '25-11', tce: 0.217, elec: 170 },
+      { period: '25-12', tce: 0.215, elec: 168 },
+      { period: '26-01', tce: 0.213, elec: 167 },
+      { period: '26-02', tce: 0.212, elec: 166 },
+      { period: '26-03', tce: 0.211, elec: 165 },
+      { period: '26-04', tce: 0.210, elec: 165 },
+      { period: '26-05', tce: 0.210, elec: 165 },
+      { period: '26-06', tce: 0.210, elec: 165 },
+      { period: '26-07', tce: 0.210, elec: 165 },
+      { period: '26-08', tce: 0.210, elec: 165 },
     ],
   },
+
+  // 8. GIS
   {
-    id: 'cat-tr-reactor',
-    name: '特高压/超高压并联电抗器 (BKD)',
-    shortName: '高压并联电抗器(BKD)',
+    id: 'cat-mp-gis',
+    name: 'GIS (气体绝缘金属封闭开关设备)',
+    shortName: 'GIS',
     category: 'transformer',
-    groupTag: '新能源与特种变',
+    groupTag: '配电及开关设备',
+    producerUnits: '云集高压开关',
+    producerUnitIds: ['ws_hb_kg'],
+    keyProcesses: ['①GIS-抽真空', '②GIS-绝缘件干燥', '③GIS-工频耐压试验', '④GIS-空调恒温除湿'],
+    energyTypes: '电力',
+    kpiIndicators: '单位产值电耗、抽真空/干燥/耐压试验工序电耗',
     voltageLevel: '500kV级',
-    desc: '特高压长距离输电线路无功补偿核心限制过电压设备',
-    unitTce: 8.20,
-    unitTceStr: '8.20 tce/万kVA',
-    unitElec: 0.325,
-    unitElecStr: '0.325 kWh/kVA',
-    steamOrNitrogen: '2.10 t/万kVA (蒸汽)',
-    gasStr: '28.0 m³/万kVA',
-    waterStr: '11.8 t/万kVA',
-    modelCount: 30,
-    outputShare: '3.6%',
-    diffYoy: '-5.0%',
+    desc: '126kV~550kV 气体绝缘金属封闭全组合电器 (GIS)',
+    unitTce: 1.850,
+    unitTceStr: '1.850 tce/间隔',
+    unitElec: 1420,
+    unitElecStr: '1,420 kWh/间隔',
+    steamOrNitrogen: '— (无蒸汽)',
+    gasStr: '12.0 m³/间隔',
+    waterStr: '3.5 t/间隔',
+    modelCount: 45,
+    outputShare: '3.2%',
+    diffYoy: '-6.0%',
     trend12Months: [
-      { period: '25-09', tce: 8.64, elec: 0.342 },
-      { period: '25-10', tce: 8.58, elec: 0.339 },
-      { period: '25-11', tce: 8.51, elec: 0.336 },
-      { period: '25-12', tce: 8.44, elec: 0.333 },
-      { period: '26-01', tce: 8.38, elec: 0.331 },
-      { period: '26-02', tce: 8.32, elec: 0.329 },
-      { period: '26-03', tce: 8.28, elec: 0.327 },
-      { period: '26-04', tce: 8.25, elec: 0.326 },
-      { period: '26-05', tce: 8.23, elec: 0.326 },
-      { period: '26-06', tce: 8.22, elec: 0.325 },
-      { period: '26-07', tce: 8.21, elec: 0.325 },
-      { period: '26-08', tce: 8.20, elec: 0.325 },
+      { period: '25-09', tce: 1.980, elec: 1515 },
+      { period: '25-10', tce: 1.950, elec: 1495 },
+      { period: '25-11', tce: 1.920, elec: 1470 },
+      { period: '25-12', tce: 1.895, elec: 1450 },
+      { period: '26-01', tce: 0.875, elec: 1438 },
+      { period: '26-02', tce: 1.865, elec: 1430 },
+      { period: '26-03', tce: 1.858, elec: 1425 },
+      { period: '26-04', tce: 1.853, elec: 1422 },
+      { period: '26-05', tce: 1.851, elec: 1421 },
+      { period: '26-06', tce: 1.850, elec: 1420 },
+      { period: '26-07', tce: 1.850, elec: 1420 },
+      { period: '26-08', tce: 1.850, elec: 1420 },
+    ],
+  },
+
+  // 9. 干式电抗器
+  {
+    id: 'cat-mp-reactor',
+    name: '干式电抗器',
+    shortName: '干式电抗器',
+    category: 'transformer',
+    groupTag: '电抗与无功补偿设备',
+    producerUnits: '合容电气股份',
+    producerUnitIds: ['ws_hb_hr'],
+    keyProcesses: ['①干式电抗器-固化', '②干式电抗器-试验'],
+    energyTypes: '电力',
+    kpiIndicators: '单位产值电耗、固化与试验工序电耗',
+    voltageLevel: '220kV级',
+    desc: '空心干式并联电抗器、干式滤波电抗器及消弧线圈',
+    unitTce: 0.680,
+    unitTceStr: '0.680 tce/台',
+    unitElec: 520,
+    unitElecStr: '520 kWh/台',
+    steamOrNitrogen: '— (无蒸汽)',
+    gasStr: '6.5 m³/台',
+    waterStr: '1.5 t/台',
+    modelCount: 95,
+    outputShare: '2.5%',
+    diffYoy: '-5.1%',
+    trend12Months: [
+      { period: '25-09', tce: 0.720, elec: 550 },
+      { period: '25-10', tce: 0.710, elec: 542 },
+      { period: '25-11', tce: 0.702, elec: 536 },
+      { period: '25-12', tce: 0.695, elec: 531 },
+      { period: '26-01', tce: 0.690, elec: 527 },
+      { period: '26-02', tce: 0.686, elec: 524 },
+      { period: '26-03', tce: 0.683, elec: 522 },
+      { period: '26-04', tce: 0.681, elec: 521 },
+      { period: '26-05', tce: 0.680, elec: 520 },
+      { period: '26-06', tce: 0.680, elec: 520 },
+      { period: '26-07', tce: 0.680, elec: 520 },
+      { period: '26-08', tce: 0.680, elec: 520 },
+    ],
+  },
+
+  // 10. 电容器
+  {
+    id: 'cat-mp-capacitor',
+    name: '电容器',
+    shortName: '电容器',
+    category: 'transformer',
+    groupTag: '电抗与无功补偿设备',
+    producerUnits: '合容电力设备',
+    producerUnitIds: ['ws_hb_hr'],
+    keyProcesses: ['①电容器-芯子卷绕', '②电容器-真空浸渍', '③电容器-喷漆', '④电容器-试验'],
+    energyTypes: '电力',
+    kpiIndicators: '单位产值电耗、芯子卷绕与真空浸渍工序电耗',
+    voltageLevel: '110kV级',
+    desc: '高压并联电力电容器、交流滤波电容器及电容器成套装置',
+    unitTce: 0.145,
+    unitTceStr: '0.145 tce/kvar',
+    unitElec: 112,
+    unitElecStr: '112 kWh/kvar',
+    steamOrNitrogen: '— (无蒸汽)',
+    gasStr: '2.1 m³/kvar',
+    waterStr: '0.4 t/kvar',
+    modelCount: 130,
+    outputShare: '2.0%',
+    diffYoy: '-4.6%',
+    trend12Months: [
+      { period: '25-09', tce: 0.153, elec: 118 },
+      { period: '25-10', tce: 0.151, elec: 116 },
+      { period: '25-11', tce: 0.149, elec: 115 },
+      { period: '25-12', tce: 0.148, elec: 114 },
+      { period: '26-01', tce: 0.147, elec: 113 },
+      { period: '26-02', tce: 0.146, elec: 113 },
+      { period: '26-03', tce: 0.145, elec: 112 },
+      { period: '26-04', tce: 0.145, elec: 112 },
+      { period: '26-05', tce: 0.145, elec: 112 },
+      { period: '26-06', tce: 0.145, elec: 112 },
+      { period: '26-07', tce: 0.145, elec: 112 },
+      { period: '26-08', tce: 0.145, elec: 112 },
+    ],
+  },
+
+  // 11. GIL
+  {
+    id: 'cat-mp-gil',
+    name: 'GIL (气体绝缘输电线路)',
+    shortName: 'GIL',
+    category: 'transformer',
+    groupTag: '配电及开关设备',
+    producerUnits: '赛杰爱迪',
+    producerUnitIds: ['ws_hb_gil'],
+    keyProcesses: ['①GIL-螺旋焊管生产', '②GIL-绝缘子生产', '③GIL-测试'],
+    energyTypes: '电力',
+    kpiIndicators: '单位产值电耗、焊管与绝缘子生产测试工序电耗',
+    voltageLevel: '500kV级',
+    desc: '500kV/220kV 气体绝缘金属封闭输电线路及三相共箱 GIL',
+    unitTce: 0.820,
+    unitTceStr: '0.820 tce/百米',
+    unitElec: 635,
+    unitElecStr: '635 kWh/百米',
+    steamOrNitrogen: '— (无蒸汽)',
+    gasStr: '8.0 m³/百米',
+    waterStr: '1.8 t/百米',
+    modelCount: 38,
+    outputShare: '1.0%',
+    diffYoy: '-5.5%',
+    trend12Months: [
+      { period: '25-09', tce: 0.872, elec: 675 },
+      { period: '25-10', tce: 0.860, elec: 665 },
+      { period: '25-11', tce: 0.850, elec: 658 },
+      { period: '25-12', tce: 0.840, elec: 650 },
+      { period: '26-01', tce: 0.832, elec: 644 },
+      { period: '26-02', tce: 0.828, elec: 640 },
+      { period: '26-03', tce: 0.824, elec: 638 },
+      { period: '26-04', tce: 0.822, elec: 636 },
+      { period: '26-05', tce: 0.821, elec: 635 },
+      { period: '26-06', tce: 0.820, elec: 635 },
+      { period: '26-07', tce: 0.820, elec: 635 },
+      { period: '26-08', tce: 0.820, elec: 635 },
     ],
   },
 ]
 
-// 🌟 线缆产业 20 种核心产品种类全景能效库 (涵盖高压超高压电缆、中低压电力电缆、新能源与特种电缆、架空导线与控制线)
+// 🌟 线缆产业主要产品库 (严格对应《生产单位产品及关键工序对应表》中的 4 大主要产品)
 export const CABLE_CATEGORIES: ProductCategoryItem[] = [
-  // --- 1. 超高压及高压电缆 ---
+  // 1. 线缆-高压
   {
-    id: 'cat-cb-500',
-    name: '500kV 皱纹铝套超高压交联电缆 (立塔干法)',
-    shortName: '500kV皱纹铝套高压电缆',
+    id: 'cat-mp-cb-high',
+    name: '线缆-高压',
+    shortName: '线缆-高压',
     category: 'cable',
-    groupTag: '高压及超高压电缆',
+    groupTag: '超高压及高压电缆',
+    producerUnits: '鲁缆本部',
+    producerUnitIds: ['ws_ll_main', 'comp_ll'],
+    keyProcesses: ['①线缆-高压-交联（干法）', '②线缆-拉丝'],
+    energyTypes: '电力、氮气',
+    kpiIndicators: '单位产量电耗、单位吨铜电耗、单位吨铝电耗、氮气消耗量',
     voltageLevel: '500kV级',
-    desc: '立式交联生产线 (VCV) 制造，国内最高电压等级电缆',
+    desc: '110kV~500kV 皱纹铝套超高压交联聚乙烯电力电缆 (立塔 VCV 交联工艺)',
     unitTce: 0.877,
     unitTceStr: '0.877 tce/km',
     unitElec: 6616,
@@ -756,8 +539,8 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
     steamOrNitrogen: '19.7 m³/km (氮气)',
     gasStr: '12.2 m³/km',
     waterStr: '2.6 t/km',
-    modelCount: 45,
-    outputShare: '14.0%',
+    modelCount: 168,
+    outputShare: '32.5%',
     diffYoy: '-6.8%',
     trend12Months: [
       { period: '25-09', tce: 0.941, elec: 7080 },
@@ -774,148 +557,21 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
       { period: '26-08', tce: 0.877, elec: 6616 },
     ],
   },
-  {
-    id: 'cat-cb-220',
-    name: '220kV 皱纹铝套高压交联聚乙烯电缆',
-    shortName: '220kV皱纹铝套高压电缆',
-    category: 'cable',
-    groupTag: '高压及超高压电缆',
-    voltageLevel: '220kV级',
-    desc: '大中城市电网 220kV 进城入地主力输电电缆',
-    unitTce: 0.642,
-    unitTceStr: '0.642 tce/km',
-    unitElec: 4850,
-    unitElecStr: '4,850 kWh/km',
-    steamOrNitrogen: '14.5 m³/km (氮气)',
-    gasStr: '9.0 m³/km',
-    waterStr: '2.0 t/km',
-    modelCount: 68,
-    outputShare: '16.5%',
-    diffYoy: '-5.9%',
-    trend12Months: [
-      { period: '25-09', tce: 0.682, elec: 5150 },
-      { period: '25-10', tce: 0.675, elec: 5100 },
-      { period: '25-11', tce: 0.668, elec: 5050 },
-      { period: '25-12', tce: 0.662, elec: 5000 },
-      { period: '26-01', tce: 0.656, elec: 4950 },
-      { period: '26-02', tce: 0.651, elec: 4920 },
-      { period: '26-03', tce: 0.648, elec: 4890 },
-      { period: '26-04', tce: 0.646, elec: 4880 },
-      { period: '26-05', tce: 0.644, elec: 4865 },
-      { period: '26-06', tce: 0.643, elec: 4858 },
-      { period: '26-07', tce: 0.642, elec: 4852 },
-      { period: '26-08', tce: 0.642, elec: 4850 },
-    ],
-  },
-  {
-    id: 'cat-cb-110',
-    name: '110kV 平滑铝套高压电力电缆',
-    shortName: '110kV平滑铝套高压电缆',
-    category: 'cable',
-    groupTag: '高压及超高压电缆',
-    voltageLevel: '110kV级',
-    desc: '平滑铝套抗拉抗压性能优异，高压电缆市场主流',
-    unitTce: 0.482,
-    unitTceStr: '0.482 tce/km',
-    unitElec: 3640,
-    unitElecStr: '3,640 kWh/km',
-    steamOrNitrogen: '11.0 m³/km (氮气)',
-    gasStr: '7.2 m³/km',
-    waterStr: '1.6 t/km',
-    modelCount: 120,
-    outputShare: '22.0%',
-    diffYoy: '-6.1%',
-    trend12Months: [
-      { period: '25-09', tce: 0.513, elec: 3880 },
-      { period: '25-10', tce: 0.508, elec: 3840 },
-      { period: '25-11', tce: 0.502, elec: 3790 },
-      { period: '25-12', tce: 0.497, elec: 3750 },
-      { period: '26-01', tce: 0.492, elec: 3710 },
-      { period: '26-02', tce: 0.488, elec: 3680 },
-      { period: '26-03', tce: 0.486, elec: 3670 },
-      { period: '26-04', tce: 0.484, elec: 3655 },
-      { period: '26-05', tce: 0.483, elec: 3650 },
-      { period: '26-06', tce: 0.483, elec: 3645 },
-      { period: '26-07', tce: 0.482, elec: 3642 },
-      { period: '26-08', tce: 0.482, elec: 3640 },
-    ],
-  },
-  {
-    id: 'cat-cb-66',
-    name: '66kV 级中高压交联聚乙烯绝缘电缆',
-    shortName: '66kV中高压交联电缆',
-    category: 'cable',
-    groupTag: '高压及超高压电缆',
-    voltageLevel: '110kV级',
-    desc: '风电场集电线路及区域高压配电专用',
-    unitTce: 0.365,
-    unitTceStr: '0.365 tce/km',
-    unitElec: 2750,
-    unitElecStr: '2,750 kWh/km',
-    steamOrNitrogen: '8.8 m³/km (氮气)',
-    gasStr: '5.8 m³/km',
-    waterStr: '1.2 t/km',
-    modelCount: 75,
-    outputShare: '9.2%',
-    diffYoy: '-4.8%',
-    trend12Months: [
-      { period: '25-09', tce: 0.383, elec: 2890 },
-      { period: '25-10', tce: 0.380, elec: 2865 },
-      { period: '25-11', tce: 0.376, elec: 2835 },
-      { period: '25-12', tce: 0.373, elec: 2810 },
-      { period: '26-01', tce: 0.370, elec: 2790 },
-      { period: '26-02', tce: 0.368, elec: 2775 },
-      { period: '26-03', tce: 0.367, elec: 2765 },
-      { period: '26-04', tce: 0.366, elec: 2760 },
-      { period: '26-05', tce: 0.366, elec: 2755 },
-      { period: '26-06', tce: 0.365, elec: 2752 },
-      { period: '26-07', tce: 0.365, elec: 2750 },
-      { period: '26-08', tce: 0.365, elec: 2750 },
-    ],
-  },
-  {
-    id: 'cat-cb-subsea',
-    name: '110kV~220kV 海底光电复合交联电缆',
-    shortName: '海底光电复合高压缆',
-    category: 'cable',
-    groupTag: '高压及超高压电缆',
-    voltageLevel: '500kV级',
-    desc: '海上风电送出与海岛跨海供电高技术高附加值产品',
-    unitTce: 0.960,
-    unitTceStr: '0.960 tce/km',
-    unitElec: 7250,
-    unitElecStr: '7,250 kWh/km',
-    steamOrNitrogen: '22.0 m³/km (氮气)',
-    gasStr: '14.5 m³/km',
-    waterStr: '3.2 t/km',
-    modelCount: 28,
-    outputShare: '6.5%',
-    diffYoy: '-5.2%',
-    trend12Months: [
-      { period: '25-09', tce: 1.012, elec: 7650 },
-      { period: '25-10', tce: 1.005, elec: 7590 },
-      { period: '25-11', tce: 0.995, elec: 7520 },
-      { period: '25-12', tce: 0.988, elec: 7460 },
-      { period: '26-01', tce: 0.980, elec: 7400 },
-      { period: '26-02', tce: 0.974, elec: 7350 },
-      { period: '26-03', tce: 0.970, elec: 7320 },
-      { period: '26-04', tce: 0.966, elec: 7290 },
-      { period: '26-05', tce: 0.964, elec: 7275 },
-      { period: '26-06', tce: 0.962, elec: 7260 },
-      { period: '26-07', tce: 0.961, elec: 7255 },
-      { period: '26-08', tce: 0.960, elec: 7250 },
-    ],
-  },
 
-  // --- 2. 中低压电力电缆 ---
+  // 2. 线缆-中低压
   {
-    id: 'cat-cb-35-yjv22',
-    name: '35kV 钢带铠装中压交联电缆 (YJV22)',
-    shortName: '35kV钢带铠装中压缆',
+    id: 'cat-mp-cb-midlow',
+    name: '线缆-中低压',
+    shortName: '线缆-中低压',
     category: 'cable',
     groupTag: '中低压电力电缆',
+    producerUnits: '鲁缆本部、特变电工新疆电缆有限公司、特变电工新疆线缆厂、特变电工（德阳）电缆股份有限公司',
+    producerUnitIds: ['ws_ll_main', 'ws_xl_main', 'ws_xl_sub', 'ws_dl_main', 'comp_ll', 'comp_xl', 'comp_dl'],
+    keyProcesses: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
+    energyTypes: '电力、氮气',
+    kpiIndicators: '单位产量电耗、单位吨铜电耗、单位吨铝电耗、氮气单耗',
     voltageLevel: '35kV级及以下',
-    desc: '35kV 配网主力直埋中压铠装电缆',
+    desc: '35kV/10kV 钢带铠装交联电力电缆及 0.6/1kV 低烟无卤阻燃电力电缆',
     unitTce: 0.238,
     unitTceStr: '0.238 tce/km',
     unitElec: 1785,
@@ -923,8 +579,8 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
     steamOrNitrogen: '6.6 m³/km (氮气)',
     gasStr: '4.3 m³/km',
     waterStr: '0.9 t/km',
-    modelCount: 185,
-    outputShare: '18.5%',
+    modelCount: 980,
+    outputShare: '42.0%',
     diffYoy: '-5.3%',
     trend12Months: [
       { period: '25-09', tce: 0.252, elec: 1890 },
@@ -941,214 +597,21 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
       { period: '26-08', tce: 0.238, elec: 1785 },
     ],
   },
-  {
-    id: 'cat-cb-35-yjv32',
-    name: '35kV 细钢丝铠装中压交联电缆 (YJV32)',
-    shortName: '35kV钢丝铠装中压缆',
-    category: 'cable',
-    groupTag: '中低压电力电缆',
-    voltageLevel: '35kV级及以下',
-    desc: '竖井与高落差地段专用抗拉中压电缆',
-    unitTce: 0.265,
-    unitTceStr: '0.265 tce/km',
-    unitElec: 1990,
-    unitElecStr: '1,990 kWh/km',
-    steamOrNitrogen: '7.2 m³/km (氮气)',
-    gasStr: '4.8 m³/km',
-    waterStr: '1.0 t/km',
-    modelCount: 90,
-    outputShare: '7.2%',
-    diffYoy: '-5.0%',
-    trend12Months: [
-      { period: '25-09', tce: 0.279, elec: 2095 },
-      { period: '25-10', tce: 0.276, elec: 2075 },
-      { period: '25-11', tce: 0.273, elec: 2050 },
-      { period: '25-12', tce: 0.270, elec: 2030 },
-      { period: '26-01', tce: 0.268, elec: 2015 },
-      { period: '26-02', tce: 0.267, elec: 2005 },
-      { period: '26-03', tce: 0.266, elec: 2000 },
-      { period: '26-04', tce: 0.265, elec: 1995 },
-      { period: '26-05', tce: 0.265, elec: 1992 },
-      { period: '26-06', tce: 0.265, elec: 1990 },
-      { period: '26-07', tce: 0.265, elec: 1990 },
-      { period: '26-08', tce: 0.265, elec: 1990 },
-    ],
-  },
-  {
-    id: 'cat-cb-10-yjv22',
-    name: '10kV 三芯铠装交联电力电缆 (YJV22)',
-    shortName: '10kV三芯铠装电力缆',
-    category: 'cable',
-    groupTag: '中低压电力电缆',
-    voltageLevel: '35kV级及以下',
-    desc: '城市配电网地下排管与直埋应用最广电缆',
-    unitTce: 0.195,
-    unitTceStr: '0.195 tce/km',
-    unitElec: 1465,
-    unitElecStr: '1,465 kWh/km',
-    steamOrNitrogen: '5.2 m³/km (氮气)',
-    gasStr: '3.6 m³/km',
-    waterStr: '0.8 t/km',
-    modelCount: 260,
-    outputShare: '24.0%',
-    diffYoy: '-5.5%',
-    trend12Months: [
-      { period: '25-09', tce: 0.206, elec: 1550 },
-      { period: '25-10', tce: 0.204, elec: 1535 },
-      { period: '25-11', tce: 0.202, elec: 1520 },
-      { period: '25-12', tce: 0.200, elec: 1505 },
-      { period: '26-01', tce: 0.198, elec: 1490 },
-      { period: '26-02', tce: 0.197, elec: 1480 },
-      { period: '26-03', tce: 0.196, elec: 1475 },
-      { period: '26-04', tce: 0.196, elec: 1470 },
-      { period: '26-05', tce: 0.195, elec: 1468 },
-      { period: '26-06', tce: 0.195, elec: 1466 },
-      { period: '26-07', tce: 0.195, elec: 1465 },
-      { period: '26-08', tce: 0.195, elec: 1465 },
-    ],
-  },
-  {
-    id: 'cat-cb-10-yjv',
-    name: '10kV 单芯交联聚乙烯电力电缆 (YJV)',
-    shortName: '10kV单芯交联电力缆',
-    category: 'cable',
-    groupTag: '中低压电力电缆',
-    voltageLevel: '35kV级及以下',
-    desc: '大截面大电流配电回路专用单芯中压电缆',
-    unitTce: 0.165,
-    unitTceStr: '0.165 tce/km',
-    unitElec: 1240,
-    unitElecStr: '1,240 kWh/km',
-    steamOrNitrogen: '4.5 m³/km (氮气)',
-    gasStr: '3.1 m³/km',
-    waterStr: '0.7 t/km',
-    modelCount: 210,
-    outputShare: '18.5%',
-    diffYoy: '-4.9%',
-    trend12Months: [
-      { period: '25-09', tce: 0.174, elec: 1305 },
-      { period: '25-10', tce: 0.172, elec: 1290 },
-      { period: '25-11', tce: 0.170, elec: 1280 },
-      { period: '25-12', tce: 0.169, elec: 1270 },
-      { period: '26-01', tce: 0.168, elec: 1260 },
-      { period: '26-02', tce: 0.167, elec: 1255 },
-      { period: '26-03', tce: 0.166, elec: 1250 },
-      { period: '26-04', tce: 0.166, elec: 1245 },
-      { period: '26-05', tce: 0.165, elec: 1242 },
-      { period: '26-06', tce: 0.165, elec: 1241 },
-      { period: '26-07', tce: 0.165, elec: 1240 },
-      { period: '26-08', tce: 0.165, elec: 1240 },
-    ],
-  },
-  {
-    id: 'cat-cb-lv-wdz',
-    name: '0.6/1kV 低烟无卤阻燃电力电缆 (WDZ-YJY)',
-    shortName: '0.6/1kV低烟无卤阻燃缆',
-    category: 'cable',
-    groupTag: '中低压电力电缆',
-    voltageLevel: '35kV级及以下',
-    desc: '大型商场、地铁、数据中心绿色低碳环保首选',
-    unitTce: 0.168,
-    unitTceStr: '0.168 tce/km',
-    unitElec: 1260,
-    unitElecStr: '1,260 kWh/km',
-    steamOrNitrogen: '3.8 m³/km (氮气)',
-    gasStr: '3.0 m³/km',
-    waterStr: '0.6 t/km',
-    modelCount: 420,
-    outputShare: '26.5%',
-    diffYoy: '-4.7%',
-    trend12Months: [
-      { period: '25-09', tce: 0.177, elec: 1330 },
-      { period: '25-10', tce: 0.175, elec: 1315 },
-      { period: '25-11', tce: 0.174, elec: 1305 },
-      { period: '25-12', tce: 0.172, elec: 1290 },
-      { period: '26-01', tce: 0.171, elec: 1282 },
-      { period: '26-02', tce: 0.170, elec: 1275 },
-      { period: '26-03', tce: 0.169, elec: 1270 },
-      { period: '26-04', tce: 0.169, elec: 1268 },
-      { period: '26-05', tce: 0.168, elec: 1265 },
-      { period: '26-06', tce: 0.168, elec: 1262 },
-      { period: '26-07', tce: 0.168, elec: 1260 },
-      { period: '26-08', tce: 0.168, elec: 1260 },
-    ],
-  },
-  {
-    id: 'cat-cb-lv-vv',
-    name: '0.6/1kV 聚氯乙烯绝缘铠装电缆 (VV22)',
-    shortName: '0.6/1kV铠装电力电缆',
-    category: 'cable',
-    groupTag: '中低压电力电缆',
-    voltageLevel: '35kV级及以下',
-    desc: '传统工业动力配电经济型铠装电缆',
-    unitTce: 0.145,
-    unitTceStr: '0.145 tce/km',
-    unitElec: 1090,
-    unitElecStr: '1,090 kWh/km',
-    steamOrNitrogen: '3.2 m³/km (氮气)',
-    gasStr: '2.6 m³/km',
-    waterStr: '0.5 t/km',
-    modelCount: 310,
-    outputShare: '18.0%',
-    diffYoy: '-4.5%',
-    trend12Months: [
-      { period: '25-09', tce: 0.152, elec: 1145 },
-      { period: '25-10', tce: 0.150, elec: 1130 },
-      { period: '25-11', tce: 0.149, elec: 1120 },
-      { period: '25-12', tce: 0.148, elec: 1110 },
-      { period: '26-01', tce: 0.147, elec: 1105 },
-      { period: '26-02', tce: 0.146, elec: 1100 },
-      { period: '26-03', tce: 0.146, elec: 1095 },
-      { period: '26-04', tce: 0.145, elec: 1092 },
-      { period: '26-05', tce: 0.145, elec: 1091 },
-      { period: '26-06', tce: 0.145, elec: 1090 },
-      { period: '26-07', tce: 0.145, elec: 1090 },
-      { period: '26-08', tce: 0.145, elec: 1090 },
-    ],
-  },
-  {
-    id: 'cat-cb-fire',
-    name: '0.6/1kV 矿物绝缘柔性防火电缆 (BTTZ/YTTW)',
-    shortName: '矿物绝缘柔性防火缆',
-    category: 'cable',
-    groupTag: '中低压电力电缆',
-    voltageLevel: '35kV级及以下',
-    desc: '超高耐火极限 (950℃/3h)，特级消防负荷专用电缆',
-    unitTce: 0.220,
-    unitTceStr: '0.220 tce/km',
-    unitElec: 1650,
-    unitElecStr: '1,650 kWh/km',
-    steamOrNitrogen: '5.6 m³/km (氮气)',
-    gasStr: '4.0 m³/km',
-    waterStr: '0.9 t/km',
-    modelCount: 140,
-    outputShare: '9.5%',
-    diffYoy: '-5.8%',
-    trend12Months: [
-      { period: '25-09', tce: 0.234, elec: 1755 },
-      { period: '25-10', tce: 0.231, elec: 1730 },
-      { period: '25-11', tce: 0.228, elec: 1710 },
-      { period: '25-12', tce: 0.226, elec: 1695 },
-      { period: '26-01', tce: 0.224, elec: 1680 },
-      { period: '26-02', tce: 0.223, elec: 1670 },
-      { period: '26-03', tce: 0.222, elec: 1665 },
-      { period: '26-04', tce: 0.221, elec: 1658 },
-      { period: '26-05', tce: 0.221, elec: 1654 },
-      { period: '26-06', tce: 0.220, elec: 1652 },
-      { period: '26-07', tce: 0.220, elec: 1650 },
-      { period: '26-08', tce: 0.220, elec: 1650 },
-    ],
-  },
 
-  // --- 3. 新能源与特种电缆 ---
+  // 3. 线缆-特种电缆
   {
-    id: 'cat-cb-pv',
-    name: '光伏系统专用耐候阻燃直流电缆 (PV1-F)',
-    shortName: '光伏专用直流耐候缆',
+    id: 'cat-mp-cb-special',
+    name: '线缆-特种电缆',
+    shortName: '线缆-特种电缆',
     category: 'cable',
     groupTag: '新能源与特种电缆',
+    producerUnits: '曙光公司',
+    producerUnitIds: ['ws_ll_sg'],
+    keyProcesses: ['①特种绝缘挤出', '②辐照交联', '③耐寒耐扭曲编织铠装'],
+    energyTypes: '电力、氮气、天然气',
+    kpiIndicators: '单位产量电耗、光伏风电储能专用特种电缆单耗',
     voltageLevel: '35kV级及以下',
-    desc: '抗紫外线、耐臭氧、耐高低温极端荒漠气候专用',
+    desc: '光伏耐候直流电缆、风电耐扭曲软电缆、储能高压电缆、矿物绝缘柔性防火电缆',
     unitTce: 0.155,
     unitTceStr: '0.155 tce/km',
     unitElec: 1165,
@@ -1156,8 +619,8 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
     steamOrNitrogen: '4.2 m³/km (氮气)',
     gasStr: '3.2 m³/km',
     waterStr: '0.7 t/km',
-    modelCount: 110,
-    outputShare: '12.0%',
+    modelCount: 450,
+    outputShare: '15.5%',
     diffYoy: '-5.8%',
     trend12Months: [
       { period: '25-09', tce: 0.165, elec: 1240 },
@@ -1174,115 +637,21 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
       { period: '26-08', tce: 0.155, elec: 1165 },
     ],
   },
-  {
-    id: 'cat-cb-wind',
-    name: '风力发电专用耐扭曲低温橡套软电缆',
-    shortName: '风电耐扭曲耐低温软缆',
-    category: 'cable',
-    groupTag: '新能源与特种电缆',
-    voltageLevel: '35kV级及以下',
-    desc: '风电机组机舱塔筒垂吊专用，耐扭曲超百万次',
-    unitTce: 0.180,
-    unitTceStr: '0.180 tce/km',
-    unitElec: 1350,
-    unitElecStr: '1,350 kWh/km',
-    steamOrNitrogen: '4.8 m³/km (氮气)',
-    gasStr: '3.6 m³/km',
-    waterStr: '0.8 t/km',
-    modelCount: 85,
-    outputShare: '7.8%',
-    diffYoy: '-6.2%',
-    trend12Months: [
-      { period: '25-09', tce: 0.192, elec: 1440 },
-      { period: '25-10', tce: 0.190, elec: 1425 },
-      { period: '25-11', tce: 0.187, elec: 1405 },
-      { period: '25-12', tce: 0.185, elec: 1390 },
-      { period: '26-01', tce: 0.183, elec: 1375 },
-      { period: '26-02', tce: 0.182, elec: 1365 },
-      { period: '26-03', tce: 0.181, elec: 1360 },
-      { period: '26-04', tce: 0.180, elec: 1355 },
-      { period: '26-05', tce: 0.180, elec: 1352 },
-      { period: '26-06', tce: 0.180, elec: 1350 },
-      { period: '26-07', tce: 0.180, elec: 1350 },
-      { period: '26-08', tce: 0.180, elec: 1350 },
-    ],
-  },
-  {
-    id: 'cat-cb-ess',
-    name: '储能电池系统专用高压软电缆',
-    shortName: '储能电池专用高压缆',
-    category: 'cable',
-    groupTag: '新能源与特种电缆',
-    voltageLevel: '35kV级及以下',
-    desc: '耐直流高压、耐酸碱与阻燃性能优异的储能舱软电缆',
-    unitTce: 0.140,
-    unitTceStr: '0.140 tce/km',
-    unitElec: 1050,
-    unitElecStr: '1,050 kWh/km',
-    steamOrNitrogen: '3.6 m³/km (氮气)',
-    gasStr: '2.8 m³/km',
-    waterStr: '0.6 t/km',
-    modelCount: 95,
-    outputShare: '8.4%',
-    diffYoy: '-5.4%',
-    trend12Months: [
-      { period: '25-09', tce: 0.148, elec: 1110 },
-      { period: '25-10', tce: 0.146, elec: 1095 },
-      { period: '25-11', tce: 0.144, elec: 1080 },
-      { period: '25-12', tce: 0.143, elec: 1072 },
-      { period: '26-01', tce: 0.142, elec: 1065 },
-      { period: '26-02', tce: 0.141, elec: 1058 },
-      { period: '26-03', tce: 0.141, elec: 1055 },
-      { period: '26-04', tce: 0.140, elec: 1052 },
-      { period: '26-05', tce: 0.140, elec: 1050 },
-      { period: '26-06', tce: 0.140, elec: 1050 },
-      { period: '26-07', tce: 0.140, elec: 1050 },
-      { period: '26-08', tce: 0.140, elec: 1050 },
-    ],
-  },
-  {
-    id: 'cat-cb-ev',
-    name: '电动汽车充电桩专用柔性电缆',
-    shortName: '充电桩专用柔性电缆',
-    category: 'cable',
-    groupTag: '新能源与特种电缆',
-    voltageLevel: '35kV级及以下',
-    desc: '液冷大功率超充枪线与高频弯折专用软缆',
-    unitTce: 0.125,
-    unitTceStr: '0.125 tce/km',
-    unitElec: 940,
-    unitElecStr: '940 kWh/km',
-    steamOrNitrogen: '3.0 m³/km (氮气)',
-    gasStr: '2.4 m³/km',
-    waterStr: '0.5 t/km',
-    modelCount: 120,
-    outputShare: '9.0%',
-    diffYoy: '-4.6%',
-    trend12Months: [
-      { period: '25-09', tce: 0.131, elec: 985 },
-      { period: '25-10', tce: 0.129, elec: 970 },
-      { period: '25-11', tce: 0.128, elec: 962 },
-      { period: '25-12', tce: 0.127, elec: 955 },
-      { period: '26-01', tce: 0.126, elec: 948 },
-      { period: '26-02', tce: 0.126, elec: 945 },
-      { period: '26-03', tce: 0.125, elec: 942 },
-      { period: '26-04', tce: 0.125, elec: 941 },
-      { period: '26-05', tce: 0.125, elec: 940 },
-      { period: '26-06', tce: 0.125, elec: 940 },
-      { period: '26-07', tce: 0.125, elec: 940 },
-      { period: '26-08', tce: 0.125, elec: 940 },
-    ],
-  },
 
-  // --- 4. 架空导线与控制线 ---
+  // 4. 架空导线及铜铝拉丝产品
   {
-    id: 'cat-cb-overhead-jklyj',
-    name: 'JKLYJ 架空绝缘导线 (10kV/1kV)',
-    shortName: 'JKLYJ架空绝缘导线',
+    id: 'cat-mp-cb-drawing',
+    name: '架空导线及铜铝拉丝',
+    shortName: '架空导线及拉丝',
     category: 'cable',
-    groupTag: '架空导线与控制线',
+    groupTag: '架空导线与金属加工',
+    producerUnits: '鲁缆、新疆线缆厂、德阳电缆',
+    producerUnitIds: ['ws_ll_main', 'ws_xl_sub', 'ws_dl_main'],
+    keyProcesses: ['①线缆-拉丝 (单位吨铜电耗/单位吨铝电耗)', '②多股绞线'],
+    energyTypes: '电力',
+    kpiIndicators: '单位吨铜电耗、单位吨铝电耗、多股绞线单耗',
     voltageLevel: 'all',
-    desc: '农网配电及林区防触电架空绝缘导线',
+    desc: 'JKLYJ 架空绝缘导线、LGJ 钢芯铝绞线、高导电率铝合金导线及控制电缆',
     unitTce: 0.086,
     unitTceStr: '0.086 tce/km',
     unitElec: 645,
@@ -1290,8 +659,8 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
     steamOrNitrogen: '1.2 m³/km (氮气)',
     gasStr: '1.5 m³/km',
     waterStr: '0.3 t/km',
-    modelCount: 260,
-    outputShare: '15.5%',
+    modelCount: 580,
+    outputShare: '10.0%',
     diffYoy: '-5.0%',
     trend12Months: [
       { period: '25-09', tce: 0.091, elec: 685 },
@@ -1306,105 +675,6 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
       { period: '26-06', tce: 0.086, elec: 645 },
       { period: '26-07', tce: 0.086, elec: 645 },
       { period: '26-08', tce: 0.086, elec: 645 },
-    ],
-  },
-  {
-    id: 'cat-cb-overhead-lgj',
-    name: 'LGJ 钢芯铝绞线及高导电率导线',
-    shortName: 'LGJ钢芯铝绞线',
-    category: 'cable',
-    groupTag: '架空导线与控制线',
-    voltageLevel: 'all',
-    desc: '长距离特高压与超高压架空输电线路主力裸导线',
-    unitTce: 0.065,
-    unitTceStr: '0.065 tce/km',
-    unitElec: 490,
-    unitElecStr: '490 kWh/km',
-    steamOrNitrogen: '0.8 m³/km (氮气)',
-    gasStr: '1.1 m³/km',
-    waterStr: '0.2 t/km',
-    modelCount: 320,
-    outputShare: '21.0%',
-    diffYoy: '-4.8%',
-    trend12Months: [
-      { period: '25-09', tce: 0.069, elec: 520 },
-      { period: '25-10', tce: 0.068, elec: 512 },
-      { period: '25-11', tce: 0.067, elec: 505 },
-      { period: '25-12', tce: 0.067, elec: 502 },
-      { period: '26-01', tce: 0.066, elec: 498 },
-      { period: '26-02', tce: 0.066, elec: 495 },
-      { period: '26-03', tce: 0.065, elec: 492 },
-      { period: '26-04', tce: 0.065, elec: 491 },
-      { period: '26-05', tce: 0.065, elec: 490 },
-      { period: '26-06', tce: 0.065, elec: 490 },
-      { period: '26-07', tce: 0.065, elec: 490 },
-      { period: '26-08', tce: 0.065, elec: 490 },
-    ],
-  },
-  {
-    id: 'cat-cb-control-kvv',
-    name: '屏蔽控制电缆及计算机信号缆 (KVVP/DJYPVP)',
-    shortName: '屏蔽控制及信号电缆',
-    category: 'cable',
-    groupTag: '架空导线与控制线',
-    voltageLevel: 'all',
-    desc: '发电厂与智能变电站二次控制与抗电磁干扰信号线',
-    unitTce: 0.098,
-    unitTceStr: '0.098 tce/km',
-    unitElec: 735,
-    unitElecStr: '735 kWh/km',
-    steamOrNitrogen: '1.8 m³/km (氮气)',
-    gasStr: '1.8 m³/km',
-    waterStr: '0.4 t/km',
-    modelCount: 380,
-    outputShare: '16.5%',
-    diffYoy: '-4.2%',
-    trend12Months: [
-      { period: '25-09', tce: 0.103, elec: 772 },
-      { period: '25-10', tce: 0.102, elec: 765 },
-      { period: '25-11', tce: 0.101, elec: 758 },
-      { period: '25-12', tce: 0.100, elec: 750 },
-      { period: '26-01', tce: 0.099, elec: 742 },
-      { period: '26-02', tce: 0.099, elec: 740 },
-      { period: '26-03', tce: 0.098, elec: 738 },
-      { period: '26-04', tce: 0.098, elec: 736 },
-      { period: '26-05', tce: 0.098, elec: 735 },
-      { period: '26-06', tce: 0.098, elec: 735 },
-      { period: '26-07', tce: 0.098, elec: 735 },
-      { period: '26-08', tce: 0.098, elec: 735 },
-    ],
-  },
-  {
-    id: 'cat-cb-aluminum',
-    name: '稀土高铁铝合金电力电缆 (AC90/ZB-TC90)',
-    shortName: '稀土高铁铝合金电缆',
-    category: 'cable',
-    groupTag: '架空导线与控制线',
-    voltageLevel: '35kV级及以下',
-    desc: '以铝节铜新型节能环保电缆，重量轻导电优',
-    unitTce: 0.135,
-    unitTceStr: '0.135 tce/km',
-    unitElec: 1015,
-    unitElecStr: '1,015 kWh/km',
-    steamOrNitrogen: '2.8 m³/km (氮气)',
-    gasStr: '2.2 m³/km',
-    waterStr: '0.5 t/km',
-    modelCount: 90,
-    outputShare: '6.8%',
-    diffYoy: '-5.5%',
-    trend12Months: [
-      { period: '25-09', tce: 0.143, elec: 1075 },
-      { period: '25-10', tce: 0.141, elec: 1060 },
-      { period: '25-11', tce: 0.139, elec: 1045 },
-      { period: '25-12', tce: 0.138, elec: 1038 },
-      { period: '26-01', tce: 0.137, elec: 1030 },
-      { period: '26-02', tce: 0.136, elec: 1022 },
-      { period: '26-03', tce: 0.136, elec: 1020 },
-      { period: '26-04', tce: 0.135, elec: 1018 },
-      { period: '26-05', tce: 0.135, elec: 1016 },
-      { period: '26-06', tce: 0.135, elec: 1015 },
-      { period: '26-07', tce: 0.135, elec: 1015 },
-      { period: '26-08', tce: 0.135, elec: 1015 },
     ],
   },
 ]
@@ -1436,16 +706,16 @@ interface ProductModelRecord {
   quotaStatus: '先进标杆' | '达标受控' | '良好'
 }
 
-// 丰富的产品型号单耗数据库 (模拟上千条产品型号库中的核心代表型号)
+// 丰富的产品型号单耗数据库 (模拟上千条产品型号库中的核心代表型号，归属 11 大变压器主要产品与 4 大线缆主要产品)
 const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
-  // ---------------------- 变压器类产品型号 (电力、蒸汽、天然气、水) ----------------------
-  // 1. 特高压 1000kV
+  // ---------------------- 变压器类主要产品型号 (电力、蒸汽、天然气、水) ----------------------
+  // 1. 变压器-高压 (cat-mp-tr-high)
   {
     id: 'm-tr-1000-01',
     modelCode: 'TR-1000-ODFPS-1000',
     modelName: 'ODFPS-1000MVA/1000kV 特高压单相自耦变压器',
     category: 'transformer',
-    categoryId: 'cat-tr-1000',
+    categoryId: 'cat-mp-tr-high',
     voltageLevel: '500kV级',
     companyId: 'ws_sb_main',
     companyName: '沈变本部',
@@ -1459,31 +729,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     quotaStatus: '先进标杆',
   },
   {
-    id: 'm-tr-1000-02',
-    modelCode: 'TR-1000-ODFPS-500',
-    modelName: 'ODFPS-500MVA/1000kV 特高压示范工程自耦变',
-    category: 'transformer',
-    categoryId: 'cat-tr-1000',
-    voltageLevel: '500kV级',
-    companyId: 'ws_hb_main',
-    companyName: '衡变本部',
-    productionVolume: '1,500 MVA (3台)',
-    unitTce: '17.10 tce/万kVA',
-    unitElecKWh: '0.314 kWh/kVA',
-    unitSteamTon: '4.35 t/万kVA',
-    unitGasM3: '58.0 m³/万kVA',
-    unitWaterTon: '23.0 t/万kVA',
-    diffYoy: '-6.2%',
-    quotaStatus: '达标受控',
-  },
-
-  // 2. 750kV 超高压
-  {
     id: 'm-tr-750-01',
     modelCode: 'TR-750-ODFS-500',
     modelName: 'ODFS-500MVA/750kV 单相自耦无励磁调压变压器',
     category: 'transformer',
-    categoryId: 'cat-tr-750',
+    categoryId: 'cat-mp-tr-high',
     voltageLevel: '500kV级',
     companyId: 'ws_xb_uhv',
     companyName: '超高压公司',
@@ -1496,14 +746,12 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-6.5%',
     quotaStatus: '先进标杆',
   },
-
-  // 3. 500kV ODFS
   {
     id: 'm-tr-01',
     modelCode: 'TR-500-ODFS-334',
     modelName: 'ODFS-334MVA/500kV 单相自耦无励磁调压变压器',
     category: 'transformer',
-    categoryId: 'cat-tr-500',
+    categoryId: 'cat-mp-tr-high',
     voltageLevel: '500kV级',
     companyId: 'ws_sb_main',
     companyName: '沈变本部',
@@ -1517,31 +765,11 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     quotaStatus: '先进标杆',
   },
   {
-    id: 'm-tr-03',
-    modelCode: 'TR-500-ODFS-250',
-    modelName: 'ODFS-250MVA/500kV 单相自耦变压器',
-    category: 'transformer',
-    categoryId: 'cat-tr-500',
-    voltageLevel: '500kV级',
-    companyId: 'ws_hb_tnj',
-    companyName: '特能建',
-    productionVolume: '1,000 MVA (4台)',
-    unitTce: '14.35 tce/万kVA',
-    unitElecKWh: '0.319 kWh/kVA',
-    unitSteamTon: '3.45 t/万kVA',
-    unitGasM3: '48.5 m³/万kVA',
-    unitWaterTon: '19.5 t/万kVA',
-    diffYoy: '-5.8%',
-    quotaStatus: '达标受控',
-  },
-
-  // 4. 500kV SSP 主变
-  {
     id: 'm-tr-02',
     modelCode: 'TR-500-SSP-840',
     modelName: 'SSP-840MVA/500kV 三相发电机主变压器',
     category: 'transformer',
-    categoryId: 'cat-tr-500-ssp',
+    categoryId: 'cat-mp-tr-high',
     voltageLevel: '500kV级',
     companyId: 'ws_hb_main',
     companyName: '衡变本部',
@@ -1554,54 +782,12 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-5.9%',
     quotaStatus: '先进标杆',
   },
-
-  // 5. 500kV OSFPS 有载调压
-  {
-    id: 'm-tr-500-osfps-01',
-    modelCode: 'TR-500-OSFPS-750',
-    modelName: 'OSFPS-750MVA/500kV 三相自耦有载调压变压器',
-    category: 'transformer',
-    categoryId: 'cat-tr-500-osfps',
-    voltageLevel: '500kV级',
-    companyId: 'ws_sb_main',
-    companyName: '沈变本部',
-    productionVolume: '1,500 MVA (2台)',
-    unitTce: '14.50 tce/万kVA',
-    unitElecKWh: '0.320 kWh/kVA',
-    unitSteamTon: '3.50 t/万kVA',
-    unitGasM3: '49.0 m³/万kVA',
-    unitWaterTon: '19.8 t/万kVA',
-    diffYoy: '-5.5%',
-    quotaStatus: '良好',
-  },
-
-  // 6. 330kV SFZ
-  {
-    id: 'm-tr-330-01',
-    modelCode: 'TR-330-SFZ-360',
-    modelName: 'SFZ-360MVA/330kV 三相三绕组电力变压器',
-    category: 'transformer',
-    categoryId: 'cat-tr-330',
-    voltageLevel: '220kV级',
-    companyId: 'ws_xb_uhv',
-    companyName: '超高压公司',
-    productionVolume: '720 MVA (2台)',
-    unitTce: '9.80 tce/万kVA',
-    unitElecKWh: '0.322 kWh/kVA',
-    unitSteamTon: '2.30 t/万kVA',
-    unitGasM3: '32.5 m³/万kVA',
-    unitWaterTon: '13.8 t/万kVA',
-    diffYoy: '-5.4%',
-    quotaStatus: '先进标杆',
-  },
-
-  // 7. 220kV SFZ11/13
   {
     id: 'm-tr-05',
     modelCode: 'TR-220-SFZ11-240',
     modelName: 'SFZ11-240MVA/220kV 三相三绕组有载调压变压器',
     category: 'transformer',
-    categoryId: 'cat-tr-220',
+    categoryId: 'cat-mp-tr-high',
     voltageLevel: '220kV级',
     companyId: 'ws_hb_hn',
     companyName: '湖南电气',
@@ -1614,34 +800,12 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-5.3%',
     quotaStatus: '达标受控',
   },
-
-  // 8. 220kV SFP
-  {
-    id: 'm-tr-06',
-    modelCode: 'TR-220-SFP-180',
-    modelName: 'SFP-180MVA/220kV 双绕组无励磁发电机变压器',
-    category: 'transformer',
-    categoryId: 'cat-tr-220-sfp',
-    voltageLevel: '220kV级',
-    companyId: 'ws_sb_main',
-    companyName: '沈变本部',
-    productionVolume: '540 MVA (3台)',
-    unitTce: '6.20 tce/万kVA',
-    unitElecKWh: '0.322 kWh/kVA',
-    unitSteamTon: '1.50 t/万kVA',
-    unitGasM3: '21.0 m³/万kVA',
-    unitWaterTon: '9.0 t/万kVA',
-    diffYoy: '-5.3%',
-    quotaStatus: '先进标杆',
-  },
-
-  // 9. 110kV SZ11
   {
     id: 'm-tr-07',
     modelCode: 'TR-110-SZ11-50',
     modelName: 'SZ11-50000kVA/110kV 节能型有载调压变压器',
     category: 'transformer',
-    categoryId: 'cat-tr-110',
+    categoryId: 'cat-mp-tr-high',
     voltageLevel: '110kV级',
     companyId: 'ws_sb_main',
     companyName: '沈变本部',
@@ -1654,52 +818,14 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-4.9%',
     quotaStatus: '达标受控',
   },
-  {
-    id: 'm-tr-08',
-    modelCode: 'TR-110-SZ11-63',
-    modelName: 'SZ11-63000kVA/110kV 低损耗油浸式电力变压器',
-    category: 'transformer',
-    categoryId: 'cat-tr-110',
-    voltageLevel: '110kV级',
-    companyId: 'ws_hb_main',
-    companyName: '衡变本部',
-    productionVolume: '378 MVA (6台)',
-    unitTce: '4.28 tce/万kVA',
-    unitElecKWh: '0.328 kWh/kVA',
-    unitSteamTon: '1.20 t/万kVA',
-    unitGasM3: '16.0 m³/万kVA',
-    unitWaterTon: '8.6 t/万kVA',
-    diffYoy: '-5.1%',
-    quotaStatus: '先进标杆',
-  },
 
-  // 10. 66kV SZ11
-  {
-    id: 'm-tr-66-01',
-    modelCode: 'TR-66-SZ11-31500',
-    modelName: 'SZ11-31500kVA/66kV 油浸式电力变压器',
-    category: 'transformer',
-    categoryId: 'cat-tr-66',
-    voltageLevel: '110kV级',
-    companyId: 'ws_sb_main',
-    companyName: '沈变本部',
-    productionVolume: '189 MVA (6台)',
-    unitTce: '2.65 tce/万kVA',
-    unitElecKWh: '0.328 kWh/kVA',
-    unitSteamTon: '0.75 t/万kVA',
-    unitGasM3: '10.2 m³/万kVA',
-    unitWaterTon: '5.2 t/万kVA',
-    diffYoy: '-4.5%',
-    quotaStatus: '达标受控',
-  },
-
-  // 11. 35kV SCB13
+  // 2. 变压器-中低压-干变 (cat-mp-tr-dry)
   {
     id: 'm-tr-10',
     modelCode: 'TR-35-SCB13-2500',
     modelName: 'SCB13-2500kVA/35kV 环氧树脂浇注干式变压器',
     category: 'transformer',
-    categoryId: 'cat-tr-35',
+    categoryId: 'cat-mp-tr-dry',
     voltageLevel: '35kV级及以下',
     companyId: 'ws_xb_tb',
     companyName: '天变公司',
@@ -1712,36 +838,13 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-6.5%',
     quotaStatus: '先进标杆',
   },
-
-  // 12. 35kV 节能油变
-  {
-    id: 'm-tr-35-oil-01',
-    modelCode: 'TR-35-S13-1600',
-    modelName: 'S13-1600kVA/35kV 节能油浸式配电变压器',
-    category: 'transformer',
-    categoryId: 'cat-tr-35-oil',
-    voltageLevel: '35kV级及以下',
-    companyId: 'ws_xb_zndq',
-    companyName: '智能电气公司',
-    productionVolume: '32 MVA (20台)',
-    unitTce: '0.92 tce/万kVA',
-    unitElecKWh: '0.322 kWh/kVA',
-    unitSteamTon: '0.25 t/万kVA',
-    unitGasM3: '8.2 m³/万kVA',
-    unitWaterTon: '2.8 t/万kVA',
-    diffYoy: '-5.8%',
-    quotaStatus: '达标受控',
-  },
-
-  // 13. 10kV SCB14
   {
     id: 'm-tr-11',
     modelCode: 'TR-10-SCB14-2000',
     modelName: 'SCB14-2000kVA/10kV 新一代节能干式配电变压器',
     category: 'transformer',
-    categoryId: 'cat-tr-10-scb',
+    categoryId: 'cat-mp-tr-dry',
     voltageLevel: '35kV级及以下',
-    desc: '一级能效国标干变',
     companyId: 'ws_xb_zndq',
     companyName: '智能电气公司',
     productionVolume: '48 MVA (24台)',
@@ -1753,14 +856,12 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-5.4%',
     quotaStatus: '先进标杆',
   },
-
-  // 14. 10kV 非晶干变
   {
     id: 'm-tr-10-am-01',
     modelCode: 'TR-10-SCBH15-1250',
     modelName: 'SCBH15-1250kVA/10kV 非晶合金立体卷铁芯干变',
     category: 'transformer',
-    categoryId: 'cat-tr-10-amorphous',
+    categoryId: 'cat-mp-tr-dry',
     voltageLevel: '35kV级及以下',
     companyId: 'ws_xb_tb',
     companyName: '天变公司',
@@ -1774,16 +875,34 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     quotaStatus: '先进标杆',
   },
 
-  // 15. 10kV 非晶油变
+  // 3. 变压器-中低压-油变 (cat-mp-tr-oil)
+  {
+    id: 'm-tr-35-oil-01',
+    modelCode: 'TR-35-S13-1600',
+    modelName: 'S13-1600kVA/35kV 节能油浸式配电变压器',
+    category: 'transformer',
+    categoryId: 'cat-mp-tr-oil',
+    voltageLevel: '35kV级及以下',
+    companyId: 'ws_xb_jjj',
+    companyName: '京津冀公司',
+    productionVolume: '32 MVA (20台)',
+    unitTce: '0.92 tce/万kVA',
+    unitElecKWh: '0.322 kWh/kVA',
+    unitSteamTon: '0.25 t/万kVA',
+    unitGasM3: '8.2 m³/万kVA',
+    unitWaterTon: '2.8 t/万kVA',
+    diffYoy: '-5.8%',
+    quotaStatus: '达标受控',
+  },
   {
     id: 'm-tr-10-oil-am-01',
     modelCode: 'TR-10-SBH15-630',
     modelName: 'SBH15-630kVA/10kV 油浸式非晶合金配电变压器',
     category: 'transformer',
-    categoryId: 'cat-tr-10-oil-amorphous',
+    categoryId: 'cat-mp-tr-oil',
     voltageLevel: '35kV级及以下',
-    companyId: 'ws_hb_hn',
-    companyName: '湖南电气',
+    companyId: 'ws_xb_jjj',
+    companyName: '京津冀公司',
     productionVolume: '18.9 MVA (30台)',
     unitTce: '0.58 tce/万kVA',
     unitElecKWh: '0.312 kWh/kVA',
@@ -1794,114 +913,184 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     quotaStatus: '先进标杆',
   },
 
-  // 16. 光伏风电升压箱变
+  // 4. 变压器-铁芯 (cat-mp-tr-core)
   {
-    id: 'm-tr-pv-01',
-    modelCode: 'TR-PV-ZGS-3150',
-    modelName: 'ZGS-3150kVA/35kV 光伏/风电专用华式升压箱变',
+    id: 'm-tr-core-01',
+    modelCode: 'TR-CORE-Q-01',
+    modelName: '高导磁取向硅钢铁心纵剪叠装组件 (大型主变专用)',
     category: 'transformer',
-    categoryId: 'cat-tr-pv',
-    voltageLevel: '35kV级及以下',
-    companyId: 'ws_xb_zndq',
-    companyName: '智能电气公司',
-    productionVolume: '63 MVA (20台)',
-    unitTce: '0.95 tce/万kVA',
-    unitElecKWh: '0.325 kWh/kVA',
-    unitSteamTon: '0.26 t/万kVA',
-    unitGasM3: '8.6 m³/万kVA',
-    unitWaterTon: '2.9 t/万kVA',
-    diffYoy: '-5.6%',
+    categoryId: 'cat-mp-tr-core',
+    voltageLevel: 'all',
+    companyId: 'ws_xb_zf',
+    companyName: '珠峰硅钢',
+    productionVolume: '1,200 吨',
+    unitTce: '0.175 tce/t',
+    unitElecKWh: '142.5 kWh/t',
+    unitGasM3: '3.5 m³/t',
+    unitWaterTon: '0.6 t/t',
+    diffYoy: '-6.5%',
+    quotaStatus: '先进标杆',
+  },
+  {
+    id: 'm-tr-core-02',
+    modelCode: 'TR-CORE-AM-02',
+    modelName: '非晶合金立体卷铁芯 (真空退火工序)',
+    category: 'transformer',
+    categoryId: 'cat-mp-tr-core',
+    voltageLevel: 'all',
+    companyId: 'ws_xb_zf',
+    companyName: '珠峰硅钢',
+    productionVolume: '450 吨',
+    unitTce: '0.162 tce/t',
+    unitElecKWh: '131.8 kWh/t',
+    unitGasM3: '3.1 m³/t',
+    unitWaterTon: '0.5 t/t',
+    diffYoy: '-7.2%',
     quotaStatus: '先进标杆',
   },
 
-  // 17. 储能升压一体变
+  // 5. 套管 (cat-mp-bushing)
   {
-    id: 'm-tr-ess-01',
-    modelCode: 'TR-ESS-YB-3450',
-    modelName: 'YB-3450kVA/35kV 储能变流升压一体舱专用变压器',
+    id: 'm-bush-01',
+    modelCode: 'BSH-500-RIP',
+    modelName: '500kV 胶浸纸电容式变压器出线套管 (干燥工序)',
     category: 'transformer',
-    categoryId: 'cat-tr-ess',
-    voltageLevel: '35kV级及以下',
-    companyId: 'ws_hb_tnj',
-    companyName: '特能建',
-    productionVolume: '51.75 MVA (15台)',
-    unitTce: '1.05 tce/万kVA',
-    unitElecKWh: '0.328 kWh/kVA',
-    unitSteamTon: '0.30 t/万kVA',
-    unitGasM3: '9.2 m³/万kVA',
-    unitWaterTon: '3.1 t/万kVA',
-    diffYoy: '-6.0%',
-    quotaStatus: '达标受控',
-  },
-
-  // 18. 整流变
-  {
-    id: 'm-tr-rec-01',
-    modelCode: 'TR-REC-ZHSFT-63000',
-    modelName: 'ZHSFT-63000kVA/110kV 绿氢/电解铝大功率整流变压器',
-    category: 'transformer',
-    categoryId: 'cat-tr-rectifier',
-    voltageLevel: '110kV级',
-    companyId: 'ws_sb_main',
-    companyName: '沈变本部',
-    productionVolume: '189 MVA (3台)',
-    unitTce: '3.40 tce/万kVA',
-    unitElecKWh: '0.335 kWh/kVA',
-    unitSteamTon: '0.95 t/万kVA',
-    unitGasM3: '12.5 m³/万kVA',
-    unitWaterTon: '5.8 t/万kVA',
-    diffYoy: '-4.2%',
-    quotaStatus: '达标受控',
-  },
-
-  // 19. 铁道牵引变
-  {
-    id: 'm-tr-trac-01',
-    modelCode: 'TR-TRA-QSFP-50000',
-    modelName: 'QSFP-50000kVA/220kV 高铁专用单相自耦牵引变压器',
-    category: 'transformer',
-    categoryId: 'cat-tr-traction',
-    voltageLevel: '220kV级',
-    companyId: 'ws_hb_main',
-    companyName: '衡变本部',
-    productionVolume: '200 MVA (4台)',
-    unitTce: '5.60 tce/万kVA',
-    unitElecKWh: '0.330 kWh/kVA',
-    unitSteamTon: '1.45 t/万kVA',
-    unitGasM3: '19.8 m³/万kVA',
-    unitWaterTon: '8.5 t/万kVA',
-    diffYoy: '-4.8%',
-    quotaStatus: '良好',
-  },
-
-  // 20. 并联电抗器
-  {
-    id: 'm-tr-reac-01',
-    modelCode: 'TR-REA-BKD-80000',
-    modelName: 'BKD-80000kvar/500kV 特高压单相并联电抗器',
-    category: 'transformer',
-    categoryId: 'cat-tr-reactor',
+    categoryId: 'cat-mp-bushing',
     voltageLevel: '500kV级',
-    companyId: 'ws_sb_main',
-    companyName: '沈变本部',
-    productionVolume: '240 Mvar (3台)',
-    unitTce: '8.20 tce/万kVA',
-    unitElecKWh: '0.325 kWh/kVA',
-    unitSteamTon: '2.10 t/万kVA',
-    unitGasM3: '28.0 m³/万kVA',
-    unitWaterTon: '11.8 t/万kVA',
-    diffYoy: '-5.0%',
+    companyId: 'ws_sb_hx',
+    companyName: '和新套管公司',
+    productionVolume: '120 支',
+    unitTce: '0.420 tce/支',
+    unitElecKWh: '315 kWh/支',
+    unitGasM3: '4.8 m³/支',
+    unitWaterTon: '1.2 t/支',
+    diffYoy: '-5.4%',
+    quotaStatus: '先进标杆',
+  },
+
+  // 6. 互感器 (cat-mp-ct)
+  {
+    id: 'm-ct-01',
+    modelCode: 'CT-220-LB',
+    modelName: '220kV 油浸倒立式电流互感器 (干燥与试验工序)',
+    category: 'transformer',
+    categoryId: 'cat-mp-ct',
+    voltageLevel: '220kV级',
+    companyId: 'ws_sb_kj',
+    companyName: '康嘉互感器',
+    productionVolume: '360 台',
+    unitTce: '0.385 tce/台',
+    unitElecKWh: '280 kWh/台',
+    unitSteamTon: '0.08 t/台',
+    unitGasM3: '4.2 m³/台',
+    unitWaterTon: '1.0 t/台',
+    diffYoy: '-5.2%',
+    quotaStatus: '先进标杆',
+  },
+
+  // 7. 中低压开关柜 (cat-mp-switchgear)
+  {
+    id: 'm-sw-01',
+    modelCode: 'SW-KYN28-12',
+    modelName: 'KYN28-12 铠装移开式交流金属封闭开关设备 (钣金与涂装)',
+    category: 'transformer',
+    categoryId: 'cat-mp-switchgear',
+    voltageLevel: '35kV级及以下',
+    companyId: 'ws_hb_yj',
+    companyName: '云集电气',
+    productionVolume: '480 面',
+    unitTce: '0.210 tce/面',
+    unitElecKWh: '165 kWh/面',
+    unitGasM3: '5.2 m³/面',
+    unitWaterTon: '0.8 t/面',
+    diffYoy: '-4.8%',
+    quotaStatus: '先进标杆',
+  },
+
+  // 8. GIS (cat-mp-gis)
+  {
+    id: 'm-gis-01',
+    modelCode: 'GIS-ZF-252',
+    modelName: 'ZF-252kV 气体绝缘金属封闭开关设备 (抽真空与工频试验)',
+    category: 'transformer',
+    categoryId: 'cat-mp-gis',
+    voltageLevel: '500kV级',
+    companyId: 'ws_hb_kg',
+    companyName: '云集高压开关',
+    productionVolume: '42 间隔',
+    unitTce: '1.850 tce/间隔',
+    unitElecKWh: '1,420 kWh/间隔',
+    unitGasM3: '12.0 m³/间隔',
+    unitWaterTon: '3.5 t/间隔',
+    diffYoy: '-6.0%',
+    quotaStatus: '先进标杆',
+  },
+
+  // 9. 干式电抗器 (cat-mp-reactor)
+  {
+    id: 'm-reac-01',
+    modelCode: 'REA-BKG-35',
+    modelName: 'BKG-35kV 户内空心干式并联电抗器 (固化与试验工序)',
+    category: 'transformer',
+    categoryId: 'cat-mp-reactor',
+    voltageLevel: '220kV级',
+    companyId: 'ws_hb_hr',
+    companyName: '合容电气',
+    productionVolume: '85 台',
+    unitTce: '0.680 tce/台',
+    unitElecKWh: '520 kWh/台',
+    unitGasM3: '6.5 m³/台',
+    unitWaterTon: '1.5 t/台',
+    diffYoy: '-5.1%',
+    quotaStatus: '先进标杆',
+  },
+
+  // 10. 电容器 (cat-mp-capacitor)
+  {
+    id: 'm-cap-01',
+    modelCode: 'CAP-BAM-11',
+    modelName: 'BAM-11kV 高压并联电容器装置 (真空浸渍工序)',
+    category: 'transformer',
+    categoryId: 'cat-mp-capacitor',
+    voltageLevel: '110kV级',
+    companyId: 'ws_hb_hr',
+    companyName: '合容电气',
+    productionVolume: '150,000 kvar',
+    unitTce: '0.145 tce/kvar',
+    unitElecKWh: '112 kWh/kvar',
+    unitGasM3: '2.1 m³/kvar',
+    unitWaterTon: '0.4 t/kvar',
+    diffYoy: '-4.6%',
     quotaStatus: '达标受控',
   },
 
-  // ---------------------- 线缆类产品型号 (电力、氮气、天然气、水，无蒸汽) ----------------------
-  // 1. 500kV 皱纹铝套超高压
+  // 11. GIL (cat-mp-gil)
+  {
+    id: 'm-gil-01',
+    modelCode: 'GIL-500-T',
+    modelName: '500kV 气体绝缘金属封闭输电线路 (螺旋焊管与绝缘子生产)',
+    category: 'transformer',
+    categoryId: 'cat-mp-gil',
+    voltageLevel: '500kV级',
+    companyId: 'ws_hb_gil',
+    companyName: '赛杰爱迪',
+    productionVolume: '3.5 km',
+    unitTce: '0.820 tce/百米',
+    unitElecKWh: '635 kWh/百米',
+    unitGasM3: '8.0 m³/百米',
+    unitWaterTon: '1.8 t/百米',
+    diffYoy: '-5.5%',
+    quotaStatus: '先进标杆',
+  },
+
+  // ---------------------- 线缆类主要产品型号 (电力、氮气、天然气、水，无蒸汽) ----------------------
+  // 1. 线缆-高压 (cat-mp-cb-high)
   {
     id: 'm-cb-01',
     modelCode: 'CB-500-YJLW03-1x2500',
     modelName: '500kV 皱纹铝套高压交联聚乙烯电力电缆 (1x2500mm²)',
     category: 'cable',
-    categoryId: 'cat-cb-500',
+    categoryId: 'cat-mp-cb-high',
     voltageLevel: '500kV级',
     companyId: 'ws_ll_main',
     companyName: '鲁缆本部',
@@ -1914,14 +1103,12 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-6.8%',
     quotaStatus: '先进标杆',
   },
-
-  // 2. 220kV 皱纹铝套
   {
     id: 'm-cb-02',
     modelCode: 'CB-220-YJLW03-1x1600',
     modelName: '220kV 皱纹铝套交联聚乙烯绝缘电力电缆 (1x1600mm²)',
     category: 'cable',
-    categoryId: 'cat-cb-220',
+    categoryId: 'cat-mp-cb-high',
     voltageLevel: '220kV级',
     companyId: 'ws_ll_main',
     companyName: '鲁缆本部',
@@ -1934,14 +1121,12 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-5.9%',
     quotaStatus: '先进标杆',
   },
-
-  // 3. 110kV 平滑铝套
   {
     id: 'm-cb-03',
     modelCode: 'CB-110-YJLW03-1x1200',
     modelName: '110kV 平滑铝套交联聚乙烯绝缘电力电缆 (1x1200mm²)',
     category: 'cable',
-    categoryId: 'cat-cb-110',
+    categoryId: 'cat-mp-cb-high',
     voltageLevel: '110kV级',
     companyId: 'ws_ll_main',
     companyName: '鲁缆本部',
@@ -1954,72 +1139,14 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-6.1%',
     quotaStatus: '先进标杆',
   },
-  {
-    id: 'm-cb-04',
-    modelCode: 'CB-110-YJLW03-1x800-XL',
-    modelName: '110kV 铝套电力电缆 (YJLW03 1x800mm²)',
-    category: 'cable',
-    categoryId: 'cat-cb-110',
-    voltageLevel: '110kV级',
-    companyId: 'ws_xl_main',
-    companyName: '特变电工新疆电缆有限公司',
-    productionVolume: '140 km',
-    unitTce: '0.485 tce/km',
-    unitElecKWh: '3,660 kWh/km',
-    unitNitrogenM3: '11.2 m³/km',
-    unitGasM3: '7.4 m³/km',
-    unitWaterTon: '1.7 t/km',
-    diffYoy: '-4.8%',
-    quotaStatus: '达标受控',
-  },
 
-  // 4. 66kV 中高压
-  {
-    id: 'm-cb-66-01',
-    modelCode: 'CB-66-YJV-1x500',
-    modelName: '66kV 级中高压交联聚乙烯绝缘电缆 (1x500mm²)',
-    category: 'cable',
-    categoryId: 'cat-cb-66',
-    voltageLevel: '110kV级',
-    companyId: 'ws_dl_main',
-    companyName: '特变电工（德阳）电缆股份有限公司',
-    productionVolume: '75 km',
-    unitTce: '0.365 tce/km',
-    unitElecKWh: '2,750 kWh/km',
-    unitNitrogenM3: '8.8 m³/km',
-    unitGasM3: '5.8 m³/km',
-    unitWaterTon: '1.2 t/km',
-    diffYoy: '-4.8%',
-    quotaStatus: '达标受控',
-  },
-
-  // 5. 海底光电复合缆
-  {
-    id: 'm-cb-sub-01',
-    modelCode: 'CB-SUB-HYJQF41-220',
-    modelName: '220kV 海底光电复合交联电缆 (HYJQF41 3x500mm²)',
-    category: 'cable',
-    categoryId: 'cat-cb-subsea',
-    voltageLevel: '500kV级',
-    companyId: 'ws_ll_main',
-    companyName: '鲁缆本部',
-    productionVolume: '28 km',
-    unitTce: '0.960 tce/km',
-    unitElecKWh: '7,250 kWh/km',
-    unitNitrogenM3: '22.0 m³/km',
-    unitGasM3: '14.5 m³/km',
-    unitWaterTon: '3.2 t/km',
-    diffYoy: '-5.2%',
-    quotaStatus: '先进标杆',
-  },
-
-  // 6. 35kV 钢带铠装
+  // 2. 线缆-中低压 (cat-mp-cb-midlow)
   {
     id: 'm-cb-06',
     modelCode: 'CB-35-YJV22-3x300',
     modelName: '35kV 钢带铠装交联聚乙烯绝缘电力电缆 (YJV22 3x300mm²)',
     category: 'cable',
-    categoryId: 'cat-cb-35-yjv22',
+    categoryId: 'cat-mp-cb-midlow',
     voltageLevel: '35kV级及以下',
     companyId: 'ws_ll_main',
     companyName: '鲁缆本部',
@@ -2032,37 +1159,15 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-5.3%',
     quotaStatus: '先进标杆',
   },
-
-  // 7. 35kV 细钢丝铠装
-  {
-    id: 'm-cb-35-32-01',
-    modelCode: 'CB-35-YJV32-3x240',
-    modelName: '35kV 细钢丝铠装中压交联电缆 (YJV32 3x240mm²)',
-    category: 'cable',
-    categoryId: 'cat-cb-35-yjv32',
-    voltageLevel: '35kV级及以下',
-    companyId: 'ws_xl_sub',
-    companyName: '特变电工新疆线缆厂',
-    productionVolume: '90 km',
-    unitTce: '0.265 tce/km',
-    unitElecKWh: '1,990 kWh/km',
-    unitNitrogenM3: '7.2 m³/km',
-    unitGasM3: '4.8 m³/km',
-    unitWaterTon: '1.0 t/km',
-    diffYoy: '-5.0%',
-    quotaStatus: '良好',
-  },
-
-  // 8. 10kV 三芯铠装
   {
     id: 'm-cb-10-22-01',
     modelCode: 'CB-10-YJV22-3x240',
     modelName: '10kV 三芯铠装交联电力电缆 (YJV22 3x240mm²)',
     category: 'cable',
-    categoryId: 'cat-cb-10-yjv22',
+    categoryId: 'cat-mp-cb-midlow',
     voltageLevel: '35kV级及以下',
-    companyId: 'ws_ll_main',
-    companyName: '鲁缆本部',
+    companyId: 'ws_xl_main',
+    companyName: '特变电工新疆电缆有限公司',
     productionVolume: '320 km',
     unitTce: '0.195 tce/km',
     unitElecKWh: '1,465 kWh/km',
@@ -2072,37 +1177,15 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-5.5%',
     quotaStatus: '先进标杆',
   },
-
-  // 9. 10kV 单芯交联
-  {
-    id: 'm-cb-10-yjv-01',
-    modelCode: 'CB-10-YJV-1x400',
-    modelName: '10kV 单芯交联聚乙烯电力电缆 (YJV 1x400mm²)',
-    category: 'cable',
-    categoryId: 'cat-cb-10-yjv',
-    voltageLevel: '35kV级及以下',
-    companyId: 'ws_xl_main',
-    companyName: '特变电工新疆电缆有限公司',
-    productionVolume: '210 km',
-    unitTce: '0.165 tce/km',
-    unitElecKWh: '1,240 kWh/km',
-    unitNitrogenM3: '4.5 m³/km',
-    unitGasM3: '3.1 m³/km',
-    unitWaterTon: '0.7 t/km',
-    diffYoy: '-4.9%',
-    quotaStatus: '达标受控',
-  },
-
-  // 10. 0.6/1kV 低烟无卤
   {
     id: 'm-cb-09',
     modelCode: 'CB-LV-WDZ-YJY-4x240',
     modelName: '0.6/1kV 低烟无卤阻燃电力电缆 (WDZ-YJY 4x240mm²)',
     category: 'cable',
-    categoryId: 'cat-cb-lv-wdz',
+    categoryId: 'cat-mp-cb-midlow',
     voltageLevel: '35kV级及以下',
-    companyId: 'ws_ll_sg',
-    companyName: '曙光公司',
+    companyId: 'ws_dl_main',
+    companyName: '特变电工（德阳）电缆股份有限公司',
     productionVolume: '380 km',
     unitTce: '0.168 tce/km',
     unitElecKWh: '1,260 kWh/km',
@@ -2113,33 +1196,49 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     quotaStatus: '达标受控',
   },
 
-  // 11. 0.6/1kV VV22
+  // 3. 线缆-特种电缆 (cat-mp-cb-special)
   {
-    id: 'm-cb-vv-01',
-    modelCode: 'CB-LV-VV22-4x185',
-    modelName: '0.6/1kV 聚氯乙烯绝缘铠装电缆 (VV22 4x185mm²)',
+    id: 'm-cb-08',
+    modelCode: 'CB-SP-PV-1x4',
+    modelName: '光伏及风电耐寒耐扭曲特种软电缆 (WDZ-FEYH 1x4mm²)',
     category: 'cable',
-    categoryId: 'cat-cb-lv-vv',
+    categoryId: 'cat-mp-cb-special',
     voltageLevel: '35kV级及以下',
-    companyId: 'ws_dl_main',
-    companyName: '特变电工（德阳）电缆股份有限公司',
-    productionVolume: '310 km',
-    unitTce: '0.145 tce/km',
-    unitElecKWh: '1,090 kWh/km',
-    unitNitrogenM3: '3.2 m³/km',
-    unitGasM3: '2.6 m³/km',
-    unitWaterTon: '0.5 t/km',
-    diffYoy: '-4.5%',
-    quotaStatus: '良好',
+    companyId: 'ws_ll_sg',
+    companyName: '曙光公司',
+    productionVolume: '450 km',
+    unitTce: '0.155 tce/km',
+    unitElecKWh: '1,165 kWh/km',
+    unitNitrogenM3: '4.2 m³/km',
+    unitGasM3: '3.2 m³/km',
+    unitWaterTon: '0.7 t/km',
+    diffYoy: '-5.8%',
+    quotaStatus: '先进标杆',
   },
-
-  // 12. 矿物绝缘防火缆
+  {
+    id: 'm-cb-wind-01',
+    modelCode: 'CB-WIND-FDEH-3x120',
+    modelName: '风力发电专用耐扭曲低温橡套软电缆 (FDEH 3x120+1x35mm²)',
+    category: 'cable',
+    categoryId: 'cat-mp-cb-special',
+    voltageLevel: '35kV级及以下',
+    companyId: 'ws_ll_sg',
+    companyName: '曙光公司',
+    productionVolume: '85 km',
+    unitTce: '0.180 tce/km',
+    unitElecKWh: '1,350 kWh/km',
+    unitNitrogenM3: '4.8 m³/km',
+    unitGasM3: '3.6 m³/km',
+    unitWaterTon: '0.8 t/km',
+    diffYoy: '-6.2%',
+    quotaStatus: '先进标杆',
+  },
   {
     id: 'm-cb-fire-01',
     modelCode: 'CB-FIRE-BTTZ-4x25',
     modelName: '0.6/1kV 矿物绝缘柔性防火电缆 (BTTZ 4x25mm²)',
     category: 'cable',
-    categoryId: 'cat-cb-fire',
+    categoryId: 'cat-mp-cb-special',
     voltageLevel: '35kV级及以下',
     companyId: 'ws_ll_sg',
     companyName: '曙光公司',
@@ -2153,93 +1252,13 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     quotaStatus: '先进标杆',
   },
 
-  // 13. 光伏专用直流耐候缆
-  {
-    id: 'm-cb-08',
-    modelCode: 'CB-SP-PV-1x4',
-    modelName: '光伏及风电耐寒耐扭曲特种软电缆 (WDZ-FEYH 1x4mm²)',
-    category: 'cable',
-    categoryId: 'cat-cb-pv',
-    voltageLevel: '35kV级及以下',
-    companyId: 'ws_ll_sg',
-    companyName: '曙光公司',
-    productionVolume: '450 km',
-    unitTce: '0.155 tce/km',
-    unitElecKWh: '1,165 kWh/km',
-    unitNitrogenM3: '4.2 m³/km',
-    unitGasM3: '3.2 m³/km',
-    unitWaterTon: '0.7 t/km',
-    diffYoy: '-5.8%',
-    quotaStatus: '先进标杆',
-  },
-
-  // 14. 风电耐扭曲软缆
-  {
-    id: 'm-cb-wind-01',
-    modelCode: 'CB-WIND-FDEH-3x120',
-    modelName: '风力发电专用耐扭曲低温橡套软电缆 (FDEH 3x120+1x35mm²)',
-    category: 'cable',
-    categoryId: 'cat-cb-wind',
-    voltageLevel: '35kV级及以下',
-    companyId: 'ws_xl_main',
-    companyName: '特变电工新疆电缆有限公司',
-    productionVolume: '85 km',
-    unitTce: '0.180 tce/km',
-    unitElecKWh: '1,350 kWh/km',
-    unitNitrogenM3: '4.8 m³/km',
-    unitGasM3: '3.6 m³/km',
-    unitWaterTon: '0.8 t/km',
-    diffYoy: '-6.2%',
-    quotaStatus: '先进标杆',
-  },
-
-  // 15. 储能高压软缆
-  {
-    id: 'm-cb-ess-01',
-    modelCode: 'CB-ESS-ES-1x150',
-    modelName: '储能电池系统专用直流高压软电缆 (ES-DC 1x150mm²)',
-    category: 'cable',
-    categoryId: 'cat-cb-ess',
-    voltageLevel: '35kV级及以下',
-    companyId: 'ws_ll_sg',
-    companyName: '曙光公司',
-    productionVolume: '95 km',
-    unitTce: '0.140 tce/km',
-    unitElecKWh: '1,050 kWh/km',
-    unitNitrogenM3: '3.6 m³/km',
-    unitGasM3: '2.8 m³/km',
-    unitWaterTon: '0.6 t/km',
-    diffYoy: '-5.4%',
-    quotaStatus: '先进标杆',
-  },
-
-  // 16. 充电桩柔性电缆
-  {
-    id: 'm-cb-ev-01',
-    modelCode: 'CB-EV-EVDC-2x70',
-    modelName: '电动汽车大功率液冷超充专用柔性电缆 (EVDC 2x70+2x25mm²)',
-    category: 'cable',
-    categoryId: 'cat-cb-ev',
-    voltageLevel: '35kV级及以下',
-    companyId: 'ws_dl_main',
-    companyName: '特变电工（德阳）电缆股份有限公司',
-    productionVolume: '120 km',
-    unitTce: '0.125 tce/km',
-    unitElecKWh: '940 kWh/km',
-    unitNitrogenM3: '3.0 m³/km',
-    unitGasM3: '2.4 m³/km',
-    unitWaterTon: '0.5 t/km',
-    diffYoy: '-4.6%',
-    quotaStatus: '达标受控',
-  },
-
-  // 17. JKLYJ 架空绝缘导线
+  // 4. 架空导线及铜铝拉丝 (cat-mp-cb-drawing)
   {
     id: 'm-cb-jklyj-01',
     modelCode: 'CB-OVH-JKLYJ-1x120',
-    modelName: 'JKLYJ 10kV 架空绝缘导线 (1x120mm²)',
+    modelName: 'JKLYJ 10kV 架空绝缘导线 (拉丝与绞线工序)',
     category: 'cable',
-    categoryId: 'cat-cb-overhead-jklyj',
+    categoryId: 'cat-mp-cb-drawing',
     voltageLevel: 'all',
     companyId: 'ws_xl_sub',
     companyName: '特变电工新疆线缆厂',
@@ -2252,14 +1271,12 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-5.0%',
     quotaStatus: '达标受控',
   },
-
-  // 18. LGJ 钢芯铝绞线
   {
     id: 'm-cb-lgj-01',
     modelCode: 'CB-OVH-LGJ-400/35',
-    modelName: 'LGJ 钢芯铝绞线 (LGJ-400/35 特高压输电线路导线)',
+    modelName: 'LGJ 钢芯铝绞线 (单位吨铝电耗/单位吨铜电耗)',
     category: 'cable',
-    categoryId: 'cat-cb-overhead-lgj',
+    categoryId: 'cat-mp-cb-drawing',
     voltageLevel: 'all',
     companyId: 'ws_xl_main',
     companyName: '特变电工新疆电缆有限公司',
@@ -2272,14 +1289,12 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     diffYoy: '-4.8%',
     quotaStatus: '先进标杆',
   },
-
-  // 19. 屏蔽控制电缆
   {
     id: 'm-cb-kvv-01',
     modelCode: 'CB-CTR-KVVP-4x2.5',
     modelName: '屏蔽控制电缆及计算机信号电缆 (KVVP 4x2.5mm²)',
     category: 'cable',
-    categoryId: 'cat-cb-control-kvv',
+    categoryId: 'cat-mp-cb-drawing',
     voltageLevel: 'all',
     companyId: 'ws_dl_main',
     companyName: '特变电工（德阳）电缆股份有限公司',
@@ -2291,26 +1306,6 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
     unitWaterTon: '0.4 t/km',
     diffYoy: '-4.2%',
     quotaStatus: '达标受控',
-  },
-
-  // 20. 稀土高铁铝合金电缆
-  {
-    id: 'm-cb-ac90-01',
-    modelCode: 'CB-AL-AC90-3x120',
-    modelName: '稀土高铁铝合金电力电缆 (AC90 3x120+1x70mm²)',
-    category: 'cable',
-    categoryId: 'cat-cb-aluminum',
-    voltageLevel: '35kV级及以下',
-    companyId: 'ws_ll_sg',
-    companyName: '曙光公司',
-    productionVolume: '90 km',
-    unitTce: '0.135 tce/km',
-    unitElecKWh: '1,015 kWh/km',
-    unitNitrogenM3: '2.8 m³/km',
-    unitGasM3: '2.2 m³/km',
-    unitWaterTon: '0.5 t/km',
-    diffYoy: '-5.5%',
-    quotaStatus: '先进标杆',
   },
 ]
 
@@ -2523,26 +1518,26 @@ export default function UnitProductPage() {
     }
   }, [timeDim, selectedKpiId])
 
-  // 🌟 2. 坐标轴单位与曲线根据选中的介质和种类动态配置
+  // 🌟 2. 坐标轴单位与曲线根据选中的介质和种类动态配置 (参考图片 1)
   const chartAxisAndLines = useMemo(() => {
     const kpiMetaMap: Record<string, { name: string; transUnit: string; cableUnit: string; transLineName: string; cableLineName: string }> = {
       'kpi-tce': {
         name: '单位产品综合能耗',
-        transUnit: 'tce/万kVA (变压器综合能耗)',
-        cableUnit: 'tce/km (线缆综合能耗)',
+        transUnit: 'tce/万kVA',
+        cableUnit: 'tce/km',
         transLineName: '变压器综合单耗 (tce/万kVA)',
         cableLineName: '线缆综合单耗 (tce/km)',
       },
       'kpi-elec': {
         name: '单位产品电耗',
-        transUnit: 'kWh/kVA (变压器电耗)',
-        cableUnit: 'kWh/km (线缆电耗)',
+        transUnit: 'kWh/kVA',
+        cableUnit: 'kWh/km',
         transLineName: '变压器实测电耗 (kWh/kVA)',
         cableLineName: '线缆实测电耗 (kWh/km)',
       },
       'kpi-steam': {
         name: '单位产品蒸汽消耗',
-        transUnit: 't/万kVA (蒸汽消耗)',
+        transUnit: 't/万kVA',
         cableUnit: 't/km',
         transLineName: '变压器干燥工序蒸汽单耗 (t/万kVA)',
         cableLineName: '线缆蒸汽单耗',
@@ -2550,75 +1545,52 @@ export default function UnitProductPage() {
       'kpi-nitrogen': {
         name: '单位产品氮气消耗',
         transUnit: 'm³/万kVA',
-        cableUnit: 'm³/km (氮气消耗)',
+        cableUnit: 'm³/km',
         transLineName: '变压器氮气单耗',
         cableLineName: '线缆立塔交联工序氮气单耗 (m³/km)',
       },
       'kpi-gas': {
         name: '单位产品天然气消耗',
-        transUnit: 'm³/万kVA (变压器燃气耗)',
-        cableUnit: 'm³/km (线缆燃气耗)',
+        transUnit: 'm³/万kVA',
+        cableUnit: 'm³/km',
         transLineName: '变压器天然气单耗 (m³/万kVA)',
         cableLineName: '线缆天然气单耗 (m³/km)',
       },
       'kpi-water': {
         name: '单位产品水消耗',
-        transUnit: 't/万kVA (变压器水耗)',
-        cableUnit: 't/km (线缆水耗)',
-        transLineName: '变压器水单耗 (t/万kVA)',
-        cableLineName: '线缆水单耗 (t/km)',
+        transUnit: 't/万kVA',
+        cableUnit: 't/km',
+        transLineName: '变压器水耗 (t/万kVA)',
+        cableLineName: '线缆水耗 (t/km)',
       },
     }
 
     const meta = kpiMetaMap[selectedKpiId] || kpiMetaMap['kpi-tce']
+    const isTransOnly = selectedKpiId === 'kpi-steam'
+    const isCableOnly = selectedKpiId === 'kpi-nitrogen'
 
-    if (category === 'transformer' || (category === 'all' && activeIndustry === 'transformer' && selectedNode.id !== 'ent_root')) {
-      return {
-        yUnit: meta.transUnit,
-        titleDesc: `【变压器产品】${meta.name}变化趋势 (${trendChartConfig.periodName})`,
-        lines: [
-          { key: '变压器单耗', name: meta.transLineName, color: '#1677ff' },
-        ],
-      }
-    } else if (category === 'cable' || (category === 'all' && activeIndustry === 'cable')) {
-      return {
-        yUnit: meta.cableUnit,
-        titleDesc: `【线缆产品】${meta.name}变化趋势 (${trendChartConfig.periodName})`,
-        lines: [
-          { key: '线缆单耗', name: meta.cableLineName, color: '#a855f7' },
-        ],
-      }
-    } else {
-      // 全部产品总览 (双曲线 或 单产业特有介质单曲线)
-      if (selectedKpiId === 'kpi-steam') {
-        return {
-          yUnit: meta.transUnit,
-          titleDesc: `【变压器干燥工序】${meta.name}变化趋势 (${trendChartConfig.periodName})`,
-          lines: [
-            { key: '变压器单耗', name: meta.transLineName, color: '#1677ff' },
-          ],
-        }
-      }
-      if (selectedKpiId === 'kpi-nitrogen') {
-        return {
-          yUnit: meta.cableUnit,
-          titleDesc: `【线缆立塔交联工序】${meta.name}变化趋势 (${trendChartConfig.periodName})`,
-          lines: [
-            { key: '线缆单耗', name: meta.cableLineName, color: '#a855f7' },
-          ],
-        }
-      }
+    let lines = [
+      { key: '变压器单耗', name: meta.transLineName, color: '#1677ff' },
+      { key: '线缆单耗', name: meta.cableLineName, color: '#8b5cf6' },
+    ]
+    let yUnit = `${meta.transUnit} (变压器) · ${meta.cableUnit} (线缆)`
 
-      return {
-        yUnit: `${meta.transUnit.split(' ')[0]} (变压器) · ${meta.cableUnit.split(' ')[0]} (线缆)`,
-        titleDesc: `【全集团两大核心产品】${meta.name}变化趋势 (${trendChartConfig.periodName})`,
-        lines: [
-          { key: '变压器单耗', name: meta.transLineName, color: '#1677ff' },
-          { key: '线缆单耗', name: meta.cableLineName, color: '#a855f7' },
-        ],
-      }
+    if (isTransOnly) {
+      lines = [{ key: '变压器单耗', name: meta.transLineName, color: '#1677ff' }]
+      yUnit = `${meta.transUnit} (变压器)`
+    } else if (isCableOnly) {
+      lines = [{ key: '线缆单耗', name: meta.cableLineName, color: '#8b5cf6' }]
+      yUnit = `${meta.cableUnit} (线缆)`
     }
-  }, [category, activeIndustry, selectedNode, selectedKpiId, trendChartConfig.periodName])
+
+    return {
+      name: meta.name,
+      yUnit,
+      transUnit: meta.transUnit,
+      cableUnit: meta.cableUnit,
+      lines,
+    }
+  }, [selectedKpiId])
 
   // 🌟 3. 产品型号列表过滤 (支持几千条型号检索、分类联动与分页)
   const filteredModels = useMemo(() => {
@@ -3032,19 +2004,96 @@ export default function UnitProductPage() {
         </div>
 
         {/* ========================================================================= */}
-        {/* 🌟 4. 中间分类层级：数十种产品种类能效对标与时序演进中心 (支持 20~50+ 种品类) */}
+        {/* 🌟 3.5. 选定能耗指标近 12 个月变化趋势全景折线图 (参考图片 1：点击上方卡片动态联动) */}
         {/* ========================================================================= */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-          {/* ① 顶部功能栏：品类总览、二级分组 Tabs、品类搜索与排序 */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="size-2.5 rounded-full bg-[#1677ff] animate-pulse shrink-0" />
+              <h3 className="text-xs font-bold text-slate-900">
+                【全集团两大核心产品】{chartAxisAndLines.name}变化趋势 ({trendChartConfig.periodName})
+              </h3>
+              {selectedNode.id !== 'ent_root' && (
+                <span className="text-[11px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-sans font-bold border border-blue-100">
+                  {selectedNode.name}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs px-2.5 py-1 rounded-md bg-blue-50/80 text-[#1677ff] font-mono border border-blue-100/80 font-medium">
+                Y轴坐标单位: {chartAxisAndLines.yUnit}
+              </span>
+            </div>
+          </div>
+
+          {/* 折线图呈现 (参考图片 1) */}
+          <div className="h-[220px] w-full pt-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trendChartConfig.data} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis
+                  dataKey="period"
+                  tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'monospace' }}
+                  axisLine={{ stroke: '#cbd5e1' }}
+                  tickLine={{ stroke: '#cbd5e1' }}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'monospace' }}
+                  axisLine={{ stroke: '#cbd5e1' }}
+                  tickLine={{ stroke: '#cbd5e1' }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#ffffff',
+                    borderColor: '#e2e8f0',
+                    borderRadius: 8,
+                    fontSize: 12,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  }}
+                />
+                {chartAxisAndLines.lines.map((line) => (
+                  <Line
+                    key={line.key}
+                    type="monotone"
+                    dataKey={line.key}
+                    name={line.name}
+                    stroke={line.color}
+                    strokeWidth={2.2}
+                    dot={{ r: 3.5, fill: '#ffffff', stroke: line.color, strokeWidth: 2 }}
+                    activeDot={{ r: 6, fill: line.color }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* 底部自定义图例与单位说明，完全对齐图1 */}
+          <div className="flex items-center justify-center gap-8 text-xs font-mono pt-2 text-slate-700 border-t border-slate-100 flex-wrap">
+            {chartAxisAndLines.lines.map((line) => (
+              <div key={line.key} className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 font-bold" style={{ color: line.color }}>
+                  <span className="w-4 h-0.5 inline-block" style={{ backgroundColor: line.color }} />
+                  <span className="size-2 rounded-full border bg-white inline-block" style={{ borderColor: line.color }} />
+                  <span className="w-4 h-0.5 inline-block" style={{ backgroundColor: line.color }} />
+                </span>
+                <span>{line.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 🌟 4. 中间主要产品分类层级 (卡片形式展现分类名称、类型、消耗资源类型等) */}
+        {/* ========================================================================= */}
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+          {/* ① 顶部功能栏：品类标题、品类搜索与排序 (已移除冗余红框信息) */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
               <Boxes className="size-4 text-[#1677ff]" />
               <h3 className="text-xs font-bold text-slate-900">
-                {category === 'transformer' ? '【变压器】产品种类能耗对标与时序演进' : '【线缆】产品种类能耗对标与时序演进'}
+                {category === 'transformer' ? '【变压器产业】主要产品分类' : '【线缆产业】主要产品分类'}
               </h3>
-              <span className="text-[11px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-mono font-bold border border-blue-100">
-                共在产 {currentCategories.length} 种细分种类 · 覆盖 2,840 款型号
-              </span>
             </div>
 
             {/* 右侧：品类检索框与排序选择 */}
@@ -3054,7 +2103,7 @@ export default function UnitProductPage() {
                   type="text"
                   value={categorySearchKw}
                   onChange={(e) => setCategorySearchKw(e.target.value)}
-                  placeholder="按产品种类名称快速过滤..."
+                  placeholder="按主要产品名称/工序过滤..."
                   className="pl-7 pr-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#1677ff] focus:bg-white w-48 transition-colors"
                 />
                 <Search className="size-3.5 text-slate-400 absolute left-2 top-1.5 pointer-events-none" />
@@ -3072,7 +2121,7 @@ export default function UnitProductPage() {
               <select
                 value={categorySortBy}
                 onChange={(e) => setCategorySortBy(e.target.value as any)}
-                aria-label="产品种类排序方式"
+                aria-label="主要产品排序方式"
                 className="py-1 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans text-slate-700 focus:outline-none focus:border-[#1677ff] cursor-pointer"
               >
                 <option value="tce_desc">按综合单耗降序</option>
@@ -3082,10 +2131,10 @@ export default function UnitProductPage() {
             </div>
           </div>
 
-          {/* ② 品类二级分组 Tabs 药丸 (特高压/超高压、中高压电力变、干式与配电变、新能源与特种变) */}
+          {/* ② 品类二级分组 Tabs 药丸 */}
           <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-slate-400 font-sans text-[11px]">品类分组:</span>
+              <span className="text-slate-400 font-sans text-[11px]">主要产品分组:</span>
               {categoryGroups.map((grp) => {
                 const isGrpSelected = selectedCategoryGroup === grp
                 const count = grp === 'all'
@@ -3103,7 +2152,7 @@ export default function UnitProductPage() {
                         : 'bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-slate-200'
                     )}
                   >
-                    <span>{grp === 'all' ? '全部分组' : grp}</span>
+                    <span>{grp === 'all' ? '全部主要产品' : grp}</span>
                     <span className={cn('text-[10px] px-1 rounded', isGrpSelected ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-600')}>
                       {count}
                     </span>
@@ -3121,190 +2170,75 @@ export default function UnitProductPage() {
                 }}
                 className="text-xs text-[#1677ff] hover:underline font-bold flex items-center gap-1 cursor-pointer"
               >
-                <span>清除单选 (显示全部品类型号)</span>
+                <span>清除单选 (显示全部主要产品型号)</span>
               </button>
             )}
           </div>
 
-          {/* ③ 双栏布局：左侧数十种产品种类滚动对标列表 (55%) + 右侧选定品类深度透视看板 (45%) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 pt-1">
-            {/* 左侧：数十种产品品类横向对标滚动列表 (7列宽) */}
-            <div className="lg:col-span-7 rounded-xl border border-slate-200 bg-slate-50/40 p-3 flex flex-col space-y-2">
-              <div className="flex items-center justify-between text-xs font-sans text-slate-600 pb-1.5 border-b border-slate-200/80 px-1 font-bold">
-                <span className="flex items-center gap-1">
-                  <span>产品种类名称 & 分组</span>
-                  <span className="text-[10.5px] font-normal text-slate-400 font-mono">(点击可单选联动)</span>
-                </span>
-                <div className="flex items-center gap-6 font-mono text-[11px]">
-                  <span>下辖型号</span>
-                  <span>综合单耗 / 进度</span>
-                  <span className="w-14 text-right">同比</span>
-                </div>
-              </div>
+          {/* ③ 卡片网格形式展示所有产品分类 (精简信息：分类名称、类型、消耗资源类型、单耗、生产单位) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 pt-1">
+            {displayedCategories.map((cat, idx) => {
+              const isSelected = selectedCategoryId === cat.id
 
-              {/* 滚动容器：容纳几十种产品种类 */}
-              <div className="max-h-[310px] overflow-y-auto custom-scrollbar space-y-1.5 pr-1">
-                {displayedCategories.map((cat, idx) => {
-                  const isSelected = selectedCategoryId === cat.id
-                  const ratio = Math.min(100, Math.max(10, (cat.unitTce / maxCategoryTce) * 100))
-
-                  return (
-                    <div
-                      key={cat.id}
-                      onClick={() => {
-                        setSelectedCategoryId(selectedCategoryId === cat.id ? 'all' : cat.id)
-                        setCurrentPage(1)
-                      }}
-                      className={cn(
-                        'p-2.5 rounded-lg border transition-all cursor-pointer flex items-center justify-between text-xs gap-2 select-none',
-                        isSelected
-                          ? 'bg-blue-50/90 border-[#1677ff] ring-1 ring-[#1677ff] shadow-xs'
-                          : 'bg-white border-slate-200/80 hover:bg-slate-100/70 hover:border-slate-300'
-                      )}
-                    >
-                      {/* 左侧：序号 + 种类名称 + 分组标签 */}
-                      <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <span className={cn('text-[11px] font-mono font-bold w-5 text-center', isSelected ? 'text-[#1677ff]' : 'text-slate-400')}>
-                          {String(idx + 1).padStart(2, '0')}
-                        </span>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className={cn('font-bold text-xs truncate', isSelected ? 'text-[#1677ff]' : 'text-slate-900')}>
-                              {cat.name}
-                            </span>
-                            {isSelected && <CheckCircle2 className="size-3.5 text-[#1677ff] shrink-0" />}
-                          </div>
-                          <div className="flex items-center gap-2 text-[10.5px] text-slate-400 font-sans">
-                            <span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px]">
-                              {cat.groupTag}
-                            </span>
-                            <span className="font-mono text-slate-500">
-                              ⚡ 电单耗: {cat.unitElecStr}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* 右侧：型号数 + 单耗进度柱 + 数值 + 同比 */}
-                      <div className="flex items-center gap-4 shrink-0 font-mono text-xs">
-                        <span className="text-[11px] text-slate-500 w-12 text-right">
-                          {cat.modelCount} 款
-                        </span>
-
-                        <div className="w-24 flex flex-col items-end gap-0.5">
-                          <strong className={cn('text-xs font-bold', isSelected ? 'text-[#1677ff]' : 'text-slate-800')}>
-                            {cat.unitTceStr}
-                          </strong>
-                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div
-                              className={cn('h-full rounded-full transition-all', isSelected ? 'bg-[#1677ff]' : 'bg-blue-400')}
-                              style={{ width: `${ratio}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        <span className="text-emerald-600 font-bold text-[11px] w-14 text-right">
-                          {cat.diffYoy} ↓
-                        </span>
-                      </div>
+              return (
+                <div
+                  key={cat.id}
+                  onClick={() => {
+                    setSelectedCategoryId(selectedCategoryId === cat.id ? 'all' : cat.id)
+                    setCurrentPage(1)
+                  }}
+                  className={cn(
+                    'rounded-xl border p-3 flex flex-col justify-between transition-all cursor-pointer select-none relative group',
+                    isSelected
+                      ? 'bg-gradient-to-br from-blue-50/90 via-white to-blue-50/30 border-2 border-[#1677ff] ring-2 ring-[#1677ff]/20 shadow-sm scale-[1.01]'
+                      : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/70 hover:shadow-xs'
+                  )}
+                >
+                  {/* 1. 顶部：序号 + 分类名称 + 类型标签 + 选中状态 */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <span className={cn(
+                        'size-5 rounded-md font-mono text-[11px] font-bold flex items-center justify-center shrink-0 transition-colors',
+                        isSelected ? 'bg-[#1677ff] text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-700'
+                      )}>
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
+                      <h4 className={cn(
+                        'text-xs font-bold truncate leading-tight',
+                        isSelected ? 'text-[#1677ff]' : 'text-slate-900 group-hover:text-[#1677ff]'
+                      )} title={cat.name}>
+                        {cat.name}
+                      </h4>
                     </div>
-                  )
-                })}
-              </div>
-            </div>
 
-            {/* 右侧：选定产品种类的深度透视看板 (5列宽) */}
-            <div className="lg:col-span-5 rounded-xl border border-slate-200 bg-white p-3.5 flex flex-col space-y-3 shadow-2xs">
-              {/* 头部：当前品类概要 */}
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <div className="min-w-0">
-                  <span className="text-[10.5px] text-slate-400 block font-sans">当前透视种类画像</span>
-                  <h4 className="text-xs font-bold text-slate-900 truncate">
-                    {activeCategoryDetail.name}
-                  </h4>
-                </div>
-                <span className="px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-mono text-[11px] font-bold border border-blue-100">
-                  {activeCategoryDetail.groupTag}
-                </span>
-              </div>
+                    {isSelected && (
+                      <CheckCircle2 className="size-4 text-[#1677ff] shrink-0 fill-blue-50" />
+                    )}
+                  </div>
 
-              {/* 4 个指标快报小卡 */}
-              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                <div className="p-2 rounded-lg bg-slate-50 border border-slate-100 space-y-0.5">
-                  <span className="text-[10px] text-slate-400 font-sans block">综合单耗</span>
-                  <strong className="text-[#1677ff] text-sm block">{activeCategoryDetail.unitTceStr}</strong>
-                  <span className="text-[10px] text-emerald-600 font-bold block font-sans">同比 {activeCategoryDetail.diffYoy} ↓</span>
-                </div>
-                <div className="p-2 rounded-lg bg-slate-50 border border-slate-100 space-y-0.5">
-                  <span className="text-[10px] text-slate-400 font-sans block">单位电耗</span>
-                  <strong className="text-blue-700 text-sm block">{activeCategoryDetail.unitElecStr}</strong>
-                  <span className="text-[10px] text-slate-500 font-sans block">在产型号: {activeCategoryDetail.modelCount} 款</span>
-                </div>
-              </div>
+                  {/* 2. 中间：消耗资源类型 */}
+                  <div className="flex items-center justify-between text-xs bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100 my-1">
+                    <span className="text-[11px] text-slate-500 font-sans flex items-center gap-1">
+                      <Zap className="size-3 text-amber-500 shrink-0" />
+                      <span>消耗资源类型:</span>
+                    </span>
+                    <span className="font-bold text-amber-700 text-[11px] font-sans">
+                      {cat.energyTypes}
+                    </span>
+                  </div>
 
-              {/* 12 个月单耗改善走势面积折线图 */}
-              <div className="space-y-1.5 flex-1 flex flex-col justify-between">
-                <div className="flex items-center justify-between text-[11px] font-sans text-slate-500">
-                  <span className="flex items-center gap-1 font-bold text-slate-700">
-                    <TrendingUp className="size-3 text-emerald-600" />
-                    近12个月单耗演进趋势
-                  </span>
-                  <span className="font-mono text-slate-400">
-                    {category === 'transformer' ? '单位: tce/万kVA' : '单位: tce/km'}
-                  </span>
+                  {/* 3. 底部生产单位与型号数 (简明一行) */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10.5px] text-slate-500 font-sans">
+                    <span className="truncate max-w-[65%]" title={cat.producerUnits}>
+                      🏭 {cat.producerUnits}
+                    </span>
+                    <span className="font-mono text-slate-400 shrink-0">
+                      {cat.modelCount} 款型号
+                    </span>
+                  </div>
                 </div>
-
-                <div className="h-[145px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={activeCategoryDetail.trend12Months}
-                      margin={{ top: 8, right: 10, left: -15, bottom: 0 }}
-                    >
-                      <defs>
-                        <linearGradient id="colorCategoryTce" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#1677ff" stopOpacity={0.25} />
-                          <stop offset="95%" stopColor="#1677ff" stopOpacity={0.0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis
-                        dataKey="period"
-                        tick={{ fontSize: 9.5, fill: '#64748b' }}
-                        axisLine={{ stroke: '#e2e8f0' }}
-                        tickLine={false}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 9.5, fill: '#64748b' }}
-                        axisLine={{ stroke: '#e2e8f0' }}
-                        tickLine={false}
-                        domain={['auto', 'auto']}
-                      />
-                      <Tooltip
-                        formatter={(val: any) => [`${val} ${category === 'transformer' ? 'tce/万kVA' : 'tce/km'}`, '综合单耗']}
-                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.98)', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11px' }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="tce"
-                        stroke="#1677ff"
-                        strokeWidth={2}
-                        fillOpacity={1}
-                        fill="url(#colorCategoryTce)"
-                        dot={{ r: 2.5, fill: '#1677ff' }}
-                        activeDot={{ r: 4 }}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-
-                {/* 底部各介质拆解胶囊 */}
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10.5px] font-sans text-slate-500 flex-wrap gap-1">
-                  <span>💨 {activeCategoryDetail.steamOrNitrogen}</span>
-                  <span>🔥 天然气: {activeCategoryDetail.gasStr}</span>
-                  <span>💧 工艺水: {activeCategoryDetail.waterStr}</span>
-                </div>
-              </div>
-            </div>
+              )
+            })}
           </div>
         </div>
 
@@ -3328,6 +2262,35 @@ export default function UnitProductPage() {
               在产型号总库共 <strong className="text-slate-900">2,840</strong> 种 · 当前筛选展示 <strong className="text-[#1677ff]">{filteredModels.length}</strong> 条型号
             </div>
           </div>
+
+          {/* 若选中特定产品分类，显示高亮提示条与重置操作 */}
+          {activeSelectedCategory && (
+            <div className="bg-blue-50/70 border-b border-blue-100 px-3.5 py-2 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2 text-blue-900 flex-wrap">
+                <span className="px-2 py-0.5 rounded bg-blue-600 text-white font-bold text-[11px] shadow-2xs">
+                  已联动过滤
+                </span>
+                <span className="font-bold">【{activeSelectedCategory.name}】</span>
+                <span className="text-slate-500 text-[11px]">({activeSelectedCategory.groupTag})</span>
+                <span className="text-slate-400">|</span>
+                <span className="text-slate-600 text-[11px]">生产单位: {activeSelectedCategory.producerUnits}</span>
+                <span className="text-slate-400">|</span>
+                <span className="text-blue-700 text-[11px]">工序: {activeSelectedCategory.keyProcesses.join(' · ')}</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategoryId('all')
+                  setCurrentPage(1)
+                }}
+                className="flex items-center gap-1 text-xs text-[#1677ff] hover:text-blue-800 font-bold cursor-pointer hover:underline"
+              >
+                <X className="size-3.5" />
+                <span>清除分类筛选 (显示全谱系)</span>
+              </button>
+            </div>
+          )}
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-mono">

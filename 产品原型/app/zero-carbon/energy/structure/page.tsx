@@ -578,8 +578,8 @@ export default function EnergyStructureAnalysisPage() {
                 <span className="text-xs font-normal text-slate-400 font-sans">tce</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>非化石能源占比</span>
-                <span className="font-mono font-bold text-emerald-700">{activeData.nonFossilRatio}%</span>
+                <span>非化石占比 <strong className="font-mono text-emerald-700 font-bold">{activeData.nonFossilRatio}%</strong></span>
+                <span className="text-emerald-600 font-mono font-bold">同比 -3.8% ↓</span>
               </div>
             </div>
 
@@ -606,11 +606,8 @@ export default function EnergyStructureAnalysisPage() {
                 <span className="text-xs font-normal text-slate-400 font-sans">万kWh</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>折标 / 占综合能耗</span>
-                <span className="font-mono font-bold text-slate-700">
-                  {((activeData.totalElec * 10000 * 0.1229) / 1000).toFixed(0)} tce (
-                  {(((activeData.totalElec * 10000 * 0.1229) / 1000 / activeData.totalTce) * 100).toFixed(1)}%)
-                </span>
+                <span>总量占比 <strong className="font-mono text-slate-800 font-bold">{(((activeData.totalElec * 10000 * 0.1229) / 1000 / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
+                <span className="text-emerald-600 font-mono font-bold">同比 -4.2% ↓</span>
               </div>
             </div>
 
@@ -637,10 +634,8 @@ export default function EnergyStructureAnalysisPage() {
                 <span className="text-xs font-normal text-slate-400 font-sans">万kWh</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>占总电量比重</span>
-                <span className="font-mono font-bold text-slate-700">
-                  {((activeData.gridElec / activeData.totalElec) * 100).toFixed(1)}%
-                </span>
+                <span>总量占比 <strong className="font-mono text-slate-800 font-bold">{(((activeData.gridElec * 10000 * 0.1229) / 1000 / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
+                <span className="text-emerald-600 font-mono font-bold">同比 -6.5% ↓</span>
               </div>
             </div>
 
@@ -667,10 +662,8 @@ export default function EnergyStructureAnalysisPage() {
                 <span className="text-xs font-normal text-slate-400 font-sans">万kWh</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>绿电消纳占比</span>
-                <span className="font-mono font-bold text-emerald-700">
-                  {activeData.greenElecRatio}%
-                </span>
+                <span>总量占比 <strong className="font-mono text-emerald-700 font-bold">{(((activeData.greenElec * 10000 * 0.1229) / 1000 / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
+                <span className="text-emerald-600 font-mono font-bold">同比 +12.4% ↑</span>
               </div>
             </div>
 
@@ -697,11 +690,8 @@ export default function EnergyStructureAnalysisPage() {
                 <span className="text-xs font-normal text-slate-400 font-sans">万m³</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>折标 / 占综合能耗</span>
-                <span className="font-mono font-bold text-slate-700">
-                  {((activeData.gas * 10000 * 1.2143) / 1000).toFixed(0)} tce (
-                  {(((activeData.gas * 10000 * 1.2143) / 1000 / activeData.totalTce) * 100).toFixed(1)}%)
-                </span>
+                <span>总量占比 <strong className="font-mono text-slate-800 font-bold">{(((activeData.gas * 10000 * 1.2143) / 1000 / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
+                <span className="text-emerald-600 font-mono font-bold">同比 -2.1% ↓</span>
               </div>
             </div>
 
@@ -728,11 +718,8 @@ export default function EnergyStructureAnalysisPage() {
                 <span className="text-xs font-normal text-slate-400 font-sans">t</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>折标 / 占综合能耗</span>
-                <span className="font-mono font-bold text-slate-700">
-                  {(activeData.steam * 0.0943).toFixed(0)} tce (
-                  {(((activeData.steam * 0.0943) / activeData.totalTce) * 100).toFixed(1)}%)
-                </span>
+                <span>总量占比 <strong className="font-mono text-slate-800 font-bold">{(((activeData.steam * 0.0943) / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
+                <span className="text-emerald-600 font-mono font-bold">同比 -1.5% ↓</span>
               </div>
             </div>
 
@@ -759,11 +746,8 @@ export default function EnergyStructureAnalysisPage() {
                 <span className="text-xs font-normal text-slate-400 font-sans">万L</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>折标 / 占综合能耗</span>
-                <span className="font-mono font-bold text-slate-700">
-                  {((activeData.oil * 10000 * 1.09) / 1000).toFixed(0)} tce (
-                  {(((activeData.oil * 10000 * 1.09) / 1000 / activeData.totalTce) * 100).toFixed(1)}%)
-                </span>
+                <span>总量占比 <strong className="font-mono text-slate-800 font-bold">{(((activeData.oil * 10000 * 1.09) / 1000 / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
+                <span className="text-emerald-600 font-mono font-bold">同比 -8.3% ↓</span>
               </div>
             </div>
 
@@ -790,10 +774,8 @@ export default function EnergyStructureAnalysisPage() {
                 <span className="text-xs font-normal text-slate-400 font-sans">t</span>
               </div>
               <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1 flex items-center justify-between">
-                <span>主要工艺单位</span>
-                <span className="font-sans font-bold text-slate-700">
-                  {activeData.nitrogen > 0 ? '露娜公司 (100%)' : '0 (无液氮项)'}
-                </span>
+                <span>总量占比 <strong className="font-mono text-slate-800 font-bold">{activeData.totalTce > 0 ? (((activeData.nitrogen * 0.66) / activeData.totalTce) * 100).toFixed(1) : '0.0'}%</strong></span>
+                <span className="text-emerald-600 font-mono font-bold">同比 -3.2% ↓</span>
               </div>
             </div>
           </div>
@@ -869,13 +851,12 @@ export default function EnergyStructureAnalysisPage() {
                     <tr className="bg-slate-100 border-b border-slate-200 text-slate-700 font-semibold font-sans">
                       <th className="py-2 px-3">序号</th>
                       <th className="py-2 px-3">直属经营单位</th>
-                      <th className="py-2 px-3">所属基地与电网</th>
                       <th className="py-2 px-3 text-[#1677ff]">
                         {METRICS_META[selectedMetricKey].name} ({metricCompanyBreakdown.unit})
                       </th>
                       <th className="py-2 px-3 font-bold text-emerald-700">占全集团比重 (%)</th>
                       <th className="py-2 px-3">非化石能源占比 (%)</th>
-                      <th className="py-2 px-3">绿电消纳率 (%)</th>
+                      <th className="py-2 px-3">直供绿电占比 (%)</th>
                       <th className="py-2 px-3 text-right">穿透操作</th>
                     </tr>
                   </thead>
@@ -890,7 +871,6 @@ export default function EnergyStructureAnalysisPage() {
                             <Factory className="size-3.5 text-slate-500" />
                             {comp.name}
                           </td>
-                          <td className="py-2 px-3 font-sans text-slate-500">{comp.province}</td>
                           <td className="py-2 px-3 font-bold text-[#1677ff]">{val.toLocaleString()}</td>
                           <td className="py-2 px-3 font-extrabold text-emerald-700">{ratio}%</td>
                           <td className="py-2 px-3">{comp.nonFossilRatio}%</td>
