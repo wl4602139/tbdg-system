@@ -1764,13 +1764,14 @@ export default function BenchmarkManagementPage() {
     })
   }, [productIndustryFilter, productSearchKeyword])
 
-  // 当前选中用于图表 PK 的产品
+  // 当前选中用于图表 PK 的产品 (确保产业切换时图表数据100%同步切换)
   const activeSelectedProduct = useMemo(() => {
-    return (
-      CROSS_COMPANY_PRODUCT_BENCHMARKS.find((p) => p.id === selectedProductModelId) ||
-      CROSS_COMPANY_PRODUCT_BENCHMARKS[0]
+    const currentIndustryProducts = CROSS_COMPANY_PRODUCT_BENCHMARKS.filter(
+      (p) => p.industry === productIndustryFilter
     )
-  }, [selectedProductModelId])
+    const found = currentIndustryProducts.find((p) => p.id === selectedProductModelId)
+    return found || currentIndustryProducts[0] || CROSS_COMPANY_PRODUCT_BENCHMARKS[0]
+  }, [selectedProductModelId, productIndustryFilter])
 
   // 过滤后的基准列表
   const filteredStandards = useMemo(() => {
@@ -2239,31 +2240,37 @@ export default function BenchmarkManagementPage() {
               <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
               <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setProductIndustryFilter('transformer')}
-                    className={cn(
-                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none flex items-center gap-1',
-                      productIndustryFilter === 'transformer'
-                        ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    <span>⚡ 变压器</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setProductIndustryFilter('cable')}
-                    className={cn(
-                      'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none flex items-center gap-1',
-                      productIndustryFilter === 'cable'
-                        ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    )}
-                  >
-                    <span>🔌 线缆</span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProductIndustryFilter('transformer')
+                    setSelectedProductModelId('tx-01')
+                  }}
+                  className={cn(
+                    'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none flex items-center gap-1',
+                    productIndustryFilter === 'transformer'
+                      ? 'font-bold bg-white text-[#1677ff] shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  <span>⚡ 变压器</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProductIndustryFilter('cable')
+                    setSelectedProductModelId('cb-01')
+                  }}
+                  className={cn(
+                    'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none flex items-center gap-1',
+                    productIndustryFilter === 'cable'
+                      ? 'font-bold bg-white text-[#1677ff] shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  <span>🔌 线缆</span>
+                </button>
+              </div>
             </div>
 
             {/* 右侧：搜索框 (按产品种类/型号模糊查询) */}
