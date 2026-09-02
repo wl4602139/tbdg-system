@@ -1305,12 +1305,12 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       </div>
                     </div>
 
-                    {/* 2. 过程脱碳 */}
+                    {/* 2. 过程削碳 */}
                     <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between gap-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-sky-800 flex items-center gap-1">
                           <Sparkles className="size-3.5 text-sky-600" />
-                          2. 过程脱碳
+                          2. 过程削碳
                         </span>
                         <span className="text-[10px] text-sky-700 bg-sky-50 px-1.5 py-0.2 rounded font-medium">
                           碳清除 Re
@@ -1365,12 +1365,12 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       </div>
                     </div>
 
-                    {/* 5. 碳抵销和信息披露 */}
+                    {/* 5. 抵消治理 */}
                     <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between gap-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-amber-800 flex items-center gap-1">
                           <FileCheck className="size-3.5 text-amber-600" />
-                          5. 抵销披露
+                          5. 抵消治理
                         </span>
                         <span className="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded font-medium">
                           报告归档
@@ -1397,44 +1397,55 @@ export default function ZeroCarbonSelfEvaluationPage() {
               name: f.factoryName.length > 8 ? f.factoryName.slice(0, 7) + '...' : f.factoryName,
               fullName: f.factoryName,
               greenPower: f.metrics['3.1'].value,
-              autoCollect: f.autoCollectRate,
               carbonClear: f.carbonClearRate,
-              supplyChain: f.supplyChainMeasuresCount * 16.6,
+              supplyChain: Math.round((f.supplyChainMeasuresCount / 6) * 100),
+              autoCollect: f.autoCollectRate,
+              disclosure: Math.round((f.disclosureDocsCount / 5) * 100),
             }))
 
             return (
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <BarChart3 className="size-4 text-blue-600" />
-                    <h3 className="text-sm font-bold text-slate-900">【{selectedCompanyId}】 下辖各工厂 5 维重点评估参数横向对标 (%)</h3>
+                    <h3 className="text-sm font-bold text-slate-900">【{selectedCompanyId}】 下辖各工厂 5 大标准维度评估横向对标 (%)</h3>
                   </div>
-                  <div className="flex items-center gap-4 text-xs">
+                  <div className="flex flex-wrap items-center gap-3 text-xs">
                     <span className="flex items-center gap-1.5 text-slate-600">
                       <span className="size-2.5 rounded-full bg-emerald-500 inline-block" />
-                      3.1 绿电消纳率
-                    </span>
-                    <span className="flex items-center gap-1.5 text-slate-600">
-                      <span className="size-2.5 rounded-full bg-purple-500 inline-block" />
-                      4.1 自动采集率
+                      1. 源头减碳
                     </span>
                     <span className="flex items-center gap-1.5 text-slate-600">
                       <span className="size-2.5 rounded-full bg-sky-500 inline-block" />
-                      2.3 碳清除率
+                      2. 过程削碳
+                    </span>
+                    <span className="flex items-center gap-1.5 text-slate-600">
+                      <span className="size-2.5 rounded-full bg-indigo-500 inline-block" />
+                      3. 协同降碳
+                    </span>
+                    <span className="flex items-center gap-1.5 text-slate-600">
+                      <span className="size-2.5 rounded-full bg-purple-500 inline-block" />
+                      4. 智能控碳
+                    </span>
+                    <span className="flex items-center gap-1.5 text-slate-600">
+                      <span className="size-2.5 rounded-full bg-amber-500 inline-block" />
+                      5. 抵消治理
                     </span>
                   </div>
                 </div>
 
-                <div className="h-56">
+                <div className="h-60">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} domain={[0, 100]} />
                       <RechartsTooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                      <Bar dataKey="greenPower" name="绿电消纳占比 (%)" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={28} />
-                      <Bar dataKey="autoCollect" name="自动采集率 (%)" fill="#a855f7" radius={[4, 4, 0, 0]} maxBarSize={28} />
-                      <Bar dataKey="carbonClear" name="碳清除率 (%)" fill="#0ea5e9" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                      <Bar dataKey="greenPower" name="1. 源头减碳 (绿电消纳率 %)" fill="#10b981" radius={[3, 3, 0, 0]} maxBarSize={18} />
+                      <Bar dataKey="carbonClear" name="2. 过程削碳 (碳消除率 %)" fill="#0ea5e9" radius={[3, 3, 0, 0]} maxBarSize={18} />
+                      <Bar dataKey="supplyChain" name="3. 协同降碳 (供应链达标率 %)" fill="#6366f1" radius={[3, 3, 0, 0]} maxBarSize={18} />
+                      <Bar dataKey="autoCollect" name="4. 智能控碳 (自动采集率 %)" fill="#a855f7" radius={[3, 3, 0, 0]} maxBarSize={18} />
+                      <Bar dataKey="disclosure" name="5. 抵消治理 (报告合规率 %)" fill="#f59e0b" radius={[3, 3, 0, 0]} maxBarSize={18} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
