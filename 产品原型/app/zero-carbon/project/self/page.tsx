@@ -4292,19 +4292,63 @@ export default function ZeroCarbonSelfEvaluationPage() {
                 <Award className="size-6" />
               </div>
               <div>
-                <div className="flex items-center gap-2.5">
+                <div className="flex flex-wrap items-center gap-2.5">
                   <h2 className="text-lg font-black text-foreground">{selectedFactoryId.factoryName}</h2>
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
                     {selectedFactoryId.status}
                   </span>
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/15 text-primary font-bold border border-primary/20">
+                    所属公司：{selectedFactoryId.company}
+                  </span>
+                  {/* 直接内联返回按钮 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCompanyId(selectedFactoryId.company)
+                      setSelectedCompany(selectedFactoryId.company)
+                      setViewLevel('company')
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all cursor-pointer shadow-2xs group"
+                  >
+                    <ArrowRight className="size-3.5 rotate-180 group-hover:-translate-x-0.5 transition-transform" />
+                    <span>返回【{selectedFactoryId.company}】</span>
+                  </button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-3">
+                <p className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-3">
+                  <span>申报机构：<strong className="text-foreground">{selectedFactoryId.evaluator}</strong></span>
+                  <span className="text-border">|</span>
                   <span>申报日期：<strong className="font-mono text-foreground">{selectedFactoryId.declareDate}</strong></span>
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 text-xs">
+            <div className="flex flex-wrap items-center gap-2.5 text-xs">
+              {/* 返回公司级按钮 */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCompanyId(selectedFactoryId.company)
+                  setSelectedCompany(selectedFactoryId.company)
+                  setViewLevel('company')
+                }}
+                className="px-3.5 py-2 rounded-lg border border-border bg-panel hover:bg-accent/40 text-foreground font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs group"
+              >
+                <ArrowRight className="size-3.5 rotate-180 text-primary group-hover:-translate-x-0.5 transition-transform" />
+                <span>返回【{selectedFactoryId.company}】大盘</span>
+              </button>
+
+              {/* 返回集团大盘按钮 */}
+              <button
+                type="button"
+                onClick={() => {
+                  setViewLevel('group')
+                  setSelectedCompany('全部')
+                }}
+                className="px-3.5 py-2 rounded-lg border border-border bg-panel/70 hover:bg-accent/40 text-muted-foreground hover:text-foreground font-medium transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
+              >
+                <span>返回集团大盘</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => handleOpenDeclare(selectedFactoryId)}
