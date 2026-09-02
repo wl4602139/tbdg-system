@@ -281,10 +281,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                       )}
                     >
                       <CenterIcon className="size-4 text-primary shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold truncate">{center.name}</div>
-                        <div className="text-[10px] text-muted-foreground truncate">{center.desc}</div>
-                      </div>
+                      <span className="font-semibold truncate flex-1">{center.name}</span>
                       {isSelected && <Check className="size-3.5 text-primary shrink-0" />}
                     </button>
                   )
