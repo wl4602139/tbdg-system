@@ -1515,9 +1515,9 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         type="button"
                         onClick={() => handleOpenDeclare(factory)}
                         className="text-emerald-600 hover:text-emerald-800 font-bold text-[11px] cursor-pointer"
-                        title="自查填报"
+                        title="企业填报"
                       >
-                        自查
+                        企业填报
                       </button>
                       <span className="text-slate-200">|</span>
                       <button
@@ -1526,7 +1526,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         className="text-slate-600 hover:text-slate-800 font-bold text-[11px] cursor-pointer"
                         title="自评报告"
                       >
-                        报告
+                        自评报告
                       </button>
                     </div>
                   </div>
@@ -1569,18 +1569,18 @@ export default function ZeroCarbonSelfEvaluationPage() {
               <button
                 type="button"
                 onClick={() => handleOpenDeclare(selectedFactoryId)}
-                className="px-4 py-2 rounded-lg bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-lg bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <Edit3 className="size-3.5" />
-                <span>短板自查填报工作台</span>
+                <span>企业填报</span>
               </button>
               <button
                 type="button"
                 onClick={() => setFactoryDetailModal(selectedFactoryId)}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <FileText className="size-3.5" />
-                <span>查看完整自评估报告与推导公式</span>
+                <span>自评报告</span>
               </button>
             </div>
           </div>
