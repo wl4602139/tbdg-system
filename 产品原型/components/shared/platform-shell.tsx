@@ -204,303 +204,276 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#f0f2f5] font-sans antialiased text-slate-800">
-      {/* 1. 左侧特变电工皇家深蓝侧边栏 (100% 全高贯穿最顶到底) */}
+    <div className="tech-grid flex min-h-screen bg-background font-sans antialiased text-foreground">
+      {/* 1. 侧边导航 (深色半透毛玻璃科技蓝) */}
       <aside
         className={cn(
-          'bg-[#0958d9] text-white flex flex-col h-screen shrink-0 transition-all duration-300 z-30 shadow-xl',
-          sidebarOpen ? 'w-56' : 'w-16'
+          'sticky top-0 flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar backdrop-blur-md transition-[width] duration-300 z-30',
+          sidebarOpen ? 'w-64' : 'w-16'
         )}
       >
         {/* 顶部特变电工官方 LOGO 品牌栏 */}
-        <div className="h-14 px-3 border-b border-blue-400/20 bg-[#003eb3] flex items-center justify-between shrink-0">
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 overflow-hidden group focus:outline-none"
-            title="特变电工能碳管控平台首页"
-          >
-            <div className="bg-white rounded px-1.5 py-0.5 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-              <img
-                src="/logo.png"
-                alt="TBEA 特变电工"
-                className="h-5 w-auto object-contain"
-                onError={(e) => {
-                  const target = e.currentTarget
-                  target.style.display = 'none'
-                  if (target.parentElement) {
-                    target.parentElement.innerHTML = '<span class="font-bold text-xs text-[#0958d9]">TBEA</span>'
-                  }
-                }}
-              />
+        <div className="flex items-center justify-between border-b border-sidebar-border px-3 py-4 shrink-0">
+          <Link href="/" className={cn('flex items-center gap-2.5', !sidebarOpen && 'justify-center')} title="返回总览门户">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-primary/40 bg-primary/15 text-sm font-bold text-primary">
+              TBEA
             </div>
             {sidebarOpen && (
-              <div className="overflow-hidden">
-                <span className="font-extrabold text-xs tracking-wider block text-white whitespace-nowrap">
-                  TBEA 特变电工
-                </span>
-                <span className="text-[9px] text-blue-200 block scale-90 -ml-1 whitespace-nowrap">
-                  装备中国 · 装备世界
-                </span>
+              <div className="leading-tight">
+                <p className="text-sm font-semibold text-foreground">特变电工电装集团</p>
+                <p className="text-[11px] text-muted-foreground">{currentPlatform.name}</p>
               </div>
             )}
           </Link>
+          {sidebarOpen && (
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(false)}
+              className="rounded p-1 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+              aria-label="收起导航"
+            >
+              <Menu className="size-4" />
+            </button>
+          )}
         </div>
+
+        {!sidebarOpen && (
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="mx-auto mt-3 flex size-9 items-center justify-center rounded-md border border-border bg-panel text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground cursor-pointer"
+            aria-label="展开导航"
+          >
+            <Menu className="size-4" />
+          </button>
+        )}
+
+        {/* 平台切换 (展开态) */}
+        {sidebarOpen && (
+          <div className="relative px-3 py-3 shrink-0" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setDropdownOpen((v) => !v)}
+              className="flex w-full items-center justify-between rounded-lg border border-border bg-panel px-3 py-2 text-sm text-foreground transition-colors hover:border-primary/50 cursor-pointer"
+            >
+              <span className="flex items-center gap-2 text-xs font-semibold">
+                <CurrentCenterIcon className="size-4 text-primary" />
+                {currentCenter.name}
+              </span>
+              <ChevronDown className={cn('size-4 text-muted-foreground transition-transform', dropdownOpen && 'rotate-180')} />
+            </button>
+            {dropdownOpen && (
+              <div className="absolute left-3 right-3 z-40 mt-1 rounded-xl border border-border bg-popover p-1 shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95">
+                {centers.map((center) => {
+                  const isSelected = resolvedPlatformKey === center.key
+                  const CenterIcon = center.icon
+                  return (
+                    <button
+                      key={center.key}
+                      type="button"
+                      onClick={() => {
+                        setDropdownOpen(false)
+                        if (!isSelected) router.push(center.href)
+                      }}
+                      className={cn(
+                        'flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs text-left transition-colors cursor-pointer',
+                        isSelected ? 'bg-primary/15 font-bold text-primary' : 'text-popover-foreground hover:bg-accent'
+                      )}
+                    >
+                      <CenterIcon className="size-4 text-primary shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold truncate">{center.name}</div>
+                        <div className="text-[10px] text-muted-foreground truncate">{center.desc}</div>
+                      </div>
+                      {isSelected && <Check className="size-3.5 text-primary shrink-0" />}
+                    </button>
+                  )
+                })}
+                <div className="border-t border-border mt-1 pt-1">
+                  <Link
+                    href="/"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  >
+                    <Globe2 className="size-4 text-primary" />
+                    返回总览门户
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 菜单列表 */}
-        <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
-          {currentPlatform.nav.map((item) => {
-            const Icon = item.icon
-            const hasChildren = item.children && item.children.length > 0
-            const isSubOpen = openSubMenus[item.title]
-            const isDirectActive = isNavActive(pathname, item.href)
-            const isChildActive =
-              hasChildren && item.children!.some((c) => isNavActive(pathname, c.href))
-            const isActive = isDirectActive || isChildActive
+        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+          <ul className="flex flex-col gap-1">
+            {currentPlatform.nav.map((item) => {
+              const Icon = item.icon
+              const hasChildren = item.children && item.children.length > 0
+              const isSubOpen = openSubMenus[item.title]
+              const isDirectActive = isNavActive(pathname, item.href)
+              const isChildActive = hasChildren && item.children!.some((c) => isNavActive(pathname, c.href))
+              const isActive = isDirectActive || isChildActive
 
-            if (!hasChildren) {
+              if (!hasChildren) {
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      title={!sidebarOpen ? item.title : undefined}
+                      className={cn(
+                        'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors',
+                        isActive
+                          ? 'bg-primary/15 font-medium text-primary'
+                          : 'text-sidebar-foreground hover:bg-accent/50 hover:text-foreground',
+                        !sidebarOpen && 'justify-center px-2'
+                      )}
+                    >
+                      <Icon className="size-4 shrink-0" />
+                      {sidebarOpen && <span className="flex-1 text-xs truncate">{item.title}</span>}
+                    </Link>
+                  </li>
+                )
+              }
+
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-all group my-0.5',
-                    isActive
-                      ? 'bg-[#1677ff] text-white font-bold shadow-xs'
-                      : 'text-blue-100/90 hover:text-white hover:bg-white/10'
+                <li key={item.title}>
+                  <div className="flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => toggleSubMenu(item.title)}
+                      className={cn(
+                        'flex flex-1 items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors text-left cursor-pointer',
+                        isActive
+                          ? 'bg-primary/10 text-primary font-medium'
+                          : 'text-sidebar-foreground hover:bg-accent/50 hover:text-foreground',
+                        !sidebarOpen && 'justify-center px-2'
+                      )}
+                      title={!sidebarOpen ? item.title : undefined}
+                    >
+                      <Icon className="size-4 shrink-0" />
+                      {sidebarOpen && <span className="flex-1 text-xs truncate">{item.title}</span>}
+                    </button>
+                    {sidebarOpen && (
+                      <button
+                        type="button"
+                        onClick={() => toggleSubMenu(item.title)}
+                        className="ml-0.5 rounded p-1 text-muted-foreground hover:text-foreground cursor-pointer"
+                        aria-label="展开子菜单"
+                      >
+                        <ChevronRight className={cn('size-4 transition-transform', isSubOpen && 'rotate-90')} />
+                      </button>
+                    )}
+                  </div>
+                  {sidebarOpen && isSubOpen && (
+                    <ul className="ml-6 mt-1 flex flex-col gap-0.5 border-l border-border pl-3">
+                      {item.children!.map((sub) => {
+                        const isSubActive = isNavActive(pathname, sub.href)
+                        return (
+                          <li key={sub.href}>
+                            <Link
+                              href={sub.href}
+                              className={cn(
+                                'block rounded-md px-2.5 py-1.5 text-[12px] transition-colors',
+                                isSubActive
+                                  ? 'bg-primary/15 font-medium text-primary'
+                                  : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground'
+                              )}
+                            >
+                              {sub.title}
+                            </Link>
+                          </li>
+                        )
+                      })}
+                    </ul>
                   )}
-                  title={!sidebarOpen ? item.title : undefined}
-                >
-                  <Icon className="size-4 shrink-0 text-white/80 group-hover:text-white" />
-                  {sidebarOpen && <span className="truncate">{item.title}</span>}
-                </Link>
+                </li>
               )
-            }
+            })}
+          </ul>
+        </nav>
 
-            return (
-              <div key={item.title} className="space-y-0.5">
-                <button
-                  onClick={() => toggleSubMenu(item.title)}
-                  className={cn(
-                    'w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group my-0.5',
-                    isActive
-                      ? 'bg-blue-700/60 text-white font-bold'
-                      : 'text-blue-100/90 hover:text-white hover:bg-white/10'
-                  )}
-                  title={!sidebarOpen ? item.title : undefined}
-                >
-                  <div className="flex items-center gap-2.5 overflow-hidden">
-                    <Icon className="size-4 shrink-0 text-white/80 group-hover:text-white" />
-                    {sidebarOpen && <span className="truncate">{item.title}</span>}
-                  </div>
-                  {sidebarOpen && (
-                    <span className="p-0.5 text-blue-200">
-                      <ChevronDown
-                        className={cn('size-3.5 transition-transform duration-200', !isSubOpen && '-rotate-90')}
-                      />
-                    </span>
-                  )}
-                </button>
-
-                {/* 子菜单 */}
-                {sidebarOpen && isSubOpen && (
-                  <div className="ml-4 pl-2 border-l border-blue-400/40 space-y-0.5 py-0.5">
-                    {item.children!.map((sub) => {
-                      const isSubActive = isNavActive(pathname, sub.href)
-                      return (
-                        <Link
-                          key={sub.href}
-                          href={sub.href}
-                          className={cn(
-                            'block px-2.5 py-1.5 rounded text-xs transition-colors',
-                            isSubActive
-                              ? 'bg-[#1677ff] text-white font-bold shadow-xs'
-                              : 'text-white/80 hover:text-white hover:bg-white/10'
-                          )}
-                        >
-                          {sub.title}
-                        </Link>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-
-        {/* 侧边栏底部：统一版权信息 */}
+        {/* 侧边栏底部版权 */}
         {sidebarOpen && (
-          <div className="p-3 border-t border-blue-400/20 bg-[#003eb3]/60 shrink-0">
-            <div className="text-[10px] leading-4 text-blue-200/80 font-sans">
-              <div className="font-bold text-white mb-0.5 whitespace-nowrap">特变电工（电装集团）能源双中心</div>
+          <div className="p-3 border-t border-sidebar-border bg-sidebar shrink-0">
+            <div className="text-[10px] leading-4 text-muted-foreground font-sans">
+              <div className="font-semibold text-foreground mb-0.5 whitespace-nowrap">特变电工（电装集团）能源双中心</div>
               <div className="whitespace-nowrap">© 2026 特变电工股份有限公司</div>
             </div>
           </div>
         )}
       </aside>
 
-      {/* 2. 右侧主体容器 (flex-col: 顶部主条 + 滚动主内容区) */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-        {/* 右侧顶部白色主导航条 */}
-        <header className="h-14 border-b border-[#e5e7eb] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs z-20 relative">
-          {/* 左侧：折叠按钮 + 下拉框切换双中心 */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1.5 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0"
-              title="折叠/展开侧边栏"
-            >
-              <Menu className="size-4" />
-            </button>
-
-            {/* 🌟 核心双中心下拉切换 Switcher */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setDropdownOpen((prev) => !prev)}
-                className={cn(
-                  'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 focus:outline-none cursor-pointer group',
-                  dropdownOpen
-                    ? 'bg-slate-100/90 text-[#1677ff]'
-                    : 'bg-transparent hover:bg-slate-100/80 text-slate-800'
-                )}
-                title="点击切换业务中心"
-              >
-                <div className={cn('size-6 rounded-md flex items-center justify-center shrink-0 transition-transform group-hover:scale-105', currentCenter.iconBg)}>
-                  <CurrentCenterIcon className="size-3.5" />
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-slate-800 group-hover:text-[#1677ff] text-xs sm:text-sm whitespace-nowrap transition-colors">
-                    {currentCenter.name}
-                  </span>
-                </div>
-
-                <ChevronDown
-                  className={cn(
-                    'size-3.5 text-slate-400 ml-0.5 transition-transform duration-200 shrink-0 group-hover:text-slate-600',
-                    dropdownOpen && 'rotate-180 text-[#1677ff]'
-                  )}
-                />
-              </button>
-
-              {/* 下拉面板 Popover */}
-              {dropdownOpen && (
-                <div className="absolute left-0 top-full mt-1.5 w-72 sm:w-80 bg-white rounded-xl shadow-xl border border-slate-200/90 py-1.5 z-50 animate-in fade-in-0 zoom-in-95 duration-150">
-                  <div className="px-3 py-1.5 mb-1 border-b border-slate-100 flex items-center justify-between">
-                    <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
-                      切换业务中心
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      DUAL CENTER
-                    </span>
-                  </div>
-
-                  <div className="p-1 space-y-1">
-                    {centers.map((center) => {
-                      const isSelected = resolvedPlatformKey === center.key
-                      const CenterIcon = center.icon
-                      return (
-                        <button
-                          key={center.key}
-                          type="button"
-                          onClick={() => {
-                            setDropdownOpen(false)
-                            if (!isSelected) {
-                              router.push(center.href)
-                            }
-                          }}
-                          className={cn(
-                            'w-full text-left flex items-center gap-3 p-2.5 rounded-lg transition-all text-xs group cursor-pointer',
-                            isSelected
-                              ? cn(center.activeBg, 'border', center.activeBorder, 'shadow-2xs')
-                              : 'hover:bg-slate-50 border border-transparent text-slate-700'
-                          )}
-                        >
-                          <div
-                            className={cn(
-                              'size-8 rounded-lg flex items-center justify-center shrink-0 shadow-2xs transition-transform group-hover:scale-105',
-                              center.iconBg
-                            )}
-                          >
-                            <CenterIcon className="size-4" />
-                          </div>
-
-                          <div className="flex-1 min-w-0 flex items-center justify-between gap-1">
-                            <span
-                              className={cn(
-                                'font-bold text-xs truncate',
-                                isSelected ? center.activeColor : 'text-slate-800'
-                              )}
-                            >
-                              {center.name}
-                            </span>
-                            {isSelected && (
-                              <span
-                                className={cn(
-                                  'shrink-0 size-4 rounded-full flex items-center justify-center',
-                                  center.activeColor
-                                )}
-                              >
-                                <Check className="size-3.5" />
-                              </span>
-                            )}
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
+      {/* 2. 主区域 */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* 顶栏 */}
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border bg-background/80 px-6 py-3 backdrop-blur-md">
+          <div className="flex items-center gap-2 text-sm">
+            <Globe2 className="size-4 text-primary" />
+            <span className="text-muted-foreground font-medium">{currentPlatform.name}</span>
+            <ChevronRight className="size-3.5 text-muted-foreground" />
+            <span className="font-medium text-foreground">
+              {currentPlatform.nav.find((n) => isNavActive(pathname, n.href))?.title || '业务工作台'}
+            </span>
           </div>
 
-          {/* 右侧工具栏：用户头像 */}
           <div className="flex items-center gap-3">
-            {/* 用户头像信息 */}
-            <div className="flex items-center gap-2 pl-1">
-              <div className="size-7 rounded-full bg-[#1677ff] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+            <div className="hidden items-center gap-2 rounded-md border border-border bg-panel px-3 py-1.5 text-sm text-muted-foreground lg:flex">
+              <Search className="size-4" />
+              <input
+                placeholder="搜索功能 / 单位 / 指标"
+                className="w-40 bg-transparent outline-none placeholder:text-muted-foreground text-foreground text-xs"
+              />
+            </div>
+            <Link
+              href="/zero-carbon/alarm"
+              className="relative rounded-md border border-border bg-panel p-2 text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="告警通知"
+            >
+              <AlertTriangle className="size-4" />
+              <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-[var(--destructive)]" />
+            </Link>
+            <Link
+              href={`/system?from=${encodeURIComponent(pathname)}`}
+              className="flex items-center gap-2 rounded-md border border-border bg-panel px-3 py-1.5 text-xs text-foreground transition-colors hover:border-primary/50"
+            >
+              <Settings className="size-3.5 text-primary" />
+              系统管理
+            </Link>
+            <div className="flex items-center gap-2 border-l border-border pl-3">
+              <div className="flex size-7 items-center justify-center rounded-md bg-primary/15 text-xs font-semibold text-primary">
                 管
               </div>
-              <div className="hidden sm:block text-left">
-                <span className="text-xs font-semibold text-slate-800 block leading-tight">
-                  管理员 (倪总)
-                </span>
-                <span className="text-[10px] text-slate-400 block">
-                  特变电工电装集团
-                </span>
+              <div className="hidden leading-tight sm:block">
+                <p className="text-xs font-medium text-foreground">管理员 (倪总)</p>
+                <p className="text-[10px] text-muted-foreground">特变电工电装集团</p>
               </div>
             </div>
           </div>
         </header>
 
-        {/* 主内容区 (滚动视口) */}
-        <main className="flex-1 overflow-y-auto p-3.5 md:p-4 bg-[#f0f2f5] relative custom-scrollbar">
-          {children}
-        </main>
+        {/* 主内容区 */}
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto relative">{children}</main>
       </div>
 
-      {/* ======================================================== */}
-      {/* 🌟 3. 页面右下角固定浮层图标与 AI 对话框窗口 */}
-      {/* ======================================================== */}
+      {/* 3. 页面右下角 AI 助手悬浮窗 (深色毛玻璃科技风) */}
       <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end pointer-events-none">
-        {/* 弹出对话框窗口 */}
         {isAiOpen && (
-          <div className="w-96 sm:w-[420px] h-[520px] bg-white rounded-2xl shadow-2xl border border-slate-200 mb-3 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-200 pointer-events-auto">
+          <div className="w-96 sm:w-[420px] h-[520px] bg-popover/95 rounded-2xl shadow-2xl border border-border backdrop-blur-md mb-3 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-200 pointer-events-auto">
             {/* 窗口头部 */}
-            <div className="bg-gradient-to-r from-[#0958d9] to-[#1677ff] p-3.5 text-white flex items-center justify-between shrink-0 shadow-md">
+            <div className="bg-panel border-b border-border p-3.5 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="size-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <Sparkles className="size-4.5 text-white animate-pulse" />
+                <div className="size-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center">
+                  <Sparkles className="size-4 text-primary animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-xs flex items-center gap-1.5">
+                  <h3 className="font-bold text-xs text-foreground flex items-center gap-1.5">
                     特变电工 AI 能碳智能专家
-                    <span className="text-[9px] bg-emerald-400 text-slate-900 font-bold px-1.5 py-0.2 rounded-full">
+                    <span className="text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold px-1.5 py-0.2 rounded-full">
                       在线
                     </span>
                   </h3>
-                  <p className="text-[10px] text-blue-100">
+                  <p className="text-[10px] text-muted-foreground">
                     基于集团 15 园区与 21 工厂实时中枢大模型
                   </p>
                 </div>
@@ -508,7 +481,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
 
               <button
                 onClick={() => setIsAiOpen(false)}
-                className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
                 title="关闭窗口"
               >
                 <X className="size-4" />
@@ -516,7 +489,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             </div>
 
             {/* 消息滚动区 */}
-            <div className="flex-1 overflow-y-auto p-3.5 space-y-3 bg-slate-50/70 text-xs">
+            <div className="flex-1 overflow-y-auto p-3.5 space-y-3 bg-background/50 text-xs">
               {messages.map((m, idx) => (
                 <div
                   key={idx}
@@ -525,22 +498,22 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                     m.sender === 'user' ? 'items-end' : 'items-start'
                   )}
                 >
-                  <div className="flex items-center gap-1 text-[10px] text-slate-400 font-mono">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-mono">
                     <span>{m.sender === 'user' ? '您' : 'AI 智能专家'}</span>
                     <span>·</span>
                     <span>{m.time}</span>
                     {m.tag && (
-                      <span className="ml-1 px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-bold">
+                      <span className="ml-1 px-1.5 py-0.2 rounded bg-primary/10 text-primary border border-primary/20 font-bold">
                         {m.tag}
                       </span>
                     )}
                   </div>
                   <div
                     className={cn(
-                      'p-3 rounded-xl max-w-[90%] leading-relaxed',
+                      'p-3 rounded-xl max-w-[90%] leading-relaxed border',
                       m.sender === 'user'
-                        ? 'bg-[#1677ff] text-white rounded-br-none shadow-xs'
-                        : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none shadow-xs'
+                        ? 'bg-primary text-primary-foreground border-primary rounded-br-none shadow-sm'
+                        : 'bg-card text-card-foreground border-border rounded-bl-none shadow-sm'
                     )}
                   >
                     {m.text}
@@ -550,20 +523,20 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             </div>
 
             {/* 快捷推荐提问 */}
-            <div className="p-2 bg-white border-t border-slate-100 shrink-0">
-              <span className="text-[10px] font-bold text-slate-400 block px-1 mb-1">
+            <div className="p-2 bg-panel border-t border-border shrink-0">
+              <span className="text-[10px] font-bold text-muted-foreground block px-1 mb-1">
                 💡 猜您想问：
               </span>
               <div className="flex flex-wrap gap-1.5 text-[10px]">
                 <button
                   onClick={() => handleSendAi('沈变本部真空干燥车间蒸汽超标原因是什么？')}
-                  className="px-2 py-1 rounded bg-slate-100 hover:bg-blue-50 hover:text-[#1677ff] border border-slate-200 transition-colors text-slate-700 text-left truncate max-w-[200px]"
+                  className="px-2 py-1 rounded bg-card hover:bg-accent hover:text-primary border border-border transition-colors text-muted-foreground text-left truncate max-w-[200px] cursor-pointer"
                 >
                   ⚡ 沈变干燥车间蒸汽超标原因？
                 </button>
                 <button
                   onClick={() => handleSendAi('全集团哪家工厂单位单耗最高，需要重点监管？')}
-                  className="px-2 py-1 rounded bg-slate-100 hover:bg-blue-50 hover:text-[#1677ff] border border-slate-200 transition-colors text-slate-700 text-left truncate max-w-[200px]"
+                  className="px-2 py-1 rounded bg-card hover:bg-accent hover:text-primary border border-border transition-colors text-muted-foreground text-left truncate max-w-[200px] cursor-pointer"
                 >
                   🏭 哪家工厂单耗最高需监管？
                 </button>
@@ -571,18 +544,18 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             </div>
 
             {/* 底部输入框 */}
-            <div className="p-2.5 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0">
+            <div className="p-2.5 bg-panel border-t border-border flex items-center gap-2 shrink-0">
               <input
                 type="text"
                 value={aiInput}
                 onChange={(e) => setAiInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendAi()}
                 placeholder="输入能耗、碳排、CBAM关税或工艺问题..."
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1677ff]"
+                className="flex-1 bg-card border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground"
               />
               <button
                 onClick={() => handleSendAi()}
-                className="size-8 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white flex items-center justify-center transition-colors shadow-xs"
+                className="size-8 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center transition-colors shadow-sm cursor-pointer"
                 title="发送"
               >
                 <Send className="size-3.5" />
@@ -591,19 +564,19 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
           </div>
         )}
 
-        {/* 🌟 右下角固定常驻 横向 AI助手 悬浮胶囊 */}
+        {/* 右下角 AI 悬浮胶囊 */}
         <button
           onClick={() => setIsAiOpen(!isAiOpen)}
           className={cn(
-            'pointer-events-auto cursor-pointer flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl transition-all transform hover:scale-105 active:scale-95 group focus:outline-none ring-2 ring-white',
+            'pointer-events-auto cursor-pointer flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-2xl transition-all transform hover:scale-105 active:scale-95 group focus:outline-none border border-border backdrop-blur-md',
             isAiOpen
-              ? 'bg-slate-900 text-white shadow-slate-900/40'
-              : 'bg-gradient-to-r from-[#0958d9] via-[#1677ff] to-[#0284c7] text-white shadow-blue-500/40 hover:shadow-blue-500/60'
+              ? 'bg-popover text-foreground shadow-black/60'
+              : 'bg-primary/90 text-primary-foreground shadow-[0_0_20px_var(--primary)] hover:bg-primary'
           )}
           title="点击打开特变电工 AI助手"
         >
-          <div className="size-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-xs">
-            <Sparkles className="size-3.5 text-white animate-pulse" />
+          <div className="size-6 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
+            <Sparkles className="size-3.5 text-current animate-pulse" />
           </div>
           <span className="font-bold text-xs tracking-wide">
             {isAiOpen ? '收起 AI助手' : 'AI助手'}

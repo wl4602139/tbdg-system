@@ -25,25 +25,24 @@ import {
   YAxis,
 } from 'recharts'
 
-const axisStyle = { fontSize: 11, fill: '#64748b' }
-const gridColor = '#f1f5f9'
+const axisStyle = { fontSize: 11, fill: 'oklch(0.68 0.03 235)' }
+const gridColor = 'oklch(0.72 0.12 220 / 12%)'
 
 const chartColors = [
-  '#1677ff', // TBEA Blue
-  '#52c41a', // Leaf Green
-  '#fa8c16', // Orange
-  '#13c2c2', // Cyan
-  '#722ed1', // Purple
-  '#f5222d', // Red
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
 ]
 
 const tooltipStyle = {
-  background: '#ffffff',
-  border: '1px solid #e2e8f0',
-  borderRadius: 6,
-  color: '#1f2937',
+  background: 'oklch(0.2 0.035 252)',
+  border: '1px solid oklch(0.72 0.12 220 / 25%)',
+  borderRadius: 8,
+  color: 'oklch(0.92 0.02 240)',
   fontSize: 12,
-  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+  boxShadow: '0 8px 24px -4px rgba(0, 0, 0, 0.5)',
 }
 
 export type SeriesKey = string | { key: string; name?: string; color?: string }

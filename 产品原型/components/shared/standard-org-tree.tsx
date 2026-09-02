@@ -495,18 +495,18 @@ export function StandardOrgTree({
               }
             }}
             className={cn(
-              'flex items-center gap-1.5 py-1 px-1.5 rounded transition-colors relative group',
+              'flex items-center gap-1.5 py-1 px-1.5 rounded-md transition-colors relative group',
               isProductUnitDisabled
-                ? 'opacity-40 text-slate-400 cursor-not-allowed select-none bg-slate-50/50'
+                ? 'opacity-40 text-muted-foreground cursor-not-allowed select-none bg-panel/50'
                 : isSelectable
                 ? 'cursor-pointer'
                 : 'cursor-default',
               isSelected && !isProductUnitDisabled
-                ? 'bg-[#e6f4ff] text-[#1677ff] font-semibold shadow-2xs'
+                ? 'bg-primary/15 text-primary font-semibold shadow-xs'
                 : !isProductUnitDisabled && isSelectable
-                  ? 'hover:bg-slate-100/80 text-slate-700'
+                  ? 'hover:bg-accent/50 text-foreground'
                   : !isProductUnitDisabled
-                  ? 'text-slate-500 hover:bg-slate-50'
+                  ? 'text-muted-foreground hover:bg-accent/30'
                   : ''
             )}
             style={{ paddingLeft: `${level * 14 + 6}px` }}
@@ -520,7 +520,7 @@ export function StandardOrgTree({
                   e.stopPropagation()
                   toggleCollapse(node.id)
                 }}
-                className="size-4 flex items-center justify-center text-slate-400 hover:text-slate-700 shrink-0 cursor-pointer"
+                className="size-4 flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
               >
                 {isCollapsed ? (
                   <ChevronRight className="size-3.5" />
@@ -530,15 +530,15 @@ export function StandardOrgTree({
               </button>
             ) : (
               <span className="size-4 shrink-0 flex items-center justify-center">
-                <span className="size-1 rounded-full bg-slate-300" />
+                <span className="size-1 rounded-full bg-border" />
               </span>
             )}
 
             {/* 节点图标 */}
-            {node.level === 'group' && <Building2 className="size-3.5 text-[#1677ff] shrink-0" />}
-            {node.level === 'park' && <Trees className="size-3.5 text-emerald-600 shrink-0" />}
-            {node.level === 'company' && <Building2 className="size-3.5 text-amber-500 shrink-0" />}
-            {node.level === 'workshop' && <Factory className="size-3.5 text-slate-400 shrink-0" />}
+            {node.level === 'group' && <Building2 className="size-3.5 text-primary shrink-0" />}
+            {node.level === 'park' && <Trees className="size-3.5 text-emerald-400 shrink-0" />}
+            {node.level === 'company' && <Building2 className="size-3.5 text-amber-400 shrink-0" />}
+            {node.level === 'workshop' && <Factory className="size-3.5 text-muted-foreground shrink-0" />}
 
             {/* 节点名称 */}
             <span className="truncate flex-1" title={node.fullName || node.name}>
@@ -546,9 +546,9 @@ export function StandardOrgTree({
             </span>
           </div>
 
-          {/* 子节点容器 (带 Ant Design 风格垂直导线) */}
+          {/* 子节点容器 */}
           {hasChildren && !isCollapsed && (
-            <div className="relative border-l border-slate-200/80 ml-3.5 my-0.5">
+            <div className="relative border-l border-border ml-3.5 my-0.5">
               {renderTreeNodes(node.children!, level + 1)}
             </div>
           )}
@@ -560,21 +560,21 @@ export function StandardOrgTree({
   return (
     <aside
       className={cn(
-        'w-[270px] min-w-[270px] max-w-[270px] shrink-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-84px)] sticky top-0 overflow-hidden',
+        'w-[270px] min-w-[270px] max-w-[270px] shrink-0 bg-card rounded-xl border border-border backdrop-blur-sm shadow-sm flex flex-col h-[calc(100vh-84px)] sticky top-0 overflow-hidden',
         className
       )}
     >
       {/* 1. 顶部 Header 与 快捷操作 */}
-      <div className="p-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+      <div className="p-3 border-b border-border flex items-center justify-between shrink-0 bg-panel">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
           {treeType === 'park' ? (
             <>
-              <Trees className="size-4 text-emerald-600" />
+              <Trees className="size-4 text-emerald-400" />
               <span>园区拓扑图</span>
             </>
           ) : (
             <>
-              <Building2 className="size-4 text-[#1677ff]" />
+              <Building2 className="size-4 text-primary" />
               <span>企业组织拓扑 (6大单位)</span>
             </>
           )}
@@ -582,25 +582,25 @@ export function StandardOrgTree({
       </div>
 
       {/* 2. 搜索框 */}
-      <div className="p-2 border-b border-slate-100 bg-white shrink-0">
+      <div className="p-2 border-b border-border bg-card shrink-0">
         <div className="relative">
-          <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder={treeType === 'park' ? '搜索产业园 / 厂区 / 微电网...' : '搜索单位 / 车间 / 工序...'}
-            className="w-full pl-8 pr-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1677ff] focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground transition-all"
           />
         </div>
       </div>
 
       {/* 3. 树节点滚动主体 */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-0.5 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
         {displayData.length > 0 ? (
           renderTreeNodes(displayData)
         ) : (
-          <div className="py-8 text-center text-xs text-slate-400">
+          <div className="py-8 text-center text-xs text-muted-foreground">
             {treeType === 'park' ? '未检索到匹配的零碳园区' : '未检索到匹配的组织或单位'}
           </div>
         )}

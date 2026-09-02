@@ -954,14 +954,14 @@ export default function ZeroCarbonSelfEvaluationPage() {
       )}
 
       {/* 1. 顶部 Header (主标题 + 时间维度与导出) */}
-      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
             <Award className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-800">零碳工厂自评估</h1>
-            <p className="text-[11px] text-slate-400">
+            <h1 className="text-base font-bold text-foreground">零碳工厂自评估</h1>
+            <p className="text-[11px] text-muted-foreground">
               依据国家级零碳工厂建设与评估规范，开展集团、经营单位、工厂三级自评估与 5 大维度核算
             </p>
           </div>
@@ -970,7 +970,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
         {/* 右侧：时间维度与导出 */}
         <div className="flex flex-wrap items-center gap-2">
           {/* 维度切换按钮组 */}
-          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-sans border border-slate-200">
+          <div className="flex items-center gap-1 bg-panel p-0.5 rounded-lg text-xs font-sans border border-border">
             {[
               { key: 'day', label: '日' },
               { key: 'month', label: '月度' },
@@ -984,8 +984,8 @@ export default function ZeroCarbonSelfEvaluationPage() {
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === p.key
-                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900',
+                    ? 'font-bold bg-primary/15 text-primary shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 {p.label}
@@ -993,23 +993,21 @@ export default function ZeroCarbonSelfEvaluationPage() {
             ))}
           </div>
 
-          <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-            <Calendar className="size-3.5 text-slate-400 shrink-0" />
-            <span className="text-slate-700 text-xs">2026年01月 至 2026年08月</span>
+          <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs font-mono">
+            <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+            <span className="text-foreground text-xs">2026年01月 至 2026年08月</span>
           </div>
 
           <button
             type="button"
             onClick={() => alert('已导出零碳工厂评估台账与核算明细报告 (Excel / PDF)！')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-foreground bg-panel hover:bg-accent/40 text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
-            <Download className="size-3.5 text-slate-500" />
+            <Download className="size-3.5 text-muted-foreground" />
             <span>导出报表</span>
           </button>
         </div>
       </div>
-
-
 
       {/* ========================================================================= */}
       {/* 🔴 第一层：集团 / 管理层级 (Group Level View)                            */}
@@ -1018,90 +1016,90 @@ export default function ZeroCarbonSelfEvaluationPage() {
         <div className="space-y-3.5 animate-in fade-in duration-200">
           {/* 1.1 集团宏观 4 大核心评估指标卡 (标准化 KPI 卡片) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
+            <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
+              <div className="flex items-center justify-between text-muted-foreground mb-1">
                 <span className="text-[11px]">工厂自评覆盖进度</span>
-                <CheckSquare className="size-3.5 text-blue-500" />
+                <CheckSquare className="size-3.5 text-primary" />
               </div>
-              <div className="text-base font-black font-mono text-slate-800">
-                21 / 21 <span className="text-xs font-normal text-emerald-600">(100%)</span>
+              <div className="text-base font-black font-mono text-foreground">
+                21 / 21 <span className="text-xs font-normal text-emerald-400">(100%)</span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">集团 6 大经营单位全覆盖</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">集团 6 大经营单位全覆盖</div>
             </div>
 
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
+            <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
+              <div className="flex items-center justify-between text-muted-foreground mb-1">
                 <span className="text-[11px]">清洁与绿电消纳均值</span>
-                <Zap className="size-3.5 text-emerald-500" />
+                <Zap className="size-3.5 text-emerald-400" />
               </div>
-              <div className="text-base font-black font-mono text-slate-800">
-                88.6% <span className="text-xs font-normal text-slate-500">(绿电/绿证)</span>
+              <div className="text-base font-black font-mono text-foreground">
+                88.6% <span className="text-xs font-normal text-muted-foreground">(绿电/绿证)</span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">源头减碳与协同降碳综合</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">源头减碳与协同降碳综合</div>
             </div>
 
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
+            <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
+              <div className="flex items-center justify-between text-muted-foreground mb-1">
                 <span className="text-[11px]">数据自动采集平均率</span>
-                <Cpu className="size-3.5 text-purple-500" />
+                <Cpu className="size-3.5 text-purple-400" />
               </div>
-              <div className="text-base font-black font-mono text-slate-800">
-                96.5% <span className="text-xs font-normal text-blue-600">(GB 17167)</span>
+              <div className="text-base font-black font-mono text-foreground">
+                96.5% <span className="text-xs font-normal text-primary">(GB 17167)</span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">重点用能设备自动采集</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">重点用能设备自动采集</div>
             </div>
 
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
+            <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
+              <div className="flex items-center justify-between text-muted-foreground mb-1">
                 <span className="text-[11px]">制度与披露文件齐备度</span>
-                <FileCheck className="size-3.5 text-amber-500" />
+                <FileCheck className="size-3.5 text-amber-400" />
               </div>
-              <div className="text-base font-black font-mono text-slate-800">
-                91.4% <span className="text-xs font-normal text-emerald-600">(已归档)</span>
+              <div className="text-base font-black font-mono text-foreground">
+                91.4% <span className="text-xs font-normal text-emerald-400">(已归档)</span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">ESG与核查报告发布透明度</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">ESG与核查报告发布透明度</div>
             </div>
           </div>
 
           {/* 1.2 集团对比图表 (标准化图表面板) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+            <div className="bg-card p-4 rounded-xl border border-border backdrop-blur-sm shadow-xs">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-blue-600" />
-                  <h3 className="text-xs font-bold text-slate-800">各经营单位达标工厂数分布</h3>
+                  <span className="h-4 w-1 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
+                  <h3 className="text-sm font-semibold text-foreground">各经营单位达标工厂数分布</h3>
                 </div>
-                <span className="text-[11px] text-slate-400">已自评达标工厂</span>
+                <span className="text-[11px] text-muted-foreground">已自评达标工厂</span>
               </div>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={companyStats.filter(c => c.name !== '全部')} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                    <RechartsTooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                    <Bar dataKey="count" name="达标工厂数" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.72 0.12 220 / 12%)" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} />
+                    <RechartsTooltip cursor={{ fill: 'oklch(0.32 0.06 235 / 30%)' }} contentStyle={{ background: 'oklch(0.2 0.035 252)', border: '1px solid oklch(0.72 0.12 220 / 25%)', borderRadius: '8px', color: 'oklch(0.92 0.02 240)' }} />
+                    <Bar dataKey="count" name="达标工厂数" fill="var(--chart-1)" radius={[4, 4, 0, 0]} maxBarSize={36} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+            <div className="bg-card p-4 rounded-xl border border-border backdrop-blur-sm shadow-xs">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-emerald-500" />
-                  <h3 className="text-xs font-bold text-slate-800">各经营单位绿电消纳均值对比 (%)</h3>
+                  <span className="h-4 w-1 rounded-full bg-emerald-400 shadow-[0_0_10px_#10b981]" />
+                  <h3 className="text-sm font-semibold text-foreground">各经营单位绿电消纳均值对比 (%)</h3>
                 </div>
-                <span className="text-[11px] text-slate-400">绿电与绿证消纳占比</span>
+                <span className="text-[11px] text-muted-foreground">绿电与绿证消纳占比</span>
               </div>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={companyStats.filter(c => c.name !== '全部')} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} domain={[60, 100]} />
-                    <RechartsTooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                    <Line type="monotone" dataKey="avgGreenPower" name="绿电消纳均值" stroke="#10b981" strokeWidth={2.5} dot={{ r: 3.5, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5 }} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.72 0.12 220 / 12%)" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} domain={[60, 100]} />
+                    <RechartsTooltip cursor={{ fill: 'oklch(0.32 0.06 235 / 30%)' }} contentStyle={{ background: 'oklch(0.2 0.035 252)', border: '1px solid oklch(0.72 0.12 220 / 25%)', borderRadius: '8px', color: 'oklch(0.92 0.02 240)' }} />
+                    <Line type="monotone" dataKey="avgGreenPower" name="绿电消纳均值" stroke="var(--chart-2)" strokeWidth={2.5} dot={{ r: 3.5, fill: 'var(--chart-2)', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -1109,13 +1107,13 @@ export default function ZeroCarbonSelfEvaluationPage() {
           </div>
 
           {/* 1.3 6大分公司下钻卡片矩阵 */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 space-y-3">
+          <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-slate-900">6 大经营单位总体零碳评估大盘（点击下钻）</h3>
-                <p className="text-xs text-slate-500 mt-0.5">点击任意公司卡片即可穿透至第二层查看该公司的总体及关联工厂明细</p>
+                <h3 className="text-sm font-bold text-foreground">6 大经营单位总体零碳评估大盘（点击下钻）</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">点击任意公司卡片即可穿透至第二层查看该公司的总体及关联工厂明细</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-bold border border-blue-200">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-primary/15 text-primary font-bold border border-primary/30">
                 支持三层钻取
               </span>
             </div>
@@ -1131,29 +1129,29 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       setSelectedCompany(item.name)
                       setViewLevel('company')
                     }}
-                    className="p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between gap-3 group"
+                    className="p-4 rounded-xl border border-border bg-card hover:border-primary/60 hover:shadow-lg backdrop-blur-sm transition-all cursor-pointer flex flex-col justify-between gap-3 group"
                   >
                     {/* 卡片头部 */}
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <div className="flex items-center justify-between pb-2 border-b border-border/60">
                       <div className="flex items-center gap-2.5">
                         <div className="size-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold shadow-xs">
                           <Building2 className="size-4.5" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors">
+                            <h4 className="text-sm font-black text-foreground group-hover:text-primary transition-colors">
                               {item.name}
                             </h4>
-                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold border border-blue-100 font-mono">
+                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold border border-primary/20 font-mono">
                               {item.count} 家工厂
                             </span>
                           </div>
-                          <span className="text-[10.5px] text-slate-400 mt-0.5 block">
+                          <span className="text-[10.5px] text-muted-foreground mt-0.5 block">
                             综合达标评估 · 5 大维度考核
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 text-[11px] text-blue-600 font-bold group-hover:translate-x-0.5 transition-all">
+                      <div className="flex items-center gap-1 text-[11px] text-primary font-bold group-hover:translate-x-0.5 transition-all">
                         <span>下钻分析</span>
                         <ChevronRight className="size-3.5" />
                       </div>
@@ -1249,20 +1247,20 @@ export default function ZeroCarbonSelfEvaluationPage() {
             return (
               <div className="space-y-3">
                 {/* 顶部标题条 */}
-                <div className="bg-white p-4.5 rounded-xl border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                <div className="bg-card p-4.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="size-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold shadow-xs shrink-0">
                       <Building2 className="size-6" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2.5">
-                        <h2 className="text-lg font-black text-slate-900">【{selectedCompanyId}】 零碳工厂评估运营中心</h2>
-                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold border border-blue-200">
+                        <h2 className="text-lg font-black text-foreground">【{selectedCompanyId}】 零碳工厂评估运营中心</h2>
+                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/15 text-primary font-bold border border-primary/20">
                           经营单位视角
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        下辖 <strong className="text-blue-700 font-mono font-bold">{companyFactories.length}</strong> 家智能制造工厂 · 全面管控源头减碳、过程脱碳与能碳数字化运行
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        下辖 <strong className="text-primary font-mono font-bold">{companyFactories.length}</strong> 家智能制造工厂 · 全面管控源头减碳、过程脱碳与能碳数字化运行
                       </p>
                     </div>
                   </div>
@@ -1274,7 +1272,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         setViewLevel('group')
                         setSelectedCompany('全部')
                       }}
-                      className="px-3.5 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                      className="px-3.5 py-2 rounded-lg border border-border bg-panel hover:bg-accent/40 text-foreground font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
                     >
                       <ArrowRight className="size-3.5 rotate-180" />
                       <span>返回集团宏观大盘</span>
@@ -1286,102 +1284,102 @@ export default function ZeroCarbonSelfEvaluationPage() {
                 {stats && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     {/* 1. 源头减碳 */}
-                    <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between gap-2">
+                    <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-emerald-800 flex items-center gap-1">
-                          <Zap className="size-3.5 text-emerald-600" />
+                        <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                          <Zap className="size-3.5 text-emerald-400" />
                           1. 源头减碳
                         </span>
-                        <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded font-medium">
+                        <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 rounded font-medium">
                           绿电消纳
                         </span>
                       </div>
                       <div className="mt-1">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black font-mono text-emerald-700">{stats.avgGreenPower}</span>
-                          <span className="text-xs font-bold text-emerald-600">%</span>
+                          <span className="text-2xl font-black font-mono text-emerald-400">{stats.avgGreenPower}</span>
+                          <span className="text-xs font-bold text-emerald-400">%</span>
                         </div>
-                        <span className="text-[10.5px] text-slate-400 block mt-0.5">清洁与绿电消纳均值</span>
+                        <span className="text-[10.5px] text-muted-foreground block mt-0.5">清洁与绿电消纳均值</span>
                       </div>
                     </div>
 
                     {/* 2. 过程削碳 */}
-                    <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between gap-2">
+                    <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-sky-800 flex items-center gap-1">
-                          <Sparkles className="size-3.5 text-sky-600" />
+                        <span className="text-xs font-bold text-sky-400 flex items-center gap-1">
+                          <Sparkles className="size-3.5 text-sky-400" />
                           2. 过程削碳
                         </span>
-                        <span className="text-[10px] text-sky-700 bg-sky-50 px-1.5 py-0.2 rounded font-medium">
+                        <span className="text-[10px] text-sky-400 bg-sky-500/10 border border-sky-500/20 px-1.5 py-0.2 rounded font-medium">
                           碳清除 Re
                         </span>
                       </div>
                       <div className="mt-1">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black font-mono text-sky-700">{stats.avgCarbonClear}</span>
-                          <span className="text-xs font-bold text-sky-600">%</span>
+                          <span className="text-2xl font-black font-mono text-sky-400">{stats.avgCarbonClear}</span>
+                          <span className="text-xs font-bold text-sky-400">%</span>
                         </div>
-                        <span className="text-[10.5px] text-slate-400 block mt-0.5">设备能效优良 · 碳清除</span>
+                        <span className="text-[10.5px] text-muted-foreground block mt-0.5">设备能效优良 · 碳清除</span>
                       </div>
                     </div>
 
                     {/* 3. 协同降碳 */}
-                    <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between gap-2">
+                    <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-indigo-800 flex items-center gap-1">
-                          <Layers className="size-3.5 text-indigo-600" />
+                        <span className="text-xs font-bold text-indigo-400 flex items-center gap-1">
+                          <Layers className="size-3.5 text-indigo-400" />
                           3. 协同降碳
                         </span>
-                        <span className="text-[10px] text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded font-medium">
+                        <span className="text-[10px] text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.2 rounded font-medium">
                           供应链
                         </span>
                       </div>
                       <div className="mt-1">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black font-mono text-indigo-700">{stats.avgSupplyChain}</span>
-                          <span className="text-xs font-bold text-indigo-600">/ 6 项</span>
+                          <span className="text-2xl font-black font-mono text-indigo-400">{stats.avgSupplyChain}</span>
+                          <span className="text-xs font-bold text-indigo-400">/ 6 项</span>
                         </div>
-                        <span className="text-[10.5px] text-slate-400 block mt-0.5">零碳供应链管理措施</span>
+                        <span className="text-[10.5px] text-muted-foreground block mt-0.5">零碳供应链管理措施</span>
                       </div>
                     </div>
 
                     {/* 4. 智能控碳 */}
-                    <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between gap-2">
+                    <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-purple-800 flex items-center gap-1">
-                          <Cpu className="size-3.5 text-purple-600" />
+                        <span className="text-xs font-bold text-purple-400 flex items-center gap-1">
+                          <Cpu className="size-3.5 text-purple-400" />
                           4. 智能控碳
                         </span>
-                        <span className="text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded font-medium">
+                        <span className="text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.2 rounded font-medium">
                           自动采集
                         </span>
                       </div>
                       <div className="mt-1">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black font-mono text-purple-700">{stats.avgAutoCollect}</span>
-                          <span className="text-xs font-bold text-purple-600">%</span>
+                          <span className="text-2xl font-black font-mono text-purple-400">{stats.avgAutoCollect}</span>
+                          <span className="text-xs font-bold text-purple-400">%</span>
                         </div>
-                        <span className="text-[10.5px] text-slate-400 block mt-0.5">GB 17167 重点设备采集</span>
+                        <span className="text-[10.5px] text-muted-foreground block mt-0.5">GB 17167 重点设备采集</span>
                       </div>
                     </div>
 
                     {/* 5. 抵消治理 */}
-                    <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between gap-2">
+                    <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-amber-800 flex items-center gap-1">
-                          <FileCheck className="size-3.5 text-amber-600" />
+                        <span className="text-xs font-bold text-amber-400 flex items-center gap-1">
+                          <FileCheck className="size-3.5 text-amber-400" />
                           5. 抵消治理
                         </span>
-                        <span className="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded font-medium">
+                        <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.2 rounded font-medium">
                           报告归档
                         </span>
                       </div>
                       <div className="mt-1">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black font-mono text-amber-700">{stats.avgDisclosure}</span>
-                          <span className="text-xs font-bold text-amber-600">/ 5 份</span>
+                          <span className="text-2xl font-black font-mono text-amber-400">{stats.avgDisclosure}</span>
+                          <span className="text-xs font-bold text-amber-400">/ 5 份</span>
                         </div>
-                        <span className="text-[10.5px] text-slate-400 block mt-0.5">公开披露与核查报告</span>
+                        <span className="text-[10.5px] text-muted-foreground block mt-0.5">公开披露与核查报告</span>
                       </div>
                     </div>
                   </div>
@@ -1404,31 +1402,31 @@ export default function ZeroCarbonSelfEvaluationPage() {
             }))
 
             return (
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3">
+              <div className="bg-card p-4 rounded-xl border border-border backdrop-blur-sm shadow-xs space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <BarChart3 className="size-4 text-blue-600" />
-                    <h3 className="text-sm font-bold text-slate-900">【{selectedCompanyId}】 下辖各工厂 5 大标准维度评估横向对标 (%)</h3>
+                    <span className="h-4 w-1 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
+                    <h3 className="text-sm font-semibold text-foreground">【{selectedCompanyId}】 下辖各工厂 5 大标准维度评估横向对标 (%)</h3>
                   </div>
                   <div className="flex flex-wrap items-center gap-3 text-xs">
-                    <span className="flex items-center gap-1.5 text-slate-600">
-                      <span className="size-2.5 rounded-full bg-emerald-500 inline-block" />
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <span className="size-2.5 rounded-full bg-emerald-400 inline-block" />
                       1. 源头减碳
                     </span>
-                    <span className="flex items-center gap-1.5 text-slate-600">
-                      <span className="size-2.5 rounded-full bg-sky-500 inline-block" />
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <span className="size-2.5 rounded-full bg-sky-400 inline-block" />
                       2. 过程削碳
                     </span>
-                    <span className="flex items-center gap-1.5 text-slate-600">
-                      <span className="size-2.5 rounded-full bg-indigo-500 inline-block" />
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <span className="size-2.5 rounded-full bg-indigo-400 inline-block" />
                       3. 协同降碳
                     </span>
-                    <span className="flex items-center gap-1.5 text-slate-600">
-                      <span className="size-2.5 rounded-full bg-purple-500 inline-block" />
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <span className="size-2.5 rounded-full bg-purple-400 inline-block" />
                       4. 智能控碳
                     </span>
-                    <span className="flex items-center gap-1.5 text-slate-600">
-                      <span className="size-2.5 rounded-full bg-amber-500 inline-block" />
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <span className="size-2.5 rounded-full bg-amber-400 inline-block" />
                       5. 抵消治理
                     </span>
                   </div>
@@ -1437,10 +1435,10 @@ export default function ZeroCarbonSelfEvaluationPage() {
                 <div className="h-60">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} domain={[0, 100]} />
-                      <RechartsTooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.72 0.12 220 / 12%)" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} domain={[0, 100]} />
+                      <RechartsTooltip cursor={{ fill: 'oklch(0.32 0.06 235 / 30%)' }} contentStyle={{ background: 'oklch(0.2 0.035 252)', border: '1px solid oklch(0.72 0.12 220 / 25%)', borderRadius: '8px', color: 'oklch(0.92 0.02 240)' }} />
                       <Bar dataKey="greenPower" name="1. 源头减碳 (绿电消纳率 %)" fill="#10b981" radius={[3, 3, 0, 0]} maxBarSize={18} />
                       <Bar dataKey="carbonClear" name="2. 过程削碳 (碳消除率 %)" fill="#0ea5e9" radius={[3, 3, 0, 0]} maxBarSize={18} />
                       <Bar dataKey="supplyChain" name="3. 协同降碳 (供应链达标率 %)" fill="#6366f1" radius={[3, 3, 0, 0]} maxBarSize={18} />
@@ -1454,13 +1452,13 @@ export default function ZeroCarbonSelfEvaluationPage() {
           })()}
 
           {/* 2.3 下辖关联工厂全景矩阵卡片 */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 space-y-3">
+          <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Layers className="size-4 text-blue-600" />
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Layers className="size-4 text-primary" />
                 【{selectedCompanyId}】 关联工厂评估明细卡片（点击卡片钻取查看工厂 5 维全景）
               </h3>
-              <span className="text-xs text-slate-500 font-mono">
+              <span className="text-xs text-muted-foreground font-mono">
                 共 {factories.filter(f => f.company === selectedCompanyId).length} 家工厂
               </span>
             </div>
@@ -1473,50 +1471,50 @@ export default function ZeroCarbonSelfEvaluationPage() {
                     setSelectedFactoryId(factory)
                     setViewLevel('factory')
                   }}
-                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between gap-3 group"
+                  className="p-4 rounded-xl border border-border bg-card hover:border-primary/60 hover:shadow-lg backdrop-blur-sm transition-all cursor-pointer flex flex-col justify-between gap-3 group"
                 >
                   {/* 工厂头部 */}
                   <div>
                     <div className="flex items-start justify-between gap-1.5">
-                      <h4 className="text-xs font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                      <h4 className="text-xs font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">
                         {factory.factoryName}
                       </h4>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-emerald-50 text-emerald-700 shrink-0">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
                         {factory.status}
                       </span>
                     </div>
-                    <span className="text-[10.5px] text-slate-400 block mt-1">
+                    <span className="text-[10.5px] text-muted-foreground block mt-1">
                       申报机构：{factory.evaluator} · {factory.declareDate}
                     </span>
                   </div>
 
                   {/* 5 维核心指标微缩展示 */}
-                  <div className="space-y-1.5 text-[11px] bg-slate-50 p-2.5 rounded-lg border border-slate-100 font-mono">
+                  <div className="space-y-1.5 text-[11px] bg-panel p-2.5 rounded-lg border border-border font-mono">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-sans">1. 源头减碳 (绿电):</span>
-                      <span className="font-bold text-emerald-600">{factory.metrics['3.1'].value}%</span>
+                      <span className="text-muted-foreground font-sans">1. 源头减碳 (绿电):</span>
+                      <span className="font-bold text-emerald-400">{factory.metrics['3.1'].value}%</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-sans">2. 过程脱碳 (清除):</span>
-                      <span className="font-bold text-sky-600">{factory.carbonClearRate}%</span>
+                      <span className="text-muted-foreground font-sans">2. 过程脱碳 (清除):</span>
+                      <span className="font-bold text-sky-400">{factory.carbonClearRate}%</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-sans">3. 协同降碳 (供应链):</span>
-                      <span className="font-bold text-indigo-600">{factory.supplyChainMeasuresCount} / 6项</span>
+                      <span className="text-muted-foreground font-sans">3. 协同降碳 (供应链):</span>
+                      <span className="font-bold text-indigo-400">{factory.supplyChainMeasuresCount} / 6项</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-sans">4. 智能控碳 (采集率):</span>
-                      <span className="font-bold text-purple-600">{factory.autoCollectRate}%</span>
+                      <span className="text-muted-foreground font-sans">4. 智能控碳 (采集率):</span>
+                      <span className="font-bold text-purple-400">{factory.autoCollectRate}%</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-sans">5. 披露文件 (齐备):</span>
-                      <span className="font-bold text-amber-600">{factory.disclosureDocsCount} / 5份</span>
+                      <span className="text-muted-foreground font-sans">5. 披露文件 (齐备):</span>
+                      <span className="font-bold text-amber-400">{factory.disclosureDocsCount} / 5份</span>
                     </div>
                   </div>
 
                   {/* 底部下钻引导 */}
-                  <div className="flex items-center justify-between text-[11.5px] pt-1.5 border-t border-slate-100">
-                    <span className="text-blue-600 font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                  <div className="flex items-center justify-between text-[11.5px] pt-1.5 border-t border-border/60">
+                    <span className="text-primary font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                       查看 5 维详情
                       <ChevronRight className="size-3.5" />
                     </span>
@@ -1534,20 +1532,20 @@ export default function ZeroCarbonSelfEvaluationPage() {
       {viewLevel === 'factory' && selectedFactoryId && (
         <div className="space-y-4 animate-in fade-in duration-200">
           {/* 3.1 工厂全景 Header 卡片 */}
-          <div className="bg-white p-4.5 rounded-xl border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-4">
+          <div className="bg-card p-4.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
               <div className="size-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold shadow-xs shrink-0">
                 <Award className="size-6" />
               </div>
               <div>
                 <div className="flex items-center gap-2.5">
-                  <h2 className="text-lg font-black text-slate-900">{selectedFactoryId.factoryName}</h2>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                  <h2 className="text-lg font-black text-foreground">{selectedFactoryId.factoryName}</h2>
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
                     {selectedFactoryId.status}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-1 flex items-center gap-3">
-                  <span>申报日期：<strong className="font-mono text-slate-800">{selectedFactoryId.declareDate}</strong></span>
+                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-3">
+                  <span>申报日期：<strong className="font-mono text-foreground">{selectedFactoryId.declareDate}</strong></span>
                 </p>
               </div>
             </div>
@@ -1564,7 +1562,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
               <button
                 type="button"
                 onClick={() => setFactoryDetailModal(selectedFactoryId)}
-                className="px-3.5 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-lg bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <FileText className="size-3.5" />
                 <span>自评报告</span>
@@ -1575,64 +1573,64 @@ export default function ZeroCarbonSelfEvaluationPage() {
           {/* 3.2 5大维度全量展开直观大盘 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* 维度 1: 源头减碳 */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 flex flex-col justify-between gap-3">
+              <div className="flex items-center justify-between pb-2 border-b border-border/60">
                 <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">
+                  <div className="size-7 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs">
                     1
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">源头减碳（清洁能源与低碳改造）</h3>
-                    <span className="text-[11px] text-slate-400">非化石能源与光伏应用考核</span>
+                    <h3 className="text-sm font-bold text-foreground">源头减碳（清洁能源与低碳改造）</h3>
+                    <span className="text-[11px] text-muted-foreground">非化石能源与光伏应用考核</span>
                   </div>
                 </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
                   自动核算达标
                 </span>
               </div>
 
               <div className="grid grid-cols-3 gap-2.5 pt-1">
-                <div className="bg-slate-50/80 border border-slate-100 rounded-lg p-3 flex flex-col justify-between gap-2">
+                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-600 font-medium">[1.1] 非化石电力消费</span>
+                    <span className="text-xs text-muted-foreground font-medium">[1.1] 非化石电力消费</span>
                   </div>
                   <div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black font-mono text-slate-900">{selectedFactoryId.metrics['1.1'].value}</span>
-                      <span className="text-xs font-bold text-slate-500">%</span>
+                      <span className="text-xl font-black font-mono text-foreground">{selectedFactoryId.metrics['1.1'].value}</span>
+                      <span className="text-xs font-bold text-muted-foreground">%</span>
                     </div>
-                    <div className="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
-                      <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${Math.min(selectedFactoryId.metrics['1.1'].value * 2.5, 100)}%` }} />
+                    <div className="w-full bg-border h-1.5 rounded-full mt-2 overflow-hidden">
+                      <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${Math.min(selectedFactoryId.metrics['1.1'].value * 2.5, 100)}%` }} />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-slate-50/80 border border-slate-100 rounded-lg p-3 flex flex-col justify-between gap-2">
+                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-600 font-medium">[1.2] 节能低碳改造率</span>
+                    <span className="text-xs text-muted-foreground font-medium">[1.2] 节能低碳改造率</span>
                   </div>
                   <div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black font-mono text-slate-900">{selectedFactoryId.metrics['1.2'].value}</span>
-                      <span className="text-xs font-bold text-slate-500">%</span>
+                      <span className="text-xl font-black font-mono text-foreground">{selectedFactoryId.metrics['1.2'].value}</span>
+                      <span className="text-xs font-bold text-muted-foreground">%</span>
                     </div>
-                    <div className="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
-                      <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${selectedFactoryId.metrics['1.2'].value}%` }} />
+                    <div className="w-full bg-border h-1.5 rounded-full mt-2 overflow-hidden">
+                      <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${selectedFactoryId.metrics['1.2'].value}%` }} />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-slate-50/80 border border-slate-100 rounded-lg p-3 flex flex-col justify-between gap-2">
+                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-600 font-medium">[1.3] 光伏利用率</span>
+                    <span className="text-xs text-muted-foreground font-medium">[1.3] 光伏利用率</span>
                   </div>
                   <div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black font-mono text-slate-900">{selectedFactoryId.metrics['1.3'].value}</span>
-                      <span className="text-xs font-bold text-slate-500">%</span>
+                      <span className="text-xl font-black font-mono text-foreground">{selectedFactoryId.metrics['1.3'].value}</span>
+                      <span className="text-xs font-bold text-muted-foreground">%</span>
                     </div>
-                    <div className="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
-                      <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${Math.min(selectedFactoryId.metrics['1.3'].value * 3, 100)}%` }} />
+                    <div className="w-full bg-border h-1.5 rounded-full mt-2 overflow-hidden">
+                      <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${Math.min(selectedFactoryId.metrics['1.3'].value * 3, 100)}%` }} />
                     </div>
                   </div>
                 </div>
@@ -1640,65 +1638,65 @@ export default function ZeroCarbonSelfEvaluationPage() {
             </div>
 
             {/* 维度 2: 过程脱碳 */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 flex flex-col justify-between gap-3">
+              <div className="flex items-center justify-between pb-2 border-b border-border/60">
                 <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-xs">
+                  <div className="size-7 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-bold text-xs">
                     2
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">过程脱碳（设备能效与碳清除）</h3>
-                    <span className="text-[11px] text-slate-400">重点电机空压机能效与 CCUS 清除</span>
+                    <h3 className="text-sm font-bold text-foreground">过程脱碳（设备能效与碳清除）</h3>
+                    <span className="text-[11px] text-muted-foreground">重点电机空压机能效与 CCUS 清除</span>
                   </div>
                 </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-sky-50 text-sky-700 font-bold border border-sky-200">
+                <span className="text-[11px] px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 font-bold border border-sky-500/20">
                   能效优良
                 </span>
               </div>
 
               <div className="grid grid-cols-3 gap-2.5 pt-1">
-                <div className="bg-slate-50/80 border border-slate-100 rounded-lg p-3 flex flex-col justify-between gap-2">
-                  <span className="text-xs text-slate-600 font-medium">[2.1] 电机系统能效</span>
+                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
+                  <span className="text-xs text-muted-foreground font-medium">[2.1] 电机系统能效</span>
                   <div>
-                    <span className="text-sm font-bold text-slate-900 block">{selectedFactoryId.metrics['2.1'].value}</span>
-                    <span className="text-[10px] text-emerald-600 font-bold mt-1 inline-block">⚡ 达到国家标准</span>
+                    <span className="text-sm font-bold text-foreground block">{selectedFactoryId.metrics['2.1'].value}</span>
+                    <span className="text-[10px] text-emerald-400 font-bold mt-1 inline-block">⚡ 达到国家标准</span>
                   </div>
                 </div>
 
-                <div className="bg-slate-50/80 border border-slate-100 rounded-lg p-3 flex flex-col justify-between gap-2">
-                  <span className="text-xs text-slate-600 font-medium">[2.2] 空压机节能评级</span>
+                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
+                  <span className="text-xs text-muted-foreground font-medium">[2.2] 空压机节能评级</span>
                   <div>
-                    <span className="text-sm font-bold text-slate-900 block">{selectedFactoryId.metrics['2.2'].value}</span>
-                    <span className="text-[10px] text-emerald-600 font-bold mt-1 inline-block">⚡ 达到国家标准</span>
+                    <span className="text-sm font-bold text-foreground block">{selectedFactoryId.metrics['2.2'].value}</span>
+                    <span className="text-[10px] text-emerald-400 font-bold mt-1 inline-block">⚡ 达到国家标准</span>
                   </div>
                 </div>
 
-                <div className="bg-slate-50/80 border border-slate-100 rounded-lg p-3 flex flex-col justify-between gap-2">
-                  <span className="text-xs text-slate-600 font-medium">[2.3] 碳清除率 (Re)</span>
+                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
+                  <span className="text-xs text-muted-foreground font-medium">[2.3] 碳清除率 (Re)</span>
                   <div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black font-mono text-blue-700">{selectedFactoryId.carbonClearRate}</span>
-                      <span className="text-xs font-bold text-slate-500">%</span>
+                      <span className="text-xl font-black font-mono text-primary">{selectedFactoryId.carbonClearRate}</span>
+                      <span className="text-xs font-bold text-muted-foreground">%</span>
                     </div>
-                    <span className="text-[10px] text-slate-400 mt-1 block">工程技术碳清除</span>
+                    <span className="text-[10px] text-muted-foreground mt-1 block">工程技术碳清除</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* 维度 3: 协同降碳 (全量展开展示 6 大措施) */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 flex flex-col justify-between gap-3">
+              <div className="flex items-center justify-between pb-2 border-b border-border/60">
                 <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                  <div className="size-7 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold text-xs">
                     3
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">协同降碳（绿电消纳与零碳供应链）</h3>
-                    <span className="text-[11px] text-slate-400">绿电消纳: <strong className="text-emerald-600 font-mono">{selectedFactoryId.metrics['3.1'].value}%</strong> · 措施具备: <strong className="text-indigo-600 font-mono">{selectedFactoryId.supplyChainMeasuresCount}/6 项</strong></span>
+                    <h3 className="text-sm font-bold text-foreground">协同降碳（绿电消纳与零碳供应链）</h3>
+                    <span className="text-[11px] text-muted-foreground">绿电消纳: <strong className="text-emerald-400 font-mono">{selectedFactoryId.metrics['3.1'].value}%</strong> · 措施具备: <strong className="text-indigo-400 font-mono">{selectedFactoryId.supplyChainMeasuresCount}/6 项</strong></span>
                   </div>
                 </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold border border-indigo-200">
+                <span className="text-[11px] px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-bold border border-indigo-500/20">
                   {selectedFactoryId.supplyChainMeasuresCount === 6 ? '全部具备' : '重点覆盖'}
                 </span>
               </div>
@@ -1712,13 +1710,13 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       key={m.id}
                       className={cn(
                         "p-2.5 rounded-lg border flex items-start gap-2 transition-colors",
-                        isChecked ? "bg-emerald-50/60 border-emerald-200 text-slate-900" : "bg-slate-50 border-slate-200 text-slate-400"
+                        isChecked ? "bg-emerald-500/10 border-emerald-500/30 text-foreground" : "bg-panel border-border text-muted-foreground"
                       )}
                     >
-                      <CheckCircle2 className={cn("size-4 shrink-0 mt-0.5", isChecked ? "text-emerald-600" : "text-slate-300")} />
+                      <CheckCircle2 className={cn("size-4 shrink-0 mt-0.5", isChecked ? "text-emerald-400" : "text-muted-foreground/40")} />
                       <div>
                         <span className="font-bold text-xs block">{m.title}</span>
-                        <span className="text-[10.5px] text-slate-500 block leading-tight mt-0.5">{m.desc}</span>
+                        <span className="text-[10.5px] text-muted-foreground block leading-tight mt-0.5">{m.desc}</span>
                       </div>
                     </div>
                   )
@@ -1727,18 +1725,18 @@ export default function ZeroCarbonSelfEvaluationPage() {
             </div>
 
             {/* 维度 4: 智能控碳 (全量展开展示 13 大功能) */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 flex flex-col justify-between gap-3">
+              <div className="flex items-center justify-between pb-2 border-b border-border/60">
                 <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs">
+                  <div className="size-7 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-xs">
                     4
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">智能控碳（能碳管理中心与自动采集）</h3>
-                    <span className="text-[11px] text-slate-400">自动采集率: <strong className="text-purple-700 font-mono">{selectedFactoryId.autoCollectRate}%</strong> · 数字化功能: <strong className="text-purple-700 font-mono">{selectedFactoryId.controlCenterFeaturesCount}/13 项</strong></span>
+                    <h3 className="text-sm font-bold text-foreground">智能控碳（能碳管理中心与自动采集）</h3>
+                    <span className="text-[11px] text-muted-foreground">自动采集率: <strong className="text-purple-400 font-mono">{selectedFactoryId.autoCollectRate}%</strong> · 数字化功能: <strong className="text-purple-400 font-mono">{selectedFactoryId.controlCenterFeaturesCount}/13 项</strong></span>
                   </div>
                 </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-bold border border-purple-200">
+                <span className="text-[11px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 font-bold border border-purple-500/20">
                   GB 17167 达标
                 </span>
               </div>
@@ -1752,11 +1750,11 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       key={f.id}
                       className={cn(
                         "p-2 rounded-lg border flex items-center gap-1.5 transition-colors",
-                        isChecked ? "bg-purple-50/60 border-purple-200 text-purple-950 font-medium" : "bg-slate-50 border-slate-200 text-slate-400"
+                        isChecked ? "bg-purple-500/10 border-purple-500/30 text-purple-300 font-medium" : "bg-panel border-border text-muted-foreground"
                       )}
                       title={f.desc}
                     >
-                      <CheckCircle2 className={cn("size-3.5 shrink-0", isChecked ? "text-purple-600" : "text-slate-300")} />
+                      <CheckCircle2 className={cn("size-3.5 shrink-0", isChecked ? "text-purple-400" : "text-muted-foreground/40")} />
                       <span className="text-[11px] truncate">{f.title}</span>
                     </div>
                   )
@@ -1765,18 +1763,18 @@ export default function ZeroCarbonSelfEvaluationPage() {
             </div>
 
             {/* 维度 5: 碳抵销和信息披露 (全幅展开展示 5 大披露报告载体) */}
-            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-2xs p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="lg:col-span-2 bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 flex flex-col justify-between gap-3">
+              <div className="flex items-center justify-between pb-2 border-b border-border/60">
                 <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs">
+                  <div className="size-7 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-xs">
                     5
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">碳抵销与信息披露（权威报告公开与归档）</h3>
-                    <span className="text-[11px] text-slate-400">已归档公开披露报告: <strong className="text-amber-700 font-mono">{selectedFactoryId.disclosureDocsCount} / 5 份</strong></span>
+                    <h3 className="text-sm font-bold text-foreground">碳抵销与信息披露（权威报告公开与归档）</h3>
+                    <span className="text-[11px] text-muted-foreground">已归档公开披露报告: <strong className="text-amber-400 font-mono">{selectedFactoryId.disclosureDocsCount} / 5 份</strong></span>
                   </div>
                 </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-bold border border-amber-200">
+                <span className="text-[11px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">
                   {selectedFactoryId.disclosureDocsCount >= 4 ? '合规完备' : '建议补充'}
                 </span>
               </div>
@@ -1790,23 +1788,23 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       key={d.id}
                       className={cn(
                         "p-3 rounded-lg border flex flex-col justify-between gap-2 transition-colors",
-                        isChecked ? "bg-amber-50/50 border-amber-200" : "bg-slate-50 border-slate-200 opacity-60"
+                        isChecked ? "bg-amber-500/10 border-amber-500/30" : "bg-panel border-border opacity-60"
                       )}
                     >
                       <div className="flex items-center justify-between">
-                        <FileText className={cn("size-4", isChecked ? "text-amber-600" : "text-slate-400")} />
+                        <FileText className={cn("size-4", isChecked ? "text-amber-400" : "text-muted-foreground")} />
                         <span className={cn(
                           "text-[9.5px] px-1.5 py-0.2 rounded font-bold",
-                          isChecked ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                          isChecked ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-panel text-muted-foreground"
                         )}>
                           {isChecked ? "已公开披露" : "待归档"}
                         </span>
                       </div>
                       <div>
-                        <span className={cn("font-bold text-xs block", isChecked ? "text-slate-900" : "text-slate-500")}>
+                        <span className={cn("font-bold text-xs block", isChecked ? "text-foreground" : "text-muted-foreground")}>
                           {d.title}
                         </span>
-                        <span className="text-[10px] text-slate-400 block mt-1 leading-tight">
+                        <span className="text-[10px] text-muted-foreground block mt-1 leading-tight">
                           {d.desc}
                         </span>
                       </div>
@@ -1822,24 +1820,24 @@ export default function ZeroCarbonSelfEvaluationPage() {
       {/* 4. 📝 填报与自查一体化工作台 (面向基层：自查打勾 + 实时短板诊断) */}
       {isDeclareModalOpen && declareFactoryTarget && (() => {
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-3 sm:p-5 animate-in fade-in duration-150">
-            <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-5xl w-full p-5 sm:p-6 flex flex-col gap-4 font-sans max-h-[94vh] overflow-hidden">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-5 animate-in fade-in duration-150">
+            <div className="bg-popover rounded-2xl shadow-2xl border border-border max-w-5xl w-full p-5 sm:p-6 flex flex-col gap-4 font-sans max-h-[94vh] overflow-hidden">
               {/* 弹窗头部 */}
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3 shrink-0">
+              <div className="flex items-center justify-between border-b border-border pb-3 shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
+                  <div className="size-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                     <Edit3 className="size-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-slate-900">
+                      <h3 className="text-base font-bold text-foreground">
                         【{declareFactoryTarget.factoryName.split('(')[0].trim()}】自评估填报与短板自查工作台
                       </h3>
-                      <span className="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                      <span className="text-[11px] px-2 py-0.5 rounded bg-panel border border-border text-muted-foreground font-medium">
                         所属：{declareFactoryTarget.company}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
                       填报动作与自查评估实时联动 · 边勾选自填边掌握整体情况，降低填报门槛
                     </p>
                   </div>
@@ -1848,7 +1846,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                 <button
                   type="button"
                   onClick={() => setIsDeclareModalOpen(false)}
-                  className="size-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                  className="size-8 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
                 >
                   <X className="size-5" />
                 </button>
@@ -1858,10 +1856,10 @@ export default function ZeroCarbonSelfEvaluationPage() {
               <div className="overflow-y-auto max-h-[calc(94vh-140px)] pr-1 custom-scrollbar">
                 <form id="declare-form" onSubmit={handleSaveDeclare} className="flex flex-col gap-4 text-xs">
                   {/* 提示条 */}
-                  <div className="bg-blue-50/70 border border-blue-200/80 rounded-xl p-3 flex items-start gap-2.5 text-blue-900 text-xs">
-                    <Info className="size-4 text-blue-600 shrink-0 mt-0.5" />
+                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 flex items-start gap-2.5 text-foreground text-xs">
+                    <Info className="size-4 text-primary shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold">自评填报说明：</span>
+                      <span className="font-bold text-primary">自评填报说明：</span>
                       <span>
                         当前系统采用“自动采集核算 + 定性指标手动打勾/自填”的务实方案。请核实并更新以下 5 大维度参数，保存后系统将实时刷新最新核算值。
                       </span>
@@ -1869,32 +1867,32 @@ export default function ZeroCarbonSelfEvaluationPage() {
                   </div>
 
                   {/* 1. 源头减碳 & 2. 过程脱碳 */}
-                  <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-3">
-                    <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 pb-2 border-b border-slate-200">
-                      <Zap className="size-4 text-emerald-600" />
+                  <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
+                    <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5 pb-2 border-b border-border">
+                      <Zap className="size-4 text-emerald-400" />
                       1 源头减碳 与 2 过程脱碳
                     </h4>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11.5px]">
-                      <div className="bg-white p-3 rounded-lg border border-slate-200">
-                        <span className="text-slate-500 block text-[11px]">[1.1] 非化石电力消费比例</span>
+                      <div className="bg-card p-3 rounded-lg border border-border">
+                        <span className="text-muted-foreground block text-[11px]">[1.1] 非化石电力消费比例</span>
                         <div className="flex items-center justify-between mt-1">
-                          <span className="font-mono font-bold text-blue-700 text-sm">
+                          <span className="font-mono font-bold text-primary text-sm">
                             {declareFactoryTarget.metrics['1.1'].value}%
                           </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
                             ⚡ 系统实时自动核算
                           </span>
                         </div>
                       </div>
 
-                      <div className="bg-white p-3 rounded-lg border border-slate-200">
-                        <span className="text-slate-500 block text-[11px]">[1.2] 节能与低碳改造覆盖率</span>
+                      <div className="bg-card p-3 rounded-lg border border-border">
+                        <span className="text-muted-foreground block text-[11px]">[1.2] 节能与低碳改造覆盖率</span>
                         <div className="flex items-center justify-between mt-1">
-                          <span className="font-mono font-bold text-blue-700 text-sm">
+                          <span className="font-mono font-bold text-primary text-sm">
                             {declareFactoryTarget.metrics['1.2'].value}%
                           </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
                             ⚡ 系统实时自动核算
                           </span>
                         </div>
@@ -1902,16 +1900,16 @@ export default function ZeroCarbonSelfEvaluationPage() {
                     </div>
 
                     {/* [2.3] 碳清除率 (预留扩展字段) */}
-                    <div className="bg-white p-3.5 rounded-lg border border-slate-200 space-y-2">
+                    <div className="bg-card p-3.5 rounded-lg border border-border space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-blue-600 text-xs">[2.3]</span>
-                          <span className="font-bold text-slate-900">碳清除率 (Re)</span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium">
+                          <span className="font-mono font-bold text-primary text-xs">[2.3]</span>
+                          <span className="font-bold text-foreground">碳清除率 (Re)</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">
                             ✍️ 预留扩展字段
                           </span>
                         </div>
-                        <span className="text-[10.5px] text-slate-400">CCUS / 工程技术碳清除</span>
+                        <span className="text-[10.5px] text-muted-foreground">CCUS / 工程技术碳清除</span>
                       </div>
 
                       <div className="flex items-center gap-2.5 pt-1">
@@ -1925,13 +1923,13 @@ export default function ZeroCarbonSelfEvaluationPage() {
                             onChange={(e) =>
                               setDeclareForm({ ...declareForm, carbonClearRate: parseFloat(e.target.value) || 0 })
                             }
-                            className="h-8 w-28 pl-3 pr-7 rounded-lg border border-slate-300 bg-white text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-blue-500"
+                            className="h-8 w-28 pl-3 pr-7 rounded-lg border border-border bg-panel text-xs font-mono font-bold text-foreground focus:outline-none focus:border-primary"
                           />
-                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs font-bold">
+                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-xs font-bold">
                             %
                           </span>
                         </div>
-                        <span className="text-[11px] text-slate-500">
+                        <span className="text-[11px] text-muted-foreground">
                           公式：Re = [Rc / (Cd + Rc)] × 100%（当前阶段作为前瞻性扩展预留，支持企业自填）
                         </span>
                       </div>
@@ -1939,194 +1937,144 @@ export default function ZeroCarbonSelfEvaluationPage() {
                   </div>
 
                   {/* 3. 协同降碳 -> 零碳供应链管理措施 (6项打勾自评) */}
-                  <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                      <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                        <Layers className="size-4 text-emerald-600" />
-                        3 协同降碳 · 零碳供应链管理措施（定性指标打勾自评）
+                  <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-border">
+                      <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                        <Layers className="size-4 text-indigo-400" />
+                        3 协同降碳 · 零碳供应链管理措施 (6 项自评打勾)
                       </h4>
-                      <span className="text-[11px] font-bold text-emerald-700">
+                      <span className="text-[11px] text-indigo-400 font-mono font-bold">
                         已选 {declareForm.supplyChainMeasures.length} / 6 项
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {SUPPLY_CHAIN_MEASURES_OPTIONS.map((m) => {
-                        const isChecked = declareForm.supplyChainMeasures.includes(m.id)
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                      {SUPPLY_CHAIN_MEASURES_OPTIONS.map((opt) => {
+                        const checked = declareForm.supplyChainMeasures.includes(opt.id)
                         return (
-                          <label
-                            key={m.id}
+                          <div
+                            key={opt.id}
+                            onClick={() => {
+                              const next = checked
+                                ? declareForm.supplyChainMeasures.filter((x) => x !== opt.id)
+                                : [...declareForm.supplyChainMeasures, opt.id]
+                              setDeclareForm({ ...declareForm, supplyChainMeasures: next })
+                            }}
                             className={cn(
-                              'flex items-start gap-2.5 p-2.5 rounded-lg border transition-all cursor-pointer select-none',
-                              isChecked
-                                ? 'bg-emerald-50/50 border-emerald-200 text-emerald-950'
-                                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50',
+                              'p-3 rounded-lg border flex items-start gap-2.5 cursor-pointer transition-colors select-none',
+                              checked
+                                ? 'bg-primary/15 border-primary/40 text-foreground'
+                                : 'bg-card border-border text-muted-foreground hover:bg-accent/40',
                             )}
                           >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setDeclareForm({
-                                    ...declareForm,
-                                    supplyChainMeasures: [...declareForm.supplyChainMeasures, m.id],
-                                  })
-                                } else {
-                                  setDeclareForm({
-                                    ...declareForm,
-                                    supplyChainMeasures: declareForm.supplyChainMeasures.filter((id) => id !== m.id),
-                                  })
-                                }
-                              }}
-                              className="mt-0.5 size-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer shrink-0"
-                            />
-                            <div>
-                              <span className="text-xs font-bold block">{m.title}</span>
-                              <span className="text-[10.5px] text-slate-500 leading-tight block mt-0.5">
-                                {m.desc}
-                              </span>
-                            </div>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* 4. 智能控碳 -> 数据采集率与能碳中心功能 (13项打勾自评) */}
-                  <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                      <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                        <Cpu className="size-4 text-emerald-600" />
-                        4 智能控碳 · 能碳管理中心功能与自动采集率
-                      </h4>
-                      <span className="text-[11px] font-bold text-emerald-700">
-                        功能项：{declareForm.controlCenterFeatures.length} / 13 项
-                      </span>
-                    </div>
-
-                    <div className="bg-white p-3 rounded-lg border border-slate-200 flex items-center gap-3">
-                      <span className="text-xs font-bold text-slate-800 shrink-0">[4.1] 重点设备数据自动采集率：</span>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          max="100"
-                          value={declareForm.autoCollectRate}
-                          onChange={(e) =>
-                            setDeclareForm({ ...declareForm, autoCollectRate: parseFloat(e.target.value) || 0 })
-                          }
-                          className="h-8 w-28 pl-3 pr-7 rounded-lg border border-slate-300 bg-white text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-blue-500"
-                          required
-                        />
-                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs font-bold">
-                          %
-                        </span>
-                      </div>
-                      <span className="text-[10.5px] text-slate-500">依据 GB 17167 重点设备在线自动采集比例</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5">
-                      {CONTROL_CENTER_FEATURE_OPTIONS.map((f) => {
-                        const isChecked = declareForm.controlCenterFeatures.includes(f.id)
-                        return (
-                          <label
-                            key={f.id}
-                            className={cn(
-                              'flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer select-none text-[11px]',
-                              isChecked
-                                ? 'bg-blue-50/50 border-blue-200 text-blue-950 font-bold'
-                                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50',
-                            )}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setDeclareForm({
-                                    ...declareForm,
-                                    controlCenterFeatures: [...declareForm.controlCenterFeatures, f.id],
-                                  })
-                                } else {
-                                  setDeclareForm({
-                                    ...declareForm,
-                                    controlCenterFeatures: declareForm.controlCenterFeatures.filter(
-                                      (id) => id !== f.id,
-                                    ),
-                                  })
-                                }
-                              }}
-                              className="size-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer shrink-0"
-                            />
-                            <span className="truncate" title={f.desc}>
-                              {f.title}
-                            </span>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* 5. 碳抵销与披露 (5项文件勾选自评) */}
-                  <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                      <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                        <FileCheck className="size-4 text-emerald-600" />
-                        5 碳抵销与披露 · 碳排放信息披露载体（5 份规范文件勾选）
-                      </h4>
-                      <span className="text-[11px] font-bold text-emerald-700">
-                        已披露 {declareForm.disclosureFiles.length} / 5 份
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      {DISCLOSURE_DOC_OPTIONS.map((doc) => {
-                        const isChecked = declareForm.disclosureFiles.includes(doc.id)
-                        return (
-                          <label
-                            key={doc.id}
-                            className={cn(
-                              'flex items-center justify-between p-2.5 rounded-lg border transition-all cursor-pointer select-none',
-                              isChecked
-                                ? 'bg-emerald-50/50 border-emerald-200 text-emerald-950'
-                                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50',
-                            )}
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setDeclareForm({
-                                      ...declareForm,
-                                      disclosureFiles: [...declareForm.disclosureFiles, doc.id],
-                                    })
-                                  } else {
-                                    setDeclareForm({
-                                      ...declareForm,
-                                      disclosureFiles: declareForm.disclosureFiles.filter((id) => id !== doc.id),
-                                    })
-                                  }
-                                }}
-                                className="size-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer shrink-0"
-                              />
-                              <div>
-                                <span className="text-xs font-bold">{doc.title}</span>
-                                <span className="text-[10.5px] text-slate-400 ml-2 hidden sm:inline">{doc.desc}</span>
-                              </div>
-                            </div>
-                            <span
-                              className={cn(
-                                'text-[10px] font-medium px-2 py-0.5 rounded',
-                                isChecked ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-400',
+                            <div className="mt-0.5 shrink-0">
+                              {checked ? (
+                                <CheckSquare className="size-4 text-primary" />
+                              ) : (
+                                <Square className="size-4 text-muted-foreground/50" />
                               )}
-                            >
-                              {isChecked ? '已公开披露' : '未披露'}
-                            </span>
-                          </label>
+                            </div>
+                            <div className="flex-1">
+                              <span className="font-bold text-xs block">{opt.title}</span>
+                              <span className="text-[10.5px] text-muted-foreground block mt-0.5">{opt.desc}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 4. 智能控碳 -> 能源管理中心系统数字化功能 */}
+                  <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-border">
+                      <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                        <Cpu className="size-4 text-purple-400" />
+                        4 智能控碳 · 能碳管理中心数字化功能 (13 项打勾自评)
+                      </h4>
+                      <span className="text-[11px] text-purple-400 font-mono font-bold">
+                        已选 {declareForm.controlCenterFeatures.length} / 13 项
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                      {CONTROL_CENTER_FEATURE_OPTIONS.map((opt) => {
+                        const checked = declareForm.controlCenterFeatures.includes(opt.id)
+                        return (
+                          <div
+                            key={opt.id}
+                            onClick={() => {
+                              const next = checked
+                                ? declareForm.controlCenterFeatures.filter((x) => x !== opt.id)
+                                : [...declareForm.controlCenterFeatures, opt.id]
+                              setDeclareForm({ ...declareForm, controlCenterFeatures: next })
+                            }}
+                            className={cn(
+                              'p-2.5 rounded-lg border flex items-center gap-2 cursor-pointer transition-colors select-none',
+                              checked
+                                ? 'bg-purple-500/15 border-purple-500/40 text-purple-300 font-medium'
+                                : 'bg-card border-border text-muted-foreground hover:bg-accent/40',
+                            )}
+                          >
+                            {checked ? (
+                              <CheckSquare className="size-3.5 text-purple-400 shrink-0" />
+                            ) : (
+                              <Square className="size-3.5 text-muted-foreground/50 shrink-0" />
+                            )}
+                            <span className="text-[11px] truncate">{opt.title}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 5. 碳抵销与信息披露 -> 5大权威文件齐备归档 */}
+                  <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-border">
+                      <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                        <FileCheck className="size-4 text-amber-400" />
+                        5 碳抵销与信息披露 · 权威核查与声明报告归档 (5 份自评归档)
+                      </h4>
+                      <span className="text-[11px] text-amber-400 font-mono font-bold">
+                        已归档 {declareForm.disclosureFiles.length} / 5 份
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
+                      {DISCLOSURE_DOC_OPTIONS.map((opt) => {
+                        const checked = declareForm.disclosureFiles.includes(opt.id)
+                        return (
+                          <div
+                            key={opt.id}
+                            onClick={() => {
+                              const next = checked
+                                ? declareForm.disclosureFiles.filter((x) => x !== opt.id)
+                                : [...declareForm.disclosureFiles, opt.id]
+                              setDeclareForm({ ...declareForm, disclosureFiles: next })
+                            }}
+                            className={cn(
+                              'p-3 rounded-lg border flex flex-col justify-between gap-2 cursor-pointer transition-colors select-none',
+                              checked
+                                ? 'bg-amber-500/15 border-amber-500/40 text-foreground'
+                                : 'bg-card border-border text-muted-foreground hover:bg-accent/40',
+                            )}
+                          >
+                            <div className="flex items-center justify-between">
+                              <FileText className={cn('size-4', checked ? 'text-amber-400' : 'text-muted-foreground')} />
+                              {checked ? (
+                                <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                                  已归档公开
+                                </span>
+                              ) : (
+                                <span className="text-[10px] px-1.5 py-0.2 rounded bg-panel border border-border text-muted-foreground">
+                                  待归档
+                                </span>
+                              )}
+                            </div>
+                            <div>
+                              <span className="font-bold text-xs block text-foreground">{opt.title}</span>
+                              <span className="text-[10.5px] text-muted-foreground block mt-0.5">{opt.desc}</span>
+                            </div>
+                          </div>
                         )
                       })}
                     </div>
@@ -2164,23 +2112,23 @@ export default function ZeroCarbonSelfEvaluationPage() {
 
       {/* 5. 🔍 工厂零碳自评估详情报告 模态框 (面向集团管理方查验与推导溯源) */}
       {factoryDetailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-3 sm:p-5 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-6xl w-full p-5 sm:p-6 flex flex-col gap-3 font-sans max-h-[92vh] overflow-hidden">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3 shrink-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-5 animate-in fade-in duration-150">
+          <div className="bg-popover rounded-2xl shadow-2xl border border-border max-w-6xl w-full p-5 sm:p-6 flex flex-col gap-3 font-sans max-h-[92vh] overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border pb-3 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shrink-0">
+                <div className="size-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
                   <FileText className="size-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900">
+                    <h3 className="text-base font-bold text-foreground">
                       【{factoryDetailModal.factoryName.split('(')[0].trim()}】零碳工厂自评估完整报告
                     </h3>
-                    <span className="text-[11px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold border border-blue-200">
+                    <span className="text-[11px] px-2 py-0.5 rounded bg-primary/15 text-primary font-semibold border border-primary/30">
                       查验归档报告
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
                     所属单位: {factoryDetailModal.company} · 最新申报时间: {factoryDetailModal.declareDate} · 评定填报: {factoryDetailModal.evaluator}
                   </p>
                 </div>
@@ -2189,98 +2137,98 @@ export default function ZeroCarbonSelfEvaluationPage() {
               <button
                 type="button"
                 onClick={() => setFactoryDetailModal(null)}
-                className="size-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                className="size-8 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="size-5" />
               </button>
             </div>
 
-            <div className="border border-slate-200 rounded-xl overflow-y-auto max-h-[calc(92vh-130px)] shadow-2xs custom-scrollbar">
+            <div className="border border-border rounded-xl overflow-y-auto max-h-[calc(92vh-130px)] shadow-xs custom-scrollbar">
               <table className="w-full text-left border-collapse text-xs">
-                <thead className="sticky top-0 z-10 bg-slate-100/95 backdrop-blur-xs shadow-2xs">
-                  <tr className="text-slate-700 font-bold border-b border-slate-200 text-[11px]">
-                    <th className="py-2.5 px-3 w-[110px] min-w-[110px] text-center border-r border-slate-200 whitespace-nowrap">
+                <thead className="sticky top-0 z-10 bg-panel/95 backdrop-blur-sm">
+                  <tr className="text-muted-foreground font-bold border-b border-border text-[11px]">
+                    <th className="py-2.5 px-3 w-[110px] min-w-[110px] text-center border-r border-border whitespace-nowrap">
                       维度类别
                     </th>
-                    <th className="py-2.5 px-3.5 w-[180px] min-w-[170px] border-r border-slate-100 whitespace-nowrap">
+                    <th className="py-2.5 px-3.5 w-[180px] min-w-[170px] border-r border-border/60 whitespace-nowrap">
                       指标代码与名称
                     </th>
-                    <th className="py-2.5 px-3 w-[100px] min-w-[90px] text-center border-r border-slate-100 whitespace-nowrap">
+                    <th className="py-2.5 px-3 w-[100px] min-w-[90px] text-center border-r border-border/60 whitespace-nowrap">
                       取值方式
                     </th>
-                    <th className="py-2.5 px-3.5 min-w-[360px] border-r border-slate-100">
+                    <th className="py-2.5 px-3.5 min-w-[360px] border-r border-border/60">
                       自评取值 / 实际核验状态
                     </th>
                     <th className="py-2.5 px-3.5 min-w-[240px]">核算公式与数学模型</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700 text-[11.5px]">
+                <tbody className="divide-y divide-border/60 text-foreground text-[11.5px]">
                   {/* 1 源头减碳 (3项) */}
                   <tr>
                     <td
                       rowSpan={3}
-                      className="py-3 px-3 text-center font-bold text-slate-900 bg-slate-50/70 border-r border-slate-200 align-middle whitespace-nowrap"
+                      className="py-3 px-3 text-center font-bold text-foreground bg-panel/50 border-r border-border align-middle whitespace-nowrap"
                     >
                       1 源头减碳
                     </td>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">[1.1] 非化石电力消费比例</td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-emerald-700 font-semibold">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60">[1.1] 非化石电力消费比例</td>
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="flex flex-col gap-1">
-                        <span className="font-mono font-bold text-blue-700 text-xs">
+                        <span className="font-mono font-bold text-primary text-xs">
                           {factoryDetailModal.metrics['1.1'].value}%
                         </span>
-                        <div className="text-[10.5px] text-slate-600 bg-slate-50/90 p-1.5 rounded-lg border border-slate-200/80 leading-relaxed font-sans">
+                        <div className="text-[10.5px] text-muted-foreground bg-panel p-1.5 rounded-lg border border-border leading-relaxed font-sans">
                           <div>
-                            <span className="text-slate-400 font-medium">计算参数：</span>
-                            <span className="font-mono">Ee(绿电消纳) = {(factoryDetailModal.metrics['1.1'].value * 128).toFixed(1)} 万kWh</span>，
-                            <span className="font-mono">Et(总用电) = 1,280.0 万kWh</span>
+                            <span className="text-muted-foreground font-medium">计算参数：</span>
+                            <span className="font-mono text-foreground">Ee(绿电消纳) = {(factoryDetailModal.metrics['1.1'].value * 128).toFixed(1)} 万kWh</span>，
+                            <span className="font-mono text-foreground">Et(总用电) = 1,280.0 万kWh</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 font-medium">计算过程：</span>
-                            <span className="font-mono">({(factoryDetailModal.metrics['1.1'].value * 128).toFixed(1)} ÷ 1,280.0) × 100% = </span>
-                            <span className="font-mono font-bold text-blue-700">{factoryDetailModal.metrics['1.1'].value}%</span>
+                            <span className="text-muted-foreground font-medium">计算过程：</span>
+                            <span className="font-mono text-foreground">({(factoryDetailModal.metrics['1.1'].value * 128).toFixed(1)} ÷ 1,280.0) × 100% = </span>
+                            <span className="font-mono font-bold text-primary">{factoryDetailModal.metrics['1.1'].value}%</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
                       Re = (Ee / Et) × 100% (屋顶分布式光伏+采购绿电)
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">[1.2] 节能与低碳改造覆盖率</td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-emerald-700 font-semibold">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60">[1.2] 节能与低碳改造覆盖率</td>
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="flex flex-col gap-1">
-                        <span className="font-mono font-bold text-blue-700 text-xs">
+                        <span className="font-mono font-bold text-primary text-xs">
                           {factoryDetailModal.metrics['1.2'].value}%
                         </span>
-                        <div className="text-[10.5px] text-slate-600 bg-slate-50/90 p-1.5 rounded-lg border border-slate-200/80 leading-relaxed font-sans">
+                        <div className="text-[10.5px] text-muted-foreground bg-panel p-1.5 rounded-lg border border-border leading-relaxed font-sans">
                           <div>
-                            <span className="text-slate-400 font-medium">计算参数：</span>
-                            <span className="font-mono">Ar(已改造工序及设备) = {Math.round(factoryDetailModal.metrics['1.2'].value * 0.6)} 台套</span>，
-                            <span className="font-mono">At(重点设备总数) = 60 台套</span>
+                            <span className="text-muted-foreground font-medium">计算参数：</span>
+                            <span className="font-mono text-foreground">Ar(已改造工序及设备) = {Math.round(factoryDetailModal.metrics['1.2'].value * 0.6)} 台套</span>，
+                            <span className="font-mono text-foreground">At(重点设备总数) = 60 台套</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 font-medium">计算过程：</span>
-                            <span className="font-mono">({Math.round(factoryDetailModal.metrics['1.2'].value * 0.6)} ÷ 60) × 100% = </span>
-                            <span className="font-mono font-bold text-blue-700">{factoryDetailModal.metrics['1.2'].value}%</span>
+                            <span className="text-muted-foreground font-medium">计算过程：</span>
+                            <span className="font-mono text-foreground">({Math.round(factoryDetailModal.metrics['1.2'].value * 0.6)} ÷ 60) × 100% = </span>
+                            <span className="font-mono font-bold text-primary">{factoryDetailModal.metrics['1.2'].value}%</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
                       Rr = (Ar / At) × 100% (主要生产工序及重点设备节能改造)
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">[1.3] 屋顶及建筑光伏利用率</td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-emerald-700 font-semibold">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60">[1.3] 屋顶及建筑光伏利用率</td>
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
                     </td>
                     <td className="py-2.5 px-3.5 border-r border-slate-100">

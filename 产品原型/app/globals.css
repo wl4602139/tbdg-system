@@ -46,57 +46,54 @@
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   --radius: 0.5rem;
 
-  --font-sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  /* Deep tech-blue base (与集采中心完全一致) */
+  --background: oklch(0.16 0.03 250);
+  --foreground: oklch(0.92 0.02 240);
 
-  /* 特变电工官方企业蓝与现代明亮工业底色 (TBEA Official Energy Management System Style) */
-  --background: #f0f2f5;          /* 经典浅灰蓝底色 */
-  --foreground: #1f2937;          /* 高对比度主文本深色 */
+  --panel: oklch(0.22 0.035 250 / 65%);
+  --panel-foreground: oklch(0.92 0.02 240);
 
-  --panel: #ffffff;
-  --panel-foreground: #1f2937;
+  --card: oklch(0.23 0.035 250 / 70%);
+  --card-foreground: oklch(0.92 0.02 240);
 
-  --card: #ffffff;
-  --card-foreground: #1f2937;
+  --popover: oklch(0.2 0.035 252);
+  --popover-foreground: oklch(0.92 0.02 240);
 
-  --popover: #ffffff;
-  --popover-foreground: #1f2937;
+  /* Cyan-blue brand accent */
+  --primary: oklch(0.72 0.15 220);
+  --primary-foreground: oklch(0.14 0.03 250);
 
-  /* 特变企业主色与业务语义色 */
-  --primary: #1677ff;             /* TBEA 标志性皇家科技蓝 */
-  --primary-foreground: #ffffff;
+  --secondary: oklch(0.28 0.04 250);
+  --secondary-foreground: oklch(0.9 0.02 240);
 
-  --secondary: #f1f5f9;
-  --secondary-foreground: #334155;
+  --muted: oklch(0.26 0.03 250);
+  --muted-foreground: oklch(0.68 0.03 235);
 
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
+  --accent: oklch(0.32 0.06 235);
+  --accent-foreground: oklch(0.95 0.02 230);
 
-  --accent: #e6f4ff;             /* 选中浅蓝底色 */
-  --accent-foreground: #0958d9;
+  --destructive: oklch(0.62 0.2 20);
+  --success: oklch(0.72 0.16 155);
+  --warning: oklch(0.78 0.15 75);
 
-  --destructive: #f5222d;         /* 警报红 */
-  --success: #52c41a;             /* 低碳翡翠绿 / 达标绿 */
-  --warning: #fa8c16;             /* 预警橙 */
+  --border: oklch(0.72 0.12 220 / 18%);
+  --input: oklch(0.72 0.12 220 / 22%);
+  --ring: oklch(0.72 0.15 220 / 60%);
+  --grid-line: oklch(0.72 0.12 220 / 10%);
 
-  --border: #e2e8f0;             /* 清晰干净的 1px 分割线 */
-  --input: #d9d9d9;
-  --ring: rgba(22, 119, 255, 0.4);
-  --grid-line: #f1f5f9;
+  --chart-1: oklch(0.72 0.15 220);
+  --chart-2: oklch(0.72 0.16 155);
+  --chart-3: oklch(0.78 0.15 75);
+  --chart-4: oklch(0.68 0.15 300);
+  --chart-5: oklch(0.65 0.18 20);
 
-  --chart-1: #1677ff;             /* 电力/主负荷 - TBEA蓝 */
-  --chart-2: #52c41a;             /* 绿电/光伏 - 清新绿 */
-  --chart-3: #fa8c16;             /* 储能/天然气 - 暖橙 */
-  --chart-4: #13c2c2;             /* 工业水 - 湖蓝 */
-  --chart-5: #722ed1;             /* 蒸汽/压缩空气 - 优雅紫 */
-
-  --sidebar: #0958d9;             /* 左侧经典深蓝背景 */
-  --sidebar-foreground: #ffffff;
-  --sidebar-accent: #1677ff;
-  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar: oklch(0.18 0.03 252 / 80%);
+  --sidebar-foreground: oklch(0.85 0.02 240);
+  --sidebar-accent: oklch(0.32 0.07 225);
+  --sidebar-border: oklch(0.72 0.12 220 / 14%);
 }
 
 @layer base {
@@ -105,39 +102,56 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    background-color: var(--background);
-  }
-  button {
-    -webkit-user-select: none;
-    user-select: none;
-    cursor: pointer;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 }
 
-/* 现代化卡片阴影与边框 */
+/* Tech grid background used across shells */
+.tech-grid {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.tech-radial {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, oklch(0.4 0.12 225 / 45%), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 100% 100%, oklch(0.35 0.1 260 / 35%), transparent 70%);
+}
+
+.glow-border {
+  box-shadow: 0 0 0 1px var(--border), 0 0 24px -8px oklch(0.72 0.15 220 / 40%);
+}
+
+.text-glow {
+  text-shadow: 0 0 24px oklch(0.72 0.2 220 / 55%);
+}
+
+/* 兼容 .tbea-card 为毛玻璃科技卡片 */
 .tbea-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 0 0 oklch(0.8 0.1 220 / 8%) inset;
 }
 
 .tbea-card:hover {
-  border-color: #91caff;
-  box-shadow: 0 2px 8px 0 rgba(22, 119, 255, 0.12);
+  border-color: oklch(0.72 0.15 220 / 50%);
+  box-shadow: 0 0 20px -6px oklch(0.72 0.15 220 / 30%);
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
+  background: oklch(0.72 0.12 220 / 25%);
+  border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: oklch(0.72 0.15 220 / 45%);
 }
 ::-webkit-scrollbar-track {
   background: transparent;
