@@ -65,9 +65,9 @@ export const zeroCarbonNav: NavItem[] = [
     icon: ClipboardCheck,
     children: [
       { title: '项目档案管理', href: '/zero-carbon/project/archive' },
-      { title: '模型管理', href: '/zero-carbon/project/model' },
-      { title: '实时监控与项目效益评估', href: '/zero-carbon/project/benefit' },
-      { title: '零碳园区自评估', href: '/zero-carbon/project/self' },
+      { title: '实时监控', href: '/zero-carbon/project/monitoring' },
+      { title: '项目效益评估', href: '/zero-carbon/project/benefit' },
+      { title: '零碳工厂自评估', href: '/zero-carbon/project/self' },
     ],
   },
   {
@@ -78,20 +78,6 @@ export const zeroCarbonNav: NavItem[] = [
       { title: '用能报表', href: '/zero-carbon/reports/usage' },
       { title: '成本报表', href: '/zero-carbon/reports/cost' },
       { title: '单耗报表', href: '/zero-carbon/reports/unit' },
-      { title: '碳排报表', href: '/zero-carbon/reports/carbon' },
-    ],
-  },
-  {
-    title: '基础配置',
-    href: '/zero-carbon/config',
-    icon: Settings2,
-    children: [
-      { title: '账号权限', href: '/zero-carbon/config/permission' },
-      { title: '碳排因子', href: '/zero-carbon/config/factor' },
-      { title: '费价模型', href: '/zero-carbon/config/price' },
-      { title: '折标煤系数', href: '/zero-carbon/config/convert' },
-      { title: '接口配置管理', href: '/zero-carbon/config/interface' },
-      { title: '数据录入', href: '/zero-carbon/config/entry' },
     ],
   },
 ]

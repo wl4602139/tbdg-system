@@ -4,11 +4,10 @@ import { useState, useMemo } from 'react'
 import {
   Download,
   Calendar,
-  Search,
   FileSpreadsheet,
 } from 'lucide-react'
-import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { cn } from '@/lib/utils'
+import { SearchableUnitSelect } from '@/components/shared/searchable-unit-select'
 
 // 🌟 依据【用能在线监测】统一的能源介质字段模型
 interface UsageRow {
@@ -351,51 +350,65 @@ const ALL_USAGE_ROWS: UsageRow[] = [
 ]
 
 export default function UsageReportPage() {
-  const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
-    id: 'group_root',
-    name: '电装集团',
-    fullName: '电装集团',
-    level: 'group',
-    badge: '全集团',
-  })
-
   // 时间维度与范围
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
   const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
   const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
   const [selectedYear, setSelectedYear] = useState('2026')
 
+  const [companyFilter, setCompanyFilter] = useState<string>('all')
+  const [unitFilter, setUnitFilter] = useState<string>('all')
   const [mediumFilter, setMediumFilter] = useState<'all' | 'elec' | 'gas' | 'water' | 'steam' | 'oil' | 'nitrogen'>('all')
-  const [searchKw, setSearchKw] = useState('')
 
-  // 组织树与关键词联动过滤
+  // 获取所有企业列表
+  const allCompanies = useMemo(() => {
+    return Array.from(new Set(ALL_USAGE_ROWS.map((r) => r.company)))
+  }, [])
+
+  // 联动获取单位列表
+  const availableUnits = useMemo(() => {
+    if (companyFilter === 'all') {
+      return ALL_USAGE_ROWS.map((r) => ({ id: r.unitId, name: r.unitName, company: r.company }))
+    }
+    return ALL_USAGE_ROWS
+      .filter((r) => r.company === companyFilter)
+      .map((r) => ({ id: r.unitId, name: r.unitName, company: r.company }))
+  }, [companyFilter])
+
+  // 联动过滤
   const filteredRows = useMemo(() => {
     let rows = [...ALL_USAGE_ROWS]
 
-    if (selectedNode.id !== 'group_root' && selectedNode.id !== 'ent_root' && selectedNode.id !== 'park_root') {
-      const matchKey = selectedNode.name.slice(0, 2)
-      const matched = rows.filter((r) => {
-        return (
-          r.unitId === selectedNode.id ||
-          r.unitName.includes(selectedNode.name) ||
-          selectedNode.name.includes(r.unitName) ||
-          r.company.includes(matchKey) ||
-          r.unitName.includes(matchKey)
-        )
-      })
-      if (matched.length > 0) {
-        rows = matched
-      } else {
-        rows = rows.filter((r) => r.company.includes(matchKey))
-      }
+    // 1. 企业过滤
+    if (companyFilter !== 'all') {
+      rows = rows.filter((r) => r.company === companyFilter)
     }
 
-    if (searchKw.trim()) {
-      const kw = searchKw.toLowerCase()
-      rows = rows.filter((r) => r.unitName.toLowerCase().includes(kw) || r.company.toLowerCase().includes(kw))
+    // 2. 单位过滤
+    if (unitFilter !== 'all') {
+      rows = rows.filter((r) => r.unitName === unitFilter || r.unitId === unitFilter)
     }
+
     return rows
-  }, [selectedNode, searchKw])
+  }, [companyFilter, unitFilter])
+
+  // 预计算相同公司的 rowSpan 合并信息
+  const companyRowSpans = useMemo(() => {
+    const spans: number[] = []
+    let i = 0
+    while (i < filteredRows.length) {
+      let span = 1
+      while (i + span < filteredRows.length && filteredRows[i + span].company === filteredRows[i].company) {
+        span++
+      }
+      spans[i] = span
+      for (let k = 1; k < span; k++) {
+        spans[i + k] = 0
+      }
+      i += span
+    }
+    return spans
+  }, [filteredRows])
 
   const totals = useMemo(() => {
     const sum = filteredRows.reduce(
@@ -428,136 +441,161 @@ export default function UsageReportPage() {
   }, [filteredRows])
 
   return (
-    <div className="flex gap-3.5 items-start">
-      {/* 左侧 270px 经典工业级拓扑树 */}
-      <StandardOrgTree
-        selectedId={selectedNode.id}
-        onSelect={(node) => setSelectedNode(node)}
-      />
-
-      {/* 右侧主面板 */}
-      <div className="flex-1 min-w-0 flex flex-col gap-3.5">
-        {/* 顶部面包屑与操作栏 */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
-              <FileSpreadsheet className="size-5" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-slate-800">用能报表</h1>
-            </div>
+    <div className="flex flex-col gap-3.5 w-full font-sans">
+      {/* 顶部面包屑与操作栏 */}
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <FileSpreadsheet className="size-5" />
           </div>
-
-          {/* 工具栏 */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* 时间维度切换 */}
-            <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setTimeDim('month')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
-                )}
-              >
-                月度
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimeDim('quarter')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
-                )}
-              >
-                季度
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimeDim('year')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
-                )}
-              >
-                年度
-              </button>
-            </div>
-
-            {/* 时间范围选择控件 */}
-            {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <input
-                  type="month"
-                  value={selectedMonthRange.start}
-                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                  title="起始月份"
-                />
-                <span className="text-slate-400 font-sans">至</span>
-                <input
-                  type="month"
-                  value={selectedMonthRange.end}
-                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                  title="结束月份"
-                />
-              </div>
-            )}
-
-            {timeDim === 'quarter' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <select
-                  value={selectedQuarter}
-                  onChange={(e) => setSelectedQuarter(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-                >
-                  <option value="2026-Q1">2026年 第1季度 (Q1)</option>
-                  <option value="2026-Q2">2026年 第2季度 (Q2)</option>
-                  <option value="2026-Q3">2026年 第3季度 (Q3)</option>
-                  <option value="2026-Q4">2026年 第4季度 (Q4)</option>
-                  <option value="2025-Q4">2025年 第4季度 (Q4)</option>
-                </select>
-              </div>
-            )}
-
-            {timeDim === 'year' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-                >
-                  <option value="2026">2026 年度</option>
-                  <option value="2025">2025 年度</option>
-                  <option value="2024">2024 年度</option>
-                </select>
-              </div>
-            )}
-
-            <button
-              onClick={() => alert(`正在导出【${selectedNode.name}】用能报表 (Excel/PDF)...`)}
-              className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
-            >
-              <Download className="size-3.5" />
-              <span>导出</span>
-            </button>
+          <div>
+            <h1 className="text-base font-bold text-slate-800">用能报表</h1>
           </div>
         </div>
 
-        {/* 主数据报表 */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
-          {/* 操作过滤栏 */}
-          <div className="p-2.5 border-b border-slate-200 bg-[#fafbfc] flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-700">能源介质筛选：</span>
+        {/* 工具栏 */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* 时间维度切换 */}
+          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setTimeDim('month')}
+              className={cn(
+                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              月度
+            </button>
+            <button
+              type="button"
+              onClick={() => setTimeDim('quarter')}
+              className={cn(
+                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              季度
+            </button>
+            <button
+              type="button"
+              onClick={() => setTimeDim('year')}
+              className={cn(
+                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              年度
+            </button>
+          </div>
+
+          {/* 时间范围选择控件 */}
+          {timeDim === 'month' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <input
+                type="month"
+                value={selectedMonthRange.start}
+                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                title="起始月份"
+              />
+              <span className="text-slate-400 font-sans">至</span>
+              <input
+                type="month"
+                value={selectedMonthRange.end}
+                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                title="结束月份"
+              />
+            </div>
+          )}
+
+          {timeDim === 'quarter' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <select
+                value={selectedQuarter}
+                onChange={(e) => setSelectedQuarter(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="2026-Q1">2026年 第1季度 (Q1)</option>
+                <option value="2026-Q2">2026年 第2季度 (Q2)</option>
+                <option value="2026-Q3">2026年 第3季度 (Q3)</option>
+                <option value="2026-Q4">2026年 第4季度 (Q4)</option>
+                <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+              </select>
+            </div>
+          )}
+
+          {timeDim === 'year' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="2026">2026 年度</option>
+                <option value="2025">2025 年度</option>
+                <option value="2024">2024 年度</option>
+              </select>
+            </div>
+          )}
+
+          <button
+            onClick={() => alert('正在导出用能报表 (Excel/PDF)...')}
+            className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+          >
+            <Download className="size-3.5" />
+            <span>导出</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 主数据报表 */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+        {/* 操作过滤栏 */}
+        <div className="p-2.5 border-b border-slate-200 bg-[#fafbfc] flex flex-wrap items-center justify-between gap-3 font-sans">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* 企业下拉筛选 */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属企业：</span>
+              <select
+                value={companyFilter}
+                onChange={(e) => {
+                  setCompanyFilter(e.target.value)
+                  setUnitFilter('all') // 联动重置下属单位
+                }}
+                className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer"
+              >
+                <option value="all">全部所属企业</option>
+                {allCompanies.map((comp) => (
+                  <option key={comp} value={comp}>
+                    {comp}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 单位下拉筛选 (带顶部模糊匹配搜索框，与企业联动) */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属单位：</span>
+              <SearchableUnitSelect
+                options={availableUnits}
+                value={unitFilter}
+                onChange={(val) => setUnitFilter(val)}
+                placeholder="全部所属单位"
+              />
+            </div>
+
+            {/* 能源介质筛选 */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">能源介质：</span>
               <select
                 value={mediumFilter}
                 onChange={(e) => setMediumFilter(e.target.value as any)}
-                className="h-8 px-2.5 text-xs bg-white border border-slate-200 rounded-md text-slate-700 font-medium focus:outline-none focus:border-blue-500 cursor-pointer"
+                className="h-8 px-2.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-700 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer"
               >
                 <option value="all">全部能源介质 (8类)</option>
                 <option value="elec">电力消费 (总电/市电/绿电)</option>
@@ -568,32 +606,21 @@ export default function UsageReportPage() {
                 <option value="nitrogen">液氮消耗</option>
               </select>
             </div>
-
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchKw}
-                  onChange={(e) => setSearchKw(e.target.value)}
-                  placeholder="搜索制造单位/车间..."
-                  className="h-8 pl-8 pr-2.5 text-xs bg-white border border-slate-200 rounded-md text-slate-700 focus:outline-none focus:border-blue-500 w-60"
-                />
-              </div>
-            </div>
           </div>
+        </div>
 
-          {/* 表格区域 */}
-          <div className="overflow-x-auto custom-scrollbar">
-            {filteredRows.length === 0 ? (
-              <div className="p-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
-                <div>所选单位【{selectedNode.name}】暂无用能数据</div>
-              </div>
-            ) : (
+        {/* 表格区域 */}
+        <div className="overflow-x-auto custom-scrollbar">
+          {filteredRows.length === 0 ? (
+            <div className="p-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+              <div>暂无匹配的用能报表数据</div>
+            </div>
+          ) : (
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
-                    <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[160px]">制造单位 / 车间</th>
+                    <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[130px]">企业名称</th>
+                    <th className="py-2.5 px-3 min-w-[150px]">单位名称</th>
                     {(mediumFilter === 'all' || mediumFilter === 'elec') && (
                       <>
                         <th className="py-2.5 px-3 text-right">总用电量 (万kWh)</th>
@@ -625,11 +652,23 @@ export default function UsageReportPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
-                  {filteredRows.map((r) => (
-                    <tr key={r.id} className="hover:bg-blue-50/40 transition-colors">
-                      <td className="py-2.5 px-3 sticky left-0 bg-white font-sans font-semibold text-slate-900">
-                        {r.unitName}
-                      </td>
+                  {filteredRows.map((r, idx) => {
+                    const span = companyRowSpans[idx]
+                    return (
+                      <tr key={r.id} className="hover:bg-blue-50/40 transition-colors">
+                        {span > 0 && (
+                          <td
+                            rowSpan={span}
+                            className="py-2.5 px-3 sticky left-0 bg-slate-50 font-sans font-bold text-slate-800 text-center align-middle border-r border-b border-slate-200 z-10 select-none shadow-[1px_0_0_0_#e2e8f0]"
+                          >
+                            <div className="flex items-center justify-center h-full">
+                              <span className="leading-snug">{r.company}</span>
+                            </div>
+                          </td>
+                        )}
+                        <td className="py-2.5 px-3 font-sans font-semibold text-slate-900 border-b border-slate-100">
+                          {r.unitName}
+                        </td>
                       {(mediumFilter === 'all' || mediumFilter === 'elec') && (
                         <>
                           <td className="py-2.5 px-3 text-right tabular-nums font-bold">
@@ -681,12 +720,12 @@ export default function UsageReportPage() {
                         {r.mom}
                       </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
                 {/* 汇总行 */}
                 <tfoot>
                   <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
-                    <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans">
+                    <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans" colSpan={2}>
                       全集团总计汇总
                     </td>
                     {(mediumFilter === 'all' || mediumFilter === 'elec') && (
@@ -741,7 +780,6 @@ export default function UsageReportPage() {
             )}
           </div>
         </div>
-      </div>
     </div>
   )
 }

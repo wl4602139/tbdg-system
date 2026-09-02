@@ -223,18 +223,17 @@ const PERMISSION_TREE_DATA: PermissionTreeNode[] = [
         ],
       },
       {
-        id: 'menu_project_model',
-        title: '模型管理',
-        code: 'MENU_MODEL',
+        id: 'menu_project_monitoring',
+        title: '实时监控',
+        code: 'MENU_PROJECT_MONITOR',
         actions: [
-          { id: 'proj_model_view', label: '节能量预测模型查阅', code: 'proj:model:view' },
-          { id: 'proj_model_tune', label: '模型算法参数调优', code: 'proj:model:tune' },
-          { id: 'proj_model_pub', label: '模型版本更新发布', code: 'proj:model:publish' },
+          { id: 'proj_mon_view', label: '零碳能源实时出力监视', code: 'proj:mon:view' },
+          { id: 'proj_mon_dev', label: '逆变器与储能设备状态', code: 'proj:mon:device' },
         ],
       },
       {
         id: 'menu_project_benefit',
-        title: '实时监控与项目效益评估',
+        title: '项目效益评估',
         code: 'MENU_BENEFIT',
         actions: [
           { id: 'proj_eval', label: '实时减碳效益核算', code: 'proj:benefit:calc' },
@@ -243,10 +242,10 @@ const PERMISSION_TREE_DATA: PermissionTreeNode[] = [
       },
       {
         id: 'menu_project_self',
-        title: '零碳园区自评估',
+        title: '零碳工厂自评估',
         code: 'MENU_SELF',
         actions: [
-          { id: 'proj_self_score', label: '零碳园区自评估打分评级', code: 'proj:self:score' },
+          { id: 'proj_self_score', label: '零碳工厂自评估打分评级', code: 'proj:self:score' },
           { id: 'proj_self_gap', label: '标准差距诊断分析', code: 'proj:self:gap' },
         ],
       },
@@ -283,15 +282,6 @@ const PERMISSION_TREE_DATA: PermissionTreeNode[] = [
         actions: [
           { id: 'rep_unit', label: '查阅单位产品/产值单耗报表', code: 'rep:unit:view' },
           { id: 'rep_unit_exp', label: '导出单耗报表 Excel', code: 'rep:unit:export' },
-        ],
-      },
-      {
-        id: 'menu_rep_carbon',
-        title: '碳排报表',
-        code: 'MENU_REP_CARBON',
-        actions: [
-          { id: 'rep_carbon', label: '查阅温室气体碳盘查报告', code: 'rep:carbon:view' },
-          { id: 'rep_print', label: '批量打印与 PDF 导出', code: 'rep:print' },
         ],
       },
     ],

@@ -4,10 +4,8 @@ import { useState, useMemo } from 'react'
 import {
   Download,
   Calendar,
-  Search,
   Globe2,
 } from 'lucide-react'
-import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { cn } from '@/lib/utils'
 
 interface CarbonRow {
@@ -278,50 +276,64 @@ const ALL_CARBON_ROWS: CarbonRow[] = [
 ]
 
 export default function CarbonReportPage() {
-  const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
-    id: 'group_root',
-    name: '电装集团',
-    fullName: '电装集团',
-    level: 'group',
-    badge: '全集团',
-  })
-
   // 时间维度与范围
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
   const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
   const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
   const [selectedYear, setSelectedYear] = useState('2026')
 
-  const [searchKw, setSearchKw] = useState('')
+  const [companyFilter, setCompanyFilter] = useState<string>('all')
+  const [unitFilter, setUnitFilter] = useState<string>('all')
 
-  // 组织树与关键词联动过滤
+  // 获取所有企业列表
+  const allCompanies = useMemo(() => {
+    return Array.from(new Set(ALL_CARBON_ROWS.map((r) => r.company)))
+  }, [])
+
+  // 联动获取单位列表
+  const availableUnits = useMemo(() => {
+    if (companyFilter === 'all') {
+      return ALL_CARBON_ROWS.map((r) => ({ id: r.unitId, name: r.unitName, company: r.company }))
+    }
+    return ALL_CARBON_ROWS
+      .filter((r) => r.company === companyFilter)
+      .map((r) => ({ id: r.unitId, name: r.unitName, company: r.company }))
+  }, [companyFilter])
+
+  // 联动过滤
   const filteredRows = useMemo(() => {
     let rows = [...ALL_CARBON_ROWS]
 
-    if (selectedNode.id !== 'group_root' && selectedNode.id !== 'ent_root' && selectedNode.id !== 'park_root') {
-      const matchKey = selectedNode.name.slice(0, 2)
-      const matched = rows.filter((r) => {
-        return (
-          r.unitId === selectedNode.id ||
-          r.unitName.includes(selectedNode.name) ||
-          selectedNode.name.includes(r.unitName) ||
-          r.company.includes(matchKey) ||
-          r.unitName.includes(matchKey)
-        )
-      })
-      if (matched.length > 0) {
-        rows = matched
-      } else {
-        rows = rows.filter((r) => r.company.includes(matchKey))
-      }
+    // 1. 企业过滤
+    if (companyFilter !== 'all') {
+      rows = rows.filter((r) => r.company === companyFilter)
     }
 
-    if (searchKw.trim()) {
-      const kw = searchKw.toLowerCase()
-      rows = rows.filter((r) => r.unitName.toLowerCase().includes(kw) || r.company.toLowerCase().includes(kw))
+    // 2. 单位过滤
+    if (unitFilter !== 'all') {
+      rows = rows.filter((r) => r.unitName === unitFilter || r.unitId === unitFilter)
     }
+
     return rows
-  }, [selectedNode, searchKw])
+  }, [companyFilter, unitFilter])
+
+  // 预计算相同公司的 rowSpan 合并信息
+  const companyRowSpans = useMemo(() => {
+    const spans: number[] = []
+    let i = 0
+    while (i < filteredRows.length) {
+      let span = 1
+      while (i + span < filteredRows.length && filteredRows[i + span].company === filteredRows[i].company) {
+        span++
+      }
+      spans[i] = span
+      for (let k = 1; k < span; k++) {
+        spans[i + k] = 0
+      }
+      i += span
+    }
+    return spans
+  }, [filteredRows])
 
   const totals = useMemo(() => {
     return filteredRows.reduce(
@@ -348,237 +360,263 @@ export default function CarbonReportPage() {
   }, [filteredRows])
 
   return (
-    <div className="flex gap-3.5 items-start">
-      {/* 左侧 270px 经典工业级拓扑树 */}
-      <StandardOrgTree
-        selectedId={selectedNode.id}
-        onSelect={(node) => setSelectedNode(node)}
-      />
-
-      {/* 右侧主面板 */}
-      <div className="flex-1 min-w-0 flex flex-col gap-3.5">
-        {/* 顶部面包屑与操作栏 */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
-              <Globe2 className="size-5" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-slate-800">碳排报表</h1>
-            </div>
+    <div className="flex flex-col gap-3.5 w-full font-sans">
+      {/* 顶部面包屑与操作栏 */}
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <Globe2 className="size-5" />
           </div>
-
-          {/* 工具栏 */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* 时间维度切换 */}
-            <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setTimeDim('month')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
-                )}
-              >
-                月度
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimeDim('quarter')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
-                )}
-              >
-                季度
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimeDim('year')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
-                )}
-              >
-                年度
-              </button>
-            </div>
-
-            {/* 时间范围选择控件 */}
-            {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <input
-                  type="month"
-                  value={selectedMonthRange.start}
-                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                  title="起始月份"
-                />
-                <span className="text-slate-400 font-sans">至</span>
-                <input
-                  type="month"
-                  value={selectedMonthRange.end}
-                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                  title="结束月份"
-                />
-              </div>
-            )}
-
-            {timeDim === 'quarter' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <select
-                  value={selectedQuarter}
-                  onChange={(e) => setSelectedQuarter(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-                >
-                  <option value="2026-Q1">2026年 第1季度 (Q1)</option>
-                  <option value="2026-Q2">2026年 第2季度 (Q2)</option>
-                  <option value="2026-Q3">2026年 第3季度 (Q3)</option>
-                  <option value="2026-Q4">2026年 第4季度 (Q4)</option>
-                  <option value="2025-Q4">2025年 第4季度 (Q4)</option>
-                </select>
-              </div>
-            )}
-
-            {timeDim === 'year' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-                >
-                  <option value="2026">2026 年度</option>
-                  <option value="2025">2025 年度</option>
-                  <option value="2024">2024 年度</option>
-                </select>
-              </div>
-            )}
-
-            <button
-              onClick={() => alert(`正在导出【${selectedNode.name}】碳排履约核算报表 (Excel/PDF)...`)}
-              className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
-            >
-              <Download className="size-3.5" />
-              <span>导出</span>
-            </button>
+          <div>
+            <h1 className="text-base font-bold text-slate-800">碳排报表</h1>
           </div>
         </div>
 
-        {/* 主数据报表 */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
-          {/* 操作搜索栏 */}
-          <div className="p-2.5 border-b border-slate-200 bg-[#fafbfc] flex flex-wrap items-center justify-between gap-3">
-            <div className="text-xs font-bold text-slate-700">
-              制造企业与车间碳排核算明细 ({filteredRows.length}家单位)
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchKw}
-                  onChange={(e) => setSearchKw(e.target.value)}
-                  placeholder="搜索制造单位/车间..."
-                  className="h-8 pl-8 pr-2.5 text-xs bg-white border border-slate-200 rounded-md text-slate-700 focus:outline-none focus:border-blue-500 w-60"
-                />
-              </div>
-            </div>
+        {/* 工具栏 */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* 时间维度切换 */}
+          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setTimeDim('month')}
+              className={cn(
+                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              月度
+            </button>
+            <button
+              type="button"
+              onClick={() => setTimeDim('quarter')}
+              className={cn(
+                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              季度
+            </button>
+            <button
+              type="button"
+              onClick={() => setTimeDim('year')}
+              className={cn(
+                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              年度
+            </button>
           </div>
 
-          {/* 表格区域 */}
-          <div className="overflow-x-auto custom-scrollbar">
-            {filteredRows.length === 0 ? (
-              <div className="p-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
-                <div>所选单位【{selectedNode.name}】暂无碳排数据</div>
-              </div>
-            ) : (
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
-                    <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[160px]">制造单位 / 车间</th>
-                    <th className="py-2.5 px-3 text-right">化石燃料燃烧 (tCO₂)</th>
-                    <th className="py-2.5 px-3 text-right">工业过程排放 (tCO₂)</th>
-                    <th className="py-2.5 px-3 text-right">净购入电力 (tCO₂)</th>
-                    <th className="py-2.5 px-3 text-right">净购入蒸汽 (tCO₂)</th>
-                    <th className="py-2.5 px-3 text-right text-emerald-600 font-bold">光伏/绿电对冲</th>
-                    <th className="py-2.5 px-3 text-right text-emerald-600 font-bold">CCER/碳汇核减</th>
-                    <th className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/50">
-                      净碳排放总量 (tCO₂)
-                    </th>
-                    <th className="py-2.5 px-3 text-center">同比变动</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
-                  {filteredRows.map((r) => (
+          {/* 时间范围选择控件 */}
+          {timeDim === 'month' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <input
+                type="month"
+                value={selectedMonthRange.start}
+                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                title="起始月份"
+              />
+              <span className="text-slate-400 font-sans">至</span>
+              <input
+                type="month"
+                value={selectedMonthRange.end}
+                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                title="结束月份"
+              />
+            </div>
+          )}
+
+          {timeDim === 'quarter' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <select
+                value={selectedQuarter}
+                onChange={(e) => setSelectedQuarter(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="2026-Q1">2026年 第1季度 (Q1)</option>
+                <option value="2026-Q2">2026年 第2季度 (Q2)</option>
+                <option value="2026-Q3">2026年 第3季度 (Q3)</option>
+                <option value="2026-Q4">2026年 第4季度 (Q4)</option>
+                <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+              </select>
+            </div>
+          )}
+
+          {timeDim === 'year' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="2026">2026 年度</option>
+                <option value="2025">2025 年度</option>
+                <option value="2024">2024 年度</option>
+              </select>
+            </div>
+          )}
+
+          <button
+            onClick={() => alert('正在导出碳排履约核算报表 (Excel/PDF)...')}
+            className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+          >
+            <Download className="size-3.5" />
+            <span>导出</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 主数据报表 */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+        {/* 操作搜索栏 */}
+        <div className="p-2.5 border-b border-slate-200 bg-[#fafbfc] flex flex-wrap items-center justify-between gap-3 font-sans">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* 企业下拉筛选 */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属企业：</span>
+              <select
+                value={companyFilter}
+                onChange={(e) => {
+                  setCompanyFilter(e.target.value)
+                  setUnitFilter('all') // 联动重置下属单位
+                }}
+                className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer"
+              >
+                <option value="all">全部所属企业</option>
+                {allCompanies.map((comp) => (
+                  <option key={comp} value={comp}>
+                    {comp}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 单位下拉筛选 (与企业联动) */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属单位：</span>
+              <select
+                value={unitFilter}
+                onChange={(e) => setUnitFilter(e.target.value)}
+                className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs max-w-[220px] cursor-pointer"
+              >
+                <option value="all">全部所属单位</option>
+                {availableUnits.map((u) => (
+                  <option key={u.id} value={u.name}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* 表格区域 */}
+        <div className="overflow-x-auto custom-scrollbar">
+          {filteredRows.length === 0 ? (
+            <div className="p-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+              <div>暂无匹配的碳排报表数据</div>
+            </div>
+          ) : (
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
+                  <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[130px]">企业名称</th>
+                  <th className="py-2.5 px-3 min-w-[150px]">单位名称</th>
+                  <th className="py-2.5 px-3 text-right">化石燃料燃烧 (tCO₂)</th>
+                  <th className="py-2.5 px-3 text-right">工业过程排放 (tCO₂)</th>
+                  <th className="py-2.5 px-3 text-right">净购入电力 (tCO₂)</th>
+                  <th className="py-2.5 px-3 text-right">净购入蒸汽 (tCO₂)</th>
+                  <th className="py-2.5 px-3 text-right text-emerald-600 font-bold">光伏/绿电对冲</th>
+                  <th className="py-2.5 px-3 text-right text-emerald-600 font-bold">CCER/碳汇核减</th>
+                  <th className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/50">
+                    净碳排放总量 (tCO₂)
+                  </th>
+                  <th className="py-2.5 px-3 text-center">同比变动</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
+                {filteredRows.map((r, idx) => {
+                  const span = companyRowSpans[idx]
+                  return (
                     <tr key={r.id} className="hover:bg-blue-50/40 transition-colors">
-                      <td className="py-2.5 px-3 sticky left-0 bg-white font-sans font-semibold text-slate-900">
+                      {span > 0 && (
+                        <td
+                          rowSpan={span}
+                          className="py-2.5 px-3 sticky left-0 bg-slate-50 font-sans font-bold text-slate-800 text-center align-middle border-r border-b border-slate-200 z-10 select-none shadow-[1px_0_0_0_#e2e8f0]"
+                        >
+                          <div className="flex items-center justify-center h-full">
+                            <span className="leading-snug">{r.company}</span>
+                          </div>
+                        </td>
+                      )}
+                      <td className="py-2.5 px-3 font-sans font-semibold text-slate-900 border-b border-slate-100">
                         {r.unitName}
                       </td>
-                      <td className="py-2.5 px-3 text-right tabular-nums">
-                        {r.fossilCombustion.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                      </td>
-                      <td className="py-2.5 px-3 text-right tabular-nums">
-                        {r.processEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                      </td>
-                      <td className="py-2.5 px-3 text-right tabular-nums">
-                        {r.gridElecEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                      </td>
-                      <td className="py-2.5 px-3 text-right tabular-nums">
-                        {r.steamEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                      </td>
-                      <td className="py-2.5 px-3 text-right text-emerald-600 font-bold tabular-nums">
-                        {r.pvGreenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                      </td>
-                      <td className="py-2.5 px-3 text-right text-emerald-600 font-bold tabular-nums">
-                        {r.ccerDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/40 tabular-nums">
-                        {r.netEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                      </td>
-                      <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">
-                        {r.yoy}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                {/* 汇总行 */}
-                <tfoot>
-                  <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
-                    <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans">
-                      全集团总碳排汇总
+                    <td className="py-2.5 px-3 text-right tabular-nums">
+                      {r.fossilCombustion.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                      {totals.fossilCombustion.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    <td className="py-2.5 px-3 text-right tabular-nums">
+                      {r.processEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                      {totals.processEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    <td className="py-2.5 px-3 text-right tabular-nums">
+                      {r.gridElecEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                      {totals.gridElecEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    <td className="py-2.5 px-3 text-right tabular-nums">
+                      {r.steamEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                      {totals.steamEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    <td className="py-2.5 px-3 text-right text-emerald-600 font-bold tabular-nums">
+                      {r.pvGreenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono text-emerald-700 tabular-nums">
-                      {totals.pvGreenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    <td className="py-2.5 px-3 text-right text-emerald-600 font-bold tabular-nums">
+                      {r.ccerDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono text-emerald-700 tabular-nums">
-                      {totals.ccerDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    <td className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/40 tabular-nums">
+                      {r.netEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono text-blue-700 bg-blue-100/60 tabular-nums text-sm">
-                      {totals.netEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">
+                      {r.yoy}
                     </td>
-                    <td className="py-2.5 px-3 text-center text-emerald-700 font-bold">-5.7%</td>
                   </tr>
-                </tfoot>
-              </table>
-            )}
-          </div>
+                )})}
+              </tbody>
+              {/* 汇总行 */}
+              <tfoot>
+                <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
+                  <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans" colSpan={2}>
+                    全集团总碳排汇总
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-mono tabular-nums">
+                    {totals.fossilCombustion.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-mono tabular-nums">
+                    {totals.processEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-mono tabular-nums">
+                    {totals.gridElecEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-mono tabular-nums">
+                    {totals.steamEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-mono text-emerald-700 tabular-nums">
+                    {totals.pvGreenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-mono text-emerald-700 tabular-nums">
+                    {totals.ccerDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-mono text-blue-700 bg-blue-100/60 tabular-nums text-sm">
+                    {totals.netEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                  </td>
+                  <td className="py-2.5 px-3 text-center text-emerald-700 font-bold">-5.7%</td>
+                </tr>
+              </tfoot>
+            </table>
+          )}
         </div>
       </div>
     </div>

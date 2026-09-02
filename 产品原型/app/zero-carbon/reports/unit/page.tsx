@@ -1,159 +1,263 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Download,
   Calendar,
-  Search,
-  Zap,
-  Cable,
-  Layers,
-  RotateCcw,
-  Building2,
-  Factory,
+  Gauge,
+  Info,
+  X,
 } from 'lucide-react'
-import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { cn } from '@/lib/utils'
+import { SearchableUnitSelect } from '@/components/shared/searchable-unit-select'
 
-interface TransformerOrderRow {
+// 🌟 指标管控 10 大核心参数元数据定义（对齐国家级零碳工厂与集团管理要求）
+export interface IndicatorMeta {
+  key: string
+  name: string
+  shortName: string
+  unit: string
+  tag: '国家级零碳工厂' | '公司管理要求'
+  formula: string
+  description: string
+  benchmark: string
+}
+
+export const INDICATOR_METAS: IndicatorMeta[] = [
+  {
+    key: 'totalTce',
+    name: '综合能源消费量',
+    shortName: '综合能耗',
+    unit: 'tce',
+    tag: '国家级零碳工厂',
+    formula: 'E = ∑(Ei × ki)，包含电力、天然气、蒸汽、工业用水、柴油等折标',
+    description: '统计期内组织综合能源消费的总吨标准煤当量，是衡量企业综合耗能水平的基准。',
+    benchmark: '≤ 1,300 tce/月',
+  },
+  {
+    key: 'totalCarbon',
+    name: '总碳排放量',
+    shortName: '总碳排放',
+    unit: 'tCO2',
+    tag: '国家级零碳工厂',
+    formula: 'C = C燃烧 + C过程 + C购入电 - C输出电 + C购入热 - C输出热 - C抵消',
+    description: '涵盖范围1（化石燃料直接燃烧）和范围2（外购电力与蒸汽净碳排放）。',
+    benchmark: '≤ 3,000 tCO2/月',
+  },
+  {
+    key: 'carbonPerTce',
+    name: '单位能耗碳排放',
+    shortName: '能耗碳强度',
+    unit: 'tCO2/tce',
+    tag: '国家级零碳工厂',
+    formula: 'I = C / E（总碳排放量与综合能耗之比，优先采用省级电网电碳因子）',
+    description: '反映能源结构的绿色低碳化程度，绿电绿能使用越多，该值越低。',
+    benchmark: '≤ 2.30 tCO2/tce',
+  },
+  {
+    key: 'nonFossilRatio',
+    name: '非化石能源消费占比',
+    shortName: '非化石占比',
+    unit: '%',
+    tag: '国家级零碳工厂',
+    formula: 'r = (R / E) × 100%（自建绿电 + 外部交易绿电 + 绿证认购等非化石总量/综合能耗）',
+    description: '企业全部非化石绿色能源消费在综合能源总消费中的占比。',
+    benchmark: '≥ 35.0%',
+  },
+  {
+    key: 'physicalGreenRatio',
+    name: '非化石电力物理认购占比',
+    shortName: '物理绿电占比',
+    unit: '%',
+    tag: '国家级零碳工厂',
+    formula: 'Eui = (Ez / Q) × 100%（仅计算厂区自建光伏消纳与专线直供物理可溯源绿电）',
+    description: '具备物理可溯源属性的自发自用绿电占总用电量比例，不含纯凭证类交易。',
+    benchmark: '≥ 25.0%',
+  },
+  {
+    key: 'energyPerNva',
+    name: '单位工业增加值能耗',
+    shortName: '工业增加值能耗',
+    unit: 'tce/万元',
+    tag: '国家级零碳工厂',
+    formula: 'Enva = E / Gnva（综合能源消费量 / 企业工业增加值）',
+    description: '国家工业与信息化部“十四五”能耗双控关键考核指标，体现产出能效质量。',
+    benchmark: '≤ 0.150 tce/万元',
+  },
+  {
+    key: 'energyPerOutput',
+    name: '单位产值能耗',
+    shortName: '产值单耗',
+    unit: 'tce/万元',
+    tag: '公司管理要求',
+    formula: 'g = E / G（综合能源消费量 / 产品总产值）',
+    description: '衡量单位产值消耗的能源总量，用于集团内部车间与产品线纵向横向对标。',
+    benchmark: '≤ 0.058 tce/万元',
+  },
+  {
+    key: 'waterM3',
+    name: '水资源消耗量',
+    shortName: '工业用水量',
+    unit: 't',
+    tag: '公司管理要求',
+    formula: 'W = ∑(工业生产用水 + 循环补水 + 公辅生活水)',
+    description: '统计期内制造单位从市政管网或自备水源取用消耗的全部工业用水总量。',
+    benchmark: '≤ 15,000 t/月',
+  },
+  {
+    key: 'energySavingEquipRatio',
+    name: '节能装备应用占比',
+    shortName: '节能装备占比',
+    unit: '%',
+    tag: '国家级零碳工厂',
+    formula: 'S = (Res / Ets) × 100%（达到或优于国标2级能效的在役装备总额定功率/全部在役功率）',
+    description: '包括高效电机、一级能效空压机、变频热泵、节能变压器等先进绿色装备覆盖率。',
+    benchmark: '≥ 90.0%',
+  },
+  {
+    key: 'carbonFootprintAnalysisRatio',
+    name: '开展产品碳足迹分析占比',
+    shortName: '碳足迹分析占比',
+    unit: '%',
+    tag: '国家级零碳工厂',
+    formula: 'Rcf = (Ncf / N) × 100%（开展LCA生命周期碳足迹建模的产品大类 / 总生产产品大类）',
+    description: '应对欧盟CBAM出海壁垒及国家绿色供应链采购标准的关键支撑能力指标。',
+    benchmark: '≥ 80.0%',
+  },
+]
+
+// 单耗与指标管控行数据模型
+export interface UnitIndicatorRow {
   id: string
   unitId: string
   unitName: string
   company: string
-  model: string
-  capacityMva: number
-  cutStack: number
-  winding: number
-  vacuumDry: number
-  assemblyTest: number
-  unitKwhPerKva: number
-  tcePerUnit: number
-  yoy: string
+  // 10 大管控参数
+  totalTce: number                     // 1. 综合能源消费量 (tce)
+  totalCarbon: number                  // 2. 总碳排放量 (tCO2)
+  carbonPerTce: number                 // 3. 单位能耗碳排放 (tCO2/tce)
+  nonFossilRatio: number               // 4. 非化石能源消费占比 (%)
+  physicalGreenRatio: number           // 5. 非化石电力物理认购占比 (%)
+  energyPerNva: number                 // 6. 单位工业增加值能耗 (tce/万元)
+  energyPerOutput: number              // 7. 单位产值能耗 (tce/万元)
+  waterM3: number                      // 8. 水资源消耗量 (t)
+  energySavingEquipRatio: number       // 9. 节能装备应用占比 (%)
+  carbonFootprintAnalysisRatio: number // 10. 开展产品碳足迹分析占比 (%)
+  // 变动趋势
+  tceYoy: number                       // 综合能耗同比变动 (%)
+  carbonYoy: number                    // 碳排同比变动 (%)
 }
 
-interface CableOrderRow {
-  id: string
-  unitId: string
-  unitName: string
-  company: string
-  model: string
-  lengthKm: number
-  drawing: number
-  stranding: number
-  crosslinking: number
-  sheathing: number
-  unitKwhPerKm: number
-  tcePerKm: number
-  yoy: string
-}
-
-// ⚡ 变压器产业产品单耗台账 (覆盖沈变、衡变、新变及其全部二级/车间单位)
-const ALL_TRANSFORMER_ROWS: TransformerOrderRow[] = [
+// 🏭 特变电工 6 大重点制造企业 17 个单位/车间 单耗与指标管控全量台账
+const ALL_UNIT_ROWS: UnitIndicatorRow[] = [
   // --- 1. 沈变公司 ---
   {
     id: 'SB-01',
     unitId: 'ws_sb_main',
     unitName: '沈变本部',
     company: '沈变公司',
-    model: 'ODFS-334MVA/500kV 单相自耦变压器',
-    capacityMva: 334.0,
-    cutStack: 12450,
-    winding: 8320,
-    vacuumDry: 58400,
-    assemblyTest: 26830,
-    unitKwhPerKva: 0.317,
-    tcePerUnit: 13.02,
-    yoy: '-6.2%',
+    totalTce: 1284.5,
+    totalCarbon: 2946.8,
+    carbonPerTce: 2.294,
+    nonFossilRatio: 38.6,
+    physicalGreenRatio: 27.8,
+    energyPerNva: 0.1425,
+    energyPerOutput: 0.0553,
+    waterM3: 15480,
+    energySavingEquipRatio: 92.4,
+    carbonFootprintAnalysisRatio: 85.7,
+    tceYoy: -4.8,
+    carbonYoy: -5.4,
   },
   {
     id: 'SB-02',
-    unitId: 'ws_sb_main',
-    unitName: '沈变本部',
-    company: '沈变公司',
-    model: 'SSP-840MVA/500kV 三相升压变压器',
-    capacityMva: 840.0,
-    cutStack: 28400,
-    winding: 19800,
-    vacuumDry: 142000,
-    assemblyTest: 68800,
-    unitKwhPerKva: 0.308,
-    tcePerUnit: 31.85,
-    yoy: '-7.2%',
-  },
-  {
-    id: 'SB-03',
     unitId: 'ws_sb_luna',
     unitName: '露娜公司 (特变电工露娜智能)',
     company: '沈变公司',
-    model: 'LN-ZB-110kV 智能变电站集成柜变',
-    capacityMva: 63.0,
-    cutStack: 2400,
-    winding: 1680,
-    vacuumDry: 11200,
-    assemblyTest: 5320,
-    unitKwhPerKva: 0.327,
-    tcePerUnit: 2.53,
-    yoy: '-5.1%',
+    totalTce: 312.4,
+    totalCarbon: 685.2,
+    carbonPerTce: 2.193,
+    nonFossilRatio: 42.5,
+    physicalGreenRatio: 31.2,
+    energyPerNva: 0.1280,
+    energyPerOutput: 0.0482,
+    waterM3: 3820,
+    energySavingEquipRatio: 95.0,
+    carbonFootprintAnalysisRatio: 90.0,
+    tceYoy: -5.2,
+    carbonYoy: -6.1,
   },
   {
-    id: 'SB-04',
+    id: 'SB-03',
     unitId: 'ws_sb_zh',
     unitName: '智慧能源',
     company: '沈变公司',
-    model: 'ZH-PV-3150kVA 光伏箱式升压变',
-    capacityMva: 3.15,
-    cutStack: 210,
-    winding: 155,
-    vacuumDry: 620,
-    assemblyTest: 295,
-    unitKwhPerKva: 0.406,
-    tcePerUnit: 0.16,
-    yoy: '-4.8%',
+    totalTce: 185.0,
+    totalCarbon: 398.6,
+    carbonPerTce: 2.155,
+    nonFossilRatio: 45.8,
+    physicalGreenRatio: 35.0,
+    energyPerNva: 0.1150,
+    energyPerOutput: 0.0420,
+    waterM3: 1950,
+    energySavingEquipRatio: 96.5,
+    carbonFootprintAnalysisRatio: 80.0,
+    tceYoy: -6.0,
+    carbonYoy: -7.2,
   },
   {
-    id: 'SB-05',
+    id: 'SB-04',
     unitId: 'ws_sb_hx',
     unitName: '和新套管公司',
     company: '沈变公司',
-    model: 'HX-B-500kV 环氧玻纤复合绝缘套管',
-    capacityMva: 10.0,
-    cutStack: 180,
-    winding: 140,
-    vacuumDry: 1850,
-    assemblyTest: 860,
-    unitKwhPerKva: 0.303,
-    tcePerUnit: 0.37,
-    yoy: '-5.8%',
+    totalTce: 245.8,
+    totalCarbon: 562.4,
+    carbonPerTce: 2.288,
+    nonFossilRatio: 36.5,
+    physicalGreenRatio: 25.4,
+    energyPerNva: 0.1520,
+    energyPerOutput: 0.0610,
+    waterM3: 2860,
+    energySavingEquipRatio: 89.0,
+    carbonFootprintAnalysisRatio: 75.0,
+    tceYoy: -3.8,
+    carbonYoy: -4.5,
   },
   {
-    id: 'SB-06',
+    id: 'SB-05',
     unitId: 'ws_sb_kj',
     unitName: '康嘉互感器',
     company: '沈变公司',
-    model: 'KJ-LV-500kV 倒置式油浸电流互感器',
-    capacityMva: 8.0,
-    cutStack: 140,
-    winding: 110,
-    vacuumDry: 1520,
-    assemblyTest: 710,
-    unitKwhPerKva: 0.310,
-    tcePerUnit: 0.30,
-    yoy: '-4.2%',
+    totalTce: 198.2,
+    totalCarbon: 450.8,
+    carbonPerTce: 2.274,
+    nonFossilRatio: 35.2,
+    physicalGreenRatio: 24.1,
+    energyPerNva: 0.1480,
+    energyPerOutput: 0.0590,
+    waterM3: 2120,
+    energySavingEquipRatio: 88.5,
+    carbonFootprintAnalysisRatio: 70.0,
+    tceYoy: -4.1,
+    carbonYoy: -4.9,
   },
   {
-    id: 'SB-07',
+    id: 'SB-06',
     unitId: 'ws_sb_yn',
     unitName: '印能公司',
     company: '沈变公司',
-    model: 'YN-SC-1250kVA 高效特种工业整流变',
-    capacityMva: 1.25,
-    cutStack: 95,
-    winding: 75,
-    vacuumDry: 310,
-    assemblyTest: 145,
-    unitKwhPerKva: 0.500,
-    tcePerUnit: 0.08,
-    yoy: '-3.9%',
+    totalTce: 142.6,
+    totalCarbon: 326.8,
+    carbonPerTce: 2.292,
+    nonFossilRatio: 34.0,
+    physicalGreenRatio: 22.8,
+    energyPerNva: 0.1560,
+    energyPerOutput: 0.0635,
+    waterM3: 1680,
+    energySavingEquipRatio: 87.0,
+    carbonFootprintAnalysisRatio: 66.7,
+    tceYoy: -3.5,
+    carbonYoy: -4.0,
   },
 
   // --- 2. 衡变公司 ---
@@ -162,741 +266,763 @@ const ALL_TRANSFORMER_ROWS: TransformerOrderRow[] = [
     unitId: 'ws_hb_main',
     unitName: '衡变本部',
     company: '衡变公司',
-    model: 'SFP-240MVA/220kV 三相三线电力变',
-    capacityMva: 240.0,
-    cutStack: 8900,
-    winding: 6120,
-    vacuumDry: 41200,
-    assemblyTest: 19780,
-    unitKwhPerKva: 0.316,
-    tcePerUnit: 9.34,
-    yoy: '-6.5%',
+    totalTce: 1180.2,
+    totalCarbon: 2725.6,
+    carbonPerTce: 2.309,
+    nonFossilRatio: 37.2,
+    physicalGreenRatio: 26.5,
+    energyPerNva: 0.1450,
+    energyPerOutput: 0.0568,
+    waterM3: 14200,
+    energySavingEquipRatio: 91.8,
+    carbonFootprintAnalysisRatio: 83.3,
+    tceYoy: -5.0,
+    carbonYoy: -5.8,
   },
   {
     id: 'HB-02',
-    unitId: 'ws_hb_main',
-    unitName: '衡变本部',
+    unitId: 'ws_hb_yj',
+    unitName: '云集高压开关',
     company: '衡变公司',
-    model: 'OSFPSZ-334MVA/500kV 特高压自耦变',
-    capacityMva: 334.0,
-    cutStack: 12200,
-    winding: 8100,
-    vacuumDry: 57800,
-    assemblyTest: 26400,
-    unitKwhPerKva: 0.313,
-    tcePerUnit: 12.85,
-    yoy: '-6.8%',
+    totalTce: 286.4,
+    totalCarbon: 642.0,
+    carbonPerTce: 2.242,
+    nonFossilRatio: 39.5,
+    physicalGreenRatio: 28.0,
+    energyPerNva: 0.1360,
+    energyPerOutput: 0.0515,
+    waterM3: 3450,
+    energySavingEquipRatio: 93.0,
+    carbonFootprintAnalysisRatio: 78.5,
+    tceYoy: -4.6,
+    carbonYoy: -5.2,
   },
   {
     id: 'HB-03',
-    unitId: 'ws_hb_kg',
-    unitName: '云集高压开关',
+    unitId: 'ws_hb_nf',
+    unitName: '南方电抗',
     company: '衡变公司',
-    model: 'YJ-GIS-220kV 气体绝缘组合开关本体变',
-    capacityMva: 40.0,
-    cutStack: 1600,
-    winding: 1100,
-    vacuumDry: 7200,
-    assemblyTest: 3400,
-    unitKwhPerKva: 0.333,
-    tcePerUnit: 1.63,
-    yoy: '-5.0%',
-  },
-  {
-    id: 'HB-04',
-    unitId: 'ws_hb_nj',
-    unitName: '南京电研',
-    company: '衡变公司',
-    model: 'NJ-DY-110kV 智能微电网主变压器',
-    capacityMva: 50.0,
-    cutStack: 1950,
-    winding: 1350,
-    vacuumDry: 8600,
-    assemblyTest: 3900,
-    unitKwhPerKva: 0.316,
-    tcePerUnit: 1.94,
-    yoy: '-5.6%',
-  },
-  {
-    id: 'HB-05',
-    unitId: 'ws_hb_hn',
-    unitName: '湖南电气',
-    company: '衡变公司',
-    model: 'HN-DQ-35kV 矿用隔爆移动变电站',
-    capacityMva: 4.0,
-    cutStack: 260,
-    winding: 190,
-    vacuumDry: 950,
-    assemblyTest: 460,
-    unitKwhPerKva: 0.465,
-    tcePerUnit: 0.23,
-    yoy: '-4.1%',
+    totalTce: 232.0,
+    totalCarbon: 528.4,
+    carbonPerTce: 2.278,
+    nonFossilRatio: 36.8,
+    physicalGreenRatio: 25.6,
+    energyPerNva: 0.1490,
+    energyPerOutput: 0.0582,
+    waterM3: 2640,
+    energySavingEquipRatio: 90.5,
+    carbonFootprintAnalysisRatio: 72.0,
+    tceYoy: -4.2,
+    carbonYoy: -4.7,
   },
 
   // --- 3. 新变厂 ---
   {
     id: 'XB-01',
-    unitId: 'ws_xb_uhv',
-    unitName: '超高压公司',
+    unitId: 'ws_xb_main',
+    unitName: '新疆变压器厂',
     company: '新变厂',
-    model: 'SZ11-50MVA/110kV 有载调压变',
-    capacityMva: 50.0,
-    cutStack: 2100,
-    winding: 1450,
-    vacuumDry: 8900,
-    assemblyTest: 4050,
-    unitKwhPerKva: 0.330,
-    tcePerUnit: 2.03,
-    yoy: '-4.3%',
+    totalTce: 1360.5,
+    totalCarbon: 3180.2,
+    carbonPerTce: 2.338,
+    nonFossilRatio: 35.8,
+    physicalGreenRatio: 25.0,
+    energyPerNva: 0.1495,
+    energyPerOutput: 0.0586,
+    waterM3: 16800,
+    energySavingEquipRatio: 90.2,
+    carbonFootprintAnalysisRatio: 81.5,
+    tceYoy: -4.4,
+    carbonYoy: -5.0,
   },
   {
     id: 'XB-02',
-    unitId: 'ws_xb_uhv',
-    unitName: '超高压公司',
-    company: '新变厂',
-    model: 'S13-M-20000kVA 节能油浸式电力变',
-    capacityMva: 20.0,
-    cutStack: 880,
-    winding: 620,
-    vacuumDry: 3800,
-    assemblyTest: 1750,
-    unitKwhPerKva: 0.353,
-    tcePerUnit: 0.87,
-    yoy: '-5.2%',
-  },
-  {
-    id: 'XB-03',
     unitId: 'ws_xb_tb',
     unitName: '天变公司',
     company: '新变厂',
-    model: 'SCB13-1600kVA 环氧树脂干式变',
-    capacityMva: 1.6,
-    cutStack: 120,
-    winding: 95,
-    vacuumDry: 380,
-    assemblyTest: 185,
-    unitKwhPerKva: 0.487,
-    tcePerUnit: 0.12,
-    yoy: '-5.4%',
+    totalTce: 620.4,
+    totalCarbon: 1425.0,
+    carbonPerTce: 2.297,
+    nonFossilRatio: 38.0,
+    physicalGreenRatio: 26.8,
+    energyPerNva: 0.1410,
+    energyPerOutput: 0.0545,
+    waterM3: 7200,
+    energySavingEquipRatio: 92.0,
+    carbonFootprintAnalysisRatio: 76.0,
+    tceYoy: -4.7,
+    carbonYoy: -5.5,
   },
-  {
-    id: 'XB-04',
-    unitId: 'ws_xb_tb',
-    unitName: '天变公司',
-    company: '新变厂',
-    model: 'SCB14-2500kVA 一级能效干式变',
-    capacityMva: 2.5,
-    cutStack: 165,
-    winding: 130,
-    vacuumDry: 510,
-    assemblyTest: 245,
-    unitKwhPerKva: 0.420,
-    tcePerUnit: 0.13,
-    yoy: '-6.0%',
-  },
-  {
-    id: 'XB-05',
-    unitId: 'ws_xb_zndq',
-    unitName: '智能电气公司',
-    company: '新变厂',
-    model: 'ZN-XB-630kVA 预装式智能欧式箱变',
-    capacityMva: 0.63,
-    cutStack: 55,
-    winding: 42,
-    vacuumDry: 160,
-    assemblyTest: 78,
-    unitKwhPerKva: 0.532,
-    tcePerUnit: 0.04,
-    yoy: '-3.8%',
-  },
-]
 
-// 🔌 线缆产业产品单耗台账 (覆盖鲁缆、新缆、德缆及其全部车间单位)
-const ALL_CABLE_ROWS: CableOrderRow[] = [
-  // --- 1. 鲁缆公司 ---
+  // --- 4. 鲁缆公司 ---
   {
     id: 'LL-01',
     unitId: 'ws_ll_main',
     unitName: '鲁缆本部',
     company: '鲁缆公司',
-    model: 'YJLW03-64/110kV 1x1200mm² 高压交联电缆',
-    lengthKm: 120.0,
-    drawing: 14200,
-    stranding: 9800,
-    crosslinking: 82400,
-    sheathing: 38600,
-    unitKwhPerKm: 1.208,
-    tcePerKm: 0.18,
-    yoy: '-6.1%',
+    totalTce: 980.6,
+    totalCarbon: 2280.4,
+    carbonPerTce: 2.325,
+    nonFossilRatio: 36.2,
+    physicalGreenRatio: 24.9,
+    energyPerNva: 0.1465,
+    energyPerOutput: 0.0572,
+    waterM3: 11500,
+    energySavingEquipRatio: 91.0,
+    carbonFootprintAnalysisRatio: 84.0,
+    tceYoy: -4.9,
+    carbonYoy: -5.6,
   },
   {
     id: 'LL-02',
-    unitId: 'ws_ll_main',
-    unitName: '鲁缆本部',
+    unitId: 'ws_ll_fj',
+    unitName: '电缆附件厂',
     company: '鲁缆公司',
-    model: 'YJV22-8.7/15kV 3x300mm² 铠装中压电缆',
-    lengthKm: 210.0,
-    drawing: 16800,
-    stranding: 11400,
-    crosslinking: 89000,
-    sheathing: 41200,
-    unitKwhPerKm: 0.754,
-    tcePerKm: 0.11,
-    yoy: '-5.5%',
+    totalTce: 215.8,
+    totalCarbon: 486.2,
+    carbonPerTce: 2.253,
+    nonFossilRatio: 38.8,
+    physicalGreenRatio: 27.2,
+    energyPerNva: 0.1380,
+    energyPerOutput: 0.0520,
+    waterM3: 2480,
+    energySavingEquipRatio: 92.5,
+    carbonFootprintAnalysisRatio: 74.0,
+    tceYoy: -4.3,
+    carbonYoy: -5.1,
   },
   {
     id: 'LL-03',
-    unitId: 'ws_ll_zl',
-    unitName: '智缆公司',
+    unitId: 'ws_ll_yg',
+    unitName: '阳光公司',
     company: '鲁缆公司',
-    model: 'ZL-B1-0.6/1kV 4x120mm² 阻燃智能矿物绝缘电缆',
-    lengthKm: 95.0,
-    drawing: 7600,
-    stranding: 5200,
-    crosslinking: 39500,
-    sheathing: 18800,
-    unitKwhPerKm: 0.748,
-    tcePerKm: 0.11,
-    yoy: '-4.9%',
-  },
-  {
-    id: 'LL-04',
-    unitId: 'ws_ll_sg',
-    unitName: '曙光公司',
-    company: '鲁缆公司',
-    model: 'SG-JKLYJ-10kV 1x185mm² 架空绝缘线',
-    lengthKm: 320.0,
-    drawing: 19800,
-    stranding: 13500,
-    crosslinking: 98000,
-    sheathing: 44000,
-    unitKwhPerKm: 0.548,
-    tcePerKm: 0.08,
-    yoy: '-5.2%',
-  },
-  {
-    id: 'LL-05',
-    unitId: 'ws_ll_sw',
-    unitName: '昭和公司',
-    company: '鲁缆公司',
-    model: 'ZH-DC-1500V 1x70mm² 光伏专用直流电缆',
-    lengthKm: 180.0,
-    drawing: 9200,
-    stranding: 6400,
-    crosslinking: 51200,
-    sheathing: 24300,
-    unitKwhPerKm: 0.506,
-    tcePerKm: 0.08,
-    yoy: '-4.6%',
+    totalTce: 178.4,
+    totalCarbon: 395.0,
+    carbonPerTce: 2.214,
+    nonFossilRatio: 41.2,
+    physicalGreenRatio: 30.5,
+    energyPerNva: 0.1290,
+    energyPerOutput: 0.0495,
+    waterM3: 1890,
+    energySavingEquipRatio: 94.0,
+    carbonFootprintAnalysisRatio: 80.0,
+    tceYoy: -5.5,
+    carbonYoy: -6.4,
   },
 
-  // --- 2. 新缆厂 ---
+  // --- 5. 新缆厂 ---
   {
     id: 'XL-01',
     unitId: 'ws_xl_main',
-    unitName: '特变电工新疆电缆有限公司',
+    unitName: '特变电工新疆线缆有限公司',
     company: '新缆厂',
-    model: 'JKLYJ-10kV 1x240mm² 架空绝缘导线',
-    lengthKm: 280.0,
-    drawing: 18500,
-    stranding: 12400,
-    crosslinking: 95000,
-    sheathing: 42000,
-    unitKwhPerKm: 0.599,
-    tcePerKm: 0.09,
-    yoy: '-5.8%',
+    totalTce: 720.5,
+    totalCarbon: 1685.0,
+    carbonPerTce: 2.339,
+    nonFossilRatio: 35.5,
+    physicalGreenRatio: 24.5,
+    energyPerNva: 0.1480,
+    energyPerOutput: 0.0579,
+    waterM3: 8650,
+    energySavingEquipRatio: 90.8,
+    carbonFootprintAnalysisRatio: 82.0,
+    tceYoy: -4.5,
+    carbonYoy: -5.2,
   },
   {
     id: 'XL-02',
-    unitId: 'ws_xl_main',
-    unitName: '特变电工新疆电缆有限公司',
-    company: '新缆厂',
-    model: 'JL/G1A-630/45 钢芯铝绞线 (特高压大截面导线)',
-    lengthKm: 450.0,
-    drawing: 28600,
-    stranding: 21200,
-    crosslinking: 124000,
-    sheathing: 53000,
-    unitKwhPerKm: 0.504,
-    tcePerKm: 0.08,
-    yoy: '-6.4%',
-  },
-  {
-    id: 'XL-03',
     unitId: 'ws_xl_sub',
-    unitName: '特变电工新疆线缆厂',
+    unitName: '特变电工新缆线缆厂',
     company: '新缆厂',
-    model: 'YJV-0.6/1kV 5x16mm² 铜芯交联聚乙烯电缆',
-    lengthKm: 140.0,
-    drawing: 6800,
-    stranding: 4600,
-    crosslinking: 38500,
-    sheathing: 17200,
-    unitKwhPerKm: 0.479,
-    tcePerKm: 0.07,
-    yoy: '-4.7%',
+    totalTce: 345.2,
+    totalCarbon: 798.5,
+    carbonPerTce: 2.313,
+    nonFossilRatio: 37.0,
+    physicalGreenRatio: 26.0,
+    energyPerNva: 0.1430,
+    energyPerOutput: 0.0550,
+    waterM3: 4120,
+    energySavingEquipRatio: 91.5,
+    carbonFootprintAnalysisRatio: 75.0,
+    tceYoy: -4.8,
+    carbonYoy: -5.5,
   },
 
-  // --- 3. 德缆公司 ---
+  // --- 6. 德缆公司 ---
   {
     id: 'DL-01',
     unitId: 'ws_dl_main',
     unitName: '特变电工（德阳）电缆股份有限公司',
     company: '德缆公司',
-    model: 'WDZ-YJY-0.6/1kV 4x185mm² 低烟无卤电力电缆',
-    lengthKm: 160.0,
-    drawing: 11200,
-    stranding: 8300,
-    crosslinking: 64000,
-    sheathing: 29500,
-    unitKwhPerKm: 0.706,
-    tcePerKm: 0.11,
-    yoy: '-4.5%',
-  },
-  {
-    id: 'DL-02',
-    unitId: 'ws_dl_main',
-    unitName: '特变电工（德阳）电缆股份有限公司',
-    company: '德缆公司',
-    model: 'NH-YJV-0.6/1kV 4x95mm² 矿用耐火电力电缆',
-    lengthKm: 110.0,
-    drawing: 7400,
-    stranding: 5100,
-    crosslinking: 43200,
-    sheathing: 20100,
-    unitKwhPerKm: 0.689,
-    tcePerKm: 0.10,
-    yoy: '-5.0%',
+    totalTce: 680.0,
+    totalCarbon: 1560.0,
+    carbonPerTce: 2.294,
+    nonFossilRatio: 38.2,
+    physicalGreenRatio: 27.0,
+    energyPerNva: 0.1405,
+    energyPerOutput: 0.0540,
+    waterM3: 7850,
+    energySavingEquipRatio: 92.2,
+    carbonFootprintAnalysisRatio: 85.0,
+    tceYoy: -4.7,
+    carbonYoy: -5.4,
   },
 ]
 
 export default function UnitReportPage() {
-  const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
-    id: 'group_root',
-    name: '电装集团',
-    fullName: '电装集团',
-    level: 'group',
-    badge: '全集团',
-  })
-
-  // 时间维度与范围 (参照图2样式)
+  // 时间维度与范围
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
   const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
   const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
   const [selectedYear, setSelectedYear] = useState('2026')
 
-  const [activeTab, setActiveTab] = useState<'transformer' | 'cable'>('transformer')
-  const [searchKw, setSearchKw] = useState('')
+  // 级联筛选条件
+  const [companyFilter, setCompanyFilter] = useState<string>('all')
+  const [unitFilter, setUnitFilter] = useState<string>('all')
 
-  // 🌟 当左侧拓扑树切换选中节点时，智能自动匹配 Tab
-  useEffect(() => {
-    if (selectedNode.id === 'group_root' || selectedNode.id === 'ent_root' || selectedNode.id === 'park_root') {
-      return
+  // 指标详情弹窗状态
+  const [selectedIndicator, setSelectedIndicator] = useState<IndicatorMeta | null>(null)
+  const [selectedRowDetail, setSelectedRowDetail] = useState<{ row: UnitIndicatorRow; indicator: IndicatorMeta } | null>(null)
+
+  // 提取企业列表
+  const allCompanies = useMemo(() => {
+    return Array.from(new Set(ALL_UNIT_ROWS.map((r) => r.company)))
+  }, [])
+
+  // 根据当前企业级联获取所属单位列表
+  const availableUnits = useMemo(() => {
+    if (companyFilter === 'all') {
+      return ALL_UNIT_ROWS.map((r) => ({ id: r.unitId, name: r.unitName, company: r.company }))
     }
-    const nodeName = selectedNode.name
-    const nodeId = selectedNode.id
+    return ALL_UNIT_ROWS
+      .filter((r) => r.company === companyFilter)
+      .map((r) => ({ id: r.unitId, name: r.unitName, company: r.company }))
+  }, [companyFilter])
 
-    // 线缆相关节点自动切换到线缆报表
-    if (
-      nodeName.includes('缆') ||
-      nodeName.includes('线') ||
-      nodeId.includes('ll') ||
-      nodeId.includes('xl') ||
-      nodeId.includes('dl')
-    ) {
-      setActiveTab('cable')
-    }
-    // 变压器相关节点自动切换到变压器报表
-    else if (
-      nodeName.includes('变') ||
-      nodeName.includes('套管') ||
-      nodeName.includes('互感器') ||
-      nodeName.includes('开关') ||
-      nodeName.includes('超高压') ||
-      nodeId.includes('sb') ||
-      nodeId.includes('hb') ||
-      nodeId.includes('xb')
-    ) {
-      setActiveTab('transformer')
-    }
-  }, [selectedNode])
+  // 级联过滤表格行
+  const filteredRows = useMemo(() => {
+    let rows = [...ALL_UNIT_ROWS]
 
-  // 组织树与关键词联动过滤 - 变压器
-  const filteredTransOrders = useMemo(() => {
-    let rows = [...ALL_TRANSFORMER_ROWS]
-
-    // 组织树联动
-    if (selectedNode.id !== 'group_root' && selectedNode.id !== 'ent_root' && selectedNode.id !== 'park_root') {
-      const matchKey = selectedNode.name.slice(0, 2)
-      const matched = rows.filter((r) => {
-        return (
-          r.unitId === selectedNode.id ||
-          r.unitName.includes(selectedNode.name) ||
-          selectedNode.name.includes(r.unitName) ||
-          r.company.includes(matchKey) ||
-          r.unitName.includes(matchKey)
-        )
-      })
-      if (matched.length > 0) {
-        rows = matched
-      } else {
-        // 如果是在变压器产业，但当前选的是线缆单位，显示空或提示
-        rows = rows.filter((r) => r.company.includes(matchKey))
-      }
+    // 1. 企业过滤
+    if (companyFilter !== 'all') {
+      rows = rows.filter((r) => r.company === companyFilter)
     }
 
-    if (searchKw.trim()) {
-      const kw = searchKw.toLowerCase()
-      rows = rows.filter((r) => r.model.toLowerCase().includes(kw) || r.unitName.toLowerCase().includes(kw))
+    // 2. 单位过滤
+    if (unitFilter !== 'all') {
+      rows = rows.filter((r) => r.unitName === unitFilter || r.unitId === unitFilter)
     }
+
     return rows
-  }, [selectedNode, searchKw])
+  }, [companyFilter, unitFilter])
 
-  // 组织树与关键词联动过滤 - 线缆
-  const filteredCableOrders = useMemo(() => {
-    let rows = [...ALL_CABLE_ROWS]
-
-    // 组织树联动
-    if (selectedNode.id !== 'group_root' && selectedNode.id !== 'ent_root' && selectedNode.id !== 'park_root') {
-      const matchKey = selectedNode.name.slice(0, 2)
-      const matched = rows.filter((r) => {
-        return (
-          r.unitId === selectedNode.id ||
-          r.unitName.includes(selectedNode.name) ||
-          selectedNode.name.includes(r.unitName) ||
-          r.company.includes(matchKey) ||
-          r.unitName.includes(matchKey)
-        )
-      })
-      if (matched.length > 0) {
-        rows = matched
-      } else {
-        rows = rows.filter((r) => r.company.includes(matchKey))
+  // 预计算相同公司的 rowSpan 合并信息
+  const companyRowSpans = useMemo(() => {
+    const spans: number[] = []
+    let i = 0
+    while (i < filteredRows.length) {
+      let span = 1
+      while (i + span < filteredRows.length && filteredRows[i + span].company === filteredRows[i].company) {
+        span++
       }
+      spans[i] = span
+      for (let k = 1; k < span; k++) {
+        spans[i + k] = 0
+      }
+      i += span
     }
+    return spans
+  }, [filteredRows])
 
-    if (searchKw.trim()) {
-      const kw = searchKw.toLowerCase()
-      rows = rows.filter((r) => r.model.toLowerCase().includes(kw) || r.unitName.toLowerCase().includes(kw))
+  // 汇总与加权平均统计
+  const totals = useMemo(() => {
+    const sum = filteredRows.reduce(
+      (acc, r) => {
+        acc.totalTce += r.totalTce
+        acc.totalCarbon += r.totalCarbon
+        acc.waterM3 += r.waterM3
+        // 加权累加
+        acc.weightedNonFossil += r.nonFossilRatio * r.totalTce
+        acc.weightedPhysical += r.physicalGreenRatio * r.totalTce
+        acc.weightedEnva += r.energyPerNva * r.totalTce
+        acc.weightedOutput += r.energyPerOutput * r.totalTce
+        acc.weightedEquip += r.energySavingEquipRatio * r.totalTce
+        acc.weightedFootprint += r.carbonFootprintAnalysisRatio * r.totalTce
+        return acc
+      },
+      {
+        totalTce: 0,
+        totalCarbon: 0,
+        waterM3: 0,
+        weightedNonFossil: 0,
+        weightedPhysical: 0,
+        weightedEnva: 0,
+        weightedOutput: 0,
+        weightedEquip: 0,
+        weightedFootprint: 0,
+      },
+    )
+
+    const totalTce = sum.totalTce > 0 ? sum.totalTce : 1
+    return {
+      totalTce: Number(sum.totalTce.toFixed(1)),
+      totalCarbon: Number(sum.totalCarbon.toFixed(1)),
+      carbonPerTce: Number((sum.totalCarbon / totalTce).toFixed(3)),
+      nonFossilRatio: Number((sum.weightedNonFossil / totalTce).toFixed(1)),
+      physicalGreenRatio: Number((sum.weightedPhysical / totalTce).toFixed(1)),
+      energyPerNva: Number((sum.weightedEnva / totalTce).toFixed(4)),
+      energyPerOutput: Number((sum.weightedOutput / totalTce).toFixed(4)),
+      waterM3: sum.waterM3,
+      energySavingEquipRatio: Number((sum.weightedEquip / totalTce).toFixed(1)),
+      carbonFootprintAnalysisRatio: Number((sum.weightedFootprint / totalTce).toFixed(1)),
     }
-    return rows
-  }, [selectedNode, searchKw])
-
-  const isFiltered = selectedNode.id !== 'group_root' && selectedNode.id !== 'ent_root' && selectedNode.id !== 'park_root'
+  }, [filteredRows])
 
   return (
-    <div className="flex gap-3.5 items-start">
-      {/* 左侧 270px 经典工业级拓扑树 */}
-      <StandardOrgTree
-        selectedId={selectedNode.id}
-        onSelect={(node) => setSelectedNode(node)}
-      />
-
-      {/* 右侧主面板 */}
-      <div className="flex-1 min-w-0 flex flex-col gap-3.5">
-        {/* 顶部面包屑与操作栏 */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
-              <Layers className="size-5" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-slate-800">单耗报表</h1>
-            </div>
+    <div className="flex flex-col gap-3.5 w-full font-sans">
+      {/* 顶部面包屑与操作栏 */}
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <Gauge className="size-5" />
           </div>
-
-          {/* 工具栏 (参照指标管控及图2时间查询条件规范) */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* 时间维度切换 */}
-            <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setTimeDim('month')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
-                )}
-              >
-                月度
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimeDim('quarter')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
-                )}
-              >
-                季度
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimeDim('year')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
-                )}
-              >
-                年度
-              </button>
-            </div>
-
-            {/* 时间范围选择控件 (随维度自适应切换，图2样式) */}
-            {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <input
-                  type="month"
-                  value={selectedMonthRange.start}
-                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                  title="起始月份"
-                />
-                <span className="text-slate-400 font-sans">至</span>
-                <input
-                  type="month"
-                  value={selectedMonthRange.end}
-                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                  title="结束月份"
-                />
-              </div>
-            )}
-
-            {timeDim === 'quarter' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <select
-                  value={selectedQuarter}
-                  onChange={(e) => setSelectedQuarter(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-                >
-                  <option value="2026-Q1">2026年 第1季度 (Q1)</option>
-                  <option value="2026-Q2">2026年 第2季度 (Q2)</option>
-                  <option value="2026-Q3">2026年 第3季度 (Q3)</option>
-                  <option value="2026-Q4">2026年 第4季度 (Q4)</option>
-                  <option value="2025-Q4">2025年 第4季度 (Q4)</option>
-                </select>
-              </div>
-            )}
-
-            {timeDim === 'year' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-                >
-                  <option value="2026">2026 年度</option>
-                  <option value="2025">2025 年度</option>
-                  <option value="2024">2024 年度</option>
-                </select>
-              </div>
-            )}
-
-            <button
-              onClick={() => alert(`正在导出【${selectedNode.name}】产品单耗统计报表 (Excel/PDF)...`)}
-              className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
-            >
-              <Download className="size-3.5" />
-              <span>导出</span>
-            </button>
+          <div>
+            <h1 className="text-base font-bold text-slate-800">单耗报表 (指标管控十参数)</h1>
           </div>
         </div>
 
-        {/* 主数据报表：变压器报表 vs 线缆报表 */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
-          {/* Tab 切换栏与组织联动指示 */}
-          <div className="p-2.5 border-b border-slate-200 bg-[#fafbfc] flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Tab 切换 */}
-              <div className="flex items-center gap-1.5 bg-slate-200/70 p-1 rounded-lg text-xs">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('transformer')}
-                  className={cn(
-                    'px-3.5 py-1.5 rounded-md font-bold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer',
-                    activeTab === 'transformer'
-                      ? 'bg-white text-[#1677ff]'
-                      : 'text-slate-600 hover:text-slate-900 font-medium',
-                  )}
-                >
-                  <Zap className="size-3.5" />
-                  <span>变压器报表 ({filteredTransOrders.length})</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('cable')}
-                  className={cn(
-                    'px-3.5 py-1.5 rounded-md font-bold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer',
-                    activeTab === 'cable'
-                      ? 'bg-amber-500 text-white'
-                      : 'text-slate-600 hover:text-slate-900 font-medium',
-                  )}
-                >
-                  <Cable className="size-3.5" />
-                  <span>线缆报表 ({filteredCableOrders.length})</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchKw}
-                  onChange={(e) => setSearchKw(e.target.value)}
-                  placeholder="搜索产品型号 / 车间单位..."
-                  className="h-8 pl-8 pr-2.5 text-xs bg-white border border-slate-200 rounded-md text-slate-700 focus:outline-none focus:border-blue-500 w-60"
-                />
-              </div>
-            </div>
+        {/* 时间维度与导出工具栏 */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* 时间维度切换 */}
+          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setTimeDim('month')}
+              className={cn(
+                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              月度
+            </button>
+            <button
+              type="button"
+              onClick={() => setTimeDim('quarter')}
+              className={cn(
+                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              季度
+            </button>
+            <button
+              type="button"
+              onClick={() => setTimeDim('year')}
+              className={cn(
+                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              年度
+            </button>
           </div>
 
-          {/* 1. 变压器单耗明细表格 */}
-          {activeTab === 'transformer' && (
-            <div className="overflow-x-auto custom-scrollbar">
-              {filteredTransOrders.length === 0 ? (
-                <div className="p-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
-                  <Zap className="size-8 text-slate-300" />
-                  <div>所选单位【{selectedNode.name}】暂无变压器产品单耗数据</div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('cable')}
-                    className="text-[#1677ff] underline cursor-pointer font-semibold"
-                  >
-                    前往查看线缆报表 →
-                  </button>
-                </div>
-              ) : (
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
-                      <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[220px]">产品规格型号</th>
-                      <th className="py-2.5 px-3 text-right">额定容量 (MVA)</th>
-                      <th className="py-2.5 px-3 text-right">剪切叠装 (kWh)</th>
-                      <th className="py-2.5 px-3 text-right">线圈绕制 (kWh)</th>
-                      <th className="py-2.5 px-3 text-right text-rose-600 font-bold">🔥 真空干燥 (kWh)</th>
-                      <th className="py-2.5 px-3 text-right">总装及试验 (kWh)</th>
-                      <th className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/40">
-                        综合单耗 (kWh/kVA)
-                      </th>
-                      <th className="py-2.5 px-3 text-right font-bold text-slate-700">折标煤 (tce/台)</th>
-                      <th className="py-2.5 px-3 text-center">同比变动</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
-                    {filteredTransOrders.map((r) => (
-                      <tr key={r.id} className="hover:bg-blue-50/40 transition-colors">
-                        <td className="py-2.5 px-3 sticky left-0 bg-white font-sans font-semibold text-slate-900">
-                          {r.model}
-                        </td>
-                        <td className="py-2.5 px-3 text-right tabular-nums font-bold">
-                          {r.capacityMva.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                        </td>
-                        <td className="py-2.5 px-3 text-right tabular-nums">
-                          {r.cutStack.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-right tabular-nums">
-                          {r.winding.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-right text-rose-600 font-bold tabular-nums bg-rose-50/30">
-                          {r.vacuumDry.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-right tabular-nums">
-                          {r.assemblyTest.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-blue-700 bg-blue-50/40 tabular-nums">
-                          {r.unitKwhPerKva.toFixed(3)}
-                        </td>
-                        <td className="py-2.5 px-3 text-right tabular-nums font-bold">
-                          {r.tcePerUnit.toFixed(2)}
-                        </td>
-                        <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">
-                          {r.yoy}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+          {/* 时间范围选择控件 */}
+          {timeDim === 'month' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <input
+                type="month"
+                value={selectedMonthRange.start}
+                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                title="起始月份"
+              />
+              <span className="text-slate-400 font-sans">至</span>
+              <input
+                type="month"
+                value={selectedMonthRange.end}
+                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                title="结束月份"
+              />
             </div>
           )}
 
-          {/* 2. 线缆单耗明细表格 */}
-          {activeTab === 'cable' && (
-            <div className="overflow-x-auto custom-scrollbar">
-              {filteredCableOrders.length === 0 ? (
-                <div className="p-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
-                  <Cable className="size-8 text-slate-300" />
-                  <div>所选单位【{selectedNode.name}】暂无线缆产品单耗数据</div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('transformer')}
-                    className="text-[#1677ff] underline cursor-pointer font-semibold"
-                  >
-                    前往查看变压器报表 →
-                  </button>
-                </div>
-              ) : (
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-amber-50/80 text-slate-600 border-b border-amber-200 font-bold select-none">
-                      <th className="py-2.5 px-3 sticky left-0 bg-amber-50 z-10 min-w-[220px]">线缆规格型号</th>
-                      <th className="py-2.5 px-3 text-right">生产长度 (km)</th>
-                      <th className="py-2.5 px-3 text-right">铜/铝拉丝 (kWh)</th>
-                      <th className="py-2.5 px-3 text-right">导体绞合 (kWh)</th>
-                      <th className="py-2.5 px-3 text-right text-amber-700 font-bold">⚡ 三层共挤交联 (kWh)</th>
-                      <th className="py-2.5 px-3 text-right">护套及成缆 (kWh)</th>
-                      <th className="py-2.5 px-3 text-right font-bold text-slate-900 bg-amber-100/40">
-                        综合单耗 (kWh/km)
-                      </th>
-                      <th className="py-2.5 px-3 text-right font-bold text-slate-700">折标煤 (tce/km)</th>
-                      <th className="py-2.5 px-3 text-center">同比变动</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
-                    {filteredCableOrders.map((r) => (
-                      <tr key={r.id} className="hover:bg-amber-50/40 transition-colors">
-                        <td className="py-2.5 px-3 sticky left-0 bg-white font-sans font-semibold text-slate-900">
-                          {r.model}
-                        </td>
-                        <td className="py-2.5 px-3 text-right tabular-nums font-bold">
-                          {r.lengthKm.toFixed(1)}
-                        </td>
-                        <td className="py-2.5 px-3 text-right tabular-nums">
-                          {r.drawing.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-right tabular-nums">
-                          {r.stranding.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-right text-amber-700 font-bold tabular-nums bg-amber-50/30">
-                          {r.crosslinking.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-right tabular-nums">
-                          {r.sheathing.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-amber-800 bg-amber-100/40 tabular-nums">
-                          {r.unitKwhPerKm.toFixed(3)}
-                        </td>
-                        <td className="py-2.5 px-3 text-right tabular-nums font-bold">
-                          {r.tcePerKm.toFixed(2)}
-                        </td>
-                        <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">
-                          {r.yoy}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+          {timeDim === 'quarter' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <select
+                value={selectedQuarter}
+                onChange={(e) => setSelectedQuarter(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="2026-Q1">2026年 第1季度 (Q1)</option>
+                <option value="2026-Q2">2026年 第2季度 (Q2)</option>
+                <option value="2026-Q3">2026年 第3季度 (Q3)</option>
+                <option value="2026-Q4">2026年 第4季度 (Q4)</option>
+                <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+              </select>
             </div>
+          )}
+
+          {timeDim === 'year' && (
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="2026">2026 年度</option>
+                <option value="2025">2025 年度</option>
+                <option value="2024">2024 年度</option>
+              </select>
+            </div>
+          )}
+
+          <button
+            onClick={() => alert('正在导出单耗及指标管控明细台账 (Excel/PDF)...')}
+            className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+          >
+            <Download className="size-3.5" />
+            <span>导出</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 主数据报表 */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+        {/* 操作搜索栏 */}
+        <div className="p-2.5 border-b border-slate-200 bg-[#fafbfc] flex flex-wrap items-center justify-between gap-3 font-sans">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* 所属企业下拉筛选 */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属企业：</span>
+              <select
+                value={companyFilter}
+                onChange={(e) => {
+                  setCompanyFilter(e.target.value)
+                  setUnitFilter('all') // 联动重置下属单位
+                }}
+                className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer"
+              >
+                <option value="all">全部所属企业</option>
+                {allCompanies.map((comp) => (
+                  <option key={comp} value={comp}>
+                    {comp}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 所属单位下拉筛选 (带顶部模糊匹配搜索框，与企业联动) */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属单位：</span>
+              <SearchableUnitSelect
+                options={availableUnits}
+                value={unitFilter}
+                onChange={(val) => setUnitFilter(val)}
+                placeholder="全部所属单位"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 表格区域 */}
+        <div className="overflow-x-auto custom-scrollbar">
+          {filteredRows.length === 0 ? (
+            <div className="p-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+              <div>暂无匹配的单耗指标数据</div>
+            </div>
+          ) : (
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-slate-50/90 text-slate-700 border-b border-slate-200 font-bold select-none text-[11px]">
+                  {/* 固定左侧前两列 */}
+                  <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[110px] text-center border-r border-slate-200/80">
+                    企业名称
+                  </th>
+                  <th className="py-2.5 px-3 sticky left-[110px] bg-slate-50 z-10 min-w-[160px] border-r border-slate-200/80">
+                    单位名称
+                  </th>
+
+                  {/* 10 个管控指标参数表头（带提示与单位） */}
+                  {INDICATOR_METAS.map((meta) => (
+                    <th
+                      key={meta.key}
+                      onClick={() => setSelectedIndicator(meta)}
+                      className="py-2.5 px-2.5 min-w-[115px] text-right font-bold text-slate-700 hover:bg-blue-50/60 cursor-pointer transition-colors group"
+                      title="点击查看指标计算公式与管控要求"
+                    >
+                      <div className="flex flex-col items-end gap-0.5">
+                        <div className="flex items-center gap-1">
+                          <span className="group-hover:text-[#1677ff] transition-colors">{meta.name}</span>
+                          <Info className="size-3 text-slate-400 group-hover:text-[#1677ff] shrink-0" />
+                        </div>
+                        <span className="text-[10px] font-normal text-slate-400 font-mono">({meta.unit})</span>
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
+                {filteredRows.map((row, idx) => {
+                  const span = companyRowSpans[idx]
+                  return (
+                    <tr key={row.id} className="hover:bg-blue-50/30 transition-colors group">
+                      {/* 企业名称单元格 (同企业行跨行合并居中) */}
+                      {span > 0 && (
+                        <td
+                          rowSpan={span}
+                          className="py-2.5 px-3 font-bold text-slate-800 bg-white border-r border-slate-200 text-center align-middle font-sans shadow-2xs sticky left-0 z-5"
+                        >
+                          <div className="inline-flex items-center justify-center font-bold text-slate-800">
+                            {row.company}
+                          </div>
+                        </td>
+                      )}
+
+                      {/* 单位名称单元格 */}
+                      <td className="py-2.5 px-3 font-sans font-medium text-slate-800 sticky left-[110px] bg-white group-hover:bg-[#f8faff] border-r border-slate-200/80 z-5">
+                        <div className="truncate max-w-[200px]" title={row.unitName}>
+                          {row.unitName}
+                        </div>
+                      </td>
+
+                      {/* 1. 综合能源消费量 (tce) */}
+                      <td
+                        onClick={() => setSelectedRowDetail({ row, indicator: INDICATOR_METAS[0] })}
+                        className="py-2.5 px-2.5 text-right font-semibold text-[#1677ff] hover:underline cursor-pointer"
+                        title="点击查看综合能耗构成"
+                      >
+                        {row.totalTce.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                      </td>
+
+                      {/* 2. 总碳排放量 (tCO2) */}
+                      <td
+                        onClick={() => setSelectedRowDetail({ row, indicator: INDICATOR_METAS[1] })}
+                        className="py-2.5 px-2.5 text-right font-medium text-slate-800 hover:underline cursor-pointer"
+                        title="点击查看碳排放明细"
+                      >
+                        {row.totalCarbon.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                      </td>
+
+                      {/* 3. 单位能耗碳排放 (tCO2/tce) */}
+                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-700">
+                        {row.carbonPerTce.toFixed(3)}
+                      </td>
+
+                      {/* 4. 非化石能源消费占比 (%) */}
+                      <td className="py-2.5 px-2.5 text-right font-semibold text-emerald-600">
+                        {row.nonFossilRatio.toFixed(1)}%
+                      </td>
+
+                      {/* 5. 非化石电力物理认购占比 (%) */}
+                      <td className="py-2.5 px-2.5 text-right font-medium text-emerald-700">
+                        {row.physicalGreenRatio.toFixed(1)}%
+                      </td>
+
+                      {/* 6. 单位工业增加值能耗 (tce/万元) */}
+                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-800">
+                        {row.energyPerNva.toFixed(4)}
+                      </td>
+
+                      {/* 7. 单位产值能耗 (tce/万元) */}
+                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-800">
+                        {row.energyPerOutput.toFixed(4)}
+                      </td>
+
+                      {/* 8. 水资源消耗量 (t) */}
+                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-700">
+                        {row.waterM3.toLocaleString('zh-CN')}
+                      </td>
+
+                      {/* 9. 节能装备应用占比 (%) */}
+                      <td className="py-2.5 px-2.5 text-right font-medium text-indigo-600">
+                        {row.energySavingEquipRatio.toFixed(1)}%
+                      </td>
+
+                      {/* 10. 开展产品碳足迹分析占比 (%) */}
+                      <td className="py-2.5 px-2.5 text-right font-medium text-blue-600">
+                        {row.carbonFootprintAnalysisRatio.toFixed(1)}%
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+
+              {/* 汇总统计行 */}
+              <tfoot>
+                <tr className="bg-slate-100/90 font-bold border-t-2 border-slate-300 text-slate-900 font-mono text-[11.5px]">
+                  <td colSpan={2} className="py-3 px-3 text-center font-sans font-bold sticky left-0 bg-slate-100 z-10 border-r border-slate-200">
+                    全集团总计汇总 / 集团加权平均
+                  </td>
+                  {/* 1. 综合能源消费量 (tce) */}
+                  <td className="py-3 px-2.5 text-right text-[#1677ff]">
+                    {totals.totalTce.toLocaleString('zh-CN', { minimumFractionDigits: 1 })}
+                  </td>
+                  {/* 2. 总碳排放量 (tCO2) */}
+                  <td className="py-3 px-2.5 text-right text-slate-900">
+                    {totals.totalCarbon.toLocaleString('zh-CN', { minimumFractionDigits: 1 })}
+                  </td>
+                  {/* 3. 单位能耗碳排放 (tCO2/tce) */}
+                  <td className="py-3 px-2.5 text-right text-slate-800">
+                    {totals.carbonPerTce.toFixed(3)}
+                  </td>
+                  {/* 4. 非化石能源消费占比 (%) */}
+                  <td className="py-3 px-2.5 text-right text-emerald-700">
+                    {totals.nonFossilRatio.toFixed(1)}%
+                  </td>
+                  {/* 5. 非化石电力物理认购占比 (%) */}
+                  <td className="py-3 px-2.5 text-right text-emerald-800">
+                    {totals.physicalGreenRatio.toFixed(1)}%
+                  </td>
+                  {/* 6. 单位工业增加值能耗 (tce/万元) */}
+                  <td className="py-3 px-2.5 text-right text-slate-900">
+                    {totals.energyPerNva.toFixed(4)}
+                  </td>
+                  {/* 7. 单位产值能耗 (tce/万元) */}
+                  <td className="py-3 px-2.5 text-right text-slate-900">
+                    {totals.energyPerOutput.toFixed(4)}
+                  </td>
+                  {/* 8. 水资源消耗量 (t) */}
+                  <td className="py-3 px-2.5 text-right text-slate-800">
+                    {totals.waterM3.toLocaleString('zh-CN')}
+                  </td>
+                  {/* 9. 节能装备应用占比 (%) */}
+                  <td className="py-3 px-2.5 text-right text-indigo-700">
+                    {totals.energySavingEquipRatio.toFixed(1)}%
+                  </td>
+                  {/* 10. 开展产品碳足迹分析占比 (%) */}
+                  <td className="py-3 px-2.5 text-right text-blue-700">
+                    {totals.carbonFootprintAnalysisRatio.toFixed(1)}%
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
           )}
         </div>
       </div>
+
+      {/* 💡 指标定义与管控标准快速详情弹窗 */}
+      {selectedIndicator && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-2xs p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full p-5 flex flex-col gap-4 font-sans">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="size-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff]">
+                  <Gauge className="size-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">{selectedIndicator.name}</h3>
+                  <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                    {selectedIndicator.tag}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedIndicator(null)}
+                className="size-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3 text-xs text-slate-600">
+              <div>
+                <span className="font-bold text-slate-800 block mb-0.5">指标含义与定义：</span>
+                <p className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 leading-relaxed text-slate-700">
+                  {selectedIndicator.description}
+                </p>
+              </div>
+
+              <div>
+                <span className="font-bold text-slate-800 block mb-0.5">计算公式与核算模型：</span>
+                <p className="bg-blue-50/60 p-2.5 rounded-lg border border-blue-200 font-mono text-[11px] text-blue-900 leading-relaxed">
+                  {selectedIndicator.formula}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <span className="text-[11px] text-slate-500 block">计量单位</span>
+                  <span className="text-xs font-bold text-slate-800 font-mono">{selectedIndicator.unit}</span>
+                </div>
+                <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <span className="text-[11px] text-slate-500 block">管控基准标准值</span>
+                  <span className="text-xs font-bold text-emerald-700 font-mono">{selectedIndicator.benchmark}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setSelectedIndicator(null)}
+                className="px-4 py-1.5 rounded-lg bg-[#1677ff] text-white text-xs font-bold hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+              >
+                我知道了
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 📊 单位指标明细穿透弹窗 */}
+      {selectedRowDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-2xs p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full p-5 flex flex-col gap-4 font-sans">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <div className="text-xs text-slate-500 font-medium">
+                  {selectedRowDetail.row.company} · {selectedRowDetail.row.unitName}
+                </div>
+                <h3 className="text-sm font-bold text-slate-900 mt-0.5">
+                  {selectedRowDetail.indicator.name} 监测详情
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedRowDetail(null)}
+                className="size-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-lg bg-blue-50/70 border border-blue-200 flex flex-col gap-1">
+                <span className="text-xs text-blue-700 font-medium">当前统计期数值</span>
+                <span className="text-lg font-bold text-[#1677ff] font-mono">
+                  {String((selectedRowDetail.row as any)[selectedRowDetail.indicator.key])} {selectedRowDetail.indicator.unit}
+                </span>
+              </div>
+              <div className="p-3 rounded-lg bg-emerald-50/70 border border-emerald-200 flex flex-col gap-1">
+                <span className="text-xs text-emerald-700 font-medium">管控目标与基准</span>
+                <span className="text-lg font-bold text-emerald-700 font-mono">
+                  {selectedRowDetail.indicator.benchmark}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 text-xs text-slate-600">
+              <span className="font-bold text-slate-800">计算公式：</span>
+              <p className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-700">
+                {selectedRowDetail.indicator.formula}
+              </p>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setSelectedRowDetail(null)}
+                className="px-4 py-1.5 rounded-lg bg-[#1677ff] text-white text-xs font-bold hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

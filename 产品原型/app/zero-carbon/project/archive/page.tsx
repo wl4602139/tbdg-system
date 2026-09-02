@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef } from 'react'
 import {
   FolderKanban,
   Plus,
@@ -36,8 +36,9 @@ import {
   DollarSign,
   Leaf,
   Activity,
+  Save,
 } from 'lucide-react'
-import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
+import { StandardOrgTree, PARK_ORG_TREE_DATA, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { cn } from '@/lib/utils'
 
 export interface ProjectArchiveItem {
@@ -46,8 +47,8 @@ export interface ProjectArchiveItem {
   name: string
   park: string
   company: string
-  category: '节能技改' | '绿电替代' | '储能配置'
-  subType: string // 细分技术路线，如 屋顶分布式光伏、用户侧磷酸铁锂、永磁变频、真空余热利用
+  category: '光伏' | '储能' | '热泵'
+  subType: string // 细分技术路线，如 屋顶分布式光伏、用户侧磷酸铁锂、高温工业水源热泵
   capacity: string
   investment: number // 万元
   fundSource: '自筹资金' | '绿色金融信贷' | 'EMC合同能源管理' | '政府专项绿色补贴'
@@ -73,8 +74,8 @@ const INITIAL_PROJECTS: ProjectArchiveItem[] = [
     code: 'PRJ-2026-PV-001',
     name: '特变电工沈阳变压器厂区 12.8MWp 屋顶分布式光伏一期',
     park: '特变电工东北输变电产业园',
-    company: '沈变公司',
-    category: '绿电替代',
+    company: '沈变本部',
+    category: '光伏',
     subType: '屋顶分布式光伏 (BAPV)',
     capacity: '12.8 MWp',
     investment: 4850.0,
@@ -102,8 +103,8 @@ const INITIAL_PROJECTS: ProjectArchiveItem[] = [
     code: 'PRJ-2026-ES-002',
     name: '衡阳变压器公司 6MW/12MWh 磷酸铁锂用户侧储能电站',
     park: '特变电工南方输变电产业园',
-    company: '衡变公司',
-    category: '储能配置',
+    company: '衡变本部',
+    category: '储能',
     subType: '用户侧磷酸铁锂储能',
     capacity: '6MW / 12MWh',
     investment: 1680.0,
@@ -131,8 +132,8 @@ const INITIAL_PROJECTS: ProjectArchiveItem[] = [
     name: '天津变压器真空干燥罐冷凝余热梯级利用改造',
     park: '特变电工天变产业园',
     company: '天变公司',
-    category: '节能技改',
-    subType: '工业余热蒸汽梯级回收',
+    category: '热泵',
+    subType: '工业余热水源热泵梯级回收',
     capacity: '1.8 MWth (热功率)',
     investment: 380.0,
     fundSource: '自筹资金',
@@ -155,38 +156,38 @@ const INITIAL_PROJECTS: ProjectArchiveItem[] = [
   {
     id: 'p-04',
     code: 'PRJ-2026-VF-004',
-    name: '山东鲁能泰山电缆连续挤塑线永磁变频节能技改',
+    name: '山东鲁能泰山电缆屋顶光储直柔分布式光伏',
     park: '特变电工华东输变电科技产业园',
-    company: '鲁缆公司',
-    category: '节能技改',
-    subType: '永磁同步变频电机替换',
-    capacity: '48 台套电机替换',
-    investment: 290.0,
+    company: '鲁缆本部',
+    category: '光伏',
+    subType: '分布式光伏 (BAPV)',
+    capacity: '5.6 MWp',
+    investment: 2190.0,
     fundSource: 'EMC合同能源管理',
     leaderName: '赵明 (生产车间)',
     leaderPhone: '137****9012',
     milestoneApproval: '2025-11-05',
     milestoneStart: '2026-01-10',
     milestoneGrid: '2026-04-18',
-    expectedEnergySaving: '节电 185 万kWh/年',
-    annualCarbonSaving: 1055.0,
-    annualRevenue: 125.0,
-    paybackYears: 2.3,
-    irr: '32.0%',
+    expectedEnergySaving: '发电 620 万kWh/年',
+    annualCarbonSaving: 3534.0,
+    annualRevenue: 385.0,
+    paybackYears: 4.3,
+    irr: '22.0%',
     status: '并网稳定运行',
     attachments: [
-      { name: 'IE5超高效永磁电机测试报告.pdf', size: '3.1 MB', type: 'PDF', uploadTime: '2026-04-20' },
+      { name: '鲁缆光伏并网检测报告.pdf', size: '3.1 MB', type: 'PDF', uploadTime: '2026-04-20' },
     ],
-    remark: '将原 IE2 异步电机全部置换为 IE5 永磁同步变频电机，综合节电率 18.5%',
+    remark: '高压电缆车间屋顶光伏建设，就地消纳率 98%',
   },
   {
     id: 'p-05',
     code: 'PRJ-2026-HP-005',
     name: '德阳电缆产业园高温工业水源热泵蒸汽替代项目',
     park: '特变电工(德阳)电缆园区',
-    company: '德缆公司',
-    category: '绿电替代',
-    subType: '地源/水源热泵蒸汽替代',
+    company: '特变电工（德阳）电缆股份有限公司',
+    category: '热泵',
+    subType: '高温工业水源热泵蒸汽替代',
     capacity: '2.5 MW (制热量)',
     investment: 620.0,
     fundSource: '绿色金融信贷',
@@ -209,12 +210,12 @@ const INITIAL_PROJECTS: ProjectArchiveItem[] = [
   {
     id: 'p-06',
     code: 'PRJ-2026-MG-006',
-    name: '新疆电缆智慧微电网 EMS 与柔性负荷控制系统',
+    name: '新疆电缆智慧微电网 EMS 与 2MW/4MWh 用户侧储能系统',
     park: '特变电工新疆电缆产业园',
-    company: '新缆厂',
-    category: '节能技改',
-    subType: '微电网智能协同节电系统',
-    capacity: '全厂 35kV 变电站接入',
+    company: '特变电工新疆电缆有限公司',
+    category: '储能',
+    subType: '用户侧磷酸铁锂储能',
+    capacity: '2MW / 4MWh',
     investment: 450.0,
     fundSource: '自筹资金',
     leaderName: '孙亮 (信息化部)',
@@ -238,8 +239,8 @@ const INITIAL_PROJECTS: ProjectArchiveItem[] = [
     code: 'PRJ-2026-PV-007',
     name: '新疆特变电工变压器厂区 20MWp 分布式光伏三期',
     park: '特变电工新疆产业园',
-    company: '新变厂',
-    category: '绿电替代',
+    company: '超高压公司',
+    category: '光伏',
     subType: '屋顶及车棚光伏 (BAPV)',
     capacity: '20.0 MWp',
     investment: 7600.0,
@@ -263,10 +264,10 @@ const INITIAL_PROJECTS: ProjectArchiveItem[] = [
   {
     id: 'p-08',
     code: 'PRJ-2026-MC-008',
-    name: '天津变压器空压机房磁悬浮离心空压机节能替代',
+    name: '天津变压器空压机房余热工业空气源热泵节能替代',
     park: '特变电工天变产业园',
     company: '天变公司',
-    category: '节能技改',
+    category: '热泵',
     subType: '磁悬浮无油离心空压机',
     capacity: '3 台套 (总气量 180m³/min)',
     investment: 210.0,
@@ -317,7 +318,7 @@ export default function ProjectArchivePage() {
     name: '',
     park: '特变电工东北输变电产业园',
     company: '沈变公司',
-    category: '绿电替代' as ProjectArchiveItem['category'],
+    category: '光伏' as ProjectArchiveItem['category'],
     subType: '屋顶分布式光伏 (BAPV)',
     capacity: '',
     investment: '',
@@ -348,7 +349,7 @@ export default function ProjectArchivePage() {
       name: '',
       park: selectedNode.fullName.includes('园区') ? selectedNode.fullName : '特变电工东北输变电产业园',
       company: selectedNode.level === 'company' ? selectedNode.name : '沈变公司',
-      category: '绿电替代',
+      category: '光伏',
       subType: '屋顶分布式光伏 (BAPV)',
       capacity: '',
       investment: '',
@@ -487,6 +488,63 @@ export default function ProjectArchivePage() {
     setShowFormModal(false)
   }
 
+  // 本地文件上传与拖拽支持
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isDragging, setIsDragging] = useState(false)
+
+  const handleRealFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+    const newFiles = Array.from(e.target.files).map((file) => {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1)
+      const isWord = file.name.endsWith('.docx') || file.name.endsWith('.doc')
+      const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
+      const isZip = file.name.endsWith('.zip') || file.name.endsWith('.rar')
+      let type = 'PDF'
+      if (isWord) type = 'Word'
+      if (isExcel) type = 'Excel'
+      if (isZip) type = 'ZIP'
+
+      return {
+        name: file.name,
+        size: `${Math.max(0.1, parseFloat(sizeMb))} MB`,
+        type,
+        uploadTime: new Date().toISOString().split('T')[0],
+      }
+    })
+    setFormData((prev) => ({
+      ...prev,
+      attachments: [...prev.attachments, ...newFiles],
+    }))
+    e.target.value = ''
+  }
+
+  const handleDropFiles = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    setIsDragging(false)
+    if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return
+    const newFiles = Array.from(e.dataTransfer.files).map((file) => {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1)
+      const isWord = file.name.endsWith('.docx') || file.name.endsWith('.doc')
+      const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
+      const isZip = file.name.endsWith('.zip') || file.name.endsWith('.rar')
+      let type = 'PDF'
+      if (isWord) type = 'Word'
+      if (isExcel) type = 'Excel'
+      if (isZip) type = 'ZIP'
+
+      return {
+        name: file.name,
+        size: `${Math.max(0.1, parseFloat(sizeMb))} MB`,
+        type,
+        uploadTime: new Date().toISOString().split('T')[0],
+      }
+    })
+    setFormData((prev) => ({
+      ...prev,
+      attachments: [...prev.attachments, ...newFiles],
+    }))
+  }
+
   // 模拟附件添加
   const handleAddMockAttachment = () => {
     const names = [
@@ -560,14 +618,12 @@ export default function ProjectArchivePage() {
 
   const getCategoryIcon = (category: ProjectArchiveItem['category']) => {
     switch (category) {
-      case '绿电替代':
+      case '光伏':
         return <Sun className="size-5 text-amber-500" />
-      case '储能配置':
+      case '储能':
         return <BatteryCharging className="size-5 text-emerald-500" />
-      case '节能技改':
-        return <Zap className="size-5 text-blue-500" />
-      case '智慧微网':
-        return <Layers className="size-5 text-purple-500" />
+      case '热泵':
+        return <Flame className="size-5 text-blue-500" />
       default:
         return <FolderKanban className="size-5 text-[#1677ff]" />
     }
@@ -575,34 +631,29 @@ export default function ProjectArchivePage() {
 
   const getCategoryBadge = (category: ProjectArchiveItem['category']) => {
     switch (category) {
-      case '绿电替代':
+      case '光伏':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-bold">
             <Sun className="size-3 text-amber-600" />
-            绿电替代
+            光伏
           </span>
         )
-      case '储能配置':
+      case '储能':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
             <BatteryCharging className="size-3 text-emerald-600" />
-            储能配置
+            储能
           </span>
         )
-      case '节能技改':
+      case '热泵':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-bold">
-            <Zap className="size-3 text-blue-600" />
-            节能技改
+            <Flame className="size-3 text-blue-600" />
+            热泵
           </span>
         )
-      case '智慧微网':
-        return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 font-bold">
-            <Layers className="size-3 text-purple-600" />
-            智慧微网
-          </span>
-        )
+      default:
+        return null
     }
   }
 
@@ -643,13 +694,13 @@ export default function ProjectArchivePage() {
         {/* 2. 筛选与多维过滤 Toolbar (三大技术类别 + 状态 + 搜索) */}
         <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            {/* 四大技术类别快速切换 */}
+            {/* 三大技术类别快速切换 */}
             <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-sans">
               {[
-                { key: 'all', label: '全部项目库' },
-                { key: '节能技改', label: '⚡ 节能技改' },
-                { key: '绿电替代', label: '☀️ 绿电替代' },
-                { key: '储能配置', label: '🔋 储能配置' },
+                { key: 'all', label: '全部项目' },
+                { key: '光伏', label: '☀️ 光伏' },
+                { key: '储能', label: '🔋 储能' },
+                { key: '热泵', label: '♨️ 热泵' },
               ].map((tab) => (
                 <button
                   key={tab.key}
@@ -740,10 +791,10 @@ export default function ProjectArchivePage() {
             <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="搜索项目编码 / 名称 / 填报单位 / 技术细分..."
+              placeholder="搜索项目名称 / 建设单位 / 细分技术..."
               value={searchKw}
               onChange={(e) => setSearchKw(e.target.value)}
-              className="h-8 pl-8 pr-3 w-64 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 transition-all font-mono"
+              className="h-8 pl-8 pr-3 w-64 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 transition-all font-sans"
             />
           </div>
         </div>
@@ -767,10 +818,10 @@ export default function ProjectArchivePage() {
                   <th className="py-2.5 px-3 min-w-[220px]">项目名称</th>
                   <th className="py-2.5 px-3 whitespace-nowrap">项目类型</th>
                   <th className="py-2.5 px-3 whitespace-nowrap">所属园区</th>
+                  <th className="py-2.5 px-3 whitespace-nowrap">建设单位</th>
                   <th className="py-2.5 px-3 whitespace-nowrap">建设规模容量</th>
                   <th className="py-2.5 px-3 whitespace-nowrap text-right">总投资 (万元)</th>
                   <th className="py-2.5 px-3 whitespace-nowrap text-right">年收益 (万元)</th>
-                  <th className="py-2.5 px-3 whitespace-nowrap text-center">预期IRR</th>
                   <th className="py-2.5 px-3 whitespace-nowrap text-center">投运/并网日</th>
                   <th className="py-2.5 px-3 whitespace-nowrap text-center">建设状态</th>
                   <th className="py-2.5 px-3 whitespace-nowrap text-center">操作</th>
@@ -788,7 +839,10 @@ export default function ProjectArchivePage() {
                     </td>
                     <td className="py-2.5 px-3 font-sans">{getCategoryBadge(item.category)}</td>
                     <td className="py-2.5 px-3 font-sans">
-                      <div className="font-bold text-slate-800">{item.company}</div>
+                      <div className="font-bold text-slate-800">{item.park}</div>
+                    </td>
+                    <td className="py-2.5 px-3 font-sans">
+                      <div className="text-slate-700 font-medium">{item.company}</div>
                     </td>
                     <td className="py-2.5 px-3 font-bold text-slate-900">{item.capacity}</td>
                     <td className="py-2.5 px-3 text-right font-extrabold text-slate-900">
@@ -797,7 +851,6 @@ export default function ProjectArchivePage() {
                     <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
                       ¥{item.annualRevenue.toLocaleString()}
                     </td>
-                    <td className="py-2.5 px-3 text-center font-bold text-[#1677ff]">{item.irr}</td>
                     <td className="py-2.5 px-3 text-center text-slate-600">{item.milestoneGrid}</td>
                     <td className="py-2.5 px-3 text-center font-sans">
                       <span
@@ -849,19 +902,19 @@ export default function ProjectArchivePage() {
         </div>
       </div>
 
-      {/* 🌟 5. 在线填报/维护零碳项目档案 4 步向导模态框 (Form Modal) */}
+      {/* 🌟 5. 在线填报/维护零碳项目档案 宽屏单窗口弹窗 (Single-Window Wide Modal) */}
       {showFormModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-200 font-sans">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl min-h-[560px] max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 sm:p-6 animate-in fade-in duration-200 font-sans">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/90">
               <div className="flex items-center gap-2.5">
                 <div className="size-8 rounded-lg bg-blue-50 text-[#1677ff] flex items-center justify-center border border-blue-200">
                   <FolderKanban className="size-4.5" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-900">
-                    {isEditing ? '编辑项目档案' : '添加项目'}
+                    {isEditing ? '编辑项目档案' : '添加项目档案'}
                   </h3>
                 </div>
               </div>
@@ -874,535 +927,318 @@ export default function ProjectArchivePage() {
               </button>
             </div>
 
-            {/* 4 步进度指示条 */}
-            <div className="bg-slate-100/70 px-6 py-3 border-b border-slate-200 flex items-center justify-between text-xs gap-1">
-              {[
-                { step: 1, title: '1. 基本信息与单位归属' },
-                { step: 2, title: '2. 项目类型与系统容量' },
-                { step: 3, title: '3. 关键节点与预期效益' },
-                { step: 4, title: '4. 附件上传与归档' },
-              ].map((s) => (
-                <button
-                  key={s.step}
-                  type="button"
-                  onClick={() => setFormStep(s.step as any)}
+            {/* Modal Body: 统一单窗口表单 (宽幅两列/三列布局) */}
+            <div className="p-6 overflow-y-auto space-y-4 text-xs flex-1">
+              {/* 隐藏的真实本地文件输入框 */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                multiple
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.png,.jpg,.jpeg"
+                onChange={handleRealFileUpload}
+                className="hidden"
+              />
+
+              {/* 模块一：项目基本信息 */}
+              <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200/70">
+                  <span className="size-2 rounded-full bg-[#1677ff]" />
+                  <span className="font-bold text-slate-800 text-xs">基本信息与单位归属</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <div className="md:col-span-3">
+                    <label className="block text-slate-700 font-medium mb-1">项目名称 *</label>
+                    <input
+                      type="text"
+                      placeholder="例如：特变电工沈阳变压器厂区 15MWp 屋顶分布式光伏二期项目"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white focus:border-blue-500 focus:outline-none text-slate-900 font-medium"
+                    />
+                  </div>
+
+                  <div className="md:col-span-1">
+                    <label className="block text-slate-700 font-medium mb-1">零碳项目类型 *</label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => {
+                        const cat = e.target.value as ProjectArchiveItem['category']
+                        setFormData({ ...formData, category: cat })
+                      }}
+                      className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-bold text-slate-800"
+                    >
+                      <option value="光伏">☀️ 光伏</option>
+                      <option value="储能">🔋 储能</option>
+                      <option value="热泵">♨️ 热泵</option>
+                    </select>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-slate-700 font-medium mb-1">
+                      实施经营单位 (所属零碳园区与主体) *
+                    </label>
+                    <select
+                      value={`${formData.park}::${formData.company}`}
+                      onChange={(e) => {
+                        const [pName, cName] = e.target.value.split('::')
+                        setFormData({ ...formData, park: pName, company: cName })
+                      }}
+                      className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-bold text-slate-800"
+                    >
+                      {PARK_ORG_TREE_DATA[0].children?.map((park) => {
+                        const units: { id: string; name: string }[] = []
+                        const traverse = (node: StandardOrgNode) => {
+                          if (node.level === 'workshop' || node.level === 'company') {
+                            units.push({ id: node.id, name: node.name })
+                          }
+                          if (node.children) {
+                            node.children.forEach(traverse)
+                          }
+                        }
+                        if (park.children) park.children.forEach(traverse)
+
+                        return (
+                          <optgroup key={park.id} label={`🏞️ ${park.name} (${park.badge || '园区'})`}>
+                            {units.map((u) => (
+                              <option key={u.id} value={`${park.name}::${u.name}`}>
+                                └ {u.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )
+                      })}
+                    </select>
+                  </div>
+
+                  <div className="md:col-span-1">
+                    <label className="block text-slate-700 font-medium mb-1">项目负责人</label>
+                    <input
+                      type="text"
+                      placeholder="如：张工"
+                      value={formData.leaderName}
+                      onChange={(e) => setFormData({ ...formData, leaderName: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white focus:border-blue-500 focus:outline-none text-slate-800"
+                    />
+                  </div>
+
+                  <div className="md:col-span-1">
+                    <label className="block text-slate-700 font-medium mb-1">联系电话</label>
+                    <input
+                      type="text"
+                      placeholder="如：138****0000"
+                      value={formData.leaderPhone}
+                      onChange={(e) => setFormData({ ...formData, leaderPhone: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white focus:border-blue-500 focus:outline-none font-mono text-slate-800"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 模块二：技术类型、容量投资与建设节点 */}
+              <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200/70">
+                  <span className="size-2 rounded-full bg-emerald-600" />
+                  <span className="font-bold text-slate-800 text-xs">建设规模、投资金额与关键节点</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                  <div className="md:col-span-1">
+                    <label className="block text-slate-700 font-medium mb-1">建设容量 / 规模 *</label>
+                    <input
+                      type="text"
+                      placeholder="例如：12.8 MWp"
+                      value={formData.capacity}
+                      onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white focus:border-blue-500 focus:outline-none font-mono font-bold text-slate-900"
+                    />
+                  </div>
+
+                  <div className="md:col-span-1">
+                    <label className="block text-slate-700 font-medium mb-1">总投资额 (万元) *</label>
+                    <input
+                      type="number"
+                      placeholder="例如：4850.0"
+                      value={formData.investment}
+                      onChange={(e) => setFormData({ ...formData, investment: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white focus:border-blue-500 focus:outline-none font-mono font-bold text-emerald-700"
+                    />
+                  </div>
+
+                  <div className="md:col-span-1">
+                    <label className="block text-slate-700 font-medium mb-1">立项批复日期</label>
+                    <input
+                      type="date"
+                      value={formData.milestoneApproval}
+                      onChange={(e) => setFormData({ ...formData, milestoneApproval: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-mono text-slate-800"
+                    />
+                  </div>
+
+                  <div className="md:col-span-1">
+                    <label className="block text-slate-700 font-medium mb-1">开工建设日期</label>
+                    <input
+                      type="date"
+                      value={formData.milestoneStart}
+                      onChange={(e) => setFormData({ ...formData, milestoneStart: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-mono text-slate-800"
+                    />
+                  </div>
+
+                  <div className="md:col-span-1">
+                    <label className="block text-slate-700 font-medium mb-1">并网 / 投产日期 *</label>
+                    <input
+                      type="date"
+                      value={formData.milestoneGrid}
+                      onChange={(e) => setFormData({ ...formData, milestoneGrid: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-mono font-bold text-[#1677ff]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 模块三：项目附件与批复资料 (真实本地上传 + 拖拽支持) */}
+              <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between pb-1.5 border-b border-slate-200/70">
+                  <div className="flex items-center gap-2">
+                    <span className="size-2 rounded-full bg-amber-500" />
+                    <span className="font-bold text-slate-800 text-xs">
+                      资料附件与支撑文件 ({formData.attachments.length})
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-3 py-1 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                    >
+                      <UploadCloud className="size-3.5" />
+                      选择本地文件上传
+                    </button>
+                    {formData.attachments.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, attachments: [] })}
+                        className="text-[11px] text-slate-400 hover:text-rose-600 font-medium transition-colors cursor-pointer px-1"
+                      >
+                        清空
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* 拖拽/点击上传提示框 */}
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    setIsDragging(true)
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleDropFiles}
+                  onClick={() => fileInputRef.current?.click()}
                   className={cn(
-                    'flex items-center gap-1.5 font-bold px-3 py-1 rounded-lg transition-all cursor-pointer',
-                    formStep === s.step
-                      ? 'bg-white text-[#1677ff] shadow-xs'
-                      : formStep > s.step
-                      ? 'text-emerald-700'
-                      : 'text-slate-400 hover:text-slate-600'
+                    'border-2 border-dashed rounded-xl p-3.5 text-center transition-all cursor-pointer flex items-center justify-center gap-2',
+                    isDragging
+                      ? 'border-[#1677ff] bg-blue-50/80'
+                      : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50/40 bg-white/70'
                   )}
                 >
-                  <span
-                    className={cn(
-                      'size-4.5 rounded-full flex items-center justify-center text-[10px]',
-                      formStep === s.step
-                        ? 'bg-[#1677ff] text-white'
-                        : formStep > s.step
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-slate-300 text-white'
-                    )}
-                  >
-                    {formStep > s.step ? <Check className="size-3" /> : s.step}
+                  <UploadCloud className="size-4.5 text-[#1677ff]" />
+                  <span className="text-xs font-bold text-slate-800">点击此处或拖拽本地文件到此处上传</span>
+                  <span className="text-[11px] text-slate-400 font-sans">
+                    (支持 PDF / Word / Excel / ZIP，单个最大 50MB)
                   </span>
-                  {s.title}
-                </button>
-              ))}
-            </div>
-
-            {/* Modal Body (分步内容) */}
-            <div className="p-6 overflow-y-auto space-y-4 text-xs flex-1">
-              {/* Step 1: 项目基本信息 */}
-              {formStep === 1 && (
-                <div className="space-y-3.5 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <span className="size-2 rounded-full bg-[#1677ff]" />
-                      一、填报单位与项目基础定义
-                    </span>
-                    <span className="text-[11px] text-slate-400 font-mono">支持手动输入或沿用默认编码</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3.5">
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">项目编码 (档案唯一标识) *</label>
-                      <input
-                        type="text"
-                        placeholder="例如：PRJ-2026-PV-008"
-                        value={formData.code}
-                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 focus:border-blue-500 focus:outline-none text-slate-800 font-mono font-bold"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">实施经营单位 (填报主体) *</label>
-                      <select
-                        value={formData.company}
-                        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-bold text-slate-800"
-                      >
-                        <optgroup label="🏢 沈变公司 (一级单位)">
-                          <option value="沈变公司">沈变公司</option>
-                          <option value="沈变本部">└ 沈变本部</option>
-                          <option value="露娜公司">└ 露娜公司 (特变电工露娜智能)</option>
-                          <option value="智慧能源">└ 智慧能源</option>
-                          <option value="和新套管公司">└ 和新套管公司</option>
-                          <option value="康嘉互感器">└ 康嘉互感器</option>
-                          <option value="印能公司">└ 印能公司</option>
-                        </optgroup>
-                        <optgroup label="🏢 衡变公司 (一级单位)">
-                          <option value="衡变公司">衡变公司</option>
-                          <option value="衡变本部">└ 衡变本部</option>
-                          <option value="南京电研">└ 南京电研</option>
-                          <option value="云集电气">└ 云集电气</option>
-                          <option value="湖南电气">└ 湖南电气</option>
-                          <option value="云集高压开关">└ 云集高压开关</option>
-                          <option value="新疆自控">└ 新疆自控</option>
-                          <option value="特能建">└ 特能建</option>
-                          <option value="合容电气">└ 合容电气</option>
-                          <option value="赛杰爱迪">└ 赛杰爱迪</option>
-                        </optgroup>
-                        <optgroup label="🏢 新变厂 (一级单位)">
-                          <option value="新变厂">新变厂</option>
-                          <option value="超高压公司">└ 超高压公司</option>
-                          <option value="天变公司">└ 天变公司</option>
-                          <option value="智能电气公司">└ 智能电气公司</option>
-                          <option value="京津冀公司">└ 京津冀公司</option>
-                          <option value="珠峰硅钢">└ 珠峰硅钢</option>
-                          <option value="银利电气">└ 银利电气</option>
-                        </optgroup>
-                        <optgroup label="🏢 鲁缆公司 (一级单位)">
-                          <option value="鲁缆公司">鲁缆公司</option>
-                          <option value="鲁缆本部">└ 鲁缆本部</option>
-                          <option value="智缆公司">└ 智缆公司</option>
-                          <option value="昭和公司">└ 昭和公司</option>
-                          <option value="曙光公司">└ 曙光公司</option>
-                        </optgroup>
-                        <optgroup label="🏢 新缆厂 (一级单位)">
-                          <option value="新缆厂">新缆厂</option>
-                          <option value="特变电工新疆电缆有限公司">└ 特变电工新疆电缆有限公司</option>
-                          <option value="特变电工新疆线缆厂">└ 特变电工新疆线缆厂</option>
-                        </optgroup>
-                        <optgroup label="🏢 德缆公司 (一级单位)">
-                          <option value="德缆公司">德缆公司</option>
-                          <option value="特变电工（德阳）电缆股份有限公司">└ 特变电工（德阳）电缆股份有限公司</option>
-                        </optgroup>
-                      </select>
-                    </div>
-
-                    <div className="col-span-2">
-                      <label className="block text-slate-700 font-medium mb-1">项目名称 *</label>
-                      <input
-                        type="text"
-                        placeholder="例如：特变电工沈阳变压器厂区 15MWp 屋顶分布式光伏二期项目"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 focus:border-blue-500 focus:outline-none text-slate-900 font-medium"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">所属零碳产业园区 *</label>
-                      <select
-                        value={formData.park}
-                        onChange={(e) => setFormData({ ...formData, park: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white"
-                      >
-                        <option value="特变电工东北输变电产业园">特变电工东北输变电产业园 (沈阳)</option>
-                        <option value="特变电工南方输变电产业园">特变电工南方输变电产业园 (衡阳)</option>
-                        <option value="特变电工新疆产业园">特变电工新疆产业园 (乌鲁木齐/昌吉)</option>
-                        <option value="特变电工华东输变电科技产业园">特变电工华东输变电科技产业园 (新泰)</option>
-                        <option value="特变电工天变产业园">特变电工天变产业园 (天津)</option>
-                        <option value="特变电工(德阳)电缆园区">特变电工(德阳)电缆园区 (德阳)</option>
-                        <option value="特变电工新疆电缆产业园">特变电工新疆电缆产业园</option>
-                      </select>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-slate-700 font-medium mb-1">项目负责人</label>
-                        <input
-                          type="text"
-                          value={formData.leaderName}
-                          onChange={(e) => setFormData({ ...formData, leaderName: e.target.value })}
-                          className="w-full h-8 px-2.5 rounded-lg border border-slate-300 focus:border-blue-500 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-slate-700 font-medium mb-1">联系电话</label>
-                        <input
-                          type="text"
-                          value={formData.leaderPhone}
-                          onChange={(e) => setFormData({ ...formData, leaderPhone: e.target.value })}
-                          className="w-full h-8 px-2.5 rounded-lg border border-slate-300 focus:border-blue-500 focus:outline-none font-mono"
-                        />
-                      </div>
-                    </div>
-                  </div>
                 </div>
-              )}
 
-              {/* Step 2: 项目类型与系统容量 */}
-              {formStep === 2 && (
-                <div className="space-y-3.5 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <span className="size-2 rounded-full bg-emerald-600" />
-                      二、项目类型、系统容量与资金投资
-                    </span>
-                    <span className="text-[11px] text-slate-400">支持 4 大类零碳技术</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3.5">
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">零碳项目主类别 *</label>
-                      <select
-                        value={formData.category}
-                        onChange={(e) => {
-                          const cat = e.target.value as ProjectArchiveItem['category']
-                          let defaultSub = '屋顶分布式光伏 (BAPV)'
-                          if (cat === '储能配置') defaultSub = '用户侧磷酸铁锂储能'
-                          if (cat === '节能技改') defaultSub = '永磁变频电机节能技改'
-                          setFormData({ ...formData, category: cat, subType: defaultSub })
-                        }}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-bold"
-                      >
-                        <option value="节能技改">⚡ 节能技改 (电机变频 / 余热梯级利用 / 磁悬浮)</option>
-                        <option value="绿电替代">☀️ 绿电替代 (分布式光伏 / 风电 / 热泵)</option>
-                        <option value="储能配置">🔋 储能配置 (用户侧电化学储能 / 飞轮)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">细分技术路线 / 工艺 *</label>
-                      <input
-                        type="text"
-                        value={formData.subType}
-                        onChange={(e) => setFormData({ ...formData, subType: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 focus:border-blue-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">建设装机容量 / 规模 *</label>
-                      <input
-                        type="text"
-                        placeholder="例如：12.8 MWp 或 6MW/12MWh 或 48台套"
-                        value={formData.capacity}
-                        onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 focus:border-blue-500 focus:outline-none font-mono font-bold"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">总投资金额 (万元) *</label>
-                      <input
-                        type="number"
-                        placeholder="例如：4850.0"
-                        value={formData.investment}
-                        onChange={(e) => setFormData({ ...formData, investment: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 focus:border-blue-500 focus:outline-none font-mono font-bold text-emerald-700"
-                      />
-                    </div>
-
-                    <div className="col-span-2">
-                      <label className="block text-slate-700 font-medium mb-1">资金筹措来源</label>
-                      <div className="grid grid-cols-4 gap-2">
-                        {['自筹资金', '绿色金融信贷', 'EMC合同能源管理', '政府专项绿色补贴'].map((src) => (
-                          <button
-                            key={src}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, fundSource: src as any })}
-                            className={cn(
-                              'p-2 rounded-lg border text-center transition-all cursor-pointer font-medium text-xs',
-                              formData.fundSource === src
-                                ? 'bg-blue-50 border-blue-300 text-[#1677ff] font-bold'
-                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                            )}
-                          >
-                            {src}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 3: 关键节点与预期效益 */}
-              {formStep === 3 && (
-                <div className="space-y-3.5 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <span className="size-2 rounded-full bg-purple-600" />
-                      三、关键里程碑节点与预期减排及收益
-                    </span>
-                    <span className="text-[11px] text-slate-400">自动测算投资回收期</span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">立项批复日期</label>
-                      <input
-                        type="date"
-                        value={formData.milestoneApproval}
-                        onChange={(e) => setFormData({ ...formData, milestoneApproval: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">开工建设日期</label>
-                      <input
-                        type="date"
-                        value={formData.milestoneStart}
-                        onChange={(e) => setFormData({ ...formData, milestoneStart: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">并网 / 投产日期 *</label>
-                      <input
-                        type="date"
-                        value={formData.milestoneGrid}
-                        onChange={(e) => setFormData({ ...formData, milestoneGrid: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-mono font-bold text-[#1677ff]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3 pt-2">
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">预期年节电/发电量</label>
-                      <input
-                        type="text"
-                        placeholder="例如：1,420 万kWh/年"
-                        value={formData.expectedEnergySaving}
-                        onChange={(e) => setFormData({ ...formData, expectedEnergySaving: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">年减碳量 (tCO2/年) *</label>
-                      <input
-                        type="number"
-                        placeholder="例如：8098.0"
-                        value={formData.annualCarbonSaving}
-                        onChange={(e) => setFormData({ ...formData, annualCarbonSaving: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 font-mono font-bold text-purple-700"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">年收益/节费 (万元/年) *</label>
-                      <input
-                        type="number"
-                        placeholder="例如：852.0"
-                        value={formData.annualRevenue}
-                        onChange={(e) => setFormData({ ...formData, annualRevenue: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 font-mono font-bold text-emerald-700"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">预期内部收益率 (IRR)</label>
-                      <input
-                        type="text"
-                        placeholder="例如：14.2%"
-                        value={formData.irr}
-                        onChange={(e) => setFormData({ ...formData, irr: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-700 font-medium mb-1">项目建设状态 *</label>
-                      <select
-                        value={formData.status}
-                        onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                        className="w-full h-8 px-2.5 rounded-lg border border-slate-300 bg-white font-bold"
-                      >
-                        <option value="规划批复">规划批复 (立项准备阶段)</option>
-                        <option value="在建施工">在建施工 (工程安装中)</option>
-                        <option value="并网稳定运行">并网稳定运行 (正式投运)</option>
-                        <option value="维护优化">维护优化 (提效改造中)</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 4: 附件上传与归档 */}
-              {formStep === 4 && (
-                <div className="space-y-3.5 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <span className="size-2 rounded-full bg-amber-500" />
-                      四、相关附件资料上传 (可研报告 / 并网批复 / 验收单)
-                    </span>
-                    <span className="text-[11px] text-slate-400">支持多附件自动归档</span>
-                  </div>
-
-                  {/* 拖拽上传区域 */}
-                  <div
-                    onClick={handleAddMockAttachment}
-                    className="border-2 border-dashed border-blue-200 rounded-xl p-5 text-center bg-blue-50/30 hover:bg-blue-50/70 hover:border-blue-400 transition-all cursor-pointer space-y-1.5"
-                  >
-                    <UploadCloud className="size-8 text-[#1677ff] mx-auto" />
-                    <p className="text-xs font-bold text-slate-800">
-                      点击或拖拽上传项目资料附件
-                    </p>
-                    <p className="text-[11px] text-slate-500">
-                      支持 PDF、Word (.docx)、Excel (.xlsx)、ZIP 文件，单个文件最大不超过 50MB
-                    </p>
-                    <span className="inline-block px-2.5 py-0.5 rounded bg-white border border-blue-200 text-[#1677ff] text-[10px] font-bold">
-                      + 点击模拟添加一份立项批复文件
-                    </span>
-                  </div>
-
-                  {/* 已上传附件清单 */}
-                  <div className="space-y-2">
-                    <div className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                      <span>已上传附件档案 ({formData.attachments.length})</span>
-                      <span className="text-[11px] text-slate-400 font-mono">上传时间: 2026-08-28</span>
-                    </div>
-
+                {/* 已上传文件列表网格 */}
+                {formData.attachments.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-1">
                     {formData.attachments.map((att, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+                        className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:shadow-2xs transition-all group"
                       >
-                        <div className="flex items-center gap-2 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
                           <FileText className="size-4 text-[#1677ff] shrink-0" />
-                          <span className="font-medium text-slate-800 truncate">{att.name}</span>
-                          <span className="text-[10px] text-slate-400 font-mono shrink-0">({att.size})</span>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-slate-800 truncate text-xs" title={att.name}>
+                              {att.name}
+                            </p>
+                            <p className="text-[10px] text-slate-400 font-mono">
+                              {att.size} · {att.uploadTime}
+                            </p>
+                          </div>
                         </div>
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation()
                             setFormData({
                               ...formData,
                               attachments: formData.attachments.filter((_, i) => i !== idx),
                             })
                           }}
-                          className="text-rose-600 hover:text-rose-800 text-xs font-bold px-2 py-0.5 rounded hover:bg-rose-50 cursor-pointer"
+                          className="text-slate-400 hover:text-rose-600 p-1 rounded hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
+                          title="移除此附件"
                         >
-                          移除
+                          <X className="size-3.5" />
                         </button>
                       </div>
                     ))}
                   </div>
-
-                  <div>
-                    <label className="block text-slate-700 font-medium mb-1">备注说明</label>
-                    <textarea
-                      rows={2}
-                      placeholder="录入其他需要向集团说明的技术参数或消纳策略..."
-                      value={formData.remark}
-                      onChange={(e) => setFormData({ ...formData, remark: e.target.value })}
-                      className="w-full p-2.5 rounded-lg border border-slate-300 focus:border-blue-500 focus:outline-none text-xs"
-                    />
+                ) : (
+                  <div className="text-center py-1 text-slate-400 text-xs">
+                    暂未上传任何项目附件，可点击上方按钮上传立项批复或技术文件
                   </div>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer (上一步/下一步/提交) */}
-            <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
-              <div>
-                {formStep > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => setFormStep((formStep - 1) as any)}
-                    className="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:bg-slate-100 text-xs font-medium cursor-pointer"
-                  >
-                    上一步
-                  </button>
                 )}
               </div>
+            </div>
+
+            {/* Modal Footer (取消与直接保存) */}
+            <div className="px-6 py-3.5 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+              <span className="text-[11px] text-slate-400 font-medium">带 * 为必填项</span>
 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setShowFormModal(false)}
-                  className="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:bg-slate-100 text-xs font-medium cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:bg-slate-100 text-xs font-medium transition-colors cursor-pointer"
                 >
                   取消
                 </button>
-
-                {formStep < 4 ? (
-                  <button
-                    type="button"
-                    onClick={() => setFormStep((formStep + 1) as any)}
-                    className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1"
-                  >
-                    下一步
-                    <ChevronRight className="size-3.5" />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleSaveProject}
-                    className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1"
-                  >
-                    <Check className="size-3.5" />
-                    {isEditing ? '保存修改并重新汇算' : '确认创建并入库'}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleSaveProject}
+                  className="px-5 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Save className="size-3.5" />
+                  {isEditing ? '保存修改' : '保存档案并入库'}
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-            {/* 🌟 6. 详情查看大弹窗 (Detail Modal, max-w-5xl 宽幅工业级 Bento 风格) */}
+      {/* 🌟 6. 详情查看大弹窗 (Detail Modal, max-w-5xl 工业级现代化 Bento 风格，对齐最新精简字段体系) */}
       {detailProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 animate-in fade-in duration-200 font-sans">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-full max-w-7xl max-h-[92vh] flex flex-col overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden">
             {/* Modal Header */}
-            <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-50/90 via-blue-50/20 to-slate-50/90 flex items-start justify-between gap-4">
-              <div className="flex items-start gap-4 min-w-0">
-                <div className="size-12 rounded-2xl bg-white border border-blue-200/80 shadow-xs flex items-center justify-center shrink-0 text-[#1677ff] mt-0.5">
+            <div className="px-6 py-4.5 border-b border-slate-100 bg-gradient-to-r from-slate-50/90 via-blue-50/20 to-slate-50/90 flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3.5 min-w-0">
+                <div className="size-11 rounded-xl bg-white border border-blue-200/80 shadow-xs flex items-center justify-center shrink-0 text-[#1677ff] mt-0.5">
                   {getCategoryIcon(detailProject.category)}
                 </div>
                 <div className="space-y-1.5 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-lg font-bold text-slate-900 leading-snug tracking-tight">
-                      {detailProject.name}
-                    </h3>
-                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug tracking-tight">
+                    {detailProject.name}
+                  </h3>
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="px-2.5 py-0.5 rounded-md font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                      {detailProject.code}
-                    </span>
                     {getCategoryBadge(detailProject.category)}
                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-medium">
                       <Building2 className="size-3.5 text-slate-500" />
-                      {detailProject.company} · {detailProject.park}
-                    </span>
-                    <span
-                      className={cn(
-                        'px-2.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1.5',
-                        detailProject.status === '并网稳定运行'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : detailProject.status === '在建施工'
-                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                          : 'bg-amber-50 text-amber-700 border border-amber-200'
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          'size-1.5 rounded-full',
-                          detailProject.status === '并网稳定运行'
-                            ? 'bg-emerald-500 animate-pulse'
-                            : detailProject.status === '在建施工'
-                            ? 'bg-blue-500'
-                            : 'bg-amber-500'
-                        )}
-                      />
-                      {detailProject.status}
+                      {detailProject.park} · {detailProject.company}
                     </span>
                   </div>
                 </div>
@@ -1410,7 +1246,7 @@ export default function ProjectArchivePage() {
               <button
                 type="button"
                 onClick={() => setDetailProject(null)}
-                className="p-2 rounded-xl hover:bg-slate-200/70 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer shrink-0"
+                className="p-1.5 rounded-xl hover:bg-slate-200/70 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer shrink-0"
               >
                 <X className="size-5" />
               </button>
@@ -1418,95 +1254,73 @@ export default function ProjectArchivePage() {
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-5 text-xs">
-              {/* 1. 4 大核心指标卡片 (Bento KPI Grid) */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+              {/* 1. 3 大核心指标卡片 (装机容量 + 投资金额 + 并网投产日期) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                 {/* 卡片 1: 建设装机容量 */}
-                <div className="bg-gradient-to-br from-blue-50/40 via-white to-slate-50/50 p-4 rounded-xl border border-blue-100 shadow-2xs hover:shadow-xs transition-shadow">
+                <div className="bg-gradient-to-br from-blue-50/50 via-white to-slate-50/50 p-4 rounded-xl border border-blue-100/90 shadow-2xs hover:shadow-xs transition-shadow">
                   <div className="flex items-center justify-between text-slate-500 font-medium mb-1.5">
-                    <span className="flex items-center gap-1.5 text-xs text-slate-600">
-                      <Zap className="size-3.5 text-[#1677ff]" />
-                      建设装机容量
+                    <span className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
+                      <Zap className="size-4 text-[#1677ff]" />
+                      建设装机容量 / 规模
                     </span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-[#1677ff] font-bold border border-blue-100">
                       装机规模
                     </span>
                   </div>
-                  <div className="text-xl font-extrabold font-mono text-slate-900 tracking-tight">
+                  <div className="text-2xl font-extrabold font-mono text-slate-900 tracking-tight my-1">
                     {detailProject.capacity}
                   </div>
-                  <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1.5 mt-2 truncate">
-                    细分：<span className="text-slate-700 font-medium">{detailProject.subType}</span>
+                  <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1.5 mt-1.5">
+                    技术分类：<span className="text-slate-700 font-bold">{detailProject.category}工程</span>
                   </div>
                 </div>
 
                 {/* 卡片 2: 总投资额 */}
-                <div className="bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/50 p-4 rounded-xl border border-emerald-100 shadow-2xs hover:shadow-xs transition-shadow">
+                <div className="bg-gradient-to-br from-emerald-50/50 via-white to-slate-50/50 p-4 rounded-xl border border-emerald-100/90 shadow-2xs hover:shadow-xs transition-shadow">
                   <div className="flex items-center justify-between text-slate-500 font-medium mb-1.5">
-                    <span className="flex items-center gap-1.5 text-xs text-slate-600">
-                      <DollarSign className="size-3.5 text-emerald-600" />
-                      总投资额 (CapEx)
+                    <span className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
+                      <DollarSign className="size-4 text-emerald-600" />
+                      总投资金额 (CapEx)
                     </span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">
-                      资金筹措
+                      投资总额
                     </span>
                   </div>
-                  <div className="text-xl font-extrabold font-mono text-emerald-700 tracking-tight">
+                  <div className="text-2xl font-extrabold font-mono text-emerald-700 tracking-tight my-1">
                     ¥{detailProject.investment.toLocaleString()}{' '}
                     <span className="text-xs font-semibold text-emerald-600">万元</span>
                   </div>
-                  <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1.5 mt-2 truncate">
-                    来源：<span className="text-slate-700 font-medium">{detailProject.fundSource}</span>
+                  <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1.5 mt-1.5">
+                    固定资产与工程安装投资
                   </div>
                 </div>
 
-                {/* 卡片 3: 年化碳减排 */}
-                <div className="bg-gradient-to-br from-purple-50/40 via-white to-slate-50/50 p-4 rounded-xl border border-purple-100 shadow-2xs hover:shadow-xs transition-shadow">
+                {/* 卡片 3: 并网 / 投产日期 */}
+                <div className="bg-gradient-to-br from-purple-50/50 via-white to-slate-50/50 p-4 rounded-xl border border-purple-100/90 shadow-2xs hover:shadow-xs transition-shadow">
                   <div className="flex items-center justify-between text-slate-500 font-medium mb-1.5">
-                    <span className="flex items-center gap-1.5 text-xs text-slate-600">
-                      <Leaf className="size-3.5 text-purple-600" />
-                      预期年化碳减排
+                    <span className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
+                      <Calendar className="size-4 text-purple-600" />
+                      并网 / 投产生效日期
                     </span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 font-bold border border-purple-100">
-                      双碳贡献
+                      关键节点
                     </span>
                   </div>
-                  <div className="text-xl font-extrabold font-mono text-purple-700 tracking-tight">
-                    {detailProject.annualCarbonSaving.toLocaleString()}{' '}
-                    <span className="text-xs font-semibold text-purple-600">tCO₂/年</span>
+                  <div className="text-2xl font-extrabold font-mono text-purple-700 tracking-tight my-1">
+                    {detailProject.milestoneGrid}
                   </div>
-                  <div className="text-[11px] text-slate-500 font-mono border-t border-slate-100 pt-1.5 mt-2">
-                    等效折标煤 <span className="text-slate-700 font-bold">{(detailProject.annualCarbonSaving * 0.214).toFixed(0)}</span> tce/年
-                  </div>
-                </div>
-
-                {/* 卡片 4: 财务回报 */}
-                <div className="bg-gradient-to-br from-amber-50/40 via-white to-slate-50/50 p-4 rounded-xl border border-amber-100 shadow-2xs hover:shadow-xs transition-shadow">
-                  <div className="flex items-center justify-between text-slate-500 font-medium mb-1.5">
-                    <span className="flex items-center gap-1.5 text-xs text-slate-600">
-                      <TrendingUp className="size-3.5 text-amber-600" />
-                      年预期收益 / 节费
-                    </span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-bold border border-amber-100">
-                      财务回报
-                    </span>
-                  </div>
-                  <div className="text-xl font-extrabold font-mono text-amber-700 tracking-tight">
-                    ¥{detailProject.annualRevenue.toLocaleString()}{' '}
-                    <span className="text-xs font-semibold text-amber-600">万元/年</span>
-                  </div>
-                  <div className="text-[11px] text-slate-500 font-mono border-t border-slate-100 pt-1.5 mt-2 flex justify-between">
-                    <span>回收期: <strong className="text-slate-800">{detailProject.paybackYears} 年</strong></span>
-                    <span>IRR: <strong className="text-[#1677ff]">{detailProject.irr}</strong></span>
+                  <div className="text-[11px] text-slate-500 font-sans border-t border-slate-100 pt-1.5 mt-1.5">
+                    正式投产运行时间
                   </div>
                 </div>
               </div>
 
               {/* 2. 左右两栏深度详情网格 (7 : 5) */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                {/* 左栏 7 栅格：全周期实施进度 + 实施责任主体 + 能源与经济测算明细 */}
+                {/* 左栏 7 栅格：全周期实施进度 + 实施责任主体 + 备注说明 */}
                 <div className="lg:col-span-7 space-y-4">
                   {/* 里程碑时间轴 Stepper */}
-                  <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs space-y-3.5">
+                  <div className="bg-white p-4.5 rounded-xl border border-slate-200/90 shadow-2xs space-y-3.5">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                       <h4 className="text-xs font-bold text-slate-800 flex items-center gap-2">
                         <div className="size-6 rounded-lg bg-blue-50 text-[#1677ff] flex items-center justify-center">
@@ -1517,117 +1331,84 @@ export default function ProjectArchivePage() {
                       <span className="text-[11px] text-slate-400 font-mono">全过程跟踪管控</span>
                     </div>
 
-                    {/* Stepper Timeline with Progress Cards */}
+                    {/* Stepper Timeline */}
                     <div className="grid grid-cols-3 gap-3">
                       {/* Milestone 1 */}
-                      <div className="p-3 rounded-xl border border-slate-200/90 bg-slate-50/70 relative space-y-1.5">
+                      <div className="p-3 rounded-xl border border-slate-200/90 bg-slate-50/70 space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-slate-500 font-medium">1. 立项批复</span>
-                          <span className="px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-700 text-[10px] font-bold">已完成</span>
                         </div>
                         <div className="font-mono font-bold text-slate-900 text-xs">
-                          {detailProject.milestoneApproval}
+                          {detailProject.milestoneApproval || '暂无'}
                         </div>
                         <p className="text-[10px] text-slate-400">可研与投资决议批复</p>
                       </div>
 
                       {/* Milestone 2 */}
-                      <div className="p-3 rounded-xl border border-blue-200/90 bg-blue-50/40 relative space-y-1.5">
+                      <div className="p-3 rounded-xl border border-blue-200/90 bg-blue-50/40 space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-blue-900 font-medium">2. 施工开工</span>
-                          <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-bold">工程交付</span>
                         </div>
                         <div className="font-mono font-bold text-slate-900 text-xs">
-                          {detailProject.milestoneStart}
+                          {detailProject.milestoneStart || '暂无'}
                         </div>
                         <p className="text-[10px] text-slate-400">设备进场与工程安装</p>
                       </div>
 
                       {/* Milestone 3 */}
-                      <div className="p-3 rounded-xl border border-emerald-200/90 bg-emerald-50/50 relative space-y-1.5">
+                      <div className="p-3 rounded-xl border border-emerald-200/90 bg-emerald-50/50 space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-emerald-900 font-bold">3. 并网/投运生效</span>
-                          <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">正式投产</span>
+                          <span className="text-[11px] text-emerald-900 font-bold">3. 并网 / 投产</span>
                         </div>
                         <div className="font-mono font-bold text-emerald-700 text-xs">
                           {detailProject.milestoneGrid}
                         </div>
-                        <p className="text-[10px] text-emerald-600/80">稳定运行与减排核算</p>
+                        <p className="text-[10px] text-emerald-600/80">正式投产运行</p>
                       </div>
                     </div>
                   </div>
 
                   {/* 实施主体与管理责任 */}
-                  <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs space-y-3">
+                  <div className="bg-white p-4.5 rounded-xl border border-slate-200/90 shadow-2xs space-y-3">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                       <h4 className="text-xs font-bold text-slate-800 flex items-center gap-2">
                         <div className="size-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
                           <Building2 className="size-3.5" />
                         </div>
-                        实施责任主体与属地管理
+                        实施责任主体与属地管理 (园区结构树)
                       </h4>
                       <span className="text-[11px] text-slate-400 font-mono">组织与联系人</span>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                      <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                        <span className="text-[11px] text-slate-500 block mb-0.5">实施经营单位</span>
-                        <span className="font-bold text-slate-800 text-xs">{detailProject.company}</span>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-200/60">
+                        <span className="text-[11px] text-slate-500 block mb-0.5">实施经营单位 (填报主体)</span>
+                        <span className="font-bold text-slate-900 text-xs">{detailProject.company}</span>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                        <span className="text-[11px] text-slate-500 block mb-0.5">所属零碳园区</span>
-                        <span className="font-bold text-slate-800 text-xs truncate block" title={detailProject.park}>
+                      <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-200/60">
+                        <span className="text-[11px] text-slate-500 block mb-0.5">所属零碳产业园区</span>
+                        <span className="font-bold text-slate-900 text-xs truncate block" title={detailProject.park}>
                           {detailProject.park}
                         </span>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                      <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-200/60">
                         <span className="text-[11px] text-slate-500 block mb-0.5">项目责任人</span>
-                        <span className="font-bold text-slate-800 text-xs">{detailProject.leaderName}</span>
+                        <span className="font-bold text-slate-900 text-xs">{detailProject.leaderName}</span>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                      <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-200/60">
                         <span className="text-[11px] text-slate-500 block mb-0.5">联系电话</span>
-                        <span className="font-mono font-bold text-slate-800 text-xs">{detailProject.leaderPhone}</span>
+                        <span className="font-mono font-bold text-slate-900 text-xs">{detailProject.leaderPhone}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* 能源消纳与经济效益参数明细 */}
-                  <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <h4 className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                        <div className="size-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                          <Activity className="size-3.5" />
-                        </div>
-                        能源消纳与经济效益参数明细
-                      </h4>
-                      <span className="text-[11px] text-slate-400 font-mono">财务测算模型</span>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="p-3 rounded-lg border border-slate-100 bg-slate-50/60 flex items-center justify-between">
-                        <span className="text-slate-600">预期年节电 / 发电量：</span>
-                        <span className="font-bold font-mono text-slate-900">{detailProject.expectedEnergySaving}</span>
-                      </div>
-                      <div className="p-3 rounded-lg border border-slate-100 bg-slate-50/60 flex items-center justify-between">
-                        <span className="text-slate-600">静态投资回收期：</span>
-                        <span className="font-bold font-mono text-emerald-700">{detailProject.paybackYears} 年</span>
-                      </div>
-                      <div className="p-3 rounded-lg border border-slate-100 bg-slate-50/60 flex items-center justify-between">
-                        <span className="text-slate-600">项目内部收益率 (IRR)：</span>
-                        <span className="font-bold font-mono text-[#1677ff]">{detailProject.irr}</span>
-                      </div>
-                      <div className="p-3 rounded-lg border border-slate-100 bg-slate-50/60 flex items-center justify-between">
-                        <span className="text-slate-600">资金筹措方式：</span>
-                        <span className="font-bold font-mono text-slate-800">{detailProject.fundSource}</span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
-                {/* 右栏 5 栅格：附件资料清单 + 技术方案与存证 */}
-                <div className="lg:col-span-5 space-y-4 flex flex-col justify-between">
+                {/* 右栏 5 栅格：附件资料清单 + 权威存证 */}
+                <div className="lg:col-span-5 space-y-4">
                   {/* 附件资料卡片 */}
-                  <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs space-y-3">
+                  <div className="bg-white p-4.5 rounded-xl border border-slate-200/90 shadow-2xs space-y-3">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                       <span className="text-xs font-bold text-slate-800 flex items-center gap-2">
                         <div className="size-6 rounded-lg bg-blue-50 text-[#1677ff] flex items-center justify-center">
@@ -1635,45 +1416,53 @@ export default function ProjectArchivePage() {
                         </div>
                         支撑附件与批复报告 ({detailProject.attachments.length})
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => alert(`已成功一键打包下载项目【${detailProject.name}】全部支撑附件包！`)}
-                        className="text-[#1677ff] hover:text-blue-700 font-bold text-xs cursor-pointer flex items-center gap-1 hover:underline"
-                      >
-                        <Download className="size-3" />
-                        一键打包下载
-                      </button>
+                      {detailProject.attachments.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => alert(`已成功一键打包下载项目【${detailProject.name}】全部支撑附件包！`)}
+                          className="text-[#1677ff] hover:text-blue-700 font-bold text-xs cursor-pointer flex items-center gap-1 hover:underline"
+                        >
+                          <Download className="size-3" />
+                          一键打包下载
+                        </button>
+                      )}
                     </div>
 
-                    <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                      {detailProject.attachments.map((att, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200/80 bg-slate-50/60 hover:bg-blue-50/40 hover:border-blue-200 transition-all group"
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="size-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 text-[#1677ff] font-mono text-[10px] font-bold shadow-2xs">
-                              {att.type}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-bold text-slate-800 truncate text-xs group-hover:text-[#1677ff] transition-colors">
-                                {att.name}
-                              </p>
-                              <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                                大小：{att.size} · 上传：{att.uploadTime}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => alert(`正在调取对象存储并下载附件：${att.name}`)}
-                            className="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 border border-slate-200 text-[#1677ff] text-[11px] font-bold shrink-0 cursor-pointer shadow-2xs transition-colors ml-2"
+                    {detailProject.attachments.length > 0 ? (
+                      <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                        {detailProject.attachments.map((att, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200/80 bg-slate-50/60 hover:bg-blue-50/40 hover:border-blue-200 transition-all group"
                           >
-                            下载
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+                            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                              <div className="size-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 text-[#1677ff] font-mono text-[10px] font-bold shadow-2xs">
+                                {att.type || 'PDF'}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-bold text-slate-800 truncate text-xs group-hover:text-[#1677ff] transition-colors" title={att.name}>
+                                  {att.name}
+                                </p>
+                                <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                  大小：{att.size} · 上传：{att.uploadTime}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => alert(`正在调取对象存储并下载附件：${att.name}`)}
+                              className="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 border border-slate-200 text-[#1677ff] text-[11px] font-bold shrink-0 cursor-pointer shadow-2xs transition-colors ml-2"
+                            >
+                              下载
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-6 text-slate-400 text-xs">
+                        暂无附件文件
+                      </div>
+                    )}
 
                     <div className="p-3 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 flex items-start gap-2">
                       <ShieldCheck className="size-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -1683,25 +1472,12 @@ export default function ProjectArchivePage() {
                       </div>
                     </div>
                   </div>
-
-                  {/* 技术方案与消纳策略说明 */}
-                  {detailProject.remark && (
-                    <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/20 p-4 rounded-xl border border-slate-200/90 shadow-2xs space-y-2">
-                      <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-                        <FileCheck2 className="size-4 text-[#1677ff]" />
-                        <span>技术方案与消纳策略说明</span>
-                      </div>
-                      <p className="text-xs text-slate-600 leading-relaxed font-sans pl-6">
-                        {detailProject.remark}
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/90">
+            <div className="px-6 py-3.5 border-t border-slate-100 flex items-center justify-between bg-slate-50/90">
               <button
                 type="button"
                 onClick={() => {
