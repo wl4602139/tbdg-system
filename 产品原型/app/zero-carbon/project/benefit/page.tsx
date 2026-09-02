@@ -942,8 +942,8 @@ export default function BenefitEvaluationPage() {
       {/* ========================================================================= */}
       {activeModule === 'storage' && (
         <div className="space-y-3.5">
-          {/* 储能 8 大核心评估指标卡 */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2.5">
+          {/* 储能 8 大核心评估指标卡 (双行 4x2 布局) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
             <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
               <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">日充电量</span>
@@ -1204,8 +1204,8 @@ export default function BenefitEvaluationPage() {
       {/* ========================================================================= */}
       {activeModule === 'heatpump' && (
         <div className="space-y-3.5">
-          {/* 热泵 6 大核心指标卡 + 节费收益卡 */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2.5">
+          {/* 热泵 8 大核心评估指标卡 (双行 4x2 布局) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
             <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
               <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">市电量</span>
