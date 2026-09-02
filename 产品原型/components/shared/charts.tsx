@@ -25,8 +25,8 @@ import {
   YAxis,
 } from 'recharts'
 
-const axisStyle = { fontSize: 11, fill: 'oklch(0.68 0.03 235)' }
-const gridColor = 'oklch(0.72 0.12 220 / 12%)'
+const axisStyle = { fontSize: 11, fill: 'oklch(0.82 0.02 240)', fontWeight: 500 }
+const gridColor = 'oklch(0.72 0.12 220 / 18%)'
 
 const chartColors = [
   'var(--chart-1)',
@@ -37,12 +37,12 @@ const chartColors = [
 ]
 
 const tooltipStyle = {
-  background: 'oklch(0.2 0.035 252)',
-  border: '1px solid oklch(0.72 0.12 220 / 25%)',
+  background: 'rgba(11, 21, 40, 0.95)',
+  border: '1px solid rgba(56, 189, 248, 0.4)',
   borderRadius: 8,
-  color: 'oklch(0.92 0.02 240)',
+  color: '#f8fafc',
   fontSize: 12,
-  boxShadow: '0 8px 24px -4px rgba(0, 0, 0, 0.5)',
+  boxShadow: '0 8px 24px -4px rgba(0, 0, 0, 0.6)',
 }
 
 export type SeriesKey = string | { key: string; name?: string; color?: string }
@@ -129,7 +129,7 @@ export function LineTrend({
   return (
     <div className="relative w-full">
       {yUnit && (
-        <div className="absolute -top-3 left-2 text-[10.5px] text-slate-500 font-mono z-10 select-none bg-white/80 px-1 rounded">
+        <div className="absolute -top-3 left-2 text-[10.5px] text-muted-foreground font-mono z-10 select-none bg-panel/90 px-1.5 py-0.5 rounded border border-border/40">
           单位: {yUnit}
         </div>
       )}
@@ -389,10 +389,10 @@ export function RadarCompare({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-        <PolarGrid stroke="#e2e8f0" strokeDasharray="3 3" />
+        <PolarGrid stroke="oklch(0.72 0.12 220 / 22%)" strokeDasharray="3 3" />
         <PolarAngleAxis
           dataKey={angleKey}
-          tick={{ fontSize: 11, fill: '#475569', fontWeight: 600 }}
+          tick={{ fontSize: 11, fill: 'oklch(0.85 0.02 240)', fontWeight: 600 }}
         />
         <Tooltip contentStyle={tooltipStyle} />
         <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
@@ -525,12 +525,12 @@ export function SankeyFlow({
         tooltip: {
           trigger: 'item',
           triggerOn: 'mousemove',
-          backgroundColor: 'rgba(255, 255, 255, 0.96)',
-          borderColor: '#cbd5e1',
+          backgroundColor: 'rgba(11, 21, 40, 0.95)',
+          borderColor: 'rgba(56, 189, 248, 0.4)',
           borderWidth: 1,
           padding: [8, 12],
           textStyle: {
-            color: '#1e293b',
+            color: '#f8fafc',
             fontSize: 12,
             fontFamily: 'sans-serif',
           },
@@ -541,33 +541,33 @@ export function SankeyFlow({
               if (shouldDisplayRatio && params.value !== undefined) {
                 if (depth === 1 && rootTotal > 0) {
                   const ratio = ((params.value / rootTotal) * 100).toFixed(1)
-                  ratioStr = `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占全集团: ${ratio}%)</span>`
+                  ratioStr = `<span style="color: #34d399; font-weight: bold; margin-left: 6px;">(占全集团: ${ratio}%)</span>`
                 } else if (depth === 2) {
                   const parentInfo = nodeParentMap[params.name]
                   if (parentInfo && parentInfo.parentTotal > 0) {
                     const ratio = ((params.value / parentInfo.parentTotal) * 100).toFixed(1)
-                    ratioStr = `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占${parentInfo.parentName}: ${ratio}%)</span>`
+                    ratioStr = `<span style="color: #34d399; font-weight: bold; margin-left: 6px;">(占${parentInfo.parentName}: ${ratio}%)</span>`
                   }
                 }
               }
-              return `<div style="font-weight: bold; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px;">${params.name}</div>
-                      <div style="color: #475569;">数值: <strong style="color: #1677ff; font-family: monospace;">${params.value !== undefined ? params.value.toLocaleString() : '-'}</strong> ${unit}${ratioStr}</div>`
+              return `<div style="font-weight: bold; color: #ffffff; border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding-bottom: 4px; margin-bottom: 4px;">${params.name}</div>
+                      <div style="color: #cbd5e1;">数值: <strong style="color: #38bdf8; font-family: monospace;">${params.value !== undefined ? params.value.toLocaleString() : '-'}</strong> ${unit}${ratioStr}</div>`
             } else if (params.dataType === 'edge') {
               let edgeRatioStr = ''
               if (shouldDisplayRatio && params.data?.value !== undefined) {
                 const srcNode = nodes.find((n) => n.name === params.data.source)
                 if (srcNode?.depth === 0 && rootTotal > 0) {
-                  edgeRatioStr = `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占全集团: ${((params.data.value / rootTotal) * 100).toFixed(1)}%)</span>`
+                  edgeRatioStr = `<span style="color: #34d399; font-weight: bold; margin-left: 6px;">(占全集团: ${((params.data.value / rootTotal) * 100).toFixed(1)}%)</span>`
                 } else if (srcNode?.depth === 1) {
                   const pTotal = companyTotals[params.data.source] || 0
                   if (pTotal > 0) {
-                    edgeRatioStr = `<span style="color: #10b981; font-weight: bold; margin-left: 6px;">(占${params.data.source}: ${((params.data.value / pTotal) * 100).toFixed(1)}%)</span>`
+                    edgeRatioStr = `<span style="color: #34d399; font-weight: bold; margin-left: 6px;">(占${params.data.source}: ${((params.data.value / pTotal) * 100).toFixed(1)}%)</span>`
                   }
                 }
               }
-              return `<div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">能量/数据流向传递</div>
-                      <div style="font-weight: 600; color: #1e293b;">${params.data.source} ➔ ${params.data.target}</div>
-                      <div style="margin-top: 4px; color: #334155;">数值: <strong style="color: #1677ff; font-family: monospace;">${params.data.value?.toLocaleString()}</strong> ${unit}${edgeRatioStr}</div>`
+              return `<div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px;">能量/数据流向传递</div>
+                      <div style="font-weight: 600; color: #ffffff;">${params.data.source} ➔ ${params.data.target}</div>
+                      <div style="margin-top: 4px; color: #cbd5e1;">数值: <strong style="color: #38bdf8; font-family: monospace;">${params.data.value?.toLocaleString()}</strong> ${unit}${edgeRatioStr}</div>`
             }
             return ''
           },
@@ -591,13 +591,17 @@ export function SankeyFlow({
             lineStyle: {
               color: 'gradient',
               curveness: 0.5,
-              opacity: 0.42,
+              opacity: 0.55,
             },
             label: {
-              color: '#0f172a',
-              fontSize: 11,
-              fontWeight: 600,
+              color: '#ffffff',
+              fontSize: 11.5,
+              fontWeight: 700,
               fontFamily: 'sans-serif',
+              textBorderColor: 'rgba(2, 8, 23, 0.95)',
+              textBorderWidth: 3,
+              textShadowColor: 'rgba(0, 0, 0, 0.9)',
+              textShadowBlur: 4,
               formatter: (params: any) => {
                 if (params.value === undefined) return params.name
                 const depth = params.data?.depth
@@ -619,23 +623,28 @@ export function SankeyFlow({
               },
               rich: {
                 val: {
-                  fontSize: 10,
-                  color: '#64748b',
+                  fontSize: 11,
+                  color: '#93c5fd',
                   fontFamily: 'monospace',
+                  fontWeight: 'bold',
                   padding: [2, 0, 0, 0],
+                  textBorderColor: 'rgba(2, 8, 23, 0.95)',
+                  textBorderWidth: 3,
                 },
                 ratio: {
-                  fontSize: 10,
-                  color: '#10b981',
+                  fontSize: 10.5,
+                  color: '#34d399',
                   fontWeight: 'bold',
                   fontFamily: 'sans-serif',
                   padding: [2, 0, 0, 0],
+                  textBorderColor: 'rgba(2, 8, 23, 0.95)',
+                  textBorderWidth: 3,
                 },
               },
             },
             itemStyle: {
-              borderWidth: 1,
-              borderColor: '#ffffff',
+              borderWidth: 1.5,
+              borderColor: 'rgba(255, 255, 255, 0.5)',
               borderRadius: 3,
             },
           },
