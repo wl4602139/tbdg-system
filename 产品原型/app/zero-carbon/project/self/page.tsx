@@ -4163,7 +4163,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
               {factories.filter(f => f.company === selectedCompanyId).map((factory) => (
                 <div
                   key={factory.id}
@@ -4171,83 +4171,104 @@ export default function ZeroCarbonSelfEvaluationPage() {
                     setSelectedFactoryId(factory)
                     setViewLevel('factory')
                   }}
-                  className="p-3.5 rounded-xl border border-border/80 bg-card hover:border-primary/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-all cursor-pointer flex flex-col justify-between gap-3 group shadow-2xs"
+                  className="p-4 rounded-xl border border-border/80 bg-card hover:border-primary/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-all cursor-pointer flex flex-col justify-between gap-3 group shadow-2xs"
                 >
                   {/* 工厂头部 */}
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center justify-between pb-2 border-b border-border/60">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="size-8 rounded-lg bg-gradient-to-tr from-cyan-500/20 to-blue-600/30 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shrink-0 shadow-xs">
-                        <Building2 className="size-4" />
+                      <div className="size-9 rounded-lg bg-gradient-to-tr from-cyan-500/20 to-blue-600/30 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shrink-0 shadow-xs">
+                        <Building2 className="size-4.5" />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors truncate" title={factory.factoryName}>
+                        <h4 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate" title={factory.factoryName}>
                           {factory.factoryName}
                         </h4>
-                        <span className="text-[10px] text-muted-foreground block truncate mt-0.5">
+                        <span className="text-[10.5px] text-muted-foreground block truncate mt-0.5">
                           {factory.evaluator} · {factory.declareDate}
                         </span>
                       </div>
                     </div>
-                    <span className="text-[9.5px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
                       {factory.status}
                     </span>
                   </div>
 
-                  {/* 5 维核心指标微缩展示 (结构化高对比度胶囊卡片) */}
+                  {/* 5 大维度关键指标看板 (高辨识度双排卡片设计) */}
                   <div className="space-y-1.5">
-                    {/* 1. 源头减碳 */}
-                    <div className="bg-panel/80 hover:bg-emerald-500/10 border border-border/60 hover:border-emerald-500/30 rounded-md px-2.5 py-1.5 flex items-center justify-between transition-colors shadow-2xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]" />
-                        <span className="text-[10.5px] text-muted-foreground font-sans">1.源头减碳 <span className="text-[9.5px] text-emerald-400/80">(绿电)</span></span>
+                    {/* 上排 3 项 */}
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {/* 1. 源头减碳 */}
+                      <div className="bg-panel/90 border border-emerald-500/20 hover:border-emerald-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-emerald-400">1.源头减碳</span>
+                          <span className="text-[9px] text-emerald-400/80 font-medium">绿电消纳</span>
+                        </div>
+                        <div className="mt-1 flex items-baseline gap-0.5">
+                          <span className="text-base font-black font-mono text-emerald-400">{factory.metrics['3.1'].value}</span>
+                          <span className="text-[10px] font-bold text-emerald-400">%</span>
+                        </div>
                       </div>
-                      <span className="text-xs font-black font-mono text-emerald-400">{factory.metrics['3.1'].value}%</span>
+
+                      {/* 2. 过程削碳 */}
+                      <div className="bg-panel/90 border border-sky-500/20 hover:border-sky-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-sky-400">2.过程削碳</span>
+                          <span className="text-[9px] text-sky-400/80 font-medium">清除率Re</span>
+                        </div>
+                        <div className="mt-1 flex items-baseline gap-0.5">
+                          <span className="text-base font-black font-mono text-sky-400">{factory.carbonClearRate}</span>
+                          <span className="text-[10px] font-bold text-sky-400">%</span>
+                        </div>
+                      </div>
+
+                      {/* 3. 协同降碳 */}
+                      <div className="bg-panel/90 border border-indigo-500/20 hover:border-indigo-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-indigo-400">3.协同降碳</span>
+                          <span className="text-[9px] text-indigo-400/80 font-medium">供应链</span>
+                        </div>
+                        <div className="mt-1 flex items-baseline gap-0.5">
+                          <span className="text-base font-black font-mono text-indigo-400">{factory.supplyChainMeasuresCount}</span>
+                          <span className="text-[10px] font-bold text-indigo-400">/6项</span>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* 2. 过程削碳 */}
-                    <div className="bg-panel/80 hover:bg-sky-500/10 border border-border/60 hover:border-sky-500/30 rounded-md px-2.5 py-1.5 flex items-center justify-between transition-colors shadow-2xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="size-1.5 rounded-full bg-sky-400 shadow-[0_0_6px_#38bdf8]" />
-                        <span className="text-[10.5px] text-muted-foreground font-sans">2.过程削碳 <span className="text-[9.5px] text-sky-400/80">(清除)</span></span>
+                    {/* 下排 2 项 */}
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {/* 4. 智能控碳 */}
+                      <div className="bg-panel/90 border border-purple-500/20 hover:border-purple-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-purple-400">4.智能控碳</span>
+                          <span className="text-[9px] text-purple-400/80 font-medium">自动采集 Ra</span>
+                        </div>
+                        <div className="mt-1 flex items-baseline gap-0.5">
+                          <span className="text-base font-black font-mono text-purple-400">{factory.autoCollectRate}</span>
+                          <span className="text-[10px] font-bold text-purple-400">%</span>
+                        </div>
                       </div>
-                      <span className="text-xs font-black font-mono text-sky-400">{factory.carbonClearRate}%</span>
-                    </div>
 
-                    {/* 3. 协同降碳 */}
-                    <div className="bg-panel/80 hover:bg-indigo-500/10 border border-border/60 hover:border-indigo-500/30 rounded-md px-2.5 py-1.5 flex items-center justify-between transition-colors shadow-2xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="size-1.5 rounded-full bg-indigo-400 shadow-[0_0_6px_#818cf8]" />
-                        <span className="text-[10.5px] text-muted-foreground font-sans">3.协同降碳 <span className="text-[9.5px] text-indigo-400/80">(供应链)</span></span>
+                      {/* 5. 碳抵销和信息披露 */}
+                      <div className="bg-panel/90 border border-amber-500/20 hover:border-amber-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-amber-400">5.抵消与披露</span>
+                          <span className="text-[9px] text-amber-400/80 font-medium">文件报告</span>
+                        </div>
+                        <div className="mt-1 flex items-baseline gap-0.5">
+                          <span className="text-base font-black font-mono text-amber-400">{factory.disclosureDocsCount}</span>
+                          <span className="text-[10px] font-bold text-amber-400">/5份</span>
+                        </div>
                       </div>
-                      <span className="text-xs font-black font-mono text-indigo-400">{factory.supplyChainMeasuresCount} <span className="text-[10px] font-normal text-muted-foreground font-sans">/6项</span></span>
-                    </div>
-
-                    {/* 4. 智能控碳 */}
-                    <div className="bg-panel/80 hover:bg-purple-500/10 border border-border/60 hover:border-purple-500/30 rounded-md px-2.5 py-1.5 flex items-center justify-between transition-colors shadow-2xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="size-1.5 rounded-full bg-purple-400 shadow-[0_0_6px_#c084fc]" />
-                        <span className="text-[10.5px] text-muted-foreground font-sans">4.智能控碳 <span className="text-[9.5px] text-purple-400/80">(采集率)</span></span>
-                      </div>
-                      <span className="text-xs font-black font-mono text-purple-400">{factory.autoCollectRate}%</span>
-                    </div>
-
-                    {/* 5. 抵消治理 */}
-                    <div className="bg-panel/80 hover:bg-amber-500/10 border border-border/60 hover:border-amber-500/30 rounded-md px-2.5 py-1.5 flex items-center justify-between transition-colors shadow-2xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="size-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_#fbbf24]" />
-                        <span className="text-[10.5px] text-muted-foreground font-sans">5.抵消治理 <span className="text-[9.5px] text-amber-400/80">(报告)</span></span>
-                      </div>
-                      <span className="text-xs font-black font-mono text-amber-400">{factory.disclosureDocsCount} <span className="text-[10px] font-normal text-muted-foreground font-sans">/5份</span></span>
                     </div>
                   </div>
 
                   {/* 底部下钻引导 */}
-                  <div className="flex items-center justify-between text-[11px] pt-2 border-t border-border/60 font-sans">
-                    <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-center justify-between text-[11.5px] pt-2 border-t border-border/60">
+                    <span className="text-[10.5px] text-muted-foreground flex items-center gap-1">
                       <ShieldCheck className="size-3 text-emerald-400" />
                       5维达标
                     </span>
-                    <span className="text-primary font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                    <span className="text-primary font-bold flex items-center gap-1 text-xs group-hover:translate-x-0.5 transition-transform">
                       钻取工厂 5 维全景
                       <ChevronRight className="size-3.5" />
                     </span>
