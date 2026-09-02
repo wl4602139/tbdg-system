@@ -2305,20 +2305,10 @@ export default function BenchmarkManagementPage() {
       {/* ========================================================================= */}
       {activeTab === 'product_horizontal' && (
         <div className="space-y-3.5">
-          {/* 顶部控制面板：压缩为单行 (标题 + 产品大类筛选 + 模糊搜索框) */}
+          {/* 顶部控制面板：单行 (产品大类筛选 + 模糊搜索框) */}
           <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
-            {/* 左侧：标题 + 分割线 + 选择产品 (变压器 / 线缆) */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-              <div className="flex items-center gap-2">
-                <Sliders className="size-4 text-[#1677ff]" />
-                <h3 className="text-xs font-bold text-slate-900">
-                  同型号产品项目公司对比
-                </h3>
-              </div>
-
-              <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-
-              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+            {/* 左侧：选择产品 (变压器 / 线缆) */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
                 <button
                   type="button"
                   onClick={() => {
@@ -2350,7 +2340,6 @@ export default function BenchmarkManagementPage() {
                   <span>🔌 线缆</span>
                 </button>
               </div>
-            </div>
 
             {/* 右侧：搜索框 (按产品种类/型号模糊查询) */}
             <div className="relative">
