@@ -3686,7 +3686,6 @@ export default function BenchmarkManagementPage() {
                     <th className="py-2.5 px-3">对标指标名称</th>
                     <th className="py-2.5 px-3 text-right">标准基准值 (门槛/标杆)</th>
                     <th className="py-2.5 px-3">标准依据 / 来源出处</th>
-                    <th className="py-2.5 px-3 text-center font-sans">维护部门</th>
                     <th className="py-2.5 px-3 text-center">维护日期</th>
                     <th className="py-2.5 px-3 text-center font-sans">状态</th>
                     <th className="py-2.5 px-3 text-right font-sans">操作</th>
@@ -3736,11 +3735,6 @@ export default function BenchmarkManagementPage() {
                           <FileText className="size-3 text-slate-400 shrink-0" />
                           <span>{std.standardSource}</span>
                         </div>
-                      </td>
-
-                      {/* 维护部门 */}
-                      <td className="py-2.5 px-3 text-center align-middle font-sans text-[11px] text-slate-600">
-                        {std.maintainer}
                       </td>
 
                       {/* 维护日期 */}
