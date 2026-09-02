@@ -1337,7 +1337,7 @@ export default function EquipmentPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-[#1677ff]" />
                   <h3 className="text-xs font-bold text-slate-900">
-                    【{selectedEq.name}】15分钟实时有功功率负荷走势曲线 (标注最大最小值 / kW)
+                    15分钟实时有功功率负荷走势
                   </h3>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-mono">
@@ -1382,7 +1382,7 @@ export default function EquipmentPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-amber-500" />
                   <h3 className="text-xs font-bold text-slate-900">
-                    【{selectedEq.name}】当日用电峰平谷构成分析与逐时段负荷 (总饼图 + 分日堆叠图)
+                    当日用电峰平谷构成分析与时段负荷
                   </h3>
                 </div>
                 <button
@@ -1581,7 +1581,7 @@ export default function EquipmentPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-purple-600" />
                   <h3 className="text-xs font-bold text-slate-900">
-                    【{selectedEq.name}】当日瞬时蒸汽流量走势曲线 (标注最大最小值 / t/h)
+                    当日瞬时蒸汽流量走势曲线
                   </h3>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-mono">
@@ -1624,7 +1624,7 @@ export default function EquipmentPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-indigo-500" />
                   <h3 className="text-xs font-bold text-slate-900">
-                    【{selectedEq.name}】当日逐时蒸汽累计消耗量连续走势 (t)
+                    当日逐时蒸汽累计消耗量连续走势
                   </h3>
                 </div>
                 <span className="text-xs text-slate-400 font-mono">
