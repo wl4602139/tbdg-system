@@ -1556,10 +1556,6 @@ export default function ZeroCarbonSelfEvaluationPage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 mt-1 flex items-center gap-3">
-                  <span>所属经营单位：<strong className="text-slate-800">{selectedFactoryId.company}</strong></span>
-                  <span>•</span>
-                  <span>评估机构：<strong className="text-slate-800">{selectedFactoryId.evaluator}</strong></span>
-                  <span>•</span>
                   <span>申报日期：<strong className="font-mono text-slate-800">{selectedFactoryId.declareDate}</strong></span>
                 </p>
               </div>
