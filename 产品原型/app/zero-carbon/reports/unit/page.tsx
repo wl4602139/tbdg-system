@@ -581,26 +581,26 @@ export default function UnitReportPage() {
   return (
     <div className="flex flex-col gap-3.5 w-full font-sans">
       {/* 顶部面包屑与操作栏 */}
-      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
             <Gauge className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-800">单耗报表 (指标管控十参数)</h1>
+            <h1 className="text-base font-bold text-foreground">单耗报表 (指标管控十参数)</h1>
           </div>
         </div>
 
         {/* 时间维度与导出工具栏 */}
         <div className="flex flex-wrap items-center gap-2">
           {/* 时间维度切换 */}
-          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
+          <div className="flex rounded-lg border border-border bg-panel p-0.5 text-xs">
             <button
               type="button"
               onClick={() => setTimeDim('month')}
               className={cn(
                 'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
               )}
             >
               月度
@@ -610,7 +610,7 @@ export default function UnitReportPage() {
               onClick={() => setTimeDim('quarter')}
               className={cn(
                 'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
               )}
             >
               季度
@@ -620,7 +620,7 @@ export default function UnitReportPage() {
               onClick={() => setTimeDim('year')}
               className={cn(
                 'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
               )}
             >
               年度
@@ -629,33 +629,33 @@ export default function UnitReportPage() {
 
           {/* 时间范围选择控件 */}
           {timeDim === 'month' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
               <input
                 type="month"
                 value={selectedMonthRange.start}
                 onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                 title="起始月份"
               />
-              <span className="text-slate-400 font-sans">至</span>
+              <span className="text-muted-foreground font-sans">至</span>
               <input
                 type="month"
                 value={selectedMonthRange.end}
                 onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                 title="结束月份"
               />
             </div>
           )}
 
           {timeDim === 'quarter' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
               <select
                 value={selectedQuarter}
                 onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-panel border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
                 <option value="2026-Q1">2026年 第1季度 (Q1)</option>
                 <option value="2026-Q2">2026年 第2季度 (Q2)</option>
@@ -667,12 +667,12 @@ export default function UnitReportPage() {
           )}
 
           {timeDim === 'year' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-panel border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
                 <option value="2026">2026 年度</option>
                 <option value="2025">2025 年度</option>
@@ -683,7 +683,7 @@ export default function UnitReportPage() {
 
           <button
             onClick={() => alert('正在导出单耗及指标管控明细台账 (Excel/PDF)...')}
-            className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+            className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 hover:bg-primary/90 shadow-xs transition-colors cursor-pointer"
           >
             <Download className="size-3.5" />
             <span>导出</span>
@@ -692,20 +692,20 @@ export default function UnitReportPage() {
       </div>
 
       {/* 主数据报表 */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+      <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden flex flex-col">
         {/* 操作搜索栏 */}
-        <div className="p-2.5 border-b border-slate-200 bg-[#fafbfc] flex flex-wrap items-center justify-between gap-3 font-sans">
+        <div className="p-2.5 border-b border-border/60 bg-panel flex flex-wrap items-center justify-between gap-3 font-sans">
           <div className="flex flex-wrap items-center gap-3">
             {/* 所属企业下拉筛选 */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属企业：</span>
+              <span className="text-xs font-bold text-foreground whitespace-nowrap">所属企业：</span>
               <select
                 value={companyFilter}
                 onChange={(e) => {
                   setCompanyFilter(e.target.value)
                   setUnitFilter('all') // 联动重置下属单位
                 }}
-                className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer"
+                className="h-8 px-2.5 rounded-lg border border-border bg-panel text-xs text-foreground font-medium focus:outline-none focus:border-primary shadow-2xs cursor-pointer"
               >
                 <option value="all">全部所属企业</option>
                 {allCompanies.map((comp) => (
@@ -718,7 +718,7 @@ export default function UnitReportPage() {
 
             {/* 所属单位下拉筛选 (带顶部模糊匹配搜索框，与企业联动) */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属单位：</span>
+              <span className="text-xs font-bold text-foreground whitespace-nowrap">所属单位：</span>
               <SearchableUnitSelect
                 options={availableUnits}
                 value={unitFilter}
@@ -732,18 +732,18 @@ export default function UnitReportPage() {
         {/* 表格区域 */}
         <div className="overflow-x-auto custom-scrollbar">
           {filteredRows.length === 0 ? (
-            <div className="p-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+            <div className="p-12 text-center text-muted-foreground text-xs flex flex-col items-center gap-2">
               <div>暂无匹配的单耗指标数据</div>
             </div>
           ) : (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50/90 text-slate-700 border-b border-slate-200 font-bold select-none text-[11px]">
+                <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none text-[11px] font-sans">
                   {/* 固定左侧前两列 */}
-                  <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[110px] text-center border-r border-slate-200/80">
+                  <th className="py-2.5 px-3 sticky left-0 bg-panel z-10 min-w-[110px] text-center border-r border-border/60">
                     企业名称
                   </th>
-                  <th className="py-2.5 px-3 sticky left-[110px] bg-slate-50 z-10 min-w-[160px] border-r border-slate-200/80">
+                  <th className="py-2.5 px-3 sticky left-[110px] bg-panel z-10 min-w-[160px] border-r border-border/60">
                     单位名称
                   </th>
 
@@ -752,40 +752,40 @@ export default function UnitReportPage() {
                     <th
                       key={meta.key}
                       onClick={() => setSelectedIndicator(meta)}
-                      className="py-2.5 px-2.5 min-w-[115px] text-right font-bold text-slate-700 hover:bg-blue-50/60 cursor-pointer transition-colors group"
+                      className="py-2.5 px-2.5 min-w-[115px] text-right font-bold text-muted-foreground hover:bg-accent/30 cursor-pointer transition-colors group"
                       title="点击查看指标计算公式与管控要求"
                     >
                       <div className="flex flex-col items-end gap-0.5">
                         <div className="flex items-center gap-1">
-                          <span className="group-hover:text-[#1677ff] transition-colors">{meta.name}</span>
-                          <Info className="size-3 text-slate-400 group-hover:text-[#1677ff] shrink-0" />
+                          <span className="group-hover:text-primary transition-colors">{meta.name}</span>
+                          <Info className="size-3 text-muted-foreground group-hover:text-primary shrink-0" />
                         </div>
-                        <span className="text-[10px] font-normal text-slate-400 font-mono">({meta.unit})</span>
+                        <span className="text-[10px] font-normal text-muted-foreground font-mono">({meta.unit})</span>
                       </div>
                     </th>
                   ))}
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
+              <tbody className="divide-y divide-border/60 text-foreground font-mono text-[11.5px]">
                 {filteredRows.map((row, idx) => {
                   const span = companyRowSpans[idx]
                   return (
-                    <tr key={row.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <tr key={row.id} className="hover:bg-accent/30 transition-colors group">
                       {/* 企业名称单元格 (同企业行跨行合并居中) */}
                       {span > 0 && (
                         <td
                           rowSpan={span}
-                          className="py-2.5 px-3 font-bold text-slate-800 bg-white border-r border-slate-200 text-center align-middle font-sans shadow-2xs sticky left-0 z-5"
+                          className="py-2.5 px-3 font-bold text-foreground bg-card border-r border-b border-border text-center align-middle font-sans shadow-2xs sticky left-0 z-5"
                         >
-                          <div className="inline-flex items-center justify-center font-bold text-slate-800">
+                          <div className="inline-flex items-center justify-center font-bold text-foreground">
                             {row.company}
                           </div>
                         </td>
                       )}
 
                       {/* 单位名称单元格 */}
-                      <td className="py-2.5 px-3 font-sans font-medium text-slate-800 sticky left-[110px] bg-white group-hover:bg-[#f8faff] border-r border-slate-200/80 z-5">
+                      <td className="py-2.5 px-3 font-sans font-medium text-foreground sticky left-[110px] bg-card group-hover:bg-accent/40 border-r border-border/80 z-5">
                         <div className="truncate max-w-[200px]" title={row.unitName}>
                           {row.unitName}
                         </div>
@@ -794,7 +794,7 @@ export default function UnitReportPage() {
                       {/* 1. 综合能源消费量 (tce) */}
                       <td
                         onClick={() => setSelectedRowDetail({ row, indicator: INDICATOR_METAS[0] })}
-                        className="py-2.5 px-2.5 text-right font-semibold text-[#1677ff] hover:underline cursor-pointer"
+                        className="py-2.5 px-2.5 text-right font-semibold text-primary hover:underline cursor-pointer"
                         title="点击查看综合能耗构成"
                       >
                         {row.totalTce.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
@@ -803,49 +803,49 @@ export default function UnitReportPage() {
                       {/* 2. 总碳排放量 (tCO2) */}
                       <td
                         onClick={() => setSelectedRowDetail({ row, indicator: INDICATOR_METAS[1] })}
-                        className="py-2.5 px-2.5 text-right font-medium text-slate-800 hover:underline cursor-pointer"
+                        className="py-2.5 px-2.5 text-right font-medium text-foreground hover:underline cursor-pointer"
                         title="点击查看碳排放明细"
                       >
                         {row.totalCarbon.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                       </td>
 
                       {/* 3. 单位能耗碳排放 (tCO2/tce) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-700">
+                      <td className="py-2.5 px-2.5 text-right font-medium text-muted-foreground">
                         {row.carbonPerTce.toFixed(3)}
                       </td>
 
                       {/* 4. 非化石能源消费占比 (%) */}
-                      <td className="py-2.5 px-2.5 text-right font-semibold text-emerald-600">
+                      <td className="py-2.5 px-2.5 text-right font-semibold text-emerald-400">
                         {row.nonFossilRatio.toFixed(1)}%
                       </td>
 
                       {/* 5. 非化石电力物理认购占比 (%) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-emerald-700">
+                      <td className="py-2.5 px-2.5 text-right font-medium text-emerald-400">
                         {row.physicalGreenRatio.toFixed(1)}%
                       </td>
 
                       {/* 6. 单位工业增加值能耗 (tce/万元) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-800">
+                      <td className="py-2.5 px-2.5 text-right font-medium text-foreground">
                         {row.energyPerNva.toFixed(4)}
                       </td>
 
                       {/* 7. 单位产值能耗 (tce/万元) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-800">
+                      <td className="py-2.5 px-2.5 text-right font-medium text-foreground">
                         {row.energyPerOutput.toFixed(4)}
                       </td>
 
                       {/* 8. 水资源消耗量 (t) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-700">
+                      <td className="py-2.5 px-2.5 text-right font-medium text-muted-foreground">
                         {row.waterM3.toLocaleString('zh-CN')}
                       </td>
 
                       {/* 9. 节能装备应用占比 (%) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-indigo-600">
+                      <td className="py-2.5 px-2.5 text-right font-medium text-purple-400">
                         {row.energySavingEquipRatio.toFixed(1)}%
                       </td>
 
                       {/* 10. 开展产品碳足迹分析占比 (%) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-blue-600">
+                      <td className="py-2.5 px-2.5 text-right font-medium text-primary">
                         {row.carbonFootprintAnalysisRatio.toFixed(1)}%
                       </td>
                     </tr>
@@ -855,48 +855,48 @@ export default function UnitReportPage() {
 
               {/* 汇总统计行 */}
               <tfoot>
-                <tr className="bg-slate-100/90 font-bold border-t-2 border-slate-300 text-slate-900 font-mono text-[11.5px]">
-                  <td colSpan={2} className="py-3 px-3 text-center font-sans font-bold sticky left-0 bg-slate-100 z-10 border-r border-slate-200">
+                <tr className="bg-panel font-bold border-t-2 border-border text-foreground font-mono text-[11.5px]">
+                  <td colSpan={2} className="py-3 px-3 text-center font-sans font-bold sticky left-0 bg-panel z-10 border-r border-border">
                     全集团总计汇总 / 集团加权平均
                   </td>
                   {/* 1. 综合能源消费量 (tce) */}
-                  <td className="py-3 px-2.5 text-right text-[#1677ff]">
+                  <td className="py-3 px-2.5 text-right text-primary">
                     {totals.totalTce.toLocaleString('zh-CN', { minimumFractionDigits: 1 })}
                   </td>
                   {/* 2. 总碳排放量 (tCO2) */}
-                  <td className="py-3 px-2.5 text-right text-slate-900">
+                  <td className="py-3 px-2.5 text-right text-foreground">
                     {totals.totalCarbon.toLocaleString('zh-CN', { minimumFractionDigits: 1 })}
                   </td>
                   {/* 3. 单位能耗碳排放 (tCO2/tce) */}
-                  <td className="py-3 px-2.5 text-right text-slate-800">
+                  <td className="py-3 px-2.5 text-right text-muted-foreground">
                     {totals.carbonPerTce.toFixed(3)}
                   </td>
                   {/* 4. 非化石能源消费占比 (%) */}
-                  <td className="py-3 px-2.5 text-right text-emerald-700">
+                  <td className="py-3 px-2.5 text-right text-emerald-400">
                     {totals.nonFossilRatio.toFixed(1)}%
                   </td>
                   {/* 5. 非化石电力物理认购占比 (%) */}
-                  <td className="py-3 px-2.5 text-right text-emerald-800">
+                  <td className="py-3 px-2.5 text-right text-emerald-400">
                     {totals.physicalGreenRatio.toFixed(1)}%
                   </td>
                   {/* 6. 单位工业增加值能耗 (tce/万元) */}
-                  <td className="py-3 px-2.5 text-right text-slate-900">
+                  <td className="py-3 px-2.5 text-right text-foreground">
                     {totals.energyPerNva.toFixed(4)}
                   </td>
                   {/* 7. 单位产值能耗 (tce/万元) */}
-                  <td className="py-3 px-2.5 text-right text-slate-900">
+                  <td className="py-3 px-2.5 text-right text-foreground">
                     {totals.energyPerOutput.toFixed(4)}
                   </td>
                   {/* 8. 水资源消耗量 (t) */}
-                  <td className="py-3 px-2.5 text-right text-slate-800">
+                  <td className="py-3 px-2.5 text-right text-muted-foreground">
                     {totals.waterM3.toLocaleString('zh-CN')}
                   </td>
                   {/* 9. 节能装备应用占比 (%) */}
-                  <td className="py-3 px-2.5 text-right text-indigo-700">
+                  <td className="py-3 px-2.5 text-right text-purple-400">
                     {totals.energySavingEquipRatio.toFixed(1)}%
                   </td>
                   {/* 10. 开展产品碳足迹分析占比 (%) */}
-                  <td className="py-3 px-2.5 text-right text-blue-700">
+                  <td className="py-3 px-2.5 text-right text-primary">
                     {totals.carbonFootprintAnalysisRatio.toFixed(1)}%
                   </td>
                 </tr>
@@ -908,51 +908,51 @@ export default function UnitReportPage() {
 
       {/* 💡 指标定义与管控标准快速详情弹窗 */}
       {selectedIndicator && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-2xs p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full p-5 flex flex-col gap-4 font-sans">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="bg-card rounded-xl shadow-2xl border border-border max-w-lg w-full p-5 flex flex-col gap-4 font-sans text-foreground">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
               <div className="flex items-center gap-2">
-                <div className="size-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff]">
+                <div className="size-7 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
                   <Gauge className="size-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">{selectedIndicator.name}</h3>
-                  <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                  <h3 className="text-sm font-bold text-foreground">{selectedIndicator.name}</h3>
+                  <span className="text-[10px] font-medium text-primary bg-primary/20 border border-primary/30 px-1.5 py-0.5 rounded">
                     {selectedIndicator.tag}
                   </span>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedIndicator(null)}
-                className="size-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                className="size-7 rounded-lg hover:bg-accent/40 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="size-4" />
               </button>
             </div>
 
-            <div className="flex flex-col gap-3 text-xs text-slate-600">
+            <div className="flex flex-col gap-3 text-xs text-muted-foreground">
               <div>
-                <span className="font-bold text-slate-800 block mb-0.5">指标含义与定义：</span>
-                <p className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 leading-relaxed text-slate-700">
+                <span className="font-bold text-foreground block mb-0.5">指标含义与定义：</span>
+                <p className="bg-panel p-2.5 rounded-lg border border-border leading-relaxed text-foreground">
                   {selectedIndicator.description}
                 </p>
               </div>
 
               <div>
-                <span className="font-bold text-slate-800 block mb-0.5">计算公式与核算模型：</span>
-                <p className="bg-blue-50/60 p-2.5 rounded-lg border border-blue-200 font-mono text-[11px] text-blue-900 leading-relaxed">
+                <span className="font-bold text-foreground block mb-0.5">计算公式与核算模型：</span>
+                <p className="bg-panel p-2.5 rounded-lg border border-border font-mono text-[11px] text-primary leading-relaxed">
                   {selectedIndicator.formula}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-2 pt-1">
-                <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
-                  <span className="text-[11px] text-slate-500 block">计量单位</span>
-                  <span className="text-xs font-bold text-slate-800 font-mono">{selectedIndicator.unit}</span>
+                <div className="p-2.5 rounded-lg border border-border bg-panel">
+                  <span className="text-[11px] text-muted-foreground block">计量单位</span>
+                  <span className="text-xs font-bold text-foreground font-mono">{selectedIndicator.unit}</span>
                 </div>
-                <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
-                  <span className="text-[11px] text-slate-500 block">管控基准标准值</span>
-                  <span className="text-xs font-bold text-emerald-700 font-mono">{selectedIndicator.benchmark}</span>
+                <div className="p-2.5 rounded-lg border border-border bg-panel">
+                  <span className="text-[11px] text-muted-foreground block">管控基准标准值</span>
+                  <span className="text-xs font-bold text-emerald-400 font-mono">{selectedIndicator.benchmark}</span>
                 </div>
               </div>
             </div>
@@ -960,7 +960,7 @@ export default function UnitReportPage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedIndicator(null)}
-                className="px-4 py-1.5 rounded-lg bg-[#1677ff] text-white text-xs font-bold hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 shadow-xs transition-colors cursor-pointer"
               >
                 我知道了
               </button>
@@ -971,43 +971,43 @@ export default function UnitReportPage() {
 
       {/* 📊 单位指标明细穿透弹窗 */}
       {selectedRowDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-2xs p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full p-5 flex flex-col gap-4 font-sans">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="bg-card rounded-xl shadow-2xl border border-border max-w-lg w-full p-5 flex flex-col gap-4 font-sans text-foreground">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
               <div>
-                <div className="text-xs text-slate-500 font-medium">
+                <div className="text-xs text-muted-foreground font-medium">
                   {selectedRowDetail.row.company} · {selectedRowDetail.row.unitName}
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 mt-0.5">
+                <h3 className="text-sm font-bold text-foreground mt-0.5">
                   {selectedRowDetail.indicator.name} 监测详情
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedRowDetail(null)}
-                className="size-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                className="size-7 rounded-lg hover:bg-accent/40 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="size-4" />
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg bg-blue-50/70 border border-blue-200 flex flex-col gap-1">
-                <span className="text-xs text-blue-700 font-medium">当前统计期数值</span>
-                <span className="text-lg font-bold text-[#1677ff] font-mono">
+              <div className="p-3 rounded-lg bg-panel border border-border flex flex-col gap-1">
+                <span className="text-xs text-primary font-medium">当前统计期数值</span>
+                <span className="text-lg font-bold text-primary font-mono">
                   {String((selectedRowDetail.row as any)[selectedRowDetail.indicator.key])} {selectedRowDetail.indicator.unit}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-emerald-50/70 border border-emerald-200 flex flex-col gap-1">
-                <span className="text-xs text-emerald-700 font-medium">管控目标与基准</span>
-                <span className="text-lg font-bold text-emerald-700 font-mono">
+              <div className="p-3 rounded-lg bg-panel border border-border flex flex-col gap-1">
+                <span className="text-xs text-emerald-400 font-medium">管控目标与基准</span>
+                <span className="text-lg font-bold text-emerald-400 font-mono">
                   {selectedRowDetail.indicator.benchmark}
                 </span>
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 text-xs text-slate-600">
-              <span className="font-bold text-slate-800">计算公式：</span>
-              <p className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 font-mono text-[11px] text-slate-700">
+            <div className="flex flex-col gap-2 text-xs text-muted-foreground">
+              <span className="font-bold text-foreground">计算公式：</span>
+              <p className="bg-panel p-2.5 rounded-lg border border-border font-mono text-[11px] text-foreground">
                 {selectedRowDetail.indicator.formula}
               </p>
             </div>
@@ -1015,7 +1015,7 @@ export default function UnitReportPage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedRowDetail(null)}
-                className="px-4 py-1.5 rounded-lg bg-[#1677ff] text-white text-xs font-bold hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 shadow-xs transition-colors cursor-pointer"
               >
                 关闭
               </button>

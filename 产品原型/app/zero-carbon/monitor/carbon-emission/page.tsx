@@ -468,23 +468,23 @@ export default function CarbonEmissionMonitoringPage() {
         {/* ========================================================================= */}
         {/* 顶部统一时间维度控制栏 (月度 / 季度 / 年度 + 导出) */}
         {/* ========================================================================= */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
+            <div className="size-9 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <Activity className="size-5" />
             </div>
-            <h1 className="text-base font-bold text-slate-800">能源碳排放监测</h1>
+            <h1 className="text-base font-bold text-foreground">能源碳排放监测</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             {/* 时间维度切换 (月度 / 季度 / 年度) */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
+            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs font-sans">
               <button
                 type="button"
                 onClick={() => setTimeDim('month')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 月度
@@ -494,7 +494,7 @@ export default function CarbonEmissionMonitoringPage() {
                 onClick={() => setTimeDim('quarter')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 季度
@@ -504,7 +504,7 @@ export default function CarbonEmissionMonitoringPage() {
                 onClick={() => setTimeDim('year')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 年度
@@ -513,51 +513,51 @@ export default function CarbonEmissionMonitoringPage() {
 
             {/* 动态时间范围控件 */}
             {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <input
                   type="month"
                   value={selectedMonthRange.start}
                   onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                 />
-                <span className="text-slate-400 font-sans">至</span>
+                <span className="text-muted-foreground font-sans">至</span>
                 <input
                   type="month"
                   value={selectedMonthRange.end}
                   onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                 />
               </div>
             )}
 
             {timeDim === 'quarter' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <select
                   value={selectedQuarter}
                   onChange={(e) => setSelectedQuarter(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                 >
-                  <option value="2026-Q1">2026年 第一季度 (Q1)</option>
-                  <option value="2026-Q2">2026年 第二季度 (Q2)</option>
-                  <option value="2026-Q3">2026年 第三季度 (Q3)</option>
-                  <option value="2026-Q4">2026年 第四季度 (Q4)</option>
+                  <option value="2026-Q1" className="bg-popover text-foreground">2026年 第一季度 (Q1)</option>
+                  <option value="2026-Q2" className="bg-popover text-foreground">2026年 第二季度 (Q2)</option>
+                  <option value="2026-Q3" className="bg-popover text-foreground">2026年 第三季度 (Q3)</option>
+                  <option value="2026-Q4" className="bg-popover text-foreground">2026年 第四季度 (Q4)</option>
                 </select>
               </div>
             )}
 
             {timeDim === 'year' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                 >
-                  <option value="2026">2026 年度</option>
-                  <option value="2025">2025 年度</option>
-                  <option value="2024">2024 年度</option>
+                  <option value="2026" className="bg-popover text-foreground">2026 年度</option>
+                  <option value="2025" className="bg-popover text-foreground">2025 年度</option>
+                  <option value="2024" className="bg-popover text-foreground">2024 年度</option>
                 </select>
               </div>
             )}
@@ -566,7 +566,7 @@ export default function CarbonEmissionMonitoringPage() {
             <button
               type="button"
               onClick={() => alert(`正在导出【${selectedOrgNode.name}】能源碳排放全景监测报表 (Excel)...`)}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs cursor-pointer shadow-xs transition-colors"
             >
               <Download className="size-3.5" />
               <span>导出</span>
@@ -582,100 +582,100 @@ export default function CarbonEmissionMonitoringPage() {
             {/* 1. 集团三大核心指标卡片 (净碳排放量、初始碳排放量、碳抵消量) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
               {/* 卡片 1: 净碳排放量 */}
-              <div className="bg-white p-4 rounded-xl border border-blue-200/80 shadow-xs space-y-2 bg-gradient-to-br from-blue-50/40 via-white to-white">
+              <div className="bg-card p-4 rounded-xl border border-primary/30 shadow-xs space-y-2 bg-[linear-gradient(135deg,color-mix(in_oklch,var(--primary)_12%,var(--card)),var(--card))]">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
-                    <ShieldCheck className="size-4 text-[#1677ff]" />
+                  <span className="text-xs font-bold text-primary flex items-center gap-1.5">
+                    <ShieldCheck className="size-4 text-primary" />
                     集团净碳排放量
                   </span>
                 </div>
-                <div className="text-3xl font-extrabold font-mono text-[#1677ff] flex items-baseline gap-1.5">
-                  41,250.6 <span className="text-xs font-normal text-slate-500 font-sans">tCO₂</span>
+                <div className="text-3xl font-extrabold font-mono text-primary flex items-baseline gap-1.5">
+                  41,250.6 <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
                 </div>
-                <div className="pt-2 border-t border-blue-100 flex items-center justify-between text-xs font-sans">
-                  <span className="text-slate-500">同比变动: <strong className="font-mono text-emerald-600">-4.8% ↓</strong></span>
-                  <span className="text-slate-500">综合净减排率: <strong className="font-mono text-[#1677ff]">29.6%</strong></span>
+                <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs font-sans">
+                  <span className="text-muted-foreground">同比变动: <strong className="font-mono text-emerald-400">-4.8% ↓</strong></span>
+                  <span className="text-muted-foreground">综合净减排率: <strong className="font-mono text-primary">29.6%</strong></span>
                 </div>
               </div>
 
               {/* 卡片 2: 初始碳排放量 */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Zap className="size-4 text-amber-500" />
+                  <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <Zap className="size-4 text-amber-400" />
                     集团初始碳排放量
                   </span>
                 </div>
-                <div className="text-3xl font-extrabold font-mono text-slate-800 flex items-baseline gap-1.5">
-                  58,620.0 <span className="text-xs font-normal text-slate-500 font-sans">tCO₂</span>
+                <div className="text-3xl font-extrabold font-mono text-foreground flex items-baseline gap-1.5">
+                  58,620.0 <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
                 </div>
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-sans text-slate-500">
-                  <span>外购电力: <strong className="font-mono text-slate-700">48,210.0 t</strong></span>
-                  <span>其他: <strong className="font-mono text-slate-700">10,410.0 t</strong></span>
+                <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs font-sans text-muted-foreground">
+                  <span>外购电力: <strong className="font-mono text-foreground">48,210.0 t</strong></span>
+                  <span>其他: <strong className="font-mono text-foreground">10,410.0 t</strong></span>
                 </div>
               </div>
 
               {/* 卡片 3: 碳抵消量 (3大抵消拆解) */}
-              <div className="bg-white p-4 rounded-xl border border-emerald-200/80 shadow-xs space-y-2 bg-gradient-to-br from-emerald-50/40 via-white to-white">
+              <div className="bg-card p-4 rounded-xl border border-emerald-500/30 shadow-xs space-y-2 bg-[linear-gradient(135deg,color-mix(in_oklch,#10b981_12%,var(--card)),var(--card))]">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
-                    <Award className="size-4 text-emerald-600" />
+                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    <Award className="size-4 text-emerald-400" />
                     集团碳抵消总量
                   </span>
                 </div>
-                <div className="text-3xl font-extrabold font-mono text-emerald-600 flex items-baseline gap-1.5">
-                  17,369.4 <span className="text-xs font-normal text-slate-500 font-sans">tCO₂</span>
+                <div className="text-3xl font-extrabold font-mono text-emerald-400 flex items-baseline gap-1.5">
+                  17,369.4 <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
                 </div>
-                <div className="pt-2 border-t border-emerald-100 grid grid-cols-3 gap-1 text-[11px] font-sans text-slate-600 text-center">
-                  <div className="bg-emerald-50/70 p-1 rounded">
-                    <span className="text-[10px] text-slate-500 block">直供绿电</span>
-                    <strong className="font-mono text-emerald-700">8,450.2t</strong>
+                <div className="pt-2 border-t border-border/60 grid grid-cols-3 gap-1 text-[11px] font-sans text-muted-foreground text-center">
+                  <div className="bg-panel p-1 rounded border border-border">
+                    <span className="text-[10px] text-muted-foreground block">直供绿电</span>
+                    <strong className="font-mono text-emerald-400">8,450.2t</strong>
                   </div>
-                  <div className="bg-blue-50/70 p-1 rounded">
-                    <span className="text-[10px] text-slate-500 block">交易绿电</span>
-                    <strong className="font-mono text-blue-700">5,680.0t</strong>
+                  <div className="bg-panel p-1 rounded border border-border">
+                    <span className="text-[10px] text-muted-foreground block">交易绿电</span>
+                    <strong className="font-mono text-primary">5,680.0t</strong>
                   </div>
-                  <div className="bg-purple-50/70 p-1 rounded">
-                    <span className="text-[10px] text-slate-500 block">交易绿证</span>
-                    <strong className="font-mono text-purple-700">3,239.2t</strong>
+                  <div className="bg-panel p-1 rounded border border-border">
+                    <span className="text-[10px] text-muted-foreground block">交易绿证</span>
+                    <strong className="font-mono text-purple-400">3,239.2t</strong>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* 2. 净碳排放结构 (环形饼图 + 抵消路径拆解) */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-border/60 pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground">
                     集团净碳排放结构与 3 大绿色抵消构成全景
                   </h3>
                 </div>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-muted-foreground font-mono">
                   公式：净碳排放量 (41,250.6 tCO₂) = 初始碳排放量 (58,620.0 tCO₂) - 碳抵消量 (17,369.4 tCO₂)
                 </span>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                 {/* 左侧 5/12: 净碳排放来源构成环形图 */}
-                <div className="lg:col-span-5 flex flex-col justify-between space-y-2 border-r border-slate-100 pr-2">
-                  <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5 font-sans">
-                    <PieIcon className="size-3.5 text-[#1677ff]" />
+                <div className="lg:col-span-5 flex flex-col justify-between space-y-2 border-r border-border/60 pr-2">
+                  <div className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                    <PieIcon className="size-3.5 text-primary" />
                     净碳排放介质结构占比
                   </div>
                   <Donut data={groupNetCarbonDonutData} height={190} unit="tCO₂" />
                   <div className="grid grid-cols-3 gap-1.5 text-[11px] font-mono pt-1">
-                    <div className="p-1.5 rounded bg-blue-50 text-blue-900 border border-blue-100 text-center">
-                      <span className="text-[10px] text-slate-500 font-sans block">外购电力</span>
+                    <div className="p-1.5 rounded bg-panel text-primary border border-border text-center">
+                      <span className="text-[10px] text-muted-foreground font-sans block">外购电力</span>
                       <strong>69.1%</strong>
                     </div>
-                    <div className="p-1.5 rounded bg-purple-50 text-purple-900 border border-purple-100 text-center">
-                      <span className="text-[10px] text-slate-500 font-sans block">外购蒸汽</span>
+                    <div className="p-1.5 rounded bg-panel text-purple-400 border border-border text-center">
+                      <span className="text-[10px] text-muted-foreground font-sans block">外购蒸汽</span>
                       <strong>19.9%</strong>
                     </div>
-                    <div className="p-1.5 rounded bg-amber-50 text-amber-900 border border-amber-100 text-center">
-                      <span className="text-[10px] text-slate-500 font-sans block">化石燃气</span>
+                    <div className="p-1.5 rounded bg-panel text-amber-400 border border-border text-center">
+                      <span className="text-[10px] text-muted-foreground font-sans block">化石燃气</span>
                       <strong>11.0%</strong>
                     </div>
                   </div>
@@ -683,59 +683,59 @@ export default function CarbonEmissionMonitoringPage() {
 
                 {/* 右侧 7/12: 3 大绿色抵消途径深度剖析 */}
                 <div className="lg:col-span-7 space-y-3">
-                  <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5 font-sans">
-                    <Award className="size-3.5 text-emerald-600" />
+                  <div className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                    <Award className="size-3.5 text-emerald-400" />
                     三大碳抵消量执行结构与中和进度
                   </div>
 
                   <div className="space-y-2.5">
                     {/* 1. 直供绿电 */}
-                    <div className="p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-100 space-y-1">
+                    <div className="p-2.5 rounded-lg bg-panel border border-border space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-emerald-900 flex items-center gap-1">
-                          <CheckCircle2 className="size-3.5 text-emerald-600" />
+                        <span className="font-bold text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="size-3.5 text-emerald-400" />
                           1. 直供绿电抵消
                         </span>
-                        <span className="font-mono font-bold text-emerald-700">8,450.2 tCO₂ (占总抵消 48.6%)</span>
+                        <span className="font-mono font-bold text-emerald-400">8,450.2 tCO₂ (占总抵消 48.6%)</span>
                       </div>
-                      <div className="w-full bg-emerald-200/60 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-panel rounded-full h-2 overflow-hidden border border-border">
                         <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '48.6%' }} />
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono">
+                      <div className="text-[11px] text-muted-foreground font-mono">
                         直供绿电量: 1,481.8 万 kWh
                       </div>
                     </div>
 
                     {/* 2. 交易绿电 */}
-                    <div className="p-2.5 rounded-lg bg-blue-50/50 border border-blue-100 space-y-1">
+                    <div className="p-2.5 rounded-lg bg-panel border border-border space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-blue-900 flex items-center gap-1">
-                          <CheckCircle2 className="size-3.5 text-[#1677ff]" />
+                        <span className="font-bold text-primary flex items-center gap-1">
+                          <CheckCircle2 className="size-3.5 text-primary" />
                           2. 交易绿电抵消
                         </span>
-                        <span className="font-mono font-bold text-blue-700">5,680.0 tCO₂ (占总抵消 32.7%)</span>
+                        <span className="font-mono font-bold text-primary">5,680.0 tCO₂ (占总抵消 32.7%)</span>
                       </div>
-                      <div className="w-full bg-blue-200/60 rounded-full h-2 overflow-hidden">
-                        <div className="bg-[#1677ff] h-2 rounded-full" style={{ width: '32.7%' }} />
+                      <div className="w-full bg-panel rounded-full h-2 overflow-hidden border border-border">
+                        <div className="bg-primary h-2 rounded-full" style={{ width: '32.7%' }} />
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono">
+                      <div className="text-[11px] text-muted-foreground font-mono">
                         交易绿电量: 996.0 万 kWh
                       </div>
                     </div>
 
                     {/* 3. 交易绿证 */}
-                    <div className="p-2.5 rounded-lg bg-purple-50/50 border border-purple-100 space-y-1">
+                    <div className="p-2.5 rounded-lg bg-panel border border-border space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-purple-900 flex items-center gap-1">
-                          <CheckCircle2 className="size-3.5 text-purple-600" />
+                        <span className="font-bold text-purple-400 flex items-center gap-1">
+                          <CheckCircle2 className="size-3.5 text-purple-400" />
                           3. 交易绿证抵消
                         </span>
-                        <span className="font-mono font-bold text-purple-700">3,239.2 tCO₂ (占总抵消 18.7%)</span>
+                        <span className="font-mono font-bold text-purple-400">3,239.2 tCO₂ (占总抵消 18.7%)</span>
                       </div>
-                      <div className="w-full bg-purple-200/60 rounded-full h-2 overflow-hidden">
-                        <div className="bg-purple-600 h-2 rounded-full" style={{ width: '18.7%' }} />
+                      <div className="w-full bg-panel rounded-full h-2 overflow-hidden border border-border">
+                        <div className="bg-purple-500 h-2 rounded-full" style={{ width: '18.7%' }} />
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono">
+                      <div className="text-[11px] text-muted-foreground font-mono">
                         交易绿证量: 5,680 张 GEC
                       </div>
                     </div>
@@ -745,11 +745,11 @@ export default function CarbonEmissionMonitoringPage() {
             </div>
 
             {/* 3. 展示 6 家直属制造单位的数 (表格) */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/80 gap-2">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-border/60 flex flex-wrap items-center justify-between bg-panel/60 gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-emerald-500" />
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <span className="size-2 rounded-full bg-emerald-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     集团 6 大直属制造单位碳排放与绿电/绿证抵消对标明细表
                   </h3>
                 </div>
@@ -757,9 +757,9 @@ export default function CarbonEmissionMonitoringPage() {
                 <button
                   type="button"
                   onClick={() => alert('正在导出 6 家单位碳排放与抵消对标明细 (Excel)...')}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer shadow-2xs text-xs"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-panel border border-border text-foreground font-medium hover:bg-accent/40 cursor-pointer shadow-2xs text-xs"
                 >
-                  <Download className="size-3.5 text-slate-500" />
+                  <Download className="size-3.5 text-muted-foreground" />
                   <span>导出 6 家单位数据</span>
                 </button>
               </div>
@@ -767,43 +767,43 @@ export default function CarbonEmissionMonitoringPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
+                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
                       <th className="py-2.5 px-3">单位名称</th>
                       <th className="py-2.5 px-3">所属电网 / 电力因子</th>
-                      <th className="py-2.5 px-3 text-[#1677ff] font-extrabold">净碳排放量 (tCO₂)</th>
-                      <th className="py-2.5 px-3 text-blue-800 font-bold">净碳排放量占比 (%)</th>
+                      <th className="py-2.5 px-3 text-primary font-extrabold">净碳排放量 (tCO₂)</th>
+                      <th className="py-2.5 px-3 text-primary font-bold">净碳排放量占比 (%)</th>
                       <th className="py-2.5 px-3">初始碳排放 (tCO₂)</th>
-                      <th className="py-2.5 px-3 text-emerald-700">直供绿电抵消 (t)</th>
-                      <th className="py-2.5 px-3 text-blue-700">交易绿电抵消 (t)</th>
-                      <th className="py-2.5 px-3 text-purple-700">交易绿证抵消 (t)</th>
-                      <th className="py-2.5 px-3 text-emerald-800 font-bold">总抵消量 (tCO₂)</th>
+                      <th className="py-2.5 px-3 text-emerald-400">直供绿电抵消 (t)</th>
+                      <th className="py-2.5 px-3 text-primary">交易绿电抵消 (t)</th>
+                      <th className="py-2.5 px-3 text-purple-400">交易绿证抵消 (t)</th>
+                      <th className="py-2.5 px-3 text-emerald-400 font-bold">总抵消量 (tCO₂)</th>
                       <th className="py-2.5 px-3">万元产值碳排放</th>
                       <th className="py-2.5 px-3">同比变动</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                  <tbody className="divide-y divide-border/60 text-foreground">
                     {GROUP_6_COMPANIES_DATA.map((row) => {
                       const netRatio = ((row.netCarbon / 39303.7) * 100).toFixed(1)
                       return (
-                        <tr key={row.id} className="hover:bg-blue-50/40 transition-colors">
-                          <td className="py-2.5 px-3 font-semibold text-slate-900 font-sans flex items-center gap-1.5">
-                            <Factory className="size-3.5 text-slate-400" />
+                        <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                          <td className="py-2.5 px-3 font-semibold text-foreground font-sans flex items-center gap-1.5">
+                            <Factory className="size-3.5 text-muted-foreground" />
                             {row.name}
                           </td>
-                          <td className="py-2.5 px-3 text-slate-600">
+                          <td className="py-2.5 px-3 text-muted-foreground">
                             {row.province} ({row.factor})
                           </td>
-                          <td className="py-2.5 px-3 text-[#1677ff] font-extrabold text-sm">{row.netCarbon.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 font-extrabold text-blue-700">{netRatio}%</td>
-                          <td className="py-2.5 px-3 font-bold text-slate-800">{row.initialCarbon.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 text-emerald-600 font-bold">{row.solarOffset.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 text-blue-600 font-bold">{row.greenElecOffset.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 text-purple-600 font-bold">{row.gecOffset.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 text-emerald-700 font-extrabold">{row.totalOffset.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 font-bold text-slate-800">
-                            {row.carbonIntensity} <span className="text-[10px] text-slate-400 font-normal">t/万元</span>
+                          <td className="py-2.5 px-3 text-primary font-extrabold text-sm">{row.netCarbon.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 font-extrabold text-primary">{netRatio}%</td>
+                          <td className="py-2.5 px-3 font-bold text-foreground">{row.initialCarbon.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-emerald-400 font-bold">{row.solarOffset.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-primary font-bold">{row.greenElecOffset.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-purple-400 font-bold">{row.gecOffset.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-emerald-400 font-extrabold">{row.totalOffset.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 font-bold text-foreground">
+                            {row.carbonIntensity} <span className="text-[10px] text-muted-foreground font-normal">t/万元</span>
                           </td>
-                          <td className="py-2.5 px-3 font-bold text-emerald-600">{row.yoyRate}</td>
+                          <td className="py-2.5 px-3 font-bold text-emerald-400">{row.yoyRate}</td>
                         </tr>
                       )
                     })}
@@ -813,23 +813,23 @@ export default function CarbonEmissionMonitoringPage() {
             </div>
 
             {/* 4. 集团变化趋势（近12个月、近12季度、近3年） */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground">
                     集团能源碳排放总量与万元产值碳强度中长期变化趋势
                   </h3>
                 </div>
 
                 {/* 趋势维度切换：近12个月 | 近12季度 | 近3年 */}
-                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 font-sans text-xs">
+                <div className="flex items-center gap-1 bg-panel p-1 rounded-lg border border-border font-sans text-xs">
                   <button
                     type="button"
                     onClick={() => setGroupTrendDim('months12')}
                     className={cn(
                       'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
-                      groupTrendDim === 'months12' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      groupTrendDim === 'months12' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     近 12 个月
@@ -839,7 +839,7 @@ export default function CarbonEmissionMonitoringPage() {
                     onClick={() => setGroupTrendDim('quarters12')}
                     className={cn(
                       'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
-                      groupTrendDim === 'quarters12' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      groupTrendDim === 'quarters12' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     近 12 季度
@@ -849,7 +849,7 @@ export default function CarbonEmissionMonitoringPage() {
                     onClick={() => setGroupTrendDim('years3')}
                     className={cn(
                       'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
-                      groupTrendDim === 'years3' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      groupTrendDim === 'years3' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     近 3 年
@@ -865,7 +865,7 @@ export default function CarbonEmissionMonitoringPage() {
                   yUnit="tCO₂"
                   lines={[
                     { key: '初始碳排放', name: '初始碳排放总量 (tCO₂)', color: '#f59e0b' },
-                    { key: '净碳排放', name: '净碳排放量 (tCO₂)', color: '#1677ff' },
+                    { key: '净碳排放', name: '净碳排放量 (tCO₂)', color: 'oklch(0.72 0.18 210)' },
                     { key: '碳抵消量', name: '绿电与绿证抵消总量 (tCO₂)', color: '#10b981' },
                   ]}
                 />
@@ -879,17 +879,17 @@ export default function CarbonEmissionMonitoringPage() {
           <div className="space-y-3.5">
             {/* 1. 顶部电力因子提示条 (仅在3级车间/工厂层级显示) */}
             {isLevel3 && (
-              <div className="p-3 bg-blue-50/80 rounded-xl border border-blue-200/90 flex flex-wrap items-center justify-between gap-2 text-xs">
-                <div className="flex items-center gap-2 text-blue-900">
-                  <Info className="size-4 text-[#1677ff] shrink-0" />
+              <div className="p-3 bg-primary/10 rounded-xl border border-primary/30 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2 text-foreground">
+                  <Info className="size-4 text-primary shrink-0" />
                   <span>
                     <strong>电力核算基准因子提示：</strong>当前【{activeFactory.name}】所在区域为<strong>【{activeFactory.province}】</strong>，依<strong>【国家温室气体排放数据库】</strong>选用分省电网电力排放因子：
-                    <span className="font-mono font-bold text-[#1677ff] ml-1 bg-white px-1.5 py-0.5 rounded border border-blue-200">
+                    <span className="font-mono font-bold text-primary ml-1 bg-panel px-1.5 py-0.5 rounded border border-primary/30">
                       {activeFactory.gridFactor} tCO₂/MWh
                     </span>
                   </span>
                 </div>
-                <span className="text-[11px] text-blue-700 font-mono">
+                <span className="text-[11px] text-primary font-mono">
                   自动拉取全国统一电力因子库
                 </span>
               </div>
@@ -898,100 +898,100 @@ export default function CarbonEmissionMonitoringPage() {
             {/* 2. 主要放 3 个核心数卡片 (净碳排放量、初始碳排放量、碳抵消量) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
               {/* 卡片 1: 净碳排放量 */}
-              <div className="bg-white p-4 rounded-xl border border-blue-200/80 shadow-xs space-y-2 bg-gradient-to-br from-blue-50/40 via-white to-white">
+              <div className="bg-card p-4 rounded-xl border border-primary/30 shadow-xs space-y-2 bg-[linear-gradient(135deg,color-mix(in_oklch,var(--primary)_12%,var(--card)),var(--card))]">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
-                    <ShieldCheck className="size-4 text-[#1677ff]" />
+                  <span className="text-xs font-bold text-primary flex items-center gap-1.5">
+                    <ShieldCheck className="size-4 text-primary" />
                     净碳排放量
                   </span>
                 </div>
-                <div className="text-3xl font-extrabold font-mono text-[#1677ff] flex items-baseline gap-1.5">
-                  {unitCalculations.netCarbon.toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">tCO₂</span>
+                <div className="text-3xl font-extrabold font-mono text-primary flex items-baseline gap-1.5">
+                  {unitCalculations.netCarbon.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
                 </div>
-                <div className="pt-2 border-t border-blue-100 flex items-center justify-between text-xs font-sans">
-                  <span className="text-slate-500">同比变动: <strong className="font-mono text-emerald-600">{activeFactory.yoyRate}</strong></span>
-                  <span className="text-slate-500">综合减排率: <strong className="font-mono text-[#1677ff]">{unitCalculations.offsetRate}%</strong></span>
+                <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs font-sans">
+                  <span className="text-muted-foreground">同比变动: <strong className="font-mono text-emerald-400">{activeFactory.yoyRate}</strong></span>
+                  <span className="text-muted-foreground">综合减排率: <strong className="font-mono text-primary">{unitCalculations.offsetRate}%</strong></span>
                 </div>
               </div>
 
               {/* 卡片 2: 初始碳排放量 */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Zap className="size-4 text-amber-500" />
+                  <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <Zap className="size-4 text-amber-400" />
                     初始碳排放量
                   </span>
                 </div>
-                <div className="text-3xl font-extrabold font-mono text-slate-800 flex items-baseline gap-1.5">
-                  {unitCalculations.initialCarbon.toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">tCO₂</span>
+                <div className="text-3xl font-extrabold font-mono text-foreground flex items-baseline gap-1.5">
+                  {unitCalculations.initialCarbon.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
                 </div>
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-sans text-slate-500">
-                  <span>外购电力: <strong className="font-mono text-slate-700">{unitCalculations.elecGrossCarbon} t</strong></span>
-                  <span>其他: <strong className="font-mono text-slate-700">{(unitCalculations.gasGrossCarbon + unitCalculations.steamGrossCarbon).toFixed(1)} t</strong></span>
+                <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs font-sans text-muted-foreground">
+                  <span>外购电力: <strong className="font-mono text-foreground">{unitCalculations.elecGrossCarbon} t</strong></span>
+                  <span>其他: <strong className="font-mono text-foreground">{(unitCalculations.gasGrossCarbon + unitCalculations.steamGrossCarbon).toFixed(1)} t</strong></span>
                 </div>
               </div>
 
               {/* 卡片 3: 碳抵消量 (直供绿电 + 交易绿电 + 交易绿证) */}
-              <div className="bg-white p-4 rounded-xl border border-emerald-200/80 shadow-xs space-y-2 bg-gradient-to-br from-emerald-50/40 via-white to-white">
+              <div className="bg-card p-4 rounded-xl border border-emerald-500/30 shadow-xs space-y-2 bg-[linear-gradient(135deg,color-mix(in_oklch,#10b981_12%,var(--card)),var(--card))]">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
-                    <Award className="size-4 text-emerald-600" />
+                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    <Award className="size-4 text-emerald-400" />
                     碳抵消总量
                   </span>
                 </div>
-                <div className="text-3xl font-extrabold font-mono text-emerald-600 flex items-baseline gap-1.5">
-                  {unitCalculations.totalOffset.toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">tCO₂</span>
+                <div className="text-3xl font-extrabold font-mono text-emerald-400 flex items-baseline gap-1.5">
+                  {unitCalculations.totalOffset.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
                 </div>
-                <div className="pt-2 border-t border-emerald-100 grid grid-cols-3 gap-1 text-[11px] font-sans text-slate-600 text-center">
-                  <div className="bg-emerald-50/70 p-1 rounded">
-                    <span className="text-[10px] text-slate-500 block">直供绿电</span>
-                    <strong className="font-mono text-emerald-700">{unitCalculations.solarOffset}t</strong>
+                <div className="pt-2 border-t border-border/60 grid grid-cols-3 gap-1 text-[11px] font-sans text-muted-foreground text-center">
+                  <div className="bg-panel p-1 rounded border border-border">
+                    <span className="text-[10px] text-muted-foreground block">直供绿电</span>
+                    <strong className="font-mono text-emerald-400">{unitCalculations.solarOffset}t</strong>
                   </div>
-                  <div className="bg-blue-50/70 p-1 rounded">
-                    <span className="text-[10px] text-slate-500 block">交易绿电</span>
-                    <strong className="font-mono text-blue-700">{unitCalculations.greenElecOffset}t</strong>
+                  <div className="bg-panel p-1 rounded border border-border">
+                    <span className="text-[10px] text-muted-foreground block">交易绿电</span>
+                    <strong className="font-mono text-primary">{unitCalculations.greenElecOffset}t</strong>
                   </div>
-                  <div className="bg-purple-50/70 p-1 rounded">
-                    <span className="text-[10px] text-slate-500 block">交易绿证</span>
-                    <strong className="font-mono text-purple-700">{unitCalculations.gecOffset}t</strong>
+                  <div className="bg-panel p-1 rounded border border-border">
+                    <span className="text-[10px] text-muted-foreground block">交易绿证</span>
+                    <strong className="font-mono text-purple-400">{unitCalculations.gecOffset}t</strong>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* 3. 展示净碳排放的结构 (饼图与抵消拆解) */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-border/60 pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground">
                     净碳排放结构与 3 大绿色抵消构成全景
                   </h3>
                 </div>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-muted-foreground font-mono">
                   公式：净碳排放量 ({unitCalculations.netCarbon.toLocaleString()} tCO₂) = 初始碳排放量 ({unitCalculations.initialCarbon.toLocaleString()} tCO₂) - 碳抵消量 ({unitCalculations.totalOffset.toLocaleString()} tCO₂)
                 </span>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                 {/* 左侧 5/12: 净碳排放构成环形图 */}
-                <div className="lg:col-span-5 flex flex-col justify-between space-y-2 border-r border-slate-100 pr-2">
-                  <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5 font-sans">
-                    <PieIcon className="size-3.5 text-[#1677ff]" />
+                <div className="lg:col-span-5 flex flex-col justify-between space-y-2 border-r border-border/60 pr-2">
+                  <div className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                    <PieIcon className="size-3.5 text-primary" />
                     净碳排放介质结构占比
                   </div>
                   <Donut data={unitNetCarbonDonutData} height={190} unit="tCO₂" />
                   <div className="grid grid-cols-3 gap-1.5 text-[11px] font-mono pt-1 text-center">
-                    <div className="p-1.5 rounded bg-blue-50 text-blue-900 border border-blue-100">
-                      <span className="text-[10px] text-slate-500 font-sans block">外购电力</span>
+                    <div className="p-1.5 rounded bg-panel text-primary border border-border">
+                      <span className="text-[10px] text-muted-foreground font-sans block">外购电力</span>
                       <strong>{((unitNetCarbonDonutData[0].value / unitCalculations.netCarbon) * 100).toFixed(1)}%</strong>
                     </div>
-                    <div className="p-1.5 rounded bg-purple-50 text-purple-900 border border-purple-100">
-                      <span className="text-[10px] text-slate-500 font-sans block">外购蒸汽</span>
+                    <div className="p-1.5 rounded bg-panel text-purple-400 border border-border">
+                      <span className="text-[10px] text-muted-foreground font-sans block">外购蒸汽</span>
                       <strong>{((unitCalculations.steamGrossCarbon / unitCalculations.netCarbon) * 100).toFixed(1)}%</strong>
                     </div>
-                    <div className="p-1.5 rounded bg-amber-50 text-amber-900 border border-amber-100">
-                      <span className="text-[10px] text-slate-500 font-sans block">化石燃气</span>
+                    <div className="p-1.5 rounded bg-panel text-amber-400 border border-border">
+                      <span className="text-[10px] text-muted-foreground font-sans block">化石燃气</span>
                       <strong>{((unitCalculations.gasGrossCarbon / unitCalculations.netCarbon) * 100).toFixed(1)}%</strong>
                     </div>
                   </div>
@@ -999,74 +999,74 @@ export default function CarbonEmissionMonitoringPage() {
 
                 {/* 右侧 7/12: 3 大绿色抵消途径深度剖析 */}
                 <div className="lg:col-span-7 space-y-3">
-                  <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5 font-sans">
-                    <Award className="size-3.5 text-emerald-600" />
+                  <div className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                    <Award className="size-3.5 text-emerald-400" />
                     三大碳抵消量执行结构与中和进度
                   </div>
 
                   <div className="space-y-2.5">
                     {/* 1. 直供绿电 */}
-                    <div className="p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-100 space-y-1">
+                    <div className="p-2.5 rounded-lg bg-panel border border-border space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-emerald-900 flex items-center gap-1">
-                          <CheckCircle2 className="size-3.5 text-emerald-600" />
+                        <span className="font-bold text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="size-3.5 text-emerald-400" />
                           1. 直供绿电抵消
                         </span>
-                        <span className="font-mono font-bold text-emerald-700">
+                        <span className="font-mono font-bold text-emerald-400">
                           {unitCalculations.solarOffset.toLocaleString()} tCO₂ (占总抵消 {((unitCalculations.solarOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%)
                         </span>
                       </div>
-                      <div className="w-full bg-emerald-200/60 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-panel rounded-full h-2 overflow-hidden border border-border">
                         <div
                           className="bg-emerald-500 h-2 rounded-full"
                           style={{ width: `${((unitCalculations.solarOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%` }}
                         />
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono">
+                      <div className="text-[11px] text-muted-foreground font-mono">
                         直供绿电量: {(activeFactory.solarSelfKWh / 10000).toFixed(1)} 万 kWh
                       </div>
                     </div>
 
                     {/* 2. 交易绿电 */}
-                    <div className="p-2.5 rounded-lg bg-blue-50/50 border border-blue-100 space-y-1">
+                    <div className="p-2.5 rounded-lg bg-panel border border-border space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-blue-900 flex items-center gap-1">
-                          <CheckCircle2 className="size-3.5 text-[#1677ff]" />
+                        <span className="font-bold text-primary flex items-center gap-1">
+                          <CheckCircle2 className="size-3.5 text-primary" />
                           2. 交易绿电抵消
                         </span>
-                        <span className="font-mono font-bold text-blue-700">
+                        <span className="font-mono font-bold text-primary">
                           {unitCalculations.greenElecOffset.toLocaleString()} tCO₂ (占总抵消 {((unitCalculations.greenElecOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%)
                         </span>
                       </div>
-                      <div className="w-full bg-blue-200/60 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-panel rounded-full h-2 overflow-hidden border border-border">
                         <div
-                          className="bg-[#1677ff] h-2 rounded-full"
+                          className="bg-primary h-2 rounded-full"
                           style={{ width: `${((unitCalculations.greenElecOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%` }}
                         />
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono">
+                      <div className="text-[11px] text-muted-foreground font-mono">
                         交易绿电量: {(activeFactory.greenElecKWh / 10000).toFixed(1)} 万 kWh
                       </div>
                     </div>
 
                     {/* 3. 交易绿证 */}
-                    <div className="p-2.5 rounded-lg bg-purple-50/50 border border-purple-100 space-y-1">
+                    <div className="p-2.5 rounded-lg bg-panel border border-border space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-purple-900 flex items-center gap-1">
-                          <CheckCircle2 className="size-3.5 text-purple-600" />
+                        <span className="font-bold text-purple-400 flex items-center gap-1">
+                          <CheckCircle2 className="size-3.5 text-purple-400" />
                           3. 交易绿证抵消
                         </span>
-                        <span className="font-mono font-bold text-purple-700">
+                        <span className="font-mono font-bold text-purple-400">
                           {unitCalculations.gecOffset.toLocaleString()} tCO₂ (占总抵消 {((unitCalculations.gecOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%)
                         </span>
                       </div>
-                      <div className="w-full bg-purple-200/60 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-panel rounded-full h-2 overflow-hidden border border-border">
                         <div
-                          className="bg-purple-600 h-2 rounded-full"
+                          className="bg-purple-500 h-2 rounded-full"
                           style={{ width: `${((unitCalculations.gecOffset / unitCalculations.totalOffset) * 100).toFixed(1)}%` }}
                         />
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono">
+                      <div className="text-[11px] text-muted-foreground font-mono">
                         交易绿证量: {activeFactory.gecCertificateCount.toLocaleString()} 张 GEC
                       </div>
                     </div>
@@ -1078,15 +1078,15 @@ export default function CarbonEmissionMonitoringPage() {
             {/* 4. 展示碳排放总量、万元产值碳排放变化趋势 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
               {/* 图表 1: 碳排放总量历史变化趋势 */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+                <div className="flex items-center justify-between border-b border-border/60 pb-2">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-[#1677ff]" />
-                    <h3 className="text-xs font-bold text-slate-900">
+                    <span className="size-2 rounded-full bg-primary" />
+                    <h3 className="text-xs font-bold text-foreground">
                       碳排放总量历史变化趋势 (tCO₂)
                     </h3>
                   </div>
-                  <span className="text-xs text-slate-400 font-mono">初始排放 vs 净碳排放</span>
+                  <span className="text-xs text-muted-foreground font-mono">初始排放 vs 净碳排放</span>
                 </div>
 
                 <div className="h-[240px]">
@@ -1097,7 +1097,7 @@ export default function CarbonEmissionMonitoringPage() {
                     yUnit="tCO₂"
                     lines={[
                       { key: '初始排放', name: '初始碳排放 (tCO₂)', color: '#f59e0b' },
-                      { key: '净碳排放', name: '净碳排放量 (tCO₂)', color: '#1677ff' },
+                      { key: '净碳排放', name: '净碳排放量 (tCO₂)', color: 'oklch(0.72 0.18 210)' },
                       { key: '碳抵消量', name: '绿电绿证抵消 (tCO₂)', color: '#10b981' },
                     ]}
                   />
@@ -1105,15 +1105,15 @@ export default function CarbonEmissionMonitoringPage() {
               </div>
 
               {/* 图表 2: 万元产值碳排放变化趋势 */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+                <div className="flex items-center justify-between border-b border-border/60 pb-2">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-emerald-500" />
-                    <h3 className="text-xs font-bold text-slate-900">
+                    <span className="size-2 rounded-full bg-emerald-400" />
+                    <h3 className="text-xs font-bold text-foreground">
                       万元产值碳排放变化趋势
                     </h3>
                   </div>
-                  <span className="text-xs text-slate-400 font-mono">单位产值碳强度 (tCO₂/万元)</span>
+                  <span className="text-xs text-muted-foreground font-mono">单位产值碳强度 (tCO₂/万元)</span>
                 </div>
 
                 <div className="h-[240px]">
@@ -1123,7 +1123,7 @@ export default function CarbonEmissionMonitoringPage() {
                     height={240}
                     yUnit="t/万元"
                     lines={[
-                      { key: '万元产值碳排放', name: '万元产值碳排放 (tCO₂/万元)', color: '#1677ff' },
+                      { key: '万元产值碳排放', name: '万元产值碳排放 (tCO₂/万元)', color: 'oklch(0.72 0.18 210)' },
                     ]}
                   />
                 </div>
@@ -1131,11 +1131,11 @@ export default function CarbonEmissionMonitoringPage() {
             </div>
 
             {/* 5. 底部明细台账表格 */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/80 gap-2">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-border/60 flex flex-wrap items-center justify-between bg-panel/60 gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-emerald-500" />
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <span className="size-2 rounded-full bg-emerald-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     月度能源消耗与碳排放核算明细台账
                   </h3>
                 </div>
@@ -1143,9 +1143,9 @@ export default function CarbonEmissionMonitoringPage() {
                 <button
                   type="button"
                   onClick={() => alert(`正在导出【${activeFactory.name}】碳核算明细台账 (Excel)...`)}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer shadow-2xs text-xs"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-panel border border-border text-foreground font-medium hover:bg-accent/40 cursor-pointer shadow-2xs text-xs"
                 >
-                  <Download className="size-3.5 text-slate-500" />
+                  <Download className="size-3.5 text-muted-foreground" />
                   <span>导出明细</span>
                 </button>
               </div>
@@ -1153,45 +1153,45 @@ export default function CarbonEmissionMonitoringPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
+                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
                       <th className="py-2.5 px-3">核算账期</th>
                       <th className="py-2.5 px-3">工业用电 (kWh)</th>
                       <th className="py-2.5 px-3">天然气 (m³)</th>
                       <th className="py-2.5 px-3">外购蒸汽 (t)</th>
                       <th className="py-2.5 px-3">初始碳排放 (tCO₂)</th>
-                      <th className="py-2.5 px-3 text-emerald-600 font-bold">直供绿电抵消</th>
-                      <th className="py-2.5 px-3 text-blue-600 font-bold">交易绿电抵消</th>
-                      <th className="py-2.5 px-3 text-purple-600 font-bold">绿证核销抵消</th>
-                      <th className="py-2.5 px-3 text-[#1677ff] font-extrabold">净碳排放量 (tCO₂)</th>
+                      <th className="py-2.5 px-3 text-emerald-400 font-bold">直供绿电抵消</th>
+                      <th className="py-2.5 px-3 text-primary font-bold">交易绿电抵消</th>
+                      <th className="py-2.5 px-3 text-purple-400 font-bold">绿证核销抵消</th>
+                      <th className="py-2.5 px-3 text-primary font-extrabold">净碳排放量 (tCO₂)</th>
                       <th className="py-2.5 px-3">万元产值碳强度</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                  <tbody className="divide-y divide-border/60 text-foreground">
                     {unitTrendData.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-blue-50/40 transition-colors">
-                        <td className="py-2.5 px-3 font-semibold text-slate-900 font-sans">2026年{row.month}</td>
-                        <td className="py-2.5 px-3 font-bold text-slate-800">
+                      <tr key={idx} className="hover:bg-accent/30 transition-colors">
+                        <td className="py-2.5 px-3 font-semibold text-foreground font-sans">2026年{row.month}</td>
+                        <td className="py-2.5 px-3 font-bold text-foreground">
                           {Math.round(activeFactory.elecKWh / 8 * (0.95 + idx * 0.01)).toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-amber-700">
+                        <td className="py-2.5 px-3 text-amber-400">
                           {Math.round(activeFactory.gasM3 / 8 * (0.92 + idx * 0.02)).toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-purple-700">
+                        <td className="py-2.5 px-3 text-purple-400">
                           {Math.round(activeFactory.steamT / 8 * (0.96 + idx * 0.01)).toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 font-bold text-slate-800">{row.初始排放.toLocaleString()}</td>
-                        <td className="py-2.5 px-3 text-emerald-600 font-bold">
+                        <td className="py-2.5 px-3 font-bold text-foreground">{row.初始排放.toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-emerald-400 font-bold">
                           {(row.碳抵消量 * 0.82).toFixed(1)}
                         </td>
-                        <td className="py-2.5 px-3 text-blue-600 font-bold">
+                        <td className="py-2.5 px-3 text-primary font-bold">
                           {(row.碳抵消量 * 0.14).toFixed(1)}
                         </td>
-                        <td className="py-2.5 px-3 text-purple-600 font-bold">
+                        <td className="py-2.5 px-3 text-purple-400 font-bold">
                           {(row.碳抵消量 * 0.04).toFixed(1)}
                         </td>
-                        <td className="py-2.5 px-3 text-[#1677ff] font-extrabold text-sm">{row.净碳排放.toLocaleString()}</td>
-                        <td className="py-2.5 px-3 font-bold text-slate-800">
-                          {row.万元产值碳排放} <span className="text-[10px] text-slate-400 font-normal">t/万元</span>
+                        <td className="py-2.5 px-3 text-primary font-extrabold text-sm">{row.净碳排放.toLocaleString()}</td>
+                        <td className="py-2.5 px-3 font-bold text-foreground">
+                          {row.万元产值碳排放} <span className="text-[10px] text-muted-foreground font-normal">t/万元</span>
                         </td>
                       </tr>
                     ))}

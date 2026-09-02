@@ -89,21 +89,21 @@ export default function CarbonAnalysisPage() {
       {/* 🌟 右侧主面板 */}
       <div className="flex-1 min-w-0 space-y-3.5">
         {/* 顶部控制与视角提示卡片 */}
-        <div className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="bg-card rounded-xl border border-border p-3.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <BarChart3 className="size-5" />
             </div>
-            <h1 className="text-base font-bold text-slate-800">碳排放分析</h1>
+            <h1 className="text-base font-bold text-foreground">碳排放分析</h1>
           </div>
 
           <div className="flex items-center gap-2 self-end md:self-center">
-            <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 text-xs">
+            <div className="inline-flex rounded-lg border border-border p-0.5 bg-panel text-xs">
               <button
                 onClick={() => setAnalysisMode('trend')}
                 className={cn(
-                  'px-2.5 py-1 rounded-md transition-all',
-                  analysisMode === 'trend' ? 'bg-white text-blue-700 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900',
+                  'px-2.5 py-1 rounded-md transition-all cursor-pointer',
+                  analysisMode === 'trend' ? 'bg-primary text-primary-foreground font-bold shadow-xs' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 月度趋势
@@ -111,8 +111,8 @@ export default function CarbonAnalysisPage() {
               <button
                 onClick={() => setAnalysisMode('compare')}
                 className={cn(
-                  'px-2.5 py-1 rounded-md transition-all',
-                  analysisMode === 'compare' ? 'bg-white text-blue-700 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900',
+                  'px-2.5 py-1 rounded-md transition-all cursor-pointer',
+                  analysisMode === 'compare' ? 'bg-primary text-primary-foreground font-bold shadow-xs' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 同环比对比
@@ -120,8 +120,8 @@ export default function CarbonAnalysisPage() {
               <button
                 onClick={() => setAnalysisMode('attribution')}
                 className={cn(
-                  'px-2.5 py-1 rounded-md transition-all',
-                  analysisMode === 'attribution' ? 'bg-white text-blue-700 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900',
+                  'px-2.5 py-1 rounded-md transition-all cursor-pointer',
+                  analysisMode === 'attribution' ? 'bg-primary text-primary-foreground font-bold shadow-xs' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 减排归因
@@ -129,7 +129,7 @@ export default function CarbonAnalysisPage() {
             </div>
             <button
               onClick={() => alert('已刷新四象限与工序碳热点分析模型！')}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-[#1677ff] hover:bg-blue-600 text-white font-bold text-xs shadow-xs transition-colors"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs shadow-xs transition-colors cursor-pointer"
             >
               <RefreshCw className="size-3.5" />
               <span>刷新分析</span>
@@ -139,51 +139,51 @@ export default function CarbonAnalysisPage() {
 
         {/* 4 栏大盘分析核心 KPI */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-            <div className="text-xs text-slate-500 mb-1 font-bold">集团万元产值平均碳强度</div>
+          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+            <div className="text-xs text-muted-foreground mb-1 font-bold">集团万元产值平均碳强度</div>
             <div className="flex items-baseline gap-1.5 my-1">
-              <span className="text-2xl font-extrabold font-mono text-emerald-700">0.318</span>
-              <span className="text-xs text-slate-500">tCO₂/万元</span>
+              <span className="text-2xl font-extrabold font-mono text-emerald-400">0.318</span>
+              <span className="text-xs text-muted-foreground">tCO₂/万元</span>
             </div>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex justify-between font-mono">
+            <div className="text-[11px] text-muted-foreground pt-2 border-t border-border/60 flex justify-between font-mono">
               <span>考核线: 0.334</span>
-              <span className="text-emerald-700 font-bold">同比 -6.2% (达标)</span>
+              <span className="text-emerald-400 font-bold">同比 -6.2% (达标)</span>
             </div>
           </div>
 
-          <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-            <div className="text-xs text-slate-500 mb-1 font-bold">领跑示范制造基地</div>
+          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+            <div className="text-xs text-muted-foreground mb-1 font-bold">领跑示范制造基地</div>
             <div className="flex items-baseline gap-1.5 my-1">
-              <span className="text-2xl font-extrabold font-mono text-blue-600">6</span>
-              <span className="text-xs text-slate-500">/ 8 家基地</span>
+              <span className="text-2xl font-extrabold font-mono text-primary">6</span>
+              <span className="text-xs text-muted-foreground">/ 8 家基地</span>
             </div>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex justify-between font-mono">
+            <div className="text-[11px] text-muted-foreground pt-2 border-t border-border/60 flex justify-between font-mono">
               <span>鲁缆/新变超额领跑</span>
-              <span className="text-blue-700 font-mono">达标率 87.5%</span>
+              <span className="text-primary font-mono">达标率 87.5%</span>
             </div>
           </div>
 
-          <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-            <div className="text-xs text-slate-500 mb-1 font-bold">高碳预警与异常产线</div>
+          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+            <div className="text-xs text-muted-foreground mb-1 font-bold">高碳预警与异常产线</div>
             <div className="flex items-baseline gap-1.5 my-1">
-              <span className="text-2xl font-extrabold font-mono text-rose-600">2</span>
-              <span className="text-xs text-slate-500">条产线/工序</span>
+              <span className="text-2xl font-extrabold font-mono text-rose-400">2</span>
+              <span className="text-xs text-muted-foreground">条产线/工序</span>
             </div>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex justify-between font-mono">
+            <div className="text-[11px] text-muted-foreground pt-2 border-t border-border/60 flex justify-between font-mono">
               <span>德缆橡套线/沈变3#干燥</span>
-              <span className="text-rose-600 font-bold">需技改干预</span>
+              <span className="text-rose-400 font-bold">需技改干预</span>
             </div>
           </div>
 
-          <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-            <div className="text-xs text-slate-500 mb-1 font-bold">集团绿电综合渗透率</div>
+          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+            <div className="text-xs text-muted-foreground mb-1 font-bold">集团绿电综合渗透率</div>
             <div className="flex items-baseline gap-1.5 my-1">
-              <span className="text-2xl font-extrabold font-mono text-emerald-600">18.4%</span>
-              <span className="text-xs text-slate-500">占总用电量</span>
+              <span className="text-2xl font-extrabold font-mono text-emerald-400">18.4%</span>
+              <span className="text-xs text-muted-foreground">占总用电量</span>
             </div>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex justify-between font-mono">
+            <div className="text-[11px] text-muted-foreground pt-2 border-t border-border/60 flex justify-between font-mono">
               <span>自备光伏+市场化交易</span>
-              <span className="text-emerald-700 font-bold">年化减排3.8万吨</span>
+              <span className="text-emerald-400 font-bold">年化减排3.8万吨</span>
             </div>
           </div>
         </div>
@@ -191,33 +191,33 @@ export default function CarbonAnalysisPage() {
         {/* 2 栏核心图表：左侧四象限矩阵 + 右侧 12 个月大盘演进趋势 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           {/* 左侧：四象限矩阵分析 */}
-          <div className="bg-white p-4 rounded-xl border border-[#e5e7eb] shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+          <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-border/60 pb-2">
               <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-[#1677ff]" />
-                <h3 className="text-xs font-bold text-slate-900">
+                <span className="size-2 rounded-full bg-primary" />
+                <h3 className="text-xs font-bold text-foreground">
                   8 家主要制造基地能效-碳排放四象限矩阵分析
                 </h3>
               </div>
-              <span className="text-[11px] text-slate-400 font-mono">横轴: 碳强度 | 纵轴: 能效强度</span>
+              <span className="text-[11px] text-muted-foreground font-mono">横轴: 碳强度 | 纵轴: 能效强度</span>
             </div>
 
-            <div className="relative w-full h-[260px] bg-slate-50/50 rounded-lg border border-slate-100 p-3 flex flex-col justify-between">
+            <div className="relative w-full h-[260px] bg-panel/40 rounded-lg border border-border p-3 flex flex-col justify-between">
               {/* 四象限背景与基准分割线 */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-full h-px bg-slate-300 border-b border-dashed" />
+                <div className="w-full h-px bg-border/80 border-b border-dashed" />
               </div>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="h-full w-px bg-slate-300 border-r border-dashed" />
+                <div className="h-full w-px bg-border/80 border-r border-dashed" />
               </div>
 
               {/* 象限标签 */}
-              <div className="flex justify-between text-[10px] text-slate-400 font-mono z-10">
+              <div className="flex justify-between text-[10px] text-muted-foreground font-mono z-10">
                 <span>II区: 高碳高效区</span>
-                <span className="text-rose-500 font-bold">IV区: 高碳高耗(整改区)</span>
+                <span className="text-rose-400 font-bold">IV区: 高碳高耗(整改区)</span>
               </div>
-              <div className="flex justify-between text-[10px] text-slate-400 font-mono z-10">
-                <span className="text-emerald-600 font-bold">I区: 低碳高效(标杆区)</span>
+              <div className="flex justify-between text-[10px] text-muted-foreground font-mono z-10">
+                <span className="text-emerald-400 font-bold">I区: 低碳高效(标杆区)</span>
                 <span>III区: 低碳低效区</span>
               </div>
 
@@ -236,9 +236,9 @@ export default function CarbonAnalysisPage() {
                     >
                       <div
                         style={{ backgroundColor: plant.color }}
-                        className="size-4 rounded-full border-2 border-white shadow-xs group-hover:scale-125 transition-transform"
+                        className="size-4 rounded-full border-2 border-slate-900 shadow-xs group-hover:scale-125 transition-transform"
                       />
-                      <span className="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-800 whitespace-nowrap bg-white/90 px-1 rounded shadow-2xs">
+                      <span className="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] font-bold text-foreground whitespace-nowrap bg-card/90 px-1 rounded border border-border shadow-2xs">
                         {plant.name}
                       </span>
                     </div>
@@ -246,19 +246,19 @@ export default function CarbonAnalysisPage() {
                 })}
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 font-mono">
+            <p className="text-[11px] text-muted-foreground font-mono">
               💡 新变厂、鲁缆公司处于 I 区领跑标杆；德缆公司处于 IV 区，需推进光伏与余热技改。
             </p>
           </div>
 
           {/* 右侧：12个月大盘演进趋势 */}
-          <div className="bg-white p-4 rounded-xl border border-[#e5e7eb] shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+          <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-border/60 pb-2">
               <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-emerald-500" />
-                <h3 className="text-xs font-bold text-slate-900">近 12 个月大盘产值碳强度演进走势</h3>
+                <span className="size-2 rounded-full bg-emerald-400" />
+                <h3 className="text-xs font-bold text-foreground">近 12 个月大盘产值碳强度演进走势</h3>
               </div>
-              <span className="text-[11px] text-slate-400 font-mono">对标行业基准线</span>
+              <span className="text-[11px] text-muted-foreground font-mono">对标行业基准线</span>
             </div>
 
             <div className="h-[260px]">
@@ -279,12 +279,12 @@ export default function CarbonAnalysisPage() {
         {/* 下方 2 栏：核心工序碳热点拆解 + 基地碳效排名前后红黑榜 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           {/* 核心工序碳热点拆解 */}
-          <div className="bg-white p-4 rounded-xl border border-[#e5e7eb] shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="text-xs font-bold text-slate-800">
+          <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-border/60 pb-2">
+              <h3 className="text-xs font-bold text-foreground">
                 制造全工序碳排放热点分布拆解 (占比 %)
               </h3>
-              <span className="text-xs text-slate-400 font-mono">排查降碳突破口</span>
+              <span className="text-xs text-muted-foreground font-mono">排查降碳突破口</span>
             </div>
             <div className="h-[220px]">
               <Donut data={processHotspots} height={220} nameKey="name" valueKey="value" />
@@ -292,14 +292,14 @@ export default function CarbonAnalysisPage() {
           </div>
 
           {/* 基地碳效对标归因表 */}
-          <div className="bg-white p-4 rounded-xl border border-[#e5e7eb] shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="text-xs font-bold text-slate-800">主要基地碳效对标与减排归因</h3>
-              <span className="text-xs text-slate-400 font-mono">按碳强度由优至劣排序</span>
+          <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-border/60 pb-2">
+              <h3 className="text-xs font-bold text-foreground">主要基地碳效对标与减排归因</h3>
+              <span className="text-xs text-muted-foreground font-mono">按碳强度由优至劣排序</span>
             </div>
-            <div className="overflow-x-auto rounded-lg border border-slate-200">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-xs text-left">
-                <thead className="bg-[#f8fafc] text-slate-600 border-b border-slate-200 font-semibold">
+                <thead className="bg-panel text-muted-foreground border-b border-border font-semibold">
                   <tr>
                     <th className="px-3 py-2">基地名称</th>
                     <th className="px-3 py-2 text-right">碳强度 (t/万)</th>
@@ -307,30 +307,30 @@ export default function CarbonAnalysisPage() {
                     <th className="px-3 py-2">核心减排优势 / 存在短板</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-mono">
+                <tbody className="divide-y divide-border/60 font-mono text-foreground">
                   <tr>
-                    <td className="px-3 py-2 font-sans font-medium text-slate-900">1. 国际集成</td>
-                    <td className="px-3 py-2 text-right text-emerald-700 font-bold">0.142</td>
-                    <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">I区 标杆</span></td>
-                    <td className="px-3 py-2 font-sans text-slate-600">总装物流为主，单位产值能耗低</td>
+                    <td className="px-3 py-2 font-sans font-medium text-foreground">1. 国际集成</td>
+                    <td className="px-3 py-2 text-right text-emerald-400 font-bold">0.142</td>
+                    <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">I区 标杆</span></td>
+                    <td className="px-3 py-2 font-sans text-muted-foreground">总装物流为主，单位产值能耗低</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 font-sans font-medium text-slate-900">2. 鲁缆公司</td>
-                    <td className="px-3 py-2 text-right text-emerald-700 font-bold">0.185</td>
-                    <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">I区 标杆</span></td>
-                    <td className="px-3 py-2 font-sans text-slate-600">分布式光伏全覆盖，氮气循环高效</td>
+                    <td className="px-3 py-2 font-sans font-medium text-foreground">2. 鲁缆公司</td>
+                    <td className="px-3 py-2 text-right text-emerald-400 font-bold">0.185</td>
+                    <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">I区 标杆</span></td>
+                    <td className="px-3 py-2 font-sans text-muted-foreground">分布式光伏全覆盖，氮气循环高效</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 font-sans font-medium text-slate-900">3. 新变厂</td>
-                    <td className="px-3 py-2 text-right text-emerald-700 font-bold">0.245</td>
-                    <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">I区 标杆</span></td>
-                    <td className="px-3 py-2 font-sans text-slate-600">特高压产值高，储能削峰利用充分</td>
+                    <td className="px-3 py-2 font-sans font-medium text-foreground">3. 新变厂</td>
+                    <td className="px-3 py-2 text-right text-emerald-400 font-bold">0.245</td>
+                    <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">I区 标杆</span></td>
+                    <td className="px-3 py-2 font-sans text-muted-foreground">特高压产值高，储能削峰利用充分</td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-2 font-sans font-medium text-slate-900">4. 德缆公司</td>
-                    <td className="px-3 py-2 text-right text-rose-600 font-bold">0.268</td>
-                    <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-rose-50 text-rose-700 text-[10px] font-bold">IV区 待整改</span></td>
-                    <td className="px-3 py-2 font-sans text-rose-600">老旧挤出机能耗偏高，需变频改造</td>
+                    <td className="px-3 py-2 font-sans font-medium text-foreground">4. 德缆公司</td>
+                    <td className="px-3 py-2 text-right text-rose-400 font-bold">0.268</td>
+                    <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-400 text-[10px] font-bold border border-rose-500/30">IV区 待整改</span></td>
+                    <td className="px-3 py-2 font-sans text-rose-400">老旧挤出机能耗偏高，需变频改造</td>
                   </tr>
                 </tbody>
               </table>

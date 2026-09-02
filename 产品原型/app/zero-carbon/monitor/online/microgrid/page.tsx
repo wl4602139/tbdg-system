@@ -572,23 +572,23 @@ export default function MicrogridMonitoringPage() {
       {/* 右侧主面板 */}
       <div className="flex-1 min-w-0 space-y-3.5">
         {/* 1. 页面标题 + 功率/电量/绿电 Tab 切换 + 统一时间筛选与导出 */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-500 shrink-0">
+            <div className="size-9 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
               <Zap className="size-5" />
             </div>
-            <h1 className="text-base font-bold text-slate-800">工业微电网监测</h1>
+            <h1 className="text-base font-bold text-foreground">工业微电网监测</h1>
 
             {/* 🌟 参照在线监测页规范的 3 大 Tab 栏：功率 / 电量 / 绿电 */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-medium ml-2">
+            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs font-medium ml-2">
               <button
                 type="button"
                 onClick={() => setViewMode('power')}
                 className={cn(
                   'px-3 py-1 rounded-md transition-all select-none cursor-pointer',
                   viewMode === 'power'
-                    ? 'bg-white text-[#1677ff] font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 功率
@@ -599,8 +599,8 @@ export default function MicrogridMonitoringPage() {
                 className={cn(
                   'px-3 py-1 rounded-md transition-all select-none cursor-pointer',
                   viewMode === 'energy'
-                    ? 'bg-white text-[#1677ff] font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 电量
@@ -611,8 +611,8 @@ export default function MicrogridMonitoringPage() {
                 className={cn(
                   'px-3 py-1 rounded-md transition-all select-none cursor-pointer',
                   viewMode === 'green'
-                    ? 'bg-white text-emerald-600 font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 绿电
@@ -622,13 +622,13 @@ export default function MicrogridMonitoringPage() {
 
           <div className="flex flex-wrap items-center gap-2.5">
             {/* 时间维度切换 (日 / 月) */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
+            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs font-sans">
               <button
                 type="button"
                 onClick={() => setTimeDim('day')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'day' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'day' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 日
@@ -638,7 +638,7 @@ export default function MicrogridMonitoringPage() {
                 onClick={() => setTimeDim('month')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 月
@@ -648,8 +648,8 @@ export default function MicrogridMonitoringPage() {
             {/* 1. 日维度：日期范围 (最多30天) + 15分钟固定频率 */}
             {timeDim === 'day' && (
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                  <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                  <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                   <input
                     type="date"
                     value={selectedDateRange.start}
@@ -665,10 +665,10 @@ export default function MicrogridMonitoringPage() {
                       }
                       setSelectedDateRange({ start: newStart, end: newEnd })
                     }}
-                    className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                    className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                     title="起始日期 (最多可选30天)"
                   />
-                  <span className="text-slate-400 font-sans">至</span>
+                  <span className="text-muted-foreground font-sans">至</span>
                   <input
                     type="date"
                     value={selectedDateRange.end}
@@ -684,24 +684,22 @@ export default function MicrogridMonitoringPage() {
                       }
                       setSelectedDateRange({ start: newStart, end: newEnd })
                     }}
-                    className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                    className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                     title="结束日期 (最多可选30天)"
                   />
                 </div>
-
-
               </div>
             )}
 
             {/* 2. 月维度：选择指定月份 */}
             {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <input
                   type="month"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer font-bold"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
                   title="选择指定月份"
                 />
               </div>
@@ -711,7 +709,7 @@ export default function MicrogridMonitoringPage() {
             <button
               type="button"
               onClick={() => alert(`正在导出【${currentParkDetail.name}】微电网监测报表 (Excel)...`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
             >
               <Download className="size-3.5" />
               <span>导出</span>
@@ -726,87 +724,87 @@ export default function MicrogridMonitoringPage() {
           <>
             {/* 4 项核心功率指标看板 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <Gauge className="size-4 text-slate-600" />
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <Gauge className="size-4 text-muted-foreground" />
                     总负荷
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 font-mono">运行功率</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-panel border border-border font-mono">运行功率</span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-slate-900">
+                <div className="text-2xl font-bold font-mono text-foreground">
                   {currentParkDetail.loadKw.toLocaleString()}{' '}
-                  <span className="text-xs font-normal text-slate-500">kW</span>
+                  <span className="text-xs font-normal text-muted-foreground">kW</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>同比</span>
-                  <span className="text-rose-600 font-mono font-bold flex items-center gap-0.5">
+                  <span className="text-rose-400 font-mono font-bold flex items-center gap-0.5">
                     <TrendingUp className="size-3" /> +3.2% ↑
                   </span>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <Zap className="size-4 text-[#1677ff]" />
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <Zap className="size-4 text-primary" />
                     市电负荷
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-50 text-[#1677ff] font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-primary/20 text-primary border border-primary/30 font-mono font-bold">
                     电网受电
                   </span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-[#1677ff]">
+                <div className="text-2xl font-bold font-mono text-primary">
                   {Math.round(currentParkDetail.loadKw * 0.61).toLocaleString()}{' '}
-                  <span className="text-xs font-normal text-slate-500">kW</span>
+                  <span className="text-xs font-normal text-muted-foreground">kW</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>同比</span>
-                  <span className="text-emerald-600 font-mono font-bold flex items-center gap-0.5">
+                  <span className="text-emerald-400 font-mono font-bold flex items-center gap-0.5">
                     <TrendingDown className="size-3" /> -5.8% ↓
                   </span>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <Sun className="size-4 text-emerald-500" />
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <Sun className="size-4 text-emerald-400" />
                     光伏出力
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-600 font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono font-bold">
                     发用平衡
                   </span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-emerald-600">
+                <div className="text-2xl font-bold font-mono text-emerald-400">
                   {currentParkDetail.pvKw.toLocaleString()}{' '}
-                  <span className="text-xs font-normal text-slate-500">kW</span>
+                  <span className="text-xs font-normal text-muted-foreground">kW</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>同比</span>
-                  <span className="text-emerald-600 font-mono font-bold flex items-center gap-0.5">
+                  <span className="text-emerald-400 font-mono font-bold flex items-center gap-0.5">
                     <TrendingUp className="size-3" /> +12.4% ↑
                   </span>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <BatteryCharging className="size-4 text-amber-500" />
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <BatteryCharging className="size-4 text-amber-400" />
                     储能充放电功率
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-600 font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono font-bold">
                     削峰填谷
                   </span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-amber-600">
+                <div className="text-2xl font-bold font-mono text-amber-400">
                   {currentParkDetail.storageKw.toLocaleString()}{' '}
-                  <span className="text-xs font-normal text-slate-500">kW</span>
+                  <span className="text-xs font-normal text-muted-foreground">kW</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>同比</span>
-                  <span className="text-emerald-600 font-mono font-bold flex items-center gap-0.5">
+                  <span className="text-emerald-400 font-mono font-bold flex items-center gap-0.5">
                     <TrendingUp className="size-3" /> +8.1% ↑
                   </span>
                 </div>
@@ -814,19 +812,19 @@ export default function MicrogridMonitoringPage() {
             </div>
 
             {/* 24 小时源网荷储功率平衡曲线 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-border/60 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground">
                     源网荷储微电网协同平衡曲线
                   </h3>
                 </div>
-                <div className="flex items-center gap-3 text-xs font-sans text-slate-500">
-                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-slate-800" />园区总负荷</span>
-                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-500" />光伏出力</span>
-                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#1677ff]" />市电受电</span>
-                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-amber-500" />储能充放电</span>
+                <div className="flex items-center gap-3 text-xs font-sans text-muted-foreground">
+                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-slate-400" />园区总负荷</span>
+                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-400" />光伏出力</span>
+                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-primary" />市电受电</span>
+                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-amber-400" />储能充放电</span>
                 </div>
               </div>
               <LineTrend
@@ -836,7 +834,7 @@ export default function MicrogridMonitoringPage() {
                 yUnit="kW"
                 xInterval={7}
                 lines={[
-                  { key: '园区总负荷', name: '园区总负荷 (kW)', color: '#1e293b' },
+                  { key: '园区总负荷', name: '园区总负荷 (kW)', color: '#94a3b8' },
                   { key: '市电受电', name: '市电受电功率 (kW)', color: '#1677ff' },
                   { key: '光伏出力', name: '光伏实时出力 (kW)', color: '#10b981' },
                   { key: '储能充放电', name: '储能充放电 (kW)', color: '#fa8c16' },
@@ -845,54 +843,54 @@ export default function MicrogridMonitoringPage() {
             </div>
 
             {/* 15 分钟颗粒度明细台账 */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/80 gap-2">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-border/60 flex flex-wrap items-center justify-between bg-panel/60 gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground">
                     微电网功率监测明细台账
                   </h3>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="relative">
-                    <Search className="size-3.5 text-slate-400 absolute left-2.5 top-2" />
+                    <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-2" />
                     <input
                       type="text"
                       placeholder="搜索采样时间..."
                       value={tableSearchKey}
                       onChange={(e) => setTableSearchKey(e.target.value)}
-                      className="pl-8 pr-3 py-1 bg-white border border-slate-200 rounded-md text-xs font-sans text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1677ff]"
+                      className="pl-8 pr-3 py-1 bg-panel border border-border rounded-md text-xs font-sans text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => alert(`正在导出【${currentParkDetail.name}】15分钟高频功率明细 (Excel)...`)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer shadow-2xs text-xs"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-panel border border-border text-foreground font-medium hover:bg-accent/40 cursor-pointer shadow-2xs text-xs"
                   >
-                    <Download className="size-3.5 text-slate-500" />
+                    <Download className="size-3.5 text-muted-foreground" />
                     <span>导出</span>
                   </button>
                 </div>
               </div>
               <div className="overflow-x-auto max-h-[360px] custom-scrollbar">
                 <table className="w-full text-left text-xs border-collapse font-mono">
-                  <thead className="sticky top-0 bg-slate-100 z-10">
-                    <tr className="border-b border-slate-200 text-slate-700 font-semibold font-sans">
+                  <thead className="sticky top-0 bg-panel z-10">
+                    <tr className="border-b border-border text-muted-foreground font-semibold font-sans">
                       <th className="py-2.5 px-3">采样时间</th>
                       <th className="py-2.5 px-3">园区总负荷 (kW)</th>
-                      <th className="py-2.5 px-3 text-[#1677ff]">市电受电 (kW)</th>
-                      <th className="py-2.5 px-3 text-emerald-600">光伏实时出力 (kW)</th>
-                      <th className="py-2.5 px-3 text-amber-600">储能充放 (kW)</th>
+                      <th className="py-2.5 px-3 text-primary">市电受电 (kW)</th>
+                      <th className="py-2.5 px-3 text-emerald-400">光伏实时出力 (kW)</th>
+                      <th className="py-2.5 px-3 text-amber-400">储能充放 (kW)</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                  <tbody className="divide-y divide-border/60 text-foreground">
                     {filteredLedger.map((row) => (
-                      <tr key={row.id} className="hover:bg-blue-50/40 transition-colors">
-                        <td className="py-2 px-3 font-semibold text-slate-900 font-sans">{row.time}</td>
-                        <td className="py-2 px-3 font-bold text-slate-900">{row.loadKw.toLocaleString()}</td>
-                        <td className="py-2 px-3 text-[#1677ff] font-bold">{row.gridKw.toLocaleString()}</td>
-                        <td className="py-2 px-3 text-emerald-600 font-bold">{row.pvKw.toLocaleString()}</td>
-                        <td className="py-2 px-3 font-bold text-amber-600">
+                      <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                        <td className="py-2 px-3 font-semibold text-foreground font-sans">{row.time}</td>
+                        <td className="py-2 px-3 font-bold text-foreground">{row.loadKw.toLocaleString()}</td>
+                        <td className="py-2 px-3 text-primary font-bold">{row.gridKw.toLocaleString()}</td>
+                        <td className="py-2 px-3 text-emerald-400 font-bold">{row.pvKw.toLocaleString()}</td>
+                        <td className="py-2 px-3 font-bold text-amber-400">
                           {row.storageKw > 0 ? `+${row.storageKw} (放)` : `${row.storageKw} (充)`}
                         </td>
                       </tr>
@@ -910,104 +908,104 @@ export default function MicrogridMonitoringPage() {
         {viewMode === 'energy' && (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <Zap className="size-4 text-blue-600" />
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <Zap className="size-4 text-primary" />
                     园区总用电量
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-50 text-[#1677ff] font-mono font-bold">当日累计</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-primary/20 text-primary border border-primary/30 font-mono font-bold">当日累计</span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-slate-900">
+                <div className="text-2xl font-bold font-mono text-foreground">
                   {(currentParkDetail.loadKw * 18.2).toFixed(0)}{' '}
-                  <span className="text-xs font-normal text-slate-500">kWh</span>
+                  <span className="text-xs font-normal text-muted-foreground">kWh</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>绿色消纳率</span>
-                  <span className="text-emerald-600 font-mono font-bold">{currentParkDetail.greenRate}%</span>
+                  <span className="text-emerald-400 font-mono font-bold">{currentParkDetail.greenRate}%</span>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <Building2 className="size-4 text-slate-600" />
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <Building2 className="size-4 text-muted-foreground" />
                     市电量
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 font-mono font-bold">外购电</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-panel border border-border font-mono font-bold">外购电</span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-[#1677ff]">
+                <div className="text-2xl font-bold font-mono text-primary">
                   {(currentParkDetail.loadKw * 11.2).toFixed(0)}{' '}
-                  <span className="text-xs font-normal text-slate-500">kWh</span>
+                  <span className="text-xs font-normal text-muted-foreground">kWh</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>占比</span>
-                  <span className="text-slate-700 font-mono font-bold">61.5%</span>
+                  <span className="text-foreground font-mono font-bold">61.5%</span>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <Sun className="size-4 text-emerald-500" />
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <Sun className="size-4 text-emerald-400" />
                     直供绿电量
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-600 font-mono font-bold">自发自用</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono font-bold">自发自用</span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-emerald-600">
+                <div className="text-2xl font-bold font-mono text-emerald-400">
                   {(currentParkDetail.pvKw * 6.5).toFixed(0)}{' '}
-                  <span className="text-xs font-normal text-slate-500">kWh</span>
+                  <span className="text-xs font-normal text-muted-foreground">kWh</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>自用占比</span>
-                  <span className="text-emerald-600 font-mono font-bold">81.2%</span>
+                  <span className="text-emerald-400 font-mono font-bold">81.2%</span>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <BatteryCharging className="size-4 text-amber-500" />
+              <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <BatteryCharging className="size-4 text-amber-400" />
                     储能系统
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-600 font-mono font-bold">充放计量</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono font-bold">充放计量</span>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-2 pt-0.5">
                   <div>
-                    <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                      <span className="size-1.5 rounded-full bg-amber-500 shrink-0" />
+                    <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <span className="size-1.5 rounded-full bg-amber-400 shrink-0" />
                       充电量
                     </div>
-                    <div className="text-lg font-bold font-mono text-amber-600 truncate">
+                    <div className="text-lg font-bold font-mono text-amber-400 truncate">
                       {Math.round(currentParkDetail.storageKw * 2.2).toLocaleString()}{' '}
-                      <span className="text-[10px] font-normal text-slate-400 font-sans">kWh</span>
+                      <span className="text-[10px] font-normal text-muted-foreground font-sans">kWh</span>
                     </div>
                   </div>
                   <div>
-                    <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                      <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" />
+                    <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <span className="size-1.5 rounded-full bg-emerald-400 shrink-0" />
                       放电量
                     </div>
-                    <div className="text-lg font-bold font-mono text-emerald-600 truncate">
+                    <div className="text-lg font-bold font-mono text-emerald-400 truncate">
                       {Math.round(currentParkDetail.storageKw * 2.2 * 0.894).toLocaleString()}{' '}
-                      <span className="text-[10px] font-normal text-slate-400 font-sans">kWh</span>
+                      <span className="text-[10px] font-normal text-muted-foreground font-sans">kWh</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>综合效率</span>
-                  <span className="text-emerald-600 font-mono font-bold">89.4%</span>
+                  <span className="text-emerald-400 font-mono font-bold">89.4%</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-border/60 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-emerald-500" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-emerald-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     源网荷储微电网用电量统计走势
                   </h3>
                 </div>
@@ -1019,7 +1017,7 @@ export default function MicrogridMonitoringPage() {
                 yUnit="kWh"
                 xInterval={7}
                 lines={[
-                  { key: '园区总用电', name: '园区总用电量 (kWh)', color: '#1e293b' },
+                  { key: '园区总用电', name: '园区总用电量 (kWh)', color: '#94a3b8' },
                   { key: '市网购电', name: '市电量 (kWh)', color: '#1677ff' },
                   { key: '光伏发电', name: '直供绿电量 (kWh)', color: '#10b981' },
                   { key: '储能充放', name: '储能充放电量 (kWh)', color: '#fa8c16' },
@@ -1027,42 +1025,42 @@ export default function MicrogridMonitoringPage() {
               />
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/80 gap-2">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-border/60 flex flex-wrap items-center justify-between bg-panel/60 gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-blue-500" />
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground">
                     微电网电量监测明细台账
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => alert(`正在导出【${currentParkDetail.name}】逐小时电量台账 (Excel)...`)}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer shadow-2xs text-xs"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-panel border border-border text-foreground font-medium hover:bg-accent/40 cursor-pointer shadow-2xs text-xs"
                 >
-                  <Download className="size-3.5 text-slate-500" />
+                  <Download className="size-3.5 text-muted-foreground" />
                   <span>导出</span>
                 </button>
               </div>
               <div className="overflow-x-auto max-h-[360px] custom-scrollbar">
                 <table className="w-full text-left text-xs border-collapse font-mono">
-                  <thead className="sticky top-0 bg-slate-100 z-10">
-                    <tr className="border-b border-slate-200 text-slate-700 font-semibold font-sans">
+                  <thead className="sticky top-0 bg-panel z-10">
+                    <tr className="border-b border-border text-muted-foreground font-semibold font-sans">
                       <th className="py-2.5 px-3">统计时段</th>
                       <th className="py-2.5 px-3">园区总用电量 (kWh)</th>
-                      <th className="py-2.5 px-3 text-[#1677ff]">市电量 (kWh)</th>
-                      <th className="py-2.5 px-3 text-emerald-600">直供绿电量 (kWh)</th>
-                      <th className="py-2.5 px-3 text-amber-600">储能充放电量 (kWh)</th>
+                      <th className="py-2.5 px-3 text-primary">市电量 (kWh)</th>
+                      <th className="py-2.5 px-3 text-emerald-400">直供绿电量 (kWh)</th>
+                      <th className="py-2.5 px-3 text-amber-400">储能充放电量 (kWh)</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                  <tbody className="divide-y divide-border/60 text-foreground">
                     {filteredEnergyLedger.map((row) => (
-                      <tr key={row.id} className="hover:bg-blue-50/40 transition-colors">
-                        <td className="py-2 px-3 font-semibold text-slate-900 font-sans">{row.time}</td>
-                        <td className="py-2 px-3 font-bold text-slate-900">{row.totalEnergyKWh.toLocaleString()}</td>
-                        <td className="py-2 px-3 text-[#1677ff] font-bold">{row.gridEnergyKWh.toLocaleString()}</td>
-                        <td className="py-2 px-3 text-emerald-600 font-bold">{row.pvEnergyKWh.toLocaleString()}</td>
-                        <td className="py-2 px-3 text-amber-600 font-bold">
+                      <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                        <td className="py-2 px-3 font-semibold text-foreground font-sans">{row.time}</td>
+                        <td className="py-2 px-3 font-bold text-foreground">{row.totalEnergyKWh.toLocaleString()}</td>
+                        <td className="py-2 px-3 text-primary font-bold">{row.gridEnergyKWh.toLocaleString()}</td>
+                        <td className="py-2 px-3 text-emerald-400 font-bold">{row.pvEnergyKWh.toLocaleString()}</td>
+                        <td className="py-2 px-3 font-bold text-amber-400">
                           {row.storageEnergyKWh > 0 ? `+${row.storageEnergyKWh} (放)` : `${row.storageEnergyKWh} (充)`}
                         </td>
                       </tr>
@@ -1074,6 +1072,7 @@ export default function MicrogridMonitoringPage() {
           </>
         )}
 
+
         {/* ========================================================================= */}
         {/* 🌟 TAB 3: 绿电监测看板 (viewMode === 'green', 点击卡片与下方时序曲线深度联动) */}
         {viewMode === 'green' && (
@@ -1084,28 +1083,28 @@ export default function MicrogridMonitoringPage() {
               <div
                 onClick={() => setActiveGreenCard('pv_gen')}
                 className={cn(
-                  'bg-white p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
+                  'bg-card p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
                   activeGreenCard === 'pv_gen'
-                    ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/20 shadow-sm'
-                    : 'border-slate-200 hover:border-slate-300 shadow-xs'
+                    ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-500/10 shadow-sm'
+                    : 'border-border hover:border-primary/40 shadow-xs'
                 )}
               >
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <Sun className="size-4 text-emerald-500" />
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <Sun className="size-4 text-emerald-400" />
                     新能源月发电量
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-600 font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono font-bold">
                     装机: {currentParkDetail.pvCapacity}
                   </span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-slate-900">
+                <div className="text-2xl font-bold font-mono text-foreground">
                   {currentParkDetail.pvGenerationKWh.replace(' 万kWh', '')}{' '}
-                  <span className="text-xs font-normal text-slate-500">万kWh</span>
+                  <span className="text-xs font-normal text-muted-foreground">万kWh</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>自用 / 上网</span>
-                  <span className="text-slate-700 font-mono font-bold">
+                  <span className="text-foreground font-mono font-bold">
                     {currentParkDetail.selfUseKWh} / {currentParkDetail.gridExportKWh}
                   </span>
                 </div>
@@ -1115,28 +1114,28 @@ export default function MicrogridMonitoringPage() {
               <div
                 onClick={() => setActiveGreenCard('revenue')}
                 className={cn(
-                  'bg-white p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
+                  'bg-card p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
                   activeGreenCard === 'revenue'
-                    ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/20 shadow-sm'
-                    : 'border-slate-200 hover:border-slate-300 shadow-xs'
+                    ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-500/10 shadow-sm'
+                    : 'border-border hover:border-primary/40 shadow-xs'
                 )}
               >
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <DollarSign className="size-4 text-amber-500" />
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <DollarSign className="size-4 text-amber-400" />
                     新能源综合收益
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-600 font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono font-bold">
                     自用省钱+创收
                   </span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-amber-600">
+                <div className="text-2xl font-bold font-mono text-amber-400">
                   {currentParkDetail.totalRevenue.replace('¥', '').replace(' 万元/月', '')}{' '}
-                  <span className="text-xs font-normal text-slate-500">万元/月</span>
+                  <span className="text-xs font-normal text-muted-foreground">万元/月</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>省电费 / 上网收益</span>
-                  <span className="text-slate-700 font-mono font-bold">
+                  <span className="text-foreground font-mono font-bold">
                     {currentParkDetail.pvSavings} / {currentParkDetail.surplusRevenue}
                   </span>
                 </div>
@@ -1146,28 +1145,28 @@ export default function MicrogridMonitoringPage() {
               <div
                 onClick={() => setActiveGreenCard('trade')}
                 className={cn(
-                  'bg-white p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
+                  'bg-card p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
                   activeGreenCard === 'trade'
-                    ? 'border-[#1677ff] ring-2 ring-blue-500/20 bg-blue-50/20 shadow-sm'
-                    : 'border-slate-200 hover:border-slate-300 shadow-xs'
+                    ? 'border-primary ring-2 ring-primary/20 bg-primary/10 shadow-sm'
+                    : 'border-border hover:border-primary/40 shadow-xs'
                 )}
               >
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <FileText className="size-4 text-blue-600" />
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <FileText className="size-4 text-primary" />
                     绿电与绿证交易
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-50 text-[#1677ff] font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-primary/20 text-primary border border-primary/30 font-mono font-bold">
                     各企业购买
                   </span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-[#1677ff]">
+                <div className="text-2xl font-bold font-mono text-primary">
                   {currentParkDetail.purchasedGreenElec.replace(' 万kWh', '')}{' '}
-                  <span className="text-xs font-normal text-slate-500">万kWh</span>
+                  <span className="text-xs font-normal text-muted-foreground">万kWh</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>GEC 绿证核销</span>
-                  <span className="text-slate-700 font-mono font-bold">
+                  <span className="text-foreground font-mono font-bold">
                     {currentParkDetail.gecCertificateCount.toLocaleString()} 张
                   </span>
                 </div>
@@ -1177,28 +1176,28 @@ export default function MicrogridMonitoringPage() {
               <div
                 onClick={() => setActiveGreenCard('rate')}
                 className={cn(
-                  'bg-white p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
+                  'bg-card p-4 rounded-xl border transition-all cursor-pointer select-none space-y-2',
                   activeGreenCard === 'rate'
-                    ? 'border-emerald-600 ring-2 ring-emerald-600/20 bg-emerald-50/20 shadow-sm'
-                    : 'border-slate-200 hover:border-slate-300 shadow-xs'
+                    ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-500/10 shadow-sm'
+                    : 'border-border hover:border-primary/40 shadow-xs'
                 )}
               >
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-bold flex items-center gap-1.5 text-slate-700">
-                    <Leaf className="size-4 text-emerald-600" />
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
+                    <Leaf className="size-4 text-emerald-400" />
                     绿电综合消纳率
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-600 font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono font-bold">
                     直供+交易
                   </span>
                 </div>
-                <div className="text-2xl font-bold font-mono text-emerald-600">
+                <div className="text-2xl font-bold font-mono text-emerald-400">
                   {currentParkDetail.greenRate}{' '}
-                  <span className="text-xs font-normal text-slate-500">%</span>
+                  <span className="text-xs font-normal text-muted-foreground">%</span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                <div className="text-xs text-muted-foreground flex items-center justify-between pt-1 border-t border-border/60">
                   <span>月度碳减排贡献</span>
-                  <span className="text-emerald-600 font-mono font-bold">
+                  <span className="text-emerald-400 font-mono font-bold">
                     -{Math.round(parseFloat(currentParkDetail.pvGenerationKWh || '100') * 0.58)} tCO₂
                   </span>
                 </div>
@@ -1206,16 +1205,16 @@ export default function MicrogridMonitoringPage() {
             </div>
 
             {/* 🌟 核心时序走势图表 (根据 activeGreenCard 动态联动切换展示对应数据) */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between border-b border-border/60 pb-3 gap-2">
                 <div className="flex items-center gap-2">
                   <span className={cn(
                     'size-2 rounded-full',
-                    activeGreenCard === 'trade' ? 'bg-[#1677ff]' :
-                    activeGreenCard === 'pv_gen' ? 'bg-emerald-500' :
-                    activeGreenCard === 'revenue' ? 'bg-amber-500' : 'bg-emerald-600'
+                    activeGreenCard === 'trade' ? 'bg-primary' :
+                    activeGreenCard === 'pv_gen' ? 'bg-emerald-400' :
+                    activeGreenCard === 'revenue' ? 'bg-amber-400' : 'bg-emerald-500'
                   )} />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <h3 className="text-xs font-bold text-foreground">
                     {activeGreenCard === 'trade' && '各个企业月度绿电购买数量走势对比 (万kWh)'}
                     {activeGreenCard === 'pv_gen' && '新能源月度发电量与自发自用/余电上网消纳时序走势 (万kWh)'}
                     {activeGreenCard === 'revenue' && '新能源月度综合收益走势 (省电费收益 vs 余电上网收益 / 万元)'}
@@ -1223,7 +1222,7 @@ export default function MicrogridMonitoringPage() {
                   </h3>
                 </div>
                 <div className="flex items-center gap-3 text-xs">
-                  <span className="text-slate-400 font-mono">
+                  <span className="text-muted-foreground font-mono">
                     {activeGreenCard === 'trade' && '按主要企业维度分别统计'}
                     {activeGreenCard === 'pv_gen' && '直供与消纳月度累计'}
                     {activeGreenCard === 'revenue' && '财务综合结算月度统计'}
@@ -1232,7 +1231,7 @@ export default function MicrogridMonitoringPage() {
                   <button
                     type="button"
                     onClick={() => alert(`正在导出当前绿电时序曲线数据...`)}
-                    className="flex items-center gap-1 text-[#1677ff] hover:underline font-sans cursor-pointer"
+                    className="flex items-center gap-1 text-primary hover:underline font-sans cursor-pointer"
                   >
                     <Download className="size-3" />
                     导出曲线
@@ -1258,7 +1257,7 @@ export default function MicrogridMonitoringPage() {
                 />
               )}
 
-              {/* 2. 新能源月发电量走势 */}
+              {/* 2. 新新能源月发电量走势 */}
               {activeGreenCard === 'pv_gen' && (
                 <LineTrend
                   data={pvGenTrendData}
@@ -1304,81 +1303,81 @@ export default function MicrogridMonitoringPage() {
             </div>
 
             {/* 绿电与绿证交易台账明细 (增加购买方/消纳企业列) */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/80 gap-2">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-border/60 flex flex-wrap items-center justify-between bg-panel/60 gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-emerald-600" />
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <span className="size-2 rounded-full bg-emerald-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     直供绿电、交易绿电与绿证交易凭证台账
                   </h3>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="relative">
-                    <Search className="size-3.5 text-slate-400 absolute left-2.5 top-2" />
+                    <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-2" />
                     <input
                       type="text"
                       placeholder="搜索交易单号 / 发电方 / 购买方企业 / 证书..."
                       value={tableSearchKey}
                       onChange={(e) => setTableSearchKey(e.target.value)}
-                      className="pl-8 pr-3 py-1 bg-white border border-slate-200 rounded-md text-xs font-sans text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1677ff]"
+                      className="pl-8 pr-3 py-1 bg-panel border border-border rounded-md text-xs font-sans text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => alert(`正在导出【${currentParkDetail.name}】绿电绿证交易台账 (Excel)...`)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer shadow-2xs text-xs"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-panel border border-border text-foreground font-medium hover:bg-accent/40 cursor-pointer shadow-2xs text-xs"
                   >
-                    <Download className="size-3.5 text-slate-500" />
+                    <Download className="size-3.5 text-muted-foreground" />
                     <span>导出</span>
                   </button>
                 </div>
               </div>
               <div className="overflow-x-auto max-h-[360px] custom-scrollbar">
                 <table className="w-full text-left text-xs border-collapse font-mono">
-                  <thead className="sticky top-0 bg-slate-100 z-10">
-                    <tr className="border-b border-slate-200 text-slate-700 font-semibold font-sans">
+                  <thead className="sticky top-0 bg-panel z-10">
+                    <tr className="border-b border-border text-muted-foreground font-semibold font-sans">
                       <th className="py-2.5 px-3">交易单号</th>
                       <th className="py-2.5 px-3">交易类型</th>
                       <th className="py-2.5 px-3">能源品种</th>
                       <th className="py-2.5 px-3">绿电提供方 / 项目来源</th>
-                      <th className="py-2.5 px-3 text-[#1677ff] font-bold">购买方 / 消纳企业</th>
-                      <th className="py-2.5 px-3 font-bold text-emerald-600">核算电量 / 张数</th>
+                      <th className="py-2.5 px-3 text-primary font-bold">购买方 / 消纳企业</th>
+                      <th className="py-2.5 px-3 font-bold text-emerald-400">核算电量 / 张数</th>
                       <th className="py-2.5 px-3">结算单价</th>
                       <th className="py-2.5 px-3">交易/交割日期</th>
                       <th className="py-2.5 px-3">交割状态</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                  <tbody className="divide-y divide-border/60 text-foreground">
                     {filteredCertList.map((row) => (
-                      <tr key={row.id} className="hover:bg-emerald-50/40 transition-colors">
-                        <td className="py-2 px-3 font-semibold text-slate-900 font-sans">{row.dealCode}</td>
+                      <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                        <td className="py-2 px-3 font-semibold text-foreground font-sans">{row.dealCode}</td>
                         <td className="py-2 px-3">
                           <span
                             className={cn(
-                              'px-2 py-0.5 rounded text-[10px] font-sans font-bold',
+                              'px-2 py-0.5 rounded text-[10px] font-sans font-bold border',
                               row.dealType === '直供绿电'
-                                ? 'bg-emerald-50 text-emerald-700'
+                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                                 : row.dealType === '交易绿电'
-                                ? 'bg-blue-50 text-[#1677ff]'
-                                : 'bg-purple-50 text-purple-700'
+                                ? 'bg-primary/20 text-primary border-primary/30'
+                                : 'bg-purple-500/20 text-purple-400 border-purple-500/30'
                             )}
                           >
                             {row.dealType}
                           </span>
                         </td>
-                        <td className="py-2 px-3 font-sans text-slate-600">{row.sourceType}</td>
-                        <td className="py-2 px-3 font-sans text-slate-800">{row.provider}</td>
+                        <td className="py-2 px-3 font-sans text-muted-foreground">{row.sourceType}</td>
+                        <td className="py-2 px-3 font-sans text-foreground">{row.provider}</td>
                         <td className="py-2 px-3 font-sans">
-                          <span className="inline-flex items-center gap-1 font-bold text-slate-800 bg-blue-50/80 px-2 py-0.5 rounded border border-blue-200/60 text-[11px]">
-                            <Building2 className="size-3 text-[#1677ff]" />
+                          <span className="inline-flex items-center gap-1 font-bold text-foreground bg-panel px-2 py-0.5 rounded border border-border text-[11px]">
+                            <Building2 className="size-3 text-primary" />
                             {row.buyer || '沈变本部'}
                           </span>
                         </td>
-                        <td className="py-2 px-3 font-bold text-emerald-700">{row.amount}</td>
+                        <td className="py-2 px-3 font-bold text-emerald-400">{row.amount}</td>
                         <td className="py-2 px-3 font-mono">{row.unitPrice}</td>
                         <td className="py-2 px-3 font-sans">{row.dealDate}</td>
                         <td className="py-2 px-3">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-700 font-sans">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-panel border border-border text-muted-foreground font-sans">
                             {row.status}
                           </span>
                         </td>
@@ -1394,19 +1393,19 @@ export default function MicrogridMonitoringPage() {
 
       {/* 绿电录入模态框 (宽屏舒适双列排版，尺寸适配 max-w-4xl) */}
       {isEntryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 sm:p-6">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-xs p-4 sm:p-6">
+          <div className="bg-card rounded-2xl shadow-2xl border border-border w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
             {/* 模态框 Header */}
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 shrink-0">
+            <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-panel shrink-0">
               <div className="flex items-center gap-3">
-                <div className="size-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
+                <div className="size-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                   <Plus className="size-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-800">
+                  <h3 className="text-base font-bold text-foreground">
                     录入绿电与绿证交易凭据
                   </h3>
-                  <p className="text-xs text-slate-500 font-sans mt-0.5">
+                  <p className="text-xs text-muted-foreground font-sans mt-0.5">
                     录入企业分布式绿电直供、市场化交易电量及国家绿色电力证书 (GEC) 核销交易台账
                   </p>
                 </div>
@@ -1414,7 +1413,7 @@ export default function MicrogridMonitoringPage() {
               <button
                 type="button"
                 onClick={() => setIsEntryModalOpen(false)}
-                className="size-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+                className="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors cursor-pointer"
               >
                 <X className="size-5" />
               </button>
@@ -1425,13 +1424,13 @@ export default function MicrogridMonitoringPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                 {/* 1. 交易类型 */}
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">
-                    交易类型 <span className="text-rose-500">*</span>
+                  <label className="block text-foreground font-semibold mb-1.5">
+                    交易类型 <span className="text-rose-400">*</span>
                   </label>
                   <select
                     value={newCert.dealType}
                     onChange={(e) => setNewCert({ ...newCert, dealType: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-sans cursor-pointer transition-colors"
+                    className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary text-xs font-sans cursor-pointer transition-colors"
                   >
                     <option value="交易绿电">交易绿电 (双边市场化交易)</option>
                     <option value="直供绿电">直供绿电 (分布式自发自用)</option>
@@ -1441,13 +1440,13 @@ export default function MicrogridMonitoringPage() {
 
                 {/* 2. 能源发电类型 */}
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">
-                    能源发电类型 <span className="text-rose-500">*</span>
+                  <label className="block text-foreground font-semibold mb-1.5">
+                    能源发电类型 <span className="text-rose-400">*</span>
                   </label>
                   <select
                     value={newCert.sourceType}
                     onChange={(e) => setNewCert({ ...newCert, sourceType: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-sans cursor-pointer transition-colors"
+                    className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary text-xs font-sans cursor-pointer transition-colors"
                   >
                     <option value="集中式风电">集中式陆上风电</option>
                     <option value="屋顶光伏">屋顶分布式光伏</option>
@@ -1458,28 +1457,28 @@ export default function MicrogridMonitoringPage() {
 
                 {/* 3. 绿电提供方 / 项目来源 */}
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">
-                    绿电提供方 / 项目来源 <span className="text-rose-500">*</span>
+                  <label className="block text-foreground font-semibold mb-1.5">
+                    绿电提供方 / 项目来源 <span className="text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
                     placeholder="例如: 衡变特高压智造产业园4.2MWp光伏电站"
                     value={newCert.provider}
                     onChange={(e) => setNewCert({ ...newCert, provider: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-sans transition-colors placeholder:text-slate-400"
+                    className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary text-xs font-sans transition-colors placeholder:text-muted-foreground"
                     required
                   />
                 </div>
 
                 {/* 4. 购买方 / 消纳企业 */}
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">
-                    购买方 / 消纳企业 <span className="text-rose-500">*</span>
+                  <label className="block text-foreground font-semibold mb-1.5">
+                    购买方 / 消纳企业 <span className="text-rose-400">*</span>
                   </label>
                   <select
                     value={newCert.buyer}
                     onChange={(e) => setNewCert({ ...newCert, buyer: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 cursor-pointer font-sans text-xs transition-colors"
+                    className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary cursor-pointer font-sans text-xs transition-colors"
                     required
                   >
                     <option value="">-- 请选择购买消纳企业 (精确到企业级) --</option>
@@ -1531,71 +1530,71 @@ export default function MicrogridMonitoringPage() {
 
                 {/* 5. 结算电量 / 绿证张数 */}
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">
-                    结算电量 / 绿证张数 <span className="text-rose-500">*</span>
+                  <label className="block text-foreground font-semibold mb-1.5">
+                    结算电量 / 绿证张数 <span className="text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
                     placeholder="例如: 120.5 万kWh 或 15,000 张"
                     value={newCert.amount}
                     onChange={(e) => setNewCert({ ...newCert, amount: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-mono transition-colors placeholder:font-sans placeholder:text-slate-400"
+                    className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary text-xs font-mono transition-colors placeholder:font-sans placeholder:text-muted-foreground"
                     required
                   />
                 </div>
 
                 {/* 6. 结算单价 */}
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">结算单价</label>
+                  <label className="block text-foreground font-semibold mb-1.5">结算单价</label>
                   <input
                     type="text"
                     placeholder="例如: 0.450 元/kWh 或 15.5 元/张"
                     value={newCert.unitPrice}
                     onChange={(e) => setNewCert({ ...newCert, unitPrice: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-mono transition-colors placeholder:font-sans placeholder:text-slate-400"
+                    className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary text-xs font-mono transition-colors placeholder:font-sans placeholder:text-muted-foreground"
                   />
                 </div>
 
                 {/* 7. 交易与核销交割日期 */}
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">交易与交割核销日期</label>
+                  <label className="block text-foreground font-semibold mb-1.5">交易与交割核销日期</label>
                   <input
                     type="date"
                     value={newCert.dealDate}
                     onChange={(e) => setNewCert({ ...newCert, dealDate: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-mono cursor-pointer transition-colors"
+                    className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary text-xs font-mono cursor-pointer transition-colors"
                   />
                 </div>
 
                 {/* 8. GEC 证书/交割合约编码 */}
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">GEC 证书 / 交割合约编码</label>
+                  <label className="block text-foreground font-semibold mb-1.5">GEC 证书 / 交割合约编码</label>
                   <input
                     type="text"
                     placeholder="例如: GEC-2026-HB-88902 或 合约编号"
                     value={newCert.certCode}
                     onChange={(e) => setNewCert({ ...newCert, certCode: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-600 text-xs font-mono transition-colors placeholder:font-sans placeholder:text-slate-400"
+                    className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary text-xs font-mono transition-colors placeholder:font-sans placeholder:text-muted-foreground"
                   />
                 </div>
               </div>
 
               {/* 模态框 Footer 操作区 */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100 mt-2">
-                <span className="text-[11px] text-slate-400 font-sans flex items-center gap-1">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-border mt-2">
+                <span className="text-[11px] text-muted-foreground font-sans flex items-center gap-1">
                   💡 录入凭据将自动记入工业微电网绿电台账，并实时联动测算园区消纳率。
                 </span>
                 <div className="flex items-center gap-2.5">
                   <button
                     type="button"
                     onClick={() => setIsEntryModalOpen(false)}
-                    className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold cursor-pointer transition-colors"
+                    className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-accent/40 font-semibold cursor-pointer transition-colors"
                   >
                     取消
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs cursor-pointer transition-colors flex items-center gap-1.5"
+                    className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-xs cursor-pointer transition-colors flex items-center gap-1.5"
                   >
                     <Check className="size-4" />
                     <span>确认入账</span>
@@ -1609,3 +1608,4 @@ export default function MicrogridMonitoringPage() {
     </div>
   )
 }
+

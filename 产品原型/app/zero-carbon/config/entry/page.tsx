@@ -56,10 +56,10 @@ export default function ManualEntryPage() {
       {/* 顶部标题与说明 */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-xl border border-border">
         <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <FileEdit className="size-5" />
             </div>
-            <h1 className="text-base font-bold text-slate-800">数据录入</h1>
+            <h1 className="text-base font-bold text-foreground">数据录入</h1>
           </div>
 
         <div className="flex items-center gap-2 text-xs">

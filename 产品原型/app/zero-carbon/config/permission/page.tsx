@@ -1229,8 +1229,8 @@ export default function AccountPermissionPage() {
         {/* 节点行 */}
         <div
           className={cn(
-            'flex items-center justify-between py-1.5 px-2 rounded-lg transition-colors hover:bg-blue-50/50 group',
-            depth === 0 ? 'bg-slate-50/70 border border-slate-200/80 mb-1' : 'ml-4'
+            'flex items-center justify-between py-1.5 px-2 rounded-lg transition-colors hover:bg-accent/40 group',
+            depth === 0 ? 'bg-panel border border-border mb-1' : 'ml-4'
           )}
         >
           <div className="flex items-center gap-2 flex-1">
@@ -1239,7 +1239,7 @@ export default function AccountPermissionPage() {
               <button
                 type="button"
                 onClick={() => toggleExpand(node.id)}
-                className="size-5 rounded hover:bg-slate-200/60 flex items-center justify-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="size-5 rounded hover:bg-accent flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 {isExpanded ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
               </button>
@@ -1251,22 +1251,22 @@ export default function AccountPermissionPage() {
             <button
               type="button"
               onClick={() => handleToggleNode(node)}
-              className="cursor-pointer text-slate-700 hover:opacity-80 flex items-center justify-center"
+              className="cursor-pointer text-foreground hover:opacity-80 flex items-center justify-center"
             >
               {isAllChecked ? (
-                <CheckSquare className="size-4 text-[#1677ff]" />
+                <CheckSquare className="size-4 text-primary" />
               ) : isIndeterminate ? (
-                <MinusSquare className="size-4 text-[#1677ff]" />
+                <MinusSquare className="size-4 text-primary" />
               ) : (
-                <Square className="size-4 text-slate-300 group-hover:text-slate-400" />
+                <Square className="size-4 text-muted-foreground/40 group-hover:text-muted-foreground" />
               )}
             </button>
 
             {/* 图标 */}
             {depth === 0 ? (
-              <Folder className={cn('size-4', isAllChecked ? 'text-[#1677ff]' : 'text-slate-500')} />
+              <Folder className={cn('size-4', isAllChecked ? 'text-primary' : 'text-muted-foreground')} />
             ) : (
-              <FolderOpen className={cn('size-3.5', isAllChecked ? 'text-blue-500' : 'text-slate-400')} />
+              <FolderOpen className={cn('size-3.5', isAllChecked ? 'text-primary' : 'text-muted-foreground/60')} />
             )}
 
             {/* 标题 */}
@@ -1274,7 +1274,7 @@ export default function AccountPermissionPage() {
               onClick={() => toggleExpand(node.id)}
               className={cn(
                 'text-xs cursor-pointer',
-                depth === 0 ? 'font-bold text-slate-900' : 'font-medium text-slate-800'
+                depth === 0 ? 'font-bold text-foreground' : 'font-medium text-foreground'
               )}
             >
               {node.title}
@@ -1282,7 +1282,7 @@ export default function AccountPermissionPage() {
 
             {/* 编码 */}
             {node.code && (
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-1 py-0.2 rounded">
+              <span className="text-[10px] font-mono text-muted-foreground bg-panel border border-border px-1 py-0.2 rounded">
                 {node.code}
               </span>
             )}
@@ -1292,12 +1292,12 @@ export default function AccountPermissionPage() {
           <div className="flex items-center gap-2 text-[11px] font-mono">
             <span
               className={cn(
-                'px-1.5 py-0.5 rounded text-[10px]',
+                'px-1.5 py-0.5 rounded text-[10px] border',
                 isAllChecked
-                  ? 'bg-blue-100 text-[#1677ff] font-bold'
+                  ? 'bg-primary/20 text-primary border-primary/30 font-bold'
                   : checkedCount > 0
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'bg-slate-100 text-slate-400'
+                  ? 'bg-primary/10 text-primary border-primary/20'
+                  : 'bg-panel text-muted-foreground border-border'
               )}
             >
               {checkedCount} / {nodeActionIds.length} 项
@@ -1307,7 +1307,7 @@ export default function AccountPermissionPage() {
 
         {/* 展开的子节点 & Actions */}
         {isExpanded && (
-          <div className={cn('space-y-1', depth === 0 ? 'pl-4 border-l-2 border-slate-200 ml-4.5 my-1.5' : 'pl-4 border-l border-slate-200/80 ml-4.5')}>
+          <div className={cn('space-y-1', depth === 0 ? 'pl-4 border-l-2 border-border ml-4.5 my-1.5' : 'pl-4 border-l border-border/80 ml-4.5')}>
             {/* 渲染二级子菜单 */}
             {node.children && node.children.map((child) => renderTreeNode(child, depth + 1))}
 
@@ -1323,19 +1323,19 @@ export default function AccountPermissionPage() {
                       className={cn(
                         'flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer select-none transition-all',
                         isActChecked
-                          ? 'bg-blue-50/70 border-blue-200 text-blue-900 font-medium shadow-2xs'
-                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                          ? 'bg-primary/20 border-primary/30 text-primary font-medium shadow-2xs'
+                          : 'bg-card border-border text-muted-foreground hover:bg-accent/40 hover:text-foreground'
                       )}
                     >
                       {isActChecked ? (
-                        <CheckSquare className="size-3.5 text-[#1677ff] shrink-0" />
+                        <CheckSquare className="size-3.5 text-primary shrink-0" />
                       ) : (
-                        <Square className="size-3.5 text-slate-300 shrink-0" />
+                        <Square className="size-3.5 text-muted-foreground/40 shrink-0" />
                       )}
-                      <Key className={cn('size-3 shrink-0', isActChecked ? 'text-[#1677ff]' : 'text-slate-400')} />
+                      <Key className={cn('size-3 shrink-0', isActChecked ? 'text-primary' : 'text-muted-foreground')} />
                       <span className="truncate flex-1">{act.label}</span>
                       {act.code && (
-                        <span className="text-[9px] font-mono text-slate-400 bg-slate-100 px-1 rounded shrink-0">
+                        <span className="text-[9px] font-mono text-muted-foreground bg-panel px-1 rounded shrink-0 border border-border">
                           {act.code}
                         </span>
                       )}
@@ -1351,16 +1351,16 @@ export default function AccountPermissionPage() {
   }
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3.5 font-sans text-foreground">
       {/* 顶部 Header */}
-      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
             <Users className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-800">账号权限管理</h1>
-            <p className="text-xs text-slate-500 font-sans">
+            <h1 className="text-base font-bold text-foreground">账号权限管理</h1>
+            <p className="text-xs text-muted-foreground font-sans">
               基于特变电工集团组织架构实现统一账号、预设与自定义角色、功能菜单树与园区/工厂数据范围细粒度权限管控
             </p>
           </div>
@@ -1373,7 +1373,7 @@ export default function AccountPermissionPage() {
               setEditingUser(null)
               setUserModalOpen(true)
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs cursor-pointer shadow-xs transition-colors"
           >
             <UserPlus className="size-3.5" />
             <span>新增账号</span>
@@ -1381,17 +1381,17 @@ export default function AccountPermissionPage() {
           <button
             type="button"
             onClick={() => setRoleModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs cursor-pointer shadow-2xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-panel border border-border hover:bg-accent/40 text-foreground font-semibold text-xs cursor-pointer shadow-2xs transition-colors"
           >
-            <ShieldCheck className="size-3.5 text-purple-600" />
+            <ShieldCheck className="size-3.5 text-purple-400" />
             <span>创建自定义角色</span>
           </button>
           <button
             type="button"
             onClick={() => alert('正在导出全集团能碳管理人员权限名单 (Excel)...')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs cursor-pointer shadow-2xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-panel border border-border hover:bg-accent/40 text-foreground font-medium text-xs cursor-pointer shadow-2xs transition-colors"
           >
-            <Download className="size-3.5 text-slate-500" />
+            <Download className="size-3.5 text-muted-foreground" />
             <span>导出名册</span>
           </button>
         </div>
@@ -1399,22 +1399,22 @@ export default function AccountPermissionPage() {
 
       {/* 状态 Toast */}
       {toastMsg && (
-        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+        <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
           <span className="font-sans font-medium">{toastMsg}</span>
         </div>
       )}
 
       {/* Tab 导航 */}
-      <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-xs flex items-center gap-1 font-sans text-xs">
+      <div className="bg-card p-1 rounded-xl border border-border shadow-xs flex items-center gap-1 font-sans text-xs">
         <button
           type="button"
           onClick={() => setActiveTab('users')}
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'users'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-primary/20 text-primary font-bold border border-primary/30 shadow-2xs'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
           )}
         >
           <Users className="size-3.5" />
@@ -1427,8 +1427,8 @@ export default function AccountPermissionPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'roles'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-primary/20 text-primary font-bold border border-primary/30 shadow-2xs'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
           )}
         >
           <ShieldCheck className="size-3.5" />
@@ -1441,8 +1441,8 @@ export default function AccountPermissionPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'scope'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-primary/20 text-primary font-bold border border-primary/30 shadow-2xs'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
           )}
         >
           <SlidersHorizontal className="size-3.5" />
@@ -1455,8 +1455,8 @@ export default function AccountPermissionPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'org'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-primary/20 text-primary font-bold border border-primary/30 shadow-2xs'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
           )}
         >
           <FolderTree className="size-3.5" />
@@ -1468,25 +1468,25 @@ export default function AccountPermissionPage() {
       {/* Tab 1: 用户账号列表 */}
       {/* ========================================================================= */}
       {activeTab === 'users' && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs space-y-3.5 p-4">
+        <div className="bg-card rounded-xl border border-border shadow-xs space-y-3.5 p-4">
           {/* 筛选过滤工具条 */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-slate-100">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-border/60">
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <div className="relative">
-                <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="搜索姓名、工号、账号或部门..."
                   value={searchKw}
                   onChange={(e) => setSearchKw(e.target.value)}
-                  className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs w-64 focus:bg-white focus:outline-none focus:border-[#1677ff]"
+                  className="pl-8 pr-3 py-1.5 bg-panel border border-border rounded-lg text-xs w-64 text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
 
               <select
                 value={filterCompany}
                 onChange={(e) => setFilterCompany(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-[#1677ff]"
+                className="bg-panel border border-border rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
               >
                 <option value="all">全部所属公司</option>
                 <option value="电装集团">电装集团总部</option>
@@ -1500,7 +1500,7 @@ export default function AccountPermissionPage() {
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-[#1677ff]"
+                className="bg-panel border border-border rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
               >
                 <option value="all">全部角色类型</option>
                 {roles.map((r) => (
@@ -1513,7 +1513,7 @@ export default function AccountPermissionPage() {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-[#1677ff]"
+                className="bg-panel border border-border rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
               >
                 <option value="all">全部状态</option>
                 <option value="启用">正常启用</option>
@@ -1521,8 +1521,8 @@ export default function AccountPermissionPage() {
               </select>
             </div>
 
-            <div className="text-xs text-slate-500 font-mono">
-              共查询到 <strong className="text-[#1677ff] font-bold">{filteredUsers.length}</strong> 位人员账号
+            <div className="text-xs text-muted-foreground font-mono">
+              共查询到 <strong className="text-primary font-bold">{filteredUsers.length}</strong> 位人员账号
             </div>
           </div>
 
@@ -1530,7 +1530,7 @@ export default function AccountPermissionPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
                   <th className="py-2.5 px-3">人员姓名 / 工号</th>
                   <th className="py-2.5 px-3">登录账号</th>
                   <th className="py-2.5 px-3">所属公司与部门</th>
@@ -1541,24 +1541,24 @@ export default function AccountPermissionPage() {
                   <th className="py-2.5 px-3 text-right">操作</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-border/60 text-foreground">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-blue-50/40 transition-colors">
+                  <tr key={user.id} className="hover:bg-accent/30 transition-colors">
                     <td className="py-3 px-3">
-                      <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                        <div className="size-6 rounded-full bg-blue-100 text-[#1677ff] font-mono text-[11px] font-bold flex items-center justify-center">
+                      <div className="font-bold text-foreground flex items-center gap-1.5">
+                        <div className="size-6 rounded-full bg-primary/20 text-primary border border-primary/30 font-mono text-[11px] font-bold flex items-center justify-center">
                           {user.name.slice(0, 1)}
                         </div>
                         <span>{user.name}</span>
                       </div>
-                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">{user.workNo}</div>
+                      <div className="text-[11px] text-muted-foreground font-mono mt-0.5">{user.workNo}</div>
                     </td>
 
-                    <td className="py-3 px-3 font-mono text-slate-700">{user.account}</td>
+                    <td className="py-3 px-3 font-mono text-foreground">{user.account}</td>
 
                     <td className="py-3 px-3">
-                      <div className="font-medium text-slate-800">{user.company}</div>
-                      <div className="text-[11px] text-slate-400">{user.dept}</div>
+                      <div className="font-medium text-foreground">{user.company}</div>
+                      <div className="text-[11px] text-muted-foreground">{user.dept}</div>
                     </td>
 
                     <td className="py-3 px-3">
@@ -1566,12 +1566,12 @@ export default function AccountPermissionPage() {
                         className={cn(
                           'inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border',
                           user.roleId === 'role_admin'
-                            ? 'bg-red-50 text-red-700 border-red-200'
+                            ? 'bg-rose-500/15 text-rose-400 border-rose-500/30'
                             : user.roleId === 'role_director'
-                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                            ? 'bg-purple-500/15 text-purple-400 border-purple-500/30'
                             : user.roleId === 'role_park_mgr'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-slate-100 text-slate-700 border-slate-200'
+                            ? 'bg-primary/20 text-primary border-primary/30'
+                            : 'bg-panel text-muted-foreground border-border'
                         )}
                       >
                         {user.roleName}
@@ -1579,7 +1579,7 @@ export default function AccountPermissionPage() {
                     </td>
 
                     <td className="py-3 px-3">
-                      <span className="text-[11px] text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200 block max-w-xs truncate" title={user.dataScopeText}>
+                      <span className="text-[11px] text-muted-foreground bg-panel px-2 py-0.5 rounded border border-border block max-w-xs truncate" title={user.dataScopeText}>
                         {user.dataScopeText}
                       </span>
                     </td>
@@ -1588,17 +1588,17 @@ export default function AccountPermissionPage() {
                       <span
                         className={cn(
                           'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium',
-                          user.status === '启用' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                          user.status === '启用' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-panel text-muted-foreground border border-border'
                         )}
                       >
-                        <span className={cn('size-1.5 rounded-full', user.status === '启用' ? 'bg-emerald-500' : 'bg-slate-400')} />
+                        <span className={cn('size-1.5 rounded-full', user.status === '启用' ? 'bg-emerald-400' : 'bg-muted-foreground')} />
                         {user.status}
                       </span>
                     </td>
 
-                    <td className="py-3 px-3 font-mono text-slate-500 text-[11px]">
+                    <td className="py-3 px-3 font-mono text-muted-foreground text-[11px]">
                       <div>{user.lastLoginTime}</div>
-                      <div className="text-[10px] text-slate-400">IP: {user.lastLoginIp}</div>
+                      <div className="text-[10px] text-muted-foreground/60">IP: {user.lastLoginIp}</div>
                     </td>
 
                     <td className="py-3 px-3 text-right">
@@ -1609,7 +1609,7 @@ export default function AccountPermissionPage() {
                             setEditingUser(user)
                             setUserModalOpen(true)
                           }}
-                          className="text-[#1677ff] hover:underline font-medium cursor-pointer"
+                          className="text-primary hover:underline font-medium cursor-pointer"
                         >
                           编辑
                         </button>
@@ -1621,7 +1621,7 @@ export default function AccountPermissionPage() {
                             setNewPwdVal('Tbea@2026!')
                             setPwdModalOpen(true)
                           }}
-                          className="text-slate-600 hover:text-slate-900 hover:underline cursor-pointer"
+                          className="text-muted-foreground hover:text-foreground hover:underline cursor-pointer"
                         >
                           重置密码
                         </button>
@@ -1631,7 +1631,7 @@ export default function AccountPermissionPage() {
                           onClick={() => handleToggleUserStatus(user.id)}
                           className={cn(
                             'hover:underline cursor-pointer font-medium',
-                            user.status === '启用' ? 'text-amber-600' : 'text-emerald-600'
+                            user.status === '启用' ? 'text-amber-400' : 'text-emerald-400'
                           )}
                         >
                           {user.status === '启用' ? '停用' : '启用'}
@@ -1652,16 +1652,16 @@ export default function AccountPermissionPage() {
       {activeTab === 'roles' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
           {/* 左侧 4/12: 角色列表 */}
-          <div className="lg:col-span-4 bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                <ShieldCheck className="size-4 text-[#1677ff]" />
+          <div className="lg:col-span-4 bg-card rounded-xl border border-border shadow-xs p-3.5 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-border/60">
+              <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <ShieldCheck className="size-4 text-primary" />
                 角色模型清单 ({roles.length})
               </h3>
               <button
                 type="button"
                 onClick={() => setRoleModalOpen(true)}
-                className="text-xs text-[#1677ff] font-bold hover:underline cursor-pointer"
+                className="text-xs text-primary font-bold hover:underline cursor-pointer"
               >
                 + 新增角色
               </button>
@@ -1675,60 +1675,60 @@ export default function AccountPermissionPage() {
                   className={cn(
                     'p-3 rounded-lg border text-xs cursor-pointer transition-all space-y-1.5',
                     selectedRoleId === r.id
-                      ? 'bg-blue-50/70 border-[#1677ff] ring-2 ring-blue-100 shadow-xs'
-                      : 'bg-white border-slate-200 hover:border-slate-300'
+                      ? 'bg-primary/15 border-primary ring-2 ring-primary/30 shadow-xs'
+                      : 'bg-panel border-border hover:border-border/80'
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span className="font-bold text-foreground flex items-center gap-1.5">
                       {r.name}
                       {r.type === 'preset' ? (
-                        <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-normal">预设</span>
+                        <span className="text-[10px] bg-card text-muted-foreground px-1.5 py-0.2 rounded font-normal border border-border">预设</span>
                       ) : (
-                        <span className="text-[10px] bg-purple-50 text-purple-700 px-1.5 py-0.2 rounded font-normal">自定义</span>
+                        <span className="text-[10px] bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1.5 py-0.2 rounded font-normal">自定义</span>
                       )}
                     </span>
-                    <span className="text-[11px] text-slate-400 font-mono">{r.userCount} 人</span>
+                    <span className="text-[11px] text-muted-foreground font-mono">{r.userCount} 人</span>
                   </div>
-                  <p className="text-[11px] text-slate-500 line-clamp-2">{r.desc}</p>
+                  <p className="text-[11px] text-muted-foreground line-clamp-2">{r.desc}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* 右侧 8/12: 功能菜单与按钮权限树状勾选面板 */}
-          <div className="lg:col-span-8 bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-4">
+          <div className="lg:col-span-8 bg-card rounded-xl border border-border shadow-xs p-4 space-y-4">
             {/* 顶栏信息与操作按钮 */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-border/60">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <FolderTree className="size-4 text-[#1677ff]" />
+                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <FolderTree className="size-4 text-primary" />
                   <span>【{selectedRole.name}】功能菜单与按钮权限树</span>
-                  <span className="text-xs font-mono text-slate-400 font-normal">({selectedRole.code})</span>
+                  <span className="text-xs font-mono text-muted-foreground font-normal">({selectedRole.code})</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">{selectedRole.desc}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{selectedRole.desc}</p>
               </div>
 
               <button
                 type="button"
                 onClick={() => showToast(`已成功保存并下发角色【${selectedRole.name}】的全新权限树配置！`)}
-                className="px-4 py-1.5 bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer transition-colors"
+                className="px-4 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-lg shadow-xs cursor-pointer transition-colors"
               >
                 保存权限设定
               </button>
             </div>
 
             {/* 树控制工具条 */}
-            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-50/80 rounded-xl border border-slate-200 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-panel rounded-xl border border-border text-xs">
               {/* 搜索框 */}
               <div className="relative">
-                <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="搜索菜单或权限项名称..."
                   value={treeSearchKw}
                   onChange={(e) => setTreeSearchKw(e.target.value)}
-                  className="pl-8 pr-3 py-1 bg-white border border-slate-200 rounded-lg text-xs w-60 focus:outline-none focus:border-[#1677ff]"
+                  className="pl-8 pr-3 py-1 bg-card border border-border rounded-lg text-xs w-60 text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
 
@@ -1737,31 +1737,31 @@ export default function AccountPermissionPage() {
                 <button
                   type="button"
                   onClick={handleExpandAll}
-                  className="text-slate-600 hover:text-slate-900 hover:underline px-2 py-0.5 cursor-pointer"
+                  className="text-muted-foreground hover:text-foreground hover:underline px-2 py-0.5 cursor-pointer"
                 >
                   全部展开
                 </button>
-                <span className="text-slate-300">|</span>
+                <span className="text-muted-foreground/40">|</span>
                 <button
                   type="button"
                   onClick={handleCollapseAll}
-                  className="text-slate-600 hover:text-slate-900 hover:underline px-2 py-0.5 cursor-pointer"
+                  className="text-muted-foreground hover:text-foreground hover:underline px-2 py-0.5 cursor-pointer"
                 >
                   全部折叠
                 </button>
-                <span className="text-slate-300">|</span>
+                <span className="text-muted-foreground/40">|</span>
                 <button
                   type="button"
                   onClick={handleSelectAllPermissions}
-                  className="text-[#1677ff] hover:underline px-2 py-0.5 cursor-pointer"
+                  className="text-primary hover:underline px-2 py-0.5 cursor-pointer"
                 >
                   全选全部
                 </button>
-                <span className="text-slate-300">|</span>
+                <span className="text-muted-foreground/40">|</span>
                 <button
                   type="button"
                   onClick={handleDeselectAllPermissions}
-                  className="text-slate-500 hover:text-slate-800 hover:underline px-2 py-0.5 cursor-pointer"
+                  className="text-muted-foreground hover:text-foreground hover:underline px-2 py-0.5 cursor-pointer"
                 >
                   清空全不选
                 </button>
@@ -1769,7 +1769,7 @@ export default function AccountPermissionPage() {
             </div>
 
             {/* 树状结构视图主体 */}
-            <div className="space-y-1.5 border border-slate-200 rounded-xl p-3 bg-white max-h-[620px] overflow-y-auto">
+            <div className="space-y-1.5 border border-border rounded-xl p-3 bg-card max-h-[620px] overflow-y-auto">
               {PERMISSION_TREE_DATA.map((moduleNode) => renderTreeNode(moduleNode, 0))}
             </div>
           </div>
@@ -1780,13 +1780,13 @@ export default function AccountPermissionPage() {
       {/* Tab 3: 数据范围权限矩阵 */}
       {/* ========================================================================= */}
       {activeTab === 'scope' && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-4">
-          <div className="border-b border-slate-100 pb-3">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <SlidersHorizontal className="size-4 text-[#1677ff]" />
+        <div className="bg-card rounded-xl border border-border shadow-xs p-4 space-y-4">
+          <div className="border-b border-border/60 pb-3">
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+              <SlidersHorizontal className="size-4 text-primary" />
               各角色在特变电工 6 大直属制造公司的数据访问范围矩阵
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               根据集团分级风控规则，保障各工厂核心工艺数据、财务产值与单耗指标的隔离与授权穿透
             </p>
           </div>
@@ -1794,7 +1794,7 @@ export default function AccountPermissionPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
                   <th className="py-2.5 px-3">角色名称</th>
                   {orgCompanies.map((c) => (
                     <th key={c.id} className="py-2.5 px-3">
@@ -1803,37 +1803,37 @@ export default function AccountPermissionPage() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
-                <tr>
-                  <td className="py-3 px-3 font-bold text-slate-900">集团超级管理员</td>
+              <tbody className="divide-y divide-border/60 text-foreground">
+                <tr className="hover:bg-accent/30 transition-colors">
+                  <td className="py-3 px-3 font-bold text-foreground">集团超级管理员</td>
                   {orgCompanies.map((c) => (
-                    <td key={c.id} className="py-3 px-3 text-emerald-600 font-medium">全量读写 · 审计</td>
+                    <td key={c.id} className="py-3 px-3 text-emerald-400 font-medium">全量读写 · 审计</td>
                   ))}
                 </tr>
-                <tr>
-                  <td className="py-3 px-3 font-bold text-slate-900">集团能碳总监</td>
+                <tr className="hover:bg-accent/30 transition-colors">
+                  <td className="py-3 px-3 font-bold text-foreground">集团能碳总监</td>
                   {orgCompanies.map((c) => (
-                    <td key={c.id} className="py-3 px-3 text-blue-600 font-medium">全量查看 · 报表审批</td>
+                    <td key={c.id} className="py-3 px-3 text-primary font-medium">全量查看 · 报表审批</td>
                   ))}
                 </tr>
-                <tr>
-                  <td className="py-3 px-3 font-bold text-slate-900">园区能管主管</td>
-                  <td className="py-3 px-3 text-blue-700 font-bold bg-blue-50/50">沈变辖区读写</td>
+                <tr className="hover:bg-accent/30 transition-colors">
+                  <td className="py-3 px-3 font-bold text-foreground">园区能管主管</td>
+                  <td className="py-3 px-3 text-primary font-bold bg-primary/10">沈变辖区读写</td>
                   {orgCompanies.slice(1).map((c) => (
-                    <td key={c.id} className="py-3 px-3 text-slate-400">无权限</td>
+                    <td key={c.id} className="py-3 px-3 text-muted-foreground/60">无权限</td>
                   ))}
                 </tr>
-                <tr>
-                  <td className="py-3 px-3 font-bold text-slate-900">工厂能耗申报员</td>
-                  <td className="py-3 px-3 text-amber-700 font-medium bg-amber-50/40">沈变本部数据填报</td>
+                <tr className="hover:bg-accent/30 transition-colors">
+                  <td className="py-3 px-3 font-bold text-foreground">工厂能耗申报员</td>
+                  <td className="py-3 px-3 text-amber-400 font-medium bg-amber-500/10">沈变本部数据填报</td>
                   {orgCompanies.slice(1).map((c) => (
-                    <td key={c.id} className="py-3 px-3 text-slate-400">无权限</td>
+                    <td key={c.id} className="py-3 px-3 text-muted-foreground/60">无权限</td>
                   ))}
                 </tr>
-                <tr>
-                  <td className="py-3 px-3 font-bold text-slate-900">审计合规专员</td>
+                <tr className="hover:bg-accent/30 transition-colors">
+                  <td className="py-3 px-3 font-bold text-foreground">审计合规专员</td>
                   {orgCompanies.map((c) => (
-                    <td key={c.id} className="py-3 px-3 text-slate-600 font-medium">只读留痕</td>
+                    <td key={c.id} className="py-3 px-3 text-muted-foreground font-medium">只读留痕</td>
                   ))}
                 </tr>
               </tbody>
@@ -1849,7 +1849,7 @@ export default function AccountPermissionPage() {
         <div className="space-y-3.5 font-sans">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
             {/* 左侧 5/12: 企业结构层级树状面板 */}
-            <div className="lg:col-span-5 bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3">
+            <div className="lg:col-span-5 bg-card rounded-xl border border-border shadow-xs p-3.5 space-y-3">
               {/* 树主体 */}
               <div className="space-y-1 text-xs select-none max-h-[660px] overflow-y-auto pr-1">
                 {/* 根节点：集团总部 */}
@@ -1873,16 +1873,16 @@ export default function AccountPermissionPage() {
                   className={cn(
                     'flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer group',
                     selectedNodeModal?.type === 'group'
-                      ? 'bg-blue-50/80 border-[#1677ff] ring-2 ring-blue-100 shadow-2xs font-bold text-blue-900'
-                      : 'bg-slate-50/80 border-slate-200 text-slate-800 hover:bg-slate-100'
+                      ? 'bg-primary/20 border-primary ring-2 ring-primary/30 shadow-2xs font-bold text-primary'
+                      : 'bg-panel border-border text-foreground hover:bg-accent/40'
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <Building2 className="size-4 text-[#1677ff]" />
-                    <span className="font-bold">特变电工（电装集团）总部</span>
+                    <Building2 className="size-4 text-primary" />
+                    <span className="font-bold text-foreground">特变电工（电装集团）总部</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded font-mono font-bold">
+                    <span className="text-[10px] bg-primary/20 text-primary border border-primary/30 px-1.5 py-0.2 rounded font-mono font-bold">
                       集团级
                     </span>
                     <button
@@ -1894,7 +1894,7 @@ export default function AccountPermissionPage() {
                         setOrgModalTarget(null)
                         setOrgModalOpen(true)
                       }}
-                      className="hidden group-hover:flex items-center gap-0.5 p-1 rounded hover:bg-blue-200 text-[#1677ff] text-[10px] font-bold cursor-pointer"
+                      className="hidden group-hover:flex items-center gap-0.5 p-1 rounded hover:bg-primary/30 text-primary text-[10px] font-bold cursor-pointer"
                     >
                       <Plus className="size-3" />
                       <span>新增公司</span>
@@ -1903,7 +1903,7 @@ export default function AccountPermissionPage() {
                 </div>
 
                 {/* 直属公司与车间层级树 (不区分产业集群) */}
-                <div className="pl-3 border-l-2 border-slate-200 ml-3 space-y-1.5 mt-2">
+                <div className="pl-3 border-l-2 border-border ml-3 space-y-1.5 mt-2">
                   {orgCompanies.map((comp) => {
                     const isExpanded = expandedCompanyIds.has(comp.id)
                     const isSelected = selectedNodeModal?.type === 'company' && selectedNodeModal.data.id === comp.id
@@ -1914,8 +1914,8 @@ export default function AccountPermissionPage() {
                           className={cn(
                             'flex items-center justify-between py-1.5 px-2 rounded-lg border transition-all cursor-pointer group',
                             isSelected
-                              ? 'bg-blue-50/70 border-blue-300 ring-1 ring-blue-200 font-bold text-blue-900'
-                              : 'bg-white border-slate-200 text-slate-800 hover:bg-slate-50'
+                              ? 'bg-primary/20 border-primary/40 ring-1 ring-primary/30 font-bold text-primary'
+                              : 'bg-panel border-border text-foreground hover:bg-accent/40'
                           )}
                         >
                           <div
@@ -1928,19 +1928,19 @@ export default function AccountPermissionPage() {
                                 e.stopPropagation()
                                 toggleCompanyTopology(comp.id)
                               }}
-                              className="size-4 rounded hover:bg-slate-200/60 flex items-center justify-center text-slate-400 cursor-pointer"
+                              className="size-4 rounded hover:bg-accent/40 flex items-center justify-center text-muted-foreground cursor-pointer"
                             >
                               {isExpanded ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
                             </button>
-                            <Folder className="size-3.5 text-[#1677ff] shrink-0" />
-                            <span className="font-semibold truncate">{comp.name}</span>
-                            <span className="text-[10px] text-slate-400 font-mono">({comp.province.slice(0, 2)})</span>
+                            <Folder className="size-3.5 text-primary shrink-0" />
+                            <span className="font-semibold truncate text-foreground">{comp.name}</span>
+                            <span className="text-[10px] text-muted-foreground font-mono">({comp.province.slice(0, 2)})</span>
                           </div>
 
                           <div className="flex items-center gap-1">
                             <span
                               onClick={() => setSelectedNodeModal({ type: 'company', data: comp })}
-                              className="text-[10px] bg-slate-100 text-slate-600 px-1.5 rounded font-mono"
+                              className="text-[10px] bg-card text-muted-foreground border border-border px-1.5 rounded font-mono"
                             >
                               {comp.workshops.length}
                             </span>
@@ -1957,7 +1957,7 @@ export default function AccountPermissionPage() {
                                   setOrgModalTarget(null)
                                   setOrgModalOpen(true)
                                 }}
-                                className="p-1 rounded hover:bg-blue-100 text-[#1677ff] cursor-pointer"
+                                className="p-1 rounded hover:bg-primary/20 text-primary cursor-pointer"
                               >
                                 <Plus className="size-3" />
                               </button>
@@ -1970,7 +1970,7 @@ export default function AccountPermissionPage() {
                                   setOrgModalTarget(comp)
                                   setOrgModalOpen(true)
                                 }}
-                                className="p-1 rounded hover:bg-slate-200 text-slate-600 cursor-pointer"
+                                className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
                               >
                                 <Edit className="size-3" />
                               </button>
@@ -1985,7 +1985,7 @@ export default function AccountPermissionPage() {
                                     name: comp.name,
                                   })
                                 }}
-                                className="p-1 rounded hover:bg-red-100 text-red-600 cursor-pointer"
+                                className="p-1 rounded hover:bg-rose-500/20 text-rose-400 cursor-pointer"
                               >
                                 <Trash2 className="size-3" />
                               </button>
@@ -1995,7 +1995,7 @@ export default function AccountPermissionPage() {
 
                         {/* 车间子列表 */}
                         {isExpanded && (
-                          <div className="pl-4 border-l border-blue-200/80 ml-3 space-y-1 py-0.5">
+                          <div className="pl-4 border-l border-primary/30 ml-3 space-y-1 py-0.5">
                             {comp.workshops.map((ws) => {
                               const isWsSelected = selectedNodeModal?.type === 'workshop' && selectedNodeModal.data.id === ws.id
                               return (
@@ -2010,17 +2010,17 @@ export default function AccountPermissionPage() {
                                   className={cn(
                                     'flex items-center justify-between py-1 px-2 rounded-md transition-all cursor-pointer text-[11px] group/ws',
                                     isWsSelected
-                                      ? 'bg-blue-100/70 text-[#1677ff] font-bold shadow-2xs'
-                                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                      ? 'bg-primary/20 text-primary font-bold shadow-2xs border border-primary/30'
+                                      : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground'
                                   )}
                                 >
                                   <div className="flex items-center gap-1.5 truncate flex-1">
-                                    <Factory className={cn('size-3 shrink-0', isWsSelected ? 'text-[#1677ff]' : 'text-slate-400')} />
+                                    <Factory className={cn('size-3 shrink-0', isWsSelected ? 'text-primary' : 'text-muted-foreground')} />
                                     <span className="truncate">{ws.name}</span>
                                   </div>
 
                                   <div className="flex items-center gap-1">
-                                    <span className="text-[9px] bg-slate-100 text-slate-500 px-1 rounded font-mono shrink-0">
+                                    <span className="text-[9px] bg-panel text-muted-foreground border border-border px-1 rounded font-mono shrink-0">
                                       {ws.badge}
                                     </span>
 
@@ -2035,7 +2035,7 @@ export default function AccountPermissionPage() {
                                           setOrgModalTarget(ws)
                                           setOrgModalOpen(true)
                                         }}
-                                        className="p-0.5 rounded hover:bg-blue-200 text-[#1677ff] cursor-pointer"
+                                        className="p-0.5 rounded hover:bg-primary/20 text-primary cursor-pointer"
                                       >
                                         <Edit className="size-2.5" />
                                       </button>
@@ -2051,7 +2051,7 @@ export default function AccountPermissionPage() {
                                             parentCompanyId: comp.id,
                                           })
                                         }}
-                                        className="p-0.5 rounded hover:bg-red-200 text-red-600 cursor-pointer"
+                                        className="p-0.5 rounded hover:bg-rose-500/20 text-rose-400 cursor-pointer"
                                       >
                                         <Trash2 className="size-2.5" />
                                       </button>
@@ -2070,13 +2070,13 @@ export default function AccountPermissionPage() {
             </div>
 
             {/* 右侧 7/12: 选中组织机构详细权责与能管档案面板 */}
-            <div className="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4">
+            <div className="lg:col-span-7 bg-card rounded-xl border border-border shadow-xs p-5 space-y-4">
               {selectedNodeModal ? (
                 <div className="space-y-4 text-xs">
                   {/* 头部标题与层级 + 操作工具 */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-border/60">
                     <div className="flex items-center gap-2.5">
-                      <div className="size-9 rounded-xl bg-blue-50 border border-blue-200 text-[#1677ff] flex items-center justify-center font-bold">
+                      <div className="size-9 rounded-xl bg-primary/20 border border-primary/30 text-primary flex items-center justify-center font-bold">
                         {selectedNodeModal.type === 'group' ? (
                           <Building2 className="size-5" />
                         ) : selectedNodeModal.type === 'company' ? (
@@ -2086,8 +2086,8 @@ export default function AccountPermissionPage() {
                         )}
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-slate-900">{selectedNodeModal.data.name}</h4>
-                        <span className="text-[11px] font-mono text-slate-400">
+                        <h4 className="text-sm font-bold text-foreground">{selectedNodeModal.data.name}</h4>
+                        <span className="text-[11px] font-mono text-muted-foreground">
                           组织代码: {selectedNodeModal.data.code || 'TBEA_ROOT'}
                         </span>
                       </div>
@@ -2098,10 +2098,10 @@ export default function AccountPermissionPage() {
                         className={cn(
                           'px-2.5 py-1 rounded-full text-[11px] font-bold',
                           selectedNodeModal.type === 'group'
-                            ? 'bg-blue-100 text-[#1677ff]'
+                            ? 'bg-primary/20 text-primary border border-primary/30'
                             : selectedNodeModal.type === 'company'
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-emerald-100 text-emerald-700'
+                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                            : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                         )}
                       >
                         {selectedNodeModal.type === 'group'
@@ -2122,7 +2122,7 @@ export default function AccountPermissionPage() {
                               setOrgModalTarget(null)
                               setOrgModalOpen(true)
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#1677ff] border border-blue-200 hover:bg-blue-100 font-bold cursor-pointer transition-colors"
+                            className="px-2.5 py-1 rounded-lg bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 font-bold cursor-pointer transition-colors"
                           >
                             + 添加车间
                           </button>
@@ -2133,7 +2133,7 @@ export default function AccountPermissionPage() {
                               setOrgModalTarget(selectedNodeModal.data)
                               setOrgModalOpen(true)
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium cursor-pointer"
+                            className="px-2.5 py-1 rounded-lg bg-panel hover:bg-accent border border-border text-foreground font-medium cursor-pointer"
                           >
                             编辑
                           </button>
@@ -2146,7 +2146,7 @@ export default function AccountPermissionPage() {
                                 name: selectedNodeModal.data.name,
                               })
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-medium cursor-pointer"
+                            className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 font-medium cursor-pointer"
                           >
                             删除
                           </button>
@@ -2162,7 +2162,7 @@ export default function AccountPermissionPage() {
                               setOrgModalTarget(selectedNodeModal.data)
                               setOrgModalOpen(true)
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium cursor-pointer"
+                            className="px-2.5 py-1 rounded-lg bg-panel hover:bg-accent border border-border text-foreground font-medium cursor-pointer"
                           >
                             编辑车间
                           </button>
@@ -2175,7 +2175,7 @@ export default function AccountPermissionPage() {
                                 name: selectedNodeModal.data.name,
                               })
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-medium cursor-pointer"
+                            className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 font-medium cursor-pointer"
                           >
                             删除车间
                           </button>
@@ -2186,24 +2186,24 @@ export default function AccountPermissionPage() {
 
                   {/* 核心指标 4 宫格 */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                      <span className="text-slate-500 text-[11px]">能管责任人 / 申报专员</span>
-                      <div className="font-bold text-slate-800 text-xs">
+                    <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+                      <span className="text-muted-foreground text-[11px]">能管责任人 / 申报专员</span>
+                      <div className="font-bold text-foreground text-xs">
                         {selectedNodeModal.data.lead || selectedNodeModal.data.manager || '张建国 (总管)'}
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                      <div className="text-[10px] text-muted-foreground font-mono">
                         联系电话: {selectedNodeModal.data.managerPhone || '138****0001'}
                       </div>
                     </div>
 
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                      <span className="text-slate-500 text-[11px]">在线遥测测点规模</span>
-                      <div className="font-bold font-mono text-[#1677ff] text-sm">
+                    <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+                      <span className="text-muted-foreground text-[11px]">在线遥测测点规模</span>
+                      <div className="font-bold font-mono text-primary text-sm">
                         {selectedNodeModal.data.meters || selectedNodeModal.data.meterCount || 1680}{' '}
-                        <span className="text-xs font-normal text-slate-500">个点位</span>
+                        <span className="text-xs font-normal text-muted-foreground">个点位</span>
                       </div>
-                      <div className="text-[10px] text-emerald-600 flex items-center gap-1 font-mono">
-                        <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <div className="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
+                        <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
                         SCADA / IoT 数据采集正常
                       </div>
                     </div>
@@ -2212,24 +2212,24 @@ export default function AccountPermissionPage() {
                   {/* 工艺与用能描述 */}
                   {selectedNodeModal.data.craftDesc && (
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-bold">主要制造工艺与用能特征：</label>
-                      <div className="p-3 bg-blue-50/40 rounded-xl border border-blue-200 text-slate-700 leading-relaxed">
+                      <label className="text-foreground font-bold">主要制造工艺与用能特征：</label>
+                      <div className="p-3 bg-panel rounded-xl border border-border text-foreground leading-relaxed">
                         {selectedNodeModal.data.craftDesc}
                       </div>
                     </div>
                   )}
 
                   {/* 地理信息与数据权限范围 */}
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+                  <div className="p-3 bg-panel rounded-xl border border-border space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">地理辖区 / 厂址：</span>
-                      <span className="font-medium text-slate-800">
+                      <span className="text-muted-foreground">地理辖区 / 厂址：</span>
+                      <span className="font-medium text-foreground">
                         {selectedNodeModal.data.province || '辽宁省'} {selectedNodeModal.data.city || '沈阳市铁西区'}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
-                      <span className="text-slate-500">数据范围隔离模式：</span>
-                      <span className="font-bold text-[#1677ff]">
+                    <div className="flex items-center justify-between pt-1 border-t border-border/60">
+                      <span className="text-muted-foreground">数据范围隔离模式：</span>
+                      <span className="font-bold text-primary">
                         {selectedNodeModal.type === 'group'
                           ? '全集团 (跨公司穿透)'
                           : selectedNodeModal.type === 'company'
@@ -2242,7 +2242,7 @@ export default function AccountPermissionPage() {
                   {/* 若选中的是公司或集团，展示下属车间清单 */}
                   {selectedNodeModal.type === 'company' && selectedNodeModal.data.workshops && (
                     <div className="space-y-2">
-                      <div className="font-bold text-slate-800 flex items-center justify-between">
+                      <div className="font-bold text-foreground flex items-center justify-between">
                         <span>下属车间工序清单 ({selectedNodeModal.data.workshops.length} 个)</span>
                         <button
                           type="button"
@@ -2252,7 +2252,7 @@ export default function AccountPermissionPage() {
                             setOrgModalTarget(null)
                             setOrgModalOpen(true)
                           }}
-                          className="text-[#1677ff] hover:underline font-bold cursor-pointer text-xs"
+                          className="text-primary hover:underline font-bold cursor-pointer text-xs"
                         >
                           + 添加车间
                         </button>
@@ -2261,14 +2261,14 @@ export default function AccountPermissionPage() {
                         {selectedNodeModal.data.workshops.map((w: any) => (
                           <div
                             key={w.id}
-                            className="p-2.5 bg-white rounded-lg border border-slate-200 flex items-center justify-between group"
+                            className="p-2.5 bg-panel rounded-lg border border-border flex items-center justify-between group"
                           >
                             <div>
-                              <div className="font-medium text-slate-800">{w.name}</div>
-                              <div className="text-[10px] text-slate-400 font-mono">管辖: {w.lead}</div>
+                              <div className="font-medium text-foreground">{w.name}</div>
+                              <div className="text-[10px] text-muted-foreground font-mono">管辖: {w.lead}</div>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] bg-blue-50 text-[#1677ff] px-1.5 py-0.5 rounded font-mono">
+                              <span className="text-[10px] bg-primary/20 text-primary border border-primary/30 px-1.5 py-0.5 rounded font-mono">
                                 {w.meters} 测点
                               </span>
                               <button
@@ -2279,7 +2279,7 @@ export default function AccountPermissionPage() {
                                   setOrgModalTarget(w)
                                   setOrgModalOpen(true)
                                 }}
-                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-100 text-slate-600 rounded cursor-pointer"
+                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-accent text-muted-foreground hover:text-foreground rounded cursor-pointer"
                               >
                                 <Edit className="size-3" />
                               </button>
@@ -2291,8 +2291,8 @@ export default function AccountPermissionPage() {
                   )}
                 </div>
               ) : (
-                <div className="py-20 flex flex-col items-center justify-center text-center text-slate-400 space-y-2">
-                  <Building2 className="size-10 text-slate-300" />
+                <div className="py-20 flex flex-col items-center justify-center text-center text-muted-foreground space-y-2">
+                  <Building2 className="size-10 text-muted-foreground/40" />
                   <p className="text-xs">请在左侧企业组织树中点击任意机构或车间节点，查看详细权责与能管档案</p>
                 </div>
               )}
@@ -2305,11 +2305,11 @@ export default function AccountPermissionPage() {
       {/* 弹窗: 组织机构 增加 / 编辑 Modal (公司 / 车间) */}
       {/* ========================================================================= */}
       {orgModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <FolderTree className="size-4 text-[#1677ff]" />
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl border border-border shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 text-foreground">
+            <div className="px-5 py-4 border-b border-border/60 flex items-center justify-between bg-panel">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <FolderTree className="size-4 text-primary" />
                 {orgModalMode === 'add_company' && '新增直属制造公司'}
                 {orgModalMode === 'edit_company' && '编辑直属制造公司档案'}
                 {orgModalMode === 'add_workshop' && '新增基层车间工序'}
@@ -2318,7 +2318,7 @@ export default function AccountPermissionPage() {
               <button
                 type="button"
                 onClick={() => setOrgModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4" />
               </button>
@@ -2330,79 +2330,77 @@ export default function AccountPermissionPage() {
                 <>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">公司全称 *</label>
+                      <label className="text-foreground font-medium">公司全称 *</label>
                       <input
                         name="name"
                         required
                         defaultValue={orgModalTarget?.name || ''}
                         placeholder="如：天津特变电工公司"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">组织机构代码 *</label>
+                      <label className="text-foreground font-medium">组织机构代码 *</label>
                       <input
                         name="code"
                         required
                         defaultValue={orgModalTarget?.code || `COMP_TB_${Math.floor(10 + Math.random() * 90)}`}
                         placeholder="如：COMP_TJ_07"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>
 
-
-
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">省份 *</label>
+                      <label className="text-foreground font-medium">省份 *</label>
                       <input
                         name="province"
                         required
                         defaultValue={orgModalTarget?.province || '天津市'}
                         placeholder="如：天津市"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">城市/园区厂址 *</label>
+                      <label className="text-foreground font-medium">城市/园区厂址 *</label>
                       <input
                         name="city"
                         required
                         defaultValue={orgModalTarget?.city || '武清区京滨工业园'}
                         placeholder="如：武清区京滨工业园"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">能管负责人 *</label>
+                      <label className="text-foreground font-medium">能管负责人 *</label>
                       <input
                         name="manager"
                         required
                         defaultValue={orgModalTarget?.manager || '李明'}
                         placeholder="如：李明"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">联系电话</label>
+                      <label className="text-foreground font-medium">联系电话</label>
                       <input
                         name="managerPhone"
                         defaultValue={orgModalTarget?.managerPhone || '138****6688'}
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">测点总数</label>
+                      <label className="text-foreground font-medium">测点总数</label>
                       <input
                         name="meterCount"
                         type="number"
                         defaultValue={orgModalTarget?.meterCount || 100}
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>
@@ -2414,11 +2412,11 @@ export default function AccountPermissionPage() {
                 <>
                   {orgModalMode === 'add_workshop' && (
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">所属直属公司 *</label>
+                      <label className="text-foreground font-medium">所属直属公司 *</label>
                       <select
                         name="parentCompanyId"
                         defaultValue={orgModalParentCompanyId}
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                       >
                         {orgCompanies.map((c) => (
                           <option key={c.id} value={c.id}>
@@ -2431,35 +2429,35 @@ export default function AccountPermissionPage() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">车间/工序名称 *</label>
+                      <label className="text-foreground font-medium">车间/工序名称 *</label>
                       <input
                         name="name"
                         required
                         defaultValue={orgModalTarget?.name || ''}
                         placeholder="如：超高压换流变智能装配车间"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">车间代码 *</label>
+                      <label className="text-foreground font-medium">车间代码 *</label>
                       <input
                         name="code"
                         required
                         defaultValue={orgModalTarget?.code || `WS_${Date.now().toString().slice(-4)}`}
                         placeholder="如：WS_TJ_MAIN"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">工序分类 *</label>
+                      <label className="text-foreground font-medium">工序分类 *</label>
                       <select
                         name="badge"
                         defaultValue={orgModalTarget?.badge || '主体'}
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                       >
                         <option value="主体">主体制造</option>
                         <option value="智能">智能产线</option>
@@ -2469,51 +2467,51 @@ export default function AccountPermissionPage() {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">现场管辖专员 *</label>
+                      <label className="text-foreground font-medium">现场管辖专员 *</label>
                       <input
                         name="lead"
                         required
                         defaultValue={orgModalTarget?.lead || '张强'}
                         placeholder="如：张强"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-slate-700 font-medium">在线测点规模</label>
+                      <label className="text-foreground font-medium">在线测点规模</label>
                       <input
                         name="meters"
                         type="number"
                         defaultValue={orgModalTarget?.meters || 35}
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-slate-700 font-medium">主要制造工艺与用能特征描述</label>
+                    <label className="text-foreground font-medium">主要制造工艺与用能特征描述</label>
                     <textarea
                       name="craftDesc"
                       rows={2}
                       defaultValue={orgModalTarget?.craftDesc || '特高压变压器装配、全自动真空干燥窑炉与绝缘油加注试验'}
                       placeholder="描述该车间主要工序的重点用能介质（如高温热风、大功率干燥、立塔挤出等）..."
-                      className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                      className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                     />
                   </div>
                 </>
               )}
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-border/60 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setOrgModalOpen(false)}
-                  className="px-4 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg border border-border hover:bg-accent/40 text-muted-foreground text-xs font-medium cursor-pointer"
                 >
                   取消
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
                   确认保存
                 </button>
@@ -2527,18 +2525,18 @@ export default function AccountPermissionPage() {
       {/* 弹窗: 删除确认 Dialog */}
       {/* ========================================================================= */}
       {orgDeleteConfirm && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl border border-border shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in text-foreground">
             <div className="p-5 space-y-3 text-xs font-sans">
-              <div className="size-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+              <div className="size-10 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto">
                 <AlertCircle className="size-6" />
               </div>
 
               <div className="text-center space-y-1">
-                <h4 className="text-sm font-bold text-slate-900">
+                <h4 className="text-sm font-bold text-foreground">
                   确认删除【{orgDeleteConfirm.name}】？
                 </h4>
-                <p className="text-slate-500 text-[11px] leading-relaxed">
+                <p className="text-muted-foreground text-[11px] leading-relaxed">
                   {orgDeleteConfirm.type === 'company'
                     ? '删除该直属公司将同步移除其下属全部车间工序及数据采集绑定，此操作不可撤销！'
                     : '删除该车间工序将同步解除其在线测点与单耗台账映射，请确认是否继续？'}
@@ -2549,14 +2547,14 @@ export default function AccountPermissionPage() {
                 <button
                   type="button"
                   onClick={() => setOrgDeleteConfirm(null)}
-                  className="px-4 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg border border-border hover:bg-accent/40 text-muted-foreground text-xs font-medium cursor-pointer"
                 >
                   取消
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmDeleteOrg}
-                  className="px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
                   确认删除
                 </button>
@@ -2570,17 +2568,17 @@ export default function AccountPermissionPage() {
       {/* 弹窗 1: 新增/编辑用户账号 Modal */}
       {/* ========================================================================= */}
       {userModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <UserPlus className="size-4 text-[#1677ff]" />
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl border border-border shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 text-foreground">
+            <div className="px-5 py-4 border-b border-border/60 flex items-center justify-between bg-panel">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <UserPlus className="size-4 text-primary" />
                 {editingUser ? '编辑人员账号与权限' : '新增人员账号'}
               </h3>
               <button
                 type="button"
                 onClick={() => setUserModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4" />
               </button>
@@ -2589,46 +2587,46 @@ export default function AccountPermissionPage() {
             <form onSubmit={handleSaveUser} className="p-5 space-y-4 text-xs font-sans">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-700 font-medium">人员姓名 *</label>
+                  <label className="text-foreground font-medium">人员姓名 *</label>
                   <input
                     name="name"
                     required
                     defaultValue={editingUser?.name || ''}
                     placeholder="如：李明"
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-700 font-medium">员工工号 *</label>
+                  <label className="text-foreground font-medium">员工工号 *</label>
                   <input
                     name="workNo"
                     required
                     defaultValue={editingUser?.workNo || `TB-${Math.floor(10000 + Math.random() * 90000)}`}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-700 font-medium">登录账号 / 邮箱 *</label>
+                <label className="text-foreground font-medium">登录账号 / 邮箱 *</label>
                 <input
                   name="account"
                   type="email"
                   required
                   defaultValue={editingUser?.account || ''}
                   placeholder="如：liming@tbea.com"
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-700 font-medium">所属直属公司 *</label>
+                  <label className="text-foreground font-medium">所属直属公司 *</label>
                   <select
                     name="company"
                     defaultValue={editingUser?.company || orgCompanies[0]?.name || '沈变公司'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                   >
                     <option value="电装集团总部">电装集团总部</option>
                     {orgCompanies.map((c) => (
@@ -2640,22 +2638,22 @@ export default function AccountPermissionPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-700 font-medium">所属车间 / 部门 *</label>
+                  <label className="text-foreground font-medium">所属车间 / 部门 *</label>
                   <input
                     name="dept"
                     required
                     defaultValue={editingUser?.dept || '超高压变压器制造部'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-700 font-medium">分配系统角色 *</label>
+                <label className="text-foreground font-medium">分配系统角色 *</label>
                 <select
                   name="roleId"
                   defaultValue={editingUser?.roleId || 'role_park_mgr'}
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                 >
                   {roles.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -2666,11 +2664,11 @@ export default function AccountPermissionPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-700 font-medium">数据权限范围 *</label>
+                <label className="text-foreground font-medium">数据权限范围 *</label>
                 <select
                   name="dataScopeType"
                   defaultValue={editingUser?.dataScopeType || 'company'}
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                 >
                   <option value="all">全集团 (可查阅全部直属公司及下属工厂)</option>
                   <option value="company">本直属公司 (仅本公司及辖区内全部车间)</option>
@@ -2680,34 +2678,34 @@ export default function AccountPermissionPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-700 font-medium">手机号码</label>
+                  <label className="text-foreground font-medium">手机号码</label>
                   <input
                     name="phone"
                     defaultValue={editingUser?.phone || '13800000000'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-slate-700 font-medium">初始登录密码</label>
+                  <label className="text-foreground font-medium">初始登录密码</label>
                   <input
                     disabled={!!editingUser}
                     defaultValue="Tbea@2026!"
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono bg-slate-50 text-slate-500"
+                    className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-muted-foreground"
                   />
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-border/60 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setUserModalOpen(false)}
-                  className="px-4 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg border border-border hover:bg-accent/40 text-muted-foreground text-xs font-medium cursor-pointer"
                 >
                   取消
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
                   确认保存
                 </button>
@@ -2721,46 +2719,46 @@ export default function AccountPermissionPage() {
       {/* 弹窗 2: 重置密码 Modal */}
       {/* ========================================================================= */}
       {pwdModalOpen && pwdTargetUser && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <KeyRound className="size-4 text-amber-500" />
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl border border-border shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in text-foreground">
+            <div className="px-5 py-4 border-b border-border/60 flex items-center justify-between bg-panel">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <KeyRound className="size-4 text-amber-400" />
                 重置用户密码
               </h3>
               <button
                 type="button"
                 onClick={() => setPwdModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4" />
               </button>
             </div>
 
             <div className="p-5 space-y-4 text-xs font-sans">
-              <p className="text-slate-600">
-                正在为用户 <strong className="text-slate-900">【{pwdTargetUser.name}】</strong>（{pwdTargetUser.account}）重置登录密码：
+              <p className="text-muted-foreground">
+                正在为用户 <strong className="text-foreground">【{pwdTargetUser.name}】</strong>（{pwdTargetUser.account}）重置登录密码：
               </p>
 
               <div className="space-y-1">
-                <label className="text-slate-700 font-medium">新密码</label>
+                <label className="text-foreground font-medium">新密码</label>
                 <div className="flex items-center gap-2">
                   <input
                     value={newPwdVal}
                     onChange={(e) => setNewPwdVal(e.target.value)}
-                    className="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="flex-1 px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                   />
                   <button
                     type="button"
                     onClick={() => setNewPwdVal(`TB@${Math.floor(100000 + Math.random() * 900000)}`)}
-                    className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-mono cursor-pointer"
+                    className="px-2.5 py-1.5 bg-panel hover:bg-accent border border-border text-foreground rounded-lg text-xs font-mono cursor-pointer"
                   >
                     随机生成
                   </button>
                 </div>
               </div>
 
-              <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-[11px]">
+              <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-400 text-[11px]">
                 密码重置后，用户首次登录将被强制要求修改密码，并记录审计日志。
               </div>
 
@@ -2768,7 +2766,7 @@ export default function AccountPermissionPage() {
                 <button
                   type="button"
                   onClick={() => setPwdModalOpen(false)}
-                  className="px-3.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg border border-border hover:bg-accent/40 text-muted-foreground text-xs font-medium cursor-pointer"
                 >
                   取消
                 </button>
@@ -2778,7 +2776,7 @@ export default function AccountPermissionPage() {
                     showToast(`已成功为【${pwdTargetUser.name}】重置密码为：${newPwdVal}`)
                     setPwdModalOpen(false)
                   }}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
                   确认重置
                 </button>
@@ -2792,17 +2790,17 @@ export default function AccountPermissionPage() {
       {/* 弹窗 3: 创建自定义角色 Modal */}
       {/* ========================================================================= */}
       {roleModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <ShieldCheck className="size-4 text-purple-600" />
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl border border-border shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in text-foreground">
+            <div className="px-5 py-4 border-b border-border/60 flex items-center justify-between bg-panel">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <ShieldCheck className="size-4 text-purple-400" />
                 创建自定义权限角色
               </h3>
               <button
                 type="button"
                 onClick={() => setRoleModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4" />
               </button>
@@ -2835,46 +2833,46 @@ export default function AccountPermissionPage() {
               className="p-5 space-y-3.5 text-xs font-sans"
             >
               <div className="space-y-1">
-                <label className="text-slate-700 font-medium">角色名称 *</label>
+                <label className="text-foreground font-medium">角色名称 *</label>
                 <input
                   name="roleName"
                   required
                   placeholder="如：绿电交易核算专员"
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-700 font-medium">角色编码 *</label>
+                <label className="text-foreground font-medium">角色编码 *</label>
                 <input
                   name="roleCode"
                   required
                   placeholder="如：ROLE_GREEN_POWER_TRADER"
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-700 font-medium">角色职责与使用场景描述</label>
+                <label className="text-foreground font-medium">角色职责与使用场景描述</label>
                 <textarea
                   name="desc"
                   rows={3}
                   placeholder="描述该角色的业务范围、可操作的子系统模块与职责边界..."
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
 
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
+              <div className="pt-2 border-t border-border/60 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setRoleModalOpen(false)}
-                  className="px-3.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg border border-border hover:bg-accent/40 text-muted-foreground text-xs font-medium cursor-pointer"
                 >
                   取消
                 </button>
                 <button
                   type="submit"
-                  className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
                   创建并前往授权
                 </button>

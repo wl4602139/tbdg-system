@@ -109,24 +109,24 @@ export function OnlineHeader({
   }
 
   return (
-    <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+    <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-3">
-        <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+        <div className="size-9 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
           <Activity className="size-5" />
         </div>
         <div>
-          <h1 className="text-base font-bold text-slate-800">用能在线监测</h1>
+          <h1 className="text-base font-bold text-foreground">用能在线监测</h1>
         </div>
 
         {/* 🌟 2 大子模块 Tab 切换：用能监测 (面向园区/工厂) | 设备监测 (面向重点设备) */}
-        <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-medium ml-2">
+        <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs font-medium ml-2">
           <Link
             href="/zero-carbon/monitor/online/usage"
             className={cn(
               'px-3 py-1 rounded-md transition-all select-none',
               pathname.includes('/online/usage') || pathname === '/zero-carbon/monitor/online'
-                ? 'bg-white text-[#1677ff] font-bold shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
             )}
           >
             用能监测
@@ -136,8 +136,8 @@ export function OnlineHeader({
             className={cn(
               'px-3 py-1 rounded-md transition-all select-none',
               pathname.includes('/online/equipment')
-                ? 'bg-white text-[#1677ff] font-bold shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
             )}
           >
             设备监测
@@ -147,13 +147,13 @@ export function OnlineHeader({
 
       <div className="flex flex-wrap items-center gap-2.5">
         {/* 时间维度切换：日 / 月 */}
-        <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
+        <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs font-sans">
           <button
             type="button"
             onClick={() => handleTimeDimChange('day')}
             className={cn(
               'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-              timeDim === 'day' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              timeDim === 'day' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
             )}
           >
             日
@@ -163,7 +163,7 @@ export function OnlineHeader({
             onClick={() => handleTimeDimChange('month')}
             className={cn(
               'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-              timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
             )}
           >
             月
@@ -173,38 +173,36 @@ export function OnlineHeader({
         {/* 1. 日维度：日期范围 (最多30天) + 15分钟固定频率标识 */}
         {timeDim === 'day' && (
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => handleStartDateChange(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                 title="起始日期 (最多可选30天)"
               />
-              <span className="text-slate-400 font-sans">至</span>
+              <span className="text-muted-foreground font-sans">至</span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => handleEndDateChange(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                 title="结束日期 (最多可选30天)"
               />
             </div>
-
-
           </div>
         )}
 
         {/* 2. 月维度：选择指定月份 */}
         {timeDim === 'month' && (
-          <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-            <Calendar className="size-3.5 text-slate-400 shrink-0" />
+          <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+            <Calendar className="size-3.5 text-muted-foreground shrink-0" />
             <input
               type="month"
               value={selectedMonth}
               onChange={(e) => handleMonthChange(e.target.value)}
-              className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer font-bold"
+              className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
               title="选择指定月份"
             />
           </div>
@@ -220,7 +218,7 @@ export function OnlineHeader({
               alert(`正在导出当前${timeDim === 'day' ? '日范围 (15min高频)' : '月度'}在线监测数据 (Excel)...`)
             }
           }}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#1677ff] hover:bg-blue-600 text-white font-medium text-xs shadow-2xs cursor-pointer transition-colors select-none"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-xs shadow-2xs cursor-pointer transition-colors select-none"
         >
           <Download className="size-3.5" />
           <span>导出</span>

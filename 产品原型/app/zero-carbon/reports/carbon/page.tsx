@@ -362,26 +362,26 @@ export default function CarbonReportPage() {
   return (
     <div className="flex flex-col gap-3.5 w-full font-sans">
       {/* 顶部面包屑与操作栏 */}
-      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
             <Globe2 className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-800">碳排报表</h1>
+            <h1 className="text-base font-bold text-foreground">碳排报表</h1>
           </div>
         </div>
 
         {/* 工具栏 */}
         <div className="flex flex-wrap items-center gap-2">
           {/* 时间维度切换 */}
-          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
+          <div className="flex rounded-lg border border-border bg-panel p-0.5 text-xs">
             <button
               type="button"
               onClick={() => setTimeDim('month')}
               className={cn(
                 'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
               )}
             >
               月度
@@ -391,7 +391,7 @@ export default function CarbonReportPage() {
               onClick={() => setTimeDim('quarter')}
               className={cn(
                 'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
               )}
             >
               季度
@@ -401,7 +401,7 @@ export default function CarbonReportPage() {
               onClick={() => setTimeDim('year')}
               className={cn(
                 'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
               )}
             >
               年度
@@ -410,33 +410,33 @@ export default function CarbonReportPage() {
 
           {/* 时间范围选择控件 */}
           {timeDim === 'month' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
               <input
                 type="month"
                 value={selectedMonthRange.start}
                 onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                 title="起始月份"
               />
-              <span className="text-slate-400 font-sans">至</span>
+              <span className="text-muted-foreground font-sans">至</span>
               <input
                 type="month"
                 value={selectedMonthRange.end}
                 onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                 title="结束月份"
               />
             </div>
           )}
 
           {timeDim === 'quarter' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
               <select
                 value={selectedQuarter}
                 onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-panel border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
                 <option value="2026-Q1">2026年 第1季度 (Q1)</option>
                 <option value="2026-Q2">2026年 第2季度 (Q2)</option>
@@ -448,12 +448,12 @@ export default function CarbonReportPage() {
           )}
 
           {timeDim === 'year' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-panel border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
                 <option value="2026">2026 年度</option>
                 <option value="2025">2025 年度</option>
@@ -464,7 +464,7 @@ export default function CarbonReportPage() {
 
           <button
             onClick={() => alert('正在导出碳排履约核算报表 (Excel/PDF)...')}
-            className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+            className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 hover:bg-primary/90 shadow-xs transition-colors cursor-pointer"
           >
             <Download className="size-3.5" />
             <span>导出</span>
@@ -473,20 +473,20 @@ export default function CarbonReportPage() {
       </div>
 
       {/* 主数据报表 */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+      <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden flex flex-col">
         {/* 操作搜索栏 */}
-        <div className="p-2.5 border-b border-slate-200 bg-[#fafbfc] flex flex-wrap items-center justify-between gap-3 font-sans">
+        <div className="p-2.5 border-b border-border/60 bg-panel flex flex-wrap items-center justify-between gap-3 font-sans">
           <div className="flex flex-wrap items-center gap-3">
             {/* 企业下拉筛选 */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属企业：</span>
+              <span className="text-xs font-bold text-foreground whitespace-nowrap">所属企业：</span>
               <select
                 value={companyFilter}
                 onChange={(e) => {
                   setCompanyFilter(e.target.value)
                   setUnitFilter('all') // 联动重置下属单位
                 }}
-                className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer"
+                className="h-8 px-2.5 rounded-lg border border-border bg-panel text-xs text-foreground font-medium focus:outline-none focus:border-primary shadow-2xs cursor-pointer"
               >
                 <option value="all">全部所属企业</option>
                 {allCompanies.map((comp) => (
@@ -499,11 +499,11 @@ export default function CarbonReportPage() {
 
             {/* 单位下拉筛选 (与企业联动) */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属单位：</span>
+              <span className="text-xs font-bold text-foreground whitespace-nowrap">所属单位：</span>
               <select
                 value={unitFilter}
                 onChange={(e) => setUnitFilter(e.target.value)}
-                className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs max-w-[220px] cursor-pointer"
+                className="h-8 px-2.5 rounded-lg border border-border bg-panel text-xs text-foreground font-medium focus:outline-none focus:border-primary shadow-2xs max-w-[220px] cursor-pointer"
               >
                 <option value="all">全部所属单位</option>
                 {availableUnits.map((u) => (
@@ -519,67 +519,67 @@ export default function CarbonReportPage() {
         {/* 表格区域 */}
         <div className="overflow-x-auto custom-scrollbar">
           {filteredRows.length === 0 ? (
-            <div className="p-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+            <div className="p-12 text-center text-muted-foreground text-xs flex flex-col items-center gap-2">
               <div>暂无匹配的碳排报表数据</div>
             </div>
           ) : (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
-                  <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[130px]">企业名称</th>
+                <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none font-sans">
+                  <th className="py-2.5 px-3 sticky left-0 bg-panel z-10 min-w-[130px] border-r border-border/60">企业名称</th>
                   <th className="py-2.5 px-3 min-w-[150px]">单位名称</th>
                   <th className="py-2.5 px-3 text-right">化石燃料燃烧 (tCO₂)</th>
                   <th className="py-2.5 px-3 text-right">工业过程排放 (tCO₂)</th>
                   <th className="py-2.5 px-3 text-right">净购入电力 (tCO₂)</th>
                   <th className="py-2.5 px-3 text-right">净购入蒸汽 (tCO₂)</th>
-                  <th className="py-2.5 px-3 text-right text-emerald-600 font-bold">光伏/绿电对冲</th>
-                  <th className="py-2.5 px-3 text-right text-emerald-600 font-bold">CCER/碳汇核减</th>
-                  <th className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/50">
+                  <th className="py-2.5 px-3 text-right text-emerald-400 font-bold">光伏/绿电对冲</th>
+                  <th className="py-2.5 px-3 text-right text-emerald-400 font-bold">CCER/碳汇核减</th>
+                  <th className="py-2.5 px-3 text-right font-bold text-foreground bg-accent/20">
                     净碳排放总量 (tCO₂)
                   </th>
                   <th className="py-2.5 px-3 text-center">同比变动</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
+              <tbody className="divide-y divide-border/60 text-foreground font-mono text-[11.5px]">
                 {filteredRows.map((r, idx) => {
                   const span = companyRowSpans[idx]
                   return (
-                    <tr key={r.id} className="hover:bg-blue-50/40 transition-colors">
+                    <tr key={r.id} className="hover:bg-accent/30 transition-colors">
                       {span > 0 && (
                         <td
                           rowSpan={span}
-                          className="py-2.5 px-3 sticky left-0 bg-slate-50 font-sans font-bold text-slate-800 text-center align-middle border-r border-b border-slate-200 z-10 select-none shadow-[1px_0_0_0_#e2e8f0]"
+                          className="py-2.5 px-3 sticky left-0 bg-card font-sans font-bold text-foreground text-center align-middle border-r border-b border-border z-10 select-none"
                         >
                           <div className="flex items-center justify-center h-full">
                             <span className="leading-snug">{r.company}</span>
                           </div>
                         </td>
                       )}
-                      <td className="py-2.5 px-3 font-sans font-semibold text-slate-900 border-b border-slate-100">
+                      <td className="py-2.5 px-3 font-sans font-semibold text-foreground border-b border-border/40">
                         {r.unitName}
                       </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums">
+                    <td className="py-2.5 px-3 text-right tabular-nums text-foreground">
                       {r.fossilCombustion.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums">
+                    <td className="py-2.5 px-3 text-right tabular-nums text-foreground">
                       {r.processEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums">
+                    <td className="py-2.5 px-3 text-right tabular-nums text-foreground">
                       {r.gridElecEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums">
+                    <td className="py-2.5 px-3 text-right tabular-nums text-foreground">
                       {r.steamEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right text-emerald-600 font-bold tabular-nums">
+                    <td className="py-2.5 px-3 text-right text-emerald-400 font-bold tabular-nums">
                       {r.pvGreenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right text-emerald-600 font-bold tabular-nums">
+                    <td className="py-2.5 px-3 text-right text-emerald-400 font-bold tabular-nums">
                       {r.ccerDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/40 tabular-nums">
+                    <td className="py-2.5 px-3 text-right font-bold text-primary bg-accent/20 tabular-nums">
                       {r.netEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">
+                    <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">
                       {r.yoy}
                     </td>
                   </tr>
@@ -587,8 +587,8 @@ export default function CarbonReportPage() {
               </tbody>
               {/* 汇总行 */}
               <tfoot>
-                <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
-                  <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans" colSpan={2}>
+                <tr className="bg-panel font-bold text-foreground border-t-2 border-border">
+                  <td className="py-2.5 px-3 sticky left-0 bg-panel font-sans border-r border-border" colSpan={2}>
                     全集团总碳排汇总
                   </td>
                   <td className="py-2.5 px-3 text-right font-mono tabular-nums">
@@ -603,16 +603,16 @@ export default function CarbonReportPage() {
                   <td className="py-2.5 px-3 text-right font-mono tabular-nums">
                     {totals.steamEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                   </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-emerald-700 tabular-nums">
+                  <td className="py-2.5 px-3 text-right font-mono text-emerald-400 tabular-nums">
                     {totals.pvGreenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                   </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-emerald-700 tabular-nums">
+                  <td className="py-2.5 px-3 text-right font-mono text-emerald-400 tabular-nums">
                     {totals.ccerDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                   </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-blue-700 bg-blue-100/60 tabular-nums text-sm">
+                  <td className="py-2.5 px-3 text-right font-mono text-primary bg-primary/20 tabular-nums text-sm">
                     {totals.netEmission.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                   </td>
-                  <td className="py-2.5 px-3 text-center text-emerald-700 font-bold">-5.7%</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">-5.7%</td>
                 </tr>
               </tfoot>
             </table>

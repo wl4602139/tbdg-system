@@ -781,23 +781,23 @@ export default function UnitOutputPage() {
       <div className="flex-1 min-w-0 flex flex-col gap-3.5">
         
         {/* 1. 顶部 Header 与 统一标准时间筛选 (与单位产品能耗完全一致) */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-xl border border-border shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <TrendingUp className="size-5" />
             </div>
-            <h1 className="text-base font-bold text-slate-800">单位产值能耗</h1>
+            <h1 className="text-base font-bold text-foreground">单位产值能耗</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             {/* 时间维度统一 (月度 / 季度 / 年度) */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs">
               <button
                 type="button"
                 onClick={() => setTimeDim('month')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 月度
@@ -807,7 +807,7 @@ export default function UnitOutputPage() {
                 onClick={() => setTimeDim('quarter')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 季度
@@ -817,7 +817,7 @@ export default function UnitOutputPage() {
                 onClick={() => setTimeDim('year')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 年度
@@ -826,54 +826,54 @@ export default function UnitOutputPage() {
 
             {/* 时间范围选择控件 (随维度自适应切换) */}
             {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <input
                   type="month"
                   value={selectedMonthRange.start}
                   onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                   title="起始月份"
                 />
-                <span className="text-slate-400 font-sans">至</span>
+                <span className="text-muted-foreground font-sans">至</span>
                 <input
                   type="month"
                   value={selectedMonthRange.end}
                   onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                   title="结束月份"
                 />
               </div>
             )}
 
             {timeDim === 'quarter' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <select
                   value={selectedQuarter}
                   onChange={(e) => setSelectedQuarter(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                  className="bg-transparent border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
                 >
-                  <option value="2026-Q1">2026年 第1季度 (Q1)</option>
-                  <option value="2026-Q2">2026年 第2季度 (Q2)</option>
-                  <option value="2026-Q3">2026年 第3季度 (Q3)</option>
-                  <option value="2026-Q4">2026年 第4季度 (Q4)</option>
-                  <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+                  <option value="2026-Q1" className="bg-card text-foreground">2026年 第1季度 (Q1)</option>
+                  <option value="2026-Q2" className="bg-card text-foreground">2026年 第2季度 (Q2)</option>
+                  <option value="2026-Q3" className="bg-card text-foreground">2026年 第3季度 (Q3)</option>
+                  <option value="2026-Q4" className="bg-card text-foreground">2026年 第4季度 (Q4)</option>
+                  <option value="2025-Q4" className="bg-card text-foreground">2025年 第4季度 (Q4)</option>
                 </select>
               </div>
             )}
 
             {timeDim === 'year' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                  className="bg-transparent border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
                 >
-                  <option value="2026">2026 年度</option>
-                  <option value="2025">2025 年度</option>
-                  <option value="2024">2024 年度</option>
+                  <option value="2026" className="bg-card text-foreground">2026 年度</option>
+                  <option value="2025" className="bg-card text-foreground">2025 年度</option>
+                  <option value="2024" className="bg-card text-foreground">2024 年度</option>
                 </select>
               </div>
             )}
@@ -881,7 +881,7 @@ export default function UnitOutputPage() {
             <button
               type="button"
               onClick={() => alert(`正在导出【${selectedNode.name}】单位产值能耗分析报表 (Excel)...`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
             >
               <Download className="size-3.5" />
               <span>导出</span>
@@ -893,8 +893,8 @@ export default function UnitOutputPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
-              <h2 className="text-xs font-bold text-slate-800">
+              <span className="w-1 h-3.5 bg-primary rounded-full" />
+              <h2 className="text-xs font-bold text-foreground">
                 万元产值能源单耗指标
               </h2>
             </div>
@@ -915,27 +915,27 @@ export default function UnitOutputPage() {
                   className={cn(
                     'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all cursor-pointer relative select-none group',
                     isSelected
-                      ? 'bg-gradient-to-br from-blue-50/95 via-white to-blue-50/40 border-2 border-[#1677ff] ring-2 ring-[#1677ff]/20 shadow-sm scale-[1.01]'
-                      : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/60'
+                      ? 'bg-primary/15 border-2 border-primary ring-2 ring-primary/20 shadow-sm scale-[1.01]'
+                      : 'bg-card border-border hover:border-primary/40 hover:bg-accent/30'
                   )}
                 >
-                  <div className="flex items-center justify-between text-xs text-slate-600 font-sans">
-                    <span className={cn('font-bold flex items-center gap-1.5', isSelected ? 'text-[#1677ff]' : 'text-slate-800')}>
-                      <IconComponent className={cn('size-3.5', isSelected ? 'text-[#1677ff]' : 'text-slate-500')} />
+                  <div className="flex items-center justify-between text-xs text-muted-foreground font-sans">
+                    <span className={cn('font-bold flex items-center gap-1.5', isSelected ? 'text-primary' : 'text-foreground')}>
+                      <IconComponent className={cn('size-3.5', isSelected ? 'text-primary' : 'text-muted-foreground')} />
                       {m.name}
                     </span>
                     {isSelected && (
-                      <span className="size-2 rounded-full bg-[#1677ff] animate-pulse" />
+                      <span className="size-2 rounded-full bg-primary animate-pulse" />
                     )}
                   </div>
 
-                  <div className={cn('text-xl font-bold tracking-tight', isSelected ? 'text-[#1677ff]' : 'text-slate-900')}>
-                    {m.val} <span className="text-xs font-sans text-slate-500 font-normal">{m.unit}</span>
+                  <div className={cn('text-xl font-bold tracking-tight', isSelected ? 'text-primary' : 'text-foreground')}>
+                    {m.val} <span className="text-xs font-sans text-muted-foreground font-normal">{m.unit}</span>
                   </div>
 
-                  <div className="text-[11px] font-sans text-slate-600 pt-1 border-t border-slate-100 flex items-center justify-between">
+                  <div className="text-[11px] font-sans text-muted-foreground pt-1 border-t border-border/60 flex items-center justify-between">
                     <span>
-                      同比: <strong className="text-emerald-600 font-mono font-bold">{m.yoy} ↓</strong>
+                      同比: <strong className="text-emerald-400 font-mono font-bold">{m.yoy} ↓</strong>
                     </span>
                   </div>
                 </div>
@@ -945,28 +945,28 @@ export default function UnitOutputPage() {
         </div>
 
         {/* 3. 万元产值能耗变化趋势 (随卡片点击精准同步切换数值与单位) */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
-              <h3 className="text-xs font-bold text-slate-800">
+              <span className="w-1 h-3.5 bg-primary rounded-full" />
+              <h3 className="text-xs font-bold text-foreground">
                 {activeMetricMeta.name}变化趋势
               </h3>
-              <span className="text-[11px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-mono font-bold border border-blue-200/80">
+              <span className="text-[11px] px-2 py-0.5 rounded bg-primary/20 text-primary font-mono font-bold border border-primary/30">
                 单位: {activeMetricMeta.unit}
               </span>
             </div>
 
             {/* 时间颗粒度切换 (近12个月 / 近12个季度 / 近3年) */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs">
               <button
                 type="button"
                 onClick={() => setTrendTimeRange('12months')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   trendTimeRange === '12months'
-                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'font-bold bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 近12个月
@@ -977,8 +977,8 @@ export default function UnitOutputPage() {
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   trendTimeRange === '12quarters'
-                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'font-bold bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 近12个季度
@@ -989,8 +989,8 @@ export default function UnitOutputPage() {
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   trendTimeRange === '3years'
-                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'font-bold bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 近3年
@@ -1015,19 +1015,19 @@ export default function UnitOutputPage() {
           </div>
 
           {/* 趋势明细透视底栏 */}
-          <div className="pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-600 font-mono">
+          <div className="pt-2.5 border-t border-border/60 flex flex-wrap items-center justify-between text-xs text-muted-foreground font-mono">
             <div className="flex items-center gap-2">
-              <span className="font-sans text-slate-500">最新实测 ({latestTrendPoint?.period}):</span>
-              <strong className="text-[#1677ff] font-bold text-sm">
+              <span className="font-sans text-muted-foreground">最新实测 ({latestTrendPoint?.period}):</span>
+              <strong className="text-primary font-bold text-sm">
                 {latestTrendPoint?.value} {activeMetricMeta.unit}
               </strong>
             </div>
             <div className="flex items-center gap-3">
               {latestTrendPoint?.mom && (
-                <span>环比变化: <strong className="text-slate-700">{latestTrendPoint.mom}</strong></span>
+                <span>环比变化: <strong className="text-foreground">{latestTrendPoint.mom}</strong></span>
               )}
               <span>
-                同比变化: <strong className="text-emerald-600 font-bold">{latestTrendPoint?.yoy} ↓</strong>
+                同比变化: <strong className="text-emerald-400 font-bold">{latestTrendPoint?.yoy} ↓</strong>
               </span>
             </div>
           </div>
@@ -1037,17 +1037,17 @@ export default function UnitOutputPage() {
         {isGroupLevel || isCompanyLevel ? (
           <div className="space-y-3.5">
             {/* 卡片网格 */}
-            <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-3">
+            <div className="p-4 bg-card rounded-xl border border-border shadow-xs space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <span className="w-1 h-3.5 bg-primary rounded-full" />
+                  <h3 className="text-xs font-bold text-foreground">
                     {isGroupLevel
                       ? '各经营单位单位产值能耗'
                       : '各项目公司单位产值能耗'}
                   </h3>
                 </div>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-muted-foreground font-mono">
                   {isGroupLevel ? '共 6 家经营单位' : `共 ${currentSubUnits.length} 家下属项目公司/车间`}
                 </span>
               </div>
@@ -1077,27 +1077,27 @@ export default function UnitOutputPage() {
                   return (
                     <div
                       key={r.id}
-                      className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-blue-300 transition-all space-y-2.5 shadow-2xs"
+                      className="p-3.5 rounded-xl border border-border bg-panel hover:bg-accent/30 transition-all space-y-2.5 shadow-2xs"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-xs font-sans text-slate-900 flex items-center gap-1.5">
-                          <span className="size-2 rounded-full bg-[#1677ff]" />
+                        <span className="font-bold text-xs font-sans text-foreground flex items-center gap-1.5">
+                          <span className="size-2 rounded-full bg-primary" />
                           {r.name}
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-200/60">
-                        <div className="p-2 rounded-lg bg-white border border-slate-100 space-y-0.5">
-                          <span className="text-[10px] text-slate-400 block font-sans truncate" title={activeValLabel}>
+                      <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-border/60">
+                        <div className="p-2 rounded-lg bg-card border border-border space-y-0.5">
+                          <span className="text-[10px] text-muted-foreground block font-sans truncate" title={activeValLabel}>
                             {activeValLabel}
                           </span>
-                          <strong className="text-[#1677ff] text-sm block truncate">{activeValDisplay}</strong>
-                          <span className="text-[10px] text-emerald-600 block font-bold">同比 {r.yoy} ↓</span>
+                          <strong className="text-primary text-sm block truncate">{activeValDisplay}</strong>
+                          <span className="text-[10px] text-emerald-400 block font-bold">同比 {r.yoy} ↓</span>
                         </div>
-                        <div className="p-2 rounded-lg bg-white border border-slate-100 space-y-0.5">
-                          <span className="text-[10px] text-slate-400 block font-sans">工业总产值</span>
-                          <strong className="text-slate-800 text-sm block">{r.outputBillion.toFixed(2)} 亿元</strong>
-                          <span className="text-[10px] text-slate-500 block font-sans truncate">
+                        <div className="p-2 rounded-lg bg-card border border-border space-y-0.5">
+                          <span className="text-[10px] text-muted-foreground block font-sans">工业总产值</span>
+                          <strong className="text-foreground text-sm block">{r.outputBillion.toFixed(2)} 亿元</strong>
+                          <span className="text-[10px] text-muted-foreground block font-sans truncate">
                             综合能耗: {r.energyTce.toLocaleString()} tce
                           </span>
                         </div>
@@ -1109,30 +1109,30 @@ export default function UnitOutputPage() {
             </div>
 
             {/* 明细表格 */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
-              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden flex flex-col">
+              <div className="p-3.5 border-b border-border flex items-center justify-between bg-panel">
                 <div className="flex items-center gap-2">
-                  <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <span className="w-1 h-3.5 bg-primary rounded-full" />
+                  <h3 className="text-xs font-bold text-foreground">
                     {isGroupLevel
                       ? '各经营单位产值综合能耗明细'
                       : '各项目公司产值综合能耗明细'}
                   </h3>
                 </div>
-                <span className="text-xs text-slate-400 font-mono">报告期：2026年08月</span>
+                <span className="text-xs text-muted-foreground font-mono">报告期：2026年08月</span>
               </div>
 
               <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
-                      <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 w-12 text-center">序号</th>
-                      <th className="py-2.5 px-3 sticky left-12 bg-slate-50 z-10 min-w-[140px]">
+                    <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none">
+                      <th className="py-2.5 px-3 sticky left-0 bg-panel z-10 w-12 text-center">序号</th>
+                      <th className="py-2.5 px-3 sticky left-12 bg-panel z-10 min-w-[140px]">
                         {isGroupLevel ? '经营单位' : '项目公司 / 制造车间'}
                       </th>
                       <th className="py-2.5 px-3 text-right">工业总产值 (亿元)</th>
                       <th className="py-2.5 px-3 text-right">综合能源消费 (tce)</th>
-                      <th className="py-2.5 px-3 text-right font-bold text-blue-700 bg-blue-50/40">
+                      <th className="py-2.5 px-3 text-right font-bold text-primary bg-primary/10">
                         万元产值综合能耗 (tce/万元)
                       </th>
                       <th className="py-2.5 px-3 text-right">万元产值电耗 (kWh/万元)</th>
@@ -1141,35 +1141,35 @@ export default function UnitOutputPage() {
                       <th className="py-2.5 px-3 text-center">同比</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
+                  <tbody className="divide-y divide-border/60 text-foreground font-mono text-[11.5px]">
                     {currentSubUnits.map((r, i) => (
-                      <tr key={r.id} className="hover:bg-blue-50/40 transition-colors">
-                        <td className="py-2.5 px-3 sticky left-0 bg-white font-sans text-slate-400 text-center">
+                      <tr key={r.id} className="hover:bg-accent/30 transition-colors">
+                        <td className="py-2.5 px-3 sticky left-0 bg-card font-sans text-muted-foreground text-center">
                           {String(i + 1).padStart(2, '0')}
                         </td>
-                        <td className="py-2.5 px-3 sticky left-12 bg-white font-sans font-bold text-slate-900">
+                        <td className="py-2.5 px-3 sticky left-12 bg-card font-sans font-bold text-foreground">
                           {r.name}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
+                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
                           {r.outputBillion.toFixed(2)}
                         </td>
                         <td className="py-2.5 px-3 text-right">
                           {r.energyTce.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-[#1677ff] bg-blue-50/30">
+                        <td className="py-2.5 px-3 text-right font-bold text-primary bg-primary/10">
                           {r.unitOutputTce.toFixed(4)}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-slate-700">
+                        <td className="py-2.5 px-3 text-right text-foreground">
                           {r.unitElec.toFixed(1)}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-slate-600">
+                        <td className="py-2.5 px-3 text-right text-muted-foreground">
                           {r.unitSteam ? r.unitSteam.toFixed(2) : '-'}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-slate-600">
+                        <td className="py-2.5 px-3 text-right text-muted-foreground">
                           {r.unitGas ? r.unitGas.toFixed(2) : '-'}
                         </td>
                         <td className="py-2.5 px-3 text-center">
-                          <span className="text-emerald-600 font-bold font-mono">
+                          <span className="text-emerald-400 font-bold font-mono">
                             {r.yoy} ↓
                           </span>
                         </td>
@@ -1182,23 +1182,23 @@ export default function UnitOutputPage() {
           </div>
         ) : (
           /* 项目公司 / 车间视角: 展示该项目公司的 12 个月历史明细台账 */
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
-            <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+          <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden flex flex-col">
+            <div className="p-3.5 border-b border-border flex items-center justify-between bg-panel">
               <div className="flex items-center gap-2">
-                <span className="w-1 h-3.5 bg-[#1677ff] rounded-full" />
-                <h3 className="text-xs font-bold text-slate-800">
+                <span className="w-1 h-3.5 bg-primary rounded-full" />
+                <h3 className="text-xs font-bold text-foreground">
                   万元产值能耗历史明细台账
                 </h3>
               </div>
-              <span className="text-xs text-slate-400 font-mono">近 12 个月月度连续监测</span>
+              <span className="text-xs text-muted-foreground font-mono">近 12 个月月度连续监测</span>
             </div>
 
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
-                    <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 w-24">时间月份</th>
-                    <th className="py-2.5 px-3 text-right font-bold text-blue-700 bg-blue-50/40">
+                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none">
+                    <th className="py-2.5 px-3 sticky left-0 bg-panel z-10 w-24">时间月份</th>
+                    <th className="py-2.5 px-3 text-right font-bold text-primary bg-primary/10">
                       万元产值综合能耗 (tce/万元)
                     </th>
                     <th className="py-2.5 px-3 text-right">万元产值电耗 (kWh/万元)</th>
@@ -1209,7 +1209,7 @@ export default function UnitOutputPage() {
                     <th className="py-2.5 px-3 text-center">同比</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
+                <tbody className="divide-y divide-border/60 text-foreground font-mono text-[11.5px]">
                   {[...METRICS_TREND_DATABASE.tce['12months']].reverse().map((tceItem, idx) => {
                     const elecItem = METRICS_TREND_DATABASE.elec['12months'][11 - idx]
                     const steamItem = METRICS_TREND_DATABASE.steam['12months'][11 - idx]
@@ -1217,32 +1217,32 @@ export default function UnitOutputPage() {
                     const waterItem = METRICS_TREND_DATABASE.water['12months'][11 - idx]
 
                     return (
-                      <tr key={tceItem.period} className="hover:bg-blue-50/40 transition-colors">
-                        <td className="py-2.5 px-3 sticky left-0 bg-white font-sans font-bold text-slate-900">
+                      <tr key={tceItem.period} className="hover:bg-accent/30 transition-colors">
+                        <td className="py-2.5 px-3 sticky left-0 bg-card font-sans font-bold text-foreground">
                           {tceItem.period === '26-08' ? '2026年08月' : `20${tceItem.period.replace('-', '年')}月`}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-[#1677ff] bg-blue-50/30">
+                        <td className="py-2.5 px-3 text-right font-bold text-primary bg-primary/10">
                           {tceItem.value.toFixed(4)}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-slate-800">
+                        <td className="py-2.5 px-3 text-right text-foreground">
                           {elecItem?.value.toFixed(1)}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-slate-600">
+                        <td className="py-2.5 px-3 text-right text-muted-foreground">
                           {steamItem?.value.toFixed(2)}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-slate-600">
+                        <td className="py-2.5 px-3 text-right text-muted-foreground">
                           {gasItem?.value.toFixed(2)}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-slate-600">
+                        <td className="py-2.5 px-3 text-right text-muted-foreground">
                           {waterItem?.value.toFixed(1)}
                         </td>
                         <td className="py-2.5 px-3 text-center">
-                          <span className={cn('font-bold', tceItem.mom?.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
+                          <span className={cn('font-bold', tceItem.mom?.startsWith('+') ? 'text-amber-400' : 'text-emerald-400')}>
                             {tceItem.mom}
                           </span>
                         </td>
                         <td className="py-2.5 px-3 text-center">
-                          <span className="text-emerald-600 font-bold">
+                          <span className="text-emerald-400 font-bold">
                             {tceItem.yoy} ↓
                           </span>
                         </td>

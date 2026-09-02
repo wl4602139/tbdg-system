@@ -499,23 +499,23 @@ export default function UsageMonitoringPage() {
   return (
     <div className="flex gap-3.5 items-start">
       {/* 🌟 左侧 270px 组织拓扑树 (支持企业制造工厂 / 零碳园区) */}
-      <aside className="w-[270px] min-w-[270px] max-w-[270px] shrink-0 sticky top-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-84px)] overflow-hidden">
+      <aside className="w-[270px] min-w-[270px] max-w-[270px] shrink-0 sticky top-0 bg-card rounded-xl border border-border shadow-xs flex flex-col h-[calc(100vh-84px)] overflow-hidden">
         {/* 顶部企业工厂 / 零碳园区 视角切换 Tab */}
-        <div className="p-2.5 border-b border-slate-100 bg-slate-50/70 shrink-0 space-y-2">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+        <div className="p-2.5 border-b border-border/60 bg-panel/60 shrink-0 space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-foreground">
             <span className="flex items-center gap-1.5">
-              <Building2 className="size-4 text-[#1677ff]" />
+              <Building2 className="size-4 text-primary" />
               监测对象拓扑选择
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-1 bg-slate-200/80 p-0.5 rounded-lg text-xs font-medium">
+          <div className="grid grid-cols-2 gap-1 bg-panel p-0.5 rounded-lg text-xs font-medium border border-border">
             <button
               type="button"
               onClick={() => setTreeType('enterprise')}
               className={cn(
                 'py-1 rounded-md transition-all cursor-pointer text-center select-none',
-                treeType === 'enterprise' ? 'bg-white text-[#1677ff] font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                treeType === 'enterprise' ? 'bg-primary text-primary-foreground font-bold shadow-xs' : 'text-muted-foreground hover:text-foreground'
               )}
             >
               组织
@@ -525,7 +525,7 @@ export default function UsageMonitoringPage() {
               onClick={() => setTreeType('park')}
               className={cn(
                 'py-1 rounded-md transition-all cursor-pointer text-center select-none',
-                treeType === 'park' ? 'bg-white text-emerald-600 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                treeType === 'park' ? 'bg-primary text-primary-foreground font-bold shadow-xs' : 'text-muted-foreground hover:text-foreground'
               )}
             >
               园区
@@ -567,25 +567,25 @@ export default function UsageMonitoringPage() {
             className={cn(
               'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
               selectedMediumView === 'all_elec'
-                ? 'bg-blue-50/80 border-blue-500 ring-2 ring-blue-400/40 shadow-sm'
-                : 'bg-white border-slate-200 hover:border-blue-300'
+                ? 'bg-primary/20 border-primary ring-2 ring-primary/40 shadow-sm'
+                : 'bg-card border-border hover:border-primary/40'
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-blue-900 flex items-center gap-1">
-                <Zap className="size-3 text-[#1677ff]" />
+              <span className="text-[11px] font-bold text-primary flex items-center gap-1">
+                <Zap className="size-3 text-primary" />
                 总用电量
               </span>
               {selectedMediumView === 'all_elec' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-100 text-[#1677ff] font-bold">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-primary/20 text-primary font-bold">
                   图表联动中
                 </span>
               )}
             </div>
-            <div className="text-base font-extrabold font-mono text-[#1677ff] truncate">
-              {(aggregatedMetrics.totalElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-slate-400 font-sans">万kWh</span>
+            <div className="text-base font-extrabold font-mono text-primary truncate">
+              {(aggregatedMetrics.totalElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-muted-foreground font-sans">万kWh</span>
             </div>
-            <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-0.5 font-mono">
+            <div className="text-[10px] text-muted-foreground border-t border-border/60 pt-0.5 font-mono">
               日均: {((aggregatedMetrics.totalElec / (dailyTimeSeriesData.length || 1)) / 10000).toFixed(2)}万
             </div>
           </div>
@@ -599,25 +599,25 @@ export default function UsageMonitoringPage() {
             className={cn(
               'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
               selectedMediumView === 'grid_elec'
-                ? 'bg-amber-50/80 border-amber-500 ring-2 ring-amber-400/40 shadow-sm'
-                : 'bg-white border-slate-200 hover:border-amber-300'
+                ? 'bg-amber-500/20 border-amber-500 ring-2 ring-amber-400/40 shadow-sm'
+                : 'bg-card border-border hover:border-amber-400/40'
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
-                <Building2 className="size-3 text-amber-600" />
+              <span className="text-[11px] font-bold text-foreground flex items-center gap-1">
+                <Building2 className="size-3 text-amber-400" />
                 市电量 (外购)
               </span>
               {selectedMediumView === 'grid_elec' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-100 text-amber-700 font-bold">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-bold">
                   图表联动中
                 </span>
               )}
             </div>
-            <div className="text-base font-extrabold font-mono text-amber-600 truncate">
-              {(aggregatedMetrics.gridElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-slate-400 font-sans">万kWh</span>
+            <div className="text-base font-extrabold font-mono text-amber-400 truncate">
+              {(aggregatedMetrics.gridElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-muted-foreground font-sans">万kWh</span>
             </div>
-            <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-0.5 font-mono">
+            <div className="text-[10px] text-muted-foreground border-t border-border/60 pt-0.5 font-mono">
               占比: {((aggregatedMetrics.gridElec / aggregatedMetrics.totalElec) * 100).toFixed(1)}%
             </div>
           </div>
@@ -631,25 +631,25 @@ export default function UsageMonitoringPage() {
             className={cn(
               'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
               selectedMediumView === 'solar_elec'
-                ? 'bg-emerald-50/90 border-emerald-500 ring-2 ring-emerald-400/40 shadow-sm'
-                : 'bg-gradient-to-br from-emerald-50/40 via-white to-white border-emerald-200/80 hover:border-emerald-400'
+                ? 'bg-emerald-500/20 border-emerald-500 ring-2 ring-emerald-400/40 shadow-sm'
+                : 'bg-card border-border hover:border-emerald-400/40'
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-emerald-900 flex items-center gap-1">
-                <Sun className="size-3 text-emerald-600" />
+              <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
+                <Sun className="size-3 text-emerald-400" />
                 直供绿电量
               </span>
               {selectedMediumView === 'solar_elec' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 font-bold">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold">
                   图表联动中
                 </span>
               )}
             </div>
-            <div className="text-base font-extrabold font-mono text-emerald-600 truncate">
-              {(aggregatedMetrics.solarElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-slate-400 font-sans">万kWh</span>
+            <div className="text-base font-extrabold font-mono text-emerald-400 truncate">
+              {(aggregatedMetrics.solarElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-muted-foreground font-sans">万kWh</span>
             </div>
-            <div className="text-[10px] text-emerald-700 border-t border-emerald-100 pt-0.5 font-mono font-bold">
+            <div className="text-[10px] text-emerald-400 border-t border-border/60 pt-0.5 font-mono font-bold">
               消纳率: {aggregatedMetrics.greenElecRatio}%
             </div>
           </div>
@@ -660,25 +660,25 @@ export default function UsageMonitoringPage() {
             className={cn(
               'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
               selectedMediumView === 'water'
-                ? 'bg-cyan-50/80 border-cyan-500 ring-2 ring-cyan-400/40 shadow-sm'
-                : 'bg-white border-slate-200 hover:border-cyan-300'
+                ? 'bg-cyan-500/20 border-cyan-500 ring-2 ring-cyan-400/40 shadow-sm'
+                : 'bg-card border-border hover:border-cyan-400/40'
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
-                <Droplets className="size-3 text-cyan-500" />
+              <span className="text-[11px] font-bold text-foreground flex items-center gap-1">
+                <Droplets className="size-3 text-cyan-400" />
                 水资源消耗量
               </span>
               {selectedMediumView === 'water' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-700 font-bold">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-400 font-bold">
                   图表联动中
                 </span>
               )}
             </div>
-            <div className="text-base font-extrabold font-mono text-cyan-600 truncate">
-              {aggregatedMetrics.water.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">m³</span>
+            <div className="text-base font-extrabold font-mono text-cyan-400 truncate">
+              {aggregatedMetrics.water.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground font-sans">m³</span>
             </div>
-            <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-0.5 font-mono">
+            <div className="text-[10px] text-muted-foreground border-t border-border/60 pt-0.5 font-mono">
               日均: {Math.round(aggregatedMetrics.water / (dailyTimeSeriesData.length || 1))}m³
             </div>
           </div>
@@ -689,25 +689,25 @@ export default function UsageMonitoringPage() {
             className={cn(
               'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
               selectedMediumView === 'gas'
-                ? 'bg-amber-50/80 border-amber-500 ring-2 ring-amber-400/40 shadow-sm'
-                : 'bg-white border-slate-200 hover:border-amber-300'
+                ? 'bg-amber-500/20 border-amber-500 ring-2 ring-amber-400/40 shadow-sm'
+                : 'bg-card border-border hover:border-amber-400/40'
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
-                <Flame className="size-3 text-amber-500" />
+              <span className="text-[11px] font-bold text-foreground flex items-center gap-1">
+                <Flame className="size-3 text-amber-400" />
                 天然气量
               </span>
               {selectedMediumView === 'gas' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-100 text-amber-700 font-bold">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-bold">
                   图表联动中
                 </span>
               )}
             </div>
-            <div className="text-base font-extrabold font-mono text-amber-600 truncate">
-              {aggregatedMetrics.gas.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">m³</span>
+            <div className="text-base font-extrabold font-mono text-amber-400 truncate">
+              {aggregatedMetrics.gas.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground font-sans">m³</span>
             </div>
-            <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-0.5 font-mono">
+            <div className="text-[10px] text-muted-foreground border-t border-border/60 pt-0.5 font-mono">
               折标煤: {((aggregatedMetrics.gas * 1.2143) / 1000).toFixed(1)} tce
             </div>
           </div>
@@ -718,25 +718,25 @@ export default function UsageMonitoringPage() {
             className={cn(
               'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
               selectedMediumView === 'steam'
-                ? 'bg-purple-50/80 border-purple-500 ring-2 ring-purple-400/40 shadow-sm'
-                : 'bg-white border-slate-200 hover:border-purple-300'
+                ? 'bg-purple-500/20 border-purple-500 ring-2 ring-purple-400/40 shadow-sm'
+                : 'bg-card border-border hover:border-purple-400/40'
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
-                <Wind className="size-3 text-purple-500" />
+              <span className="text-[11px] font-bold text-foreground flex items-center gap-1">
+                <Wind className="size-3 text-purple-400" />
                 外购蒸汽量
               </span>
               {selectedMediumView === 'steam' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 font-bold">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-400 font-bold">
                   图表联动中
                 </span>
               )}
             </div>
-            <div className="text-base font-extrabold font-mono text-purple-600 truncate">
-              {aggregatedMetrics.steam.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">t</span>
+            <div className="text-base font-extrabold font-mono text-purple-400 truncate">
+              {aggregatedMetrics.steam.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground font-sans">t</span>
             </div>
-            <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-0.5 font-mono">
+            <div className="text-[10px] text-muted-foreground border-t border-border/60 pt-0.5 font-mono">
               热力: {(aggregatedMetrics.steam * 2.75).toFixed(1)} GJ
             </div>
           </div>
@@ -747,25 +747,25 @@ export default function UsageMonitoringPage() {
             className={cn(
               'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
               selectedMediumView === 'oil'
-                ? 'bg-rose-50/80 border-rose-500 ring-2 ring-rose-400/40 shadow-sm'
-                : 'bg-white border-slate-200 hover:border-rose-300'
+                ? 'bg-rose-500/20 border-rose-500 ring-2 ring-rose-400/40 shadow-sm'
+                : 'bg-card border-border hover:border-rose-400/40'
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
-                <Fuel className="size-3 text-rose-500" />
+              <span className="text-[11px] font-bold text-foreground flex items-center gap-1">
+                <Fuel className="size-3 text-rose-400" />
                 油消耗量
               </span>
               {selectedMediumView === 'oil' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 font-bold">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-400 font-bold">
                   图表联动中
                 </span>
               )}
             </div>
-            <div className="text-base font-extrabold font-mono text-rose-600 truncate">
-              {aggregatedMetrics.oil.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">L</span>
+            <div className="text-base font-extrabold font-mono text-rose-400 truncate">
+              {aggregatedMetrics.oil.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground font-sans">L</span>
             </div>
-            <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-0.5 font-mono">
+            <div className="text-[10px] text-muted-foreground border-t border-border/60 pt-0.5 font-mono">
               车辆与动力
             </div>
           </div>
@@ -776,41 +776,39 @@ export default function UsageMonitoringPage() {
             className={cn(
               'p-3 rounded-xl border shadow-xs space-y-1 transition-all cursor-pointer select-none hover:scale-[1.015]',
               selectedMediumView === 'nitrogen'
-                ? 'bg-indigo-50/80 border-indigo-500 ring-2 ring-indigo-400/40 shadow-sm'
-                : 'bg-white border-slate-200 hover:border-indigo-300'
+                ? 'bg-indigo-500/20 border-indigo-500 ring-2 ring-indigo-400/40 shadow-sm'
+                : 'bg-card border-border hover:border-indigo-400/40'
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
-                <Snowflake className="size-3 text-indigo-500" />
+              <span className="text-[11px] font-bold text-foreground flex items-center gap-1">
+                <Snowflake className="size-3 text-indigo-400" />
                 液氮消耗量
               </span>
               {selectedMediumView === 'nitrogen' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 font-bold">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-400 font-bold">
                   图表联动中
                 </span>
               )}
             </div>
-            <div className="text-base font-extrabold font-mono text-indigo-600 truncate">
-              {aggregatedMetrics.nitrogen.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">t</span>
+            <div className="text-base font-extrabold font-mono text-indigo-400 truncate">
+              {aggregatedMetrics.nitrogen.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground font-sans">t</span>
             </div>
-            <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-0.5 font-mono">
+            <div className="text-[10px] text-muted-foreground border-t border-border/60 pt-0.5 font-mono">
               干燥与惰化
             </div>
           </div>
         </div>
 
         {/* 🌟 4. 核心时序曲线：选择几月到几月查看曲线 (月数据，按日更新) */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-[#1677ff]" />
-              <h3 className="text-xs font-bold text-slate-900">
+              <span className="size-2 rounded-full bg-primary" />
+              <h3 className="text-xs font-bold text-foreground">
                 能耗时序曲线
               </h3>
             </div>
-
-
           </div>
 
           {/* 动态折线曲线 */}
@@ -922,13 +920,13 @@ export default function UsageMonitoringPage() {
         </div>
 
         {/* 🌟 5. 【核心增强】用电峰平谷监测 (总用电量 / 市电量，月度总体 + 可分解到日) */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-amber-500" />
-              <h3 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+              <span className="size-2 rounded-full bg-amber-400" />
+              <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
                 <span>用电峰平谷时段负荷与结构监测</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 font-bold">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold">
                   TOU 分时电量
                 </span>
               </h3>
@@ -937,13 +935,13 @@ export default function UsageMonitoringPage() {
             {/* 峰平谷控制栏：1. 监测对象 (总用电量 vs 市电量) | 2. 细化分解月份选择 */}
             <div className="flex flex-wrap items-center gap-3">
               {/* 1. 总用电量 vs 市电量切换 */}
-              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 font-sans text-xs font-medium">
+              <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border font-sans text-xs font-medium">
                 <button
                   type="button"
                   onClick={() => setTouTarget('total')}
                   className={cn(
                     'px-3 py-1 rounded-md transition-all cursor-pointer select-none',
-                    touTarget === 'total' ? 'bg-white text-[#1677ff] font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    touTarget === 'total' ? 'bg-primary text-primary-foreground font-bold shadow-xs' : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
                   ⚡ 总用电量 峰平谷
@@ -953,7 +951,7 @@ export default function UsageMonitoringPage() {
                   onClick={() => setTouTarget('grid')}
                   className={cn(
                     'px-3 py-1 rounded-md transition-all cursor-pointer select-none',
-                    touTarget === 'grid' ? 'bg-white text-amber-600 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                    touTarget === 'grid' ? 'bg-primary text-primary-foreground font-bold shadow-xs' : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
                   🏢 市电量 峰平谷
@@ -961,14 +959,14 @@ export default function UsageMonitoringPage() {
               </div>
 
               {/* 2. 分解到日月份选择 */}
-              <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200 text-xs font-mono">
-                <Calendar className="size-3 text-slate-400" />
-                <span className="text-slate-600 font-sans text-[11px]">分解月份:</span>
+              <div className="flex items-center gap-1.5 bg-panel px-2 py-1 rounded-lg border border-border text-xs font-mono">
+                <Calendar className="size-3 text-muted-foreground" />
+                <span className="text-muted-foreground font-sans text-[11px]">分解月份:</span>
                 <input
                   type="month"
                   value={touDecomposeMonth}
                   onChange={(e) => setTouDecomposeMonth(e.target.value)}
-                  className="bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-800 font-bold focus:outline-none cursor-pointer"
+                  className="bg-panel border border-border rounded px-1.5 py-0.5 text-foreground font-bold focus:outline-none cursor-pointer"
                 />
               </div>
             </div>
@@ -976,13 +974,13 @@ export default function UsageMonitoringPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
             {/* 左侧 4/12: 月度总体峰平谷分布 (Donut + 4 段卡片) */}
-            <div className="lg:col-span-4 flex flex-col justify-between space-y-2 border-r border-slate-100 pr-3">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+            <div className="lg:col-span-4 flex flex-col justify-between space-y-2 border-r border-border/60 pr-3">
+              <div className="flex items-center justify-between text-xs font-bold text-foreground">
                 <span className="flex items-center gap-1">
-                  <PieIcon className="size-3.5 text-[#1677ff]" />
+                  <PieIcon className="size-3.5 text-primary" />
                   {touDecomposeMonth} 月度总体峰平谷构成
                 </span>
-                <span className="text-xs font-mono text-[#1677ff] font-bold">
+                <span className="text-xs font-mono text-primary font-bold">
                   {touCalculations.baseMonthElec.toLocaleString()} 万kWh
                 </span>
               </div>
@@ -990,36 +988,36 @@ export default function UsageMonitoringPage() {
               <Donut data={touCalculations.monthDonutData} height={165} unit="万kWh" />
 
               <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono pt-1">
-                <div className="p-1.5 rounded bg-rose-50/80 border border-rose-100 text-rose-900">
-                  <div className="flex justify-between items-center text-[10px] text-rose-700 font-sans">
+                <div className="p-1.5 rounded bg-panel border border-border text-foreground">
+                  <div className="flex justify-between items-center text-[10px] text-rose-400 font-sans">
                     <span>尖峰</span>
                     <strong className="font-mono">16.4%</strong>
                   </div>
-                  <div className="text-xs font-bold font-mono">{touCalculations.monthTip} 万kWh</div>
+                  <div className="text-xs font-bold font-mono text-rose-400">{touCalculations.monthTip} 万kWh</div>
                 </div>
 
-                <div className="p-1.5 rounded bg-amber-50/80 border border-amber-100 text-amber-900">
-                  <div className="flex justify-between items-center text-[10px] text-amber-700 font-sans">
+                <div className="p-1.5 rounded bg-panel border border-border text-foreground">
+                  <div className="flex justify-between items-center text-[10px] text-amber-400 font-sans">
                     <span>高峰</span>
                     <strong className="font-mono">41.1%</strong>
                   </div>
-                  <div className="text-xs font-bold font-mono">{touCalculations.monthPeak} 万kWh</div>
+                  <div className="text-xs font-bold font-mono text-amber-400">{touCalculations.monthPeak} 万kWh</div>
                 </div>
 
-                <div className="p-1.5 rounded bg-blue-50/80 border border-blue-100 text-blue-900">
-                  <div className="flex justify-between items-center text-[10px] text-blue-700 font-sans">
+                <div className="p-1.5 rounded bg-panel border border-border text-foreground">
+                  <div className="flex justify-between items-center text-[10px] text-primary font-sans">
                     <span>平段</span>
                     <strong className="font-mono">28.9%</strong>
                   </div>
-                  <div className="text-xs font-bold font-mono">{touCalculations.monthFlat} 万kWh</div>
+                  <div className="text-xs font-bold font-mono text-primary">{touCalculations.monthFlat} 万kWh</div>
                 </div>
 
-                <div className="p-1.5 rounded bg-emerald-50/80 border border-emerald-100 text-emerald-900">
-                  <div className="flex justify-between items-center text-[10px] text-emerald-700 font-sans">
+                <div className="p-1.5 rounded bg-panel border border-border text-foreground">
+                  <div className="flex justify-between items-center text-[10px] text-emerald-400 font-sans">
                     <span>低谷</span>
                     <strong className="font-mono">13.6%</strong>
                   </div>
-                  <div className="text-xs font-bold font-mono">{touCalculations.monthValley} 万kWh</div>
+                  <div className="text-xs font-bold font-mono text-emerald-400">{touCalculations.monthValley} 万kWh</div>
                 </div>
               </div>
             </div>
@@ -1027,11 +1025,11 @@ export default function UsageMonitoringPage() {
             {/* 右侧 8/12: 可分解到日（分日堆叠柱状图） */}
             <div className="lg:col-span-8 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                  <BarChart3 className="size-3.5 text-amber-600" />
+                <span className="font-bold text-foreground flex items-center gap-1.5">
+                  <BarChart3 className="size-3.5 text-amber-400" />
                   {touDecomposeMonth} 分解到日峰平谷用电量连续堆叠分布 (万kWh/日)
                 </span>
-                <span className="text-[11px] text-slate-400 font-mono">
+                <span className="text-[11px] text-muted-foreground font-mono">
                   尖/峰/平/谷 分时连续采集
                 </span>
               </div>
@@ -1044,8 +1042,8 @@ export default function UsageMonitoringPage() {
                   yUnit="万kWh"
                   stacked={true}
                   bars={[
-                    { key: '谷段', name: '低谷电量', color: '#52c41a' },
-                    { key: '平段', name: '平段电量', color: '#1677ff' },
+                    { key: '谷段', name: '低谷电量', color: '#10b981' },
+                    { key: '平段', name: '平段电量', color: 'oklch(0.72 0.18 210)' },
                     { key: '峰段', name: '高峰电量', color: '#fa8c16' },
                     { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
                   ]}
@@ -1055,57 +1053,55 @@ export default function UsageMonitoringPage() {
           </div>
         </div>
 
-
-
         {/* 7. 底部数据明细：按日更新明细台账表格 (支持导出) */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/80 gap-2">
+        <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+          <div className="p-3.5 border-b border-border/60 flex flex-wrap items-center justify-between bg-panel/60 gap-2">
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-blue-500" />
-              <h3 className="text-xs font-bold text-slate-800">
+              <span className="size-2 rounded-full bg-primary" />
+              <h3 className="text-xs font-bold text-foreground">
                 8 大能源介质按日连续更新明细台账
               </h3>
             </div>
 
             <button
               type="button"
-              onClick={() => alert(`正在导出【${activeData.name}】${startMonth}至${endMonth}按日能耗明细台账 (Excel)...`)}
-              className="flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer shadow-2xs text-xs"
+              onClick={() => alert(`正在导出【${activeData.name}】按日能耗明细台账 (Excel)...`)}
+              className="flex items-center gap-1 px-2.5 py-1 rounded bg-panel border border-border text-foreground font-medium hover:bg-accent/40 cursor-pointer shadow-2xs text-xs"
             >
-              <Download className="size-3.5 text-slate-500" />
+              <Download className="size-3.5 text-muted-foreground" />
               <span>导出台账数据</span>
             </button>
           </div>
 
           <div className="overflow-x-auto max-h-[380px] custom-scrollbar">
             <table className="w-full text-left text-xs border-collapse font-mono">
-              <thead className="sticky top-0 bg-slate-100 z-10">
-                <tr className="border-b border-slate-200 text-slate-700 font-semibold font-sans">
+              <thead className="sticky top-0 bg-panel z-10">
+                <tr className="border-b border-border text-muted-foreground font-semibold font-sans">
                   <th className="py-2.5 px-3">日期 / 账期</th>
-                  <th className="py-2.5 px-3 text-[#1677ff] font-bold">总用电量 (万kWh)</th>
-                  <th className="py-2.5 px-3 text-slate-700">市电量 (万kWh)</th>
-                  <th className="py-2.5 px-3 text-emerald-600 font-bold">直供绿电量 (万kWh)</th>
-                  <th className="py-2.5 px-3 text-cyan-600">用水量 (m³)</th>
-                  <th className="py-2.5 px-3 text-amber-600">天然气量 (m³)</th>
-                  <th className="py-2.5 px-3 text-purple-600">外购蒸汽量 (t)</th>
-                  <th className="py-2.5 px-3 text-rose-600">油消耗量 (L)</th>
-                  <th className="py-2.5 px-3 text-indigo-600">液氮消耗量 (t)</th>
-                  <th className="py-2.5 px-3 text-emerald-800 font-bold">综合能耗 (tce)</th>
+                  <th className="py-2.5 px-3 text-primary font-bold">总用电量 (万kWh)</th>
+                  <th className="py-2.5 px-3 text-foreground">市电量 (万kWh)</th>
+                  <th className="py-2.5 px-3 text-emerald-400 font-bold">直供绿电量 (万kWh)</th>
+                  <th className="py-2.5 px-3 text-cyan-400">用水量 (m³)</th>
+                  <th className="py-2.5 px-3 text-amber-400">天然气量 (m³)</th>
+                  <th className="py-2.5 px-3 text-purple-400">外购蒸汽量 (t)</th>
+                  <th className="py-2.5 px-3 text-rose-400">油消耗量 (L)</th>
+                  <th className="py-2.5 px-3 text-indigo-400">液氮消耗量 (t)</th>
+                  <th className="py-2.5 px-3 text-emerald-400 font-bold">综合能耗 (tce)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-border/60 text-foreground">
                 {[...dailyTimeSeriesData].reverse().map((row, idx) => (
-                  <tr key={idx} className="hover:bg-blue-50/40 transition-colors">
-                    <td className="py-2 px-3 font-semibold text-slate-900 font-sans">{row.date}</td>
-                    <td className="py-2 px-3 font-bold text-[#1677ff]">{row.总用电量.toFixed(2)}</td>
-                    <td className="py-2 px-3 text-slate-700">{row.市电量.toFixed(2)}</td>
-                    <td className="py-2 px-3 font-bold text-emerald-600">{row.直供绿电量.toFixed(2)}</td>
-                    <td className="py-2 px-3 text-cyan-700">{row.用水量.toLocaleString()}</td>
-                    <td className="py-2 px-3 text-amber-700">{row.天然气量.toLocaleString()}</td>
-                    <td className="py-2 px-3 text-purple-700">{row.外购蒸汽量.toFixed(1)}</td>
-                    <td className="py-2 px-3 text-rose-700">{row.油消耗量.toFixed(1)}</td>
-                    <td className="py-2 px-3 text-indigo-700">{row.液氮消耗量.toFixed(2)}</td>
-                    <td className="py-2 px-3 font-extrabold text-emerald-700">{row.综合能耗.toFixed(1)}</td>
+                  <tr key={idx} className="hover:bg-accent/30 transition-colors">
+                    <td className="py-2 px-3 font-semibold text-foreground font-sans">{row.date}</td>
+                    <td className="py-2 px-3 font-bold text-primary">{row.总用电量.toFixed(2)}</td>
+                    <td className="py-2 px-3 text-foreground">{row.市电量.toFixed(2)}</td>
+                    <td className="py-2 px-3 font-bold text-emerald-400">{row.直供绿电量.toFixed(2)}</td>
+                    <td className="py-2 px-3 text-cyan-400">{row.用水量.toLocaleString()}</td>
+                    <td className="py-2 px-3 text-amber-400">{row.天然气量.toLocaleString()}</td>
+                    <td className="py-2 px-3 text-purple-400">{row.外购蒸汽量.toFixed(1)}</td>
+                    <td className="py-2 px-3 text-rose-400">{row.油消耗量.toFixed(1)}</td>
+                    <td className="py-2 px-3 text-indigo-400">{row.液氮消耗量.toFixed(2)}</td>
+                    <td className="py-2 px-3 font-extrabold text-emerald-400">{row.综合能耗.toFixed(1)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -533,23 +533,23 @@ export default function FactorPage() {
   }
 
   return (
-    <div className="space-y-4 font-sans text-slate-800">
+    <div className="space-y-4 font-sans text-foreground">
       
       {/* 顶部 Header */}
-      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <Settings2 className="size-5" />
             </div>
-            <h1 className="text-base font-bold text-slate-800">碳排因子</h1>
+            <h1 className="text-base font-bold text-foreground">碳排因子</h1>
           </div>
       </div>
 
       {/* 🌟 2. 核心主控制区 (三大独立维护 Tab) */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
         
         {/* Tab 顶栏 */}
-        <div className="px-4 pt-3 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/70 gap-2">
+        <div className="px-4 pt-3 border-b border-border flex flex-wrap items-center justify-between bg-panel gap-2">
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => {
@@ -559,13 +559,13 @@ export default function FactorPage() {
               className={cn(
                 'flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer',
                 activeTab === 'power_provincial'
-                  ? 'border-[#1677ff] text-[#1677ff] bg-white rounded-t-lg shadow-2xs'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  ? 'border-primary text-primary bg-card rounded-t-lg shadow-2xs'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
               )}
             >
-              <Zap className="size-4 text-blue-600" />
+              <Zap className="size-4 text-primary" />
               <span>电力因子单独维护 (省级电网)</span>
-              <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-blue-100 text-blue-700 font-mono">
+              <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-primary/20 text-primary font-mono">
                 {PROVINCIAL_POWER_FACTORS.length}
               </span>
             </button>
@@ -578,13 +578,13 @@ export default function FactorPage() {
               className={cn(
                 'flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer',
                 activeTab === 'energy_carbon'
-                  ? 'border-[#1677ff] text-[#1677ff] bg-white rounded-t-lg shadow-2xs'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  ? 'border-primary text-primary bg-card rounded-t-lg shadow-2xs'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
               )}
             >
-              <Flame className="size-4 text-emerald-600" />
+              <Flame className="size-4 text-emerald-400" />
               <span>化石与热力能源碳排放因子</span>
-              <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-700 font-mono">
+              <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 font-mono">
                 {ENERGY_EMISSION_FACTORS.length}
               </span>
             </button>
@@ -597,13 +597,13 @@ export default function FactorPage() {
               className={cn(
                 'flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer',
                 activeTab === 'standard_coal'
-                  ? 'border-[#1677ff] text-[#1677ff] bg-white rounded-t-lg shadow-2xs'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  ? 'border-primary text-primary bg-card rounded-t-lg shadow-2xs'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
               )}
             >
-              <Scale className="size-4 text-amber-600" />
+              <Scale className="size-4 text-amber-400" />
               <span>能源折标准煤系数库 (GB/T 2589)</span>
-              <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-700 font-mono">
+              <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500/20 text-amber-400 font-mono">
                 {STANDARD_COAL_FACTORS.length}
               </span>
             </button>
@@ -612,9 +612,9 @@ export default function FactorPage() {
           <div className="flex items-center gap-2 pb-2">
             <button
               onClick={() => alert('已打开批量导入向导，支持上传生态环境部最新公告 Excel/CSV 因子底稿')}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-panel hover:bg-accent/40 text-xs font-semibold text-foreground transition-colors cursor-pointer"
             >
-              <FileSpreadsheet className="size-3.5 text-slate-500" />
+              <FileSpreadsheet className="size-3.5 text-muted-foreground" />
               <span>批量导入</span>
             </button>
             <button
@@ -627,7 +627,7 @@ export default function FactorPage() {
                 })
                 setEditVal('0.5500')
               }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-xs font-semibold text-white shadow-2xs transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-xs font-semibold text-primary-foreground shadow-2xs transition-colors cursor-pointer"
             >
               <Plus className="size-3.5" />
               <span>新增因子</span>
@@ -641,14 +641,14 @@ export default function FactorPage() {
         {activeTab === 'power_provincial' && (
           <div className="p-4 space-y-3.5">
             {/* 提示 Banner */}
-            <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2 text-blue-900">
-                <Info className="size-4 text-[#1677ff] shrink-0" />
+            <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2 text-foreground">
+                <Info className="size-4 text-primary shrink-0" />
                 <span>
                   <strong>电力因子省级独立维护规范</strong>：企业组织碳排放核算与产品碳足迹（Scope 2）优先匹配<strong>各工厂所在省份电网平均二氧化碳排放因子</strong>；市场化交易绿电按 0.0000 tCO2/MWh 计算。
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-blue-700 bg-white px-2 py-0.5 rounded border border-blue-200">
+              <span className="text-[11px] font-mono text-primary bg-panel px-2 py-0.5 rounded border border-primary/30">
                 最新执行版次：v2025.1 (生态环境部公告)
               </span>
             </div>
@@ -656,7 +656,7 @@ export default function FactorPage() {
             {/* 搜索与区域过滤 */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-xs text-slate-500 mr-1 flex items-center gap-1">
+                <span className="text-xs text-muted-foreground mr-1 flex items-center gap-1">
                   <Filter className="size-3.5" /> 大区电网：
                 </span>
                 {['all', '全国', '西北', '东北', '华中', '华东', '西南', '华北', '南方'].map((reg) => (
@@ -666,8 +666,8 @@ export default function FactorPage() {
                     className={cn(
                       'px-2.5 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer',
                       selectedRegion === reg
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-panel text-muted-foreground hover:text-foreground border border-border'
                     )}
                   >
                     {reg === 'all' ? '全部省份 (31)' : reg}
@@ -676,22 +676,22 @@ export default function FactorPage() {
               </div>
 
               <div className="relative w-64">
-                <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   placeholder="搜索省份 / 园区 / 依据出处..."
-                  className="w-full pl-8 pr-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1677ff]"
+                  className="w-full pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
 
             {/* 省级电力因子表格 */}
-            <div className="overflow-x-auto rounded-lg border border-slate-200">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-left text-xs border-collapse font-mono">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
+                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
                     <th className="py-2.5 px-3">省份 / 区域电网</th>
                     <th className="py-2.5 px-3">大区归属</th>
                     <th className="py-2.5 px-3 font-mono">综合电力碳排因子 (tCO2/MWh)</th>
@@ -700,27 +700,27 @@ export default function FactorPage() {
                     <th className="py-2.5 px-3 text-center">操作</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-border/60 text-foreground">
                   {filteredPowerFactors.map((row) => (
-                    <tr key={row.id} className="hover:bg-blue-50/40 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900 flex items-center gap-1.5">
-                        <MapPin className="size-3.5 text-blue-500" />
+                    <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                      <td className="py-2.5 px-3 font-sans font-bold text-foreground flex items-center gap-1.5">
+                        <MapPin className="size-3.5 text-primary" />
                         <span>{row.province}</span>
                       </td>
                       <td className="py-2.5 px-3 font-sans">
-                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10.5px]">
+                        <span className="px-2 py-0.5 rounded bg-panel text-muted-foreground border border-border text-[10.5px]">
                           {row.region}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-blue-700 text-sm">
+                      <td className="py-2.5 px-3 font-bold text-primary text-sm">
                         {row.factorTotal.toFixed(4)}
-                        <span className="text-[10px] text-slate-400 font-normal ml-1">tCO2/MWh</span>
+                        <span className="text-[10px] text-muted-foreground font-normal ml-1">tCO2/MWh</span>
                       </td>
-                      <td className="py-2.5 px-3 font-sans text-slate-500 text-[11px] max-w-xs truncate" title={row.source}>
+                      <td className="py-2.5 px-3 font-sans text-muted-foreground text-[11px] max-w-xs truncate" title={row.source}>
                         {row.source}
                       </td>
                       <td className="py-2.5 px-3 font-sans">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-primary/20 text-primary border border-primary/30">
                           <CheckCircle2 className="size-3" />
                           {row.status}
                         </span>
@@ -732,13 +732,13 @@ export default function FactorPage() {
                               setEditingItem(row)
                               setEditVal(String(row.factorTotal))
                             }}
-                            className="text-xs text-[#1677ff] hover:underline font-semibold cursor-pointer"
+                            className="text-xs text-primary hover:underline font-semibold cursor-pointer"
                           >
                             编辑
                           </button>
                           <button
                             onClick={() => alert(`已打开【${row.province}】历史 4 个年度因子版本对比走势图`)}
-                            className="text-xs text-slate-500 hover:text-slate-800 cursor-pointer"
+                            className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
                           >
                             版本对比
                           </button>
@@ -758,14 +758,14 @@ export default function FactorPage() {
         {activeTab === 'energy_carbon' && (
           <div className="p-4 space-y-3.5">
             {/* 提示 Banner */}
-            <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2 text-emerald-900">
-                <Flame className="size-4 text-emerald-600 shrink-0" />
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2 text-foreground">
+                <Flame className="size-4 text-emerald-400 shrink-0" />
                 <span>
                   <strong>化石燃料与热力碳排放因子库</strong>：收录天然气、柴油、汽油、原煤、工业蒸汽等实物碳排放因子、单位热值含碳量与碳氧化率，用于企业范围一（直接燃烧）与范围二（外购热力）碳排放精准核算。
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-emerald-800 bg-white px-2 py-0.5 rounded border border-emerald-200">
+              <span className="text-[11px] font-mono text-emerald-400 bg-panel px-2 py-0.5 rounded border border-emerald-500/30">
                 基准规范：GB/T 32150-2015
               </span>
             </div>
@@ -773,7 +773,7 @@ export default function FactorPage() {
             {/* 分类筛选与搜索 */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-xs text-slate-500 mr-1 flex items-center gap-1">
+                <span className="text-xs text-muted-foreground mr-1 flex items-center gap-1">
                   <Filter className="size-3.5" /> 能源分类：
                 </span>
                 {['all', '化石气体', '化石液体', '化石固体', '热力工质'].map((cat) => (
@@ -784,7 +784,7 @@ export default function FactorPage() {
                       'px-2.5 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer',
                       selectedEnergyCategory === cat
                         ? 'bg-emerald-600 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        : 'bg-panel text-muted-foreground hover:text-foreground border border-border'
                     )}
                   >
                     {cat === 'all' ? '全部能源 (9)' : cat}
@@ -793,22 +793,22 @@ export default function FactorPage() {
               </div>
 
               <div className="relative w-64">
-                <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   placeholder="搜索能源名称 / 来源依据..."
-                  className="w-full pl-8 pr-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-600"
+                  className="w-full pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-emerald-500"
                 />
               </div>
             </div>
 
             {/* 能源碳排因子表格 */}
-            <div className="overflow-x-auto rounded-lg border border-slate-200">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-left text-xs border-collapse font-mono">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
+                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
                     <th className="py-2.5 px-3">能源介质名称</th>
                     <th className="py-2.5 px-3">介质类别</th>
                     <th className="py-2.5 px-3">计量单位</th>
@@ -821,29 +821,29 @@ export default function FactorPage() {
                     <th className="py-2.5 px-3 text-center">操作</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-border/60 text-foreground">
                   {filteredEnergyFactors.map((row) => (
-                    <tr key={row.id} className="hover:bg-emerald-50/40 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900">{row.name}</td>
+                    <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                      <td className="py-2.5 px-3 font-sans font-bold text-foreground">{row.name}</td>
                       <td className="py-2.5 px-3 font-sans">
-                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10.5px]">
+                        <span className="px-2 py-0.5 rounded bg-panel text-muted-foreground border border-border text-[10.5px]">
                           {row.category}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-slate-800">{row.unit}</td>
-                      <td className="py-2.5 px-3 font-bold text-emerald-700 text-sm">
+                      <td className="py-2.5 px-3 font-bold text-foreground">{row.unit}</td>
+                      <td className="py-2.5 px-3 font-bold text-emerald-400 text-sm">
                         {row.factorCO2.toFixed(4)}
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-rose-700">
+                      <td className="py-2.5 px-3 font-bold text-rose-400">
                         {row.lowCalorificMJ.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-slate-600">{row.carbonContentTC_TJ.toFixed(2)}</td>
-                      <td className="py-2.5 px-3 text-slate-600">{row.carbonOxidationRate.toFixed(1)}%</td>
-                      <td className="py-2.5 px-3 font-sans text-slate-500 text-[11px] max-w-xs truncate" title={row.source}>
+                      <td className="py-2.5 px-3 text-muted-foreground">{row.carbonContentTC_TJ.toFixed(2)}</td>
+                      <td className="py-2.5 px-3 text-muted-foreground">{row.carbonOxidationRate.toFixed(1)}%</td>
+                      <td className="py-2.5 px-3 font-sans text-muted-foreground text-[11px] max-w-xs truncate" title={row.source}>
                         {row.source}
                       </td>
                       <td className="py-2.5 px-3 font-sans">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                           <CheckCircle2 className="size-3" />
                           {row.status}
                         </span>
@@ -855,13 +855,13 @@ export default function FactorPage() {
                               setEditingItem(row)
                               setEditVal(String(row.factorCO2))
                             }}
-                            className="text-xs text-emerald-600 hover:underline font-semibold cursor-pointer"
+                            className="text-xs text-emerald-400 hover:underline font-semibold cursor-pointer"
                           >
                             编辑
                           </button>
                           <button
                             onClick={() => alert(`已打开【${row.name}】化验报告与实测历史台账`)}
-                            className="text-xs text-slate-500 hover:text-slate-800 cursor-pointer"
+                            className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
                           >
                             溯源
                           </button>
@@ -881,41 +881,41 @@ export default function FactorPage() {
         {activeTab === 'standard_coal' && (
           <div className="p-4 space-y-3.5">
             {/* 提示 Banner */}
-            <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2 text-amber-900">
-                <Scale className="size-4 text-amber-600 shrink-0" />
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2 text-foreground">
+                <Scale className="size-4 text-amber-400 shrink-0" />
                 <span>
                   <strong>GB/T 2589-2020 综合能耗折标准煤基准</strong>：标准煤热值基准为 29,307.6 kJ/kgce (7,000 kcal)；电力支持<strong>物理当量值 (0.1229 kgce/kWh)</strong> 与<strong>供电等价值 (0.3150 kgce/kWh)</strong> 双口径配置。
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-amber-800 bg-white px-2 py-0.5 rounded border border-amber-200">
+              <span className="text-[11px] font-mono text-amber-400 bg-panel px-2 py-0.5 rounded border border-amber-500/30">
                 现行标准：GB/T 2589-2020
               </span>
             </div>
 
             {/* 搜索栏 */}
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="text-xs text-slate-500">
-                共收录 <strong>{filteredCoalFactors.length}</strong> 类常用工业能源折标煤基准与耗能工质规范
+              <div className="text-xs text-muted-foreground">
+                共收录 <strong className="text-foreground">{filteredCoalFactors.length}</strong> 类常用工业能源折标煤基准与耗能工质规范
               </div>
 
               <div className="relative w-64">
-                <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   placeholder="搜索能源名称 / 计量单位 / 依据..."
-                  className="w-full pl-8 pr-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-amber-600"
+                  className="w-full pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-amber-500"
                 />
               </div>
             </div>
 
             {/* 折标煤系数表格 */}
-            <div className="overflow-x-auto rounded-lg border border-slate-200">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-left text-xs border-collapse font-mono">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
+                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
                     <th className="py-2.5 px-3">能源介质名称</th>
                     <th className="py-2.5 px-3">介质类别</th>
                     <th className="py-2.5 px-3">计量单位</th>
@@ -928,29 +928,29 @@ export default function FactorPage() {
                     <th className="py-2.5 px-3 text-center">操作</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-border/60 text-foreground">
                   {filteredCoalFactors.map((row) => (
-                    <tr key={row.id} className="hover:bg-amber-50/40 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900">{row.name}</td>
+                    <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                      <td className="py-2.5 px-3 font-sans font-bold text-foreground">{row.name}</td>
                       <td className="py-2.5 px-3 font-sans">
-                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10.5px]">
+                        <span className="px-2 py-0.5 rounded bg-panel text-muted-foreground border border-border text-[10.5px]">
                           {row.category}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-slate-800">{row.unit}</td>
-                      <td className="py-2.5 px-3 text-rose-700 font-bold">{row.calorificVal}</td>
-                      <td className="py-2.5 px-3 font-bold text-amber-700 text-sm">
+                      <td className="py-2.5 px-3 font-bold text-foreground">{row.unit}</td>
+                      <td className="py-2.5 px-3 text-rose-400 font-bold">{row.calorificVal}</td>
+                      <td className="py-2.5 px-3 font-bold text-amber-400 text-sm">
                         {row.tceEquiv.toFixed(2)}
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-blue-700">
+                      <td className="py-2.5 px-3 font-bold text-primary">
                         {row.tceEqual ? row.tceEqual.toFixed(2) : '—'}
                       </td>
-                      <td className="py-2.5 px-3 font-sans text-slate-500 text-[11px] max-w-xs truncate" title={row.standardRef}>
+                      <td className="py-2.5 px-3 font-sans text-muted-foreground text-[11px] max-w-xs truncate" title={row.standardRef}>
                         {row.standardRef}
                       </td>
-                      <td className="py-2.5 px-3 font-mono text-purple-700 font-semibold">{row.version}</td>
+                      <td className="py-2.5 px-3 font-mono text-purple-400 font-semibold">{row.version}</td>
                       <td className="py-2.5 px-3 font-sans">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">
                           <CheckCircle2 className="size-3" />
                           {row.status}
                         </span>
@@ -962,13 +962,13 @@ export default function FactorPage() {
                               setEditingItem(row)
                               setEditVal(String(row.tceEquiv))
                             }}
-                            className="text-xs text-amber-700 hover:underline font-semibold cursor-pointer"
+                            className="text-xs text-amber-400 hover:underline font-semibold cursor-pointer"
                           >
                             编辑
                           </button>
                           <button
                             onClick={() => alert(`已打开【${row.name}】标准换算推导明细与测试校验`)}
-                            className="text-xs text-slate-500 hover:text-slate-800 cursor-pointer"
+                            className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
                           >
                             校验
                           </button>
@@ -986,18 +986,18 @@ export default function FactorPage() {
 
       {/* 🌟 3. 编辑因子弹窗 Dialog */}
       {editingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden space-y-4 p-5 font-sans">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-md bg-card rounded-xl shadow-2xl border border-border overflow-hidden space-y-4 p-5 font-sans text-foreground">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
               <div className="flex items-center gap-2">
-                <div className="size-2 rounded-full bg-[#1677ff]" />
-                <h3 className="text-sm font-bold text-slate-800">
+                <div className="size-2 rounded-full bg-primary" />
+                <h3 className="text-sm font-bold text-foreground">
                   编辑因子参数 · {editingItem.province || editingItem.name}
                 </h3>
               </div>
               <button
                 onClick={() => setEditingItem(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/40 cursor-pointer"
               >
                 <X className="size-4" />
               </button>
@@ -1005,54 +1005,54 @@ export default function FactorPage() {
 
             <div className="space-y-3 text-xs">
               <div className="space-y-1">
-                <label className="text-slate-600 font-medium">因子名称 / 适用省份：</label>
+                <label className="text-muted-foreground font-medium">因子名称 / 适用省份：</label>
                 <input
                   type="text"
                   disabled
                   defaultValue={editingItem.province || editingItem.name}
-                  className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-700 font-semibold"
+                  className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-foreground font-semibold"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-600 font-medium">核算因子数值：</label>
+                <label className="text-muted-foreground font-medium">核算因子数值：</label>
                 <input
                   type="number"
                   step="0.0001"
                   value={editVal}
                   onChange={(e) => setEditVal(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold font-mono text-slate-900 focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-sm font-bold font-mono text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-600 font-medium">变更依据与来源说明：</label>
+                <label className="text-muted-foreground font-medium">变更依据与来源说明：</label>
                 <input
                   type="text"
                   defaultValue={editingItem.source || editingItem.standardRef || '依据最新发改委/生态环境部公告'}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-2 bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
 
-              <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-[11px] space-y-1">
-                <div className="font-bold flex items-center gap-1">
-                  <ShieldCheck className="size-3.5 text-[#1677ff]" />
+              <div className="p-2.5 rounded-lg bg-primary/10 border border-primary/20 text-foreground text-[11px] space-y-1">
+                <div className="font-bold flex items-center gap-1 text-primary">
+                  <ShieldCheck className="size-3.5" />
                   <span>审计与多版本合规提示</span>
                 </div>
-                <p>保存后将自动归档为版本流水记录，并实时同步更新至全厂碳核算与产品碳足迹计算引擎。</p>
+                <p className="text-muted-foreground">保存后将自动归档为版本流水记录，并实时同步更新至全厂碳核算与产品碳足迹计算引擎。</p>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/60">
               <button
                 onClick={() => setEditingItem(null)}
-                className="px-3.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-600 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-lg border border-border hover:bg-accent/40 text-xs font-semibold text-muted-foreground cursor-pointer"
               >
                 取消
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-xs font-semibold text-white shadow-2xs cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-xs font-semibold text-primary-foreground shadow-2xs cursor-pointer"
               >
                 确认保存变更
               </button>

@@ -3297,19 +3297,19 @@ export default function IndicatorControlPage() {
         {activeViewMetric !== null ? (
           <div className="space-y-3.5 animate-in fade-in zoom-in-95 duration-150">
             {/* 顶部面包屑与全景概览返回导航 */}
-            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between gap-3">
+            <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setActiveViewMetric(null)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer transition-colors shadow-2xs shrink-0"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-panel hover:bg-accent/40 text-foreground font-bold text-xs cursor-pointer transition-colors shadow-2xs shrink-0 border border-border"
                 >
-                  <ChevronLeft className="size-4 text-slate-500" />
-                  <span>返回</span>
+                  <ChevronLeft className="size-4 text-muted-foreground" />
+                  <span>返回全景概览</span>
                 </button>
-                <div className="h-4 w-px bg-slate-200" />
-                <h1 className="text-sm font-extrabold text-slate-900">
-                  {activeViewMetric.name} ({activeViewMetric.unit})
+                <div className="h-4 w-px bg-border" />
+                <h1 className="text-sm font-extrabold text-foreground">
+                  {activeViewMetric.name} <span className="text-primary font-mono">({activeViewMetric.unit})</span>
                 </h1>
               </div>
             </div>
@@ -3317,49 +3317,49 @@ export default function IndicatorControlPage() {
             {/* 顶部 3 栏信息卡片 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs font-mono">
               {/* 1. 指标物理定义 */}
-              <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center gap-1.5 text-slate-800 font-bold font-sans">
-                  <Info className="size-4 text-[#1677ff]" />
+              <div className="p-4 bg-card rounded-xl border border-border shadow-xs space-y-2">
+                <div className="flex items-center gap-1.5 text-foreground font-bold font-sans">
+                  <Info className="size-4 text-primary" />
                   <span>指标物理定义</span>
                 </div>
-                <p className="text-slate-600 font-sans text-[11.5px] leading-relaxed">
+                <p className="text-muted-foreground font-sans text-[11.5px] leading-relaxed">
                   {activeViewMetric.tipText}
                 </p>
               </div>
 
               {/* 2. 核算数学公式 */}
-              <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
-                <div className="flex items-center gap-1.5 text-slate-800 font-bold font-sans">
-                  <Calculator className="size-4 text-purple-600" />
+              <div className="p-4 bg-card rounded-xl border border-border shadow-xs space-y-2">
+                <div className="flex items-center gap-1.5 text-foreground font-bold font-sans">
+                  <Calculator className="size-4 text-purple-400" />
                   <span>核算数学公式</span>
                 </div>
-                <div className="text-slate-900 font-extrabold text-xs font-sans bg-purple-50/60 p-2 rounded-lg border border-purple-100">
+                <div className="text-purple-300 font-extrabold text-xs font-sans bg-purple-500/10 p-2 rounded-lg border border-purple-500/20">
                   {activeViewMetric.formula}
                 </div>
-                <p className="text-slate-500 text-[10.5px] font-sans leading-relaxed">
+                <p className="text-muted-foreground text-[10.5px] font-sans leading-relaxed">
                   {activeViewMetric.formulaDesc}
                 </p>
               </div>
 
               {/* 3. 因子说明 (根据指标动态显示折标煤系数或碳排放因子) */}
-              <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
+              <div className="p-4 bg-card rounded-xl border border-border shadow-xs space-y-2">
                 {(() => {
                   const factorInfo = getFactorDescription(activeViewMetric)
                   return (
                     <>
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-slate-800 font-bold font-sans">
-                          <Layers className="size-4 text-emerald-600" />
+                        <div className="flex items-center gap-1.5 text-foreground font-bold font-sans">
+                          <Layers className="size-4 text-emerald-400" />
                           <span>因子说明</span>
                         </div>
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/80">
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30">
                           {factorInfo.title}
                         </span>
                       </div>
-                      <div className="text-[10.5px] text-slate-400 font-sans">
+                      <div className="text-[10.5px] text-muted-foreground font-sans">
                         {factorInfo.subtitle}
                       </div>
-                      <p className="text-slate-600 font-sans text-[11px] leading-relaxed">
+                      <p className="text-muted-foreground font-sans text-[11px] leading-relaxed">
                         {factorInfo.content}
                       </p>
                     </>
@@ -3369,14 +3369,14 @@ export default function IndicatorControlPage() {
             </div>
 
             {/* 中间图表：数据变化趋势 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-border/60 pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground">
                     数据变化趋势
                   </h3>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 font-mono">
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-panel text-muted-foreground font-mono border border-border">
                     2025.09 ~ 2026.08
                   </span>
                 </div>
@@ -3388,18 +3388,18 @@ export default function IndicatorControlPage() {
                   xKey="period"
                   height={260}
                   lines={[
-                    { key: 'value', name: `实测值 (${activeViewMetric.unit})`, color: '#1677ff' },
+                    { key: 'value', name: `实测值 (${activeViewMetric.unit})`, color: 'oklch(0.72 0.18 210)' },
                   ]}
                 />
               </div>
             </div>
 
             {/* 底部表格：数据明细 */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-border/60 flex items-center justify-between bg-panel/60">
                 <div className="flex items-center gap-2">
-                  <Table className="size-4 text-slate-700" />
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <Table className="size-4 text-primary" />
+                  <h3 className="text-xs font-bold text-foreground">
                     数据明细
                   </h3>
                 </div>
@@ -3419,27 +3419,27 @@ export default function IndicatorControlPage() {
                   return (
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
+                        <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans">
                           <th className="py-2.5 px-3 whitespace-nowrap min-w-[110px]">时间</th>
                           {tableConfig.columns.map((col) => (
                             <th key={col.key} className={cn('py-2.5 px-3 text-right whitespace-nowrap', col.headerClass)}>
                               {col.label} {col.unit ? `(${col.unit})` : ''}
                             </th>
                           ))}
-                          <th className="py-2.5 px-3 font-mono text-right whitespace-nowrap text-[#1677ff]">
+                          <th className="py-2.5 px-3 font-mono text-right whitespace-nowrap text-primary">
                             {tableConfig.resultHeader}
                           </th>
                           <th className="py-2.5 px-3 font-mono text-right whitespace-nowrap">环比</th>
                           <th className="py-2.5 px-3 font-mono text-right whitespace-nowrap">同比</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 text-slate-800">
+                      <tbody className="divide-y divide-border/60 text-foreground">
                         {[...activeViewMetric.trendHistory].reverse().map((item, revIdx) => {
                           const idx = activeViewMetric.trendHistory.length - 1 - revIdx
                           const total = activeViewMetric.trendHistory.length
 
                           return (
-                            <tr key={item.period} className="hover:bg-slate-50/80 transition-colors">
+                            <tr key={item.period} className="hover:bg-accent/30 transition-colors">
                               <td className="py-2.5 px-3 font-bold whitespace-nowrap">
                                 {item.period === '26-08' ? '2026年08月' : `20${item.period.replace('-', '年')}月`}
                               </td>
@@ -3448,13 +3448,13 @@ export default function IndicatorControlPage() {
                                   {col.renderVal(item, idx, total)}
                                 </td>
                               ))}
-                              <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff] whitespace-nowrap">
+                              <td className="py-2.5 px-3 text-right font-extrabold text-primary whitespace-nowrap">
                                 {item.value} {activeViewMetric.unit}
                               </td>
-                              <td className={cn('py-2.5 px-3 text-right font-bold whitespace-nowrap', item.mom.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
+                              <td className={cn('py-2.5 px-3 text-right font-bold whitespace-nowrap', item.mom.startsWith('+') ? 'text-amber-400' : 'text-emerald-400')}>
                                 {item.mom}
                               </td>
-                              <td className={cn('py-2.5 px-3 text-right font-bold whitespace-nowrap', item.yoy.startsWith('+') ? 'text-amber-600' : 'text-emerald-600')}>
+                              <td className={cn('py-2.5 px-3 text-right font-bold whitespace-nowrap', item.yoy.startsWith('+') ? 'text-amber-400' : 'text-emerald-400')}>
                                 {item.yoy}
                               </td>
                             </tr>
@@ -3473,23 +3473,23 @@ export default function IndicatorControlPage() {
           /* ========================================================================= */
           <div className="space-y-3.5">
             {/* 1. 顶部 Header 与 统一时间筛选 */}
-            <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-xl border border-border shadow-xs">
               <div className="flex items-center gap-3">
-                <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+                <div className="size-9 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
                   <BarChart3 className="size-5" />
                 </div>
-                <h1 className="text-base font-bold text-slate-800">指标管控</h1>
+                <h1 className="text-base font-bold text-foreground">指标管控</h1>
               </div>
 
               <div className="flex flex-wrap items-center gap-2.5">
                 {/* 时间维度统一 (月度 / 季度 / 年度) */}
-                <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+                <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs">
                   <button
                     type="button"
                     onClick={() => setTimeDim('month')}
                     className={cn(
                       'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                      timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     月度
@@ -3499,7 +3499,7 @@ export default function IndicatorControlPage() {
                     onClick={() => setTimeDim('quarter')}
                     className={cn(
                       'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                      timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     季度
@@ -3509,7 +3509,7 @@ export default function IndicatorControlPage() {
                     onClick={() => setTimeDim('year')}
                     className={cn(
                       'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                      timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     年度
@@ -3518,54 +3518,54 @@ export default function IndicatorControlPage() {
 
                 {/* 时间范围选择控件 (随维度自适应切换) */}
                 {timeDim === 'month' && (
-                  <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                    <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                  <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                    <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                     <input
                       type="month"
                       value={selectedMonthRange.start}
                       onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                      className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                      className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                       title="起始月份"
                     />
-                    <span className="text-slate-400 font-sans">至</span>
+                    <span className="text-muted-foreground font-sans">至</span>
                     <input
                       type="month"
                       value={selectedMonthRange.end}
                       onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                      className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                      className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                       title="结束月份"
                     />
                   </div>
                 )}
 
                 {timeDim === 'quarter' && (
-                  <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                    <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                  <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+                    <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                     <select
                       value={selectedQuarter}
                       onChange={(e) => setSelectedQuarter(e.target.value)}
-                      className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                      className="bg-transparent border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
                     >
-                      <option value="2026-Q1">2026年 第1季度 (Q1)</option>
-                      <option value="2026-Q2">2026年 第2季度 (Q2)</option>
-                      <option value="2026-Q3">2026年 第3季度 (Q3)</option>
-                      <option value="2026-Q4">2026年 第4季度 (Q4)</option>
-                      <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+                      <option value="2026-Q1" className="bg-popover text-foreground">2026年 第1季度 (Q1)</option>
+                      <option value="2026-Q2" className="bg-popover text-foreground">2026年 第2季度 (Q2)</option>
+                      <option value="2026-Q3" className="bg-popover text-foreground">2026年 第3季度 (Q3)</option>
+                      <option value="2026-Q4" className="bg-popover text-foreground">2026年 第4季度 (Q4)</option>
+                      <option value="2025-Q4" className="bg-popover text-foreground">2025年 第4季度 (Q4)</option>
                     </select>
                   </div>
                 )}
 
                 {timeDim === 'year' && (
-                  <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                    <Calendar className="size-3.5 text-slate-400 shrink-0" />
+                  <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+                    <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                     <select
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(e.target.value)}
-                      className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                      className="bg-transparent border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
                     >
-                      <option value="2026">2026 年度</option>
-                      <option value="2025">2025 年度</option>
-                      <option value="2024">2024 年度</option>
+                      <option value="2026" className="bg-popover text-foreground">2026 年度</option>
+                      <option value="2025" className="bg-popover text-foreground">2025 年度</option>
+                      <option value="2024" className="bg-popover text-foreground">2024 年度</option>
                     </select>
                   </div>
                 )}
@@ -3574,7 +3574,7 @@ export default function IndicatorControlPage() {
                 <button
                   type="button"
                   onClick={() => alert(`正在导出【${selectedNode.name}】指标管控报表 (Excel)...`)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
                 >
                   <Download className="size-3.5" />
                   <span>导出</span>
@@ -3586,15 +3586,15 @@ export default function IndicatorControlPage() {
             {isGroupLevel ? (
               <div className="space-y-3.5">
                 {/* 一、经营单位及项目公司整体指标 (10 项指标卡片) */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
-                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                      <span className="h-3.5 w-1 rounded-full bg-primary shrink-0" />
+                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">
                         【一、经营单位及项目公司整体指标】
                       </h2>
                     </div>
-                    <span className="text-[11px] text-slate-400 font-mono">
+                    <span className="text-[11px] text-muted-foreground font-mono">
                       保留同比变化 · 点击查看 12 个月历史明细与公式
                     </span>
                   </div>
@@ -3607,23 +3607,23 @@ export default function IndicatorControlPage() {
                           key={m.id}
                           onClick={() => setSelectedGroupMetricId(m.id)}
                           className={cn(
-                            'p-3.5 rounded-xl border transition-all cursor-pointer space-y-2 group shadow-2xs relative select-none bg-white',
+                            'p-3.5 rounded-xl border transition-all cursor-pointer space-y-2 group shadow-2xs relative select-none bg-panel',
                             isSelected
-                              ? 'border-[#1677ff] ring-2 ring-[#1677ff]/20 shadow-xs bg-blue-50/10'
-                              : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50/50'
+                              ? 'border-primary ring-2 ring-primary/20 shadow-xs bg-primary/15'
+                              : 'border-border hover:border-primary/40 hover:bg-accent/40'
                           )}
                         >
                           <div className="flex items-center justify-between font-sans gap-1">
-                            <span className={cn('text-[11px] font-bold truncate', isSelected ? 'text-[#1677ff]' : 'text-slate-800')} title={m.name}>
+                            <span className={cn('text-[11px] font-bold truncate', isSelected ? 'text-primary' : 'text-foreground')} title={m.name}>
                               {m.name}
                             </span>
                             {m.badge && (
                               <span
                                 className={cn(
                                   'text-[9px] px-1.5 py-0.5 rounded font-sans font-medium shrink-0 whitespace-nowrap',
-                                  m.badge === '国家级零碳工厂' && 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
-                                  m.badge === '国家级绿色工厂' && 'bg-teal-50 text-teal-700 border border-teal-200/80',
-                                  m.badge === '公司管理要求' && 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                                  m.badge === '国家级零碳工厂' && 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+                                  m.badge === '国家级绿色工厂' && 'bg-teal-500/15 text-teal-400 border border-teal-500/30',
+                                  m.badge === '公司管理要求' && 'bg-primary/15 text-primary border border-primary/30'
                                 )}
                               >
                                 {m.badge}
@@ -3632,8 +3632,8 @@ export default function IndicatorControlPage() {
                           </div>
 
                           <div className="flex items-center justify-between">
-                            <div className={cn('text-lg font-extrabold transition-colors', isSelected ? 'text-[#1677ff]' : 'text-slate-900')}>
-                              {m.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{m.unit}</span>
+                            <div className={cn('text-lg font-extrabold transition-colors', isSelected ? 'text-primary' : 'text-foreground')}>
+                              {m.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{m.unit}</span>
                             </div>
                             <button
                               type="button"
@@ -3641,18 +3641,15 @@ export default function IndicatorControlPage() {
                                 e.stopPropagation()
                                 setActiveViewMetric(m)
                               }}
-                              className="text-[11px] font-medium text-[#1677ff] hover:text-blue-700 hover:bg-blue-50 px-2 py-0.5 rounded border border-blue-200 transition-all cursor-pointer flex items-center gap-0.5 shrink-0"
+                              className="text-[11px] font-medium text-primary hover:bg-primary/15 px-2 py-0.5 rounded border border-primary/30 transition-all cursor-pointer flex items-center gap-0.5 shrink-0"
                             >
                               <span>详情</span>
                             </button>
                           </div>
 
-                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-sans">
-                            <span className="text-slate-500">同比</span>
-                            <span className={cn(
-                              'font-bold font-mono',
-                              m.yoy.startsWith('+') ? 'text-emerald-600' : 'text-emerald-600'
-                            )}>
+                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                            <span className="text-muted-foreground">同比</span>
+                            <span className="font-bold font-mono text-emerald-400">
                               {m.yoy} {m.isYoyDown ? '↓' : '↑'}
                             </span>
                           </div>
@@ -3663,11 +3660,11 @@ export default function IndicatorControlPage() {
                 </div>
 
                 {/* 二、1、2、3 级全景能流桑基图 */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
-                      <h3 className="text-xs font-bold text-slate-900">
+                      <span className="h-3.5 w-1 rounded-full bg-primary shrink-0" />
+                      <h3 className="text-xs font-bold text-foreground">
                         【二、数据变化桑基图】
                       </h3>
                     </div>
@@ -3685,11 +3682,11 @@ export default function IndicatorControlPage() {
                 </div>
 
                 {/* 三、产品管控指标 (集团全谱系主要产品联动) */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-amber-500 shrink-0" />
-                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                      <span className="h-3.5 w-1 rounded-full bg-amber-400 shrink-0" />
+                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">
                         【三、产品管控指标】
                       </h2>
                       {activeUnitInfo?.products && activeUnitInfo.products.length > 0 && (
@@ -3704,11 +3701,11 @@ export default function IndicatorControlPage() {
                                 className={cn(
                                   'text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-all cursor-pointer shadow-2xs select-none flex items-center gap-1',
                                   isActive
-                                    ? 'text-white bg-amber-600 border-amber-600 shadow-xs scale-105'
-                                    : 'text-amber-800 bg-amber-50 hover:bg-amber-100/80 border-amber-200/80 hover:border-amber-300'
+                                    ? 'text-white bg-amber-500 border-amber-500 shadow-xs scale-105'
+                                    : 'text-amber-400 bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/30'
                                 )}
                               >
-                                {isActive && <span className="size-1.5 rounded-full bg-white animate-pulse" />}
+                                {isActive && <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />}
                                 <span>{prod}</span>
                               </button>
                             )
@@ -3724,21 +3721,21 @@ export default function IndicatorControlPage() {
                         <div
                           key={pm.id}
                           onClick={() => setActiveViewMetric(pm)}
-                          className="p-3.5 bg-amber-50/30 hover:bg-amber-50/80 rounded-xl border border-amber-200/80 hover:border-amber-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                          className="p-3.5 bg-panel hover:bg-amber-500/10 rounded-xl border border-border hover:border-amber-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
                         >
                           <div className="flex items-center justify-between font-sans">
-                            <span className="text-[11px] font-bold text-slate-800 truncate" title={pm.name}>
+                            <span className="text-[11px] font-bold text-foreground truncate" title={pm.name}>
                               {pm.name}
                             </span>
                           </div>
 
-                          <div className="text-lg font-extrabold text-slate-900 group-hover:text-amber-700 transition-colors">
-                            {pm.curVal} <span className="text-[10.5px] font-normal text-slate-500 font-sans">{pm.unit}</span>
+                          <div className="text-lg font-extrabold text-foreground group-hover:text-amber-400 transition-colors">
+                            {pm.curVal} <span className="text-[10.5px] font-normal text-muted-foreground font-sans">{pm.unit}</span>
                           </div>
 
-                          <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-sans">
-                            <span className="text-slate-500">同比</span>
-                            <span className="font-bold text-emerald-600 font-mono">{pm.yoy} ↓</span>
+                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                            <span className="text-muted-foreground">同比</span>
+                            <span className="font-bold text-emerald-400 font-mono">{pm.yoy} ↓</span>
                           </div>
                         </div>
                       )
@@ -3750,15 +3747,15 @@ export default function IndicatorControlPage() {
               /* 单体公司/车间视角: 呈现工厂 10 大整体指标 + 产品管控指标 + 关键工序管控指标 */
               <div className="space-y-3.5">
                 {/* 一、经营单位及项目公司整体指标 (10 项指标卡片) */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-[#1677ff] shrink-0" />
-                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                      <span className="h-3.5 w-1 rounded-full bg-primary shrink-0" />
+                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">
                         【一、经营单位及项目公司整体指标】
                       </h2>
                     </div>
-                    <span className="text-[11px] text-slate-400 font-mono">
+                    <span className="text-[11px] text-muted-foreground font-mono">
                       保留同比变化 · 点击查看 12 个月历史明细与公式
                     </span>
                   </div>
@@ -3768,17 +3765,17 @@ export default function IndicatorControlPage() {
                       <div
                         key={m.id}
                         onClick={() => setActiveViewMetric(m)}
-                        className="p-3.5 bg-slate-50/70 hover:bg-blue-50/40 rounded-xl border border-slate-200 hover:border-blue-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                        className="p-3.5 bg-panel hover:bg-accent/40 rounded-xl border border-border hover:border-primary/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
                       >
                         <div className="flex items-center justify-between font-sans gap-1">
-                          <span className="text-[11px] font-bold text-slate-700 truncate">{m.name}</span>
+                          <span className="text-[11px] font-bold text-foreground truncate">{m.name}</span>
                           {m.badge && (
                             <span
                               className={cn(
                                 'text-[9px] px-1.5 py-0.5 rounded font-sans font-medium shrink-0 whitespace-nowrap',
-                                m.badge === '国家级零碳工厂' && 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
-                                m.badge === '国家级绿色工厂' && 'bg-teal-50 text-teal-700 border border-teal-200/80',
-                                m.badge === '公司管理要求' && 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                                m.badge === '国家级零碳工厂' && 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+                                m.badge === '国家级绿色工厂' && 'bg-teal-500/15 text-teal-400 border border-teal-500/30',
+                                m.badge === '公司管理要求' && 'bg-primary/15 text-primary border border-primary/30'
                               )}
                             >
                               {m.badge}
@@ -3786,13 +3783,13 @@ export default function IndicatorControlPage() {
                           )}
                         </div>
 
-                        <div className="text-lg font-extrabold text-slate-900 group-hover:text-[#1677ff] transition-colors">
-                          {m.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{m.unit}</span>
+                        <div className="text-lg font-extrabold text-foreground group-hover:text-primary transition-colors">
+                          {m.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{m.unit}</span>
                         </div>
 
-                        <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] font-sans">
-                          <span className="text-slate-500">同比</span>
-                          <span className="font-bold text-emerald-600 font-mono">{m.yoy} ↓</span>
+                        <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                          <span className="text-muted-foreground">同比</span>
+                          <span className="font-bold text-emerald-400 font-mono">{m.yoy} ↓</span>
                         </div>
                       </div>
                     ))}
@@ -3800,11 +3797,11 @@ export default function IndicatorControlPage() {
                 </div>
 
                 {/* 二、产品管控指标 (5卡片/行) */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-amber-500 shrink-0" />
-                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                      <span className="h-3.5 w-1 rounded-full bg-amber-400 shrink-0" />
+                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">
                         【二、产品管控指标】
                       </h2>
                       {activeUnitInfo?.products && activeUnitInfo.products.length > 0 && (
@@ -3819,11 +3816,11 @@ export default function IndicatorControlPage() {
                                 className={cn(
                                   'text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-all cursor-pointer shadow-2xs select-none flex items-center gap-1',
                                   isActive
-                                    ? 'text-white bg-amber-600 border-amber-600 shadow-xs scale-105'
-                                    : 'text-amber-800 bg-amber-50 hover:bg-amber-100/80 border-amber-200/80 hover:border-amber-300'
+                                    ? 'text-white bg-amber-500 border-amber-500 shadow-xs scale-105'
+                                    : 'text-amber-400 bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/30'
                                 )}
                               >
-                                {isActive && <span className="size-1.5 rounded-full bg-white animate-pulse" />}
+                                {isActive && <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />}
                                 <span>{prod}</span>
                               </button>
                             )
@@ -3839,21 +3836,21 @@ export default function IndicatorControlPage() {
                         <div
                           key={pm.id}
                           onClick={() => setActiveViewMetric(pm)}
-                          className="p-3.5 bg-amber-50/30 hover:bg-amber-50/80 rounded-xl border border-amber-200/80 hover:border-amber-300 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                          className="p-3.5 bg-panel hover:bg-amber-500/10 rounded-xl border border-border hover:border-amber-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
                         >
                           <div className="flex items-center justify-between font-sans">
-                            <span className="text-[11px] font-bold text-slate-800 truncate" title={pm.name}>
+                            <span className="text-[11px] font-bold text-foreground truncate" title={pm.name}>
                               {pm.name}
                             </span>
                           </div>
 
-                          <div className="text-lg font-extrabold text-slate-900 group-hover:text-amber-700 transition-colors">
-                            {pm.curVal} <span className="text-[10.5px] font-normal text-slate-500 font-sans">{pm.unit}</span>
+                          <div className="text-lg font-extrabold text-foreground group-hover:text-amber-400 transition-colors">
+                            {pm.curVal} <span className="text-[10.5px] font-normal text-muted-foreground font-sans">{pm.unit}</span>
                           </div>
 
-                          <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-sans">
-                            <span className="text-slate-500">同比</span>
-                            <span className="font-bold text-emerald-600 font-mono">{pm.yoy} ↓</span>
+                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                            <span className="text-muted-foreground">同比</span>
+                            <span className="font-bold text-emerald-400 font-mono">{pm.yoy} ↓</span>
                           </div>
                         </div>
                       )
@@ -3862,11 +3859,11 @@ export default function IndicatorControlPage() {
                 </div>
 
                 {/* 三、关键制造工序能效对标指标 (4卡片/行) */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-purple-600 shrink-0" />
-                      <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                      <span className="h-3.5 w-1 rounded-full bg-purple-400 shrink-0" />
+                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">
                         【三、关键制造工序能效对标指标】
                       </h2>
                       {activeUnitInfo?.products && activeUnitInfo.products.length > 0 && (
@@ -3881,11 +3878,11 @@ export default function IndicatorControlPage() {
                                 className={cn(
                                   'text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-all cursor-pointer shadow-2xs select-none flex items-center gap-1',
                                   isActive
-                                    ? 'text-white bg-purple-600 border-purple-600 shadow-xs scale-105'
-                                    : 'text-purple-800 bg-purple-50 hover:bg-purple-100/80 border-purple-200/80 hover:border-purple-300'
+                                    ? 'text-white bg-purple-500 border-purple-500 shadow-xs scale-105'
+                                    : 'text-purple-300 bg-purple-500/15 hover:bg-purple-500/25 border-purple-500/30'
                                 )}
                               >
-                                {isActive && <span className="size-1.5 rounded-full bg-white animate-pulse" />}
+                                {isActive && <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />}
                                 <span>{prod}</span>
                               </button>
                             )
@@ -3896,16 +3893,16 @@ export default function IndicatorControlPage() {
 
                     <div className="flex items-center gap-2">
                       <div className="relative">
-                        <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="text"
                           value={procSearchKey}
                           onChange={(e) => setProcSearchKey(e.target.value)}
                           placeholder="搜索工序指标 (如: 拉丝 / 干燥 / 固化)..."
-                          className="pl-8 pr-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-purple-600 font-sans w-64"
+                          className="pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg focus:outline-none focus:border-purple-400 font-sans w-64 text-foreground"
                         />
                       </div>
-                      <span className="text-xs text-slate-400 font-mono">集控统一采集 · 序号 17-65</span>
+                      <span className="text-xs text-muted-foreground font-mono">集控统一采集 · 序号 17-65</span>
                     </div>
                   </div>
 
@@ -3914,26 +3911,26 @@ export default function IndicatorControlPage() {
                       <div
                         key={prm.id}
                         onClick={() => setActiveViewMetric(prm)}
-                        className="p-3.5 rounded-xl border border-purple-200/80 bg-purple-50/30 hover:bg-purple-50/80 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                        className="p-3.5 rounded-xl border border-border bg-panel hover:border-purple-400/40 hover:bg-purple-500/10 transition-all cursor-pointer space-y-2 group shadow-2xs"
                       >
                         <div className="flex items-center justify-between font-sans">
-                          <span className="text-xs font-bold text-slate-900 truncate" title={prm.name}>
+                          <span className="text-xs font-bold text-foreground truncate" title={prm.name}>
                             {prm.name}
                           </span>
-                          <span className="text-[9.5px] px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 font-bold shrink-0">
+                          <span className="text-[9.5px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold shrink-0">
                             {prm.badge}
                           </span>
                         </div>
 
-                        <div className="text-lg font-extrabold text-[#1677ff] group-hover:text-purple-700 transition-colors">
-                          {prm.curVal} <span className="text-xs font-normal text-slate-500 font-sans">{prm.unit}</span>
+                        <div className="text-lg font-extrabold text-primary group-hover:text-purple-300 transition-colors">
+                          {prm.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{prm.unit}</span>
                         </div>
 
-                        <div className="pt-2 border-t border-purple-200/60 flex items-center justify-between text-[11px] font-sans">
-                          <span className="text-slate-500 truncate" title={prm.formula}>
+                        <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                          <span className="text-muted-foreground truncate" title={prm.formula}>
                             {prm.formula}
                           </span>
-                          <span className="font-bold text-emerald-600 font-mono shrink-0 ml-1">{prm.yoy} ↓</span>
+                          <span className="font-bold text-emerald-400 font-mono shrink-0 ml-1">{prm.yoy} ↓</span>
                         </div>
                       </div>
                     ))}

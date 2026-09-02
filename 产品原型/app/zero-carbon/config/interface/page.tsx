@@ -383,16 +383,16 @@ export default function InterfaceConfigPage() {
   }
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3.5 font-sans text-foreground">
       {/* 顶部 Header */}
-      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
             <Plug className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-800">接口配置管理</h1>
-            <p className="text-xs text-slate-500 font-sans">
+            <h1 className="text-base font-bold text-foreground">接口配置管理</h1>
+            <p className="text-xs text-muted-foreground font-sans">
               维护各直属制造单位 SCADA / MES / EMS / IoT 子系统连接参数、字段映射转换规则、连通性探测与变更审计日志
             </p>
           </div>
@@ -407,7 +407,7 @@ export default function InterfaceConfigPage() {
               setTreeSelectOpen(false)
               setEditIfModalOpen(true)
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs cursor-pointer shadow-xs transition-colors"
           >
             <Plus className="size-3.5" />
             <span>接入新子系统接口</span>
@@ -418,9 +418,9 @@ export default function InterfaceConfigPage() {
             onClick={() => {
               showToast('正在对全集团 6 大直属工厂接口发起全量心跳探测...')
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs cursor-pointer shadow-2xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-panel border border-border hover:bg-accent/40 text-foreground font-semibold text-xs cursor-pointer shadow-2xs transition-colors"
           >
-            <Radio className="size-3.5 text-emerald-600 animate-pulse" />
+            <Radio className="size-3.5 text-emerald-400 animate-pulse" />
             <span>一键全量探测</span>
           </button>
         </div>
@@ -428,24 +428,22 @@ export default function InterfaceConfigPage() {
 
       {/* 提示 Toast */}
       {toastMsg && (
-        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+        <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
           <span className="font-sans font-medium">{toastMsg}</span>
         </div>
       )}
 
-
-
       {/* Tab 导航 */}
-      <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-xs flex items-center gap-1 font-sans text-xs">
+      <div className="bg-card p-1 rounded-xl border border-border shadow-xs flex items-center gap-1 font-sans text-xs">
         <button
           type="button"
           onClick={() => setActiveTab('interfaces')}
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'interfaces'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-primary/20 text-primary font-bold border border-primary/30 shadow-2xs'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
           )}
         >
           <Plug className="size-3.5" />
@@ -458,8 +456,8 @@ export default function InterfaceConfigPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'mapping'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-primary/20 text-primary font-bold border border-primary/30 shadow-2xs'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
           )}
         >
           <ArrowRightLeft className="size-3.5" />
@@ -472,8 +470,8 @@ export default function InterfaceConfigPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'audit'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-primary/20 text-primary font-bold border border-primary/30 shadow-2xs'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
           )}
         >
           <History className="size-3.5" />
@@ -485,11 +483,11 @@ export default function InterfaceConfigPage() {
       {/* Tab 1: 接口列表 */}
       {/* ========================================================================= */}
       {activeTab === 'interfaces' && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-3.5">
+        <div className="bg-card rounded-xl border border-border shadow-xs p-4 space-y-3.5">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
                   <th className="py-2.5 px-3">所属单位 / 接入工厂</th>
                   <th className="py-2.5 px-3">接口访问地址 (URL)</th>
                   <th className="py-2.5 px-3">通信协议</th>
@@ -501,25 +499,25 @@ export default function InterfaceConfigPage() {
                   <th className="py-2.5 px-3 text-right">操作</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-border/60 text-foreground">
                 {interfaces.map((item) => (
-                  <tr key={item.id} className="hover:bg-blue-50/40 transition-colors">
+                  <tr key={item.id} className="hover:bg-accent/30 transition-colors">
                     <td className="py-3 px-3">
-                      <div className="font-bold text-slate-900">{item.factory}</div>
+                      <div className="font-bold text-foreground">{item.factory}</div>
                     </td>
 
-                    <td className="py-3 px-3 font-mono text-[11px] text-slate-600 max-w-xs truncate" title={item.url}>
+                    <td className="py-3 px-3 font-mono text-[11px] text-muted-foreground max-w-xs truncate" title={item.url}>
                       {item.url}
                     </td>
 
-                    <td className="py-3 px-3 font-semibold text-slate-800">{item.protocol}</td>
+                    <td className="py-3 px-3 font-semibold text-foreground">{item.protocol}</td>
 
                     <td className="py-3 px-3">
-                      <div className="font-medium text-slate-800">{item.authType}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">{item.authSecretMasked}</div>
+                      <div className="font-medium text-foreground">{item.authType}</div>
+                      <div className="text-[10px] text-muted-foreground font-mono">{item.authSecretMasked}</div>
                     </td>
 
-                    <td className="py-3 px-3 font-mono text-slate-600">
+                    <td className="py-3 px-3 font-mono text-muted-foreground">
                       {item.timeoutSec}s
                     </td>
 
@@ -528,22 +526,22 @@ export default function InterfaceConfigPage() {
                         className={cn(
                           'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium',
                           item.status === '正常在线'
-                            ? 'bg-emerald-50 text-emerald-700'
-                            : 'bg-amber-50 text-amber-700'
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                            : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                         )}
                       >
-                        <span className={cn('size-1.5 rounded-full', item.status === '正常在线' ? 'bg-emerald-500' : 'bg-amber-500')} />
+                        <span className={cn('size-1.5 rounded-full', item.status === '正常在线' ? 'bg-emerald-400' : 'bg-amber-400')} />
                         {item.status}
                       </span>
                     </td>
 
                     <td className="py-3 px-3 font-mono font-bold">
-                      <span className={item.latencyMs < 200 ? 'text-emerald-600' : 'text-amber-600'}>
+                      <span className={item.latencyMs < 200 ? 'text-emerald-400' : 'text-amber-400'}>
                         {item.latencyMs} ms
                       </span>
                     </td>
 
-                    <td className="py-3 px-3 font-mono text-slate-400 text-[11px]">{item.lastSyncTime}</td>
+                    <td className="py-3 px-3 font-mono text-muted-foreground text-[11px]">{item.lastSyncTime}</td>
 
                     <td className="py-3 px-3 text-right">
                       <div className="flex items-center justify-end gap-2 text-xs">
@@ -553,7 +551,7 @@ export default function InterfaceConfigPage() {
                             setSelectedIf(item)
                             setMappingDrawerOpen(true)
                           }}
-                          className="text-[#1677ff] hover:underline font-medium cursor-pointer"
+                          className="text-primary hover:underline font-medium cursor-pointer"
                         >
                           字段映射 ({item.fieldCount})
                         </button>
@@ -561,7 +559,7 @@ export default function InterfaceConfigPage() {
                         <button
                           type="button"
                           onClick={() => handleTestConnection(item)}
-                          className="text-emerald-600 hover:underline font-medium cursor-pointer"
+                          className="text-emerald-400 hover:underline font-medium cursor-pointer"
                         >
                           测试连接
                         </button>
@@ -574,7 +572,7 @@ export default function InterfaceConfigPage() {
                             setTreeSelectOpen(false)
                             setEditIfModalOpen(true)
                           }}
-                          className="text-slate-600 hover:text-slate-900 hover:underline cursor-pointer"
+                          className="text-muted-foreground hover:text-foreground hover:underline cursor-pointer"
                         >
                           配置参数
                         </button>
@@ -592,14 +590,14 @@ export default function InterfaceConfigPage() {
       {/* Tab 2: 字段映射与转换规则 */}
       {/* ========================================================================= */}
       {activeTab === 'mapping' && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+        <div className="bg-card rounded-xl border border-border shadow-xs p-4 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-border/60">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <ArrowRightLeft className="size-4 text-[#1677ff]" />
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <ArrowRightLeft className="size-4 text-primary" />
                 工厂侧原始数据字段 ➔ 平台标准统一字段映射与单位换算
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 支持在数据接收时自动完成计量单位换算（如 GJ 换算为吨、Nm³ 标准方修正、万度折算等）
               </p>
             </div>
@@ -607,7 +605,7 @@ export default function InterfaceConfigPage() {
             <button
               type="button"
               onClick={() => showToast('已成功保存并重新编译字段映射转换规则！')}
-              className="px-3.5 py-1.5 bg-[#1677ff] hover:bg-blue-600 text-white font-bold text-xs rounded-lg shadow-xs cursor-pointer"
+              className="px-3.5 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-lg shadow-xs cursor-pointer"
             >
               保存映射规则
             </button>
@@ -616,7 +614,7 @@ export default function InterfaceConfigPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
                   <th className="py-2.5 px-3">工厂原始数据项 / 采集单位</th>
                   <th className="py-2.5 px-3">平台标准指标项 / 目标单位</th>
                   <th className="py-2.5 px-3">单位换算 / 转换公式</th>
@@ -624,25 +622,25 @@ export default function InterfaceConfigPage() {
                   <th className="py-2.5 px-3 text-right">状态</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-border/60 text-foreground">
                 {mappings.map((row) => (
-                  <tr key={row.id} className="hover:bg-blue-50/30 transition-colors">
+                  <tr key={row.id} className="hover:bg-accent/30 transition-colors">
                     <td className="py-3 px-3">
-                      <div className="font-bold text-slate-900">{row.sourceFieldName}</div>
-                      <span className="text-[10px] bg-slate-100 text-slate-600 px-1 rounded font-mono mt-0.5 inline-block">{row.sourceUnit}</span>
+                      <div className="font-bold text-foreground">{row.sourceFieldName}</div>
+                      <span className="text-[10px] bg-panel text-muted-foreground px-1 rounded font-mono mt-0.5 inline-block border border-border">{row.sourceUnit}</span>
                     </td>
                     <td className="py-3 px-3">
-                      <div className="font-bold text-slate-900">{row.targetFieldName}</div>
-                      <span className="text-[10px] bg-blue-100 text-[#1677ff] px-1 rounded font-mono mt-0.5 inline-block">{row.targetUnit}</span>
+                      <div className="font-bold text-foreground">{row.targetFieldName}</div>
+                      <span className="text-[10px] bg-primary/20 text-primary px-1 rounded font-mono mt-0.5 inline-block border border-primary/30">{row.targetUnit}</span>
                     </td>
-                    <td className="py-3 px-3 font-mono text-purple-700 font-bold">
-                      <span className="bg-purple-50 px-2 py-0.5 rounded border border-purple-200/60 inline-block">{row.transformRule}</span>
+                    <td className="py-3 px-3 font-mono text-purple-400 font-bold">
+                      <span className="bg-panel px-2 py-0.5 rounded border border-border inline-block">{row.transformRule}</span>
                     </td>
                     <td className="py-3 px-3 font-mono text-[11px]">
-                      <span className="text-slate-400">{row.sampleSourceVal}</span> ➔ <strong className="text-emerald-600">{row.sampleTargetVal}</strong>
+                      <span className="text-muted-foreground">{row.sampleSourceVal}</span> ➔ <strong className="text-emerald-400">{row.sampleTargetVal}</strong>
                     </td>
                     <td className="py-3 px-3 text-right">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-50 text-emerald-700">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                         {row.status}
                       </span>
                     </td>
@@ -658,13 +656,13 @@ export default function InterfaceConfigPage() {
       {/* Tab 3: 操作审计日志 */}
       {/* ========================================================================= */}
       {activeTab === 'audit' && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-4">
-          <div className="pb-3 border-b border-slate-100">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <History className="size-4 text-[#1677ff]" />
+        <div className="bg-card rounded-xl border border-border shadow-xs p-4 space-y-4">
+          <div className="pb-3 border-b border-border/60">
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+              <History className="size-4 text-primary" />
               子系统接口参数变更与操作留痕审计
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               记录所有接口 URL、协议、认证密钥轮转、字段映射变动的操作人与 IP，不可篡改
             </p>
           </div>
@@ -672,7 +670,7 @@ export default function InterfaceConfigPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
                   <th className="py-2.5 px-3">时间</th>
                   <th className="py-2.5 px-3">操作人</th>
                   <th className="py-2.5 px-3">操作类型</th>
@@ -680,18 +678,18 @@ export default function InterfaceConfigPage() {
                   <th className="py-2.5 px-3 text-right">操作 IP</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-border/60 text-foreground">
                 {INITIAL_LOGS.map((log) => (
-                  <tr key={log.id} className="hover:bg-blue-50/30 transition-colors">
-                    <td className="py-3 px-3 font-mono text-slate-500">{log.time}</td>
-                    <td className="py-3 px-3 font-bold text-slate-900">{log.user}</td>
+                  <tr key={log.id} className="hover:bg-accent/30 transition-colors">
+                    <td className="py-3 px-3 font-mono text-muted-foreground">{log.time}</td>
+                    <td className="py-3 px-3 font-bold text-foreground">{log.user}</td>
                     <td className="py-3 px-3">
-                      <span className="bg-blue-50 text-[#1677ff] border border-blue-200 px-2 py-0.5 rounded text-[11px] font-medium">
+                      <span className="bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded text-[11px] font-medium">
                         {log.action}
                       </span>
                     </td>
-                    <td className="py-3 px-3 text-slate-700">{log.target}</td>
-                    <td className="py-3 px-3 font-mono text-slate-400 text-right">{log.ip}</td>
+                    <td className="py-3 px-3 text-foreground">{log.target}</td>
+                    <td className="py-3 px-3 font-mono text-muted-foreground text-right">{log.ip}</td>
                   </tr>
                 ))}
               </tbody>
@@ -704,17 +702,17 @@ export default function InterfaceConfigPage() {
       {/* 弹窗 1: 测试连接 Modal */}
       {/* ========================================================================= */}
       {testModalOpen && testTargetIf && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <Radio className="size-4 text-emerald-600" />
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl border border-border shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in text-foreground">
+            <div className="px-5 py-4 border-b border-border/60 flex items-center justify-between bg-panel">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Radio className="size-4 text-emerald-400" />
                 接口连通性在线测试
               </h3>
               <button
                 type="button"
                 onClick={() => setTestModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4" />
               </button>
@@ -722,25 +720,25 @@ export default function InterfaceConfigPage() {
 
             <div className="p-5 space-y-4 text-xs font-sans">
               <div className="space-y-1">
-                <span className="text-slate-500">测试目标接口：</span>
-                <div className="font-bold text-slate-900">{testTargetIf.factory} - {testTargetIf.systemName}</div>
-                <div className="text-[11px] font-mono text-slate-500 bg-slate-50 p-2 rounded border border-slate-200 break-all">
+                <span className="text-muted-foreground">测试目标接口：</span>
+                <div className="font-bold text-foreground">{testTargetIf.factory} - {testTargetIf.systemName}</div>
+                <div className="text-[11px] font-mono text-muted-foreground bg-panel p-2 rounded border border-border break-all">
                   {testTargetIf.url}
                 </div>
               </div>
 
               {testTesting ? (
                 <div className="py-6 flex flex-col items-center justify-center gap-3">
-                  <div className="size-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-slate-600 font-medium">正在握手通信并验证 Token 鉴权...</span>
+                  <div className="size-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+                  <span className="text-muted-foreground font-medium">正在握手通信并验证 Token 鉴权...</span>
                 </div>
               ) : (
-                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-emerald-900">
-                  <div className="flex items-center gap-2 font-bold text-emerald-700">
+                <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl space-y-2 text-foreground">
+                  <div className="flex items-center gap-2 font-bold text-emerald-400">
                     <CheckCircle2 className="size-4" />
                     <span>接口连接成功！通信链路正常</span>
                   </div>
-                  <div className="text-[11px] font-mono space-y-1 text-emerald-800">
+                  <div className="text-[11px] font-mono space-y-1 text-emerald-400">
                     <div>HTTP 状态码: 200 OK</div>
                     <div>握手与数据回传延迟: {testTargetIf.latencyMs} ms</div>
                     <div>鉴权状态: Bearer Token 校验通过</div>
@@ -753,7 +751,7 @@ export default function InterfaceConfigPage() {
                 <button
                   type="button"
                   onClick={() => setTestModalOpen(false)}
-                  className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-xs cursor-pointer"
                 >
                   关闭
                 </button>
@@ -767,17 +765,17 @@ export default function InterfaceConfigPage() {
       {/* 弹窗 2: 编辑/新增接口连接参数 Modal */}
       {/* ========================================================================= */}
       {editIfModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full overflow-hidden animate-in fade-in zoom-in-95">
-            <div className="px-6 py-4.5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <Settings className="size-4 text-[#1677ff]" />
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl border border-border shadow-2xl max-w-2xl w-full overflow-hidden animate-in fade-in zoom-in-95 text-foreground">
+            <div className="px-6 py-4.5 border-b border-border/60 flex items-center justify-between bg-panel">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Settings className="size-4 text-primary" />
                 {editingIf ? '编辑子系统接口连接参数' : '接入新子系统接口'}
               </h3>
               <button
                 type="button"
                 onClick={() => setEditIfModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4" />
               </button>
@@ -793,34 +791,34 @@ export default function InterfaceConfigPage() {
             >
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5 relative">
-                  <label className="text-slate-700 font-medium">所属工厂 / 制造基地 *</label>
+                  <label className="text-foreground font-medium">所属工厂 / 制造基地 *</label>
                   <input type="hidden" name="factory" value={selectedFactoryVal} />
                   
                   {/* 树状选择器触发按钮 */}
                   <button
                     type="button"
                     onClick={() => setTreeSelectOpen(!treeSelectOpen)}
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs flex items-center justify-between text-left focus:outline-none focus:border-[#1677ff] cursor-pointer transition-all hover:border-slate-300"
+                    className="w-full px-3.5 py-2 bg-panel border border-border rounded-lg text-xs flex items-center justify-between text-left focus:outline-none focus:border-primary cursor-pointer transition-all hover:border-primary/60 text-foreground"
                   >
                     <div className="flex items-center gap-1.5 truncate">
-                      <Factory className="size-3.5 text-[#1677ff] shrink-0" />
-                      <span className="font-bold text-slate-800 truncate">{selectedFactoryVal}</span>
+                      <Factory className="size-3.5 text-primary shrink-0" />
+                      <span className="font-bold text-foreground truncate">{selectedFactoryVal}</span>
                     </div>
-                    <ChevronDown className={cn("size-3.5 text-slate-400 shrink-0 transition-transform", treeSelectOpen && "rotate-180")} />
+                    <ChevronDown className={cn("size-3.5 text-muted-foreground shrink-0 transition-transform", treeSelectOpen && "rotate-180")} />
                   </button>
 
                   {/* 下拉层级树状弹出层 */}
                   {treeSelectOpen && (
-                    <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-white border border-slate-200 rounded-xl shadow-xl p-2.5 space-y-2 max-h-72 overflow-y-auto animate-in fade-in">
+                    <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-card border border-border rounded-xl shadow-xl p-2.5 space-y-2 max-h-72 overflow-y-auto animate-in fade-in text-foreground">
                       {/* 搜索框 */}
                       <div className="relative">
-                        <Search className="size-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                        <Search className="size-3 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
                           placeholder="搜索公司或车间..."
                           value={treeSelectSearch}
                           onChange={(e) => setTreeSelectSearch(e.target.value)}
-                          className="w-full pl-7 pr-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] focus:outline-none focus:border-[#1677ff]"
+                          className="w-full pl-7 pr-2.5 py-1.5 bg-panel border border-border rounded-lg text-[11px] text-foreground focus:outline-none focus:border-primary"
                         />
                       </div>
 
@@ -850,7 +848,7 @@ export default function InterfaceConfigPage() {
                                     return next
                                   })
                                 }}
-                                className="flex items-center justify-between py-1 px-1.5 rounded-lg hover:bg-slate-100 cursor-pointer text-slate-800 text-[11px] font-semibold"
+                                className="flex items-center justify-between py-1 px-1.5 rounded-lg hover:bg-accent/40 cursor-pointer text-foreground text-[11px] font-semibold"
                               >
                                 <div className="flex items-center gap-1">
                                   <button
@@ -864,22 +862,22 @@ export default function InterfaceConfigPage() {
                                         return next
                                       })
                                     }}
-                                    className="size-3.5 flex items-center justify-center text-slate-400 hover:text-slate-600"
+                                    className="size-3.5 flex items-center justify-center text-muted-foreground hover:text-foreground"
                                   >
                                     {isCompExpanded ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
                                   </button>
-                                  <Folder className="size-3.5 text-[#1677ff]" />
+                                  <Folder className="size-3.5 text-primary" />
                                   <span>{comp.name}</span>
-                                  <span className="text-[10px] text-slate-400 font-mono font-normal">({comp.province})</span>
+                                  <span className="text-[10px] text-muted-foreground font-mono font-normal">({comp.province})</span>
                                 </div>
-                                <span className="text-[10px] bg-slate-100 text-slate-500 px-1 rounded font-mono">
+                                <span className="text-[10px] bg-panel text-muted-foreground px-1 rounded font-mono border border-border">
                                   {comp.workshops.length}车间
                                 </span>
                               </div>
 
                               {/* 车间子节点列表 */}
                               {isCompExpanded && (
-                                <div className="pl-4 border-l border-slate-200 ml-2.5 space-y-0.5 py-0.5">
+                                <div className="pl-4 border-l border-border ml-2.5 space-y-0.5 py-0.5">
                                   {filteredWorkshops.map((ws) => {
                                     const fullVal = `${comp.name} · ${ws.name}`
                                     const isSelected = selectedFactoryVal === fullVal
@@ -893,15 +891,15 @@ export default function InterfaceConfigPage() {
                                         className={cn(
                                           "flex items-center justify-between py-1 px-2 rounded-lg cursor-pointer text-[11px] transition-colors",
                                           isSelected
-                                            ? "bg-blue-50 text-[#1677ff] font-bold"
-                                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                            ? "bg-primary/20 text-primary font-bold"
+                                            : "text-muted-foreground hover:bg-accent/40 hover:text-foreground"
                                         )}
                                       >
                                         <div className="flex items-center gap-1.5">
-                                          <Factory className={cn("size-3", isSelected ? "text-[#1677ff]" : "text-slate-400")} />
+                                          <Factory className={cn("size-3", isSelected ? "text-primary" : "text-muted-foreground")} />
                                           <span>{ws.name}</span>
                                         </div>
-                                        <span className="text-[9px] bg-slate-100 text-slate-500 px-1 rounded font-mono">
+                                        <span className="text-[9px] bg-panel text-muted-foreground px-1 rounded font-mono border border-border">
                                           {ws.badge}
                                         </span>
                                       </div>
@@ -918,10 +916,10 @@ export default function InterfaceConfigPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-700 font-medium">系统类型 *</label>
+                  <label className="text-foreground font-medium">系统类型 *</label>
                   <select
                     defaultValue={editingIf?.systemType || 'SCADA'}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                   >
                     <option value="SCADA">SCADA 自动化监控</option>
                     <option value="MES">MES 生产执行系统</option>
@@ -933,20 +931,20 @@ export default function InterfaceConfigPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-slate-700 font-medium">接口访问端点 (URL / Host:Port) *</label>
+                <label className="text-foreground font-medium">接口访问端点 (URL / Host:Port) *</label>
                 <input
                   defaultValue={editingIf?.url || 'https://api.factory.tbea.local/v1/metrics'}
                   required
-                  className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3.5 py-2 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-slate-700 font-medium">通信协议 *</label>
+                  <label className="text-foreground font-medium">通信协议 *</label>
                   <select
                     defaultValue={editingIf?.protocol || 'RESTful API'}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                   >
                     <option value="RESTful API">RESTful API (HTTPS/JSON)</option>
                     <option value="MQTT">MQTT 消息流 (TCP/SSL)</option>
@@ -957,10 +955,10 @@ export default function InterfaceConfigPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-700 font-medium">认证方式 *</label>
+                  <label className="text-foreground font-medium">认证方式 *</label>
                   <select
                     defaultValue={editingIf?.authType || 'Bearer Token'}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                   >
                     <option value="Bearer Token">Bearer Token</option>
                     <option value="AppKey & AppSecret">AppKey & AppSecret</option>
@@ -973,28 +971,28 @@ export default function InterfaceConfigPage() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-slate-700 font-medium">超时时间 (秒)</label>
+                  <label className="text-foreground font-medium">超时时间 (秒)</label>
                   <input
                     type="number"
                     defaultValue={editingIf?.timeoutSec || 15}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-700 font-medium">最大重试次数</label>
+                  <label className="text-foreground font-medium">最大重试次数</label>
                   <input
                     type="number"
                     defaultValue={editingIf?.retryCount || 3}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 bg-panel border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:border-primary"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-700 font-medium">重试策略</label>
+                  <label className="text-foreground font-medium">重试策略</label>
                   <select
                     defaultValue={editingIf?.retryStrategy || '指数退避'}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 bg-panel border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary"
                   >
                     <option value="指数退避">指数退避 (推荐)</option>
                     <option value="线性重试">线性重试</option>
@@ -1003,17 +1001,17 @@ export default function InterfaceConfigPage() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
+              <div className="pt-3 border-t border-border/60 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setEditIfModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-border hover:bg-accent/40 text-muted-foreground text-xs font-medium cursor-pointer"
                 >
                   取消
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
+                  className="px-5 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
                   确认保存
                 </button>
@@ -1027,20 +1025,20 @@ export default function InterfaceConfigPage() {
       {/* 抽屉: 单接口字段映射配置 Drawer */}
       {/* ========================================================================= */}
       {mappingDrawerOpen && selectedIf && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex justify-end">
-          <div className="bg-white w-full max-w-xl h-full shadow-2xl p-5 space-y-4 overflow-y-auto animate-in slide-in-from-right">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end">
+          <div className="bg-card w-full max-w-xl h-full shadow-2xl p-5 space-y-4 overflow-y-auto animate-in slide-in-from-right text-foreground border-l border-border">
+            <div className="flex items-center justify-between pb-3 border-b border-border/60">
               <div>
-                <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                  <ArrowRightLeft className="size-4 text-[#1677ff]" />
+                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <ArrowRightLeft className="size-4 text-primary" />
                   【{selectedIf.factory}】字段映射规则
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">{selectedIf.systemName}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{selectedIf.systemName}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setMappingDrawerOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4" />
               </button>
@@ -1048,11 +1046,11 @@ export default function InterfaceConfigPage() {
 
             <div className="space-y-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-700">已生效字段映射清单 ({mappings.length})</span>
+                <span className="font-bold text-foreground">已生效字段映射清单 ({mappings.length})</span>
                 <button
                   type="button"
                   onClick={() => showToast('已添加新字段映射规则')}
-                  className="text-xs text-[#1677ff] font-bold hover:underline cursor-pointer"
+                  className="text-xs text-primary font-bold hover:underline cursor-pointer"
                 >
                   + 添加映射字段
                 </button>
@@ -1060,14 +1058,14 @@ export default function InterfaceConfigPage() {
 
               <div className="space-y-2">
                 {mappings.map((m) => (
-                  <div key={m.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1.5">
+                  <div key={m.id} className="p-3 bg-panel rounded-lg border border-border space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-slate-800">{m.sourceField} ({m.sourceFieldName})</span>
-                      <span className="text-slate-400">➔</span>
-                      <span className="font-mono font-bold text-[#1677ff]">{m.targetField} ({m.targetFieldName})</span>
+                      <span className="font-mono font-bold text-foreground">{m.sourceField} ({m.sourceFieldName})</span>
+                      <span className="text-muted-foreground">➔</span>
+                      <span className="font-mono font-bold text-primary">{m.targetField} ({m.targetFieldName})</span>
                     </div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200/60 font-mono">
-                      <span>转换公式: <strong className="text-purple-700">{m.transformRule}</strong></span>
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-border/60 font-mono">
+                      <span>转换公式: <strong className="text-purple-400">{m.transformRule}</strong></span>
                       <span>单位: {m.sourceUnit} ➔ {m.targetUnit}</span>
                     </div>
                   </div>
@@ -1075,11 +1073,11 @@ export default function InterfaceConfigPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex justify-end">
+            <div className="pt-4 border-t border-border/60 flex justify-end">
               <button
                 type="button"
                 onClick={() => setMappingDrawerOpen(false)}
-                className="px-4 py-1.5 bg-[#1677ff] hover:bg-blue-600 text-white rounded-lg font-bold text-xs shadow-xs cursor-pointer"
+                className="px-4 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-bold text-xs shadow-xs cursor-pointer"
               >
                 完成
               </button>

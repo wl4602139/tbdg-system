@@ -836,7 +836,7 @@ export default function EquipmentPage() {
       { name: '尖峰电量', value: Math.round(totalMonthKWh * 0.172), color: '#f5222d', ratio: '17.2%' },
       { name: '高峰电量', value: Math.round(totalMonthKWh * 0.418), color: '#fa8c16', ratio: '41.8%' },
       { name: '平段电量', value: Math.round(totalMonthKWh * 0.282), color: '#1677ff', ratio: '28.2%' },
-      { name: '低谷电量', value: Math.round(totalMonthKWh * 0.128), color: '#52c41a', ratio: '12.8%' },
+      { name: '低谷电量', value: Math.round(totalMonthKWh * 0.128), color: '#10b981', ratio: '12.8%' },
     ]
   }, [selectedEq.energyKWh])
 
@@ -931,27 +931,27 @@ export default function EquipmentPage() {
   return (
     <div className="flex gap-3.5 items-start">
       {/* 🌟 左侧 270px 4 级组织与重点设备拓扑树 (1级集团 ➔ 2级单位 ➔ 3级企业 ➔ 4级重点设备) */}
-      <aside className="w-[270px] min-w-[270px] max-w-[270px] shrink-0 sticky top-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-84px)] overflow-hidden">
+      <aside className="w-[270px] min-w-[270px] max-w-[270px] shrink-0 sticky top-0 bg-card rounded-xl border border-border shadow-xs flex flex-col h-[calc(100vh-84px)] overflow-hidden">
         {/* 搜索与树标题 */}
-        <div className="p-3 border-b border-slate-100 space-y-2 bg-white shrink-0">
+        <div className="p-3 border-b border-border/60 space-y-2 bg-card shrink-0">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-              <Cpu className="size-4 text-[#1677ff]" />
+            <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <Cpu className="size-4 text-primary" />
               企业及重点设备拓扑 (4级)
             </span>
-            <span className="text-[10px] font-medium bg-blue-50 text-[#1677ff] px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-medium bg-primary/20 text-primary border border-primary/30 px-1.5 py-0.5 rounded">
               设备感知
             </span>
           </div>
 
           <div className="relative">
-            <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={eqSearchKw}
               onChange={(e) => setEqSearchKw(e.target.value)}
               placeholder="搜索企业 / 重点设备..."
-              className="w-full pl-8 pr-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:border-[#1677ff]"
+              className="w-full pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
             />
           </div>
         </div>
@@ -961,7 +961,7 @@ export default function EquipmentPage() {
           {/* 1级节点：电装集团 (支持点击展开/收起) */}
           <div
             onClick={() => setIsRootCollapsed(!isRootCollapsed)}
-            className="flex items-center gap-1.5 py-1 px-1.5 rounded bg-blue-50/70 text-[#1677ff] font-bold cursor-pointer hover:bg-blue-100/70 transition-colors select-none"
+            className="flex items-center gap-1.5 py-1 px-1.5 rounded bg-primary/20 text-primary font-bold cursor-pointer hover:bg-primary/30 transition-colors select-none"
             title="点击收起/展开下级组织与重点设备"
           >
             <button
@@ -970,7 +970,7 @@ export default function EquipmentPage() {
                 e.stopPropagation()
                 setIsRootCollapsed(!isRootCollapsed)
               }}
-              className="size-4 flex items-center justify-center text-[#1677ff] hover:text-blue-700 shrink-0 cursor-pointer"
+              className="size-4 flex items-center justify-center text-primary hover:text-primary/80 shrink-0 cursor-pointer"
             >
               {isRootCollapsed ? (
                 <ChevronRight className="size-3.5" />
@@ -978,13 +978,13 @@ export default function EquipmentPage() {
                 <ChevronDown className="size-3.5" />
               )}
             </button>
-            <Building2 className="size-3.5 shrink-0 text-[#1677ff]" />
+            <Building2 className="size-3.5 shrink-0 text-primary" />
             <span className="flex-1 truncate">{rootNode?.name || '电装集团'}</span>
           </div>
 
           {/* 1级节点展开后的 2级经营单位列表 (与 ENTERPRISE_TREE_DATA 严格对齐) */}
           {!isRootCollapsed && (
-            <div className="border-l border-slate-200 ml-3.5 pl-2 space-y-1">
+            <div className="border-l border-border/60 ml-3.5 pl-2 space-y-1">
               {standardCompanies.map((compNode) => {
                 const compName = compNode.name
                 const enterprises = compNode.children || []
@@ -1019,7 +1019,7 @@ export default function EquipmentPage() {
                     {/* 2级节点：各经营单位 / 所属园区 (支持点击展开/收起) */}
                     <div
                       onClick={() => toggleCompanyCollapse(compName)}
-                      className="flex items-center gap-1.5 py-1 px-1.5 rounded text-slate-800 font-bold hover:bg-slate-100 cursor-pointer select-none transition-colors"
+                      className="flex items-center gap-1.5 py-1 px-1.5 rounded text-foreground font-bold hover:bg-accent/40 cursor-pointer select-none transition-colors"
                     >
                       <button
                         type="button"
@@ -1027,12 +1027,12 @@ export default function EquipmentPage() {
                           e.stopPropagation()
                           toggleCompanyCollapse(compName)
                         }}
-                        className="size-3.5 flex items-center justify-center text-slate-400 hover:text-slate-700 shrink-0 cursor-pointer"
+                        className="size-3.5 flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
                       >
                         {isCompanyCollapsed ? (
-                          <ChevronRight className="size-3 text-slate-400" />
+                          <ChevronRight className="size-3 text-muted-foreground" />
                         ) : (
-                          <ChevronDown className="size-3 text-slate-500" />
+                          <ChevronDown className="size-3 text-muted-foreground" />
                         )}
                       </button>
                       <span className="flex-1 truncate" title={compName}>{compName}</span>
@@ -1040,7 +1040,7 @@ export default function EquipmentPage() {
 
                     {/* 2级节点展开后的 3级企业级单位列表 (与 ENTERPRISE_TREE_DATA 100% 绝对一致) */}
                     {!isCompanyCollapsed && (
-                      <div className="border-l border-slate-200 ml-3 pl-2 space-y-1">
+                      <div className="border-l border-border/60 ml-3 pl-2 space-y-1">
                         {matchedEnterprises.map((ent) => {
                           const entName = ent.name
                           const hasEqs = ent.equipments.length > 0
@@ -1051,7 +1051,7 @@ export default function EquipmentPage() {
                               {/* 3级节点：企业级单位 (支持点击展开/收起) */}
                               <div
                                 onClick={() => toggleEnterpriseCollapse(entName)}
-                                className="flex items-center gap-1 py-0.5 px-1 rounded text-slate-700 font-semibold hover:bg-slate-100 cursor-pointer select-none transition-colors text-[11.5px]"
+                                className="flex items-center gap-1 py-0.5 px-1 rounded text-muted-foreground font-semibold hover:bg-accent/40 cursor-pointer select-none transition-colors text-[11.5px]"
                               >
                                 <button
                                   type="button"
@@ -1059,24 +1059,24 @@ export default function EquipmentPage() {
                                     e.stopPropagation()
                                     toggleEnterpriseCollapse(entName)
                                   }}
-                                  className="size-3 flex items-center justify-center text-slate-400 hover:text-slate-600 shrink-0 cursor-pointer"
+                                  className="size-3 flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
                                 >
                                   {isEntCollapsed ? (
-                                    <ChevronRight className="size-2.5 text-slate-400" />
+                                    <ChevronRight className="size-2.5 text-muted-foreground" />
                                   ) : (
-                                    <ChevronDown className="size-2.5 text-slate-500" />
+                                    <ChevronDown className="size-2.5 text-muted-foreground" />
                                   )}
                                 </button>
-                                <Factory className="size-3 text-slate-500 shrink-0" />
+                                <Factory className="size-3 text-muted-foreground shrink-0" />
                                 <span className="flex-1 truncate" title={entName}>{entName}</span>
-                                <span className="text-[10px] text-slate-400 font-mono">
+                                <span className="text-[10px] text-muted-foreground font-mono">
                                   ({ent.equipments.length})
                                 </span>
                               </div>
 
                               {/* 4级节点：重点设备列表 */}
                               {!isEntCollapsed && (
-                                <div className="border-l border-slate-200 ml-2.5 pl-2 space-y-0.5">
+                                <div className="border-l border-border/60 ml-2.5 pl-2 space-y-0.5">
                                   {hasEqs ? (
                                     ent.equipments.map((eq) => {
                                       const isSelected = selectedEqId === eq.id
@@ -1087,22 +1087,22 @@ export default function EquipmentPage() {
                                           className={cn(
                                             'flex items-center justify-between py-1 px-1.5 rounded cursor-pointer transition-colors text-[11px] group',
                                             isSelected
-                                              ? 'bg-[#e6f4ff] text-[#1677ff] font-bold shadow-2xs'
-                                              : 'hover:bg-slate-100 text-slate-600'
+                                              ? 'bg-primary/20 text-primary font-bold shadow-2xs border border-primary/30'
+                                              : 'hover:bg-accent/40 text-muted-foreground'
                                           )}
                                         >
                                           <div className="flex items-center gap-1.5 truncate">
-                                            <Cpu className={cn('size-3 shrink-0', isSelected ? 'text-[#1677ff]' : 'text-slate-400')} />
+                                            <Cpu className={cn('size-3 shrink-0', isSelected ? 'text-primary' : 'text-muted-foreground')} />
                                             <span className="truncate" title={eq.name}>
                                               {eq.name}
                                             </span>
                                           </div>
-                                          <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" title="在线运行" />
+                                          <span className="size-1.5 rounded-full bg-emerald-400 shrink-0" title="在线运行" />
                                         </div>
                                       )
                                     })
                                   ) : (
-                                    <div className="py-0.5 px-2 text-[10.5px] text-slate-400 font-sans italic">
+                                    <div className="py-0.5 px-2 text-[10.5px] text-muted-foreground font-sans italic">
                                       暂无重点监测设备
                                     </div>
                                   )}
@@ -1127,27 +1127,27 @@ export default function EquipmentPage() {
         <OnlineHeader />
 
         {/* 2. 选中设备主卡片 */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
             <div className="flex items-center gap-2">
-              <div className="size-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
-                <Cpu className="size-4 text-[#1677ff]" />
+              <div className="size-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+                <Cpu className="size-4 text-primary" />
               </div>
               <div>
-                <h2 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                <h2 className="text-xs font-bold text-foreground flex items-center gap-2">
                   <span>{selectedEq.name}</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-normal">
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-panel text-muted-foreground font-normal border border-border">
                     {selectedEq.code}
                   </span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] font-bold font-sans">
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-primary/20 text-primary border border-primary/30 font-bold font-sans">
                     {selectedEq.company} · {selectedEq.enterprise}
                   </span>
                 </h2>
-                <div className="text-[11px] text-slate-500 flex items-center gap-3 pt-0.5">
+                <div className="text-[11px] text-muted-foreground flex items-center gap-3 pt-0.5">
                   <span>安装车间: {selectedEq.location}</span>
                   <span>多能介质: {selectedEq.mediumTag}</span>
-                  <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
-                    <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
+                    <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     在线运行中
                   </span>
                 </div>
@@ -1157,78 +1157,78 @@ export default function EquipmentPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-mono">
             {/* 1. 实时有功功率 */}
-            <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-200/80 space-y-1">
-              <div className="text-xs text-blue-800 font-sans flex items-center gap-1 font-bold">
-                <Zap className="size-3 text-blue-600" />
+            <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+              <div className="text-xs text-primary font-sans flex items-center gap-1 font-bold">
+                <Zap className="size-3 text-primary" />
                 实时有功功率
               </div>
-              <div className="text-2xl font-extrabold text-[#1677ff]">
-                {selectedEq.powerKW?.toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">kW</span>
+              <div className="text-2xl font-extrabold text-primary">
+                {selectedEq.powerKW?.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">kW</span>
               </div>
-              <div className="pt-2 border-t border-blue-200/60 flex items-center justify-between text-[11px] font-sans">
-                <span className="text-slate-500">同比</span>
-                <span className={cn('font-bold font-mono', (selectedEq.powerYoy || '-4.2%').includes('+') ? 'text-red-500' : 'text-emerald-600')}>
+              <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                <span className="text-muted-foreground">同比</span>
+                <span className={cn('font-bold font-mono', (selectedEq.powerYoy || '-4.2%').includes('+') ? 'text-rose-400' : 'text-emerald-400')}>
                   {selectedEq.powerYoy || '-4.2% ↓'}
                 </span>
               </div>
             </div>
 
             {/* 2. 当月累计用电量 */}
-            <div className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-200/80 space-y-1">
-              <div className="text-xs text-emerald-800 font-sans flex items-center gap-1 font-bold">
-                <Zap className="size-3 text-emerald-600" />
+            <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+              <div className="text-xs text-emerald-400 font-sans flex items-center gap-1 font-bold">
+                <Zap className="size-3 text-emerald-400" />
                 当月累计用电量
               </div>
-              <div className="text-2xl font-extrabold text-emerald-600">
-                {selectedEq.energyKWh?.toLocaleString()} <span className="text-xs font-normal text-slate-500 font-sans">kWh</span>
+              <div className="text-2xl font-extrabold text-emerald-400">
+                {selectedEq.energyKWh?.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">kWh</span>
               </div>
-              <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between text-[11px] font-sans">
-                <span className="text-slate-500">同比</span>
-                <span className={cn('font-bold font-mono', (selectedEq.energyYoy || '-3.8%').includes('+') ? 'text-red-500' : 'text-emerald-600')}>
+              <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                <span className="text-muted-foreground">同比</span>
+                <span className={cn('font-bold font-mono', (selectedEq.energyYoy || '-3.8%').includes('+') ? 'text-rose-400' : 'text-emerald-400')}>
                   {selectedEq.energyYoy || '-3.8% ↓'}
                 </span>
               </div>
             </div>
 
             {/* 3. 瞬时蒸汽流量 / 瞬时天然气量 */}
-            <div className="p-3 bg-purple-50/50 rounded-xl border border-purple-200/80 space-y-1">
-              <div className="text-xs text-purple-800 font-sans flex items-center gap-1 font-bold">
-                <Wind className="size-3 text-purple-600" />
+            <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+              <div className="text-xs text-purple-400 font-sans flex items-center gap-1 font-bold">
+                <Wind className="size-3 text-purple-400" />
                 {selectedEq.gasFlowM3 ? '瞬时天然气量' : '瞬时蒸汽流量'}
               </div>
-              <div className="text-2xl font-extrabold text-purple-600">
+              <div className="text-2xl font-extrabold text-purple-400">
                 {selectedEq.gasFlowM3 ? `${selectedEq.gasFlowM3} ` : `${selectedEq.steamFlowT || 0} `}
-                <span className="text-xs font-normal text-slate-500 font-sans">
+                <span className="text-xs font-normal text-muted-foreground font-sans">
                   {selectedEq.gasFlowM3 ? 'm³/h' : 't/h'}
                 </span>
               </div>
-              <div className="pt-2 border-t border-purple-200/60 flex items-center justify-between text-[11px] font-sans">
-                <span className="text-slate-500">同比</span>
-                <span className={cn('font-bold font-mono', (selectedEq.flowYoy || '-5.1%').includes('+') ? 'text-red-500' : 'text-emerald-600')}>
+              <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                <span className="text-muted-foreground">同比</span>
+                <span className={cn('font-bold font-mono', (selectedEq.flowYoy || '-5.1%').includes('+') ? 'text-rose-400' : 'text-emerald-400')}>
                   {selectedEq.flowYoy || '-5.1% ↓'}
                 </span>
               </div>
             </div>
 
             {/* 4. 管道工作压力 / 运行温度 */}
-            <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-200/80 space-y-1">
-              <div className="text-xs text-amber-800 font-sans flex items-center gap-1 font-bold">
-                <Flame className="size-3 text-amber-600" />
+            <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+              <div className="text-xs text-amber-400 font-sans flex items-center gap-1 font-bold">
+                <Flame className="size-3 text-amber-400" />
                 管道工作压力
               </div>
-              <div className="text-2xl font-extrabold text-amber-600">
-                {selectedEq.pressureMpa ?? '0.005'} <span className="text-xs font-normal text-slate-500 font-sans">MPa</span>
+              <div className="text-2xl font-extrabold text-amber-400">
+                {selectedEq.pressureMpa ?? '0.005'} <span className="text-xs font-normal text-muted-foreground font-sans">MPa</span>
               </div>
-              <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[11px] font-sans">
-                <span className="text-slate-500">运行温度</span>
-                <span className="font-bold text-slate-800 font-mono">{selectedEq.temperatureC ?? 135.2}°C</span>
+              <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                <span className="text-muted-foreground">运行温度</span>
+                <span className="font-bold text-foreground font-mono">{selectedEq.temperatureC ?? 135.2}°C</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* 3. 核心图表控制栏：能源类型选择 (电 / 蒸汽) + 时间维度切换 (日 / 月) */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
           {/* 左侧：能源类型切换 (电力监测 / 蒸汽监测) */}
           <div className="flex items-center gap-2">
             <button
@@ -1237,8 +1237,8 @@ export default function EquipmentPage() {
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer shadow-xs',
                 energyType === 'elec'
-                  ? 'bg-[#1677ff] text-white shadow-blue-200'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-primary text-primary-foreground shadow-xs'
+                  : 'bg-panel text-muted-foreground hover:text-foreground border border-border'
               )}
             >
               <Zap className="size-3.5" />
@@ -1250,8 +1250,8 @@ export default function EquipmentPage() {
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer shadow-xs',
                 energyType === 'steam'
-                  ? 'bg-purple-600 text-white shadow-purple-200'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-purple-600 text-white shadow-xs'
+                  : 'bg-panel text-muted-foreground hover:text-foreground border border-border'
               )}
             >
               <Wind className="size-3.5" />
@@ -1261,15 +1261,15 @@ export default function EquipmentPage() {
 
           {/* 右侧：日/月 维度切换与日期选择 */}
           <div className="flex items-center gap-2">
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border">
               <button
                 type="button"
                 onClick={() => setTimeDim('day')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
                   timeDim === 'day'
-                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'font-bold bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 按日监测 (日)
@@ -1280,8 +1280,8 @@ export default function EquipmentPage() {
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
                   timeDim === 'month'
-                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'font-bold bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 按月监测 (月)
@@ -1290,25 +1290,25 @@ export default function EquipmentPage() {
 
             {/* 日期选择器 */}
             {timeDim === 'day' ? (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400" />
-                <span className="text-slate-500 font-sans">监测日期:</span>
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-muted-foreground" />
+                <span className="text-muted-foreground font-sans">监测日期:</span>
                 <input
                   type="date"
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 font-mono text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground font-mono text-xs focus:outline-none cursor-pointer"
                 />
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400" />
-                <span className="text-slate-500 font-sans">监测月份:</span>
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-muted-foreground" />
+                <span className="text-muted-foreground font-sans">监测月份:</span>
                 <input
                   type="month"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 font-mono text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground font-mono text-xs focus:outline-none cursor-pointer"
                 />
               </div>
             )}
@@ -1316,7 +1316,7 @@ export default function EquipmentPage() {
             <button
               type="button"
               onClick={() => alert(`正在导出【${selectedEq.name}】运行监测数据...`)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
             >
               <Download className="size-3.5" />
               <span>导出</span>
@@ -1332,28 +1332,28 @@ export default function EquipmentPage() {
         {energyType === 'elec' && timeDim === 'day' && (
           <div className="space-y-3.5">
             {/* 15分钟实时有功功率负荷连续曲线 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground">
                     15分钟实时有功功率负荷走势
                   </h3>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-mono">
-                  <span className="text-rose-600 font-bold flex items-center gap-1">
+                  <span className="text-rose-400 font-bold flex items-center gap-1">
                     <span className="size-2 rounded-full bg-rose-500" /> 最大值: 4,850 kW (11:15)
                   </span>
-                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
                     <span className="size-2 rounded-full bg-emerald-500" /> 最小值: 2,120 kW (03:30)
                   </span>
-                  <span className="text-slate-500 font-sans">
+                  <span className="text-muted-foreground font-sans">
                     平均: 3,728 kW
                   </span>
                   <button
                     type="button"
                     onClick={() => alert('正在导出 15分钟功率负荷曲线数据...')}
-                    className="flex items-center gap-1 text-[#1677ff] hover:underline font-sans cursor-pointer"
+                    className="flex items-center gap-1 text-primary hover:underline font-sans cursor-pointer"
                   >
                     <Download className="size-3" />
                     导出曲线
@@ -1377,18 +1377,18 @@ export default function EquipmentPage() {
             </div>
 
             {/* 峰平谷电量 (总饼图 + 分日堆叠图) */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+              <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-amber-500" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-amber-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     当日用电峰平谷构成分析与时段负荷
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => alert('正在导出当日峰平谷分时台账...')}
-                  className="flex items-center gap-1 text-xs text-[#1677ff] hover:underline cursor-pointer font-sans"
+                  className="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer font-sans"
                 >
                   <Download className="size-3" />
                   导出分时数据
@@ -1397,13 +1397,13 @@ export default function EquipmentPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                 {/* 左侧 4/12: 峰平谷总饼图 */}
-                <div className="lg:col-span-4 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                <div className="lg:col-span-4 border border-border rounded-xl p-3 bg-panel space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <PieIcon className="size-3.5 text-amber-600" />
+                    <span className="font-bold text-foreground flex items-center gap-1.5">
+                      <PieIcon className="size-3.5 text-amber-400" />
                       当日峰平谷电量总占比
                     </span>
-                    <span className="text-[11px] text-slate-400 font-mono">
+                    <span className="text-[11px] text-muted-foreground font-mono">
                       总电量: {selectedEq.energyKWh?.toLocaleString()} kWh
                     </span>
                   </div>
@@ -1419,13 +1419,13 @@ export default function EquipmentPage() {
                 </div>
 
                 {/* 右侧 8/12: 逐时段分时峰平谷堆叠柱状图 */}
-                <div className="lg:col-span-8 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                <div className="lg:col-span-8 border border-border rounded-xl p-3 bg-panel space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <BarChart3 className="size-3.5 text-blue-600" />
+                    <span className="font-bold text-foreground flex items-center gap-1.5">
+                      <BarChart3 className="size-3.5 text-primary" />
                       逐时段峰平谷电量堆叠 (kWh)
                     </span>
-                    <span className="text-[11px] text-slate-400 font-mono">
+                    <span className="text-[11px] text-muted-foreground font-mono">
                       尖/峰/平/谷 分色堆叠
                     </span>
                   </div>
@@ -1438,8 +1438,8 @@ export default function EquipmentPage() {
                       bars={[
                         { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
                         { key: '峰段', name: '高峰电量', color: '#fa8c16' },
-                        { key: '平段', name: '平段电量', color: '#1677ff' },
-                        { key: '谷段', name: '低谷电量', color: '#52c41a' },
+                        { key: '平段', name: '平段电量', color: 'oklch(0.72 0.18 210)' },
+                        { key: '谷段', name: '低谷电量', color: '#10b981' },
                       ]}
                     />
                   </div>
@@ -1455,28 +1455,28 @@ export default function EquipmentPage() {
         {energyType === 'elec' && timeDim === 'month' && (
           <div className="space-y-3.5">
             {/* 每日最大功率连续走势曲线 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground">
                     【{selectedEq.name}】{selectedMonth} 每日最大有功功率走势曲线 (标注最大最小值 / kW)
                   </h3>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-mono">
-                  <span className="text-rose-600 font-bold flex items-center gap-1">
+                  <span className="text-rose-400 font-bold flex items-center gap-1">
                     <span className="size-2 rounded-full bg-rose-500" /> 月最大值: 5,120 kW (15日)
                   </span>
-                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
                     <span className="size-2 rounded-full bg-emerald-500" /> 月最小值: 2,860 kW (03日)
                   </span>
-                  <span className="text-slate-500 font-sans">
+                  <span className="text-muted-foreground font-sans">
                     月平均最大: 4,320 kW
                   </span>
                   <button
                     type="button"
                     onClick={() => alert('正在导出月度每日最大功率数据...')}
-                    className="flex items-center gap-1 text-[#1677ff] hover:underline font-sans cursor-pointer"
+                    className="flex items-center gap-1 text-primary hover:underline font-sans cursor-pointer"
                   >
                     <Download className="size-3" />
                     导出数据
@@ -1498,18 +1498,18 @@ export default function EquipmentPage() {
             </div>
 
             {/* 峰平谷电量 (总饼图 + 分月分日堆叠图) */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+              <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-amber-500" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-amber-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     【{selectedEq.name}】{selectedMonth} 月度累计峰平谷构成分析与分日用电堆叠分布
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => alert('正在导出月度分日峰平谷数据...')}
-                  className="flex items-center gap-1 text-xs text-[#1677ff] hover:underline cursor-pointer font-sans"
+                  className="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer font-sans"
                 >
                   <Download className="size-3" />
                   导出月度台账
@@ -1518,13 +1518,13 @@ export default function EquipmentPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                 {/* 左侧 4/12: 月度峰平谷总饼图 */}
-                <div className="lg:col-span-4 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                <div className="lg:col-span-4 border border-border rounded-xl p-3 bg-panel space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <PieIcon className="size-3.5 text-amber-600" />
+                    <span className="font-bold text-foreground flex items-center gap-1.5">
+                      <PieIcon className="size-3.5 text-amber-400" />
                       月度峰平谷累计总占比
                     </span>
-                    <span className="text-[11px] text-slate-400 font-mono">
+                    <span className="text-[11px] text-muted-foreground font-mono">
                       月总电量: {Math.round((selectedEq.energyKWh || 112340) * 25.1).toLocaleString()} kWh
                     </span>
                   </div>
@@ -1540,13 +1540,13 @@ export default function EquipmentPage() {
                 </div>
 
                 {/* 右侧 8/12: 1日~31日分日峰平谷堆叠柱状图 */}
-                <div className="lg:col-span-8 border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                <div className="lg:col-span-8 border border-border rounded-xl p-3 bg-panel space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <BarChart3 className="size-3.5 text-blue-600" />
+                    <span className="font-bold text-foreground flex items-center gap-1.5">
+                      <BarChart3 className="size-3.5 text-primary" />
                       1日~31日 分日峰平谷用电量堆叠 (kWh)
                     </span>
-                    <span className="text-[11px] text-slate-400 font-mono">
+                    <span className="text-[11px] text-muted-foreground font-mono">
                       按日连续分时统计
                     </span>
                   </div>
@@ -1559,8 +1559,8 @@ export default function EquipmentPage() {
                       bars={[
                         { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
                         { key: '峰段', name: '高峰电量', color: '#fa8c16' },
-                        { key: '平段', name: '平段电量', color: '#1677ff' },
-                        { key: '谷段', name: '低谷电量', color: '#52c41a' },
+                        { key: '平段', name: '平段电量', color: 'oklch(0.72 0.18 210)' },
+                        { key: '谷段', name: '低谷电量', color: '#10b981' },
                       ]}
                     />
                   </div>
@@ -1576,28 +1576,28 @@ export default function EquipmentPage() {
         {energyType === 'steam' && timeDim === 'day' && (
           <div className="space-y-3.5">
             {/* 瞬时蒸汽流量连续走势曲线 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-purple-600" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-purple-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     当日瞬时蒸汽流量走势曲线
                   </h3>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-mono">
-                  <span className="text-rose-600 font-bold flex items-center gap-1">
+                  <span className="text-rose-400 font-bold flex items-center gap-1">
                     <span className="size-2 rounded-full bg-rose-500" /> 最大流量: 2.35 t/h (10:00)
                   </span>
-                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
                     <span className="size-2 rounded-full bg-emerald-500" /> 最小流量: 0.62 t/h (04:00)
                   </span>
-                  <span className="text-slate-500 font-sans">
+                  <span className="text-muted-foreground font-sans">
                     平均流量: 1.82 t/h
                   </span>
                   <button
                     type="button"
                     onClick={() => alert('正在导出当日瞬时流量曲线...')}
-                    className="flex items-center gap-1 text-purple-600 hover:underline font-sans cursor-pointer"
+                    className="flex items-center gap-1 text-purple-400 hover:underline font-sans cursor-pointer"
                   >
                     <Download className="size-3" />
                     导出数据
@@ -1619,15 +1619,15 @@ export default function EquipmentPage() {
             </div>
 
             {/* 逐时蒸汽累计消耗走势 (AreaTrend 面积图) */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-indigo-500" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-indigo-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     当日逐时蒸汽累计消耗量连续走势
                   </h3>
                 </div>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-muted-foreground font-mono">
                   当日累计用汽: 44.5 t
                 </span>
               </div>
@@ -1653,28 +1653,28 @@ export default function EquipmentPage() {
         {energyType === 'steam' && timeDim === 'month' && (
           <div className="space-y-3.5">
             {/* 每日最大蒸汽流量连续走势曲线 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-purple-600" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-purple-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     【{selectedEq.name}】{selectedMonth} 每日最大蒸汽流量走势曲线 (标注最大最小值 / t/h)
                   </h3>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-mono">
-                  <span className="text-rose-600 font-bold flex items-center gap-1">
+                  <span className="text-rose-400 font-bold flex items-center gap-1">
                     <span className="size-2 rounded-full bg-rose-500" /> 月最大流量: 2.68 t/h (18日)
                   </span>
-                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
                     <span className="size-2 rounded-full bg-emerald-500" /> 月最小流量: 0.85 t/h (04日)
                   </span>
-                  <span className="text-slate-500 font-sans">
+                  <span className="text-muted-foreground font-sans">
                     月平均最大: 2.15 t/h
                   </span>
                   <button
                     type="button"
                     onClick={() => alert('正在导出月度每日最大流量数据...')}
-                    className="flex items-center gap-1 text-purple-600 hover:underline font-sans cursor-pointer"
+                    className="flex items-center gap-1 text-purple-400 hover:underline font-sans cursor-pointer"
                   >
                     <Download className="size-3" />
                     导出数据
@@ -1696,15 +1696,15 @@ export default function EquipmentPage() {
             </div>
 
             {/* 每日累计蒸汽用量柱状图 */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-purple-500" />
-                  <h3 className="text-xs font-bold text-slate-900">
+                  <span className="size-2 rounded-full bg-purple-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     【{selectedEq.name}】{selectedMonth} 1日~31日每日蒸汽累计消耗分布 (t/日)
                   </h3>
                 </div>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-muted-foreground font-mono">
                   月总消耗量: 1,028.5 t
                 </span>
               </div>
@@ -1726,3 +1726,4 @@ export default function EquipmentPage() {
     </div>
   )
 }
+

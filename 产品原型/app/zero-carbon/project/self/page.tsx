@@ -2083,15 +2083,15 @@ export default function ZeroCarbonSelfEvaluationPage() {
               </div>
 
               {/* 底部操作栏 */}
-              <div className="flex items-center justify-between pt-3 border-t border-slate-200 shrink-0">
-                <span className="text-[11px] text-slate-500">
+              <div className="flex items-center justify-between pt-3 border-t border-border shrink-0">
+                <span className="text-[11px] text-muted-foreground">
                   ⚡ 保存后系统将自动重新核算所有指标并更新申报时间为当前最新值
                 </span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setIsDeclareModalOpen(false)}
-                    className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-colors cursor-pointer text-xs"
+                    className="px-4 py-2 rounded-xl border border-border bg-panel hover:bg-accent/40 text-muted-foreground hover:text-foreground font-bold transition-colors cursor-pointer text-xs"
                   >
                     取消
                   </button>
@@ -2227,172 +2227,172 @@ export default function ZeroCarbonSelfEvaluationPage() {
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60">[1.3] 屋顶及建筑光伏利用率</td>
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[1.3] 屋顶及建筑光伏利用率</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="flex flex-col gap-1">
-                        <span className="font-mono font-bold text-blue-700 text-xs">
+                        <span className="font-mono font-bold text-primary text-xs">
                           {factoryDetailModal.metrics['1.3'].value}%
                         </span>
-                        <div className="text-[10.5px] text-slate-600 bg-slate-50/90 p-1.5 rounded-lg border border-slate-200/80 leading-relaxed font-sans">
+                        <div className="text-[10.5px] text-muted-foreground bg-panel p-1.5 rounded-lg border border-border leading-relaxed font-sans">
                           <div>
-                            <span className="text-slate-400 font-medium">计算参数：</span>
-                            <span className="font-mono">Ap(光伏铺设面积) = {(factoryDetailModal.metrics['1.3'].value * 480).toFixed(0)} m²</span>，
-                            <span className="font-mono">Ab(适宜屋顶总面积) = 48,000 m²</span>
+                            <span className="text-muted-foreground/60 font-medium">计算参数：</span>
+                            <span className="font-mono text-foreground">Ap(光伏铺设面积) = {(factoryDetailModal.metrics['1.3'].value * 480).toFixed(0)} m²</span>，
+                            <span className="font-mono text-foreground">Ab(适宜屋顶总面积) = 48,000 m²</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 font-medium">计算过程：</span>
-                            <span className="font-mono">({(factoryDetailModal.metrics['1.3'].value * 480).toFixed(0)} ÷ 48,000) × 100% = </span>
-                            <span className="font-mono font-bold text-blue-700">{factoryDetailModal.metrics['1.3'].value}%</span>
+                            <span className="text-muted-foreground/60 font-medium">计算过程：</span>
+                            <span className="font-mono text-foreground">({(factoryDetailModal.metrics['1.3'].value * 480).toFixed(0)} ÷ 48,000) × 100% = </span>
+                            <span className="font-mono font-bold text-primary">{factoryDetailModal.metrics['1.3'].value}%</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
                       Rp = (Ap / Ab) × 100% (厂区适宜屋顶光伏铺设比例)
                     </td>
                   </tr>
 
-                  {/* 2 过程脱碳 (3项) */}
-                  <tr>
+                  {/* 2 过程削碳 (3项) */}
+                  <tr className="hover:bg-accent/30 transition-colors">
                     <td
                       rowSpan={3}
-                      className="py-3 px-3 text-center font-bold text-slate-900 bg-slate-50/70 border-r border-slate-200 align-middle whitespace-nowrap"
+                      className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap"
                     >
-                      2 过程脱碳
+                      2 过程削碳
                     </td>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">[2.1] 电机系统运行能效</td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-emerald-700 font-semibold">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[2.1] 电机系统运行能效</td>
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="flex flex-col gap-1">
-                        <span className="font-bold text-slate-800 text-xs">
+                        <span className="font-bold text-foreground text-xs">
                           {factoryDetailModal.metrics['2.1'].value}
                         </span>
-                        <div className="text-[10.5px] text-slate-600 bg-slate-50/90 p-1.5 rounded-lg border border-slate-200/80 leading-relaxed font-sans">
+                        <div className="text-[10.5px] text-muted-foreground bg-panel p-1.5 rounded-lg border border-border leading-relaxed font-sans">
                           <div>
-                            <span className="text-slate-400 font-medium">核验参数：</span>
-                            <span className="font-mono">加权综合运行效率 η = 94.8%</span>，
-                            <span className="font-mono">一级能效电机占比 = 85.6%</span>
+                            <span className="text-muted-foreground/60 font-medium">核验参数：</span>
+                            <span className="font-mono text-foreground">加权综合运行效率 η = 94.8%</span>，
+                            <span className="font-mono text-foreground">一级能效电机占比 = 85.6%</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 font-medium">判定结论：</span>
-                            <span className="font-medium text-emerald-700">达到并优于 GB 18613—2020 二级能效基准</span>
+                            <span className="text-muted-foreground/60 font-medium">判定结论：</span>
+                            <span className="font-medium text-emerald-400">达到并优于 GB 18613—2020 二级能效基准</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
                       依据 GB 18613—2020 电动机能效标准评定
                     </td>
                   </tr>
-                  <tr>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">[2.2] 空压机站节能评级</td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-emerald-700 font-semibold">
+                  <tr className="hover:bg-accent/30 transition-colors">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[2.2] 空压机站节能评级</td>
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="flex flex-col gap-1">
-                        <span className="font-bold text-slate-800 text-xs">
+                        <span className="font-bold text-foreground text-xs">
                           {factoryDetailModal.metrics['2.2'].value}
                         </span>
-                        <div className="text-[10.5px] text-slate-600 bg-slate-50/90 p-1.5 rounded-lg border border-slate-200/80 leading-relaxed font-sans">
+                        <div className="text-[10.5px] text-muted-foreground bg-panel p-1.5 rounded-lg border border-border leading-relaxed font-sans">
                           <div>
-                            <span className="text-slate-400 font-medium">核验参数：</span>
-                            <span className="font-mono">站房输功效率 η = 86.4%</span>，
-                            <span className="font-mono">比功率 = 5.62 kW/(m³/min)</span>
+                            <span className="text-muted-foreground/60 font-medium">核验参数：</span>
+                            <span className="font-mono text-foreground">站房输功效率 η = 86.4%</span>，
+                            <span className="font-mono text-foreground">比功率 = 5.62 kW/(m³/min)</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 font-medium">评定等级：</span>
-                            <span className="font-medium text-emerald-700">符合 GB 19153 一级能效站房评定要求</span>
+                            <span className="text-muted-foreground/60 font-medium">评定等级：</span>
+                            <span className="font-medium text-emerald-400">符合 GB 19153 一级能效站房评定要求</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
                       依据 GB 19153—2019 容积式空气压缩机能效限定值
                     </td>
                   </tr>
-                  <tr>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">[2.3] 碳清除率 (Re)</td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-amber-700 font-semibold">
+                  <tr className="hover:bg-accent/30 transition-colors">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[2.3] 碳清除率 (Re)</td>
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
                       ✍️ 企业申报
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="flex flex-col gap-1">
-                        <span className="font-mono font-bold text-blue-700 text-xs">
+                        <span className="font-mono font-bold text-primary text-xs">
                           {factoryDetailModal.carbonClearRate}%
                         </span>
-                        <div className="text-[10.5px] text-slate-600 bg-slate-50/90 p-1.5 rounded-lg border border-slate-200/80 leading-relaxed font-sans">
+                        <div className="text-[10.5px] text-muted-foreground bg-panel p-1.5 rounded-lg border border-border leading-relaxed font-sans">
                           <div>
-                            <span className="text-slate-400 font-medium">计算参数：</span>
-                            <span className="font-mono">Rc(工程清除量) = {(factoryDetailModal.carbonClearRate * 120).toFixed(0)} tCO₂e</span>，
-                            <span className="font-mono">Cd(直接排放量) = {(12000 - factoryDetailModal.carbonClearRate * 120).toFixed(0)} tCO₂e</span>
+                            <span className="text-muted-foreground/60 font-medium">计算参数：</span>
+                            <span className="font-mono text-foreground">Rc(工程清除量) = {(factoryDetailModal.carbonClearRate * 120).toFixed(0)} tCO₂e</span>，
+                            <span className="font-mono text-foreground">Cd(直接排放量) = {(12000 - factoryDetailModal.carbonClearRate * 120).toFixed(0)} tCO₂e</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 font-medium">计算过程：</span>
-                            <span className="font-mono">[{(factoryDetailModal.carbonClearRate * 120).toFixed(0)} ÷ ({(12000 - factoryDetailModal.carbonClearRate * 120).toFixed(0)} + {(factoryDetailModal.carbonClearRate * 120).toFixed(0)})] × 100% = </span>
-                            <span className="font-mono font-bold text-blue-700">{factoryDetailModal.carbonClearRate}%</span>
+                            <span className="text-muted-foreground/60 font-medium">计算过程：</span>
+                            <span className="font-mono text-foreground">[{(factoryDetailModal.carbonClearRate * 120).toFixed(0)} ÷ ({(12000 - factoryDetailModal.carbonClearRate * 120).toFixed(0)} + {(factoryDetailModal.carbonClearRate * 120).toFixed(0)})] × 100% = </span>
+                            <span className="font-mono font-bold text-primary">{factoryDetailModal.carbonClearRate}%</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
                       Re = [Rc / (Cd + Rc)] × 100% (CCUS/工程清除)
                     </td>
                   </tr>
 
                   {/* 3 协同降碳 (2项) */}
-                  <tr>
+                  <tr className="hover:bg-accent/30 transition-colors">
                     <td
                       rowSpan={2}
-                      className="py-3 px-3 text-center font-bold text-slate-900 bg-slate-50/70 border-r border-slate-200 align-middle whitespace-nowrap"
+                      className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap"
                     >
                       3 协同降碳
                     </td>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">
                       [3.1] 绿色电力绿证消纳占比
                     </td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-emerald-700 font-semibold">
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="flex flex-col gap-1">
-                        <span className="font-mono font-bold text-blue-700 text-xs">
+                        <span className="font-mono font-bold text-primary text-xs">
                           {factoryDetailModal.metrics['3.1'].value}%
                         </span>
-                        <div className="text-[10.5px] text-slate-600 bg-slate-50/90 p-1.5 rounded-lg border border-slate-200/80 leading-relaxed font-sans">
+                        <div className="text-[10.5px] text-muted-foreground bg-panel p-1.5 rounded-lg border border-border leading-relaxed font-sans">
                           <div>
-                            <span className="text-slate-400 font-medium">计算参数：</span>
-                            <span className="font-mono">Eg(绿电绿证消纳量) = {(factoryDetailModal.metrics['3.1'].value * 128).toFixed(1)} 万kWh</span>，
-                            <span className="font-mono">Etotal(总用电) = 1,280.0 万kWh</span>
+                            <span className="text-muted-foreground/60 font-medium">计算参数：</span>
+                            <span className="font-mono text-foreground">Eg(绿电绿证消纳量) = {(factoryDetailModal.metrics['3.1'].value * 128).toFixed(1)} 万kWh</span>，
+                            <span className="font-mono text-foreground">Etotal(总用电) = 1,280.0 万kWh</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 font-medium">计算过程：</span>
-                            <span className="font-mono">({(factoryDetailModal.metrics['3.1'].value * 128).toFixed(1)} ÷ 1,280.0) × 100% = </span>
-                            <span className="font-mono font-bold text-blue-700">{factoryDetailModal.metrics['3.1'].value}%</span>
+                            <span className="text-muted-foreground/60 font-medium">计算过程：</span>
+                            <span className="font-mono text-foreground">({(factoryDetailModal.metrics['3.1'].value * 128).toFixed(1)} ÷ 1,280.0) × 100% = </span>
+                            <span className="font-mono font-bold text-primary">{factoryDetailModal.metrics['3.1'].value}%</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">Rg = (Eg / Etotal) × 100%</td>
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">Rg = (Eg / Etotal) × 100%</td>
                   </tr>
-                  <tr>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">[3.2] 零碳供应链管理措施</td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-amber-700 font-semibold">
+                  <tr className="hover:bg-accent/30 transition-colors">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[3.2] 零碳供应链管理措施</td>
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
                       ✍️ 企业申报
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="grid grid-cols-2 gap-1 text-[10.5px]">
                         {factoryDetailModal.supplyChainMeasures.map((id) => {
                           const item = SUPPLY_CHAIN_MEASURES_OPTIONS.find((o) => o.id === id)
                           return item ? (
                             <span
                               key={id}
-                              className="px-1.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded font-medium truncate"
+                              className="px-1.5 py-0.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded font-medium truncate"
                               title={item.title}
                             >
                               ✓ {item.title}
@@ -2401,59 +2401,59 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         })}
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
                       依据 6 大供应链降碳制度核验符合项数 (已选 {factoryDetailModal.supplyChainMeasures.length}/6 项)
                     </td>
                   </tr>
 
                   {/* 4 智能控碳 (2项) */}
-                  <tr>
+                  <tr className="hover:bg-accent/30 transition-colors">
                     <td
                       rowSpan={2}
-                      className="py-3 px-3 text-center font-bold text-slate-900 bg-slate-50/70 border-r border-slate-200 align-middle whitespace-nowrap"
+                      className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap"
                     >
                       4 智能控碳
                     </td>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">[4.1] 数据自动采集率 (Ra)</td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-amber-700 font-semibold">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[4.1] 数据自动采集率 (Ra)</td>
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
                       ✍️ 企业申报
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="flex flex-col gap-1">
-                        <span className="font-mono font-bold text-blue-700 text-xs">
+                        <span className="font-mono font-bold text-primary text-xs">
                           {factoryDetailModal.autoCollectRate}%
                         </span>
-                        <div className="text-[10.5px] text-slate-600 bg-slate-50/90 p-1.5 rounded-lg border border-slate-200/80 leading-relaxed font-sans">
+                        <div className="text-[10.5px] text-muted-foreground bg-panel p-1.5 rounded-lg border border-border leading-relaxed font-sans">
                           <div>
-                            <span className="text-slate-400 font-medium">计算参数：</span>
-                            <span className="font-mono">Da(有效自动采集测点) = {Math.round(factoryDetailModal.autoCollectRate * 2.14)} 个</span>，
-                            <span className="font-mono">Dt(应装表重点测点) = 214 个</span>
+                            <span className="text-muted-foreground/60 font-medium">计算参数：</span>
+                            <span className="font-mono text-foreground">Da(有效自动采集测点) = {Math.round(factoryDetailModal.autoCollectRate * 2.14)} 个</span>，
+                            <span className="font-mono text-foreground">Dt(应装表重点测点) = 214 个</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 font-medium">计算过程：</span>
-                            <span className="font-mono">({Math.round(factoryDetailModal.autoCollectRate * 2.14)} ÷ 214) × 100% = </span>
-                            <span className="font-mono font-bold text-blue-700">{factoryDetailModal.autoCollectRate}%</span>
+                            <span className="text-muted-foreground/60 font-medium">计算过程：</span>
+                            <span className="font-mono text-foreground">({Math.round(factoryDetailModal.autoCollectRate * 2.14)} ÷ 214) × 100% = </span>
+                            <span className="font-mono font-bold text-primary">{factoryDetailModal.autoCollectRate}%</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
                       Ra = (Da / Dt) × 100% (GB 17167—2025 重点设备采集)
                     </td>
                   </tr>
-                  <tr>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">[4.2] 能碳管理中心功能项数</td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-amber-700 font-semibold">
+                  <tr className="hover:bg-accent/30 transition-colors">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[4.2] 能碳管理中心功能项数</td>
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
                       ✍️ 企业申报
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-1 text-[10.5px]">
                         {factoryDetailModal.controlCenterFeatures.map((id) => {
                           const item = CONTROL_CENTER_FEATURE_OPTIONS.find((o) => o.id === id)
                           return item ? (
                             <span
                               key={id}
-                              className="px-1.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded font-medium truncate"
+                              className="px-1.5 py-0.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded font-medium truncate"
                               title={item.title}
                             >
                               ✓ {item.title}
@@ -2462,28 +2462,28 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         })}
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
                       对照数字化能碳平台 13 项功能核查 (已选 {factoryDetailModal.controlCenterFeatures.length}/13 项)
                     </td>
                   </tr>
 
-                  {/* 5 碳抵销与披露 (1项) */}
-                  <tr>
-                    <td className="py-3 px-3 text-center font-bold text-slate-900 bg-slate-50/70 border-r border-slate-200 align-middle whitespace-nowrap">
-                      5 碳抵销与披露
+                  {/* 5 抵消治理 (1项) */}
+                  <tr className="hover:bg-accent/30 transition-colors">
+                    <td className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap">
+                      5 抵消治理
                     </td>
-                    <td className="py-2.5 px-3.5 font-medium border-r border-slate-100">[5.1] 碳排放信息披露透明度</td>
-                    <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap text-amber-700 font-semibold">
+                    <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[5.1] 碳排放信息披露透明度</td>
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
                       ✍️ 企业申报
                     </td>
-                    <td className="py-2.5 px-3.5 border-r border-slate-100">
+                    <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10.5px]">
                         {factoryDetailModal.disclosureFiles.map((id) => {
                           const item = DISCLOSURE_DOC_OPTIONS.find((o) => o.id === id)
                           return item ? (
                             <span
                               key={id}
-                              className="px-1.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded font-medium truncate"
+                              className="px-1.5 py-0.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded font-medium truncate"
                               title={item.title}
                             >
                               ✓ {item.title}
@@ -2492,7 +2492,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         })}
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
                       公开披露载体文件勾选数 (已选 {factoryDetailModal.disclosureFiles.length}/5 份)
                     </td>
                   </tr>
@@ -2500,11 +2500,11 @@ export default function ZeroCarbonSelfEvaluationPage() {
               </table>
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-slate-200 shrink-0">
+            <div className="flex justify-end pt-2 border-t border-border shrink-0">
               <button
                 type="button"
                 onClick={() => setFactoryDetailModal(null)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors cursor-pointer text-xs"
+                className="px-4 py-2 rounded-xl bg-panel hover:bg-accent border border-border text-foreground font-bold transition-colors cursor-pointer text-xs"
               >
                 关闭
               </button>

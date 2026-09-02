@@ -1657,9 +1657,9 @@ export default function UnitProductPage() {
           diffText: '同比 -5.6% ↓',
           badge: '综合折标',
           icon: Factory,
-          colorClass: 'text-[#1677ff]',
-          bgClass: 'bg-blue-50/40 border-blue-200',
-          badgeClass: 'bg-blue-100 text-blue-700',
+          colorClass: 'text-primary',
+          bgClass: 'bg-primary/20 border-primary/30',
+          badgeClass: 'bg-primary/30 text-primary',
         },
         {
           id: 'kpi-elec',
@@ -1669,9 +1669,9 @@ export default function UnitProductPage() {
           diffText: '同比 -5.4% ↓',
           badge: '电力',
           icon: Zap,
-          colorClass: 'text-blue-700',
-          bgClass: 'bg-white border-slate-200',
-          badgeClass: 'bg-slate-100 text-slate-700',
+          colorClass: 'text-primary',
+          bgClass: 'bg-card border-border',
+          badgeClass: 'bg-panel text-foreground',
         },
         {
           id: 'kpi-nitrogen',
@@ -1681,9 +1681,9 @@ export default function UnitProductPage() {
           diffText: '同比 -6.2% ↓',
           badge: '氮气',
           icon: Wind,
-          colorClass: 'text-teal-700',
-          bgClass: 'bg-white border-slate-200',
-          badgeClass: 'bg-teal-50 text-teal-700',
+          colorClass: 'text-teal-400',
+          bgClass: 'bg-card border-border',
+          badgeClass: 'bg-teal-500/20 text-teal-400',
         },
         {
           id: 'kpi-gas',
@@ -1693,9 +1693,9 @@ export default function UnitProductPage() {
           diffText: '同比 -4.5% ↓',
           badge: '天然气',
           icon: Flame,
-          colorClass: 'text-amber-700',
-          bgClass: 'bg-white border-slate-200',
-          badgeClass: 'bg-amber-50 text-amber-700',
+          colorClass: 'text-amber-400',
+          bgClass: 'bg-card border-border',
+          badgeClass: 'bg-amber-500/20 text-amber-400',
         },
         {
           id: 'kpi-water',
@@ -1705,9 +1705,9 @@ export default function UnitProductPage() {
           diffText: '同比 -3.8% ↓',
           badge: '新鲜水',
           icon: Droplets,
-          colorClass: 'text-cyan-700',
-          bgClass: 'bg-white border-slate-200',
-          badgeClass: 'bg-cyan-50 text-cyan-700',
+          colorClass: 'text-cyan-400',
+          bgClass: 'bg-card border-border',
+          badgeClass: 'bg-cyan-500/20 text-cyan-400',
         },
       ]
     }
@@ -1722,9 +1722,9 @@ export default function UnitProductPage() {
         diffText: '同比 -5.2% ↓',
         badge: '综合折标',
         icon: Factory,
-        colorClass: 'text-[#1677ff]',
-        bgClass: 'bg-blue-50/40 border-blue-200',
-        badgeClass: 'bg-blue-100 text-blue-700',
+        colorClass: 'text-primary',
+        bgClass: 'bg-primary/20 border-primary/30',
+        badgeClass: 'bg-primary/30 text-primary',
       },
       {
         id: 'kpi-elec',
@@ -1734,9 +1734,9 @@ export default function UnitProductPage() {
         diffText: '同比 -5.4% ↓',
         badge: '电力',
         icon: Zap,
-        colorClass: 'text-blue-700',
-        bgClass: 'bg-white border-slate-200',
-        badgeClass: 'bg-slate-100 text-slate-700',
+        colorClass: 'text-primary',
+        bgClass: 'bg-card border-border',
+        badgeClass: 'bg-panel text-foreground',
       },
       {
         id: 'kpi-steam',
@@ -1746,9 +1746,9 @@ export default function UnitProductPage() {
         diffText: '同比 -4.8% ↓',
         badge: '蒸汽',
         icon: Flame,
-        colorClass: 'text-purple-700',
-        bgClass: 'bg-white border-slate-200',
-        badgeClass: 'bg-purple-50 text-purple-700',
+        colorClass: 'text-purple-400',
+        bgClass: 'bg-card border-border',
+        badgeClass: 'bg-purple-500/20 text-purple-400',
       },
       {
         id: 'kpi-gas',
@@ -1758,9 +1758,9 @@ export default function UnitProductPage() {
         diffText: '同比 -4.1% ↓',
         badge: '天然气',
         icon: Flame,
-        colorClass: 'text-amber-700',
-        bgClass: 'bg-white border-slate-200',
-        badgeClass: 'bg-amber-50 text-amber-700',
+        colorClass: 'text-amber-400',
+        bgClass: 'bg-card border-border',
+        badgeClass: 'bg-amber-500/20 text-amber-400',
       },
       {
         id: 'kpi-water',
@@ -1770,9 +1770,9 @@ export default function UnitProductPage() {
         diffText: '同比 -3.9% ↓',
         badge: '新鲜水',
         icon: Droplets,
-        colorClass: 'text-cyan-700',
-        bgClass: 'bg-white border-slate-200',
-        badgeClass: 'bg-cyan-50 text-cyan-700',
+        colorClass: 'text-cyan-400',
+        bgClass: 'bg-card border-border',
+        badgeClass: 'bg-cyan-500/20 text-cyan-400',
       },
     ]
   }, [activeIndustry])
@@ -1793,23 +1793,23 @@ export default function UnitProductPage() {
       <div className="flex-1 min-w-0 flex flex-col gap-3.5">
         
         {/* 1. 顶部 Header 与 统一标准时间筛选 */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-xl border border-border shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <Factory className="size-5" />
             </div>
-            <h1 className="text-base font-bold text-slate-800">单位产品能耗</h1>
+            <h1 className="text-base font-bold text-foreground">单位产品能耗</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             {/* 时间维度统一 (月度 / 季度 / 年度) */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs">
               <button
                 type="button"
                 onClick={() => setTimeDim('month')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 月度
@@ -1819,7 +1819,7 @@ export default function UnitProductPage() {
                 onClick={() => setTimeDim('quarter')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 季度
@@ -1829,7 +1829,7 @@ export default function UnitProductPage() {
                 onClick={() => setTimeDim('year')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 年度
@@ -1838,54 +1838,54 @@ export default function UnitProductPage() {
 
             {/* 时间范围选择控件 (随维度自适应切换) */}
             {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <input
                   type="month"
                   value={selectedMonthRange.start}
                   onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                   title="起始月份"
                 />
-                <span className="text-slate-400 font-sans">至</span>
+                <span className="text-muted-foreground font-sans">至</span>
                 <input
                   type="month"
                   value={selectedMonthRange.end}
                   onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                   title="结束月份"
                 />
               </div>
             )}
 
             {timeDim === 'quarter' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <select
                   value={selectedQuarter}
                   onChange={(e) => setSelectedQuarter(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                  className="bg-transparent border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
                 >
-                  <option value="2026-Q1">2026年 第1季度 (Q1)</option>
-                  <option value="2026-Q2">2026年 第2季度 (Q2)</option>
-                  <option value="2026-Q3">2026年 第3季度 (Q3)</option>
-                  <option value="2026-Q4">2026年 第4季度 (Q4)</option>
-                  <option value="2025-Q4">2025年 第4季度 (Q4)</option>
+                  <option value="2026-Q1" className="bg-card text-foreground">2026年 第1季度 (Q1)</option>
+                  <option value="2026-Q2" className="bg-card text-foreground">2026年 第2季度 (Q2)</option>
+                  <option value="2026-Q3" className="bg-card text-foreground">2026年 第3季度 (Q3)</option>
+                  <option value="2026-Q4" className="bg-card text-foreground">2026年 第4季度 (Q4)</option>
+                  <option value="2025-Q4" className="bg-card text-foreground">2025年 第4季度 (Q4)</option>
                 </select>
               </div>
             )}
 
             {timeDim === 'year' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                  className="bg-transparent border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
                 >
-                  <option value="2026">2026 年度</option>
-                  <option value="2025">2025 年度</option>
-                  <option value="2024">2024 年度</option>
+                  <option value="2026" className="bg-card text-foreground">2026 年度</option>
+                  <option value="2025" className="bg-card text-foreground">2025 年度</option>
+                  <option value="2024" className="bg-card text-foreground">2024 年度</option>
                 </select>
               </div>
             )}
@@ -1893,7 +1893,7 @@ export default function UnitProductPage() {
             <button
               type="button"
               onClick={() => alert(`正在导出【${selectedNode.name}】单位产品能耗分析报表 (Excel)...`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
             >
               <Download className="size-3.5" />
               <span>导出</span>
@@ -1902,10 +1902,10 @@ export default function UnitProductPage() {
         </div>
 
         {/* 🌟 2. 核心筛选控制栏 (单位产品能耗种类切换 + 搜索框) */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">单位产品能耗:</span>
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 font-sans">
+            <span className="font-bold text-foreground">单位产品能耗:</span>
+            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border font-sans">
               <button
                 type="button"
                 onClick={() => {
@@ -1915,11 +1915,11 @@ export default function UnitProductPage() {
                 className={cn(
                   'px-3 py-1.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer',
                   category === 'transformer'
-                    ? 'bg-white text-[#1677ff] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                <Zap className="size-3.5 text-amber-500" />
+                <Zap className="size-3.5 text-amber-400" />
                 <span>变压器</span>
               </button>
               <button
@@ -1931,11 +1931,11 @@ export default function UnitProductPage() {
                 className={cn(
                   'px-3 py-1.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer',
                   category === 'cable'
-                    ? 'bg-white text-emerald-700 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                <Cable className="size-3.5 text-emerald-600" />
+                <Cable className="size-3.5 text-emerald-400" />
                 <span>线缆</span>
               </button>
             </div>
@@ -1951,9 +1951,9 @@ export default function UnitProductPage() {
                   setCurrentPage(1)
                 }}
                 placeholder="按产品型号 / 规格模糊搜索..."
-                className="pl-7 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#1677ff] focus:bg-white w-64 transition-colors"
+                className="pl-7 pr-3 py-1.5 bg-panel border border-border rounded-lg text-xs font-sans placeholder:text-muted-foreground focus:outline-none focus:border-primary text-foreground w-64 transition-colors"
               />
-              <Search className="size-3.5 text-slate-400 absolute left-2.5 top-2 pointer-events-none" />
+              <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-2 pointer-events-none" />
               {searchKw && (
                 <button
                   type="button"
@@ -1961,7 +1961,7 @@ export default function UnitProductPage() {
                     setSearchKw('')
                     setCurrentPage(1)
                   }}
-                  className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute right-2 top-2 text-muted-foreground hover:text-foreground cursor-pointer"
                 >
                   <X className="size-3.5" />
                 </button>
@@ -1982,21 +1982,21 @@ export default function UnitProductPage() {
                 className={cn(
                   'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all cursor-pointer select-none relative group',
                   isSelected
-                    ? 'bg-gradient-to-br from-blue-50/95 via-white to-blue-50/40 border-2 border-[#1677ff] ring-2 ring-[#1677ff]/20 shadow-sm scale-[1.01]'
-                    : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/60'
+                    ? 'bg-primary/15 border-2 border-primary ring-2 ring-primary/20 shadow-sm scale-[1.01]'
+                    : 'bg-card border-border hover:border-primary/40 hover:bg-accent/30'
                 )}
               >
-                <div className="flex items-center justify-between text-xs text-slate-600 font-sans">
-                  <span className={cn('flex items-center gap-1 font-bold', isSelected ? 'text-[#1677ff]' : 'text-slate-800')}>
-                    <Icon className={cn('size-3.5', isSelected ? 'text-[#1677ff]' : 'text-slate-500')} />
+                <div className="flex items-center justify-between text-xs text-muted-foreground font-sans">
+                  <span className={cn('flex items-center gap-1 font-bold', isSelected ? 'text-primary' : 'text-foreground')}>
+                    <Icon className={cn('size-3.5', isSelected ? 'text-primary' : 'text-muted-foreground')} />
                     {kpi.name}
                   </span>
                 </div>
-                <div className={cn('text-xl font-extrabold', isSelected ? 'text-[#1677ff]' : kpi.colorClass)}>
-                  {kpi.value} <span className="text-xs font-normal text-slate-500 font-sans">{kpi.unit}</span>
+                <div className={cn('text-xl font-extrabold', isSelected ? 'text-primary' : kpi.colorClass)}>
+                  {kpi.value} <span className="text-xs font-normal text-muted-foreground font-sans">{kpi.unit}</span>
                 </div>
-                <div className="text-[11px] text-slate-600 pt-1 border-t border-slate-100 font-sans flex justify-between items-center">
-                  <span className="text-emerald-600 font-bold font-mono">{kpi.diffText}</span>
+                <div className="text-[11px] text-muted-foreground pt-1 border-t border-border/60 font-sans flex justify-between items-center">
+                  <span className="text-emerald-400 font-bold font-mono">{kpi.diffText}</span>
                 </div>
               </div>
             )
@@ -2006,22 +2006,22 @@ export default function UnitProductPage() {
         {/* ========================================================================= */}
         {/* 🌟 3.5. 选定能耗指标近 12 个月变化趋势全景折线图 (参考图片 1：点击上方卡片动态联动) */}
         {/* ========================================================================= */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="size-2.5 rounded-full bg-[#1677ff] animate-pulse shrink-0" />
-              <h3 className="text-xs font-bold text-slate-900">
+              <span className="size-2.5 rounded-full bg-primary animate-pulse shrink-0" />
+              <h3 className="text-xs font-bold text-foreground">
                 【全集团两大核心产品】{chartAxisAndLines.name}变化趋势 ({trendChartConfig.periodName})
               </h3>
               {selectedNode.id !== 'ent_root' && (
-                <span className="text-[11px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-sans font-bold border border-blue-100">
+                <span className="text-[11px] px-2 py-0.5 rounded bg-primary/20 text-primary font-sans font-bold border border-primary/30">
                   {selectedNode.name}
                 </span>
               )}
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs px-2.5 py-1 rounded-md bg-blue-50/80 text-[#1677ff] font-mono border border-blue-100/80 font-medium">
+              <span className="text-xs px-2.5 py-1 rounded-md bg-panel text-primary font-mono border border-border font-medium">
                 Y轴坐标单位: {chartAxisAndLines.yUnit}
               </span>
             </div>
@@ -2031,25 +2031,26 @@ export default function UnitProductPage() {
           <div className="h-[220px] w-full pt-1">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendChartConfig.data} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis
                   dataKey="period"
-                  tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'monospace' }}
-                  axisLine={{ stroke: '#cbd5e1' }}
-                  tickLine={{ stroke: '#cbd5e1' }}
+                  tick={{ fontSize: 11, fill: '#94a3b8', fontFamily: 'monospace' }}
+                  axisLine={{ stroke: '#334155' }}
+                  tickLine={{ stroke: '#334155' }}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'monospace' }}
-                  axisLine={{ stroke: '#cbd5e1' }}
-                  tickLine={{ stroke: '#cbd5e1' }}
+                  tick={{ fontSize: 11, fill: '#94a3b8', fontFamily: 'monospace' }}
+                  axisLine={{ stroke: '#334155' }}
+                  tickLine={{ stroke: '#334155' }}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#ffffff',
-                    borderColor: '#e2e8f0',
+                    backgroundColor: '#0f172a',
+                    borderColor: '#1e293b',
                     borderRadius: 8,
                     fontSize: 12,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                    color: '#f8fafc',
                   }}
                 />
                 {chartAxisAndLines.lines.map((line) => (
@@ -2060,7 +2061,7 @@ export default function UnitProductPage() {
                     name={line.name}
                     stroke={line.color}
                     strokeWidth={2.2}
-                    dot={{ r: 3.5, fill: '#ffffff', stroke: line.color, strokeWidth: 2 }}
+                    dot={{ r: 3.5, fill: '#0a192f', stroke: line.color, strokeWidth: 2 }}
                     activeDot={{ r: 6, fill: line.color }}
                   />
                 ))}
@@ -2069,12 +2070,12 @@ export default function UnitProductPage() {
           </div>
 
           {/* 底部自定义图例与单位说明，完全对齐图1 */}
-          <div className="flex items-center justify-center gap-8 text-xs font-mono pt-2 text-slate-700 border-t border-slate-100 flex-wrap">
+          <div className="flex items-center justify-center gap-8 text-xs font-mono pt-2 text-foreground border-t border-border/60 flex-wrap">
             {chartAxisAndLines.lines.map((line) => (
               <div key={line.key} className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 font-bold" style={{ color: line.color }}>
                   <span className="w-4 h-0.5 inline-block" style={{ backgroundColor: line.color }} />
-                  <span className="size-2 rounded-full border bg-white inline-block" style={{ borderColor: line.color }} />
+                  <span className="size-2 rounded-full border bg-card inline-block" style={{ borderColor: line.color }} />
                   <span className="w-4 h-0.5 inline-block" style={{ backgroundColor: line.color }} />
                 </span>
                 <span>{line.name}</span>
@@ -2086,12 +2087,12 @@ export default function UnitProductPage() {
         {/* ========================================================================= */}
         {/* 🌟 4. 中间主要产品分类层级 (卡片形式展现分类名称、类型、消耗资源类型等) */}
         {/* ========================================================================= */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+        <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
           {/* ① 顶部功能栏：品类标题、品类搜索与排序 (已移除冗余红框信息) */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-2.5">
             <div className="flex items-center gap-2">
-              <Boxes className="size-4 text-[#1677ff]" />
-              <h3 className="text-xs font-bold text-slate-900">
+              <Boxes className="size-4 text-primary" />
+              <h3 className="text-xs font-bold text-foreground">
                 {category === 'transformer' ? '【变压器产业】主要产品分类' : '【线缆产业】主要产品分类'}
               </h3>
             </div>
@@ -2104,14 +2105,14 @@ export default function UnitProductPage() {
                   value={categorySearchKw}
                   onChange={(e) => setCategorySearchKw(e.target.value)}
                   placeholder="按主要产品名称/工序过滤..."
-                  className="pl-7 pr-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#1677ff] focus:bg-white w-48 transition-colors"
+                  className="pl-7 pr-3 py-1 bg-panel border border-border rounded-lg text-xs font-sans placeholder:text-muted-foreground focus:outline-none focus:border-primary text-foreground w-48 transition-colors"
                 />
-                <Search className="size-3.5 text-slate-400 absolute left-2 top-1.5 pointer-events-none" />
+                <Search className="size-3.5 text-muted-foreground absolute left-2 top-1.5 pointer-events-none" />
                 {categorySearchKw && (
                   <button
                     type="button"
                     onClick={() => setCategorySearchKw('')}
-                    className="absolute right-2 top-1.5 text-slate-400 hover:text-slate-600"
+                    className="absolute right-2 top-1.5 text-muted-foreground hover:text-foreground"
                   >
                     <X className="size-3.5" />
                   </button>
@@ -2122,11 +2123,11 @@ export default function UnitProductPage() {
                 value={categorySortBy}
                 onChange={(e) => setCategorySortBy(e.target.value as any)}
                 aria-label="主要产品排序方式"
-                className="py-1 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans text-slate-700 focus:outline-none focus:border-[#1677ff] cursor-pointer"
+                className="py-1 px-2.5 bg-panel border border-border rounded-lg text-xs font-sans text-foreground focus:outline-none focus:border-primary cursor-pointer"
               >
-                <option value="tce_desc">按综合单耗降序</option>
-                <option value="models_desc">按在产型号数量</option>
-                <option value="yoy_desc">按节能降耗幅度</option>
+                <option value="tce_desc" className="bg-card text-foreground">按综合单耗降序</option>
+                <option value="models_desc" className="bg-card text-foreground">按在产型号数量</option>
+                <option value="yoy_desc" className="bg-card text-foreground">按节能降耗幅度</option>
               </select>
             </div>
           </div>
@@ -2134,7 +2135,7 @@ export default function UnitProductPage() {
           {/* ② 品类二级分组 Tabs 药丸 */}
           <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-slate-400 font-sans text-[11px]">主要产品分组:</span>
+              <span className="text-muted-foreground font-sans text-[11px]">主要产品分组:</span>
               {categoryGroups.map((grp) => {
                 const isGrpSelected = selectedCategoryGroup === grp
                 const count = grp === 'all'
@@ -2148,12 +2149,12 @@ export default function UnitProductPage() {
                     className={cn(
                       'px-2.5 py-1 rounded-lg transition-all cursor-pointer font-medium select-none text-xs border flex items-center gap-1',
                       isGrpSelected
-                        ? 'bg-[#1677ff] text-white font-bold border-blue-600 shadow-xs'
-                        : 'bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-slate-200'
+                        ? 'bg-primary text-primary-foreground font-bold border-primary shadow-xs'
+                        : 'bg-panel text-muted-foreground hover:text-foreground hover:bg-accent/40 border-border'
                     )}
                   >
                     <span>{grp === 'all' ? '全部主要产品' : grp}</span>
-                    <span className={cn('text-[10px] px-1 rounded', isGrpSelected ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-600')}>
+                    <span className={cn('text-[10px] px-1 rounded', isGrpSelected ? 'bg-primary/40 text-primary-foreground' : 'bg-card text-muted-foreground border border-border')}>
                       {count}
                     </span>
                   </button>
@@ -2168,7 +2169,7 @@ export default function UnitProductPage() {
                   setSelectedCategoryId('all')
                   setCurrentPage(1)
                 }}
-                className="text-xs text-[#1677ff] hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                className="text-xs text-primary hover:underline font-bold flex items-center gap-1 cursor-pointer"
               >
                 <span>清除单选 (显示全部主要产品型号)</span>
               </button>
@@ -2190,8 +2191,8 @@ export default function UnitProductPage() {
                   className={cn(
                     'rounded-xl border p-3 flex flex-col justify-between transition-all cursor-pointer select-none relative group',
                     isSelected
-                      ? 'bg-gradient-to-br from-blue-50/90 via-white to-blue-50/30 border-2 border-[#1677ff] ring-2 ring-[#1677ff]/20 shadow-sm scale-[1.01]'
-                      : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/70 hover:shadow-xs'
+                      ? 'bg-primary/15 border-2 border-primary ring-2 ring-primary/20 shadow-sm scale-[1.01]'
+                      : 'bg-card border-border hover:border-primary/40 hover:bg-accent/30 hover:shadow-xs'
                   )}
                 >
                   {/* 1. 顶部：序号 + 分类名称 + 类型标签 + 选中状态 */}
@@ -2199,40 +2200,40 @@ export default function UnitProductPage() {
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       <span className={cn(
                         'size-5 rounded-md font-mono text-[11px] font-bold flex items-center justify-center shrink-0 transition-colors',
-                        isSelected ? 'bg-[#1677ff] text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-700'
+                        isSelected ? 'bg-primary text-primary-foreground' : 'bg-panel text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary border border-border'
                       )}>
                         {String(idx + 1).padStart(2, '0')}
                       </span>
                       <h4 className={cn(
                         'text-xs font-bold truncate leading-tight',
-                        isSelected ? 'text-[#1677ff]' : 'text-slate-900 group-hover:text-[#1677ff]'
+                        isSelected ? 'text-primary' : 'text-foreground group-hover:text-primary'
                       )} title={cat.name}>
                         {cat.name}
                       </h4>
                     </div>
 
                     {isSelected && (
-                      <CheckCircle2 className="size-4 text-[#1677ff] shrink-0 fill-blue-50" />
+                      <CheckCircle2 className="size-4 text-primary shrink-0 fill-primary/20" />
                     )}
                   </div>
 
                   {/* 2. 中间：消耗资源类型 */}
-                  <div className="flex items-center justify-between text-xs bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100 my-1">
-                    <span className="text-[11px] text-slate-500 font-sans flex items-center gap-1">
-                      <Zap className="size-3 text-amber-500 shrink-0" />
+                  <div className="flex items-center justify-between text-xs bg-panel px-2.5 py-1.5 rounded-lg border border-border my-1">
+                    <span className="text-[11px] text-muted-foreground font-sans flex items-center gap-1">
+                      <Zap className="size-3 text-amber-400 shrink-0" />
                       <span>消耗资源类型:</span>
                     </span>
-                    <span className="font-bold text-amber-700 text-[11px] font-sans">
+                    <span className="font-bold text-amber-400 text-[11px] font-sans">
                       {cat.energyTypes}
                     </span>
                   </div>
 
                   {/* 3. 底部生产单位与型号数 (简明一行) */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10.5px] text-slate-500 font-sans">
+                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[10.5px] text-muted-foreground font-sans">
                     <span className="truncate max-w-[65%]" title={cat.producerUnits}>
                       🏭 {cat.producerUnits}
                     </span>
-                    <span className="font-mono text-slate-400 shrink-0">
+                    <span className="font-mono text-muted-foreground shrink-0">
                       {cat.modelCount} 款型号
                     </span>
                   </div>
@@ -2243,11 +2244,11 @@ export default function UnitProductPage() {
         </div>
 
         {/* 🌟 5. 产品型号单耗明细台账 (根据选择的产品，精准匹配对应的能源消耗类型) */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/70 gap-2">
+        <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+          <div className="p-3.5 border-b border-border flex flex-wrap items-center justify-between bg-panel gap-2">
             <div className="flex items-center gap-2">
-              <FileSpreadsheet className="size-4 text-slate-700" />
-              <h3 className="text-xs font-bold text-slate-800">
+              <FileSpreadsheet className="size-4 text-primary" />
+              <h3 className="text-xs font-bold text-foreground">
                 {activeSelectedCategory
                   ? `【${activeSelectedCategory.name}】产品型号单耗明细台账`
                   : currentTableMode === 'transformer'
@@ -2258,24 +2259,24 @@ export default function UnitProductPage() {
               </h3>
             </div>
 
-            <div className="text-xs text-slate-500 font-mono">
-              在产型号总库共 <strong className="text-slate-900">2,840</strong> 种 · 当前筛选展示 <strong className="text-[#1677ff]">{filteredModels.length}</strong> 条型号
+            <div className="text-xs text-muted-foreground font-mono">
+              在产型号总库共 <strong className="text-foreground">2,840</strong> 种 · 当前筛选展示 <strong className="text-primary">{filteredModels.length}</strong> 条型号
             </div>
           </div>
 
           {/* 若选中特定产品分类，显示高亮提示条与重置操作 */}
           {activeSelectedCategory && (
-            <div className="bg-blue-50/70 border-b border-blue-100 px-3.5 py-2 flex items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2 text-blue-900 flex-wrap">
-                <span className="px-2 py-0.5 rounded bg-blue-600 text-white font-bold text-[11px] shadow-2xs">
+            <div className="bg-primary/10 border-b border-primary/20 px-3.5 py-2 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2 text-foreground flex-wrap">
+                <span className="px-2 py-0.5 rounded bg-primary text-primary-foreground font-bold text-[11px] shadow-2xs">
                   已联动过滤
                 </span>
                 <span className="font-bold">【{activeSelectedCategory.name}】</span>
-                <span className="text-slate-500 text-[11px]">({activeSelectedCategory.groupTag})</span>
-                <span className="text-slate-400">|</span>
-                <span className="text-slate-600 text-[11px]">生产单位: {activeSelectedCategory.producerUnits}</span>
-                <span className="text-slate-400">|</span>
-                <span className="text-blue-700 text-[11px]">工序: {activeSelectedCategory.keyProcesses.join(' · ')}</span>
+                <span className="text-muted-foreground text-[11px]">({activeSelectedCategory.groupTag})</span>
+                <span className="text-muted-foreground">|</span>
+                <span className="text-muted-foreground text-[11px]">生产单位: {activeSelectedCategory.producerUnits}</span>
+                <span className="text-muted-foreground">|</span>
+                <span className="text-primary text-[11px]">工序: {activeSelectedCategory.keyProcesses.join(' · ')}</span>
               </div>
 
               <button
@@ -2284,7 +2285,7 @@ export default function UnitProductPage() {
                   setSelectedCategoryId('all')
                   setCurrentPage(1)
                 }}
-                className="flex items-center gap-1 text-xs text-[#1677ff] hover:text-blue-800 font-bold cursor-pointer hover:underline"
+                className="flex items-center gap-1 text-xs text-primary hover:underline font-bold cursor-pointer"
               >
                 <X className="size-3.5" />
                 <span>清除分类筛选 (显示全谱系)</span>
@@ -2295,12 +2296,12 @@ export default function UnitProductPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-mono">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
                   <th className="py-2.5 px-3">序号</th>
                   <th className="py-2.5 px-3">产品型号规格</th>
                   
                   {/* 单位产品综合能耗 */}
-                  <th className="py-2.5 px-3 text-right text-slate-900 font-bold">
+                  <th className="py-2.5 px-3 text-right text-foreground font-bold">
                     {currentTableMode === 'transformer'
                       ? '单位产品综合能耗 (tce/万kVA)'
                       : currentTableMode === 'cable'
@@ -2309,7 +2310,7 @@ export default function UnitProductPage() {
                   </th>
 
                   {/* 单位产品电耗 */}
-                  <th className="py-2.5 px-3 text-right text-blue-700">
+                  <th className="py-2.5 px-3 text-right text-primary">
                     {currentTableMode === 'transformer'
                       ? '⚡ 单位电耗 (kWh/kVA)'
                       : currentTableMode === 'cable'
@@ -2319,91 +2320,91 @@ export default function UnitProductPage() {
 
                   {/* 蒸汽消耗 (仅变压器/全部模式显示，线缆完全不显示) */}
                   {(currentTableMode === 'transformer' || currentTableMode === 'all') && (
-                    <th className="py-2.5 px-3 text-right text-purple-700">
+                    <th className="py-2.5 px-3 text-right text-purple-400">
                       💨 单位蒸汽消耗 (t)
                     </th>
                   )}
 
                   {/* 氮气消耗 (仅线缆/全部模式显示，变压器完全不显示) */}
                   {(currentTableMode === 'cable' || currentTableMode === 'all') && (
-                    <th className="py-2.5 px-3 text-right text-teal-700">
+                    <th className="py-2.5 px-3 text-right text-teal-400">
                       💨 单位氮气消耗 (m³)
                     </th>
                   )}
 
                   {/* 天然气消耗 */}
-                  <th className="py-2.5 px-3 text-right text-amber-700">
+                  <th className="py-2.5 px-3 text-right text-amber-400">
                     🔥 天然气消耗 (m³)
                   </th>
 
                   {/* 工艺水耗 */}
-                  <th className="py-2.5 px-3 text-right text-cyan-700">
+                  <th className="py-2.5 px-3 text-right text-cyan-400">
                     💧 工艺水耗 (t)
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-border/60 text-foreground">
                 {displayedModels.length > 0 ? (
                   displayedModels.map((m, idx) => (
-                    <tr key={m.id} className="hover:bg-blue-50/30 transition-colors">
-                      <td className="py-2.5 px-3 text-slate-400 font-mono">
+                    <tr key={m.id} className="hover:bg-accent/30 transition-colors">
+                      <td className="py-2.5 px-3 text-muted-foreground font-mono">
                         {(currentPage - 1) * pageSize + idx + 1}
                       </td>
                       <td className="py-2.5 px-3">
-                        <div className="font-bold text-slate-900 font-sans text-xs">
+                        <div className="font-bold text-foreground font-sans text-xs">
                           {m.modelName}
                         </div>
-                        <div className="text-[10.5px] text-slate-400 font-mono">
+                        <div className="text-[10.5px] text-muted-foreground font-mono">
                           型号编码: {m.modelCode}
                         </div>
                       </td>
                       
                       {/* 1. 单位产品综合能耗 */}
-                      <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff]">
+                      <td className="py-2.5 px-3 text-right font-extrabold text-primary">
                         {m.unitTce}
                       </td>
 
                       {/* 2. 单位产品电耗 */}
-                      <td className="py-2.5 px-3 text-right text-blue-700 font-bold">
+                      <td className="py-2.5 px-3 text-right text-primary font-bold">
                         {m.unitElecKWh}
                       </td>
 
                       {/* 3. 单位蒸汽消耗 (变压器/全部模式显示) */}
                       {(currentTableMode === 'transformer' || currentTableMode === 'all') && (
-                        <td className="py-2.5 px-3 text-right text-purple-700 font-bold">
+                        <td className="py-2.5 px-3 text-right text-purple-400 font-bold">
                           {m.unitSteamTon ? (
                             <span>{m.unitSteamTon}</span>
                           ) : (
-                            <span className="text-slate-300 font-normal font-sans">—</span>
+                            <span className="text-muted-foreground/40 font-normal font-sans">—</span>
                           )}
                         </td>
                       )}
 
                       {/* 4. 单位氮气消耗 (线缆/全部模式显示) */}
                       {(currentTableMode === 'cable' || currentTableMode === 'all') && (
-                        <td className="py-2.5 px-3 text-right text-teal-700 font-bold">
+                        <td className="py-2.5 px-3 text-right text-teal-400 font-bold">
                           {m.unitNitrogenM3 ? (
                             <span>{m.unitNitrogenM3}</span>
                           ) : (
-                            <span className="text-slate-300 font-normal font-sans">—</span>
+                            <span className="text-muted-foreground/40 font-normal font-sans">—</span>
                           )}
                         </td>
                       )}
 
                       {/* 5. 天然气消耗 */}
-                      <td className="py-2.5 px-3 text-right text-amber-700">
-                        {m.unitGasM3 || <span className="text-slate-300 font-sans">—</span>}
+                      <td className="py-2.5 px-3 text-right text-amber-400">
+                        {m.unitGasM3 || <span className="text-muted-foreground/40 font-sans">—</span>}
                       </td>
 
                       {/* 6. 工艺耗水 */}
-                      <td className="py-2.5 px-3 text-right text-cyan-700">
-                        {m.unitWaterTon || <span className="text-slate-300 font-sans">—</span>}
+                      <td className="py-2.5 px-3 text-right text-cyan-400">
+                        {m.unitWaterTon || <span className="text-muted-foreground/40 font-sans">—</span>}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={currentTableMode === 'all' ? 13 : 11} className="py-8 text-center text-slate-400 font-sans">
+                    <td colSpan={currentTableMode === 'all' ? 13 : 11} className="py-8 text-center text-muted-foreground font-sans">
                       未检索到符合条件的产品型号单耗数据
                     </td>
                   </tr>
@@ -2413,13 +2414,13 @@ export default function UnitProductPage() {
           </div>
 
           {/* 6. 工业级分页控制器 (支持海量型号分页翻页) */}
-          <div className="p-3 border-t border-slate-100 bg-slate-50/60 flex flex-wrap items-center justify-between gap-3 text-xs font-sans">
-            <div className="text-slate-500 font-mono">
-              显示第 <strong className="text-slate-800">{(currentPage - 1) * pageSize + 1}</strong> 到第{' '}
-              <strong className="text-slate-800">
+          <div className="p-3 border-t border-border bg-panel flex flex-wrap items-center justify-between gap-3 text-xs font-sans">
+            <div className="text-muted-foreground font-mono">
+              显示第 <strong className="text-foreground">{(currentPage - 1) * pageSize + 1}</strong> 到第{' '}
+              <strong className="text-foreground">
                 {Math.min(currentPage * pageSize, filteredModels.length)}
               </strong>{' '}
-              条 · 共 <strong className="text-[#1677ff]">{filteredModels.length}</strong> 条型号
+              条 · 共 <strong className="text-primary">{filteredModels.length}</strong> 条型号
             </div>
 
             <div className="flex items-center gap-1 font-mono">
@@ -2430,15 +2431,15 @@ export default function UnitProductPage() {
                 className={cn(
                   'px-2.5 py-1 rounded border transition-colors flex items-center gap-1 cursor-pointer',
                   currentPage === 1
-                    ? 'border-slate-200 text-slate-300 cursor-not-allowed bg-white'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-100 bg-white'
+                    ? 'border-border text-muted-foreground/40 cursor-not-allowed bg-card'
+                    : 'border-border text-foreground hover:bg-accent/40 bg-card'
                 )}
               >
                 <ChevronLeft className="size-3.5" />
                 <span>上一页</span>
               </button>
 
-              <div className="px-2 font-bold text-slate-700">
+              <div className="px-2 font-bold text-foreground">
                 {currentPage} / {totalPages} 页
               </div>
 
@@ -2449,8 +2450,8 @@ export default function UnitProductPage() {
                 className={cn(
                   'px-2.5 py-1 rounded border transition-colors flex items-center gap-1 cursor-pointer',
                   currentPage >= totalPages
-                    ? 'border-slate-200 text-slate-300 cursor-not-allowed bg-white'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-100 bg-white'
+                    ? 'border-border text-muted-foreground/40 cursor-not-allowed bg-card'
+                    : 'border-border text-foreground hover:bg-accent/40 bg-card'
                 )}
               >
                 <span>下一页</span>

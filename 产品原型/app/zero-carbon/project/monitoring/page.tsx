@@ -784,20 +784,20 @@ export default function RealtimeMonitoringPage() {
       {/* 🌟 右侧主监控工作台 */}
       <div className="flex-1 min-w-0 flex flex-col gap-3.5">
         {/* 1. 顶部 Header */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <Activity className="size-5 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-slate-800 flex items-center gap-2">
+              <h1 className="text-base font-bold text-foreground flex items-center gap-2">
                 实时监控
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">
-                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[11px] font-bold border border-emerald-500/30">
+                  <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   {selectedNode.name}
                 </span>
               </h1>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-muted-foreground">
                 集成光伏、储能、热泵三类零碳资产实时功率、工况与运行收益在线监测
               </p>
             </div>
@@ -805,13 +805,13 @@ export default function RealtimeMonitoringPage() {
 
           <div className="flex flex-wrap items-center gap-2.5">
             {/* 时间维度切换：日 / 月 */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
+            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs font-sans">
               <button
                 type="button"
                 onClick={() => setTimeDim('day')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'day' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                  timeDim === 'day' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 日
@@ -821,7 +821,7 @@ export default function RealtimeMonitoringPage() {
                 onClick={() => setTimeDim('month')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                  timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 月
@@ -830,34 +830,34 @@ export default function RealtimeMonitoringPage() {
 
             {/* 日期选择器 */}
             {timeDim === 'day' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                   title="起始日期"
                 />
-                <span className="text-slate-400 font-sans">至</span>
+                <span className="text-muted-foreground font-sans">至</span>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                   title="结束日期"
                 />
               </div>
             )}
 
             {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <input
                   type="month"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer font-bold"
+                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
                   title="选择指定月份"
                 />
               </div>
@@ -871,25 +871,25 @@ export default function RealtimeMonitoringPage() {
                   `已成功导出【${selectedNode.name}】${categoryFilter}模块实时监测数据报表！`,
                 )
               }
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-panel hover:bg-accent/40 text-foreground text-xs font-bold transition-all shadow-2xs cursor-pointer"
             >
-              <Download className="size-3.5 text-slate-500" />
+              <Download className="size-3.5 text-muted-foreground" />
               <span>导出报表</span>
             </button>
           </div>
         </div>
 
         {/* 🌟 2. 核心分类与园区/企业筛选工具栏 */}
-        <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3 font-sans">
+        <div className="bg-card p-3 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3 font-sans">
           <div className="flex flex-wrap items-center gap-3">
             {/* 分类切换按钮组：光伏 / 储能 / 热泵 */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">监控模块：</span>
-              <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-sans">
+              <span className="text-xs font-bold text-foreground whitespace-nowrap">监控模块：</span>
+              <div className="flex items-center gap-1 bg-panel p-0.5 rounded-lg border border-border text-xs font-sans">
                 {[
-                  { key: '光伏', label: '☀️ 光伏', color: 'text-amber-600' },
-                  { key: '储能', label: '🔋 储能', color: 'text-blue-600' },
-                  { key: '热泵', label: '♨️ 热泵', color: 'text-orange-600' },
+                  { key: '光伏', label: '☀️ 光伏' },
+                  { key: '储能', label: '🔋 储能' },
+                  { key: '热泵', label: '♨️ 热泵' },
                 ].map((tab) => (
                   <button
                     key={tab.key}
@@ -898,8 +898,8 @@ export default function RealtimeMonitoringPage() {
                     className={cn(
                       'px-3.5 py-1.5 rounded-md transition-all cursor-pointer font-bold text-xs flex items-center gap-1.5 select-none',
                       categoryFilter === tab.key
-                        ? 'bg-white text-[#1677ff] shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900',
+                        ? 'bg-primary text-primary-foreground shadow-xs'
+                        : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
                     <span>{tab.label}</span>
@@ -910,47 +910,47 @@ export default function RealtimeMonitoringPage() {
 
             {/* 园区下拉选择框 */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属园区：</span>
+              <span className="text-xs font-bold text-foreground whitespace-nowrap">所属园区：</span>
               <select
                 value={parkFilter}
                 onChange={(e) => handleParkChange(e.target.value)}
-                className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer"
+                className="h-8 px-2.5 rounded-lg border border-border bg-panel text-xs text-foreground font-medium focus:outline-none focus:border-primary shadow-2xs cursor-pointer"
               >
-                <option value="all">全部园区 (全集团 15 园区)</option>
-                <option value="特变电工东北输变电产业园">特变电工东北输变电产业园 (沈阳)</option>
-                <option value="特变电工南方输变电产业园">特变电工南方输变电产业园 (衡阳)</option>
-                <option value="特变电工新疆产业园">特变电工新疆产业园 (乌鲁木齐)</option>
-                <option value="特变电工新疆电缆产业园">特变电工新疆电缆产业园 (昌吉)</option>
-                <option value="特变电工(德阳)电缆园区">特变电工(德阳)电缆园区 (德阳)</option>
-                <option value="特变电工天变产业园">特变电工天变产业园 (天津)</option>
-                <option value="特变电工华东输变电科技产业园">特变电工华东输变电科技产业园 (新泰)</option>
+                <option value="all" className="bg-card text-foreground">全部园区 (全集团 15 园区)</option>
+                <option value="特变电工东北输变电产业园" className="bg-card text-foreground">特变电工东北输变电产业园 (沈阳)</option>
+                <option value="特变电工南方输变电产业园" className="bg-card text-foreground">特变电工南方输变电产业园 (衡阳)</option>
+                <option value="特变电工新疆产业园" className="bg-card text-foreground">特变电工新疆产业园 (乌鲁木齐)</option>
+                <option value="特变电工新疆电缆产业园" className="bg-card text-foreground">特变电工新疆电缆产业园 (昌吉)</option>
+                <option value="特变电工(德阳)电缆园区" className="bg-card text-foreground">特变电工(德阳)电缆园区 (德阳)</option>
+                <option value="特变电工天变产业园" className="bg-card text-foreground">特变电工天变产业园 (天津)</option>
+                <option value="特变电工华东输变电科技产业园" className="bg-card text-foreground">特变电工华东输变电科技产业园 (新泰)</option>
               </select>
             </div>
 
             {/* 企业下拉选择框 */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">所属企业：</span>
+              <span className="text-xs font-bold text-foreground whitespace-nowrap">所属企业：</span>
               <select
                 value={companyFilter}
                 onChange={(e) => handleCompanyChange(e.target.value)}
-                className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 shadow-2xs max-w-[220px] cursor-pointer"
+                className="h-8 px-2.5 rounded-lg border border-border bg-panel text-xs text-foreground font-medium focus:outline-none focus:border-primary shadow-2xs max-w-[220px] cursor-pointer"
               >
-                <option value="all">全部所属企业</option>
+                <option value="all" className="bg-card text-foreground">全部所属企业</option>
                 {availableCompanies ? (
                   availableCompanies.map((c) => (
-                    <option key={c.id} value={c.name}>
+                    <option key={c.id} value={c.name} className="bg-card text-foreground">
                       {c.name}
                     </option>
                   ))
                 ) : (
                   <>
-                    <option value="沈变本部">沈变本部</option>
-                    <option value="衡变本部">衡变本部</option>
-                    <option value="新变厂">新变厂</option>
-                    <option value="特变电工新疆线缆厂">特变电工新疆线缆厂</option>
-                    <option value="特变电工（德阳）电缆股份有限公司">特变电工（德阳）电缆股份有限公司</option>
-                    <option value="天变公司">天变公司</option>
-                    <option value="鲁缆本部">鲁缆本部</option>
+                    <option value="沈变本部" className="bg-card text-foreground">沈变本部</option>
+                    <option value="衡变本部" className="bg-card text-foreground">衡变本部</option>
+                    <option value="新变厂" className="bg-card text-foreground">新变厂</option>
+                    <option value="特变电工新疆线缆厂" className="bg-card text-foreground">特变电工新疆线缆厂</option>
+                    <option value="特变电工（德阳）电缆股份有限公司" className="bg-card text-foreground">特变电工（德阳）电缆股份有限公司</option>
+                    <option value="天变公司" className="bg-card text-foreground">天变公司</option>
+                    <option value="鲁缆本部" className="bg-card text-foreground">鲁缆本部</option>
                   </>
                 )}
               </select>
@@ -960,13 +960,13 @@ export default function RealtimeMonitoringPage() {
           {/* 右侧搜索 */}
           <div className="flex items-center gap-2">
             <div className="relative w-52">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-slate-400" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="搜索项目/日期/基地..."
                 value={searchKw}
                 onChange={(e) => setSearchKw(e.target.value)}
-                className="w-full h-8 pl-8 pr-2.5 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-500"
+                className="w-full h-8 pl-8 pr-2.5 text-xs rounded-lg border border-border bg-panel text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
               />
             </div>
             {(parkFilter !== 'all' || companyFilter !== 'all' || searchKw) && (
@@ -977,7 +977,7 @@ export default function RealtimeMonitoringPage() {
                   setCompanyFilter('all')
                   setSearchKw('')
                 }}
-                className="text-[11px] text-slate-500 hover:text-rose-600 font-bold px-1.5 py-1 rounded transition-colors cursor-pointer"
+                className="text-[11px] text-muted-foreground hover:text-rose-400 font-bold px-1.5 py-1 rounded transition-colors cursor-pointer"
               >
                 重置
               </button>
@@ -990,88 +990,88 @@ export default function RealtimeMonitoringPage() {
         {/* ══════════════════════════════════════════════════════════════════ */}
         {categoryFilter === '光伏' && (
           <div className="space-y-3.5">
-            {/* 光伏 6 大核心 KPI 指标卡片 (用户指定指标全面覆盖) */}
+            {/* 光伏 6 大核心 KPI 指标卡片 */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">发电功率</span>
-                  <Zap className="size-3.5 text-amber-500" />
+                  <Zap className="size-3.5 text-amber-400" />
                 </div>
-                <div className="text-base font-bold font-mono text-slate-800">
-                  {pvSummary.totalPower} <span className="text-xs font-normal">kW</span>
+                <div className="text-base font-bold font-mono text-foreground">
+                  {pvSummary.totalPower} <span className="text-xs font-normal text-muted-foreground">kW</span>
                 </div>
-                <div className="text-[10px] text-amber-600 font-mono mt-0.5">实时逆变输出</div>
+                <div className="text-[10px] text-amber-400 font-mono mt-0.5">实时逆变输出</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">发电量</span>
-                  <Sun className="size-3.5 text-amber-600" />
+                  <Sun className="size-3.5 text-amber-400" />
                 </div>
-                <div className="text-base font-bold font-mono text-amber-600">
-                  {pvSummary.totalGen} <span className="text-xs font-normal">kWh</span>
+                <div className="text-base font-bold font-mono text-amber-400">
+                  {pvSummary.totalGen} <span className="text-xs font-normal text-muted-foreground">kWh</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">当期累计发电</div>
+                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">当期累计发电</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">消纳电量</span>
-                  <Activity className="size-3.5 text-emerald-500" />
+                  <Activity className="size-3.5 text-emerald-400" />
                 </div>
-                <div className="text-base font-bold font-mono text-emerald-600">
-                  {pvSummary.totalSelf} <span className="text-xs font-normal">kWh</span>
+                <div className="text-base font-bold font-mono text-emerald-400">
+                  {pvSummary.totalSelf} <span className="text-xs font-normal text-muted-foreground">kWh</span>
                 </div>
-                <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">
+                <div className="text-[10px] text-emerald-400 font-mono mt-0.5">
                   就地消纳率 {pvSummary.avgSelfRatio}%
                 </div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">上网电量</span>
-                  <ArrowUpRight className="size-3.5 text-blue-500" />
+                  <ArrowUpRight className="size-3.5 text-primary" />
                 </div>
-                <div className="text-base font-bold font-mono text-blue-600">
-                  {pvSummary.totalGrid} <span className="text-xs font-normal">kWh</span>
+                <div className="text-base font-bold font-mono text-primary">
+                  {pvSummary.totalGrid} <span className="text-xs font-normal text-muted-foreground">kWh</span>
                 </div>
-                <div className="text-[10px] text-blue-500 font-mono mt-0.5">反送公用电网</div>
+                <div className="text-[10px] text-primary font-mono mt-0.5">反送公用电网</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">消纳收益</span>
-                  <Coins className="size-3.5 text-emerald-600" />
+                  <Coins className="size-3.5 text-emerald-400" />
                 </div>
-                <div className="text-base font-bold font-mono text-emerald-600">
+                <div className="text-base font-bold font-mono text-emerald-400">
                   ¥{pvSummary.totalSelfRev}
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">自发自用节电费</div>
+                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">自发自用节电费</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">上网收益</span>
-                  <Coins className="size-3.5 text-blue-600" />
+                  <Coins className="size-3.5 text-primary" />
                 </div>
-                <div className="text-base font-bold font-mono text-blue-600">
+                <div className="text-base font-bold font-mono text-primary">
                   ¥{pvSummary.totalGridRev}
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">燃煤标杆售电</div>
+                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">燃煤标杆售电</div>
               </div>
             </div>
 
             {/* 光伏图表时序展示 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-              <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-amber-500" />
-                    <h3 className="text-xs font-bold text-slate-800">
+                    <span className="size-2 rounded-full bg-amber-400" />
+                    <h3 className="text-xs font-bold text-foreground">
                       光伏发电量与消纳/上网时序平衡趋势
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">电量 (kWh)</span>
+                  <span className="text-[10px] font-mono text-muted-foreground">电量 (kWh)</span>
                 </div>
                 <div className="h-[240px]">
                   <LineTrend
@@ -1080,22 +1080,22 @@ export default function RealtimeMonitoringPage() {
                     height={240}
                     lines={[
                       { key: '发电量', name: '日发电量 (kWh)', color: '#fa8c16' },
-                      { key: '消纳电量', name: '消纳电量 (kWh)', color: '#52c41a' },
-                      { key: '上网电量', name: '上网电量 (kWh)', color: '#1677ff' },
+                      { key: '消纳电量', name: '消纳电量 (kWh)', color: '#10b981' },
+                      { key: '上网电量', name: '上网电量 (kWh)', color: '#3b82f6' },
                     ]}
                   />
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-emerald-500" />
-                    <h3 className="text-xs font-bold text-slate-800">
+                    <span className="size-2 rounded-full bg-emerald-400" />
+                    <h3 className="text-xs font-bold text-foreground">
                       光伏自用消纳节费与上网售电收益对比
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">收益 (元)</span>
+                  <span className="text-[10px] font-mono text-muted-foreground">收益 (元)</span>
                 </div>
                 <div className="h-[240px]">
                   <LineTrend
@@ -1111,21 +1111,21 @@ export default function RealtimeMonitoringPage() {
               </div>
             </div>
 
-            {/* 光伏监测数据表格 (严格包含用户指定的全部 6 大字段) */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+            {/* 光伏监测数据表格 */}
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-border/60 flex items-center justify-between bg-panel">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-amber-500" />
-                  <h3 className="text-xs font-bold text-slate-800">光伏项目实时发电与消纳台账表</h3>
-                  <span className="text-[10px] text-slate-400 font-mono">共 {filteredPvData.length} 个项目</span>
+                  <span className="size-2 rounded-full bg-amber-400" />
+                  <h3 className="text-xs font-bold text-foreground">光伏项目实时发电与消纳台账表</h3>
+                  <span className="text-[10px] text-muted-foreground font-mono">共 {filteredPvData.length} 个项目</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono">数据采集周期：15分钟</span>
+                <span className="text-[10px] text-muted-foreground font-mono">数据采集周期：15分钟</span>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border">
                       <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">所属园区/企业</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">装机容量</th>
@@ -1140,43 +1140,43 @@ export default function RealtimeMonitoringPage() {
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">运行状态</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-mono">
+                  <tbody className="divide-y divide-border/60 font-mono text-foreground">
                     {filteredPvData.map((item) => (
-                      <tr key={item.id} className="hover:bg-amber-50/40 transition-colors">
-                        <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
+                      <tr key={item.id} className="hover:bg-accent/30 transition-colors">
+                        <td className="py-2.5 px-3 font-sans font-bold text-foreground">
                           {item.projectName}
                         </td>
-                        <td className="py-2.5 px-3 font-sans text-slate-600">
+                        <td className="py-2.5 px-3 font-sans text-muted-foreground">
                           <div>{item.company}</div>
-                          <div className="text-[10px] text-slate-400">{item.park}</div>
+                          <div className="text-[10px] text-muted-foreground/70">{item.park}</div>
                         </td>
-                        <td className="py-2.5 px-3 font-bold text-amber-700">{item.capacity}</td>
-                        <td className="py-2.5 px-3 text-right font-bold text-amber-600">
+                        <td className="py-2.5 px-3 font-bold text-amber-400">{item.capacity}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-amber-400">
                           {item.powerKw.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
+                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
                           {item.dailyGenKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
                           {item.selfUseKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-blue-600">
+                        <td className="py-2.5 px-3 text-right font-bold text-primary">
                           {item.gridKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
                           ¥{item.selfRevenueYuan.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-blue-600">
+                        <td className="py-2.5 px-3 text-right font-bold text-primary">
                           ¥{item.gridRevenueYuan.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
                           ¥{item.totalRevenueYuan.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
                           {item.selfUseRatio}%
                         </td>
                         <td className="py-2.5 px-3 text-center">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-sans font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-sans font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                             {item.status}
                           </span>
                         </td>
@@ -1196,106 +1196,106 @@ export default function RealtimeMonitoringPage() {
           <div className="space-y-3.5">
             {/* 储能 8 大核心 KPI 指标卡片 (2行展示，每行4张) */}
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">额定功率</span>
-                  <Gauge className="size-3.5 text-blue-500" />
+                  <Gauge className="size-3.5 text-primary" />
                 </div>
-                <div className="text-base font-bold font-mono text-slate-800">
+                <div className="text-base font-bold font-mono text-foreground">
                   {storageSummary.totalRatedPower}
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">kW (装机总容量)</div>
+                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">kW (装机总容量)</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">充放电功率</span>
-                  <Zap className="size-3.5 text-emerald-500" />
+                  <Zap className="size-3.5 text-emerald-400" />
                 </div>
-                <div className="text-base font-bold font-mono text-emerald-600">
+                <div className="text-base font-bold font-mono text-emerald-400">
                   {storageSummary.totalCurrentPower}
                 </div>
-                <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">kW (实时负荷)</div>
+                <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">kW (实时负荷)</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">充电量</span>
-                  <BatteryCharging className="size-3.5 text-blue-500" />
+                  <BatteryCharging className="size-3.5 text-primary" />
                 </div>
-                <div className="text-base font-bold font-mono text-blue-600">
+                <div className="text-base font-bold font-mono text-primary">
                   {storageSummary.totalCharge}
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">kWh (当期累计)</div>
+                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">kWh (当期累计)</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">放电量</span>
-                  <TrendingUp className="size-3.5 text-emerald-500" />
+                  <TrendingUp className="size-3.5 text-emerald-400" />
                 </div>
-                <div className="text-base font-bold font-mono text-emerald-600">
+                <div className="text-base font-bold font-mono text-emerald-400">
                   {storageSummary.totalDischarge}
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">kWh (削峰释放)</div>
+                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">kWh (削峰释放)</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">当前 SOC</span>
-                  <BatteryCharging className="size-3.5 text-purple-500" />
+                  <BatteryCharging className="size-3.5 text-purple-400" />
                 </div>
-                <div className="text-base font-bold font-mono text-purple-600">
+                <div className="text-base font-bold font-mono text-purple-400">
                   {storageSummary.avgSoc}%
                 </div>
-                <div className="text-[10px] text-purple-500 font-mono mt-0.5">荷电状态均值</div>
+                <div className="text-[10px] text-purple-400 font-mono mt-0.5">荷电状态均值</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">实时状态</span>
-                  <Radio className="size-3.5 text-emerald-500 animate-pulse" />
+                  <Radio className="size-3.5 text-emerald-400 animate-pulse" />
                 </div>
-                <div className="text-base font-bold font-sans text-emerald-600">
+                <div className="text-base font-bold font-sans text-emerald-400">
                   放电消纳中
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">晚高峰顶峰调度</div>
+                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">晚高峰顶峰调度</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">收益 (按日)</span>
-                  <Coins className="size-3.5 text-emerald-600" />
+                  <Coins className="size-3.5 text-emerald-400" />
                 </div>
-                <div className="text-base font-bold font-mono text-emerald-600">
+                <div className="text-base font-bold font-mono text-emerald-400">
                   ¥{storageSummary.totalRevenue}
                 </div>
-                <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">峰谷套利净额</div>
+                <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">峰谷套利净额</div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <div className="flex items-center justify-between text-muted-foreground mb-1">
                   <span className="text-[11px]">综合效率 (日)</span>
-                  <Gauge className="size-3.5 text-[#1677ff]" />
+                  <Gauge className="size-3.5 text-primary" />
                 </div>
-                <div className="text-base font-bold font-mono text-[#1677ff]">
+                <div className="text-base font-bold font-mono text-primary">
                   {storageSummary.avgEfficiency}%
                 </div>
-                <div className="text-[10px] text-blue-500 font-mono mt-0.5">全系统转换比</div>
+                <div className="text-[10px] text-primary font-mono mt-0.5">全系统转换比</div>
               </div>
             </div>
 
             {/* 储能图表双栏展示 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-              <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-blue-500" />
-                    <h3 className="text-xs font-bold text-slate-800">
+                    <span className="size-2 rounded-full bg-primary" />
+                    <h3 className="text-xs font-bold text-foreground">
                       储能充放电量时序与套利收益趋势
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">电量 (kWh) / 收益 (元)</span>
+                  <span className="text-[10px] font-mono text-muted-foreground">电量 (kWh) / 收益 (元)</span>
                 </div>
                 <div className="h-[240px]">
                   <LineTrend
@@ -1304,22 +1304,22 @@ export default function RealtimeMonitoringPage() {
                     height={240}
                     lines={[
                       { key: '日充电量', name: '日充电量 (kWh)', color: '#1677ff' },
-                      { key: '日放电量', name: '日放电量 (kWh)', color: '#52c41a' },
+                      { key: '日放电量', name: '日放电量 (kWh)', color: '#10b981' },
                       { key: '收益', name: '套利收益 (元)', color: '#fa8c16' },
                     ]}
                   />
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-purple-500" />
-                    <h3 className="text-xs font-bold text-slate-800">
+                    <span className="size-2 rounded-full bg-purple-400" />
+                    <h3 className="text-xs font-bold text-foreground">
                       储能综合充放效率与 SOC 荷电状态跟踪
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">百分比 (%)</span>
+                  <span className="text-[10px] font-mono text-muted-foreground">百分比 (%)</span>
                 </div>
                 <div className="h-[240px]">
                   <LineTrend
@@ -1335,21 +1335,21 @@ export default function RealtimeMonitoringPage() {
               </div>
             </div>
 
-            {/* 储能监测数据表格 (严格包含用户指定的全部 8 大字段) */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+            {/* 储能监测数据表格 */}
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-border/60 flex items-center justify-between bg-panel">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-blue-600" />
-                  <h3 className="text-xs font-bold text-slate-800">储能电站实时运行监测台账表</h3>
-                  <span className="text-[10px] text-slate-400 font-mono">共 {filteredStorageData.length} 个电站</span>
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground">储能电站实时运行监测台账表</h3>
+                  <span className="text-[10px] text-muted-foreground font-mono">共 {filteredStorageData.length} 个电站</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono">数据采集源：PCS变流器 + BMS</span>
+                <span className="text-[10px] text-muted-foreground font-mono">数据采集源：PCS变流器 + BMS</span>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border">
                       <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">所属园区/企业</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">功率 (kW)</th>
@@ -1364,31 +1364,31 @@ export default function RealtimeMonitoringPage() {
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">尖放占比</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-mono">
+                  <tbody className="divide-y divide-border/60 font-mono text-foreground">
                     {filteredStorageData.map((item) => (
-                      <tr key={item.id} className="hover:bg-blue-50/40 transition-colors">
-                        <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
+                      <tr key={item.id} className="hover:bg-accent/30 transition-colors">
+                        <td className="py-2.5 px-3 font-sans font-bold text-foreground">
                           {item.projectName}
                         </td>
-                        <td className="py-2.5 px-3 font-sans text-slate-600">
+                        <td className="py-2.5 px-3 font-sans text-muted-foreground">
                           <div>{item.company}</div>
-                          <div className="text-[10px] text-slate-400">{item.park}</div>
+                          <div className="text-[10px] text-muted-foreground/70">{item.park}</div>
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-blue-700">
+                        <td className="py-2.5 px-3 text-right font-bold text-primary">
                           {item.ratedPowerKw.toLocaleString()}
                         </td>
                         <td className="py-2.5 px-3 text-right font-bold">
-                          <span className={item.chargeDischargePowerKw >= 0 ? 'text-blue-600' : 'text-emerald-600'}>
+                          <span className={item.chargeDischargePowerKw >= 0 ? 'text-primary' : 'text-emerald-400'}>
                             {item.chargeDischargePowerKw >= 0 ? `+${item.chargeDischargePowerKw}` : item.chargeDischargePowerKw}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
+                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
                           {item.chargeKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
+                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
                           {item.dischargeKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-purple-600">
+                        <td className="py-2.5 px-3 text-center font-bold text-purple-400">
                           {item.soc}%
                         </td>
                         <td className="py-2.5 px-3 text-center">
@@ -1396,25 +1396,25 @@ export default function RealtimeMonitoringPage() {
                             className={cn(
                               'px-2 py-0.5 rounded text-[10px] font-sans font-bold border',
                               item.status === '充电'
-                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                ? 'bg-primary/20 text-primary border-primary/30'
                                 : item.status === '放电'
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : 'bg-slate-100 text-slate-600 border-slate-200',
+                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                : 'bg-panel text-muted-foreground border-border',
                             )}
                           >
                             {item.status}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
                           ¥{item.revenueYuan.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-[#1677ff]">
+                        <td className="py-2.5 px-3 text-center font-bold text-primary">
                           {item.efficiency}%
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
                           {item.greenChargeRatio}%
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-purple-600">
+                        <td className="py-2.5 px-3 text-center font-bold text-purple-400">
                           {item.criticalPeakDischargeRatio}%
                         </td>
                       </tr>
@@ -1433,98 +1433,98 @@ export default function RealtimeMonitoringPage() {
           <div className="space-y-3.5">
             {/* 热泵 10 大核心 KPI 指标卡片 (2行展示，每行5张) */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-2.5">
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] text-slate-400 block mb-0.5">COP 能效</span>
-                <div className="text-base font-bold font-mono text-emerald-600">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <span className="text-[11px] text-muted-foreground block mb-0.5">COP 能效</span>
+                <div className="text-base font-bold font-mono text-emerald-400">
                   {heatPumpSummary.avgCop}
                 </div>
-                <span className="text-[10px] text-slate-400">实时制热COP</span>
+                <span className="text-[10px] text-muted-foreground">实时制热COP</span>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] text-slate-400 block mb-0.5">供水温度</span>
-                <div className="text-base font-bold font-mono text-rose-600">
-                  {heatPumpSummary.avgSupplyTemp} <span className="text-xs font-normal">℃</span>
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <span className="text-[11px] text-muted-foreground block mb-0.5">供水温度</span>
+                <div className="text-base font-bold font-mono text-rose-400">
+                  {heatPumpSummary.avgSupplyTemp} <span className="text-xs font-normal text-muted-foreground">℃</span>
                 </div>
-                <span className="text-[10px] text-slate-400">出水恒温控制</span>
+                <span className="text-[10px] text-muted-foreground">出水恒温控制</span>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] text-slate-400 block mb-0.5">回水温度</span>
-                <div className="text-base font-bold font-mono text-blue-600">
-                  {heatPumpSummary.avgReturnTemp} <span className="text-xs font-normal">℃</span>
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <span className="text-[11px] text-muted-foreground block mb-0.5">回水温度</span>
+                <div className="text-base font-bold font-mono text-primary">
+                  {heatPumpSummary.avgReturnTemp} <span className="text-xs font-normal text-muted-foreground">℃</span>
                 </div>
-                <span className="text-[10px] text-slate-400">回水温差正常</span>
+                <span className="text-[10px] text-muted-foreground">回水温差正常</span>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] text-slate-400 block mb-0.5">制热量</span>
-                <div className="text-base font-bold font-mono text-orange-600">
-                  {heatPumpSummary.totalHeat} <span className="text-xs font-normal">GJ</span>
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <span className="text-[11px] text-muted-foreground block mb-0.5">制热量</span>
+                <div className="text-base font-bold font-mono text-amber-400">
+                  {heatPumpSummary.totalHeat} <span className="text-xs font-normal text-muted-foreground">GJ</span>
                 </div>
-                <span className="text-[10px] text-slate-400">当期累计产热</span>
+                <span className="text-[10px] text-muted-foreground">当期累计产热</span>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] text-slate-400 block mb-0.5">耗电量</span>
-                <div className="text-base font-bold font-mono text-slate-800">
-                  {heatPumpSummary.totalPowerKwh} <span className="text-xs font-normal">kWh</span>
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <span className="text-[11px] text-muted-foreground block mb-0.5">耗电量</span>
+                <div className="text-base font-bold font-mono text-foreground">
+                  {heatPumpSummary.totalPowerKwh} <span className="text-xs font-normal text-muted-foreground">kWh</span>
                 </div>
-                <span className="text-[10px] text-slate-400">热泵运行电耗</span>
+                <span className="text-[10px] text-muted-foreground">热泵运行电耗</span>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] text-slate-400 block mb-0.5">功率</span>
-                <div className="text-base font-bold font-mono text-slate-800">
-                  {heatPumpSummary.totalPowerKw} <span className="text-xs font-normal">kW</span>
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <span className="text-[11px] text-muted-foreground block mb-0.5">功率</span>
+                <div className="text-base font-bold font-mono text-foreground">
+                  {heatPumpSummary.totalPowerKw} <span className="text-xs font-normal text-muted-foreground">kW</span>
                 </div>
-                <span className="text-[10px] text-slate-400">实时电功率</span>
+                <span className="text-[10px] text-muted-foreground">实时电功率</span>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] text-slate-400 block mb-0.5">压力</span>
-                <div className="text-base font-bold font-mono text-purple-600">
-                  1.25 <span className="text-xs font-normal">MPa</span>
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <span className="text-[11px] text-muted-foreground block mb-0.5">压力</span>
+                <div className="text-base font-bold font-mono text-purple-400">
+                  1.25 <span className="text-xs font-normal text-muted-foreground">MPa</span>
                 </div>
-                <span className="text-[10px] text-slate-400">冷凝管网压力</span>
+                <span className="text-[10px] text-muted-foreground">冷凝管网压力</span>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] text-slate-400 block mb-0.5">绿电占比</span>
-                <div className="text-base font-bold font-mono text-emerald-600">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <span className="text-[11px] text-muted-foreground block mb-0.5">绿电占比</span>
+                <div className="text-base font-bold font-mono text-emerald-400">
                   {heatPumpSummary.avgGreenRatio}%
                 </div>
-                <span className="text-[10px] text-emerald-600">光伏绿电直驱</span>
+                <span className="text-[10px] text-emerald-400">光伏绿电直驱</span>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] text-slate-400 block mb-0.5">尖/峰占比</span>
-                <div className="text-base font-bold font-mono text-amber-600">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <span className="text-[11px] text-muted-foreground block mb-0.5">尖/峰占比</span>
+                <div className="text-base font-bold font-mono text-amber-400">
                   {heatPumpSummary.avgPeakRatio}%
                 </div>
-                <span className="text-[10px] text-slate-400">高电价时段负荷</span>
+                <span className="text-[10px] text-muted-foreground">高电价时段负荷</span>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[11px] text-slate-400 block mb-0.5">收益 (节费)</span>
-                <div className="text-base font-bold font-mono text-emerald-600">
+              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
+                <span className="text-[11px] text-muted-foreground block mb-0.5">收益 (节费)</span>
+                <div className="text-base font-bold font-mono text-emerald-400">
                   ¥{heatPumpSummary.totalSavings}
                 </div>
-                <span className="text-[10px] text-emerald-600">替代燃气节费</span>
+                <span className="text-[10px] text-emerald-400">替代燃气节费</span>
               </div>
             </div>
 
             {/* 热泵图表时序展示 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-              <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-orange-500" />
-                    <h3 className="text-xs font-bold text-slate-800">
+                    <span className="size-2 rounded-full bg-amber-400" />
+                    <h3 className="text-xs font-bold text-foreground">
                       热泵制热量 (GJ) 与耗电量 (kWh) 时序能效分析
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">制热与耗电</span>
+                  <span className="text-[10px] font-mono text-muted-foreground">制热与耗电</span>
                 </div>
                 <div className="h-[240px]">
                   <LineTrend
@@ -1534,21 +1534,21 @@ export default function RealtimeMonitoringPage() {
                     lines={[
                       { key: '制热量', name: '日制热量 (GJ)', color: '#fa8c16' },
                       { key: '耗电量', name: '日耗电量 (kWh)', color: '#1677ff' },
-                      { key: '收益', name: '替代节费 (元)', color: '#52c41a' },
+                      { key: '收益', name: '替代节费 (元)', color: '#10b981' },
                     ]}
                   />
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-emerald-500" />
-                    <h3 className="text-xs font-bold text-slate-800">
+                    <span className="size-2 rounded-full bg-emerald-400" />
+                    <h3 className="text-xs font-bold text-foreground">
                       热泵供水温度 (℃) 与 COP 能效比跟踪曲线
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">温度与能效</span>
+                  <span className="text-[10px] font-mono text-muted-foreground">温度与能效</span>
                 </div>
                 <div className="h-[240px]">
                   <LineTrend
@@ -1556,7 +1556,7 @@ export default function RealtimeMonitoringPage() {
                     xKey="time"
                     height={240}
                     lines={[
-                      { key: '供水温度', name: '供水温度 (℃)', color: '#f5222d' },
+                      { key: '供水温度', name: '供水温度 (℃)', color: '#f43f5e' },
                       { key: 'COP', name: 'COP 能效比', color: '#10b981' },
                     ]}
                   />
@@ -1564,23 +1564,23 @@ export default function RealtimeMonitoringPage() {
               </div>
             </div>
 
-            {/* 热泵监测数据表格 (严格包含用户指定的全部 10 大字段) */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+            {/* 热泵监测数据表格 */}
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-border/60 flex items-center justify-between bg-panel">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-orange-600" />
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <span className="size-2 rounded-full bg-amber-400" />
+                  <h3 className="text-xs font-bold text-foreground">
                     工业热泵机组实时运行工况与节费台账表
                   </h3>
-                  <span className="text-[10px] text-slate-400 font-mono">共 {filteredHeatPumpData.length} 台套</span>
+                  <span className="text-[10px] text-muted-foreground font-mono">共 {filteredHeatPumpData.length} 台套</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono">采集源：超声波热量表 + PLC控制器</span>
+                <span className="text-[10px] text-muted-foreground font-mono">采集源：超声波热量表 + PLC控制器</span>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border">
                       <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">所属园区/企业</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">COP</th>
@@ -1596,48 +1596,48 @@ export default function RealtimeMonitoringPage() {
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">工况状态</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-mono">
+                  <tbody className="divide-y divide-border/60 font-mono text-foreground">
                     {filteredHeatPumpData.map((item) => (
-                      <tr key={item.id} className="hover:bg-orange-50/40 transition-colors">
-                        <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
+                      <tr key={item.id} className="hover:bg-accent/30 transition-colors">
+                        <td className="py-2.5 px-3 font-sans font-bold text-foreground">
                           {item.projectName}
                         </td>
-                        <td className="py-2.5 px-3 font-sans text-slate-600">
+                        <td className="py-2.5 px-3 font-sans text-muted-foreground">
                           <div>{item.company}</div>
-                          <div className="text-[10px] text-slate-400">{item.park}</div>
+                          <div className="text-[10px] text-muted-foreground/70">{item.park}</div>
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
                           {item.cop}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-rose-600">
+                        <td className="py-2.5 px-3 text-right font-bold text-rose-400">
                           {item.supplyTemp} ℃
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-blue-600">
+                        <td className="py-2.5 px-3 text-right font-bold text-primary">
                           {item.returnTemp} ℃
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-orange-600">
+                        <td className="py-2.5 px-3 text-right font-bold text-amber-400">
                           {item.heatOutputGj}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
+                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
                           {item.powerConsumptionKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
+                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
                           {item.powerKw.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-purple-600">
+                        <td className="py-2.5 px-3 text-right font-bold text-purple-400">
                           {item.pressureMpa}
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
                           {item.greenPowerRatio}%
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-amber-600">
+                        <td className="py-2.5 px-3 text-center font-bold text-amber-400">
                           {item.peakRatio}%
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
                           ¥{item.savingsYuan.toLocaleString()}
                         </td>
                         <td className="py-2.5 px-3 text-center">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-sans font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-sans font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
                             {item.status}
                           </span>
                         </td>

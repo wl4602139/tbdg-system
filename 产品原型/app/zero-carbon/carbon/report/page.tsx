@@ -130,25 +130,25 @@ export default function CarbonReportPage() {
       {/* 🌟 右侧主面板 */}
       <div className="flex-1 min-w-0 space-y-3.5">
         {/* 顶部 Header 与 操作按钮 */}
-        <div className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="bg-card rounded-xl border border-border p-3.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <FileText className="size-5" />
             </div>
-            <h1 className="text-base font-bold text-slate-800">碳核算报告</h1>
+            <h1 className="text-base font-bold text-foreground">碳核算报告</h1>
           </div>
 
           <div className="flex items-center gap-2 self-end md:self-center">
             <button
               onClick={() => setShowGenerateModal(true)}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-[#1677ff] hover:bg-blue-600 text-white font-bold text-xs shadow-xs transition-colors"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs shadow-xs transition-colors cursor-pointer"
             >
               <Plus className="size-3.5" />
               <span>生成新核算报告</span>
             </button>
             <button
               onClick={() => alert('正在打包全基地 2026-08 原始活动水平数据与表底凭单佐证包 (ZIP)...')}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
             >
               <Download className="size-3.5" />
               <span>打包佐证资料</span>
@@ -158,90 +158,90 @@ export default function CarbonReportPage() {
 
         {/* 4 栏报告归档大盘统计 */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-            <div className="text-xs text-slate-500 mb-1 font-bold">已签发权威 ISO 14064 报告</div>
+          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+            <div className="text-xs text-muted-foreground mb-1 font-bold">已签发权威 ISO 14064 报告</div>
             <div className="flex items-baseline gap-1.5 my-1">
-              <span className="text-2xl font-extrabold font-mono text-blue-600">8</span>
-              <span className="text-xs text-slate-500">份 (全覆盖)</span>
+              <span className="text-2xl font-extrabold font-mono text-primary">8</span>
+              <span className="text-xs text-muted-foreground">份 (全覆盖)</span>
             </div>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex justify-between font-mono">
+            <div className="text-[11px] text-muted-foreground pt-2 border-t border-border/60 flex justify-between font-mono">
               <span>SGS / CQC 权威认证</span>
-              <span className="text-emerald-700 font-bold">国际互认</span>
+              <span className="text-emerald-400 font-bold">国际互认</span>
             </div>
           </div>
 
-          <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-            <div className="text-xs text-slate-500 mb-1 font-bold">国家零碳工厂认证申报</div>
+          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+            <div className="text-xs text-muted-foreground mb-1 font-bold">国家零碳工厂认证申报</div>
             <div className="flex items-baseline gap-1.5 my-1">
-              <span className="text-2xl font-extrabold font-mono text-emerald-600">3</span>
-              <span className="text-xs text-slate-500">家基地在建</span>
+              <span className="text-2xl font-extrabold font-mono text-emerald-400">3</span>
+              <span className="text-xs text-muted-foreground">家基地在建</span>
             </div>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex justify-between font-mono">
+            <div className="text-[11px] text-muted-foreground pt-2 border-t border-border/60 flex justify-between font-mono">
               <span>沈变/鲁缆/新变</span>
-              <span className="text-emerald-700 font-bold">五星级标准</span>
+              <span className="text-emerald-400 font-bold">五星级标准</span>
             </div>
           </div>
 
-          <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-            <div className="text-xs text-slate-500 mb-1 font-bold">ESG 披露核查达标率</div>
+          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+            <div className="text-xs text-muted-foreground mb-1 font-bold">ESG 披露核查达标率</div>
             <div className="flex items-baseline gap-1.5 my-1">
-              <span className="text-2xl font-extrabold font-mono text-slate-900">100.0%</span>
+              <span className="text-2xl font-extrabold font-mono text-foreground">100.0%</span>
             </div>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex justify-between font-mono">
+            <div className="text-[11px] text-muted-foreground pt-2 border-t border-border/60 flex justify-between font-mono">
               <span>满足 GRI / ISSB 准则</span>
-              <span className="text-blue-700 font-bold">无不符合项</span>
+              <span className="text-primary font-bold">无不符合项</span>
             </div>
           </div>
 
-          <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
-            <div className="text-xs text-slate-500 mb-1 font-bold">自动核算凭单归档总数</div>
+          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+            <div className="text-xs text-muted-foreground mb-1 font-bold">自动核算凭单归档总数</div>
             <div className="flex items-baseline gap-1.5 my-1">
-              <span className="text-2xl font-extrabold font-mono text-indigo-600">1,248</span>
-              <span className="text-xs text-slate-500">份佐证</span>
+              <span className="text-2xl font-extrabold font-mono text-indigo-400">1,248</span>
+              <span className="text-xs text-muted-foreground">份佐证</span>
             </div>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex justify-between font-mono">
+            <div className="text-[11px] text-muted-foreground pt-2 border-t border-border/60 flex justify-between font-mono">
               <span>发票/电表底数/绿证</span>
-              <span className="text-indigo-700 font-bold">区块链存证</span>
+              <span className="text-indigo-400 font-bold">区块链存证</span>
             </div>
           </div>
         </div>
 
         {/* 报告归档列表 */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
+        <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-[#1677ff]" />
-              <h3 className="text-xs font-bold text-slate-900">组织级碳核算与披露报告归档清单</h3>
+              <span className="size-2 rounded-full bg-primary" />
+              <h3 className="text-xs font-bold text-foreground">组织级碳核算与披露报告归档清单</h3>
             </div>
 
             <div className="flex items-center gap-2 text-xs">
               <div className="relative">
-                <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchKw}
                   onChange={(e) => setSearchKw(e.target.value)}
                   placeholder="搜索报告名称/机构..."
-                  className="pl-7 pr-2.5 py-1 rounded-md border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:outline-none focus:border-[#1677ff]"
+                  className="pl-7 pr-2.5 py-1 rounded-md border border-border bg-panel text-xs text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground"
                 />
               </div>
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="px-2 py-1 rounded-md border border-slate-200 bg-slate-50 text-xs text-slate-700"
+                className="px-2 py-1 rounded-md border border-border bg-panel text-xs text-foreground focus:outline-none focus:border-primary"
               >
-                <option value="all">全部报告类型</option>
-                <option value="ISO 14064-1 权威核查">ISO 14064-1 权威核查</option>
-                <option value="ESG 责任披露">ESG 责任披露</option>
-                <option value="国家零碳工厂认证">国家零碳工厂认证</option>
-                <option value="内部能碳管理月报">内部能碳管理月报</option>
+                <option value="all" className="bg-card text-foreground">全部报告类型</option>
+                <option value="ISO 14064-1 权威核查" className="bg-card text-foreground">ISO 14064-1 权威核查</option>
+                <option value="ESG 责任披露" className="bg-card text-foreground">ESG 责任披露</option>
+                <option value="国家零碳工厂认证" className="bg-card text-foreground">国家零碳工厂认证</option>
+                <option value="内部能碳管理月报" className="bg-card text-foreground">内部能碳管理月报</option>
               </select>
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-lg border border-slate-200">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-xs text-left">
-              <thead className="bg-[#f8fafc] text-slate-600 border-b border-slate-200 font-semibold font-sans">
+              <thead className="bg-panel text-muted-foreground border-b border-border font-semibold font-sans">
                 <tr>
                   <th className="px-3 py-2.5">报告名称</th>
                   <th className="px-3 py-2.5">报告类型</th>
@@ -253,24 +253,24 @@ export default function CarbonReportPage() {
                   <th className="px-3 py-2.5 text-right">操作</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-mono text-slate-700">
+              <tbody className="divide-y divide-border/60 font-mono text-foreground">
                 {filteredReports.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-3 py-2.5 font-sans font-medium text-slate-900 flex items-center gap-1.5">
-                      <FileText className="size-4 text-[#1677ff] shrink-0" />
+                  <tr key={r.id} className="hover:bg-accent/30 transition-colors">
+                    <td className="px-3 py-2.5 font-sans font-medium text-foreground flex items-center gap-1.5">
+                      <FileText className="size-4 text-primary shrink-0" />
                       <span>{r.title}</span>
                     </td>
                     <td className="px-3 py-2.5 font-sans">
-                      <span className="px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-200">
+                      <span className="px-1.5 py-0.2 rounded bg-primary/20 text-primary text-[10px] font-bold border border-primary/30">
                         {r.type}
                       </span>
                     </td>
-                    <td className="px-3 py-2.5 font-sans text-slate-600">{r.org}</td>
-                    <td className="px-3 py-2.5">{r.period}</td>
-                    <td className="px-3 py-2.5 font-sans text-slate-600">{r.verifier}</td>
-                    <td className="px-3 py-2.5 text-right font-bold text-slate-900">{r.verifiedEmissions}</td>
+                    <td className="px-3 py-2.5 font-sans text-muted-foreground">{r.org}</td>
+                    <td className="px-3 py-2.5 text-foreground">{r.period}</td>
+                    <td className="px-3 py-2.5 font-sans text-muted-foreground">{r.verifier}</td>
+                    <td className="px-3 py-2.5 text-right font-bold text-foreground">{r.verifiedEmissions}</td>
                     <td className="px-3 py-2.5 text-center font-sans">
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
                         {r.status}
                       </span>
                     </td>
@@ -278,13 +278,13 @@ export default function CarbonReportPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => alert(`正在在线预览【${r.title}】...`)}
-                          className="text-[#1677ff] hover:underline"
+                          className="text-primary hover:underline cursor-pointer"
                         >
                           预览
                         </button>
                         <button
                           onClick={() => alert(`正在下载报告【${r.title}】(${r.fileSize})...`)}
-                          className="text-emerald-700 hover:underline flex items-center gap-0.5"
+                          className="text-emerald-400 hover:underline flex items-center gap-0.5 cursor-pointer"
                         >
                           <Download className="size-3" />
                           <span>下载</span>
@@ -299,64 +299,64 @@ export default function CarbonReportPage() {
         </div>
 
         {/* 报告标准模板库卡片 */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-            <h3 className="text-xs font-bold text-slate-900">碳核算与披露标准报告模板库</h3>
-            <span className="text-[11px] text-slate-400">支持一键套用模板导出</span>
+        <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
+          <div className="flex items-center justify-between border-b border-border/60 pb-2">
+            <h3 className="text-xs font-bold text-foreground">碳核算与披露标准报告模板库</h3>
+            <span className="text-[11px] text-muted-foreground">支持一键套用模板导出</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/50 hover:border-blue-300 transition-all space-y-1.5">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                <FileCheck className="size-4 text-blue-600" />
+            <div className="p-3 rounded-lg border border-border bg-panel hover:border-primary/40 transition-all space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                <FileCheck className="size-4 text-primary" />
                 <span>ISO 14064-1 标准模板</span>
               </div>
-              <p className="text-[11px] text-slate-500">国际通用组织温室气体量化和报告规范模板，含直接/间接排放清单。</p>
+              <p className="text-[11px] text-muted-foreground">国际通用组织温室气体量化和报告规范模板，含直接/间接排放清单。</p>
               <button
                 onClick={() => alert('已套用 ISO 14064-1 模板生成报告草稿！')}
-                className="text-[11px] font-bold text-[#1677ff] hover:underline"
+                className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
               >
                 套用生成 →
               </button>
             </div>
 
-            <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/50 hover:border-blue-300 transition-all space-y-1.5">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                <ShieldCheck className="size-4 text-emerald-600" />
+            <div className="p-3 rounded-lg border border-border bg-panel hover:border-primary/40 transition-all space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                <ShieldCheck className="size-4 text-emerald-400" />
                 <span>CBAM 欧盟碳关税申报模板</span>
               </div>
-              <p className="text-[11px] text-slate-500">针对出口变压器与线缆产品的隐含碳排放核算与官方 XML/PDF 报告。</p>
+              <p className="text-[11px] text-muted-foreground">针对出口变压器与线缆产品的隐含碳排放核算与官方 XML/PDF 报告。</p>
               <button
                 onClick={() => alert('已套用 CBAM 欧盟碳关税模板生成报告草稿！')}
-                className="text-[11px] font-bold text-emerald-600 hover:underline"
+                className="text-[11px] font-bold text-emerald-400 hover:underline cursor-pointer"
               >
                 套用生成 →
               </button>
             </div>
 
-            <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/50 hover:border-blue-300 transition-all space-y-1.5">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                <Sparkles className="size-4 text-purple-600" />
+            <div className="p-3 rounded-lg border border-border bg-panel hover:border-primary/40 transition-all space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                <Sparkles className="size-4 text-purple-400" />
                 <span>国家零碳工厂自评价模板</span>
               </div>
-              <p className="text-[11px] text-slate-500">依据国家节能协会《零碳工厂评价规范》，含四维评价指标与证据链。</p>
+              <p className="text-[11px] text-muted-foreground">依据国家节能协会《零碳工厂评价规范》，含四维评价指标与证据链。</p>
               <button
                 onClick={() => alert('已套用零碳工厂评价模板生成报告草稿！')}
-                className="text-[11px] font-bold text-purple-600 hover:underline"
+                className="text-[11px] font-bold text-purple-400 hover:underline cursor-pointer"
               >
                 套用生成 →
               </button>
             </div>
 
-            <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/50 hover:border-blue-300 transition-all space-y-1.5">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                <FileText className="size-4 text-amber-600" />
+            <div className="p-3 rounded-lg border border-border bg-panel hover:border-primary/40 transition-all space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                <FileText className="size-4 text-amber-400" />
                 <span>集团能碳管控月度通报</span>
               </div>
-              <p className="text-[11px] text-slate-500">面向集团高管与各厂总经理的双碳考核与指标红黑榜通报模版。</p>
+              <p className="text-[11px] text-muted-foreground">面向集团高管与各厂总经理的双碳考核与指标红黑榜通报模版。</p>
               <button
                 onClick={() => alert('已套用集团月报模板生成报告草稿！')}
-                className="text-[11px] font-bold text-amber-600 hover:underline"
+                className="text-[11px] font-bold text-amber-400 hover:underline cursor-pointer"
               >
                 套用生成 →
               </button>
@@ -367,65 +367,65 @@ export default function CarbonReportPage() {
 
       {/* 生成报告弹窗 Modal */}
       {showGenerateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="w-full max-w-lg rounded-xl bg-white p-5 shadow-2xl border border-slate-200 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <FileText className="size-4 text-[#1677ff]" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-lg rounded-xl bg-card p-5 shadow-2xl border border-border space-y-4">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <FileText className="size-4 text-primary" />
                 生成组织碳核算与合规披露报告
               </h3>
-              <button onClick={() => setShowGenerateModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setShowGenerateModal(false)} className="text-muted-foreground hover:text-foreground cursor-pointer">
                 <X className="size-4" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-700 font-medium mb-1">选择核算组织边界</label>
-                <select className="w-full h-8 px-2.5 rounded-md border border-slate-300 bg-white">
-                  <option>特变电工集团 (全集团汇总)</option>
-                  <option>沈变公司 (沈变本部及分厂)</option>
-                  <option>衡变公司 (衡变本部及分厂)</option>
-                  <option>新变厂 (新疆特高压基地)</option>
-                  <option>鲁缆公司 (华东电缆科技园)</option>
+                <label className="block text-foreground font-medium mb-1">选择核算组织边界</label>
+                <select className="w-full h-8 px-2.5 rounded-md border border-border bg-panel text-foreground focus:outline-none focus:border-primary">
+                  <option className="bg-card text-foreground">特变电工集团 (全集团汇总)</option>
+                  <option className="bg-card text-foreground">沈变公司 (沈变本部及分厂)</option>
+                  <option className="bg-card text-foreground">衡变公司 (衡变本部及分厂)</option>
+                  <option className="bg-card text-foreground">新变厂 (新疆特高压基地)</option>
+                  <option className="bg-card text-foreground">鲁缆公司 (华东电缆科技园)</option>
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">报告标准模板</label>
-                  <select className="w-full h-8 px-2.5 rounded-md border border-slate-300 bg-white">
-                    <option>ISO 14064-1 组织温室气体核查</option>
-                    <option>ESG 可持续发展披露报告</option>
-                    <option>国家零碳工厂自评价报告</option>
-                    <option>CBAM 欧盟碳关税合规报告</option>
+                  <label className="block text-foreground font-medium mb-1">报告标准模板</label>
+                  <select className="w-full h-8 px-2.5 rounded-md border border-border bg-panel text-foreground focus:outline-none focus:border-primary">
+                    <option className="bg-card text-foreground">ISO 14064-1 组织温室气体核查</option>
+                    <option className="bg-card text-foreground">ESG 可持续发展披露报告</option>
+                    <option className="bg-card text-foreground">国家零碳工厂自评价报告</option>
+                    <option className="bg-card text-foreground">CBAM 欧盟碳关税合规报告</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">统计核算周期</label>
-                  <input type="month" defaultValue="2026-08" className="w-full h-8 px-2.5 rounded-md border border-slate-300" />
+                  <label className="block text-foreground font-medium mb-1">统计核算周期</label>
+                  <input type="month" defaultValue="2026-08" className="w-full h-8 px-2.5 rounded-md border border-border bg-panel text-foreground focus:outline-none focus:border-primary" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">导出文件格式</label>
-                <div className="flex items-center gap-3">
+                <label className="block text-foreground font-medium mb-1">导出文件格式</label>
+                <div className="flex items-center gap-3 text-foreground">
                   <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="radio" name="format" defaultChecked />
+                    <input type="radio" name="format" defaultChecked className="accent-primary" />
                     <span>PDF 高清排版格式 (含防伪水印)</span>
                   </label>
                   <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="radio" name="format" />
+                    <input type="radio" name="format" className="accent-primary" />
                     <span>Word 可编辑格式</span>
                   </label>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/60">
               <button
                 onClick={() => setShowGenerateModal(false)}
-                className="px-3 py-1.5 rounded-lg text-xs text-slate-600 bg-slate-100 hover:bg-slate-200"
+                className="px-3 py-1.5 rounded-lg text-xs text-muted-foreground bg-panel hover:bg-accent/40 cursor-pointer"
               >
                 取消
               </button>
@@ -434,7 +434,7 @@ export default function CarbonReportPage() {
                   alert('报告生成成功！已自动归档至列表并开始下载。')
                   setShowGenerateModal(false)
                 }}
-                className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-[#1677ff] hover:bg-blue-600 shadow-xs"
+                className="px-4 py-1.5 rounded-lg text-xs font-bold text-primary-foreground bg-primary hover:bg-primary/90 shadow-xs cursor-pointer"
               >
                 开始生成
               </button>
