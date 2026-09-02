@@ -1514,32 +1514,12 @@ export default function ZeroCarbonSelfEvaluationPage() {
                     </div>
                   </div>
 
-                  {/* 底部下钻引导与操作入口 */}
+                  {/* 底部下钻引导 */}
                   <div className="flex items-center justify-between text-[11.5px] pt-1.5 border-t border-slate-100">
                     <span className="text-blue-600 font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                       查看 5 维详情
                       <ChevronRight className="size-3.5" />
                     </span>
-
-                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        type="button"
-                        onClick={() => handleOpenDeclare(factory)}
-                        className="text-emerald-600 hover:text-emerald-800 font-bold text-[11px] cursor-pointer"
-                        title="企业填报"
-                      >
-                        企业填报
-                      </button>
-                      <span className="text-slate-200">|</span>
-                      <button
-                        type="button"
-                        onClick={() => setFactoryDetailModal(factory)}
-                        className="text-slate-600 hover:text-slate-800 font-bold text-[11px] cursor-pointer"
-                        title="自评报告"
-                      >
-                        自评报告
-                      </button>
-                    </div>
                   </div>
                 </div>
               ))}
