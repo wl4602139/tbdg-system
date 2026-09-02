@@ -99,629 +99,3329 @@ export interface FactoryEvaluationData {
   notes?: string
 }
 
-// 6 大经营单位，共 21 家工厂完整数据拓扑
+// 6 大经营单位，共 31 家工厂/二级单位完整数据拓扑 (严格依据 ENTERPRISE_TREE_DATA 组织架构树)
 export const ALL_ZERO_CARBON_FACTORIES: FactoryEvaluationData[] = [
-  // 1. 沈变公司 (4 家)
   {
-    id: 'f-1',
-    company: '沈变公司',
-    factoryName: '沈变本部（特大特高压变压器厂）',
-    carbonClearRate: 8.5,
-    autoCollectRate: 98.6,
-    supplyChainMeasuresCount: 6,
-    controlCenterFeaturesCount: 13,
-    disclosureDocsCount: 5,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5', 'sc-6'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12', 'cc-13'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4', 'doc-5'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 39.5, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 92.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 28.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '优于国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 8.5, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 93.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 6/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 98.6, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 13/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 5/5 份', unit: '', type: 'declared' },
+    "id": "f-sb-1",
+    "company": "沈变公司",
+    "factoryName": "沈变本部",
+    "carbonClearRate": 8.5,
+    "autoCollectRate": 98.6,
+    "supplyChainMeasuresCount": 6,
+    "controlCenterFeaturesCount": 13,
+    "disclosureDocsCount": 5,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5",
+      "sc-6"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12",
+      "cc-13"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4",
+      "doc-5"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 39.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 92,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 28,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "优于国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 8.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 93,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 6/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 98.6,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 13/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 5/5 份",
+        "unit": "",
+        "type": "declared"
+      }
     },
-    status: '已自评已申报',
-    evaluator: '沈变能碳运营办',
-    declareDate: '2026-08-28',
+    "status": "已自评已申报",
+    "evaluator": "沈变能碳运营办",
+    "declareDate": "2026-08-28"
   },
   {
-    id: 'f-2',
-    company: '沈变公司',
-    factoryName: '变压器配件厂',
-    carbonClearRate: 7.0,
-    autoCollectRate: 97.5,
-    supplyChainMeasuresCount: 5,
-    controlCenterFeaturesCount: 13,
-    disclosureDocsCount: 4,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12', 'cc-13'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 36.2, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 88.5, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 24.5, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '优于国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 7.0, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 90.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 5/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 97.5, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 13/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 4/5 份', unit: '', type: 'declared' },
+    "id": "f-sb-2",
+    "company": "沈变公司",
+    "factoryName": "露娜公司 (特变电工露娜智能)",
+    "carbonClearRate": 7.6,
+    "autoCollectRate": 98,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 13,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12",
+      "cc-13"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 37.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 89.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 25.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "优于国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 7.6,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 91.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 98,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 13/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
     },
-    status: '已自评已申报',
-    evaluator: '沈变生产保障部',
-    declareDate: '2026-08-25',
+    "status": "已自评已申报",
+    "evaluator": "露娜智能制造办",
+    "declareDate": "2026-08-26"
   },
   {
-    id: 'f-3',
-    company: '沈变公司',
-    factoryName: '特种变压器制造厂',
-    carbonClearRate: 7.2,
-    autoCollectRate: 97.8,
-    supplyChainMeasuresCount: 5,
-    controlCenterFeaturesCount: 12,
-    disclosureDocsCount: 4,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 37.0, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 89.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 25.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '优于国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 7.2, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 91.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 5/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 97.8, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 12/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 4/5 份', unit: '', type: 'declared' },
+    "id": "f-sb-3",
+    "company": "沈变公司",
+    "factoryName": "智慧能源",
+    "carbonClearRate": 8,
+    "autoCollectRate": 98.2,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 13,
+    "disclosureDocsCount": 5,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12",
+      "cc-13"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4",
+      "doc-5"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 38.8,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 91,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 27,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "优于国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 92.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 98.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 13/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 5/5 份",
+        "unit": "",
+        "type": "declared"
+      }
     },
-    status: '已自评已申报',
-    evaluator: '沈变技术质量部',
-    declareDate: '2026-08-24',
+    "status": "已自评已申报",
+    "evaluator": "沈变智慧能源部",
+    "declareDate": "2026-08-25"
   },
   {
-    id: 'f-4',
-    company: '沈变公司',
-    factoryName: '高压套管智能制造分厂',
-    carbonClearRate: 6.5,
-    autoCollectRate: 96.8,
-    supplyChainMeasuresCount: 5,
-    controlCenterFeaturesCount: 12,
-    disclosureDocsCount: 4,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 35.5, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 86.5, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 23.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 6.5, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 89.5, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 5/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 96.8, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 12/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 4/5 份', unit: '', type: 'declared' },
+    "id": "f-sb-4",
+    "company": "沈变公司",
+    "factoryName": "和新套管公司",
+    "carbonClearRate": 6.8,
+    "autoCollectRate": 97.2,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 36,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 87.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 24,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 90,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 97.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
     },
-    status: '已自评已申报',
-    evaluator: '沈变智能设备处',
-    declareDate: '2026-08-22',
-  },
-
-  // 2. 衡变公司 (4 家)
-  {
-    id: 'f-5',
-    company: '衡变公司',
-    factoryName: '衡变本部（特大变压器制造厂）',
-    carbonClearRate: 8.0,
-    autoCollectRate: 98.0,
-    supplyChainMeasuresCount: 6,
-    controlCenterFeaturesCount: 13,
-    disclosureDocsCount: 5,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5', 'sc-6'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12', 'cc-13'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4', 'doc-5'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 38.0, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 90.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 26.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '优于国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 8.0, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 92.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 6/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 98.0, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 13/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 5/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '衡变双碳管理室',
-    declareDate: '2026-08-27',
-  },
-  {
-    id: 'f-6',
-    company: '衡变公司',
-    factoryName: '干式变压器制造厂',
-    carbonClearRate: 7.0,
-    autoCollectRate: 97.2,
-    supplyChainMeasuresCount: 5,
-    controlCenterFeaturesCount: 12,
-    disclosureDocsCount: 4,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 36.8, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 88.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 24.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '优于国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 7.0, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 90.5, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 5/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 97.2, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 12/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 4/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '衡变生产部',
-    declareDate: '2026-08-25',
-  },
-  {
-    id: 'f-7',
-    company: '衡变公司',
-    factoryName: '互感器智能制造分厂',
-    carbonClearRate: 6.0,
-    autoCollectRate: 96.5,
-    supplyChainMeasuresCount: 5,
-    controlCenterFeaturesCount: 12,
-    disclosureDocsCount: 4,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 35.0, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 85.5, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 22.5, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 6.0, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 88.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 5/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 96.5, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 12/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 4/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '衡变安环部',
-    declareDate: '2026-08-23',
+    "status": "已自评已申报",
+    "evaluator": "和新安环部",
+    "declareDate": "2026-08-24"
   },
   {
-    id: 'f-8',
-    company: '衡变公司',
-    factoryName: '工程技术装备制造厂',
-    carbonClearRate: 5.5,
-    autoCollectRate: 95.8,
-    supplyChainMeasuresCount: 4,
-    controlCenterFeaturesCount: 11,
-    disclosureDocsCount: 3,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 34.2, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 84.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 21.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '二级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 5.5, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 87.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 4/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 95.8, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 11/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 3/5 份', unit: '', type: 'declared' },
+    "id": "f-sb-5",
+    "company": "沈变公司",
+    "factoryName": "康嘉互感器",
+    "carbonClearRate": 6.5,
+    "autoCollectRate": 96.8,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 35.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 86.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 23,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 89.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
     },
-    status: '已自评已申报',
-    evaluator: '衡变制造管理处',
-    declareDate: '2026-08-20',
-  },
-
-  // 3. 新变厂 (3 家)
-  {
-    id: 'f-9',
-    company: '新变厂',
-    factoryName: '新变数字化先进制造厂',
-    carbonClearRate: 7.5,
-    autoCollectRate: 98.2,
-    supplyChainMeasuresCount: 5,
-    controlCenterFeaturesCount: 13,
-    disclosureDocsCount: 4,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12', 'cc-13'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 37.5, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 89.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 25.5, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '优于国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 7.5, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 91.5, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 5/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 98.2, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 13/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 4/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '新变智能制造办',
-    declareDate: '2026-08-26',
-  },
-  {
-    id: 'f-10',
-    company: '新变厂',
-    factoryName: '特种变压器生产分厂',
-    carbonClearRate: 6.8,
-    autoCollectRate: 97.0,
-    supplyChainMeasuresCount: 5,
-    controlCenterFeaturesCount: 12,
-    disclosureDocsCount: 4,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 36.0, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 87.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 23.5, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 6.8, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 89.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 5/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 97.0, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 12/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 4/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '新变能环处',
-    declareDate: '2026-08-24',
-  },
-  {
-    id: 'f-11',
-    company: '新变厂',
-    factoryName: '高压试验与特种电气基地',
-    carbonClearRate: 5.8,
-    autoCollectRate: 96.0,
-    supplyChainMeasuresCount: 4,
-    controlCenterFeaturesCount: 11,
-    disclosureDocsCount: 3,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 34.5, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 85.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 22.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '二级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 5.8, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 87.5, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 4/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 96.0, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 11/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 3/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '新变测试试验中心',
-    declareDate: '2026-08-21',
-  },
-
-  // 4. 鲁缆公司 (4 家)
-  {
-    id: 'f-12',
-    company: '鲁缆公司',
-    factoryName: '鲁缆高压交联电缆厂',
-    carbonClearRate: 6.5,
-    autoCollectRate: 97.0,
-    supplyChainMeasuresCount: 5,
-    controlCenterFeaturesCount: 12,
-    disclosureDocsCount: 4,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 35.0, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 87.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 23.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '优于国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 6.5, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 89.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 5/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 97.0, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 12/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 4/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '鲁缆设备环保处',
-    declareDate: '2026-08-24',
+    "status": "已自评已申报",
+    "evaluator": "康嘉技术部",
+    "declareDate": "2026-08-22"
   },
   {
-    id: 'f-13',
-    company: '鲁缆公司',
-    factoryName: '轨道交通专用电缆厂',
-    carbonClearRate: 6.0,
-    autoCollectRate: 96.5,
-    supplyChainMeasuresCount: 5,
-    controlCenterFeaturesCount: 12,
-    disclosureDocsCount: 4,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 34.0, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 86.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 22.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 6.0, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 88.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 5/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 96.5, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 12/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 4/5 份', unit: '', type: 'declared' },
+    "id": "f-sb-6",
+    "company": "沈变公司",
+    "factoryName": "印能公司",
+    "carbonClearRate": 6.2,
+    "autoCollectRate": 96,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 34,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 85,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 22,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 88,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
     },
-    status: '已自评已申报',
-    evaluator: '鲁缆生产部',
-    declareDate: '2026-08-23',
+    "status": "已自评已申报",
+    "evaluator": "印能设备处",
+    "declareDate": "2026-08-20"
   },
   {
-    id: 'f-14',
-    company: '鲁缆公司',
-    factoryName: '特种导体智能制造厂',
-    carbonClearRate: 5.5,
-    autoCollectRate: 95.8,
-    supplyChainMeasuresCount: 4,
-    controlCenterFeaturesCount: 11,
-    disclosureDocsCount: 3,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 33.5, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 84.5, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 21.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '二级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 5.5, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 86.5, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 4/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 95.8, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 11/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 3/5 份', unit: '', type: 'declared' },
+    "id": "f-hb-1",
+    "company": "衡变公司",
+    "factoryName": "衡变本部",
+    "carbonClearRate": 8,
+    "autoCollectRate": 98,
+    "supplyChainMeasuresCount": 6,
+    "controlCenterFeaturesCount": 13,
+    "disclosureDocsCount": 5,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5",
+      "sc-6"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12",
+      "cc-13"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4",
+      "doc-5"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 38,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 90,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 26,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "优于国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 92,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 6/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 98,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 13/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 5/5 份",
+        "unit": "",
+        "type": "declared"
+      }
     },
-    status: '已自评已申报',
-    evaluator: '鲁缆精益制造处',
-    declareDate: '2026-08-21',
+    "status": "已自评已申报",
+    "evaluator": "衡变双碳管理室",
+    "declareDate": "2026-08-27"
   },
   {
-    id: 'f-15',
-    company: '鲁缆公司',
-    factoryName: '光电复合及海底电缆分厂',
-    carbonClearRate: 5.2,
-    autoCollectRate: 95.2,
-    supplyChainMeasuresCount: 4,
-    controlCenterFeaturesCount: 11,
-    disclosureDocsCount: 3,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 32.8, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 83.5, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 20.5, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '二级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 5.2, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 85.5, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 4/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 95.2, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 11/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 3/5 份', unit: '', type: 'declared' },
+    "id": "f-hb-2",
+    "company": "衡变公司",
+    "factoryName": "南京电研",
+    "carbonClearRate": 7.2,
+    "autoCollectRate": 97.5,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 13,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12",
+      "cc-13"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 37,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 89,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 25,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "优于国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 7.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 91,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 97.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 13/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
     },
-    status: '已自评已申报',
-    evaluator: '鲁缆海缆事业部',
-    declareDate: '2026-08-19',
-  },
-
-  // 5. 德缆公司 (3 家)
-  {
-    id: 'f-16',
-    company: '德缆公司',
-    factoryName: '德缆超高压电缆厂',
-    carbonClearRate: 6.0,
-    autoCollectRate: 96.5,
-    supplyChainMeasuresCount: 5,
-    controlCenterFeaturesCount: 12,
-    disclosureDocsCount: 4,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 34.0, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 86.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 22.5, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '优于国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 6.0, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 88.5, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 5/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 96.5, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 12/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 4/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '德缆安环处',
-    declareDate: '2026-08-23',
-  },
-  {
-    id: 'f-17',
-    company: '德缆公司',
-    factoryName: '新能源汽车专用线缆厂',
-    carbonClearRate: 5.4,
-    autoCollectRate: 95.5,
-    supplyChainMeasuresCount: 4,
-    controlCenterFeaturesCount: 11,
-    disclosureDocsCount: 3,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 33.0, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 84.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 21.5, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '二级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 5.4, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 86.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 4/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 95.5, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 11/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 3/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '德缆特缆分厂',
-    declareDate: '2026-08-20',
-  },
-  {
-    id: 'f-18',
-    company: '德缆公司',
-    factoryName: '绿色低碳工业线缆制造厂',
-    carbonClearRate: 5.0,
-    autoCollectRate: 95.0,
-    supplyChainMeasuresCount: 4,
-    controlCenterFeaturesCount: 11,
-    disclosureDocsCount: 3,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 32.0, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 83.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 20.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '二级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 5.0, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 85.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 4/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 95.0, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 11/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 3/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '德缆动力保障部',
-    declareDate: '2026-08-18',
-  },
-
-  // 6. 中康公司 (3 家)
-  {
-    id: 'f-19',
-    company: '中康公司',
-    factoryName: '中康新能源装备制造基地',
-    carbonClearRate: 5.0,
-    autoCollectRate: 95.0,
-    supplyChainMeasuresCount: 4,
-    controlCenterFeaturesCount: 11,
-    disclosureDocsCount: 3,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 31.0, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 82.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 20.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '二级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 5.0, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 85.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 4/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 95.0, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 11/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 3/5 份', unit: '', type: 'declared' },
-    },
-    status: '已自评已申报',
-    evaluator: '中康动力部',
-    declareDate: '2026-08-22',
+    "status": "已自评已申报",
+    "evaluator": "南京电研能碳办",
+    "declareDate": "2026-08-25"
   },
   {
-    id: 'f-20',
-    company: '中康公司',
-    factoryName: '储能系统集成智能制造厂',
-    carbonClearRate: 5.6,
-    autoCollectRate: 95.8,
-    supplyChainMeasuresCount: 4,
-    controlCenterFeaturesCount: 12,
-    disclosureDocsCount: 3,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 32.5, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 83.5, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 21.0, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '一级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 5.6, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 86.5, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 4/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 95.8, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 12/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 3/5 份', unit: '', type: 'declared' },
+    "id": "f-hb-3",
+    "company": "衡变公司",
+    "factoryName": "云集电气",
+    "carbonClearRate": 6.8,
+    "autoCollectRate": 97,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 36.2,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 88,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 24,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 90,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 97,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
     },
-    status: '已自评已申报',
-    evaluator: '中康储能智造中心',
-    declareDate: '2026-08-21',
+    "status": "已自评已申报",
+    "evaluator": "云集电气生产部",
+    "declareDate": "2026-08-24"
   },
   {
-    id: 'f-21',
-    company: '中康公司',
-    factoryName: '智慧箱式变电站集成中心',
-    carbonClearRate: 4.8,
-    autoCollectRate: 94.5,
-    supplyChainMeasuresCount: 4,
-    controlCenterFeaturesCount: 10,
-    disclosureDocsCount: 3,
-    supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4'],
-    controlCenterFeatures: ['cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10'],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3'],
-    metrics: {
-      '1.1': { name: '非化石电力消费比例', value: 30.5, unit: '%', type: 'auto' },
-      '1.2': { name: '节能与低碳改造覆盖率', value: 81.0, unit: '%', type: 'auto' },
-      '1.3': { name: '屋顶及建筑光伏利用率', value: 19.5, unit: '%', type: 'auto' },
-      '2.1': { name: '电机系统运行能效', value: '达到国标二级', unit: '', type: 'auto' },
-      '2.2': { name: '空压机站节能评级', value: '二级能效站房', unit: '', type: 'auto' },
-      '2.3': { name: '碳清除率 (Re)', value: 4.8, unit: '%', type: 'declared' },
-      '3.1': { name: '绿色电力绿证消纳占比', value: 84.0, unit: '%', type: 'auto' },
-      '3.2': { name: '零碳供应链管理措施', value: '已选 4/6 项', unit: '', type: 'declared' },
-      '4.1': { name: '数据自动采集率 (Ra)', value: 94.5, unit: '%', type: 'declared' },
-      '4.2': { name: '能碳管理中心功能项数', value: '已选 10/13 项', unit: '', type: 'declared' },
-      '5.1': { name: '碳排放信息披露透明度', value: '已选 3/5 份', unit: '', type: 'declared' },
+    "id": "f-hb-4",
+    "company": "衡变公司",
+    "factoryName": "湖南电气",
+    "carbonClearRate": 6.5,
+    "autoCollectRate": 96.8,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 35.8,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 87,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 23.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 89.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
     },
-    status: '已自评已申报',
-    evaluator: '中康集成装备部',
-    declareDate: '2026-08-17',
+    "status": "已自评已申报",
+    "evaluator": "湖南电气制造部",
+    "declareDate": "2026-08-23"
   },
-]
+  {
+    "id": "f-hb-5",
+    "company": "衡变公司",
+    "factoryName": "云集高压开关",
+    "carbonClearRate": 6.2,
+    "autoCollectRate": 96.5,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 35,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 86,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 23,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 89,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "开关制造部",
+    "declareDate": "2026-08-22"
+  },
+  {
+    "id": "f-hb-6",
+    "company": "衡变公司",
+    "factoryName": "新疆自控",
+    "carbonClearRate": 6,
+    "autoCollectRate": 96.2,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 34.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 85,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 22,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 88,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "自控工程部",
+    "declareDate": "2026-08-21"
+  },
+  {
+    "id": "f-hb-7",
+    "company": "衡变公司",
+    "factoryName": "上开",
+    "carbonClearRate": 5.8,
+    "autoCollectRate": 96,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 34,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 84.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 21.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 5.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 87.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "上开制造部",
+    "declareDate": "2026-08-20"
+  },
+  {
+    "id": "f-hb-8",
+    "company": "衡变公司",
+    "factoryName": "柯贝尔",
+    "carbonClearRate": 5.6,
+    "autoCollectRate": 95.8,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 33.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 84,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 21,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 5.6,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 87,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 95.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "柯贝尔管理部",
+    "declareDate": "2026-08-19"
+  },
+  {
+    "id": "f-hb-9",
+    "company": "衡变公司",
+    "factoryName": "特能建",
+    "carbonClearRate": 5.5,
+    "autoCollectRate": 95.5,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 33,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 83.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 20.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 5.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 86.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 95.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "特能建能环处",
+    "declareDate": "2026-08-18"
+  },
+  {
+    "id": "f-hb-10",
+    "company": "衡变公司",
+    "factoryName": "合容电气",
+    "carbonClearRate": 5.4,
+    "autoCollectRate": 95.2,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 32.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 83,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 20,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 5.4,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 86,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 95.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "合容电气制造处",
+    "declareDate": "2026-08-17"
+  },
+  {
+    "id": "f-hb-11",
+    "company": "衡变公司",
+    "factoryName": "赛杰爱迪",
+    "carbonClearRate": 5.2,
+    "autoCollectRate": 95,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 32,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 82.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 19.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 5.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 85.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 95,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "赛杰爱迪安环部",
+    "declareDate": "2026-08-16"
+  },
+  {
+    "id": "f-xb-1",
+    "company": "新变厂",
+    "factoryName": "超高压公司",
+    "carbonClearRate": 7.8,
+    "autoCollectRate": 98.4,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 13,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12",
+      "cc-13"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 38,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 90,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 26.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "优于国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 7.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 92,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 98.4,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 13/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "新变智能制造办",
+    "declareDate": "2026-08-26"
+  },
+  {
+    "id": "f-xb-2",
+    "company": "新变厂",
+    "factoryName": "天变公司",
+    "carbonClearRate": 7,
+    "autoCollectRate": 97.5,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 36.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 88,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 24.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "优于国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 7,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 90.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 97.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "天变能环处",
+    "declareDate": "2026-08-25"
+  },
+  {
+    "id": "f-xb-3",
+    "company": "新变厂",
+    "factoryName": "智能电气公司",
+    "carbonClearRate": 6.8,
+    "autoCollectRate": 97,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 36,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 87,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 23.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 89.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 97,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "智能电气工程部",
+    "declareDate": "2026-08-24"
+  },
+  {
+    "id": "f-xb-4",
+    "company": "新变厂",
+    "factoryName": "京津冀公司",
+    "carbonClearRate": 6.5,
+    "autoCollectRate": 96.8,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 35.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 86.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 23,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 89,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "京津冀生产部",
+    "declareDate": "2026-08-23"
+  },
+  {
+    "id": "f-xb-5",
+    "company": "新变厂",
+    "factoryName": "珠峰硅钢",
+    "carbonClearRate": 6.2,
+    "autoCollectRate": 96.5,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 35,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 85.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 22.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 88.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "珠峰硅钢技术部",
+    "declareDate": "2026-08-22"
+  },
+  {
+    "id": "f-xb-6",
+    "company": "新变厂",
+    "factoryName": "智慧能源",
+    "carbonClearRate": 6,
+    "autoCollectRate": 96,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 34.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 85,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 22,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 88,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "新变智慧能源部",
+    "declareDate": "2026-08-21"
+  },
+  {
+    "id": "f-xb-7",
+    "company": "新变厂",
+    "factoryName": "银利电气",
+    "carbonClearRate": 5.8,
+    "autoCollectRate": 95.8,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 34,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 84,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 21,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 5.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 87.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 95.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "银利电气能环处",
+    "declareDate": "2026-08-20"
+  },
+  {
+    "id": "f-ll-1",
+    "company": "鲁缆公司",
+    "factoryName": "鲁缆本部",
+    "carbonClearRate": 6.5,
+    "autoCollectRate": 97,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 35,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 87,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 23,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "优于国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 89,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 97,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "鲁缆设备环保处",
+    "declareDate": "2026-08-24"
+  },
+  {
+    "id": "f-ll-2",
+    "company": "鲁缆公司",
+    "factoryName": "智缆公司",
+    "carbonClearRate": 6,
+    "autoCollectRate": 96.5,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 34,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 86,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 22,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 88,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "智缆生产部",
+    "declareDate": "2026-08-23"
+  },
+  {
+    "id": "f-ll-3",
+    "company": "鲁缆公司",
+    "factoryName": "昭和公司",
+    "carbonClearRate": 5.5,
+    "autoCollectRate": 95.8,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 33.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 84.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 21,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 5.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 86.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 95.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "昭和精益制造处",
+    "declareDate": "2026-08-21"
+  },
+  {
+    "id": "f-ll-4",
+    "company": "鲁缆公司",
+    "factoryName": "曙光公司",
+    "carbonClearRate": 5.2,
+    "autoCollectRate": 95.2,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 32.8,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 83.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 20.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 5.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 85.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 95.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "曙光制造部",
+    "declareDate": "2026-08-19"
+  },
+  {
+    "id": "f-xl-1",
+    "company": "新缆厂",
+    "factoryName": "特变电工新疆电缆有限公司",
+    "carbonClearRate": 6.2,
+    "autoCollectRate": 96.8,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 34.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 86.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 23,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "优于国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6.2,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 89,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "新缆安环处",
+    "declareDate": "2026-08-25"
+  },
+  {
+    "id": "f-xl-2",
+    "company": "新缆厂",
+    "factoryName": "特变电工新疆线缆厂",
+    "carbonClearRate": 5.6,
+    "autoCollectRate": 95.8,
+    "supplyChainMeasuresCount": 4,
+    "controlCenterFeaturesCount": 11,
+    "disclosureDocsCount": 3,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 33,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 84,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 21.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "达到国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "二级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 5.6,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 86.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 4/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 95.8,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 11/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 3/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "新缆生产保障部",
+    "declareDate": "2026-08-22"
+  },
+  {
+    "id": "f-dl-1",
+    "company": "德缆公司",
+    "factoryName": "特变电工（德阳）电缆股份有限公司",
+    "carbonClearRate": 6,
+    "autoCollectRate": 96.5,
+    "supplyChainMeasuresCount": 5,
+    "controlCenterFeaturesCount": 12,
+    "disclosureDocsCount": 4,
+    "supplyChainMeasures": [
+      "sc-1",
+      "sc-2",
+      "sc-3",
+      "sc-4",
+      "sc-5"
+    ],
+    "controlCenterFeatures": [
+      "cc-1",
+      "cc-2",
+      "cc-3",
+      "cc-4",
+      "cc-5",
+      "cc-6",
+      "cc-7",
+      "cc-8",
+      "cc-9",
+      "cc-10",
+      "cc-11",
+      "cc-12"
+    ],
+    "disclosureFiles": [
+      "doc-1",
+      "doc-2",
+      "doc-3",
+      "doc-4"
+    ],
+    "metrics": {
+      "1.1": {
+        "name": "非化石电力消费比例",
+        "value": 34,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.2": {
+        "name": "节能与低碳改造覆盖率",
+        "value": 86,
+        "unit": "%",
+        "type": "auto"
+      },
+      "1.3": {
+        "name": "屋顶及建筑光伏利用率",
+        "value": 22.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "2.1": {
+        "name": "电机系统运行能效",
+        "value": "优于国标二级",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.2": {
+        "name": "空压机站节能评级",
+        "value": "一级能效站房",
+        "unit": "",
+        "type": "auto"
+      },
+      "2.3": {
+        "name": "碳清除率 (Re)",
+        "value": 6,
+        "unit": "%",
+        "type": "declared"
+      },
+      "3.1": {
+        "name": "绿色电力绿证消纳占比",
+        "value": 88.5,
+        "unit": "%",
+        "type": "auto"
+      },
+      "3.2": {
+        "name": "零碳供应链管理措施",
+        "value": "已选 5/6 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "4.1": {
+        "name": "数据自动采集率 (Ra)",
+        "value": 96.5,
+        "unit": "%",
+        "type": "declared"
+      },
+      "4.2": {
+        "name": "能碳管理中心功能项数",
+        "value": "已选 12/13 项",
+        "unit": "",
+        "type": "declared"
+      },
+      "5.1": {
+        "name": "碳排放信息披露透明度",
+        "value": "已选 4/5 份",
+        "unit": "",
+        "type": "declared"
+      }
+    },
+    "status": "已自评已申报",
+    "evaluator": "德缆安环处",
+    "declareDate": "2026-08-23"
+  }
+];
 
 export default function ZeroCarbonSelfEvaluationPage() {
   const [factories, setFactories] = useState<FactoryEvaluationData[]>(ALL_ZERO_CARBON_FACTORIES)
@@ -767,7 +3467,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
     notes: '',
   })
 
-  // 6 大单位及工厂数量统计
+  // 6 大单位及工厂数量统计 (严格依据组织架构树: 沈变6、衡变11、新变7、鲁缆4、新缆2、德缆1)
   const companiesList = useMemo(() => {
     return [
       { name: '全部', count: factories.length },
@@ -775,13 +3475,13 @@ export default function ZeroCarbonSelfEvaluationPage() {
       { name: '衡变公司', count: factories.filter((f) => f.company === '衡变公司').length },
       { name: '新变厂', count: factories.filter((f) => f.company === '新变厂').length },
       { name: '鲁缆公司', count: factories.filter((f) => f.company === '鲁缆公司').length },
+      { name: '新缆厂', count: factories.filter((f) => f.company === '新缆厂').length },
       { name: '德缆公司', count: factories.filter((f) => f.company === '德缆公司').length },
-      { name: '中康公司', count: factories.filter((f) => f.company === '中康公司').length },
     ]
   }, [factories])
 
   const companyStats = useMemo(() => {
-    const companies = ['沈变公司', '衡变公司', '新变厂', '鲁缆公司', '德缆公司', '中康公司'];
+    const companies = ['沈变公司', '衡变公司', '新变厂', '鲁缆公司', '新缆厂', '德缆公司'];
     return companies.map(comp => {
       const compFactories = factories.filter(f => f.company === comp);
       const count = compFactories.length;
@@ -1022,9 +3722,9 @@ export default function ZeroCarbonSelfEvaluationPage() {
                 <CheckSquare className="size-3.5 text-primary" />
               </div>
               <div className="text-base font-black font-mono text-foreground">
-                21 / 21 <span className="text-xs font-normal text-emerald-400">(100%)</span>
+                31 / 31 <span className="text-xs font-normal text-emerald-400">(100%)</span>
               </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">集团 6 大经营单位全覆盖</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">集团 6 大经营单位 31 家工厂全覆盖</div>
             </div>
 
             <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
