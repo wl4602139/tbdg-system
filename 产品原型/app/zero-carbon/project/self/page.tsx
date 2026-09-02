@@ -1157,44 +1157,44 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       </div>
                     </div>
 
-                    {/* 5 大维度关键指标看板 (高辨识度双排卡片设计) */}
+                    {/* 5 大维度关键指标看板 (暗黑科技蓝科技玻璃态设计) */}
                     {stats && (
                       <div className="space-y-1.5">
                         {/* 上排 3 项 */}
                         <div className="grid grid-cols-3 gap-1.5">
                           {/* 1. 源头减碳 */}
-                          <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-lg p-2 flex flex-col justify-between">
+                          <div className="bg-panel/90 border border-emerald-500/20 hover:border-emerald-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs group/box">
                             <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-emerald-800">1.源头减碳</span>
-                              <span className="text-[9px] text-emerald-600 font-medium">绿电消纳</span>
+                              <span className="text-[10px] font-bold text-emerald-400">1.源头减碳</span>
+                              <span className="text-[9px] text-emerald-300 bg-emerald-500/15 border border-emerald-500/20 px-1 py-0.2 rounded font-medium">绿电消纳</span>
                             </div>
                             <div className="mt-1 flex items-baseline gap-0.5">
-                              <span className="text-base font-black font-mono text-emerald-700">{stats.avgGreenPower}</span>
-                              <span className="text-[10px] font-bold text-emerald-600">%</span>
+                              <span className="text-base font-black font-mono text-emerald-400 group-hover/box:text-emerald-300">{stats.avgGreenPower}</span>
+                              <span className="text-[10px] font-bold text-emerald-400/80">%</span>
                             </div>
                           </div>
 
-                          {/* 2. 过程脱碳 */}
-                          <div className="bg-sky-50/70 border border-sky-200/80 rounded-lg p-2 flex flex-col justify-between">
+                          {/* 2. 过程削碳 */}
+                          <div className="bg-panel/90 border border-sky-500/20 hover:border-sky-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs group/box">
                             <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-sky-800">2.过程脱碳</span>
-                              <span className="text-[9px] text-sky-600 font-medium">清除率 Re</span>
+                              <span className="text-[10px] font-bold text-sky-400">2.过程削碳</span>
+                              <span className="text-[9px] text-sky-300 bg-sky-500/15 border border-sky-500/20 px-1 py-0.2 rounded font-medium">清除率 Re</span>
                             </div>
                             <div className="mt-1 flex items-baseline gap-0.5">
-                              <span className="text-base font-black font-mono text-sky-700">{stats.avgCarbonClear}</span>
-                              <span className="text-[10px] font-bold text-sky-600">%</span>
+                              <span className="text-base font-black font-mono text-sky-400 group-hover/box:text-sky-300">{stats.avgCarbonClear}</span>
+                              <span className="text-[10px] font-bold text-sky-400/80">%</span>
                             </div>
                           </div>
 
                           {/* 3. 协同降碳 */}
-                          <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-lg p-2 flex flex-col justify-between">
+                          <div className="bg-panel/90 border border-indigo-500/20 hover:border-indigo-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs group/box">
                             <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-indigo-800">3.协同降碳</span>
-                              <span className="text-[9px] text-indigo-600 font-medium">供应链</span>
+                              <span className="text-[10px] font-bold text-indigo-300">3.协同降碳</span>
+                              <span className="text-[9px] text-indigo-300 bg-indigo-500/15 border border-indigo-500/20 px-1 py-0.2 rounded font-medium">供应链</span>
                             </div>
                             <div className="mt-1 flex items-baseline gap-0.5">
-                              <span className="text-base font-black font-mono text-indigo-700">{stats.avgSupplyChain}</span>
-                              <span className="text-[10px] font-bold text-indigo-600">/ 6项</span>
+                              <span className="text-base font-black font-mono text-indigo-400 group-hover/box:text-indigo-300">{stats.avgSupplyChain}</span>
+                              <span className="text-[10px] font-bold text-muted-foreground">/ 6项</span>
                             </div>
                           </div>
                         </div>
@@ -1202,26 +1202,26 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         {/* 下排 2 项 */}
                         <div className="grid grid-cols-2 gap-1.5">
                           {/* 4. 智能控碳 */}
-                          <div className="bg-purple-50/70 border border-purple-200/80 rounded-lg p-2 flex flex-col justify-between">
+                          <div className="bg-panel/90 border border-purple-500/20 hover:border-purple-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs group/box">
                             <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-purple-800">4.智能控碳</span>
-                              <span className="text-[9px] text-purple-600 font-medium">自动采集 Ra</span>
+                              <span className="text-[10px] font-bold text-purple-300">4.智能控碳</span>
+                              <span className="text-[9px] text-purple-300 bg-purple-500/15 border border-purple-500/20 px-1 py-0.2 rounded font-medium">自动采集 Ra</span>
                             </div>
                             <div className="mt-1 flex items-baseline gap-0.5">
-                              <span className="text-base font-black font-mono text-purple-700">{stats.avgAutoCollect}</span>
-                              <span className="text-[10px] font-bold text-purple-600">%</span>
+                              <span className="text-base font-black font-mono text-purple-400 group-hover/box:text-purple-300">{stats.avgAutoCollect}</span>
+                              <span className="text-[10px] font-bold text-purple-400/80">%</span>
                             </div>
                           </div>
 
-                          {/* 5. 碳抵销和信息披露 */}
-                          <div className="bg-amber-50/70 border border-amber-200/80 rounded-lg p-2 flex flex-col justify-between">
+                          {/* 5. 抵消治理 */}
+                          <div className="bg-panel/90 border border-amber-500/20 hover:border-amber-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs group/box">
                             <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-amber-800">5.抵销与披露</span>
-                              <span className="text-[9px] text-amber-600 font-medium">文件报告</span>
+                              <span className="text-[10px] font-bold text-amber-400">5.抵消治理</span>
+                              <span className="text-[9px] text-amber-300 bg-amber-500/15 border border-amber-500/20 px-1 py-0.2 rounded font-medium">文件报告</span>
                             </div>
                             <div className="mt-1 flex items-baseline gap-0.5">
-                              <span className="text-base font-black font-mono text-amber-700">{stats.avgDisclosure}</span>
-                              <span className="text-[10px] font-bold text-amber-600">/ 5份</span>
+                              <span className="text-base font-black font-mono text-amber-400 group-hover/box:text-amber-300">{stats.avgDisclosure}</span>
+                              <span className="text-[10px] font-bold text-muted-foreground">/ 5份</span>
                             </div>
                           </div>
                         </div>
