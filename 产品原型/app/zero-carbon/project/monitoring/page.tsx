@@ -1194,8 +1194,8 @@ export default function RealtimeMonitoringPage() {
         {/* ══════════════════════════════════════════════════════════════════ */}
         {categoryFilter === '储能' && (
           <div className="space-y-3.5">
-            {/* 储能 8 大核心 KPI 指标卡片 (用户指定指标全面覆盖) */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2.5">
+            {/* 储能 8 大核心 KPI 指标卡片 (2行展示，每行4张) */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
               <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
                 <div className="flex items-center justify-between text-slate-400 mb-1">
                   <span className="text-[11px]">额定功率</span>
@@ -1431,86 +1431,86 @@ export default function RealtimeMonitoringPage() {
         {/* ══════════════════════════════════════════════════════════════════ */}
         {categoryFilter === '热泵' && (
           <div className="space-y-3.5">
-            {/* 热泵 10 大核心 KPI 指标卡片 (用户指定指标全面覆盖) */}
-            <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] text-slate-400 block mb-0.5">COP 能效</span>
-                <div className="text-sm font-bold font-mono text-emerald-600">
+            {/* 热泵 10 大核心 KPI 指标卡片 (2行展示，每行5张) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-2.5">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">COP 能效</span>
+                <div className="text-base font-bold font-mono text-emerald-600">
                   {heatPumpSummary.avgCop}
                 </div>
-                <span className="text-[9px] text-slate-400">实时制热COP</span>
+                <span className="text-[10px] text-slate-400">实时制热COP</span>
               </div>
 
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] text-slate-400 block mb-0.5">供水温度</span>
-                <div className="text-sm font-bold font-mono text-rose-600">
-                  {heatPumpSummary.avgSupplyTemp} <span className="text-[10px] font-normal">℃</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">供水温度</span>
+                <div className="text-base font-bold font-mono text-rose-600">
+                  {heatPumpSummary.avgSupplyTemp} <span className="text-xs font-normal">℃</span>
                 </div>
-                <span className="text-[9px] text-slate-400">出水恒温控制</span>
+                <span className="text-[10px] text-slate-400">出水恒温控制</span>
               </div>
 
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] text-slate-400 block mb-0.5">回水温度</span>
-                <div className="text-sm font-bold font-mono text-blue-600">
-                  {heatPumpSummary.avgReturnTemp} <span className="text-[10px] font-normal">℃</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">回水温度</span>
+                <div className="text-base font-bold font-mono text-blue-600">
+                  {heatPumpSummary.avgReturnTemp} <span className="text-xs font-normal">℃</span>
                 </div>
-                <span className="text-[9px] text-slate-400">回水温差正常</span>
+                <span className="text-[10px] text-slate-400">回水温差正常</span>
               </div>
 
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] text-slate-400 block mb-0.5">制热量</span>
-                <div className="text-sm font-bold font-mono text-orange-600">
-                  {heatPumpSummary.totalHeat} <span className="text-[10px] font-normal">GJ</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">制热量</span>
+                <div className="text-base font-bold font-mono text-orange-600">
+                  {heatPumpSummary.totalHeat} <span className="text-xs font-normal">GJ</span>
                 </div>
-                <span className="text-[9px] text-slate-400">当期累计产热</span>
+                <span className="text-[10px] text-slate-400">当期累计产热</span>
               </div>
 
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] text-slate-400 block mb-0.5">耗电量</span>
-                <div className="text-sm font-bold font-mono text-slate-800">
-                  {heatPumpSummary.totalPowerKwh} <span className="text-[10px] font-normal">kWh</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">耗电量</span>
+                <div className="text-base font-bold font-mono text-slate-800">
+                  {heatPumpSummary.totalPowerKwh} <span className="text-xs font-normal">kWh</span>
                 </div>
-                <span className="text-[9px] text-slate-400">热泵运行电耗</span>
+                <span className="text-[10px] text-slate-400">热泵运行电耗</span>
               </div>
 
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] text-slate-400 block mb-0.5">功率</span>
-                <div className="text-sm font-bold font-mono text-slate-800">
-                  {heatPumpSummary.totalPowerKw} <span className="text-[10px] font-normal">kW</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">功率</span>
+                <div className="text-base font-bold font-mono text-slate-800">
+                  {heatPumpSummary.totalPowerKw} <span className="text-xs font-normal">kW</span>
                 </div>
-                <span className="text-[9px] text-slate-400">实时电功率</span>
+                <span className="text-[10px] text-slate-400">实时电功率</span>
               </div>
 
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] text-slate-400 block mb-0.5">压力</span>
-                <div className="text-sm font-bold font-mono text-purple-600">
-                  1.25 <span className="text-[10px] font-normal">MPa</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">压力</span>
+                <div className="text-base font-bold font-mono text-purple-600">
+                  1.25 <span className="text-xs font-normal">MPa</span>
                 </div>
-                <span className="text-[9px] text-slate-400">冷凝管网压力</span>
+                <span className="text-[10px] text-slate-400">冷凝管网压力</span>
               </div>
 
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] text-slate-400 block mb-0.5">绿电占比</span>
-                <div className="text-sm font-bold font-mono text-emerald-600">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">绿电占比</span>
+                <div className="text-base font-bold font-mono text-emerald-600">
                   {heatPumpSummary.avgGreenRatio}%
                 </div>
-                <span className="text-[9px] text-emerald-600">光伏绿电直驱</span>
+                <span className="text-[10px] text-emerald-600">光伏绿电直驱</span>
               </div>
 
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] text-slate-400 block mb-0.5">尖/峰占比</span>
-                <div className="text-sm font-bold font-mono text-amber-600">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">尖/峰占比</span>
+                <div className="text-base font-bold font-mono text-amber-600">
                   {heatPumpSummary.avgPeakRatio}%
                 </div>
-                <span className="text-[9px] text-slate-400">高电价时段负荷</span>
+                <span className="text-[10px] text-slate-400">高电价时段负荷</span>
               </div>
 
-              <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] text-slate-400 block mb-0.5">收益 (节费)</span>
-                <div className="text-sm font-bold font-mono text-emerald-600">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">收益 (节费)</span>
+                <div className="text-base font-bold font-mono text-emerald-600">
                   ¥{heatPumpSummary.totalSavings}
                 </div>
-                <span className="text-[9px] text-emerald-600">替代燃气节费</span>
+                <span className="text-[10px] text-emerald-600">替代燃气节费</span>
               </div>
             </div>
 
