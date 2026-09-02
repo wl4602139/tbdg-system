@@ -3610,7 +3610,7 @@ export default function BenchmarkManagementPage() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="按指标名称/适用范围/依据出处搜索..."
+                  placeholder="按指标名称/依据出处搜索..."
                   value={standardSearchKeyword}
                   onChange={(e) => setStandardSearchKeyword(e.target.value)}
                   className="pl-7 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#1677ff] focus:bg-white w-60 transition-colors"
@@ -3683,7 +3683,7 @@ export default function BenchmarkManagementPage() {
                 <thead>
                   <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold font-sans">
                     <th className="py-2.5 px-3">基准分类</th>
-                    <th className="py-2.5 px-3">对标指标名称 / 适用范围</th>
+                    <th className="py-2.5 px-3">对标指标名称</th>
                     <th className="py-2.5 px-3 text-right">标准基准值 (门槛/标杆)</th>
                     <th className="py-2.5 px-3">标准依据 / 来源出处</th>
                     <th className="py-2.5 px-3 text-center font-sans">维护部门</th>
@@ -3709,20 +3709,10 @@ export default function BenchmarkManagementPage() {
                         </span>
                       </td>
 
-                      {/* 指标名称与适用范围 */}
+                      {/* 指标名称 */}
                       <td className="py-2.5 px-3 align-middle font-sans">
-                        <div className="space-y-0.5">
-                          <div className="font-bold text-slate-900 text-xs">
-                            {std.indicatorName}
-                          </div>
-                          <div className="text-[11px] text-slate-500 font-mono">
-                            适用：{std.scope}
-                          </div>
-                          {std.notes && (
-                            <div className="text-[10px] text-amber-600 bg-amber-50/60 px-1.5 py-0.5 rounded border border-amber-200/60 inline-block font-sans">
-                              {std.notes}
-                            </div>
-                          )}
+                        <div className="font-bold text-slate-900 text-xs">
+                          {std.indicatorName}
                         </div>
                       </td>
 
