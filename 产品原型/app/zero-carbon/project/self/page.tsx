@@ -941,7 +941,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
   }, [declareFactoryTarget, declareForm])
 
   return (
-    <div className="space-y-4 p-4 font-sans text-slate-800">
+    <div className="space-y-3.5 font-sans text-slate-800 pb-10">
       {/* 消息提示气泡 */}
       {toastMessage && (
         <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold animate-in fade-in slide-in-from-top-2 duration-200">
