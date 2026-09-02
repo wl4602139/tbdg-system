@@ -456,12 +456,12 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
       {/* 3. 页面右下角 AI 助手悬浮窗 (深色毛玻璃科技风) */}
       <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end pointer-events-none">
         {isAiOpen && (
-          <div className="w-96 sm:w-[420px] h-[520px] bg-popover/95 rounded-2xl shadow-2xl border border-border backdrop-blur-md mb-3 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-200 pointer-events-auto">
+          <div className="w-96 sm:w-[420px] h-[520px] bg-card/95 rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.7)] border border-cyan-500/30 backdrop-blur-xl mb-3 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-200 pointer-events-auto">
             {/* 窗口头部 */}
-            <div className="bg-panel border-b border-border p-3.5 flex items-center justify-between shrink-0">
+            <div className="bg-gradient-to-r from-slate-900/90 via-blue-950/70 to-slate-900/90 border-b border-border/80 p-3.5 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="size-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center">
-                  <Sparkles className="size-4 text-primary animate-pulse" />
+                <div className="size-8 rounded-xl bg-gradient-to-tr from-cyan-500/20 to-blue-600/30 border border-cyan-500/40 text-cyan-300 flex items-center justify-center shadow-xs">
+                  <Sparkles className="size-4 text-cyan-300 animate-pulse" />
                 </div>
                 <div>
                   <h3 className="font-bold text-xs text-foreground flex items-center gap-1.5">
@@ -470,7 +470,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                       在线
                     </span>
                   </h3>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
                     基于集团 15 园区与 21 工厂实时中枢大模型
                   </p>
                 </div>
@@ -478,7 +478,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
 
               <button
                 onClick={() => setIsAiOpen(false)}
-                className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
+                className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors cursor-pointer"
                 title="关闭窗口"
               >
                 <X className="size-4" />
@@ -486,7 +486,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             </div>
 
             {/* 消息滚动区 */}
-            <div className="flex-1 overflow-y-auto p-3.5 space-y-3 bg-background/50 text-xs">
+            <div className="flex-1 overflow-y-auto p-3.5 space-y-3 bg-background/40 text-xs">
               {messages.map((m, idx) => (
                 <div
                   key={idx}
@@ -500,17 +500,17 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                     <span>·</span>
                     <span>{m.time}</span>
                     {m.tag && (
-                      <span className="ml-1 px-1.5 py-0.2 rounded bg-primary/10 text-primary border border-primary/20 font-bold">
+                      <span className="ml-1 px-1.5 py-0.2 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-bold">
                         {m.tag}
                       </span>
                     )}
                   </div>
                   <div
                     className={cn(
-                      'p-3 rounded-xl max-w-[90%] leading-relaxed border',
+                      'p-3 rounded-xl max-w-[90%] leading-relaxed border text-xs shadow-md',
                       m.sender === 'user'
-                        ? 'bg-primary text-primary-foreground border-primary rounded-br-none shadow-sm'
-                        : 'bg-card text-card-foreground border-border rounded-bl-none shadow-sm'
+                        ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-cyan-400/40 rounded-br-none'
+                        : 'bg-panel/90 text-foreground border-border/80 rounded-bl-none backdrop-blur-sm'
                     )}
                   >
                     {m.text}
@@ -520,20 +520,20 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             </div>
 
             {/* 快捷推荐提问 */}
-            <div className="p-2 bg-panel border-t border-border shrink-0">
-              <span className="text-[10px] font-bold text-muted-foreground block px-1 mb-1">
+            <div className="p-2.5 bg-panel/90 border-t border-border/80 shrink-0">
+              <span className="text-[10px] font-bold text-muted-foreground block px-1 mb-1.5">
                 💡 猜您想问：
               </span>
               <div className="flex flex-wrap gap-1.5 text-[10px]">
                 <button
                   onClick={() => handleSendAi('沈变本部真空干燥车间蒸汽超标原因是什么？')}
-                  className="px-2 py-1 rounded bg-card hover:bg-accent hover:text-primary border border-border transition-colors text-muted-foreground text-left truncate max-w-[200px] cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-card hover:bg-cyan-500/15 hover:text-cyan-300 border border-border hover:border-cyan-500/40 transition-all text-muted-foreground text-left truncate max-w-[200px] cursor-pointer shadow-2xs"
                 >
                   ⚡ 沈变干燥车间蒸汽超标原因？
                 </button>
                 <button
                   onClick={() => handleSendAi('全集团哪家工厂单位单耗最高，需要重点监管？')}
-                  className="px-2 py-1 rounded bg-card hover:bg-accent hover:text-primary border border-border transition-colors text-muted-foreground text-left truncate max-w-[200px] cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-card hover:bg-cyan-500/15 hover:text-cyan-300 border border-border hover:border-cyan-500/40 transition-all text-muted-foreground text-left truncate max-w-[200px] cursor-pointer shadow-2xs"
                 >
                   🏭 哪家工厂单耗最高需监管？
                 </button>
@@ -541,18 +541,18 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             </div>
 
             {/* 底部输入框 */}
-            <div className="p-2.5 bg-panel border-t border-border flex items-center gap-2 shrink-0">
+            <div className="p-2.5 bg-panel/90 border-t border-border/80 flex items-center gap-2 shrink-0">
               <input
                 type="text"
                 value={aiInput}
                 onChange={(e) => setAiInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendAi()}
                 placeholder="输入能耗、碳排、CBAM关税或工艺问题..."
-                className="flex-1 bg-card border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground"
+                className="flex-1 bg-card/90 border border-border/80 rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-cyan-400 placeholder:text-muted-foreground shadow-inner"
               />
               <button
                 onClick={() => handleSendAi()}
-                className="size-8 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center transition-colors shadow-sm cursor-pointer"
+                className="size-8 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white flex items-center justify-center transition-all shadow-md cursor-pointer border border-cyan-400/40"
                 title="发送"
               >
                 <Send className="size-3.5" />
@@ -565,17 +565,17 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
         <button
           onClick={() => setIsAiOpen(!isAiOpen)}
           className={cn(
-            'pointer-events-auto cursor-pointer flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-2xl transition-all transform hover:scale-105 active:scale-95 group focus:outline-none border border-border backdrop-blur-md',
+            'pointer-events-auto cursor-pointer flex items-center gap-2 px-3.5 py-2.5 rounded-full transition-all transform hover:scale-105 active:scale-95 group focus:outline-none backdrop-blur-md',
             isAiOpen
-              ? 'bg-popover text-foreground shadow-black/60'
-              : 'bg-primary/90 text-primary-foreground shadow-[0_0_20px_var(--primary)] hover:bg-primary'
+              ? 'bg-panel/95 text-foreground border border-border shadow-2xl'
+              : 'bg-card/90 hover:bg-card text-foreground border border-cyan-500/40 hover:border-cyan-400 shadow-[0_4px_24px_rgba(0,0,0,0.5),0_0_15px_rgba(6,182,212,0.15)] hover:shadow-[0_4px_28px_rgba(0,0,0,0.6),0_0_22px_rgba(6,182,212,0.3)]'
           )}
           title="点击打开特变电工 AI助手"
         >
-          <div className="size-6 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
-            <Sparkles className="size-3.5 text-current animate-pulse" />
+          <div className="size-6 rounded-full bg-gradient-to-tr from-cyan-500/30 to-blue-600/30 border border-cyan-400/40 text-cyan-300 flex items-center justify-center shrink-0 shadow-xs">
+            <Sparkles className="size-3.5 text-cyan-300 animate-pulse" />
           </div>
-          <span className="font-bold text-xs tracking-wide">
+          <span className="font-bold text-xs tracking-wide text-foreground group-hover:text-cyan-300 transition-colors">
             {isAiOpen ? '收起 AI助手' : 'AI助手'}
           </span>
           {!isAiOpen && (
