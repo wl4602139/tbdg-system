@@ -93,7 +93,7 @@ export default function ManualEntryPage() {
   // 当前选择的数据类型
   const [currentType, setCurrentType] = useState<EntryDataType>('energy')
 
-  // 通用公共信息
+  // 通用公共信息 (默认选中沈变本部)
   const [selectedOrgId, setSelectedOrgId] = useState('ws_sb_main')
   const [selectedOrg, setSelectedOrg] = useState('沈变本部')
   const [entryPeriod, setEntryPeriod] = useState('2026-08')
@@ -154,10 +154,58 @@ export default function ManualEntryPage() {
     workOrder: 'WO-202608-TR092',
   })
 
-  // 历史填报与入库台账
+  // 历史填报与入库台账数据源
   const [records, setRecords] = useState<EntryRecord[]>([
     {
-      id: 'REC-001',
+      id: 'REC-SB-01',
+      batch: 'DR-260817-02',
+      type: '产量与产值数据',
+      typeKey: 'production',
+      org: '沈变本部',
+      period: '2026-07',
+      summary: '总产值: 14,500 万元 · 增加值: 4,200 万元 · 产量: 38.0万kVA',
+      submitter: '李工',
+      submitTime: '2026-08-17 10:05',
+      status: '已入库',
+    },
+    {
+      id: 'REC-SB-02',
+      batch: 'DR-260816-03',
+      type: '绿电与绿证数据',
+      typeKey: 'green_power',
+      org: '沈变本部',
+      period: '2026-07',
+      summary: '集中式光伏交易绿电 148.2 万kWh · 单价 0.45元 · GEC核销',
+      submitter: '李静',
+      submitTime: '2026-08-16 16:40',
+      status: '已入库',
+    },
+    {
+      id: 'REC-SB-03',
+      batch: 'DR-260815-05',
+      type: '原材料用量数据',
+      typeKey: 'material',
+      org: '沈变本部',
+      period: '2026-06',
+      summary: '取向硅钢片 1,240.5 t · 成品净重 1,152 t · 废料回收率 92.5%',
+      submitter: '赵敏',
+      submitTime: '2026-08-15 15:33',
+      status: '已入库',
+    },
+    {
+      id: 'REC-SB-04',
+      batch: 'DR-260812-01',
+      type: '能耗数据',
+      typeKey: 'energy',
+      org: '沈变本部',
+      period: '2026-06',
+      summary: '天然气: 28,400 m³ · 蒸汽: 1,420 t · 水: 8,900 t · 柴油: 320 L',
+      submitter: '李工',
+      submitTime: '2026-08-12 09:15',
+      status: '已入库',
+    },
+    {
+      id: 'REC-HB-01',
       batch: 'DR-260817-01',
       type: '能耗数据',
       typeKey: 'energy',
@@ -169,49 +217,61 @@ export default function ManualEntryPage() {
       status: '已入库',
     },
     {
-      id: 'REC-002',
-      batch: 'DR-260817-02',
+      id: 'REC-HB-02',
+      batch: 'DR-260814-03',
       type: '产量与产值数据',
       typeKey: 'production',
-      org: '沈变本部',
+      org: '衡变本部',
       period: '2026-07',
-      summary: '总产值: 14,200 万元 · 增加值: 4,150 万元 · 产量: 37.5万kVA',
-      submitter: '李工',
-      submitTime: '2026-08-17 10:05',
+      summary: '总产值: 13,800 万元 · 增加值: 3,950 万元 · 变压器: 32.5万kVA',
+      submitter: '王强',
+      submitTime: '2026-08-14 14:10',
       status: '已入库',
     },
     {
-      id: 'REC-003',
-      batch: 'DR-260816-03',
+      id: 'REC-XB-01',
+      batch: 'DR-260816-04',
       type: '绿电与绿证数据',
       typeKey: 'green_power',
       org: '超高压公司',
       period: '2026-07',
-      summary: '集中式光伏交易绿电 148.2 万kWh · 单价 0.45元',
-      submitter: '李静',
-      submitTime: '2026-08-16 16:40',
+      summary: '跨省双边交易绿电 210.0 万kWh · 凭证号 CN-GEC-2026-XJ-0102',
+      submitter: '刘伟',
+      submitTime: '2026-08-16 14:20',
       status: '已入库',
     },
     {
-      id: 'REC-004',
-      batch: 'DR-260815-05',
-      type: '原材料用量数据',
-      typeKey: 'material',
-      org: '沈变本部',
+      id: 'REC-XB-02',
+      batch: 'DR-260813-02',
+      type: '碳排活动数据',
+      typeKey: 'carbon',
+      org: '超高压公司',
       period: '2026-06',
-      summary: '取向硅钢片 1,240.5 t · 废料回收率 92.5%',
-      submitter: '赵敏',
-      submitTime: '2026-08-15 15:33',
+      summary: 'SF₆ 六氟化硫绝缘补充量 45.5 kg · 乙炔 380 m³',
+      submitter: '刘伟',
+      submitTime: '2026-08-13 11:05',
       status: '已入库',
     },
     {
-      id: 'REC-005',
+      id: 'REC-LL-01',
+      batch: 'DR-260816-01',
+      type: '产量与产值数据',
+      typeKey: 'production',
+      org: '鲁缆本部',
+      period: '2026-07',
+      summary: '总产值: 18,200 万元 · 增加值: 4,800 万元 · 电缆: 1,850 万km',
+      submitter: '张海',
+      submitTime: '2026-08-16 11:30',
+      status: '已入库',
+    },
+    {
+      id: 'REC-TB-01',
       batch: 'DR-260814-02',
       type: '碳排活动数据',
       typeKey: 'carbon',
       org: '天变公司',
       period: '2026-06',
-      summary: 'CO₂保护气 1,850 kg · SF₆补充量 45.5 kg',
+      summary: 'CO₂保护气 1,850 kg · 焊丝及辅料 820 kg',
       submitter: '张伟',
       submitTime: '2026-08-14 11:20',
       status: '已入库',
@@ -226,15 +286,14 @@ export default function ManualEntryPage() {
   })
   const [filterType, setFilterType] = useState<string>('all')
 
-  // 节点选择处理
+  // 节点选择处理：仅更新当前选中的企业节点名称与 ID
   const handleSelectOrgNode = (node: StandardOrgNode) => {
     setSelectedOrgId(node.id)
-    setSelectedOrg(node.fullName || node.name)
+    setSelectedOrg(node.name)
   }
 
   // 提交保存处理
   const handleSave = (status: '已入库' | '草稿') => {
-    // 生成摘要描述
     let summaryText = ''
     const currentMeta = DATA_TYPES.find((d) => d.key === currentType)!
 
@@ -267,11 +326,12 @@ export default function ManualEntryPage() {
       status: status,
     }
 
+    // 录入后实时插入
     setRecords([newRecord, ...records])
 
     setSuccessToast({
       show: true,
-      msg: `【${currentMeta.label}】数据已成功${status === '已入库' ? '校验并入库' : '保存为草稿'}！已自动挂接至 ${selectedOrg} ${entryPeriod} 能碳核算引擎。`,
+      msg: `【${currentMeta.label}】数据已成功${status === '已入库' ? '校验并入库' : '保存为草稿'}！已自动归集至【${selectedOrg}】${entryPeriod}账期。`,
       batch: batchCode,
     })
 
@@ -287,8 +347,18 @@ export default function ManualEntryPage() {
     }
   }
 
-  // 过滤后的台账
+  // 🌟 核心要求：台账明细仅显示当前选中节点的企业台账数据
   const filteredRecords = records.filter((r) => {
+    // 1. 机构/企业节点严格过滤 (全集团显示全量，具体企业/车间节点仅显示属于该单位的台账)
+    const isRoot = selectedOrgId === 'ent_root' || selectedOrg === '电装集团'
+    const matchesOrg =
+      isRoot ||
+      r.org === selectedOrg ||
+      (r.org && selectedOrg && (selectedOrg.includes(r.org) || r.org.includes(selectedOrg)))
+
+    if (!matchesOrg) return false
+
+    // 2. 数据类型二次筛选
     if (filterType === 'all') return true
     return r.typeKey === filterType
   })
@@ -304,43 +374,13 @@ export default function ManualEntryPage() {
 
       {/* 🌟 2. 右侧数据录入工作台 */}
       <div className="flex-1 min-w-0 space-y-5">
-        {/* 顶部标题与基础组织参数栏 */}
+        {/* 顶部标题栏 (已移除原红框的填报单位与账期冗余信息) */}
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
           <div className="flex items-center gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-[#1677ff]">
               <FileEdit className="size-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-slate-800">能碳业务数据录入</h1>
-                <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-[#1677ff] border border-blue-100">
-                  结构树联动填报
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                左侧点击企业/车间节点自动匹配填报主体，支持按数据类型选择针对性表单并保存
-              </p>
-            </div>
-          </div>
-
-          {/* 填报单位展示与账期选择 */}
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50/60 px-3 py-1.5">
-              <Building2 className="size-3.5 text-[#1677ff]" />
-              <span className="text-slate-500">当前填报单位：</span>
-              <span className="font-bold text-[#1677ff]">{selectedOrg}</span>
-            </div>
-
-            <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-1.5">
-              <Calendar className="size-3.5 text-slate-500" />
-              <span className="text-slate-500">统计账期：</span>
-              <input
-                type="month"
-                value={entryPeriod}
-                onChange={(e) => setEntryPeriod(e.target.value)}
-                className="bg-transparent font-mono font-semibold text-slate-800 focus:outline-none cursor-pointer"
-              />
-            </div>
+            <h1 className="text-base font-bold text-slate-800">能碳业务数据录入</h1>
           </div>
         </div>
 
@@ -435,10 +475,18 @@ export default function ManualEntryPage() {
                     填写【{DATA_TYPES.find((d) => d.key === currentType)?.label}】详细指标
                   </h3>
                 </div>
-                <span className="text-[11px] text-slate-400">
-                  当前主体：<strong className="text-slate-700">{selectedOrg}</strong> · 账期：
-                  <strong className="font-mono text-slate-700">{entryPeriod}</strong>
-                </span>
+
+                {/* 🌟 蓝框信息修改为：填报数据周期 */}
+                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/80 px-2.5 py-1 text-xs">
+                  <Calendar className="size-3.5 text-slate-500" />
+                  <span className="text-slate-600 font-medium">填报数据周期：</span>
+                  <input
+                    type="month"
+                    value={entryPeriod}
+                    onChange={(e) => setEntryPeriod(e.target.value)}
+                    className="bg-white border border-slate-200 rounded px-2 py-0.5 font-mono font-bold text-slate-800 focus:outline-none focus:border-[#1677ff] cursor-pointer"
+                  />
+                </div>
               </div>
 
               {/* 1. 能耗数据录入表单 */}
@@ -905,21 +953,10 @@ export default function ManualEntryPage() {
                 </div>
               )}
 
-              {/* 🌟 步骤三 · 责任人、附件与操作动作按钮 */}
+              {/* 🌟 步骤三 · 附件与操作动作按钮 */}
               <div className="mt-6 border-t border-slate-100 pt-5 space-y-4 text-xs">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <label className="font-semibold text-slate-800">填报责任人</label>
-                    <input
-                      type="text"
-                      value={fillerName}
-                      onChange={(e) => setFillerName(e.target.value)}
-                      className="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-slate-800 focus:border-[#1677ff] focus:outline-none font-medium"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 sm:col-span-2">
                     <label className="font-semibold text-slate-800">上传原始账单/凭证 (PDF / Excel)</label>
                     <div className="flex items-center gap-2">
                       <label className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 px-3 py-2 text-slate-600 cursor-pointer transition-colors text-xs shrink-0">
@@ -956,7 +993,7 @@ export default function ManualEntryPage() {
                 {/* 底部保存与提交操作 */}
                 <div className="flex items-center justify-between border-t border-slate-100 pt-4">
                   <span className="text-[11px] text-slate-400">
-                    点击保存后，数据将写入本地台账，并触发能碳引擎重新计算对应周期指标
+                    点击保存后，数据将写入【{selectedOrg}】本地台账，并触发能碳引擎重新计算对应周期指标
                   </span>
                   <div className="flex items-center gap-3">
                     <button
@@ -1034,30 +1071,21 @@ export default function ManualEntryPage() {
                 </div>
               </div>
             </Panel>
-
-            <Panel className="p-4">
-              <PanelTitle title="四眼复核与审计保障" />
-              <div className="space-y-2 mt-2 text-xs text-slate-500 leading-relaxed">
-                <div className="flex items-start gap-2">
-                  <span className="size-1.5 rounded-full bg-[#1677ff] mt-1.5 shrink-0" />
-                  <span>填报后数据进入所属公司账期台账，生成唯一防篡改批次编号。</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="size-1.5 rounded-full bg-[#1677ff] mt-1.5 shrink-0" />
-                  <span>园区能管主管可进行合规复核，归档后锁定历史只读权限。</span>
-                </div>
-              </div>
-            </Panel>
           </div>
         </div>
 
-        {/* 🌟 步骤四 · 填报记录台账列表（支持分类筛选与实时查看） */}
+        {/* 🌟 步骤四 · 填报记录台账列表（台账明细仅显示当前选中节点的企业台账数据） */}
         <Panel className="p-5">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 mb-4">
             <div className="flex items-center gap-2">
               <History className="size-4.5 text-[#1677ff]" />
-              <h3 className="text-sm font-bold text-slate-800">已录入数据台账明细</h3>
+              <h3 className="text-sm font-bold text-slate-800">
+                【{selectedOrg}】已录入数据台账明细
+              </h3>
               <Badge tone="info">{filteredRecords.length} 条记录</Badge>
+              <span className="text-[11px] text-slate-400 font-normal">
+                (已按当前选中企业节点严格过滤)
+              </span>
             </div>
 
             {/* 类型筛选器 */}
@@ -1110,44 +1138,60 @@ export default function ManualEntryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
-                {filteredRecords.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-2.5 px-3 font-bold text-slate-800">{r.batch}</td>
-                    <td className="py-2.5 px-3 font-sans">
-                      <span className="rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-700">
-                        {r.type}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-3 font-sans text-slate-700">{r.org}</td>
-                    <td className="py-2.5 px-3 font-semibold text-slate-800">{r.period}</td>
-                    <td className="py-2.5 px-3 font-sans text-slate-600 max-w-xs truncate" title={r.summary}>
-                      {r.summary}
-                    </td>
-                    <td className="py-2.5 px-3 font-sans text-slate-600">{r.submitter}</td>
-                    <td className="py-2.5 px-3 text-slate-400">{r.submitTime}</td>
-                    <td className="py-2.5 px-3 text-center font-sans">
-                      <StatusBadge tone={r.status === '已入库' ? 'ok' : r.status === '待审核' ? 'warn' : 'danger'}>
-                        {r.status}
-                      </StatusBadge>
-                    </td>
-                    <td className="py-2.5 px-3 text-right font-sans space-x-2">
-                      <button
-                        type="button"
-                        onClick={() => alert(`批次 ${r.batch} 详情：\n${r.summary}\n填报单位：${r.org}\n填报人：${r.submitter}`)}
-                        className="text-[#1677ff] hover:underline cursor-pointer"
-                      >
-                        查看
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteRecord(r.id)}
-                        className="text-rose-500 hover:underline cursor-pointer"
-                      >
-                        删除
-                      </button>
+                {filteredRecords.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="py-12 text-center text-slate-400 font-sans">
+                      <div className="flex flex-col items-center justify-center gap-1.5">
+                        <FileText className="size-7 text-slate-300 stroke-1" />
+                        <p className="text-xs font-medium text-slate-600">
+                          暂无【{selectedOrg}】的相关数据录入记录
+                        </p>
+                        <p className="text-[11px] text-slate-400">
+                          您可以在上方表单填写数据并点击“保存并提交入库”，数据将自动归集到该单位名下
+                        </p>
+                      </div>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredRecords.map((r) => (
+                    <tr key={r.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-2.5 px-3 font-bold text-slate-800">{r.batch}</td>
+                      <td className="py-2.5 px-3 font-sans">
+                        <span className="rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-700">
+                          {r.type}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 font-sans text-slate-700 font-medium">{r.org}</td>
+                      <td className="py-2.5 px-3 font-semibold text-slate-800">{r.period}</td>
+                      <td className="py-2.5 px-3 font-sans text-slate-600 max-w-xs truncate" title={r.summary}>
+                        {r.summary}
+                      </td>
+                      <td className="py-2.5 px-3 font-sans text-slate-600">{r.submitter}</td>
+                      <td className="py-2.5 px-3 text-slate-400">{r.submitTime}</td>
+                      <td className="py-2.5 px-3 text-center font-sans">
+                        <StatusBadge tone={r.status === '已入库' ? 'ok' : r.status === '待审核' ? 'warn' : 'danger'}>
+                          {r.status}
+                        </StatusBadge>
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-sans space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => alert(`批次 ${r.batch} 详情：\n${r.summary}\n填报单位：${r.org}\n填报人：${r.submitter}`)}
+                          className="text-[#1677ff] hover:underline cursor-pointer"
+                        >
+                          查看
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRecord(r.id)}
+                          className="text-rose-500 hover:underline cursor-pointer"
+                        >
+                          删除
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
