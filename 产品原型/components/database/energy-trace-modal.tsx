@@ -118,9 +118,9 @@ function EnergyTraceTabs({
                 <tr className="border-b border-border bg-muted/40 text-muted-foreground">
                   <th className="px-3.5 py-2.5 font-medium text-center">生产单元</th>
                   <th className="px-3.5 py-2.5 font-medium">工序名称</th>
+                  <th className="px-3.5 py-2.5 font-medium">能源类型</th>
                   <th className="px-3.5 py-2.5 font-medium text-center">开始时间</th>
                   <th className="px-3.5 py-2.5 font-medium text-center">结束时间</th>
-                  <th className="px-3.5 py-2.5 font-medium">能源类型</th>
                   <th className="px-3.5 py-2.5 font-medium text-right">用量(kWh)</th>
                   <th className="px-3.5 py-2.5 font-medium text-right">折标系数(kgce/kWh)</th>
                   <th className="px-3.5 py-2.5 font-medium text-right">综合能耗(kgce)</th>
@@ -142,25 +142,17 @@ function EnergyTraceTabs({
                       >
                         {ps.processName}
                       </td>
-                      <td
-                        rowSpan={2}
-                        className="border-r border-border/50 px-3.5 py-2.5 align-middle text-center font-mono text-muted-foreground whitespace-nowrap"
-                      >
-                        {ps.startTime}
-                      </td>
-                      <td
-                        rowSpan={2}
-                        className="border-r border-border/50 px-3.5 py-2.5 align-middle text-center font-mono text-muted-foreground whitespace-nowrap"
-                      >
-                        {ps.endTime}
-                      </td>
                       <td className="px-3.5 py-2 text-foreground border-b border-border/30">市电</td>
+                      <td className="px-3.5 py-2 text-center font-mono text-muted-foreground whitespace-nowrap border-b border-border/30">{ps.startTime}</td>
+                      <td className="px-3.5 py-2 text-center font-mono text-muted-foreground whitespace-nowrap border-b border-border/30">{ps.endTime}</td>
                       <td className="px-3.5 py-2 text-right font-mono text-foreground border-b border-border/30">{ps.gridKwh}</td>
                       <td className="px-3.5 py-2 text-right font-mono text-muted-foreground border-b border-border/30">{ELEC_KGCE}</td>
                       <td className="px-3.5 py-2 text-right font-mono text-primary font-medium border-b border-border/30">{ps.gridConvert}</td>
                     </tr>
                     <tr className="hover:bg-muted/15 transition-colors">
                       <td className="px-3.5 py-2 text-[var(--success)] font-medium">绿电</td>
+                      <td className="px-3.5 py-2 text-center font-mono text-muted-foreground whitespace-nowrap">{ps.startTime}</td>
+                      <td className="px-3.5 py-2 text-center font-mono text-muted-foreground whitespace-nowrap">{ps.endTime}</td>
                       <td className="px-3.5 py-2 text-right font-mono text-foreground">{ps.greenKwh}</td>
                       <td className="px-3.5 py-2 text-right font-mono text-muted-foreground">{ELEC_KGCE}</td>
                       <td className="px-3.5 py-2 text-right font-mono text-primary font-medium">{ps.greenConvert}</td>
