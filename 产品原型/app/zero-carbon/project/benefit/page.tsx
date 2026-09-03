@@ -1287,7 +1287,6 @@ export default function BenefitEvaluationPage() {
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">充电量(市电谷/深谷)占比</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">放电量(尖/峰)占比</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">月累收益 (万元)</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap text-center">数值计算推导</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-mono">
@@ -1313,15 +1312,6 @@ export default function BenefitEvaluationPage() {
                         <td className="py-2.5 px-3 text-center text-blue-600 font-bold">{item.valleyChargeRatio}%</td>
                         <td className="py-2.5 px-3 text-center text-purple-700 font-bold">{item.peakCombinedDesc}</td>
                         <td className="py-2.5 px-3 text-right font-bold text-slate-900">{item.monthlyRevenueWan}</td>
-                        <td className="py-2.5 px-3 text-center font-sans">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedCalcDetail({ isOpen: true, type: 'storage', data: item })}
-                            className="px-2.5 py-1 rounded bg-blue-50 text-[#1677ff] hover:bg-blue-100 text-[11px] font-bold transition-colors cursor-pointer border border-blue-200"
-                          >
-                            算法详情
-                          </button>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -1774,7 +1764,6 @@ export default function BenefitEvaluationPage() {
                       <th className="py-2.5 px-3 whitespace-nowrap text-right bg-emerald-50/50 text-emerald-900">上网电量 (万kWh)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right bg-emerald-50/50 text-emerald-900">上网收益 (万元)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center bg-emerald-50/50 text-emerald-900">上网单价 (元)</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap text-center">核算详情</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-mono">
@@ -1795,15 +1784,6 @@ export default function BenefitEvaluationPage() {
                         <td className="py-2.5 px-3 text-right font-bold text-slate-700 bg-emerald-50/20">{item.gridKwhWan}</td>
                         <td className="py-2.5 px-3 text-right font-bold text-emerald-700 bg-emerald-50/20">¥{item.gridIncomeWan}</td>
                         <td className="py-2.5 px-3 text-center bg-emerald-50/20">{item.gridPrice}</td>
-                        <td className="py-2.5 px-3 text-center font-sans">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedCalcDetail({ isOpen: true, type: 'pv', data: item })}
-                            className="px-2.5 py-1 rounded bg-amber-50 text-amber-700 hover:bg-amber-100 text-[11px] font-bold transition-colors cursor-pointer border border-amber-200"
-                          >
-                            消纳详情
-                          </button>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
