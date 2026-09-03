@@ -32,6 +32,7 @@ import {
   Leaf,
   ShieldCheck,
 } from 'lucide-react'
+import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend, AreaTrend, Donut, BarChartGroup } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
 
@@ -600,6 +601,12 @@ const PV_BENEFIT_DATA: PvBenefitItem[] = [
 ]
 
 export default function BenefitEvaluationPage() {
+  // 0. 园区结构树选择状态
+  const [selectedParkId, setSelectedParkId] = useState('park_root')
+  const [selectedParkNode, setSelectedParkNode] = useState<StandardOrgNode | null>(null)
+
+  const isParkRoot = !selectedParkNode || selectedParkNode.id === 'park_root' || selectedParkNode.name.includes('电装集团')
+
   // 1. 顶部模块大 Tab 切换: 储能效益 | 热泵效益
   const [activeModule, setActiveModule] = useState<'storage' | 'heatpump'>('storage')
 
@@ -620,6 +627,26 @@ export default function BenefitEvaluationPage() {
     type: 'storage',
     data: null,
   })
+
+  // 根据当前选中的园区筛选储能台账
+  const filteredStorageData = useMemo(() => {
+    if (isParkRoot) return STORAGE_BENEFIT_DATA
+    const target = selectedParkNode.name
+    const res = STORAGE_BENEFIT_DATA.filter(
+      (item) => item.park.includes(target) || target.includes(item.park) || item.company.includes(target) || target.includes(item.company),
+    )
+    return res.length > 0 ? res : STORAGE_BENEFIT_DATA
+  }, [selectedParkNode, isParkRoot])
+
+  // 根据当前选中的园区筛选热泵台账
+  const filteredHeatPumpData = useMemo(() => {
+    if (isParkRoot) return HEAT_PUMP_BENEFIT_DATA
+    const target = selectedParkNode.name
+    const res = HEAT_PUMP_BENEFIT_DATA.filter(
+      (item) => item.park.includes(target) || target.includes(item.park) || item.company.includes(target) || target.includes(item.company),
+    )
+    return res.length > 0 ? res : HEAT_PUMP_BENEFIT_DATA
+  }, [selectedParkNode, isParkRoot])
 
   // 4. 宏观项目技术类型筛选 (全部综合视图下使用)
   const [macroFilterType, setMacroFilterType] = useState<string>('all')
@@ -773,22 +800,39 @@ export default function BenefitEvaluationPage() {
   }
 
   return (
-    <div className="space-y-3.5 font-sans pb-10 text-foreground">
-      {/* 1. 顶部 Header (主标题 + 模块分类选择 + 时间控件 + 数据导出) */}
-      <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
-            <Coins className="size-5" />
+    <div className="flex gap-3.5 items-start font-sans pb-10">
+      {/* 🌟 园区结构树 (Park Structure Tree) 270px */}
+      <StandardOrgTree
+        selectedId={selectedParkId}
+        onSelect={(node) => {
+          setSelectedParkId(node.id)
+          setSelectedParkNode(node)
+        }}
+        treeType="park"
+      />
+
+      {/* 🌟 右侧主面板 */}
+      <div className="flex-1 min-w-0 space-y-3.5">
+        {/* 1. 顶部 Header (主标题 + 模块分类选择 + 时间控件 + 数据导出) */}
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <Coins className="size-5" />
+            </div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-base font-bold text-slate-800">项目运行评估</h1>
+              {selectedParkNode && !isParkRoot && (
+                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
+                  {selectedParkNode.name}
+                </span>
+              )}
+            </div>
           </div>
-          <div>
-            <h1 className="text-base font-bold text-foreground">项目运行评估</h1>
-          </div>
-        </div>
 
         {/* 右侧：时间维度与导出 */}
         <div className="flex flex-wrap items-center gap-2">
           {/* 维度切换按钮组 */}
-          <div className="flex items-center gap-1 bg-panel p-0.5 rounded-lg text-xs font-sans border border-border">
+          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-sans border border-slate-200">
             {[
               { key: 'day', label: '日' },
               { key: 'month', label: '月度' },
@@ -802,8 +846,8 @@ export default function BenefitEvaluationPage() {
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === p.key
-                    ? 'font-bold bg-primary text-primary-foreground shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground',
+                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900',
                 )}
               >
                 {p.label}
@@ -813,64 +857,64 @@ export default function BenefitEvaluationPage() {
 
           {/* 时间选择器 */}
           {timeDim === 'day' && (
-            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
               />
             </div>
           )}
 
           {timeDim === 'month' && (
-            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
               <input
                 type="month"
                 value={selectedMonthRange.start}
                 onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
                 title="起始月份"
               />
-              <span className="text-muted-foreground font-sans">至</span>
+              <span className="text-slate-400 font-sans">至</span>
               <input
                 type="month"
                 value={selectedMonthRange.end}
                 onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
+                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
                 title="结束月份"
               />
             </div>
           )}
 
           {timeDim === 'quarter' && (
-            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
               <select
                 value={selectedQuarter}
                 onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="bg-transparent border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
-                <option value="2026-Q1" className="bg-card text-foreground">2026年 第1季度 (Q1)</option>
-                <option value="2026-Q2" className="bg-card text-foreground">2026年 第2季度 (Q2)</option>
-                <option value="2026-Q3" className="bg-card text-foreground">2026年 第3季度 (Q3)</option>
-                <option value="2026-Q4" className="bg-card text-foreground">2026年 第4季度 (Q4)</option>
+                <option value="2026-Q1">2026年 第1季度 (Q1)</option>
+                <option value="2026-Q2">2026年 第2季度 (Q2)</option>
+                <option value="2026-Q3">2026年 第3季度 (Q3)</option>
+                <option value="2026-Q4">2026年 第4季度 (Q4)</option>
               </select>
             </div>
           )}
 
           {timeDim === 'year' && (
-            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+              <Calendar className="size-3.5 text-slate-400 shrink-0" />
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-transparent border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
-                <option value="2026" className="bg-card text-foreground">2026 年度</option>
-                <option value="2025" className="bg-card text-foreground">2025 年度</option>
+                <option value="2026">2026 年度</option>
+                <option value="2025">2025 年度</option>
               </select>
             </div>
           )}
@@ -878,31 +922,31 @@ export default function BenefitEvaluationPage() {
           <button
             type="button"
             onClick={() => alert('已导出项目经济效益台账与算法核算报告 (Excel / PDF)！')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-foreground bg-panel hover:bg-accent/40 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
-            <Download className="size-3.5 text-muted-foreground" />
+            <Download className="size-3.5 text-slate-500" />
             <span>导出报表</span>
           </button>
         </div>
       </div>
 
       {/* 2. 核心大模块导航选项卡 (储能效益评估 | 热泵效益评估) */}
-      <div className="bg-card p-2 rounded-xl border border-border shadow-xs flex items-center justify-between flex-wrap gap-2">
+      <div className="bg-white p-2 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2 overflow-x-auto">
           {[
             {
               key: 'storage',
               label: '储能效益评估',
               icon: BatteryCharging,
-              color: 'text-primary',
-              activeBg: 'bg-primary/20 border-primary/30 text-primary',
+              color: 'text-blue-600',
+              activeBg: 'bg-blue-50 border-blue-200 text-blue-700',
             },
             {
               key: 'heatpump',
               label: '热泵效益评估',
               icon: Flame,
-              color: 'text-amber-400',
-              activeBg: 'bg-amber-500/20 border-amber-500/30 text-amber-400',
+              color: 'text-orange-600',
+              activeBg: 'bg-orange-50 border-orange-200 text-orange-700',
             },
           ].map((m) => {
             const Icon = m.icon
@@ -916,13 +960,13 @@ export default function BenefitEvaluationPage() {
                   'flex items-center gap-2 px-3.5 py-2 rounded-lg border text-left transition-all cursor-pointer select-none shrink-0',
                   isActive
                     ? `${m.activeBg} font-bold shadow-2xs`
-                    : 'bg-panel border-border text-muted-foreground hover:text-foreground hover:bg-accent/30',
+                    : 'bg-slate-50/70 border-slate-100 text-slate-600 hover:bg-slate-100 hover:border-slate-200',
                 )}
               >
                 <div
                   className={cn(
                     'size-6 rounded-md flex items-center justify-center shrink-0',
-                    isActive ? 'bg-card shadow-2xs' : 'bg-panel text-muted-foreground',
+                    isActive ? 'bg-white shadow-2xs' : 'bg-slate-200/60 text-slate-500',
                   )}
                 >
                   <Icon className={cn('size-3.5', isActive && m.color)} />
@@ -941,108 +985,108 @@ export default function BenefitEvaluationPage() {
         <div className="space-y-3.5">
           {/* 储能 8 大核心评估指标卡 (双行 4x2 布局) */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">日充电量</span>
-                <BatteryCharging className="size-3.5 text-primary" />
+                <BatteryCharging className="size-3.5 text-blue-500" />
               </div>
-              <div className="text-base font-bold font-mono text-foreground">
+              <div className="text-base font-bold font-mono text-slate-800">
                 {storageSummary.totalDailyChargeKwh}
               </div>
-              <div className="text-[10px] text-muted-foreground font-mono mt-0.5">kWh (当期合计)</div>
+              <div className="text-[10px] text-slate-400 font-mono mt-0.5">kWh (当期合计)</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">日放电量</span>
-                <Zap className="size-3.5 text-emerald-400" />
+                <Zap className="size-3.5 text-emerald-500" />
               </div>
-              <div className="text-base font-bold font-mono text-foreground">
+              <div className="text-base font-bold font-mono text-slate-800">
                 {storageSummary.totalDailyDischargeKwh}
               </div>
-              <div className="text-[10px] text-muted-foreground font-mono mt-0.5">kWh (尖峰消纳)</div>
+              <div className="text-[10px] text-slate-400 font-mono mt-0.5">kWh (尖峰消纳)</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">日套利收益</span>
-                <Coins className="size-3.5 text-emerald-400" />
+                <Coins className="size-3.5 text-emerald-600" />
               </div>
-              <div className="text-base font-bold font-mono text-emerald-400">
+              <div className="text-base font-bold font-mono text-emerald-600">
                 ¥{storageSummary.totalDailyRevenueYuan}
               </div>
-              <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">
+              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">
                 月累 ¥{storageSummary.totalMonthlyWan}万
               </div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">综合效率</span>
-                <Gauge className="size-3.5 text-primary" />
+                <Gauge className="size-3.5 text-[#1677ff]" />
               </div>
-              <div className="text-base font-bold font-mono text-primary">
+              <div className="text-base font-bold font-mono text-[#1677ff]">
                 {storageSummary.avgEfficiency}
               </div>
-              <div className="text-[10px] text-primary font-mono mt-0.5">放电 / 充电比</div>
+              <div className="text-[10px] text-blue-500 font-mono mt-0.5">放电 / 充电比</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">市充占比</span>
-                <Activity className="size-3.5 text-muted-foreground" />
+                <Activity className="size-3.5 text-slate-500" />
               </div>
-              <div className="text-base font-bold font-mono text-foreground">
+              <div className="text-base font-bold font-mono text-slate-700">
                 {(100 - parseFloat(storageSummary.avgGreenChargeRatio)).toFixed(1)}%
               </div>
-              <div className="text-[10px] text-muted-foreground font-mono mt-0.5">夜间谷电市充</div>
+              <div className="text-[10px] text-slate-400 font-mono mt-0.5">夜间谷电市充</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">绿充占比</span>
-                <Leaf className="size-3.5 text-emerald-400" />
+                <Leaf className="size-3.5 text-emerald-600" />
               </div>
-              <div className="text-base font-bold font-mono text-emerald-400">
+              <div className="text-base font-bold font-mono text-emerald-600">
                 {storageSummary.avgGreenChargeRatio}
               </div>
-              <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">光伏绿电直充</div>
+              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">光伏绿电直充</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">尖放占比</span>
-                <TrendingUp className="size-3.5 text-purple-400" />
+                <TrendingUp className="size-3.5 text-purple-600" />
               </div>
-              <div className="text-base font-bold font-mono text-purple-400">
+              <div className="text-base font-bold font-mono text-purple-600">
                 {storageSummary.avgCritPeakDischarge}
               </div>
-              <div className="text-[10px] text-purple-400 font-mono mt-0.5">尖峰高电价释放</div>
+              <div className="text-[10px] text-purple-500 font-mono mt-0.5">尖峰高电价释放</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">峰放占比</span>
-                <TrendingUp className="size-3.5 text-primary" />
+                <TrendingUp className="size-3.5 text-blue-600" />
               </div>
-              <div className="text-base font-bold font-mono text-primary">
+              <div className="text-base font-bold font-mono text-blue-600">
                 {(100 - parseFloat(storageSummary.avgCritPeakDischarge)).toFixed(1)}%
               </div>
-              <div className="text-[10px] text-primary font-mono mt-0.5">高峰时段放电</div>
+              <div className="text-[10px] text-blue-500 font-mono mt-0.5">高峰时段放电</div>
             </div>
           </div>
 
           {/* 储能图表分析区 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-            <div className="lg:col-span-2 bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
+            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-primary" />
-                  <h3 className="text-xs font-bold text-foreground">
+                  <span className="size-2 rounded-full bg-blue-500" />
+                  <h3 className="text-xs font-bold text-slate-800">
                     储能系统充放电量时序平衡与峰谷套利收益趋势
                   </h3>
                 </div>
-                <span className="text-[10px] font-mono text-muted-foreground">
+                <span className="text-[10px] font-mono text-slate-400">
                   充电量 (千kWh) / 放电量 (千kWh) / 套利收益 (千元)
                 </span>
               </div>
@@ -1060,45 +1104,45 @@ export default function BenefitEvaluationPage() {
               </div>
             </div>
 
-            <div className="bg-card rounded-xl border border-border p-4 shadow-xs flex flex-col justify-between">
+            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-emerald-400" />
-                    <h3 className="text-xs font-bold text-foreground">储能充电来源与放电时段结构</h3>
+                    <span className="size-2 rounded-full bg-emerald-500" />
+                    <h3 className="text-xs font-bold text-slate-800">储能充电来源与放电时段结构</h3>
                   </div>
-                  <span className="text-[10px] text-muted-foreground">综合平均</span>
+                  <span className="text-[10px] text-slate-400">综合平均</span>
                 </div>
                 <div className="space-y-3 font-mono text-xs">
                   <div>
-                    <div className="flex justify-between text-muted-foreground mb-1 text-[11px]">
+                    <div className="flex justify-between text-slate-600 mb-1 text-[11px]">
                       <span>绿电充电占比 vs 市电充电</span>
-                      <span className="font-bold text-emerald-400">绿 71.5% / 市 28.5%</span>
+                      <span className="font-bold text-emerald-600">绿 71.5% / 市 28.5%</span>
                     </div>
-                    <div className="w-full bg-panel rounded-full h-2 flex overflow-hidden">
+                    <div className="w-full bg-slate-100 rounded-full h-2 flex overflow-hidden">
                       <div className="bg-emerald-500 h-2" style={{ width: '71.5%' }} />
-                      <div className="bg-muted-foreground/40 h-2" style={{ width: '28.5%' }} />
+                      <div className="bg-slate-400 h-2" style={{ width: '28.5%' }} />
                     </div>
                   </div>
 
                   <div>
-                    <div className="flex justify-between text-muted-foreground mb-1 text-[11px]">
+                    <div className="flex justify-between text-slate-600 mb-1 text-[11px]">
                       <span>尖峰放电占比 vs 高峰放电</span>
-                      <span className="font-bold text-purple-400">尖 62.0% / 峰 38.0%</span>
+                      <span className="font-bold text-purple-600">尖 62.0% / 峰 38.0%</span>
                     </div>
-                    <div className="w-full bg-panel rounded-full h-2 flex overflow-hidden">
+                    <div className="w-full bg-slate-100 rounded-full h-2 flex overflow-hidden">
                       <div className="bg-purple-500 h-2" style={{ width: '62%' }} />
-                      <div className="bg-primary h-2" style={{ width: '38%' }} />
+                      <div className="bg-blue-500 h-2" style={{ width: '38%' }} />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-panel border border-border text-[11px] text-foreground font-sans mt-3 space-y-1">
-                <div className="font-bold flex items-center gap-1 text-primary">
-                  <Sparkles className="size-3.5 text-primary" /> 储能套利调度策略
+              <div className="p-2.5 rounded-lg bg-blue-50/60 border border-blue-100 text-[11px] text-blue-900 font-sans mt-3 space-y-1">
+                <div className="font-bold flex items-center gap-1">
+                  <Sparkles className="size-3.5 text-blue-600" /> 储能套利调度策略
                 </div>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-[10px] text-slate-600">
                   采用「午间光伏富余大发绿充 + 夜间深谷低价市充」以及「早尖峰 + 晚高峰两充两放」智能调度策略，最大化电价差套利收益。
                 </p>
               </div>
@@ -1106,16 +1150,16 @@ export default function BenefitEvaluationPage() {
           </div>
 
           {/* 储能效益台账明细表 (含用户要求的全部 8 项指标 + 详情按钮) */}
-          <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-            <div className="p-3.5 border-b border-border/60 flex items-center justify-between bg-panel">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
               <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-primary" />
-                <h3 className="text-xs font-bold text-foreground">储能电站效益评估与充放电台账明细表</h3>
-                <span className="text-[10px] text-muted-foreground font-mono">
-                  共 {STORAGE_BENEFIT_DATA.length} 个电站
+                <span className="size-2 rounded-full bg-blue-600" />
+                <h3 className="text-xs font-bold text-slate-800">储能电站效益评估与充放电台账明细表</h3>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  共 {filteredStorageData.length} 个电站
                 </span>
               </div>
-              <span className="text-[10px] text-muted-foreground font-mono">
+              <span className="text-[10px] text-slate-500 font-mono">
                 数据更新频率：每日0点自动结算日账单
               </span>
             </div>
@@ -1123,7 +1167,7 @@ export default function BenefitEvaluationPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left border-collapse">
                 <thead>
-                  <tr className="bg-panel text-muted-foreground font-bold border-b border-border font-sans">
+                  <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                     <th className="py-2.5 px-3 whitespace-nowrap">储能项目名称</th>
                     <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
                     <th className="py-2.5 px-3 whitespace-nowrap">额定规模</th>
@@ -1139,49 +1183,49 @@ export default function BenefitEvaluationPage() {
                     <th className="py-2.5 px-3 whitespace-nowrap text-center">数值计算推导</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60 font-mono text-foreground">
-                  {STORAGE_BENEFIT_DATA.map((item) => (
-                    <tr key={item.id} className="hover:bg-accent/30 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-foreground">
+                <tbody className="divide-y divide-slate-100 font-mono">
+                  {filteredStorageData.map((item) => (
+                    <tr key={item.id} className="hover:bg-blue-50/40 transition-colors">
+                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
                         {item.name}
                       </td>
-                      <td className="py-2.5 px-3 font-sans text-muted-foreground">
-                        <div className="text-foreground">{item.company}</div>
-                        <div className="text-[10px] text-muted-foreground">{item.park}</div>
+                      <td className="py-2.5 px-3 font-sans text-slate-600">
+                        <div>{item.company}</div>
+                        <div className="text-[10px] text-slate-400">{item.park}</div>
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-primary">{item.capacity}</td>
-                      <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                      <td className="py-2.5 px-3 font-bold text-blue-700">{item.capacity}</td>
+                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                         {item.chargeKwh.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                         {item.dischargeKwh.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                         ¥{item.revenueYuan.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-primary">
+                      <td className="py-2.5 px-3 text-center font-bold text-[#1677ff]">
                         {item.efficiency}%
                       </td>
-                      <td className="py-2.5 px-3 text-center text-muted-foreground">
+                      <td className="py-2.5 px-3 text-center text-slate-600">
                         {item.gridChargeRatio}%
                       </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
                         {item.greenChargeRatio}%
                       </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-purple-400">
+                      <td className="py-2.5 px-3 text-center font-bold text-purple-600">
                         {item.criticalPeakDischargeRatio}%
                       </td>
-                      <td className="py-2.5 px-3 text-center text-primary">
+                      <td className="py-2.5 px-3 text-center text-blue-600">
                         {item.peakDischargeRatio}%
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
                         ¥{item.monthlyRevenueWan}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-sans">
+                      <td className="py-2.5 px-3 text-center">
                         <button
                           type="button"
                           onClick={() => handleOpenCalcDetail('storage', item)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary/20 text-primary hover:bg-primary/30 text-[11px] font-sans font-bold transition-all border border-primary/30 cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-[#1677ff] hover:bg-blue-100 text-[11px] font-sans font-bold transition-all border border-blue-200 cursor-pointer shadow-2xs"
                         >
                           <Calculator className="size-3" />
                           <span>算法详情</span>
@@ -1203,106 +1247,106 @@ export default function BenefitEvaluationPage() {
         <div className="space-y-3.5">
           {/* 热泵 8 大核心评估指标卡 (双行 4x2 布局) */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">市电量</span>
-                <Zap className="size-3.5 text-muted-foreground" />
+                <Zap className="size-3.5 text-slate-500" />
               </div>
-              <div className="text-base font-bold font-mono text-foreground">
+              <div className="text-base font-bold font-mono text-slate-800">
                 {heatPumpSummary.totalGridKwh}
               </div>
-              <div className="text-[10px] text-muted-foreground font-mono mt-0.5">kWh (市网外购)</div>
+              <div className="text-[10px] text-slate-400 font-mono mt-0.5">kWh (市网外购)</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">绿电量</span>
-                <Leaf className="size-3.5 text-emerald-400" />
+                <Leaf className="size-3.5 text-emerald-500" />
               </div>
-              <div className="text-base font-bold font-mono text-emerald-400">
+              <div className="text-base font-bold font-mono text-emerald-600">
                 {heatPumpSummary.totalGreenKwh}
               </div>
-              <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">kWh (光伏消纳)</div>
+              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">kWh (光伏消纳)</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">市电费</span>
-                <DollarSign className="size-3.5 text-muted-foreground" />
+                <DollarSign className="size-3.5 text-slate-500" />
               </div>
-              <div className="text-base font-bold font-mono text-foreground">
+              <div className="text-base font-bold font-mono text-slate-800">
                 ¥{heatPumpSummary.totalGridCost}
               </div>
-              <div className="text-[10px] text-muted-foreground font-mono mt-0.5">元 (综合电费)</div>
+              <div className="text-[10px] text-slate-400 font-mono mt-0.5">元 (综合电费)</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">绿电费</span>
-                <DollarSign className="size-3.5 text-emerald-400" />
+                <DollarSign className="size-3.5 text-emerald-500" />
               </div>
-              <div className="text-base font-bold font-mono text-emerald-400">
+              <div className="text-base font-bold font-mono text-emerald-600">
                 ¥{heatPumpSummary.totalGreenCost}
               </div>
-              <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">元 (绿电交易)</div>
+              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">元 (绿电交易)</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">绿电占比</span>
-                <Leaf className="size-3.5 text-emerald-400" />
+                <Leaf className="size-3.5 text-emerald-600" />
               </div>
-              <div className="text-base font-bold font-mono text-emerald-400">
+              <div className="text-base font-bold font-mono text-emerald-600">
                 {heatPumpSummary.greenRatio}
               </div>
-              <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">清洁电力替代率</div>
+              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">清洁电力替代率</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">尖峰占比</span>
-                <Flame className="size-3.5 text-amber-400" />
+                <Flame className="size-3.5 text-amber-500" />
               </div>
-              <div className="text-base font-bold font-mono text-amber-400">
+              <div className="text-base font-bold font-mono text-amber-600">
                 {heatPumpSummary.avgPeakRatio}
               </div>
-              <div className="text-[10px] text-amber-400/80 font-mono mt-0.5">峰段运行负荷</div>
+              <div className="text-[10px] text-amber-600/80 font-mono mt-0.5">峰段运行负荷</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">日节费收益</span>
-                <Coins className="size-3.5 text-emerald-400" />
+                <Coins className="size-3.5 text-emerald-600" />
               </div>
-              <div className="text-base font-bold font-mono text-emerald-400">
+              <div className="text-base font-bold font-mono text-emerald-600">
                 ¥{heatPumpSummary.totalDailySavings}
               </div>
-              <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">相比传统燃气</div>
+              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">相比传统燃气</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">月累计节费</span>
-                <TrendingUp className="size-3.5 text-primary" />
+                <TrendingUp className="size-3.5 text-blue-600" />
               </div>
-              <div className="text-base font-bold font-mono text-primary">
+              <div className="text-base font-bold font-mono text-[#1677ff]">
                 ¥{heatPumpSummary.totalMonthlySavingsWan} <span className="text-xs">万</span>
               </div>
-              <div className="text-[10px] text-primary font-mono mt-0.5">万元 / 当期</div>
+              <div className="text-[10px] text-blue-500 font-mono mt-0.5">万元 / 当期</div>
             </div>
           </div>
 
           {/* 热泵图表分析区 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-            <div className="lg:col-span-2 bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
+            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-amber-400" />
-                  <h3 className="text-xs font-bold text-foreground">
+                  <span className="size-2 rounded-full bg-orange-500" />
+                  <h3 className="text-xs font-bold text-slate-800">
                     热泵用电结构 (市电/绿电) 与替代化石燃料费用节约时序趋势
                   </h3>
                 </div>
-                <span className="text-[10px] font-mono text-muted-foreground">
+                <span className="text-[10px] font-mono text-slate-400">
                   市电量 (万kWh) / 绿电量 (万kWh) / 节约气费 (万元)
                 </span>
               </div>
@@ -1320,50 +1364,50 @@ export default function BenefitEvaluationPage() {
               </div>
             </div>
 
-            <div className="bg-card rounded-xl border border-border p-4 shadow-xs flex flex-col justify-between">
+            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-amber-400" />
-                    <h3 className="text-xs font-bold text-foreground">热泵供热替代效益模型</h3>
+                    <span className="size-2 rounded-full bg-orange-500" />
+                    <h3 className="text-xs font-bold text-slate-800">热泵供热替代效益模型</h3>
                   </div>
-                  <span className="text-[10px] font-mono text-emerald-400 font-bold">COP 3.96 (加权)</span>
+                  <span className="text-[10px] font-mono text-emerald-600 font-bold">COP 3.96 (加权)</span>
                 </div>
 
                 <div className="space-y-3 font-mono text-xs">
                   <div>
-                    <div className="flex justify-between text-muted-foreground mb-1 text-[11px]">
+                    <div className="flex justify-between text-slate-600 mb-1 text-[11px]">
                       <span>能源消费清洁化占比 (绿电比例)</span>
-                      <span className="font-bold text-emerald-400">72.0%</span>
+                      <span className="font-bold text-emerald-600">72.0%</span>
                     </div>
-                    <div className="w-full bg-panel rounded-full h-2 flex overflow-hidden">
+                    <div className="w-full bg-slate-100 rounded-full h-2 flex overflow-hidden">
                       <div className="bg-emerald-500 h-2" style={{ width: '72%' }} />
-                      <div className="bg-muted-foreground/30 h-2" style={{ width: '28%' }} />
+                      <div className="bg-slate-300 h-2" style={{ width: '28%' }} />
                     </div>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-panel border border-border space-y-1.5 text-[11px] text-foreground">
+                  <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5 text-[11px] text-slate-700">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">替代天然气单价基准：</span>
+                      <span className="text-slate-500">替代天然气单价基准：</span>
                       <span className="font-bold font-mono">¥3.60 元/m³</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">原燃气锅炉综合热效率：</span>
+                      <span className="text-slate-500">原燃气锅炉综合热效率：</span>
                       <span className="font-bold font-mono">88.0%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">热泵综合能效 COP：</span>
-                      <span className="font-bold font-mono text-emerald-400">3.85 ~ 4.12</span>
+                      <span className="text-slate-500">热泵综合能效 COP：</span>
+                      <span className="font-bold font-mono text-emerald-600">3.85 ~ 4.12</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-panel border border-border text-[11px] text-foreground font-sans mt-3">
-                <div className="font-bold flex items-center gap-1 text-amber-400">
-                  <Flame className="size-3.5 text-amber-400" /> 热泵替代天然气效益测算
+              <div className="p-2.5 rounded-lg bg-orange-50/60 border border-orange-100 text-[11px] text-orange-900 font-sans mt-3">
+                <div className="font-bold flex items-center gap-1">
+                  <Flame className="size-3.5 text-orange-600" /> 热泵替代天然气效益测算
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
+                <p className="text-[10px] text-slate-600 mt-0.5">
                   1份电能可驱动产生近 4 份热能，且 72% 以上由光伏绿电驱动，实现零碳排供热与大幅度运行成本削减。
                 </p>
               </div>
@@ -1371,18 +1415,18 @@ export default function BenefitEvaluationPage() {
           </div>
 
           {/* 热泵效益台账明细表 (含用户要求的全部 6 项指标 + 详情按钮) */}
-          <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-            <div className="p-3.5 border-b border-border/60 flex items-center justify-between bg-panel">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
               <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-amber-400" />
-                <h3 className="text-xs font-bold text-foreground">
+                <span className="size-2 rounded-full bg-orange-600" />
+                <h3 className="text-xs font-bold text-slate-800">
                   工业水源/地源热泵效益评估与电费节费明细表
                 </h3>
-                <span className="text-[10px] text-muted-foreground font-mono">
+                <span className="text-[10px] text-slate-400 font-mono">
                   共 {HEAT_PUMP_BENEFIT_DATA.length} 个项目
                 </span>
               </div>
-              <span className="text-[10px] text-muted-foreground font-mono">
+              <span className="text-[10px] text-slate-500 font-mono">
                 数据采集：智能热量表 + 绿电分时计量表
               </span>
             </div>
@@ -1390,7 +1434,7 @@ export default function BenefitEvaluationPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left border-collapse">
                 <thead>
-                  <tr className="bg-panel text-muted-foreground font-bold border-b border-border font-sans">
+                  <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                     <th className="py-2.5 px-3 whitespace-nowrap">热泵项目名称</th>
                     <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
                     <th className="py-2.5 px-3 whitespace-nowrap">装机热功率</th>
@@ -1406,49 +1450,49 @@ export default function BenefitEvaluationPage() {
                     <th className="py-2.5 px-3 whitespace-nowrap text-center">数值计算推导</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60 font-mono text-foreground">
-                  {HEAT_PUMP_BENEFIT_DATA.map((item) => (
-                    <tr key={item.id} className="hover:bg-accent/30 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-foreground">
+                <tbody className="divide-y divide-slate-100 font-mono">
+                  {filteredHeatPumpData.map((item) => (
+                    <tr key={item.id} className="hover:bg-orange-50/40 transition-colors">
+                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
                         {item.name}
                       </td>
-                      <td className="py-2.5 px-3 font-sans text-muted-foreground">
-                        <div className="text-foreground">{item.company}</div>
-                        <div className="text-[10px] text-muted-foreground">{item.park}</div>
+                      <td className="py-2.5 px-3 font-sans text-slate-600">
+                        <div>{item.company}</div>
+                        <div className="text-[10px] text-slate-400">{item.park}</div>
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-amber-400">{item.capacity}</td>
-                      <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                      <td className="py-2.5 px-3 font-bold text-orange-700">{item.capacity}</td>
+                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                         {item.gridPowerKwh.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                         {item.greenPowerKwh.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right text-muted-foreground">
+                      <td className="py-2.5 px-3 text-right text-slate-700">
                         ¥{item.gridCostYuan.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                         ¥{item.greenCostYuan.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
                         {item.greenPowerRatio}%
                       </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-amber-400">
+                      <td className="py-2.5 px-3 text-center font-bold text-amber-600">
                         {item.peakRatio}%
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                         {item.replacedGasM3.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                         ¥{item.dailySavingsYuan.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
                         ¥{item.monthlySavingsWan}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-sans">
+                      <td className="py-2.5 px-3 text-center">
                         <button
                           type="button"
                           onClick={() => handleOpenCalcDetail('heatpump', item)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 text-[11px] font-sans font-bold transition-all border border-amber-500/30 cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 hover:bg-orange-100 text-[11px] font-sans font-bold transition-all border border-orange-200 cursor-pointer shadow-2xs"
                         >
                           <Calculator className="size-3" />
                           <span>算法详情</span>
@@ -1470,97 +1514,97 @@ export default function BenefitEvaluationPage() {
         <div className="space-y-3.5">
           {/* 光伏核心指标卡 */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">日总发电量</span>
-                <Sun className="size-3.5 text-amber-400" />
+                <Sun className="size-3.5 text-amber-500" />
               </div>
-              <div className="text-base font-bold font-mono text-foreground">
+              <div className="text-base font-bold font-mono text-slate-800">
                 {pvSummary.totalDailyGen}
               </div>
-              <div className="text-[10px] text-muted-foreground font-mono mt-0.5">kWh (清洁绿电)</div>
+              <div className="text-[10px] text-slate-400 font-mono mt-0.5">kWh (清洁绿电)</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">自发自用量</span>
-                <Zap className="size-3.5 text-emerald-400" />
+                <Zap className="size-3.5 text-emerald-500" />
               </div>
-              <div className="text-base font-bold font-mono text-emerald-400">
+              <div className="text-base font-bold font-mono text-emerald-600">
                 {pvSummary.totalSelfKwh}
               </div>
-              <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">kWh (厂内就地消纳)</div>
+              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">kWh (厂内就地消纳)</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">余电上网量</span>
-                <ArrowUpRight className="size-3.5 text-primary" />
+                <ArrowUpRight className="size-3.5 text-blue-500" />
               </div>
-              <div className="text-base font-bold font-mono text-primary">
+              <div className="text-base font-bold font-mono text-blue-600">
                 {pvSummary.totalGridKwh}
               </div>
-              <div className="text-[10px] text-primary font-mono mt-0.5">kWh (反送电网售电)</div>
+              <div className="text-[10px] text-blue-500 font-mono mt-0.5">kWh (反送电网售电)</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">自用比例</span>
-                <Gauge className="size-3.5 text-primary" />
+                <Gauge className="size-3.5 text-[#1677ff]" />
               </div>
-              <div className="text-base font-bold font-mono text-primary">
+              <div className="text-base font-bold font-mono text-[#1677ff]">
                 {pvSummary.avgSelfUseRatio}
               </div>
-              <div className="text-[10px] text-primary font-mono mt-0.5">就地消纳率</div>
+              <div className="text-[10px] text-blue-500 font-mono mt-0.5">就地消纳率</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">日综合收益</span>
-                <Coins className="size-3.5 text-emerald-400" />
+                <Coins className="size-3.5 text-emerald-600" />
               </div>
-              <div className="text-base font-bold font-mono text-emerald-400">
+              <div className="text-base font-bold font-mono text-emerald-600">
                 ¥{pvSummary.totalDailyBenefit}
               </div>
-              <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">含自用节费+上网</div>
+              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">含自用节费+上网</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">月累计收益</span>
-                <TrendingUp className="size-3.5 text-emerald-400" />
+                <TrendingUp className="size-3.5 text-emerald-700" />
               </div>
-              <div className="text-base font-bold font-mono text-emerald-400">
+              <div className="text-base font-bold font-mono text-emerald-700">
                 ¥{pvSummary.totalMonthlyBenefitWan} <span className="text-xs font-sans">万元</span>
               </div>
-              <div className="text-[10px] text-muted-foreground font-mono mt-0.5">万元 / 当期</div>
+              <div className="text-[10px] text-slate-400 font-mono mt-0.5">万元 / 当期</div>
             </div>
 
-            <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
+            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-400 mb-1">
                 <span className="text-[11px]">日核证减碳</span>
-                <Leaf className="size-3.5 text-purple-400" />
+                <Leaf className="size-3.5 text-purple-600" />
               </div>
-              <div className="text-base font-bold font-mono text-purple-400">
+              <div className="text-base font-bold font-mono text-purple-600">
                 {pvSummary.totalCarbonReduction} <span className="text-xs font-sans">tCO₂</span>
               </div>
-              <div className="text-[10px] text-purple-400 font-mono mt-0.5">吨二氧化碳减排</div>
+              <div className="text-[10px] text-purple-500 font-mono mt-0.5">吨二氧化碳减排</div>
             </div>
           </div>
 
           {/* 光伏效益台账明细表 */}
-          <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-            <div className="p-3.5 border-b border-border/60 flex items-center justify-between bg-panel">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
               <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-amber-400" />
-                <h3 className="text-xs font-bold text-foreground">
+                <span className="size-2 rounded-full bg-amber-500" />
+                <h3 className="text-xs font-bold text-slate-800">
                   屋顶分布式光伏项目发电效益与电费节约明细表
                 </h3>
-                <span className="text-[10px] text-muted-foreground font-mono">
+                <span className="text-[10px] text-slate-400 font-mono">
                   共 {PV_BENEFIT_DATA.length} 个光伏电站
                 </span>
               </div>
-              <span className="text-[10px] text-muted-foreground font-mono">
+              <span className="text-[10px] text-slate-500 font-mono">
                 计量源：关口双向电表 + 逆变器通信网关
               </span>
             </div>
@@ -1568,7 +1612,7 @@ export default function BenefitEvaluationPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left border-collapse">
                 <thead>
-                  <tr className="bg-panel text-muted-foreground font-bold border-b border-border font-sans">
+                  <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                     <th className="py-2.5 px-3 whitespace-nowrap">光伏项目名称</th>
                     <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
                     <th className="py-2.5 px-3 whitespace-nowrap">装机容量</th>
@@ -1584,49 +1628,49 @@ export default function BenefitEvaluationPage() {
                     <th className="py-2.5 px-3 whitespace-nowrap text-center">数值计算推导</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60 font-mono text-foreground">
+                <tbody className="divide-y divide-slate-100 font-mono">
                   {PV_BENEFIT_DATA.map((item) => (
-                    <tr key={item.id} className="hover:bg-accent/30 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-foreground">
+                    <tr key={item.id} className="hover:bg-amber-50/40 transition-colors">
+                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
                         {item.name}
                       </td>
-                      <td className="py-2.5 px-3 font-sans text-muted-foreground">
-                        <div className="text-foreground">{item.company}</div>
-                        <div className="text-[10px] text-muted-foreground">{item.park}</div>
+                      <td className="py-2.5 px-3 font-sans text-slate-600">
+                        <div>{item.company}</div>
+                        <div className="text-[10px] text-slate-400">{item.park}</div>
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-amber-400">{item.capacity}</td>
-                      <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                      <td className="py-2.5 px-3 font-bold text-amber-700">{item.capacity}</td>
+                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                         {item.dailyGenKwh.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                         {item.dailySelfKwh.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right text-primary">
+                      <td className="py-2.5 px-3 text-right text-blue-600">
                         {item.dailyGridKwh.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
                         {item.selfUseRatio}%
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                         ¥{item.selfSavingsYuan.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right text-primary">
+                      <td className="py-2.5 px-3 text-right text-blue-600">
                         ¥{item.gridRevenueYuan.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
                         ¥{item.totalBenefitYuan.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-amber-400">
+                      <td className="py-2.5 px-3 text-center font-bold text-amber-600">
                         {item.dailyHours} h
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
                         ¥{item.monthlyBenefitWan}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-sans">
+                      <td className="py-2.5 px-3 text-center">
                         <button
                           type="button"
                           onClick={() => handleOpenCalcDetail('pv', item)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 text-[11px] font-sans font-bold transition-all border border-amber-500/30 cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 hover:bg-amber-100 text-[11px] font-sans font-bold transition-all border border-amber-200 cursor-pointer shadow-2xs"
                         >
                           <Calculator className="size-3" />
                           <span>算法详情</span>
@@ -1642,69 +1686,68 @@ export default function BenefitEvaluationPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* ========================================================================= */}
       {/* 模块 D：全景综合评估 (Overview Module) */}
       {/* ========================================================================= */}
       {activeModule === 'overview' && (
         <div className="space-y-3.5">
           {/* 4 大宏观效益 KPI 仪表板 */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex items-center justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
               <div>
-                <span className="text-xs text-muted-foreground block">经济效益：当期节费与收益</span>
-                <div className="text-xl font-bold font-mono text-emerald-400 mt-0.5">
-                  ¥{summaryStats.totalSavingsWan} <span className="text-xs font-sans text-muted-foreground font-normal">万元</span>
+                <span className="text-xs text-slate-500 block">经济效益：当期节费与收益</span>
+                <div className="text-xl font-bold font-mono text-emerald-600 mt-0.5">
+                  ¥{summaryStats.totalSavingsWan} <span className="text-xs font-sans text-slate-500 font-normal">万元</span>
                 </div>
-                <span className="text-[10px] text-emerald-400 block mt-1 font-mono">
+                <span className="text-[10px] text-emerald-600 block mt-1 font-mono">
                   含电费节约 + 峰谷套利收益
                 </span>
               </div>
-              <div className="size-9 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <div className="size-9 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
                 <Coins className="size-4.5" />
               </div>
             </div>
 
-            <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex items-center justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
               <div>
-                <span className="text-xs text-muted-foreground block">环保效益：核证碳减排量</span>
-                <div className="text-xl font-bold font-mono text-purple-400 mt-0.5">
-                  {summaryStats.totalCarbonTons} <span className="text-xs font-sans text-muted-foreground font-normal">tCO₂</span>
+                <span className="text-xs text-slate-500 block">环保效益：核证碳减排量</span>
+                <div className="text-xl font-bold font-mono text-purple-600 mt-0.5">
+                  {summaryStats.totalCarbonTons} <span className="text-xs font-sans text-slate-500 font-normal">tCO₂</span>
                 </div>
-                <span className="text-[10px] text-purple-400 block mt-1 font-mono">
+                <span className="text-[10px] text-purple-600 block mt-1 font-mono">
                   折合标煤节约 {summaryStats.totalTce} tce
                 </span>
               </div>
-              <div className="size-9 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+              <div className="size-9 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
                 <CheckCircle2 className="size-4.5" />
               </div>
             </div>
 
-            <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex items-center justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
               <div>
-                <span className="text-xs text-muted-foreground block">加权实测内部收益率 (IRR)</span>
-                <div className="text-xl font-bold font-mono text-primary mt-0.5">
+                <span className="text-xs text-slate-500 block">加权实测内部收益率 (IRR)</span>
+                <div className="text-xl font-bold font-mono text-[#1677ff] mt-0.5">
                   {summaryStats.avgIrr}
                 </div>
-                <span className="text-[10px] text-muted-foreground block mt-1 font-mono">
+                <span className="text-[10px] text-slate-400 block mt-1 font-mono">
                   立项测算基准基线 14.0%
                 </span>
               </div>
-              <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
+              <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff]">
                 <TrendingUp className="size-4.5" />
               </div>
             </div>
 
-            <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex items-center justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
               <div>
-                <span className="text-xs text-muted-foreground block">加权平均动态投资回收期</span>
-                <div className="text-xl font-bold font-mono text-amber-400 mt-0.5">
+                <span className="text-xs text-slate-500 block">加权平均动态投资回收期</span>
+                <div className="text-xl font-bold font-mono text-amber-600 mt-0.5">
                   {summaryStats.avgPayback}
                 </div>
-                <span className="text-[10px] text-muted-foreground block mt-1 font-mono">
+                <span className="text-[10px] text-slate-400 block mt-1 font-mono">
                   全投资回收周期基准 5.0 年
                 </span>
               </div>
-              <div className="size-9 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <div className="size-9 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
                 <Calendar className="size-4.5" />
               </div>
             </div>
@@ -1712,15 +1755,15 @@ export default function BenefitEvaluationPage() {
 
           {/* 累计趋势与 MACC 成本阶梯 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-            <div className="lg:col-span-2 bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
+            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-primary" />
-                  <h3 className="text-xs font-bold text-foreground">
+                  <span className="size-2 rounded-full bg-[#1677ff]" />
+                  <h3 className="text-xs font-bold text-slate-800">
                     零碳项目月度累计节费收益与核证碳减排时序增长趋势
                   </h3>
                 </div>
-                <span className="text-[10px] font-mono text-muted-foreground">
+                <span className="text-[10px] font-mono text-slate-400">
                   累计节费 (万元) / 碳减排量 (tCO₂) / 标煤节约 (tce)
                 </span>
               </div>
@@ -1739,72 +1782,72 @@ export default function BenefitEvaluationPage() {
               </div>
             </div>
 
-            <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3 flex flex-col justify-between">
+            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-purple-400" />
-                    <h3 className="text-xs font-bold text-foreground">各技术路线单位减排成本 (MACC)</h3>
+                    <span className="size-2 rounded-full bg-purple-500" />
+                    <h3 className="text-xs font-bold text-slate-800">各技术路线单位减排成本 (MACC)</h3>
                   </div>
-                  <span className="text-[10px] font-mono text-purple-400 font-bold">元/tCO₂</span>
+                  <span className="text-[10px] font-mono text-purple-600 font-bold">元/tCO₂</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground font-mono mb-3">
+                <p className="text-[10px] text-slate-500 font-mono mb-3">
                   注：负值代表项目自带自偿性财务回报（节费覆盖投资）
                 </p>
 
                 <div className="space-y-4 font-mono text-xs pt-2">
                   <div>
-                    <div className="flex items-center justify-between text-foreground mb-1">
+                    <div className="flex items-center justify-between text-slate-700 mb-1">
                       <span className="font-bold truncate max-w-[150px]">屋顶分布式光伏</span>
-                      <span className="text-emerald-400 font-bold">-145 元/吨</span>
+                      <span className="text-emerald-600 font-bold">-145 元/吨</span>
                     </div>
-                    <div className="w-full bg-panel rounded-full h-2">
+                    <div className="w-full bg-slate-100 rounded-full h-2">
                       <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '85%' }} />
                     </div>
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between text-foreground mb-1">
+                    <div className="flex items-center justify-between text-slate-700 mb-1">
                       <span className="font-bold truncate max-w-[150px]">工业水源热泵</span>
-                      <span className="text-emerald-400 font-bold">-112 元/吨</span>
+                      <span className="text-emerald-600 font-bold">-112 元/吨</span>
                     </div>
-                    <div className="w-full bg-panel rounded-full h-2">
+                    <div className="w-full bg-slate-100 rounded-full h-2">
                       <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '70%' }} />
                     </div>
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between text-foreground mb-1">
+                    <div className="flex items-center justify-between text-slate-700 mb-1">
                       <span className="font-bold truncate max-w-[150px]">用户侧储能调峰</span>
-                      <span className="text-primary font-bold">-48 元/吨</span>
+                      <span className="text-blue-600 font-bold">-48 元/吨</span>
                     </div>
-                    <div className="w-full bg-panel rounded-full h-2">
-                      <div className="bg-primary h-2 rounded-full" style={{ width: '45%' }} />
+                    <div className="w-full bg-slate-100 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '45%' }} />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-panel border border-border text-[10px] text-muted-foreground font-mono mt-2">
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-[10px] text-slate-600 font-mono mt-2">
                 依据标准：MACC = (总投资折现 + 运维折现 - 节电收益折现) / 累计核证碳减排量
               </div>
             </div>
           </div>
 
           {/* 全技术总表 */}
-          <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-            <div className="p-3.5 border-b border-border/60 flex flex-wrap items-center justify-between gap-3 bg-panel">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-[#fafbfc]">
               <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-primary" />
-                <h3 className="text-xs font-bold text-foreground">
+                <span className="size-2 rounded-full bg-[#1677ff]" />
+                <h3 className="text-xs font-bold text-slate-800">
                   光伏、储能、热泵等零碳项目经济效益与环保指标总览表
                 </h3>
-                <span className="text-[10px] text-muted-foreground font-mono">
+                <span className="text-[10px] text-slate-400 font-mono">
                   共 {filteredMacroProjects.length} 项
                 </span>
               </div>
 
-              <div className="flex items-center gap-1 bg-panel p-0.5 rounded-lg text-xs font-sans border border-border">
+              <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-sans">
                 {[
                   { key: 'all', label: '全部项目' },
                   { key: '分布式光伏', label: '光伏项目' },
@@ -1818,8 +1861,8 @@ export default function BenefitEvaluationPage() {
                     className={cn(
                       'px-2.5 py-1 rounded-md transition-all cursor-pointer font-medium',
                       macroFilterType === tab.key
-                        ? 'bg-primary text-primary-foreground font-bold shadow-xs'
-                        : 'text-muted-foreground hover:text-foreground',
+                        ? 'bg-white text-[#1677ff] font-bold shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900',
                     )}
                   >
                     {tab.label}
@@ -1831,7 +1874,7 @@ export default function BenefitEvaluationPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left border-collapse">
                 <thead>
-                  <tr className="bg-panel text-muted-foreground font-bold border-b border-border font-sans">
+                  <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                     <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
                     <th className="py-2.5 px-3 whitespace-nowrap">技术类型</th>
                     <th className="py-2.5 px-3 whitespace-nowrap">所属单位 / 园区</th>
@@ -1846,44 +1889,44 @@ export default function BenefitEvaluationPage() {
                     <th className="py-2.5 px-3 whitespace-nowrap text-center">算法推导</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60 font-mono text-foreground">
+                <tbody className="divide-y divide-slate-100 font-mono">
                   {filteredMacroProjects.map((item) => (
-                    <tr key={item.id} className="hover:bg-accent/30 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-foreground">
+                    <tr key={item.id} className="hover:bg-blue-50/40 transition-colors">
+                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
                         {item.name}
                       </td>
                       <td className="py-2.5 px-3 font-sans">
-                        <span className="px-2 py-0.5 rounded bg-panel text-muted-foreground text-[10px] font-medium border border-border">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium border border-slate-200">
                           {item.type}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 font-sans text-muted-foreground">
-                        <div className="text-foreground">{item.base}</div>
-                        <div className="text-[10px] text-muted-foreground">{item.park}</div>
+                      <td className="py-2.5 px-3 font-sans text-slate-600">
+                        <div>{item.base}</div>
+                        <div className="text-[10px] text-slate-400">{item.park}</div>
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-foreground">{item.capacity}</td>
-                      <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                      <td className="py-2.5 px-3 font-bold text-slate-800">{item.capacity}</td>
+                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                         ¥{item.investment.toLocaleString()}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                         {item.actualGenKwh}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                         ¥{(item.savingsYuan + (item.arbitrageYuan || 0)).toFixed(1)} 万元
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-purple-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-purple-600">
                         {item.carbonReduction.toLocaleString()} 吨
                       </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-primary">
+                      <td className="py-2.5 px-3 text-center font-bold text-[#1677ff]">
                         {item.irr}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-amber-400">
+                      <td className="py-2.5 px-3 text-center font-bold text-amber-600">
                         {item.paybackYears} 年
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                         {item.macc} 元/吨
                       </td>
-                      <td className="py-2.5 px-3 text-center font-sans">
+                      <td className="py-2.5 px-3 text-center">
                         <button
                           type="button"
                           onClick={() => {
@@ -1898,7 +1941,7 @@ export default function BenefitEvaluationPage() {
                               handleOpenCalcDetail('pv', { ...pItem, name: item.name })
                             }
                           }}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary/20 text-primary hover:bg-primary/30 text-[11px] font-sans font-bold transition-all border border-primary/30 cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-[#1677ff] hover:bg-blue-100 text-[11px] font-sans font-bold transition-all border border-blue-200 cursor-pointer shadow-2xs"
                         >
                           <Calculator className="size-3" />
                           <span>算法详情</span>
@@ -1912,32 +1955,33 @@ export default function BenefitEvaluationPage() {
           </div>
         </div>
       )}
+      </div>
 
       {/* ========================================================================= */}
       {/* 核心弹窗：数值计算公式与推导演练溯源详情对话框 (加一详情按钮) */}
       {/* ========================================================================= */}
       {selectedCalcDetail.isOpen && selectedCalcDetail.data && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-card rounded-2xl shadow-2xl border border-border w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 text-foreground">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
             {/* 弹窗 Header */}
-            <div className="p-4 border-b border-border flex items-center justify-between bg-panel">
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-blue-50/50 via-white to-slate-50">
               <div className="flex items-center gap-2.5">
-                <div className="size-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shadow-xs">
+                <div className="size-9 rounded-lg bg-[#1677ff] text-white flex items-center justify-center shadow-xs">
                   <Calculator className="size-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-foreground">
+                    <h3 className="text-sm font-bold text-slate-800">
                       效益指标算法公式与数值推导溯源详情
                     </h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 font-sans">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 font-sans">
                       {selectedCalcDetail.type === 'storage' && '储能效益模型'}
                       {selectedCalcDetail.type === 'heatpump' && '热泵效益模型'}
                       {selectedCalcDetail.type === 'pv' && '光伏效益模型'}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 font-sans">
-                    项目：<span className="font-bold text-foreground">{selectedCalcDetail.data.name}</span> (
+                  <p className="text-xs text-slate-500 mt-0.5 font-sans">
+                    项目：<span className="font-bold text-slate-700">{selectedCalcDetail.data.name}</span> (
                     {selectedCalcDetail.data.capacity})
                   </p>
                 </div>
@@ -1945,7 +1989,7 @@ export default function BenefitEvaluationPage() {
               <button
                 type="button"
                 onClick={() => setSelectedCalcDetail({ isOpen: false, type: 'storage', data: null })}
-                className="size-8 rounded-lg hover:bg-accent/40 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+                className="size-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="size-5" />
               </button>
@@ -1954,28 +1998,28 @@ export default function BenefitEvaluationPage() {
             {/* 弹窗 Body (可滚动) */}
             <div className="p-5 overflow-y-auto space-y-4 text-xs">
               {/* 1. 项目计量上下文与数据采集源 */}
-              <div className="bg-panel p-3 rounded-xl border border-border grid grid-cols-2 md:grid-cols-4 gap-2 font-mono text-[11px]">
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 md:grid-cols-4 gap-2 font-mono text-[11px]">
                 <div>
-                  <span className="text-muted-foreground block text-[10px] font-sans">所属园区/基地</span>
-                  <span className="font-bold text-foreground font-sans">
+                  <span className="text-slate-400 block text-[10px] font-sans">所属园区/基地</span>
+                  <span className="font-bold text-slate-700 font-sans">
                     {selectedCalcDetail.data.company}
                   </span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block text-[10px] font-sans">计量源点位</span>
-                  <span className="font-bold text-foreground font-sans">
+                  <span className="text-slate-400 block text-[10px] font-sans">计量源点位</span>
+                  <span className="font-bold text-slate-700 font-sans">
                     {selectedCalcDetail.type === 'storage' && 'PCS变流柜双向智能表 #E-01'}
                     {selectedCalcDetail.type === 'heatpump' && '热泵进线计量表 + 超声波热量计'}
                     {selectedCalcDetail.type === 'pv' && '光伏并网防逆流双向关口表'}
                   </span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block text-[10px] font-sans">结算周期</span>
-                  <span className="font-bold text-foreground">2026-08-28 (日结)</span>
+                  <span className="text-slate-400 block text-[10px] font-sans">结算周期</span>
+                  <span className="font-bold text-slate-700">2026-08-28 (日结)</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block text-[10px] font-sans">数据核验状态</span>
-                  <span className="font-bold text-emerald-400 flex items-center gap-1 font-sans">
+                  <span className="text-slate-400 block text-[10px] font-sans">数据核验状态</span>
+                  <span className="font-bold text-emerald-600 flex items-center gap-1 font-sans">
                     <CheckCircle2 className="size-3" /> 双表对齐核验无误
                   </span>
                 </div>
@@ -1985,26 +2029,26 @@ export default function BenefitEvaluationPage() {
               {selectedCalcDetail.type === 'storage' && (
                 <div className="space-y-3.5">
                   {/* 公式定义卡片 */}
-                  <div className="p-3.5 rounded-xl bg-panel border border-border space-y-2">
-                    <div className="flex items-center gap-1.5 font-bold text-primary text-xs">
-                      <Sparkles className="size-4 text-primary" />
+                  <div className="p-3.5 rounded-xl bg-blue-50/50 border border-blue-200 space-y-2">
+                    <div className="flex items-center gap-1.5 font-bold text-blue-900 text-xs">
+                      <Sparkles className="size-4 text-[#1677ff]" />
                       <span>储能 8 大指标数学模型与计算公式</span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-mono text-muted-foreground">
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-primary font-bold block mb-0.5">① 综合充放效率 (η):</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-mono text-slate-700">
+                      <div className="bg-white p-2 rounded border border-blue-100">
+                        <span className="text-blue-700 font-bold block mb-0.5">① 综合充放效率 (η):</span>
                         η = (日放电量 / 日充电量) × 100%
                       </div>
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-primary font-bold block mb-0.5">② 净套利收益 (Revenue):</span>
+                      <div className="bg-white p-2 rounded border border-blue-100">
+                        <span className="text-blue-700 font-bold block mb-0.5">② 净套利收益 (Revenue):</span>
                         Revenue = (尖放收益 + 峰放收益) - (市电充成本 + 绿电充成本)
                       </div>
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-primary font-bold block mb-0.5">③ 绿充占比 / 市充占比:</span>
+                      <div className="bg-white p-2 rounded border border-blue-100">
+                        <span className="text-blue-700 font-bold block mb-0.5">③ 绿充占比 / 市充占比:</span>
                         绿充% = (绿充电量/总充电量)×100% ；市充% = (市充电量/总充电量)×100%
                       </div>
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-primary font-bold block mb-0.5">④ 尖放占比 / 峰放占比:</span>
+                      <div className="bg-white p-2 rounded border border-blue-100">
+                        <span className="text-blue-700 font-bold block mb-0.5">④ 尖放占比 / 峰放占比:</span>
                         尖放% = (尖段放电量/总放电量)×100% ；峰放% = (峰段放电量/总放电量)×100%
                       </div>
                     </div>
@@ -2012,66 +2056,66 @@ export default function BenefitEvaluationPage() {
 
                   {/* 输入参数与分时电价矩阵 */}
                   <div>
-                    <h4 className="text-xs font-bold text-foreground mb-1.5 flex items-center gap-1.5">
-                      <Sliders className="size-3.5 text-primary" />
+                    <h4 className="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+                      <Sliders className="size-3.5 text-[#1677ff]" />
                       <span>输入参数与分时电价清单</span>
                     </h4>
-                    <table className="w-full text-[11px] text-left border-collapse border border-border rounded-lg overflow-hidden font-mono">
-                      <thead className="bg-panel text-muted-foreground font-bold font-sans">
+                    <table className="w-full text-[11px] text-left border-collapse border border-slate-200 rounded-lg overflow-hidden font-mono">
+                      <thead className="bg-slate-100 text-slate-600 font-bold">
                         <tr>
-                          <th className="p-2 border-b border-border">时段类型</th>
-                          <th className="p-2 border-b border-border">电价费率 (元/kWh)</th>
-                          <th className="p-2 border-b border-border text-right">充电量 (kWh)</th>
-                          <th className="p-2 border-b border-border text-right">放电量 (kWh)</th>
-                          <th className="p-2 border-b border-border text-right">费用/收入 (元)</th>
+                          <th className="p-2 border-b border-slate-200">时段类型</th>
+                          <th className="p-2 border-b border-slate-200">电价费率 (元/kWh)</th>
+                          <th className="p-2 border-b border-slate-200 text-right">充电量 (kWh)</th>
+                          <th className="p-2 border-b border-slate-200 text-right">放电量 (kWh)</th>
+                          <th className="p-2 border-b border-slate-200 text-right">费用/收入 (元)</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-border/60">
+                      <tbody className="divide-y divide-slate-100">
                         <tr>
-                          <td className="p-2 font-sans font-medium text-purple-400">尖段 (18:00-20:00)</td>
+                          <td className="p-2 font-sans font-medium text-purple-700">尖段 (18:00-20:00)</td>
                           <td className="p-2">¥{selectedCalcDetail.data.calcContext.criticalPeakPrice}</td>
-                          <td className="p-2 text-right text-muted-foreground">0.0</td>
-                          <td className="p-2 text-right font-bold text-purple-400">
+                          <td className="p-2 text-right text-slate-400">0.0</td>
+                          <td className="p-2 text-right font-bold text-purple-600">
                             {selectedCalcDetail.data.calcContext.criticalDischargeKwh.toLocaleString()}
                           </td>
-                          <td className="p-2 text-right font-bold text-emerald-400">
+                          <td className="p-2 text-right font-bold text-emerald-600">
                             +¥{(selectedCalcDetail.data.calcContext.criticalDischargeKwh * selectedCalcDetail.data.calcContext.criticalPeakPrice).toFixed(2)}
                           </td>
                         </tr>
                         <tr>
-                          <td className="p-2 font-sans font-medium text-primary">峰段 (08:30-11:30)</td>
+                          <td className="p-2 font-sans font-medium text-blue-700">峰段 (08:30-11:30)</td>
                           <td className="p-2">¥{selectedCalcDetail.data.calcContext.peakPrice}</td>
-                          <td className="p-2 text-right text-muted-foreground">0.0</td>
-                          <td className="p-2 text-right font-bold text-primary">
+                          <td className="p-2 text-right text-slate-400">0.0</td>
+                          <td className="p-2 text-right font-bold text-blue-600">
                             {selectedCalcDetail.data.calcContext.peakDischargeKwh.toLocaleString()}
                           </td>
-                          <td className="p-2 text-right font-bold text-emerald-400">
+                          <td className="p-2 text-right font-bold text-emerald-600">
                             +¥{(selectedCalcDetail.data.calcContext.peakDischargeKwh * selectedCalcDetail.data.calcContext.peakPrice).toFixed(2)}
                           </td>
                         </tr>
                         <tr>
-                          <td className="p-2 font-sans font-medium text-emerald-400">
+                          <td className="p-2 font-sans font-medium text-emerald-700">
                             午间光伏绿电充 (12:00-14:00)
                           </td>
                           <td className="p-2">¥{selectedCalcDetail.data.calcContext.greenPowerPrice}</td>
-                          <td className="p-2 text-right font-bold text-emerald-400">
+                          <td className="p-2 text-right font-bold text-emerald-600">
                             {selectedCalcDetail.data.calcContext.greenChargeKwh.toLocaleString()}
                           </td>
-                          <td className="p-2 text-right text-muted-foreground">0.0</td>
-                          <td className="p-2 text-right font-bold text-rose-400">
+                          <td className="p-2 text-right text-slate-400">0.0</td>
+                          <td className="p-2 text-right font-bold text-rose-600">
                             -¥{(selectedCalcDetail.data.calcContext.greenChargeKwh * selectedCalcDetail.data.calcContext.greenPowerPrice).toFixed(2)}
                           </td>
                         </tr>
                         <tr>
-                          <td className="p-2 font-sans font-medium text-muted-foreground">
+                          <td className="p-2 font-sans font-medium text-slate-700">
                             夜间深谷市电充 (00:00-06:00)
                           </td>
                           <td className="p-2">¥{selectedCalcDetail.data.calcContext.valleyPrice}</td>
-                          <td className="p-2 text-right font-bold text-foreground">
+                          <td className="p-2 text-right font-bold text-slate-700">
                             {selectedCalcDetail.data.calcContext.gridChargeKwh.toLocaleString()}
                           </td>
-                          <td className="p-2 text-right text-muted-foreground">0.0</td>
-                          <td className="p-2 text-right font-bold text-rose-400">
+                          <td className="p-2 text-right text-slate-400">0.0</td>
+                          <td className="p-2 text-right font-bold text-rose-600">
                             -¥{(selectedCalcDetail.data.calcContext.gridChargeKwh * selectedCalcDetail.data.calcContext.valleyPrice).toFixed(2)}
                           </td>
                         </tr>
@@ -2080,33 +2124,33 @@ export default function BenefitEvaluationPage() {
                   </div>
 
                   {/* 逐步代入演练过程 */}
-                  <div className="bg-black/50 text-slate-200 p-3.5 rounded-xl font-mono text-[11px] space-y-2 border border-border">
+                  <div className="bg-slate-900 text-slate-200 p-3.5 rounded-xl font-mono text-[11px] space-y-2 shadow-inner">
                     <div className="text-emerald-400 font-bold flex items-center gap-1.5">
                       <CodeBracketIcon className="size-3.5" /> 逐步代入数值计算演算步骤 (Step-by-Step Breakdown)
                     </div>
                     <div className="space-y-1 text-slate-300">
                       <div>
-                        <span className="text-primary">Step 1 [综合效率]:</span>{' '}
+                        <span className="text-blue-400">Step 1 [综合效率]:</span>{' '}
                         {selectedCalcDetail.data.dischargeKwh} ÷ {selectedCalcDetail.data.chargeKwh} × 100% ={' '}
                         <span className="text-emerald-400 font-bold">{selectedCalcDetail.data.efficiency}%</span> (循环损耗 {selectedCalcDetail.data.calcContext.roundTripLossKwh} kWh)
                       </div>
                       <div>
-                        <span className="text-primary">Step 2 [放电总收入]:</span>{' '}
+                        <span className="text-blue-400">Step 2 [放电总收入]:</span>{' '}
                         ({selectedCalcDetail.data.calcContext.criticalDischargeKwh} × 1.28) + ({selectedCalcDetail.data.calcContext.peakDischargeKwh} × 0.98) ={' '}
                         <span className="text-emerald-400 font-bold">¥{selectedCalcDetail.data.calcContext.dischargeIncomeYuan.toFixed(2)} 元</span>
                       </div>
                       <div>
-                        <span className="text-primary">Step 3 [充电总成本]:</span>{' '}
+                        <span className="text-blue-400">Step 3 [充电总成本]:</span>{' '}
                         ({selectedCalcDetail.data.calcContext.greenChargeKwh} × 0.42) + ({selectedCalcDetail.data.calcContext.gridChargeKwh} × 0.32) ={' '}
                         <span className="text-rose-400 font-bold">¥{selectedCalcDetail.data.calcContext.chargeCostYuan.toFixed(2)} 元</span>
                       </div>
                       <div>
-                        <span className="text-primary">Step 4 [净套利收益]:</span>{' '}
+                        <span className="text-blue-400">Step 4 [净套利收益]:</span>{' '}
                         {selectedCalcDetail.data.calcContext.dischargeIncomeYuan.toFixed(2)} - {selectedCalcDetail.data.calcContext.chargeCostYuan.toFixed(2)} ={' '}
-                        <span className="text-amber-400 font-bold text-xs">¥{selectedCalcDetail.data.revenueYuan} 元</span>
+                        <span className="text-amber-300 font-bold text-xs">¥{selectedCalcDetail.data.revenueYuan} 元</span>
                       </div>
                       <div>
-                        <span className="text-primary">Step 5 [结构占比]:</span>{' '}
+                        <span className="text-blue-400">Step 5 [结构占比]:</span>{' '}
                         绿充 {selectedCalcDetail.data.greenChargeRatio}% | 市充 {selectedCalcDetail.data.gridChargeRatio}% | 尖放 {selectedCalcDetail.data.criticalPeakDischargeRatio}% | 峰放 {selectedCalcDetail.data.peakDischargeRatio}%
                       </div>
                     </div>
@@ -2117,57 +2161,57 @@ export default function BenefitEvaluationPage() {
               {/* 3. 热泵模块算法与数值推导演练 */}
               {selectedCalcDetail.type === 'heatpump' && (
                 <div className="space-y-3.5">
-                  <div className="p-3.5 rounded-xl bg-panel border border-border space-y-2">
-                    <div className="flex items-center gap-1.5 font-bold text-amber-400 text-xs">
-                      <Sparkles className="size-4 text-amber-400" />
+                  <div className="p-3.5 rounded-xl bg-orange-50/50 border border-orange-200 space-y-2">
+                    <div className="flex items-center gap-1.5 font-bold text-orange-900 text-xs">
+                      <Sparkles className="size-4 text-orange-600" />
                       <span>热泵 6 大核心指标与替代节费数学模型</span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-mono text-muted-foreground">
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-amber-400 font-bold block mb-0.5">① 绿电用能占比:</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-mono text-slate-700">
+                      <div className="bg-white p-2 rounded border border-orange-100">
+                        <span className="text-orange-700 font-bold block mb-0.5">① 绿电用能占比:</span>
                         绿电占比 = [绿电量 / (市电量 + 绿电量)] × 100%
                       </div>
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-amber-400 font-bold block mb-0.5">② 尖峰负荷占比:</span>
+                      <div className="bg-white p-2 rounded border border-orange-100">
+                        <span className="text-orange-700 font-bold block mb-0.5">② 尖峰负荷占比:</span>
                         尖峰占比 = (尖峰时段运行电量 / 总电量) × 100%
                       </div>
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-amber-400 font-bold block mb-0.5">③ 热泵总运行电费:</span>
+                      <div className="bg-white p-2 rounded border border-orange-100">
+                        <span className="text-orange-700 font-bold block mb-0.5">③ 热泵总运行电费:</span>
                         总电费 = 市电量 × 市网加权价 + 绿电量 × 绿电协议价
                       </div>
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-amber-400 font-bold block mb-0.5">④ 替代化石节费收益:</span>
+                      <div className="bg-white p-2 rounded border border-orange-100">
+                        <span className="text-orange-700 font-bold block mb-0.5">④ 替代化石节费收益:</span>
                         节费 = (替代天然气量 × 气价 ¥3.6) - 热泵运行总电费
                       </div>
                     </div>
                   </div>
 
                   {/* 详细逐步演算 */}
-                  <div className="bg-black/50 text-slate-200 p-3.5 rounded-xl font-mono text-[11px] space-y-2 border border-border">
-                    <div className="text-amber-400 font-bold flex items-center gap-1.5">
+                  <div className="bg-slate-900 text-slate-200 p-3.5 rounded-xl font-mono text-[11px] space-y-2 shadow-inner">
+                    <div className="text-orange-400 font-bold flex items-center gap-1.5">
                       <CodeBracketIcon className="size-3.5" /> 热泵用电与替代天然气实测演算 (Step-by-Step Breakdown)
                     </div>
                     <div className="space-y-1 text-slate-300">
                       <div>
-                        <span className="text-amber-400">Step 1 [总电量与绿电占比]:</span>{' '}
+                        <span className="text-orange-300">Step 1 [总电量与绿电占比]:</span>{' '}
                         {selectedCalcDetail.data.gridPowerKwh} (市) + {selectedCalcDetail.data.greenPowerKwh} (绿) ={' '}
                         {selectedCalcDetail.data.gridPowerKwh + selectedCalcDetail.data.greenPowerKwh} kWh ；
                         绿电占比 = <span className="text-emerald-400 font-bold">{selectedCalcDetail.data.greenPowerRatio}%</span>
                       </div>
                       <div>
-                        <span className="text-amber-400">Step 2 [热泵综合电费]:</span>{' '}
+                        <span className="text-orange-300">Step 2 [热泵综合电费]:</span>{' '}
                         ({selectedCalcDetail.data.gridPowerKwh} × 0.75) + ({selectedCalcDetail.data.greenPowerKwh} × 0.42) ={' '}
                         {selectedCalcDetail.data.gridCostYuan} + {selectedCalcDetail.data.greenCostYuan} ={' '}
                         <span className="text-rose-400 font-bold">¥{selectedCalcDetail.data.calcContext.heatPumpTotalCostYuan} 元</span>
                       </div>
                       <div>
-                        <span className="text-amber-400">Step 3 [基准燃气锅炉等热量折算]:</span>{' '}
+                        <span className="text-orange-300">Step 3 [基准燃气锅炉等热量折算]:</span>{' '}
                         产供热量 {selectedCalcDetail.data.calcContext.heatOutputGj} GJ 需耗天然气 {selectedCalcDetail.data.replacedGasM3} m³ ；
                         燃气成本 = {selectedCalcDetail.data.replacedGasM3} × ¥3.60 ={' '}
                         <span className="text-amber-400 font-bold">¥{selectedCalcDetail.data.calcContext.replacedGasCostYuan} 元</span>
                       </div>
                       <div>
-                        <span className="text-amber-400">Step 4 [净节费计算]:</span>{' '}
+                        <span className="text-orange-300">Step 4 [净节费计算]:</span>{' '}
                         {selectedCalcDetail.data.calcContext.replacedGasCostYuan} (燃气基准) - {selectedCalcDetail.data.calcContext.heatPumpTotalCostYuan} (热泵电费) ={' '}
                         <span className="text-emerald-400 font-bold text-xs">¥{selectedCalcDetail.data.dailySavingsYuan} 元/天</span> (月累计 ¥{selectedCalcDetail.data.monthlySavingsWan} 万元)
                       </div>
@@ -2179,59 +2223,59 @@ export default function BenefitEvaluationPage() {
               {/* 4. 光伏模块算法与数值推导演练 */}
               {selectedCalcDetail.type === 'pv' && (
                 <div className="space-y-3.5">
-                  <div className="p-3.5 rounded-xl bg-panel border border-border space-y-2">
-                    <div className="flex items-center gap-1.5 font-bold text-amber-400 text-xs">
-                      <Sparkles className="size-4 text-amber-400" />
+                  <div className="p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 space-y-2">
+                    <div className="flex items-center gap-1.5 font-bold text-amber-900 text-xs">
+                      <Sparkles className="size-4 text-amber-600" />
                       <span>光伏消纳与节费收益数学模型</span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-mono text-muted-foreground">
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-amber-400 font-bold block mb-0.5">① 自发自用消纳比例:</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-mono text-slate-700">
+                      <div className="bg-white p-2 rounded border border-amber-100">
+                        <span className="text-amber-700 font-bold block mb-0.5">① 自发自用消纳比例:</span>
                         自用比例 = (自用电量 / 总发电量) × 100%
                       </div>
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-amber-400 font-bold block mb-0.5">② 综合电费节约与收益:</span>
+                      <div className="bg-white p-2 rounded border border-amber-100">
+                        <span className="text-amber-700 font-bold block mb-0.5">② 综合电费节约与收益:</span>
                         收益 = 自用电量 × 替代工商业电价 + 上网电量 × 脱硫煤基准价
                       </div>
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-amber-400 font-bold block mb-0.5">③ 等效满发利用小时数:</span>
+                      <div className="bg-white p-2 rounded border border-amber-100">
+                        <span className="text-amber-700 font-bold block mb-0.5">③ 等效满发利用小时数:</span>
                         利用小时 = 当期总发电量(kWh) / 光伏额定装机容量(kWp)
                       </div>
-                      <div className="bg-card p-2 rounded border border-border">
-                        <span className="text-amber-400 font-bold block mb-0.5">④ 核证碳减排量 (tCO₂):</span>
+                      <div className="bg-white p-2 rounded border border-amber-100">
+                        <span className="text-amber-700 font-bold block mb-0.5">④ 核证碳减排量 (tCO₂):</span>
                         减碳量 = 发电量(MWh) × 区域电网基线碳排放因子 (0.5350)
                       </div>
                     </div>
                   </div>
 
                   {/* 详细演算过程 */}
-                  <div className="bg-black/50 text-slate-200 p-3.5 rounded-xl font-mono text-[11px] space-y-2 border border-border">
+                  <div className="bg-slate-900 text-slate-200 p-3.5 rounded-xl font-mono text-[11px] space-y-2 shadow-inner">
                     <div className="text-amber-400 font-bold flex items-center gap-1.5">
                       <CodeBracketIcon className="size-3.5" /> 光伏发电效益逐步演算 (Step-by-Step Breakdown)
                     </div>
                     <div className="space-y-1 text-slate-300">
                       <div>
-                        <span className="text-amber-400">Step 1 [发电与消纳分流]:</span>{' '}
+                        <span className="text-amber-300">Step 1 [发电与消纳分流]:</span>{' '}
                         日总发电 {selectedCalcDetail.data.dailyGenKwh} kWh = 自用 {selectedCalcDetail.data.dailySelfKwh} (
                         {selectedCalcDetail.data.selfUseRatio}%) + 上网 {selectedCalcDetail.data.dailyGridKwh} kWh
                       </div>
                       <div>
-                        <span className="text-amber-400">Step 2 [自用节电效益]:</span>{' '}
+                        <span className="text-amber-300">Step 2 [自用节电效益]:</span>{' '}
                         {selectedCalcDetail.data.dailySelfKwh} kWh × ¥0.80/kWh ={' '}
                         <span className="text-emerald-400 font-bold">¥{selectedCalcDetail.data.selfSavingsYuan} 元</span>
                       </div>
                       <div>
-                        <span className="text-amber-400">Step 3 [余电上网收益]:</span>{' '}
+                        <span className="text-amber-300">Step 3 [余电上网收益]:</span>{' '}
                         {selectedCalcDetail.data.dailyGridKwh} kWh × ¥0.38/kWh ={' '}
-                        <span className="text-primary font-bold">¥{selectedCalcDetail.data.gridRevenueYuan} 元</span>
+                        <span className="text-blue-400 font-bold">¥{selectedCalcDetail.data.gridRevenueYuan} 元</span>
                       </div>
                       <div>
-                        <span className="text-amber-400">Step 4 [日综合经济收益]:</span>{' '}
+                        <span className="text-amber-300">Step 4 [日综合经济收益]:</span>{' '}
                         {selectedCalcDetail.data.selfSavingsYuan} + {selectedCalcDetail.data.gridRevenueYuan} ={' '}
-                        <span className="text-amber-400 font-bold text-xs">¥{selectedCalcDetail.data.totalBenefitYuan} 元</span>
+                        <span className="text-amber-300 font-bold text-xs">¥{selectedCalcDetail.data.totalBenefitYuan} 元</span>
                       </div>
                       <div>
-                        <span className="text-amber-400">Step 5 [环保减碳贡献]:</span>{' '}
+                        <span className="text-amber-300">Step 5 [环保减碳贡献]:</span>{' '}
                         ({selectedCalcDetail.data.dailyGenKwh} / 1000) MWh × 0.5350 tCO2/MWh ={' '}
                         <span className="text-purple-400 font-bold">{selectedCalcDetail.data.dailyCarbonTons} tCO₂</span>
                       </div>
@@ -2241,9 +2285,9 @@ export default function BenefitEvaluationPage() {
               )}
 
               {/* 5. 合规依据与计量标准 */}
-              <div className="p-3 rounded-lg bg-panel border border-border text-[10px] text-muted-foreground font-sans space-y-1">
-                <div className="font-bold text-foreground flex items-center gap-1">
-                  <ShieldCheck className="size-3.5 text-emerald-400" />
+              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-[10px] text-slate-500 font-sans space-y-1">
+                <div className="font-bold text-slate-700 flex items-center gap-1">
+                  <ShieldCheck className="size-3.5 text-emerald-600" />
                   <span>核算方法学与标准依据</span>
                 </div>
                 <p>
@@ -2257,14 +2301,14 @@ export default function BenefitEvaluationPage() {
             </div>
 
             {/* 弹窗 Footer */}
-            <div className="p-3.5 border-t border-border bg-panel flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground font-mono">
+            <div className="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+              <span className="text-[11px] text-slate-500 font-mono">
                 校验结果：所有指标与关口双向计量台账 100% 吻合
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedCalcDetail({ isOpen: false, type: 'storage', data: null })}
-                className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/90 transition-colors shadow-xs cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-[#1677ff] text-white font-bold text-xs hover:bg-blue-600 transition-colors shadow-xs cursor-pointer"
               >
                 已完成核算查验
               </button>
