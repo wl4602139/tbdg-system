@@ -1255,14 +1255,6 @@ export default function MicrogridMonitoringPage() {
                   
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsEntryModalOpen(true)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-600 text-white font-medium hover:bg-emerald-700 cursor-pointer shadow-2xs text-xs transition-colors"
-                  >
-                    <Plus className="size-3.5" />
-                    <span>录入凭证</span>
-                  </button>
                   <div className="relative">
                     <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-2" />
                     <input
