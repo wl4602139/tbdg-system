@@ -10,17 +10,27 @@ import {
   ArrowLeft,
   ArrowRight,
   Download,
+  Upload,
   Info,
   Image as ImageIcon,
-  Upload,
   Plus,
   Trash2,
   X,
-  Cpu,
   Sparkles,
   Eye,
-  ChevronDown,
-  ChevronUp,
+  Cpu,
+  Zap,
+  Droplet,
+  Flame,
+  Gauge,
+  Factory,
+  Check,
+  RotateCcw,
+  LayoutGrid,
+  Table as TableIcon,
+  AlertTriangle,
+  FileSpreadsheet,
+  Building2,
 } from 'lucide-react'
 import { Panel, Badge } from '@/components/shared/primitives'
 import { cn } from '@/lib/utils'
@@ -29,11 +39,9 @@ import { cn } from '@/lib/utils'
 interface EquipmentItem {
   id: string
   name: string
-  type: '电动机' | '变压器' | '工业锅炉' | '风机' | '容积式空气压缩机' | '工业制冷设备' | '热泵' | '其他重点装备'
+  type: '超高效电动机' | '节能变压器' | '工业锅炉' | '风机' | '空压机' | '制冷设备' | '热泵' | '其他重点设备'
   usage: string
   powerKw: number
-  standardLevel: '1级 (超高效)' | '2级 (达到国标)' | '未达标/无标准'
-  deployDate: string
 }
 
 // 零碳关键事件模型
@@ -44,253 +52,79 @@ interface KeyEventItem {
   type: '光伏并网' | '储能投运' | '碳足迹上线' | '零碳认证' | '技改节电'
 }
 
-// 常规数据项行定义
-interface EntryRowItem {
+// 填报指标行模型
+interface MetricItem {
   id: string
   name: string
   category: 'energy' | 'cost' | 'green' | 'economy' | 'equipment' | 'park'
   categoryLabel: string
-  target: '工厂' | '园区及工厂' | '园区/工厂'
-  dimension: '日/月' | '月度' | '月' | '月度/年度' | '增量更新' | '静态/定期'
   unit: string
   value: string
+  lastMonthValue: string
   remark: string
-  type: 'number' | 'photo' | 'event' | 'project_info_photo'
-  detailScope?: string
+  icon?: string
 }
 
+// 辅助函数：按月度总量生成 31 天合理日数据
+const generateInitialDaily = (total: number, days: number = 31) => {
+  const avg = total / days
+  return Array.from({ length: days }, (_, i) => {
+    const factor = 1 + ((i % 5) - 2) * 0.02
+    return Math.round(avg * factor * 10) / 10
+  })
+}
+
+// 指标全量清单 (共 21 项细分指标)
+const INITIAL_METRICS: MetricItem[] = [
+  // 1. 能源消耗量 (5项)
+  { id: 'm-1', name: '用水量', category: 'energy', categoryLabel: '能源消耗量', unit: 't', value: '8900', lastMonthValue: '8650', remark: '市政自来水水表月度抄报底数', icon: 'water' },
+  { id: 'm-2', name: '天然气量', category: 'energy', categoryLabel: '能源消耗量', unit: 'm³', value: '28400', lastMonthValue: '27200', remark: '燃气锅炉与车间烘干加热消耗', icon: 'gas' },
+  { id: 'm-3', name: '外购蒸汽量', category: 'energy', categoryLabel: '能源消耗量', unit: 't', value: '1420', lastMonthValue: '1380', remark: '集中供热管网蒸汽抄表结算量', icon: 'steam' },
+  { id: 'm-4', name: '油消耗量（柴油、煤油、汽油）', category: 'energy', categoryLabel: '能源消耗量', unit: 'L', value: '320', lastMonthValue: '350', remark: '应急发电机组试车与厂区叉车加油领用', icon: 'oil' },
+  { id: 'm-5', name: '液氧', category: 'energy', categoryLabel: '能源消耗量', unit: 't', value: '45.0', lastMonthValue: '42.0', remark: '钢板下料切割与绝缘件加工助燃消耗', icon: 'oxygen' },
+
+  // 2. 能源费用账单 (5项)
+  { id: 'm-6', name: '市电费用', category: 'cost', categoryLabel: '能源费用', unit: '万元', value: '142.50', lastMonthValue: '138.20', remark: '国网电力月度电费增值税发票总额', icon: 'power' },
+  { id: 'm-7', name: '天然气费用', category: 'cost', categoryLabel: '能源费用', unit: '万元', value: '8.52', lastMonthValue: '8.16', remark: '新奥燃气月度发票结算金额', icon: 'gas' },
+  { id: 'm-8', name: '外购蒸汽费用', category: 'cost', categoryLabel: '能源费用', unit: '万元', value: '32.66', lastMonthValue: '31.74', remark: '园区热力公司当期发票对账单', icon: 'steam' },
+  { id: 'm-9', name: '用水费用', category: 'cost', categoryLabel: '能源费用', unit: '万元', value: '4.89', lastMonthValue: '4.76', remark: '自来水水务集团缴费凭单', icon: 'water' },
+  { id: 'm-10', name: '油费用', category: 'cost', categoryLabel: '能源费用', unit: '万元', value: '0.24', lastMonthValue: '0.26', remark: '中石化加油卡充值及柴油发票', icon: 'oil' },
+
+  // 3. 购买绿电交易参数 (4项)
+  { id: 'm-11', name: '购买绿电量（kWh）', category: 'green', categoryLabel: '购买绿电', unit: 'kWh', value: '1482000', lastMonthValue: '1200000', remark: '三峡能源哈密200MW光伏电站双边交易电量' },
+  { id: 'm-12', name: '购买绿证量', category: 'green', categoryLabel: '购买绿电', unit: '个', value: '18000', lastMonthValue: '15000', remark: '国家绿色电力证书 GEC 划转入账' },
+  { id: 'm-12-price', name: '结算单价', category: 'green', categoryLabel: '购买绿电', unit: '元/kWh', value: '0.4280', lastMonthValue: '0.4250', remark: '绿电综合结算到厂单价' },
+  { id: 'm-12-date', name: '交易日期', category: 'green', categoryLabel: '购买绿电', unit: '日期', value: '2026-08-18', lastMonthValue: '2026-07-20', remark: '电力交易中心双边合同执行日期' },
+
+  // 4. 经济与产量 (2项)
+  { id: 'm-13', name: '工业增加值（月度、年度）', category: 'economy', categoryLabel: '经济与产量', unit: '万元', value: '4200.0', lastMonthValue: '3950.0', remark: '政府统计局联网直报口径工业增加值' },
+  { id: 'm-14', name: '产量（非线缆产业、项目公司）', category: 'economy', categoryLabel: '经济与产量', unit: '台/套/件', value: '128', lastMonthValue: '122', remark: '特高压变压器与箱变产成品完工入库量' },
+
+  // 5. 重点设备 (2项，默认2台标准设备)
+  { id: 'm-15', name: '达到或优于能效强制性国家标准 2 级的设备', category: 'equipment', categoryLabel: '重点设备', unit: 'kW', value: '1760', lastMonthValue: '1760', remark: '超高效电动机、节能变压器等' },
+  { id: 'm-16', name: '纳入统计范围装备', category: 'equipment', categoryLabel: '重点设备', unit: 'kW', value: '1760', lastMonthValue: '1760', remark: '全厂重点用能量测装备清单与装机总功率' },
+
+  // 6. 零碳园区 (3项)
+  { id: 'm-17', name: '园区照片', category: 'park', categoryLabel: '零碳园区', unit: '/', value: '2张已上传', lastMonthValue: '2张已上传', remark: '园区高空全貌航拍图、厂区主大门实景' },
+  { id: 'm-18', name: '零碳关键事件', category: 'park', categoryLabel: '零碳园区', unit: '事件/时间', value: '2026-08-15 光伏扩建并网', lastMonthValue: '2026-06-20 系统上线', remark: '光伏并网、储能并网、碳足迹系统上线、零碳工厂申报及认证等' },
+  { id: 'm-19', name: '零碳园区基本信息', category: 'park', categoryLabel: '零碳园区', unit: '/', value: '特变电工沈变工业示范园区', lastMonthValue: '特变电工沈变工业示范园区', remark: '包含园区名称、位置、建设内容与规模指标等' },
+]
+
+// 默认两台标准设备 (超高效电动机、节能变压器)
 const INITIAL_EQUIPMENT_LEVEL2: EquipmentItem[] = [
-  { id: 'eq-1', name: '超高效变频永磁同步电机', type: '电动机', usage: '主厂区空压机组主驱', powerKw: 160, standardLevel: '1级 (超高效)', deployDate: '2025-06-15' },
-  { id: 'eq-2', name: '非晶合金节能型配电变压器', type: '变压器', usage: '10kV动力变电所主供', powerKw: 1600, standardLevel: '2级 (达到国标)', deployDate: '2024-11-20' },
-  { id: 'eq-3', name: '磁悬浮工业冷水离心机组', type: '工业制冷设备', usage: '高压试验大厅恒温空调', powerKw: 850, standardLevel: '1级 (超高效)', deployDate: '2025-04-10' },
-  { id: 'eq-4', name: '后倾离心高压节能风机', type: '风机', usage: '浇注车间高效排风除尘', powerKw: 590, standardLevel: '2级 (达到国标)', deployDate: '2025-08-01' },
+  { id: 'eq-1', name: '超高效电动机', type: '超高效电动机', usage: '生产车间空压机主驱动', powerKw: 160 },
+  { id: 'eq-2', name: '节能变压器', type: '节能变压器', usage: '10kV动力变电所主供', powerKw: 1600 },
 ]
 
 const INITIAL_EQUIPMENT_ALL: EquipmentItem[] = [
-  { id: 'eq-5', name: '双螺杆容积式无油空压机', type: '容积式空气压缩机', usage: '全厂动力压缩空气主管网', powerKw: 950, standardLevel: '2级 (达到国标)', deployDate: '2024-08-18' },
-  { id: 'eq-6', name: '空气源热泵工业采暖热水机组', type: '热泵', usage: '办公及生活区冬季低碳供暖', powerKw: 700, standardLevel: '2级 (达到国标)', deployDate: '2025-10-12' },
+  { id: 'eq-3', name: '超高效电动机', type: '超高效电动机', usage: '生产车间空压机主驱动', powerKw: 160 },
+  { id: 'eq-4', name: '节能变压器', type: '节能变压器', usage: '10kV动力变电所主供', powerKw: 1600 },
 ]
 
 const INITIAL_KEY_EVENTS: KeyEventItem[] = [
   { id: 'ev-1', date: '2026-08-15', title: '特变电工沈变本部 2.8MWp 分布式光伏扩建工程顺利并网投运', type: '光伏并网' },
   { id: 'ev-2', date: '2026-06-20', title: '零碳智慧园区能源管理系统 2.0 (SCADA/IoT) 全面验收上线', type: '碳足迹上线' },
   { id: 'ev-3', date: '2026-03-10', title: '通过中国质量认证中心 (CQC) 零碳工厂 (三星级) 现场初核', type: '零碳认证' },
-]
-
-const INITIAL_ENTRY_ROWS: EntryRowItem[] = [
-  // 1. 能源消耗量 (5项)
-  {
-    id: 'row-1',
-    name: '用水量',
-    category: 'energy',
-    categoryLabel: '能源消耗量',
-    target: '工厂',
-    dimension: '日/月',
-    unit: 't',
-    value: '8900',
-    remark: '市政自来水水表月度抄报底数',
-    type: 'number',
-  },
-  {
-    id: 'row-2',
-    name: '天然气量',
-    category: 'energy',
-    categoryLabel: '能源消耗量',
-    target: '工厂',
-    dimension: '月度',
-    unit: 'm³',
-    value: '28400',
-    remark: '燃气锅炉与车间烘干加热消耗',
-    type: 'number',
-  },
-  {
-    id: 'row-3',
-    name: '外购蒸汽量',
-    category: 'energy',
-    categoryLabel: '能源消耗量',
-    target: '工厂',
-    dimension: '月度',
-    unit: 't',
-    value: '1420',
-    remark: '集中供热管网蒸汽抄表结算量',
-    type: 'number',
-  },
-  {
-    id: 'row-4',
-    name: '油消耗量（柴油、煤油、汽油）',
-    category: 'energy',
-    categoryLabel: '能源消耗量',
-    target: '工厂',
-    dimension: '月度',
-    unit: 'L',
-    value: '320',
-    remark: '应急发电机组试车与厂区叉车加油领用',
-    type: 'number',
-  },
-  {
-    id: 'row-5',
-    name: '液氧',
-    category: 'energy',
-    categoryLabel: '能源消耗量',
-    target: '工厂',
-    dimension: '月度',
-    unit: 't',
-    value: '45.0',
-    remark: '钢板下料切割与绝缘件加工助燃消耗',
-    type: 'number',
-  },
-
-  // 2. 能源费用账单 (5项)
-  {
-    id: 'row-6',
-    name: '市电费用',
-    category: 'cost',
-    categoryLabel: '能源费用',
-    target: '工厂',
-    dimension: '月度',
-    unit: '万元',
-    value: '142.50',
-    remark: '国网电力月度电费增值税发票总额',
-    type: 'number',
-  },
-  {
-    id: 'row-7',
-    name: '天然气费用',
-    category: 'cost',
-    categoryLabel: '能源费用',
-    target: '工厂',
-    dimension: '月度',
-    unit: '万元',
-    value: '8.52',
-    remark: '新奥燃气月度发票结算金额',
-    type: 'number',
-  },
-  {
-    id: 'row-8',
-    name: '外购蒸汽费用',
-    category: 'cost',
-    categoryLabel: '能源费用',
-    target: '工厂',
-    dimension: '月度',
-    unit: '万元',
-    value: '32.66',
-    remark: '园区热力公司当期发票对账单',
-    type: 'number',
-  },
-  {
-    id: 'row-9',
-    name: '用水费用',
-    category: 'cost',
-    categoryLabel: '能源费用',
-    target: '工厂',
-    dimension: '月度',
-    unit: '万元',
-    value: '4.89',
-    remark: '自来水水务集团缴费凭单',
-    type: 'number',
-  },
-  {
-    id: 'row-10',
-    name: '油费用',
-    category: 'cost',
-    categoryLabel: '能源费用',
-    target: '工厂',
-    dimension: '月度',
-    unit: '万元',
-    value: '0.24',
-    remark: '中石化加油卡充值及柴油发票',
-    type: 'number',
-  },
-
-  // 3. 绿电与绿证交易 (2项)
-  {
-    id: 'row-11',
-    name: '购买绿电量',
-    category: 'green',
-    categoryLabel: '绿电与绿证',
-    target: '园区及工厂',
-    dimension: '月',
-    unit: 'MWh',
-    value: '1482.0',
-    remark: '三峡能源哈密200MW光伏电站双边交易',
-    type: 'number',
-  },
-  {
-    id: 'row-12',
-    name: '购买绿证量',
-    category: 'green',
-    categoryLabel: '绿电与绿证',
-    target: '园区及工厂',
-    dimension: '月',
-    unit: '个',
-    value: '18000',
-    remark: '国家绿色电力证书 GEC: CN-GEC-2026-HM-00921',
-    type: 'number',
-  },
-
-  // 4. 经济与产量 (2项)
-  {
-    id: 'row-13',
-    name: '工业增加值（月度、年度）',
-    category: 'economy',
-    categoryLabel: '经济与产量',
-    target: '工厂',
-    dimension: '月度/年度',
-    unit: '万元',
-    value: '4200.0',
-    remark: '政府统计局联网直报口径工业增加值',
-    type: 'number',
-  },
-  {
-    id: 'row-14',
-    name: '产量（非线缆产业、项目公司）',
-    category: 'economy',
-    categoryLabel: '经济与产量',
-    target: '工厂',
-    dimension: '月',
-    unit: '台/套/件',
-    value: '128',
-    remark: '特高压变压器与箱变产成品完工入库量',
-    type: 'number',
-  },
-
-  // 5. 零碳园区 (3项)
-  {
-    id: 'row-17',
-    name: '园区照片',
-    category: 'park',
-    categoryLabel: '零碳园区',
-    target: '园区/工厂',
-    dimension: '静态/定期',
-    unit: '/',
-    value: '2张已上传',
-    remark: '园区高空全貌航拍图、厂区主大门实景（大屏背景与园区轮播展示）',
-    type: 'photo',
-  },
-  {
-    id: 'row-18',
-    name: '零碳关键事件',
-    category: 'park',
-    categoryLabel: '零碳园区',
-    target: '园区/工厂',
-    dimension: '增量更新',
-    unit: '事件/时间',
-    value: '2026-08-15 光伏扩建并网',
-    remark: '光伏并网、储能并网、碳足迹系统上线、零碳工厂申报及第三方核查认证等关键里程碑',
-    type: 'event',
-  },
-  {
-    id: 'row-19',
-    name: '零碳项目基本信息、照片',
-    category: 'park',
-    categoryLabel: '零碳园区',
-    target: '园区/工厂',
-    dimension: '增量更新',
-    unit: '/',
-    value: '沈变屋顶光伏二期 (2.8MWp)',
-    remark: '零碳技改项目基本参数、建设内容与现场施工/投运实景照片',
-    type: 'project_info_photo',
-  },
 ]
 
 interface HistoryRecord {
@@ -305,60 +139,75 @@ interface HistoryRecord {
   status: '已入库' | '待复核'
 }
 
-// 12 个月度卡片
-const MONTH_CARDS = [
-  { value: '01', label: '1月', isFilled: true },
-  { value: '02', label: '2月', isFilled: true },
-  { value: '03', label: '3月', isFilled: true },
-  { value: '04', label: '4月', isFilled: true },
-  { value: '05', label: '5月', isFilled: true },
-  { value: '06', label: '6月', isFilled: true },
-  { value: '07', label: '7月', isFilled: true },
-  { value: '08', label: '8月', isFilled: false },
-  { value: '09', label: '9月', isFilled: false },
-  { value: '10', label: '10月', isFilled: false },
-  { value: '11', label: '11月', isFilled: false },
-  { value: '12', label: '12月', isFilled: false },
-]
-
-export default function ManualEntryPage() {
-  // 页面模式：'entry' (填报清单列表页) | 'history' (历史台账内页)
+export default function FactoryMonthlyReportingPage() {
+  // 视图模式：'entry' (填报工作台) | 'history' (历史台账)
   const [viewMode, setViewMode] = useState<'entry' | 'history'>('entry')
+  // 填报展现布局：'card' (业务分组卡片·推荐) | 'table' (极简对比表格)
+  const [displayLayout, setDisplayLayout] = useState<'card' | 'table'>('card')
 
-  // 年份与月度状态
+  // 申报账期
   const [selectedYear, setSelectedYear] = useState('2026')
   const [selectedMonth, setSelectedMonth] = useState('08')
   const [submitterName, setSubmitterName] = useState('李工 (能碳专员)')
 
-  // 列表填报数据源
-  const [entryRows, setEntryRows] = useState<EntryRowItem[]>(INITIAL_ENTRY_ROWS)
-  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  // 21 项指标数据
+  const [metrics, setMetrics] = useState<MetricItem[]>(INITIAL_METRICS)
 
-  // 设备明细台账数据源 (融入主表格中)
+  // 用水量 (m-1) 与 外购蒸汽量 (m-3) 的 日 / 月 填报模式切换
+  const [dimModes, setDimModes] = useState<{ 'm-1': 'month' | 'day'; 'm-3': 'month' | 'day' }>({
+    'm-1': 'month',
+    'm-3': 'month',
+  })
+
+  // 31 天日数据数组存储 (8月份共31天)
+  const [waterDailyList, setWaterDailyList] = useState<number[]>(() => generateInitialDaily(8900, 31))
+  const [steamDailyList, setSteamDailyList] = useState<number[]>(() => generateInitialDaily(1420, 31))
+
+  // 每日数据弹窗控制
+  const [activeDailyModal, setActiveDailyModal] = useState<'m-1' | 'm-3' | null>(null)
+  const [tempDailyList, setTempDailyList] = useState<number[]>([])
+
+  // 设备台账
   const [equipListLevel2, setEquipListLevel2] = useState<EquipmentItem[]>(INITIAL_EQUIPMENT_LEVEL2)
   const [equipListAll, setEquipListAll] = useState<EquipmentItem[]>(INITIAL_EQUIPMENT_ALL)
 
-  // 展开状态
-  const [isLevel2Expanded, setIsLevel2Expanded] = useState(true)
-  const [isAllEquipExpanded, setIsAllEquipExpanded] = useState(true)
+  // 添加设备弹窗
+  const [addModalTarget, setAddModalTarget] = useState<'m-15' | 'm-16' | null>(null)
+  const [formDevType, setFormDevType] = useState<EquipmentItem['type']>('超高效电动机')
+  const [formDevName, setFormDevName] = useState('')
+  const [formDevUsage, setFormDevUsage] = useState('')
+  const [formDevPower, setFormDevPower] = useState('')
 
-  // 照片管理数据
+  // 零碳园区基本信息
+  const [parkInfo, setParkInfo] = useState({
+    name: '特变电工沈变工业示范园区',
+    location: '辽宁省沈阳市铁西区经济技术开发区二十二号路',
+    content: '2.8MWp分布式屋顶光伏扩建工程、10kV智能变配电节能改造、空压机余热循环利用、全厂能碳微电网数字化系统',
+    scale: '光伏装机2.8MWp，年发绿电约320万kWh，园区绿电消纳率超65%',
+  })
+  const [isParkInfoModalOpen, setIsParkInfoModalOpen] = useState(false)
+
+  // 园区照片状态
   const [parkPhotos, setParkPhotos] = useState<string[]>([
     'https://images.unsplash.com/photo-1541888946425-d0fbb1861593?w=500&auto=format&fit=crop&q=60',
     'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=500&auto=format&fit=crop&q=60',
   ])
-  const [projectPhotos, setProjectPhotos] = useState<string[]>([
-    'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?w=500&auto=format&fit=crop&q=60',
-  ])
-  const [activePhotoModal, setActivePhotoModal] = useState<'park' | 'project' | null>(null)
+  const [isParkPhotoModalOpen, setIsParkPhotoModalOpen] = useState(false)
 
-  // 零碳关键事件数据
+  // 零碳关键事件
   const [keyEvents, setKeyEvents] = useState<KeyEventItem[]>(INITIAL_KEY_EVENTS)
   const [isEventModalOpen, setIsEventModalOpen] = useState(false)
   const [newEventDate, setNewEventDate] = useState('2026-08-15')
   const [newEventTitle, setNewEventTitle] = useState('特变电工沈变本部 2.8MWp 分布式光伏扩建工程顺利并网投运')
 
-  // 历史台账数据源
+  // 成功反馈
+  const [successToast, setSuccessToast] = useState<{ show: boolean; msg: string; batch: string }>({
+    show: false,
+    msg: '',
+    batch: '',
+  })
+
+  // 历史台账
   const [historyList, setHistoryList] = useState<HistoryRecord[]>([
     {
       id: 'REC-01',
@@ -367,7 +216,7 @@ export default function ManualEntryPage() {
       month: '08',
       submitter: '李工 (能碳专员)',
       submitTime: '2026-08-28 09:30',
-      summary: '用水 8,900t · 气 28,400m³ · 2级重点设备 3,200kW · 零碳园区照片与事件已归档',
+      summary: '用水 8,900t · 气 28,400m³ · 绿电 1,482,000kWh · 2级设备 1,760kW · 园区信息已归档',
       totalCostWan: '188.81',
       status: '已入库',
     },
@@ -378,124 +227,145 @@ export default function ManualEntryPage() {
       month: '07',
       submitter: '王强',
       submitTime: '2026-07-28 14:15',
-      summary: '用水 8,650t · 气 27,200m³ · 蒸汽 1,380t · 购绿电 1,200MWh · 增加值 ¥3,950万',
+      summary: '用水 8,650t · 气 27,200m³ · 蒸汽 1,380t · 购绿电 1,200,000kWh · 增加值 ¥3,950万',
       totalCostWan: '175.40',
-      status: '已入库',
-    },
-    {
-      id: 'REC-03',
-      batch: 'DR-202607-01',
-      year: '2026',
-      month: '07',
-      submitter: '刘伟',
-      submitTime: '2026-07-26 11:20',
-      summary: '柴油 350L · 液氧 42t · 购绿电 2,100MWh · 绿证 15,000个 · 2级设备 3,200kW',
-      totalCostWan: '162.15',
-      status: '已入库',
-    },
-    {
-      id: 'REC-04',
-      batch: 'DR-202606-03',
-      year: '2026',
-      month: '06',
-      submitter: '张海',
-      submitTime: '2026-06-28 10:45',
-      summary: '用水 6,200t · 气 19,800m³ · 购绿电 850MWh · 绿证 8,000个 · 统计设备 4,200kW',
-      totalCostWan: '141.20',
       status: '已入库',
     },
   ])
 
-  // 成功提示
-  const [successToast, setSuccessToast] = useState<{ show: boolean; msg: string; batch: string }>({
-    show: false,
-    msg: '',
-    batch: '',
-  })
-
-  // 行内数值更新
-  const handleValueChange = (id: string, newVal: string) => {
-    setEntryRows((prev) =>
+  // 修改单个指标值
+  const handleMetricChange = (id: string, newVal: string) => {
+    setMetrics((prev) =>
       prev.map((item) => (item.id === id ? { ...item, value: newVal } : item))
     )
   }
 
-  // 行内备注更新
-  const handleRemarkChange = (id: string, newRemark: string) => {
-    setEntryRows((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, remark: newRemark } : item))
-    )
+  // 切换 日 / 月 填报模式
+  const handleToggleDimMode = (id: 'm-1' | 'm-3', mode: 'month' | 'day') => {
+    setDimModes((prev) => ({ ...prev, [id]: mode }))
+    if (mode === 'day') {
+      const list = id === 'm-1' ? waterDailyList : steamDailyList
+      const sum = Math.round(list.reduce((a, b) => a + b, 0) * 10) / 10
+      handleMetricChange(id, String(sum))
+    }
   }
 
-  // 设备功率直接在行内更新
-  const handleEquipPowerChange = (target: 'level2' | 'all', id: string, newKw: string) => {
-    const val = parseFloat(newKw) || 0
-    if (target === 'level2') {
-      setEquipListLevel2((prev) => prev.map((e) => (e.id === id ? { ...e, powerKw: val } : e)))
+  // 打开每日数据录入弹窗
+  const handleOpenDailyModal = (id: 'm-1' | 'm-3') => {
+    setActiveDailyModal(id)
+    const current = id === 'm-1' ? waterDailyList : steamDailyList
+    setTempDailyList([...current])
+  }
+
+  // 计算弹窗内 31 天临时总和
+  const tempDailySum = useMemo(() => {
+    return Math.round(tempDailyList.reduce((a, b) => a + (parseFloat(b as any) || 0), 0) * 10) / 10
+  }, [tempDailyList])
+
+  // 弹窗保存并同步回填
+  const handleSaveDailyModal = () => {
+    if (!activeDailyModal) return
+    if (activeDailyModal === 'm-1') {
+      setWaterDailyList(tempDailyList)
+      handleMetricChange('m-1', String(tempDailySum))
     } else {
-      setEquipListAll((prev) => prev.map((e) => (e.id === id ? { ...e, powerKw: val } : e)))
+      setSteamDailyList(tempDailyList)
+      handleMetricChange('m-3', String(tempDailySum))
+    }
+    setActiveDailyModal(null)
+  }
+
+  // 智能均摊 31 天
+  const handleDistributeAverage = (targetTotal: number) => {
+    const list = generateInitialDaily(targetTotal, 31)
+    setTempDailyList(list)
+  }
+
+  // 快捷功能：⚡ 一键带入上月数据
+  const handleApplyLastMonthData = () => {
+    if (confirm('确认使用【2026年07月】历史基准数据自动填充当前申报表？')) {
+      setMetrics((prev) =>
+        prev.map((item) => ({ ...item, value: item.lastMonthValue }))
+      )
+      setSuccessToast({
+        show: true,
+        msg: '已成功带入上月基准数据！您可以针对本月实际变动项进行微调后直接提交。',
+        batch: 'FAST-FILL',
+      })
+      setTimeout(() => setSuccessToast({ show: false, msg: '', batch: '' }), 4000)
     }
   }
 
-  // 设备用途/位置直接在行内更新
-  const handleEquipUsageChange = (target: 'level2' | 'all', id: string, newUsage: string) => {
-    if (target === 'level2') {
-      setEquipListLevel2((prev) => prev.map((e) => (e.id === id ? { ...e, usage: newUsage } : e)))
-    } else {
-      setEquipListAll((prev) => prev.map((e) => (e.id === id ? { ...e, usage: newUsage } : e)))
-    }
-  }
+  // 计算填报完成进度
+  const completedCount = useMemo(() => {
+    return metrics.filter((m) => m.value && m.value.trim() !== '').length
+  }, [metrics])
+  const progressPercent = Math.round((completedCount / metrics.length) * 100)
 
-  // 表格行内新增设备行
-  const handleAddEquipmentRow = (target: 'level2' | 'all') => {
-    const newId = `eq-${Date.now()}`
-    const defaultItem: EquipmentItem = {
-      id: newId,
-      name: target === 'level2' ? '新入网高效电机/变压器' : '新纳入统计用能机组',
-      type: target === 'level2' ? '电动机' : '容积式空气压缩机',
-      usage: '生产现场主供设备',
-      powerKw: 100,
-      standardLevel: '2级 (达到国标)',
-      deployDate: `${selectedYear}-${selectedMonth}-01`,
-    }
+  // 计算本月能源费用总支出
+  const totalCostWan = useMemo(() => {
+    return metrics
+      .filter((m) => m.category === 'cost')
+      .reduce((sum, m) => sum + (parseFloat(m.value) || 0), 0)
+      .toFixed(2)
+  }, [metrics])
 
-    if (target === 'level2') {
-      setEquipListLevel2([...equipListLevel2, defaultItem])
-      setIsLevel2Expanded(true)
-    } else {
-      setEquipListAll([...equipListAll, defaultItem])
-      setIsAllEquipExpanded(true)
-    }
-  }
-
-  // 表格行内删除设备行
-  const handleDeleteEquipmentRow = (target: 'level2' | 'all', id: string) => {
-    if (target === 'level2') {
-      setEquipListLevel2(equipListLevel2.filter((e) => e.id !== id))
-    } else {
-      setEquipListAll(equipListAll.filter((e) => e.id !== id))
-    }
-  }
-
-  // 计算两类重点设备总功率
+  // 设备总装机功率
   const level2TotalKw = useMemo(() => equipListLevel2.reduce((s, e) => s + e.powerKw, 0), [equipListLevel2])
   const allEquipTotalKw = useMemo(() => equipListAll.reduce((s, e) => s + e.powerKw, 0), [equipListAll])
 
-  // 动态计算当期费用合计
-  const currentCostTotal = useMemo(() => {
-    return entryRows
-      .filter((r) => r.category === 'cost')
-      .reduce((sum, r) => sum + (parseFloat(r.value) || 0), 0)
-      .toFixed(2)
-  }, [entryRows])
+  // 确认添加设备
+  const handleConfirmAddEquipment = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!formDevName.trim() || !formDevPower.trim()) {
+      alert('请填写设备名称及额定功率！')
+      return
+    }
+    const kw = parseFloat(formDevPower) || 0
+    const newItem: EquipmentItem = {
+      id: `eq-${Date.now()}`,
+      name: formDevName.trim(),
+      type: formDevType,
+      usage: formDevUsage.trim() || '生产车间主供机组',
+      powerKw: kw,
+    }
 
-  // 提交保存处理
+    if (addModalTarget === 'm-15') {
+      const updated = [...equipListLevel2, newItem]
+      setEquipListLevel2(updated)
+      handleMetricChange('m-15', String(updated.reduce((s, x) => s + x.powerKw, 0)))
+    } else {
+      const updated = [...equipListAll, newItem]
+      setEquipListAll(updated)
+      handleMetricChange('m-16', String(updated.reduce((s, x) => s + x.powerKw, 0)))
+    }
+
+    setFormDevName('')
+    setFormDevUsage('')
+    setFormDevPower('')
+    setAddModalTarget(null)
+  }
+
+  // 删除设备
+  const handleDeleteEquipment = (target: 'm-15' | 'm-16', eqId: string) => {
+    if (target === 'm-15') {
+      const updated = equipListLevel2.filter((e) => e.id !== eqId)
+      setEquipListLevel2(updated)
+      handleMetricChange('m-15', String(updated.reduce((s, x) => s + x.powerKw, 0)))
+    } else {
+      const updated = equipListAll.filter((e) => e.id !== eqId)
+      setEquipListAll(updated)
+      handleMetricChange('m-16', String(updated.reduce((s, x) => s + x.powerKw, 0)))
+    }
+  }
+
+  // 提交保存入库
   const handleSaveEntry = (status: '已入库' | '待复核') => {
     const now = new Date()
     const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
     const batchCode = `DR-${selectedYear}${selectedMonth}-${String(historyList.length + 1).padStart(2, '0')}`
 
-    const summaryText = `水 ${entryRows[0].value}t · 气 ${entryRows[1].value}m³ · 2级重点设备 ${level2TotalKw}kW · 零碳园区已归档`
+    const summaryText = `水 ${metrics[0].value}t · 气 ${metrics[1].value}m³ · 绿电 ${metrics[10].value}kWh · 2级设备 ${level2TotalKw}kW · 园区基本信息已归档`
 
     const newRecord: HistoryRecord = {
       id: `REC-${Date.now()}`,
@@ -505,120 +375,140 @@ export default function ManualEntryPage() {
       submitter: submitterName,
       submitTime: timeStr,
       summary: summaryText,
-      totalCostWan: currentCostTotal,
+      totalCostWan,
       status,
     }
 
     setHistoryList([newRecord, ...historyList])
     setSuccessToast({
       show: true,
-      msg: `${selectedYear}年${selectedMonth}月全量数据（含重点设备明细）已成功${status === '已入库' ? '校验入库' : '保存待复核'}！已记入历史台账。`,
+      msg: `${selectedYear}年${selectedMonth}月工厂数据申报已成功${status === '已入库' ? '校验入库' : '保存待复核'}！已自动计入台账。`,
       batch: batchCode,
     })
 
-    setTimeout(() => {
-      setSuccessToast({ show: false, msg: '', batch: '' })
-    }, 4500)
+    setTimeout(() => setSuccessToast({ show: false, msg: '', batch: '' }), 4500)
   }
-
-  const handleDeleteHistory = (id: string) => {
-    if (confirm('确认从历史台账中删除此批次记录？')) {
-      setHistoryList(historyList.filter((h) => h.id !== id))
-    }
-  }
-
-  // 模拟添加照片
-  const handleAddPhoto = (target: 'park' | 'project') => {
-    const sample = 'https://images.unsplash.com/photo-1497440001374-f26997328c1b?w=500&auto=format&fit=crop&q=60'
-    if (target === 'park') {
-      setParkPhotos([...parkPhotos, sample])
-      alert('已成功模拟上传 1 张园区现场高分照片！')
-    } else {
-      setProjectPhotos([...projectPhotos, sample])
-      alert('已成功模拟上传 1 张零碳项目实景照片！')
-    }
-  }
-
-  // 添加关键事件
-  const handleAddKeyEvent = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newEventTitle.trim()) return
-    const newEv: KeyEventItem = {
-      id: `ev-${Date.now()}`,
-      date: newEventDate,
-      title: newEventTitle,
-      type: '光伏并网',
-    }
-    setKeyEvents([newEv, ...keyEvents])
-    setNewEventTitle('')
-    alert('已成功添加零碳关键事件！')
-  }
-
-  // 重点设备分类所占的主表格 rowSpan（包括主行和各设备子明细行）
-  const equipTotalRowSpan = (1 + (isLevel2Expanded ? equipListLevel2.length : 0)) + (1 + (isAllEquipExpanded ? equipListAll.length : 0))
 
   return (
-    <div className="space-y-3.5">
-      {/* 🌟 1. 顶部标题栏 */}
-      <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/20 border border-primary/30 text-primary">
-            {viewMode === 'entry' ? <FileEdit className="size-4.5" /> : <History className="size-4.5" />}
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-sm font-bold text-foreground">
-                {viewMode === 'entry' ? '能碳数据手动录入' : '历史填报台账全量明细'}
-              </h1>
-              <span className="px-2 py-0.5 rounded text-[10px] bg-blue-500/10 text-[#1677ff] font-bold">
-                {viewMode === 'entry' ? '标准 19 项指标 · 设备台账融入表格' : '归档数据'}
-              </span>
+    <div className="space-y-4">
+      {/* 🌟 1. 顶部工厂月度申报看板 */}
+      <div className="rounded-2xl border bg-card border-border p-4 shadow-sm space-y-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 border border-primary/30 text-primary">
+              <Factory className="size-6" />
             </div>
-            <p className="text-[11px] text-muted-foreground">
-              {viewMode === 'entry'
-                ? '独立拆分【重点设备】与【零碳园区】，设备明细台账无缝融入主表格，支持行内直接录入设备名称、类型、功率并实时汇总。'
-                : '查看以往月份已归档入库的能碳指标与设备资产台账明细。'}
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-bold text-foreground">
+                  {selectedYear} 年 {selectedMonth} 月度工厂能碳数据定时申报
+                </h1>
+                <span className="px-2 py-0.5 rounded text-[11px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold flex items-center gap-1">
+                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  申报开放中
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                申报单位：<span className="font-semibold text-foreground">特变电工沈阳变压器工厂</span> · 截止时间：2026-09-05 24:00 (剩余 2 天)
+              </p>
+            </div>
+          </div>
+
+          {/* 快捷操作区 */}
+          <div className="flex items-center gap-2">
+            {/* 一键带入上月数据 */}
+            <button
+              type="button"
+              onClick={handleApplyLastMonthData}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 text-xs font-bold cursor-pointer transition-all shadow-2xs"
+              title="复用7月份已有数据，快速完成8月微调"
+            >
+              <Zap className="size-3.5 text-amber-400 fill-amber-400" />
+              <span>⚡ 一键带入上月数据</span>
+            </button>
+
+            {/* 导出/导入 */}
+            <button
+              type="button"
+              onClick={() => alert('已为您生成 2026年08月 离线申报 Excel 模板！')}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-panel/70 border-border hover:bg-panel/80 text-xs font-semibold text-foreground cursor-pointer transition-colors shadow-2xs"
+            >
+              <Download className="size-3.5 text-muted-foreground" />
+              <span>下载模板</span>
+            </button>
+
+            {/* 历史台账 */}
+            <button
+              type="button"
+              onClick={() => setViewMode(viewMode === 'entry' ? 'history' : 'entry')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-panel/70 border-border hover:bg-panel/80 text-xs font-bold text-foreground cursor-pointer transition-colors shadow-2xs"
+            >
+              <History className="size-3.5 text-primary" />
+              <span>历史台账 ({historyList.length})</span>
+            </button>
           </div>
         </div>
 
-        {/* 顶部操作入口：历史台账内页 */}
-        <div className="flex items-center gap-2">
-          {viewMode === 'entry' ? (
+        {/* 申报进度条与视图切换控制 */}
+        <div className="pt-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-3 flex-1 min-w-[300px]">
+            <span className="font-bold text-foreground shrink-0">
+              申报完成度：
+              <span className="text-primary font-mono text-sm">{completedCount}</span> / {metrics.length} 项
+            </span>
+            <div className="flex-1 max-w-xs h-2 rounded-full bg-slate-800 overflow-hidden border border-border/60">
+              <div
+                className="h-full bg-linear-to-r from-blue-500 to-emerald-500 transition-all duration-300 rounded-full"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <span className="font-mono text-xs font-bold text-muted-foreground/70">{progressPercent}%</span>
+          </div>
+
+          {/* 切换卡片视图 vs 紧凑表格 */}
+          <div className="flex items-center gap-1 bg-[#0b1324] border-border p-0.5 rounded-lg border">
             <button
               type="button"
-              onClick={() => setViewMode('history')}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-border bg-panel hover:bg-slate-200/60 text-xs font-semibold text-foreground cursor-pointer transition-colors shadow-2xs"
+              onClick={() => setDisplayLayout('card')}
+              className={cn(
+                'flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold cursor-pointer transition-all',
+                displayLayout === 'card'
+                  ? 'bg-card text-primary shadow-xs border border-border'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
             >
-              <History className="size-3.5 text-[#1677ff]" />
-              <span>历史台账 ({historyList.length})</span>
-              <ArrowRight className="size-3 text-slate-400" />
+              <LayoutGrid className="size-3.5" />
+              <span>业务分组卡片</span>
             </button>
-          ) : (
             <button
               type="button"
-              onClick={() => setViewMode('entry')}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold cursor-pointer transition-colors shadow-2xs"
+              onClick={() => setDisplayLayout('table')}
+              className={cn(
+                'flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold cursor-pointer transition-all',
+                displayLayout === 'table'
+                  ? 'bg-card text-primary shadow-xs border border-border'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
             >
-              <ArrowLeft className="size-3.5" />
-              <span>返回数据填报页</span>
+              <TableIcon className="size-3.5" />
+              <span>紧凑对比表格</span>
             </button>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* 成功提醒横幅 */}
+      {/* 成功入库提示 */}
       {successToast.show && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/90 px-4 py-2.5 text-xs text-emerald-800 shadow-2xs animate-in fade-in">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/15 px-4 py-2.5 text-xs text-emerald-300 shadow-xs animate-in fade-in">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-            <span className="font-bold">入库成功（{successToast.batch}）：</span>
+            <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
+            <span className="font-bold">操作成功（{successToast.batch}）：</span>
             <span>{successToast.msg}</span>
           </div>
           <button
             type="button"
             onClick={() => setSuccessToast({ show: false, msg: '', batch: '' })}
-            className="text-emerald-700 hover:text-emerald-900 cursor-pointer font-bold ml-2"
+            className="text-emerald-400 hover:text-emerald-200 cursor-pointer font-bold ml-2"
           >
             ✕
           </button>
@@ -626,656 +516,628 @@ export default function ManualEntryPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 视图 1：录入工作台 (设备明细无缝融入主表格) */}
+      {/* 视图模式 1：填报工作台 */}
       {/* ========================================================================= */}
       {viewMode === 'entry' && (
-        <Panel className="p-3.5 space-y-3">
-          {/* 🌟 2. 月度卡片切换条 */}
-          <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-xl border border-border bg-panel">
-            {/* 年份选择器 */}
-            <div className="flex items-center gap-1.5 rounded-lg border border-border bg-white px-2.5 py-1 text-xs shadow-2xs shrink-0">
-              <Calendar className="size-3.5 text-blue-500" />
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="border-0 bg-transparent text-xs font-bold text-foreground focus:outline-none cursor-pointer"
-              >
-                <option value="2026">2026 年</option>
-                <option value="2025">2025 年</option>
-                <option value="2024">2024 年</option>
-              </select>
-            </div>
+        <div className="space-y-4">
+          {/* A. 业务分组卡片布局 */}
+          {displayLayout === 'card' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* 卡片 1：💧 能源介质消耗量 (5项，支持用水量和蒸汽量选择日/月填报，已移除环比) */}
+              <div className="rounded-2xl border bg-card border-border p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="size-7 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center">
+                      <Droplet className="size-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground">1. 能源介质实物消耗量</h3>
+                      <p className="text-[11px] text-muted-foreground">水、气、蒸汽、油料、液氧实测消耗（支持日/月灵活填报）</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] bg-amber-950/40 text-amber-300 border border-amber-800/60 font-bold">
+                    5 项指标
+                  </span>
+                </div>
 
-            {/* 12个月度平铺切换卡片 */}
-            <div className="grid grid-cols-6 sm:grid-cols-12 gap-1 flex-1 min-w-[500px]">
-              {MONTH_CARDS.map((m) => {
-                const isSelected = selectedMonth === m.value
-                return (
-                  <button
-                    key={m.value}
-                    type="button"
-                    onClick={() => setSelectedMonth(m.value)}
-                    className={cn(
-                      'flex flex-col items-center justify-center py-1 px-1.5 rounded-lg border text-center transition-all cursor-pointer select-none text-xs',
-                      isSelected
-                        ? 'bg-[#1677ff] text-white border-blue-600 font-bold shadow-xs ring-2 ring-blue-500/20'
-                        : m.isFilled
-                        ? 'bg-white hover:bg-blue-50/50 border-border text-foreground'
-                        : 'bg-white/70 hover:bg-slate-100/70 border-dashed border-slate-200 text-muted-foreground'
-                    )}
-                  >
-                    <span className="font-mono text-xs">{m.label}</span>
-                    <span
-                      className={cn(
-                        'text-[9px] scale-90 leading-tight',
-                        isSelected
-                          ? 'text-white/90 font-medium'
-                          : m.isFilled
-                          ? 'text-emerald-600 font-medium'
-                          : 'text-slate-400'
-                      )}
-                    >
-                      {isSelected ? '填报中' : m.isFilled ? '已填报' : '未录入'}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {metrics.slice(0, 5).map((m) => {
+                    const isDayMonthSupported = m.id === 'm-1' || m.id === 'm-3'
+                    const mode = isDayMonthSupported ? dimModes[m.id as 'm-1' | 'm-3'] : 'month'
 
-            {/* 当前月份状态小标 */}
-            <div className="shrink-0 px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200/80 text-[11px] font-mono text-[#1677ff] font-bold hidden lg:flex items-center gap-1">
-              <span>{selectedYear}年{selectedMonth}月</span>
-              <span className="text-[10px] text-blue-500 font-normal">填报中</span>
-            </div>
-          </div>
-
-          {/* 🌟 3. 单行分类过滤栏 (拆分为【重点设备】和【零碳园区】) */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1 pb-1">
-            <div className="flex flex-wrap items-center gap-1 text-xs">
-              <button
-                type="button"
-                onClick={() => setCategoryFilter('all')}
-                className={cn(
-                  'px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors',
-                  categoryFilter === 'all'
-                    ? 'bg-[#1677ff] text-white font-bold'
-                    : 'bg-panel text-muted-foreground hover:bg-slate-200/60'
-                )}
-              >
-                全部 (19)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCategoryFilter('energy')}
-                className={cn(
-                  'px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors',
-                  categoryFilter === 'energy'
-                    ? 'bg-amber-600 text-white font-bold'
-                    : 'bg-panel text-muted-foreground hover:bg-slate-200/60'
-                )}
-              >
-                能源消耗 (5)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCategoryFilter('cost')}
-                className={cn(
-                  'px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors',
-                  categoryFilter === 'cost'
-                    ? 'bg-emerald-600 text-white font-bold'
-                    : 'bg-panel text-muted-foreground hover:bg-slate-200/60'
-                )}
-              >
-                能源费用 (5)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCategoryFilter('green')}
-                className={cn(
-                  'px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors',
-                  categoryFilter === 'green'
-                    ? 'bg-purple-600 text-white font-bold'
-                    : 'bg-panel text-muted-foreground hover:bg-slate-200/60'
-                )}
-              >
-                绿电与绿证 (2)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCategoryFilter('economy')}
-                className={cn(
-                  'px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors',
-                  categoryFilter === 'economy'
-                    ? 'bg-blue-600 text-white font-bold'
-                    : 'bg-panel text-muted-foreground hover:bg-slate-200/60'
-                )}
-              >
-                经济与产量 (2)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCategoryFilter('equipment')}
-                className={cn(
-                  'px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors',
-                  categoryFilter === 'equipment'
-                    ? 'bg-indigo-600 text-white font-bold'
-                    : 'bg-panel text-muted-foreground hover:bg-slate-200/60'
-                )}
-              >
-                重点设备 (2项及明细)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCategoryFilter('park')}
-                className={cn(
-                  'px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors',
-                  categoryFilter === 'park'
-                    ? 'bg-teal-600 text-white font-bold'
-                    : 'bg-panel text-muted-foreground hover:bg-slate-200/60'
-                )}
-              >
-                零碳园区 (3)
-              </button>
-            </div>
-          </div>
-
-          {/* 🌟 4. 设备明细台账完全融入主表格 (同一套表头，行内直接录入与汇总) */}
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-border bg-panel text-foreground font-semibold">
-                  <th className="py-2.5 px-3 w-14 text-center text-slate-400 font-mono">序号</th>
-                  <th className="py-2.5 px-3 w-28 text-center font-bold">业务分类</th>
-                  <th className="py-2.5 px-3 w-72 font-bold text-foreground">数据项 / 重点设备名称</th>
-                  <th className="py-2.5 px-3 w-20 text-center">数据对象</th>
-                  <th className="py-2.5 px-3 w-20 text-center">时间维度</th>
-                  <th className="py-2.5 px-3 w-16 text-center">单位</th>
-                  <th className="py-2.5 px-3 min-w-[300px] font-bold text-[#1677ff]">
-                    录入数值 / 设备明细
-                  </th>
-                  <th className="py-2.5 px-3">填报说明 / 设备用途与范围</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y border-border/60 text-muted-foreground">
-                {/* 1. 能源消耗量 (row-1 ~ row-5) */}
-                {(categoryFilter === 'all' || categoryFilter === 'energy') &&
-                  entryRows.slice(0, 5).map((row, idx) => (
-                    <tr key={row.id} className="hover:bg-panel/60 transition-colors">
-                      <td className="py-2.5 px-3 text-center font-mono text-muted-foreground/80">{idx + 1}</td>
-                      {idx === 0 && (
-                        <td rowSpan={5} className="py-3 px-3 text-center align-middle bg-panel/40 border-r border-border/60">
-                          <div className="flex flex-col items-center justify-center gap-1">
-                            <span className="px-2 py-1 rounded-md text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs whitespace-nowrap">
-                              能源消耗量
-                            </span>
-                            <span className="text-[10px] text-muted-foreground/80 font-mono">5 项</span>
+                    return (
+                      <div key={m.id} className="p-3 rounded-xl border border-border bg-panel/70 border-border space-y-1.5 focus-within:border-primary transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-foreground">{m.name}</span>
+                            {/* 日 / 月 填报选择胶囊 */}
+                            {isDayMonthSupported && (
+                              <div className="flex items-center bg-[#0b1324] border border-border p-0.5 rounded-md text-[10px]">
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleDimMode(m.id as 'm-1' | 'm-3', 'month')}
+                                  className={cn(
+                                    'px-1.5 py-0.5 rounded font-bold cursor-pointer transition-all',
+                                    mode === 'month'
+                                      ? 'bg-card text-primary shadow-2xs border border-border'
+                                      : 'text-muted-foreground/70 hover:text-foreground'
+                                  )}
+                                >
+                                  月数据
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleDimMode(m.id as 'm-1' | 'm-3', 'day')}
+                                  className={cn(
+                                    'px-1.5 py-0.5 rounded font-bold cursor-pointer transition-all',
+                                    mode === 'day'
+                                      ? 'bg-primary text-primary-foreground shadow-2xs'
+                                      : 'text-muted-foreground/70 hover:text-foreground'
+                                  )}
+                                >
+                                  日数据
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        </td>
-                      )}
-                      <td className="py-2.5 px-3 font-bold text-foreground text-xs">{row.name}</td>
-                      <td className="py-2.5 px-3 text-center"><span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-foreground font-mono">{row.target}</span></td>
-                      <td className="py-2.5 px-3 font-mono text-[11px] text-center text-foreground">{row.dimension}</td>
-                      <td className="py-2.5 px-3 font-bold font-mono text-center text-slate-700">{row.unit}</td>
-                      <td className="py-2 px-3">
+                          <span className="text-[11px] font-mono text-muted-foreground/70">上月: {m.lastMonthValue} {m.unit}</span>
+                        </div>
+
+                        {/* 输入框与日数据录入按钮布局 */}
+                        {isDayMonthSupported && mode === 'day' ? (
+                          <div className="flex items-center gap-2">
+                            <div className="relative flex items-center flex-1">
+                              <input
+                                type="text"
+                                readOnly
+                                value={m.value}
+                                className="w-full pl-3 pr-16 py-1.5 bg-primary/10 border border-primary/30 text-primary rounded-lg text-xs font-mono font-bold shadow-2xs"
+                              />
+                              <span className="absolute right-3 text-[10px] font-bold text-primary select-none">
+                                {m.unit} (日累加)
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenDailyModal(m.id as 'm-1' | 'm-3')}
+                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold cursor-pointer transition-colors shrink-0 shadow-2xs"
+                            >
+                              <Calendar className="size-3.5" />
+                              <span>录入日数据</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="relative flex items-center">
+                            <input
+                              type="number"
+                              step="any"
+                              value={m.value}
+                              onChange={(e) => handleMetricChange(m.id, e.target.value)}
+                              className="w-full pl-3 pr-12 py-1.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-mono font-bold shadow-2xs focus:outline-none"
+                              placeholder={isDayMonthSupported ? "输入本月总数据..." : "输入数值..."}
+                            />
+                            <span className="absolute right-3 text-xs font-mono font-bold text-muted-foreground/70 select-none">
+                              {m.unit}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* 卡片 2：💰 能源费用账单 (5项，已移除环比) */}
+              <div className="rounded-2xl border bg-card border-border p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="size-7 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center">
+                      <Zap className="size-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground">2. 能源费用发票账单</h3>
+                      <p className="text-[11px] text-muted-foreground">市电、天然气、蒸汽、水务、油品结算总额</p>
+                    </div>
+                  </div>
+                  <div className="flex items-baseline gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/40 border border-emerald-800/60 text-emerald-300 font-mono text-xs font-bold">
+                    <span className="text-[10px] text-emerald-400 font-normal">费用合计:</span>
+                    <span className="text-sm font-black">¥ {totalCostWan}</span>
+                    <span className="text-[10px]">万元</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {metrics.slice(5, 10).map((m) => {
+                    return (
+                      <div key={m.id} className="p-3 rounded-xl border border-border bg-panel/70 border-border space-y-1.5 focus-within:border-emerald-500 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">{m.name}</span>
+                          <span className="text-[11px] font-mono text-muted-foreground/70">上月: ¥{m.lastMonthValue}万</span>
+                        </div>
                         <div className="relative flex items-center">
                           <input
                             type="number"
-                            value={row.value}
-                            onChange={(e) => handleValueChange(row.id, e.target.value)}
-                            className="w-full pl-3 pr-12 py-1.5 text-xs font-mono font-bold rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs"
-                            placeholder="请输入数值..."
+                            step="any"
+                            value={m.value}
+                            onChange={(e) => handleMetricChange(m.id, e.target.value)}
+                            className="w-full pl-3 pr-14 py-1.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-mono font-bold shadow-2xs focus:outline-none focus:border-emerald-500"
+                            placeholder="输入金额..."
                           />
-                          <span className="absolute right-3 text-[11px] font-bold text-slate-400 font-mono select-none pointer-events-none">{row.unit}</span>
-                        </div>
-                      </td>
-                      <td className="py-2 px-3">
-                        <input
-                          type="text"
-                          value={row.remark}
-                          onChange={(e) => handleRemarkChange(row.id, e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-[11px] rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 text-slate-600"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-
-                {/* 2. 能源费用 (row-6 ~ row-10) */}
-                {(categoryFilter === 'all' || categoryFilter === 'cost') &&
-                  entryRows.slice(5, 10).map((row, idx) => (
-                    <tr key={row.id} className="hover:bg-panel/60 transition-colors">
-                      <td className="py-2.5 px-3 text-center font-mono text-muted-foreground/80">{idx + 6}</td>
-                      {idx === 0 && (
-                        <td rowSpan={5} className="py-3 px-3 text-center align-middle bg-panel/40 border-r border-border/60">
-                          <div className="flex flex-col items-center justify-center gap-1">
-                            <span className="px-2 py-1 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs whitespace-nowrap">
-                              能源费用
-                            </span>
-                            <span className="text-[10px] text-muted-foreground/80 font-mono">5 项</span>
-                          </div>
-                        </td>
-                      )}
-                      <td className="py-2.5 px-3 font-bold text-foreground text-xs">{row.name}</td>
-                      <td className="py-2.5 px-3 text-center"><span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-foreground font-mono">{row.target}</span></td>
-                      <td className="py-2.5 px-3 font-mono text-[11px] text-center text-foreground">{row.dimension}</td>
-                      <td className="py-2.5 px-3 font-bold font-mono text-center text-slate-700">{row.unit}</td>
-                      <td className="py-2 px-3">
-                        <div className="relative flex items-center">
-                          <input
-                            type="number"
-                            value={row.value}
-                            onChange={(e) => handleValueChange(row.id, e.target.value)}
-                            className="w-full pl-3 pr-12 py-1.5 text-xs font-mono font-bold rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs"
-                            placeholder="请输入数值..."
-                          />
-                          <span className="absolute right-3 text-[11px] font-bold text-slate-400 font-mono select-none pointer-events-none">{row.unit}</span>
-                        </div>
-                      </td>
-                      <td className="py-2 px-3">
-                        <input
-                          type="text"
-                          value={row.remark}
-                          onChange={(e) => handleRemarkChange(row.id, e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-[11px] rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 text-slate-600"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-
-                {/* 3. 绿电与绿证 (row-11 ~ row-12) */}
-                {(categoryFilter === 'all' || categoryFilter === 'green') &&
-                  entryRows.slice(10, 12).map((row, idx) => (
-                    <tr key={row.id} className="hover:bg-panel/60 transition-colors">
-                      <td className="py-2.5 px-3 text-center font-mono text-muted-foreground/80">{idx + 11}</td>
-                      {idx === 0 && (
-                        <td rowSpan={2} className="py-3 px-3 text-center align-middle bg-panel/40 border-r border-border/60">
-                          <div className="flex flex-col items-center justify-center gap-1">
-                            <span className="px-2 py-1 rounded-md text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs whitespace-nowrap">
-                              绿电与绿证
-                            </span>
-                            <span className="text-[10px] text-muted-foreground/80 font-mono">2 项</span>
-                          </div>
-                        </td>
-                      )}
-                      <td className="py-2.5 px-3 font-bold text-foreground text-xs">{row.name}</td>
-                      <td className="py-2.5 px-3 text-center"><span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-foreground font-mono">{row.target}</span></td>
-                      <td className="py-2.5 px-3 font-mono text-[11px] text-center text-foreground">{row.dimension}</td>
-                      <td className="py-2.5 px-3 font-bold font-mono text-center text-slate-700">{row.unit}</td>
-                      <td className="py-2 px-3">
-                        <div className="relative flex items-center">
-                          <input
-                            type="number"
-                            value={row.value}
-                            onChange={(e) => handleValueChange(row.id, e.target.value)}
-                            className="w-full pl-3 pr-12 py-1.5 text-xs font-mono font-bold rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs"
-                            placeholder="请输入数值..."
-                          />
-                          <span className="absolute right-3 text-[11px] font-bold text-slate-400 font-mono select-none pointer-events-none">{row.unit}</span>
-                        </div>
-                      </td>
-                      <td className="py-2 px-3">
-                        <input
-                          type="text"
-                          value={row.remark}
-                          onChange={(e) => handleRemarkChange(row.id, e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-[11px] rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 text-slate-600"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-
-                {/* 4. 经济与产量 (row-13 ~ row-14) */}
-                {(categoryFilter === 'all' || categoryFilter === 'economy') &&
-                  entryRows.slice(12, 14).map((row, idx) => (
-                    <tr key={row.id} className="hover:bg-panel/60 transition-colors">
-                      <td className="py-2.5 px-3 text-center font-mono text-muted-foreground/80">{idx + 13}</td>
-                      {idx === 0 && (
-                        <td rowSpan={2} className="py-3 px-3 text-center align-middle bg-panel/40 border-r border-border/60">
-                          <div className="flex flex-col items-center justify-center gap-1">
-                            <span className="px-2 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs whitespace-nowrap">
-                              经济与产量
-                            </span>
-                            <span className="text-[10px] text-muted-foreground/80 font-mono">2 项</span>
-                          </div>
-                        </td>
-                      )}
-                      <td className="py-2.5 px-3 font-bold text-foreground text-xs">{row.name}</td>
-                      <td className="py-2.5 px-3 text-center"><span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-foreground font-mono">{row.target}</span></td>
-                      <td className="py-2.5 px-3 font-mono text-[11px] text-center text-foreground">{row.dimension}</td>
-                      <td className="py-2.5 px-3 font-bold font-mono text-center text-slate-700">{row.unit}</td>
-                      <td className="py-2 px-3">
-                        <div className="relative flex items-center">
-                          <input
-                            type="number"
-                            value={row.value}
-                            onChange={(e) => handleValueChange(row.id, e.target.value)}
-                            className="w-full pl-3 pr-12 py-1.5 text-xs font-mono font-bold rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs"
-                            placeholder="请输入数值..."
-                          />
-                          <span className="absolute right-3 text-[11px] font-bold text-slate-400 font-mono select-none pointer-events-none">{row.unit}</span>
-                        </div>
-                      </td>
-                      <td className="py-2 px-3">
-                        <input
-                          type="text"
-                          value={row.remark}
-                          onChange={(e) => handleRemarkChange(row.id, e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-[11px] rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 text-slate-600"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-
-                {/* 5. 🌟 重点设备分类 (台账明细完全融入主表格) */}
-                {(categoryFilter === 'all' || categoryFilter === 'equipment') && (
-                  <>
-                    {/* A. 主指标 15：达到或优于能效强制性国家标准 2 级设备明细 */}
-                    <tr className="bg-indigo-50/40 font-semibold border-t-2 border-indigo-100">
-                      <td className="py-2 px-3 text-center font-mono text-indigo-700 font-bold">15</td>
-                      <td rowSpan={equipTotalRowSpan} className="py-3 px-3 text-center align-middle bg-panel/40 border-r border-border/60">
-                        <div className="flex flex-col items-center justify-center gap-1">
-                          <span className="px-2 py-1 rounded-md text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs whitespace-nowrap">
-                            重点设备
+                          <span className="absolute right-3 text-xs font-mono font-bold text-muted-foreground/70 select-none">
+                            万元
                           </span>
-                          <span className="text-[10px] text-muted-foreground/80 font-mono">2 大类台账</span>
                         </div>
-                      </td>
-                      <td className="py-2 px-3">
-                        <div className="font-bold text-indigo-950 text-xs">达到或优于能效强制性国家标准 2 级的设备明细</div>
-                        <div className="text-[10px] text-indigo-600 font-normal mt-0.5">
-                          范围：电动机、变压器、工业锅炉、风机、容积式空气压缩机、工业制冷设备、热泵等
-                        </div>
-                      </td>
-                      <td className="py-2 px-3 text-center"><span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700 font-mono">工厂</span></td>
-                      <td className="py-2 px-3 text-center font-mono text-[11px] text-slate-700">增量更新</td>
-                      <td className="py-2 px-3 text-center font-mono font-bold text-indigo-700">kW</td>
-                      <td className="py-2 px-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-baseline font-mono bg-indigo-100/80 px-2 py-0.5 rounded text-xs">
-                            <span className="text-[10px] text-indigo-700 font-normal mr-1">总功率:</span>
-                            <span className="font-black text-indigo-950 text-sm">{level2TotalKw.toLocaleString()}</span>
-                            <span className="ml-1 text-[10px] font-bold text-indigo-700">kW</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleAddEquipmentRow('level2')}
-                            className="flex items-center gap-1 px-2 py-1 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold cursor-pointer shadow-2xs transition-colors"
-                          >
-                            <Plus className="size-3" />
-                            <span>添加设备行</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setIsLevel2Expanded(!isLevel2Expanded)}
-                            className="flex items-center gap-0.5 text-[11px] text-indigo-600 hover:underline cursor-pointer ml-auto"
-                          >
-                            <span>{isLevel2Expanded ? '收起明细' : `展开(${equipListLevel2.length}台)`}</span>
-                            {isLevel2Expanded ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
-                          </button>
-                        </div>
-                      </td>
-                      <td className="py-2 px-3 text-[11px] text-indigo-700 font-medium">
-                        纳入统计范围需有适用能效强制性国家标准，无适用标准装备不纳入统计
-                      </td>
-                    </tr>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
 
-                    {/* A 的子设备明细行 (同一套主表格列，融入表格中) */}
-                    {isLevel2Expanded &&
-                      equipListLevel2.map((eq, i) => (
-                        <tr key={eq.id} className="bg-panel/20 hover:bg-indigo-50/60 transition-colors">
-                          <td className="py-1.5 px-3 text-center font-mono text-slate-400 text-[11px]">15-{i + 1}</td>
-                          <td className="py-1.5 px-3 pl-6">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-slate-400 font-mono text-xs">↳</span>
+              {/* 卡片 3：🌿 购买绿电与经济指标 (4项绿电参数 + 2项经济指标，已移除环比) */}
+              <div className="rounded-2xl border bg-card border-border p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="size-7 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center">
+                      <Sparkles className="size-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground">3. 购买绿电与经济指标</h3>
+                      <p className="text-[11px] text-muted-foreground">购买绿电交易参数（电量、绿证、单价、日期）与工业增加值、总产量</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] bg-purple-950/40 text-purple-300 border border-purple-800/60 font-bold">
+                    6 项指标
+                  </span>
+                </div>
+
+                {/* 购买绿电交易参数 (4项) */}
+                <div className="p-3 rounded-xl border border-purple-900/40 bg-purple-950/20 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs text-purple-300">购买绿电交易参数</span>
+                    <span className="text-[10px] font-mono text-purple-300 bg-purple-900/50 px-2 py-0.5 rounded font-bold">
+                      4 项参数
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {metrics.slice(10, 14).map((m) => (
+                      <div key={m.id} className="p-2.5 rounded-lg border bg-[#0e182e] border-border hover:border-primary/40 text-foreground space-y-1 focus-within:border-purple-500">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">{m.name}</span>
+                          <span className="text-[10px] font-mono text-muted-foreground/70">
+                            上月: {m.lastMonthValue} {m.unit !== '日期' ? m.unit : ''}
+                          </span>
+                        </div>
+                        <div className="relative flex items-center">
+                          {m.unit === '日期' ? (
+                            <input
+                              type="date"
+                              value={m.value}
+                              onChange={(e) => handleMetricChange(m.id, e.target.value)}
+                              className="w-full px-2.5 py-1.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-mono font-bold shadow-2xs focus:outline-none focus:border-purple-500"
+                            />
+                          ) : (
+                            <>
                               <input
-                                type="text"
-                                value={eq.name}
-                                onChange={(e) => {
-                                  const val = e.target.value
-                                  setEquipListLevel2(equipListLevel2.map((item) => (item.id === eq.id ? { ...item, name: val } : item)))
-                                }}
-                                className="font-semibold text-slate-800 text-xs bg-white border border-slate-200 rounded px-2 py-1 w-52"
+                                type="number"
+                                step="any"
+                                value={m.value}
+                                onChange={(e) => handleMetricChange(m.id, e.target.value)}
+                                className="w-full pl-3 pr-16 py-1.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-mono font-bold shadow-2xs focus:outline-none focus:border-purple-500"
+                                placeholder="输入数值..."
                               />
-                              <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
-                                {eq.type}
+                              <span className="absolute right-3 text-xs font-mono font-bold text-muted-foreground/70 select-none">
+                                {m.unit}
                               </span>
-                            </div>
-                          </td>
-                          <td className="py-1.5 px-3 text-center"><span className="text-[10px] text-slate-400">工厂</span></td>
-                          <td className="py-1.5 px-3 text-center font-mono text-[10px] text-slate-400">{eq.deployDate}</td>
-                          <td className="py-1.5 px-3 text-center font-mono text-[11px] text-slate-500">kW</td>
-                          <td className="py-1.5 px-3">
-                            <div className="flex items-center gap-2">
-                              <div className="relative flex items-center w-32">
-                                <input
-                                  type="number"
-                                  value={eq.powerKw}
-                                  onChange={(e) => handleEquipPowerChange('level2', eq.id, e.target.value)}
-                                  className="w-full pl-2.5 pr-8 py-1 text-xs font-mono font-bold rounded border border-slate-200 bg-white"
-                                />
-                                <span className="absolute right-2 text-[10px] text-slate-400 font-mono">kW</span>
-                              </div>
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
-                                {eq.standardLevel}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteEquipmentRow('level2', eq.id)}
-                                className="text-rose-400 hover:text-rose-600 p-1 cursor-pointer"
-                                title="从列表中删除"
-                              >
-                                <Trash2 className="size-3" />
-                              </button>
-                            </div>
-                          </td>
-                          <td className="py-1.5 px-3">
-                            <input
-                              type="text"
-                              value={eq.usage}
-                              onChange={(e) => handleEquipUsageChange('level2', eq.id, e.target.value)}
-                              placeholder="设备安装位置 / 节能用途说明"
-                              className="w-full px-2 py-1 text-[11px] rounded border border-slate-200 bg-white text-slate-600"
-                            />
-                          </td>
-                        </tr>
-                      ))}
-
-                    {/* B. 主指标 16：纳入统计范围装备明细 */}
-                    <tr className="bg-indigo-50/40 font-semibold border-t border-indigo-100">
-                      <td className="py-2 px-3 text-center font-mono text-indigo-700 font-bold">16</td>
-                      <td className="py-2 px-3">
-                        <div className="font-bold text-indigo-950 text-xs">纳入统计范围装备明细（名称、用途、功率等）</div>
-                        <div className="text-[10px] text-slate-500 font-normal mt-0.5">
-                          全厂主要用能装备及生产辅助机组汇总
+                            </>
+                          )}
                         </div>
-                      </td>
-                      <td className="py-2 px-3 text-center"><span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700 font-mono">工厂</span></td>
-                      <td className="py-2 px-3 text-center font-mono text-[11px] text-slate-700">增量更新</td>
-                      <td className="py-2 px-3 text-center font-mono font-bold text-indigo-700">kW</td>
-                      <td className="py-2 px-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-baseline font-mono bg-indigo-100/80 px-2 py-0.5 rounded text-xs">
-                            <span className="text-[10px] text-indigo-700 font-normal mr-1">总功率:</span>
-                            <span className="font-black text-indigo-950 text-sm">{allEquipTotalKw.toLocaleString()}</span>
-                            <span className="ml-1 text-[10px] font-bold text-indigo-700">kW</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleAddEquipmentRow('all')}
-                            className="flex items-center gap-1 px-2 py-1 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold cursor-pointer shadow-2xs transition-colors"
-                          >
-                            <Plus className="size-3" />
-                            <span>添加设备行</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setIsAllEquipExpanded(!isAllEquipExpanded)}
-                            className="flex items-center gap-0.5 text-[11px] text-indigo-600 hover:underline cursor-pointer ml-auto"
-                          >
-                            <span>{isAllEquipExpanded ? '收起明细' : `展开(${equipListAll.length}台)`}</span>
-                            {isAllEquipExpanded ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
-                          </button>
-                        </div>
-                      </td>
-                      <td className="py-2 px-3 text-[11px] text-slate-600 font-medium">
-                        全厂重点用能量测装备清单与装机总功率
-                      </td>
-                    </tr>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                    {/* B 的子设备明细行 (融入主表格) */}
-                    {isAllEquipExpanded &&
-                      equipListAll.map((eq, i) => (
-                        <tr key={eq.id} className="bg-panel/20 hover:bg-indigo-50/60 transition-colors">
-                          <td className="py-1.5 px-3 text-center font-mono text-slate-400 text-[11px]">16-{i + 1}</td>
-                          <td className="py-1.5 px-3 pl-6">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-slate-400 font-mono text-xs">↳</span>
-                              <input
-                                type="text"
-                                value={eq.name}
-                                onChange={(e) => {
-                                  const val = e.target.value
-                                  setEquipListAll(equipListAll.map((item) => (item.id === eq.id ? { ...item, name: val } : item)))
-                                }}
-                                className="font-semibold text-slate-800 text-xs bg-white border border-slate-200 rounded px-2 py-1 w-52"
-                              />
-                              <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
-                                {eq.type}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-1.5 px-3 text-center"><span className="text-[10px] text-slate-400">工厂</span></td>
-                          <td className="py-1.5 px-3 text-center font-mono text-[10px] text-slate-400">{eq.deployDate}</td>
-                          <td className="py-1.5 px-3 text-center font-mono text-[11px] text-slate-500">kW</td>
-                          <td className="py-1.5 px-3">
-                            <div className="flex items-center gap-2">
-                              <div className="relative flex items-center w-32">
-                                <input
-                                  type="number"
-                                  value={eq.powerKw}
-                                  onChange={(e) => handleEquipPowerChange('all', eq.id, e.target.value)}
-                                  className="w-full pl-2.5 pr-8 py-1 text-xs font-mono font-bold rounded border border-slate-200 bg-white"
-                                />
-                                <span className="absolute right-2 text-[10px] text-slate-400 font-mono">kW</span>
-                              </div>
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
-                                {eq.standardLevel}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteEquipmentRow('all', eq.id)}
-                                className="text-rose-400 hover:text-rose-600 p-1 cursor-pointer"
-                                title="从列表中删除"
-                              >
-                                <Trash2 className="size-3" />
-                              </button>
-                            </div>
-                          </td>
-                          <td className="py-1.5 px-3">
-                            <input
-                              type="text"
-                              value={eq.usage}
-                              onChange={(e) => handleEquipUsageChange('all', eq.id, e.target.value)}
-                              placeholder="设备安装位置 / 运行用途"
-                              className="w-full px-2 py-1 text-[11px] rounded border border-slate-200 bg-white text-slate-600"
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                  </>
-                )}
-
-                {/* 6. 🌟 零碳园区分类 (row-17 ~ row-19) */}
-                {(categoryFilter === 'all' || categoryFilter === 'park') &&
-                  entryRows.slice(14, 17).map((row, idx) => (
-                    <tr key={row.id} className="hover:bg-panel/60 transition-colors border-t border-slate-200">
-                      <td className="py-2.5 px-3 text-center font-mono text-muted-foreground/80">{idx + 17}</td>
-                      {idx === 0 && (
-                        <td rowSpan={3} className="py-3 px-3 text-center align-middle bg-panel/40 border-r border-border/60">
-                          <div className="flex flex-col items-center justify-center gap-1">
-                            <span className="px-2 py-1 rounded-md text-[11px] font-bold bg-teal-50 text-teal-700 border border-teal-200 shadow-2xs whitespace-nowrap">
-                              零碳园区
-                            </span>
-                            <span className="text-[10px] text-muted-foreground/80 font-mono">3 项</span>
-                          </div>
-                        </td>
-                      )}
-                      <td className="py-2.5 px-3 font-bold text-foreground text-xs">{row.name}</td>
-                      <td className="py-2.5 px-3 text-center"><span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-foreground font-mono">{row.target}</span></td>
-                      <td className="py-2.5 px-3 font-mono text-[11px] text-center text-foreground">{row.dimension}</td>
-                      <td className="py-2.5 px-3 font-bold font-mono text-center text-slate-700">{row.unit === '/' ? '-' : row.unit}</td>
-                      <td className="py-2 px-3">
-                        {/* 园区照片 */}
-                        {row.type === 'photo' && (
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setActivePhotoModal('park')}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-teal-300 bg-teal-50/60 hover:bg-teal-100 text-teal-700 text-xs font-bold cursor-pointer transition-colors shadow-2xs"
-                            >
-                              <ImageIcon className="size-3.5" />
-                              <span>管理园区照片 ({parkPhotos.length}张已上传)</span>
-                            </button>
-                          </div>
-                        )}
-
-                        {/* 零碳关键事件 */}
-                        {row.type === 'event' && (
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setIsEventModalOpen(true)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-teal-200 bg-teal-50/60 hover:bg-teal-100 text-teal-700 text-xs font-bold cursor-pointer transition-colors shadow-2xs"
-                            >
-                              <Sparkles className="size-3.5 text-amber-500" />
-                              <span>登记关键事件 ({keyEvents.length}条)</span>
-                            </button>
-                            <span className="text-[11px] font-mono text-slate-500 truncate max-w-[140px]">
-                              最新: {keyEvents[0]?.date}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* 零碳项目基本信息、照片 */}
-                        {row.type === 'project_info_photo' && (
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={row.value}
-                              onChange={(e) => handleValueChange(row.id, e.target.value)}
-                              placeholder="如：沈变屋顶2.8MWp光伏二期"
-                              className="w-48 pl-2.5 pr-2 py-1.5 text-xs rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setActivePhotoModal('project')}
-                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-dashed border-teal-300 bg-teal-50/70 hover:bg-teal-100 text-teal-700 text-xs font-bold cursor-pointer transition-colors shrink-0 shadow-2xs"
-                            >
-                              <Upload className="size-3" />
-                              <span>现场实景 ({projectPhotos.length}张)</span>
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-2 px-3">
+                {/* 经济与产量 (2项) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                  {metrics.slice(14, 16).map((m) => (
+                    <div key={m.id} className="p-3 rounded-xl border border-border bg-panel/70 border-border space-y-1.5 focus-within:border-primary transition-colors">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-foreground">{m.name}</span>
+                        <span className="text-[11px] font-mono text-muted-foreground/70">上月: {m.lastMonthValue} {m.unit}</span>
+                      </div>
+                      <div className="relative flex items-center">
                         <input
-                          type="text"
-                          value={row.remark}
-                          onChange={(e) => handleRemarkChange(row.id, e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-[11px] rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 text-slate-600"
+                          type="number"
+                          step="any"
+                          value={m.value}
+                          onChange={(e) => handleMetricChange(m.id, e.target.value)}
+                          className="w-full pl-3 pr-16 py-1.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-mono font-bold shadow-2xs focus:outline-none focus:border-primary"
+                          placeholder="输入数值..."
                         />
-                      </td>
-                    </tr>
+                        <span className="absolute right-3 text-xs font-mono font-bold text-muted-foreground/70 select-none">
+                          {m.unit}
+                        </span>
+                      </div>
+                    </div>
                   ))}
-              </tbody>
-            </table>
-          </div>
+                </div>
+              </div>
 
-          {/* 🌟 5. 底部操作栏：右侧增加足够间距 (pr-48)，彻底避开右下角 AI 助手悬浮球遮挡 */}
-          <div className="pt-3 pb-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-3 text-xs pr-48">
-            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-              <Info className="size-3.5 text-blue-500 shrink-0" />
+              {/* 卡片 4：⚙️ 重点用能设备模块 (默认2个设备：超高效电动机、节能变压器) */}
+              <div className="rounded-2xl border bg-card border-border p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="size-7 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center">
+                      <Cpu className="size-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground">4. 重点用能设备模块</h3>
+                      <p className="text-[11px] text-muted-foreground">清晰显示设备名称、运行用途、额定功率与总装机汇总</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] bg-indigo-950/40 text-indigo-300 border border-indigo-800/60 font-bold">
+                    2 类重点资产
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* 项 15：达到或优于国标 2 级的设备 */}
+                  <div className="p-3.5 rounded-xl border border-indigo-900/40 bg-indigo-950/20 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs text-indigo-300">达到或优于国标 2 级的设备</span>
+                        <span className="font-mono text-xs font-bold text-indigo-300 bg-indigo-900/50 border border-indigo-700/50 px-2 py-0.5 rounded">
+                          {level2TotalKw.toLocaleString()} kW ({equipListLevel2.length}台)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAddModalTarget('m-15')
+                          setFormDevType('超高效电动机')
+                        }}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer shadow-2xs transition-colors"
+                      >
+                        <Plus className="size-3" />
+                        <span>添加设备</span>
+                      </button>
+                    </div>
+
+                    {/* 设备列表卡片展示 */}
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                      {equipListLevel2.map((dev) => (
+                        <div
+                          key={dev.id}
+                          className="flex items-center justify-between gap-2.5 px-3 py-2 rounded-xl border bg-[#0e182e] border-border hover:border-primary/40 text-foreground transition-colors text-xs shadow-2xs"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-bold text-foreground shrink-0">{dev.name}</span>
+                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-primary/20 text-primary border border-primary/30 font-medium shrink-0">
+                              {dev.type}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground truncate">
+                              用途：<span className="text-foreground font-medium">{dev.usage || '主厂区主供设备'}</span>
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            <span className="font-mono font-bold text-indigo-300 bg-indigo-950/60 border-indigo-800/60 text-xs px-2 py-0.5 rounded border">
+                              {dev.powerKw.toLocaleString()} kW
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteEquipment('m-15', dev.id)}
+                              className="text-muted-foreground hover:text-rose-500 p-0.5 cursor-pointer transition-colors"
+                              title="移除此设备"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {equipListLevel2.length === 0 && (
+                        <div className="text-xs text-muted-foreground/70 italic py-2 text-center">暂无已录入设备，请点击右上方【添加设备】</div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 项 16：纳入统计范围装备 */}
+                  <div className="p-3.5 rounded-xl border border-indigo-900/40 bg-indigo-950/20 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs text-indigo-300">纳入统计范围装备</span>
+                        <span className="font-mono text-xs font-bold text-indigo-300 bg-indigo-900/50 border border-indigo-700/50 px-2 py-0.5 rounded">
+                          {allEquipTotalKw.toLocaleString()} kW ({equipListAll.length}台)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAddModalTarget('m-16')
+                          setFormDevType('空压机')
+                        }}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer shadow-2xs transition-colors"
+                      >
+                        <Plus className="size-3" />
+                        <span>添加装备</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                      {equipListAll.map((dev) => (
+                        <div
+                          key={dev.id}
+                          className="flex items-center justify-between gap-2.5 px-3 py-2 rounded-xl border bg-[#0e182e] border-border hover:border-primary/40 text-foreground transition-colors text-xs shadow-2xs"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-bold text-foreground shrink-0">{dev.name}</span>
+                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-primary/20 text-primary border border-primary/30 font-medium shrink-0">
+                              {dev.type}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground truncate">
+                              用途：<span className="text-foreground font-medium">{dev.usage || '动力及辅助机组'}</span>
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            <span className="font-mono font-bold text-indigo-300 bg-indigo-950/60 border-indigo-800/60 text-xs px-2 py-0.5 rounded border">
+                              {dev.powerKw.toLocaleString()} kW
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteEquipment('m-16', dev.id)}
+                              className="text-muted-foreground hover:text-rose-500 p-0.5 cursor-pointer transition-colors"
+                              title="移除此装备"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {equipListAll.length === 0 && (
+                        <div className="text-xs text-muted-foreground/70 italic py-2 text-center">暂无已录入装备，请点击右上方【添加装备】</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 卡片 5：🏛️ 零碳园区与重大事件 (3项) */}
+              <div className="lg:col-span-2 rounded-2xl border bg-card border-border p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="size-7 rounded-lg bg-teal-500/15 text-teal-400 flex items-center justify-center">
+                      <Building2 className="size-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground">5. 零碳园区与重大里程碑</h3>
+                      <p className="text-[11px] text-muted-foreground">园区全貌实景、零碳关键事件登记及零碳园区基本信息（名称、位置、建设内容）</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] bg-teal-950/40 text-teal-300 border border-teal-800/60 font-bold">
+                    3 项园区要素
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {/* 园区照片 */}
+                  <div className="p-3.5 rounded-xl border border-teal-900/40 bg-teal-950/20 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-teal-300">园区全貌航拍实景</span>
+                      <span className="text-[10px] font-mono text-teal-300 bg-teal-900/50 px-1.5 py-0.5 rounded font-bold">
+                        {parkPhotos.length} 张已上传
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">用于集控中心大屏轮播展示与现场初核核验。</p>
+                    <button
+                      type="button"
+                      onClick={() => setIsParkPhotoModalOpen(true)}
+                      className="w-full py-1.5 rounded-lg border border-teal-800/60 bg-[#0e182e] hover:bg-teal-950/50 text-teal-300 text-xs font-bold cursor-pointer transition-colors shadow-2xs flex items-center justify-center gap-1.5"
+                    >
+                      <ImageIcon className="size-3.5" />
+                      <span>管理园区照片</span>
+                    </button>
+                  </div>
+
+                  {/* 零碳关键事件 */}
+                  <div className="p-3.5 rounded-xl border border-teal-900/40 bg-teal-950/20 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-teal-300">零碳重大关键事件</span>
+                      <span className="text-[10px] font-mono text-teal-300 bg-teal-900/50 px-1.5 py-0.5 rounded font-bold">
+                        {keyEvents.length} 条已归档
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground truncate" title={keyEvents[0]?.title}>
+                      最新: {keyEvents[0]?.title || '暂无'}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsEventModalOpen(true)}
+                      className="w-full py-1.5 rounded-lg border border-teal-800/60 bg-[#0e182e] hover:bg-teal-950/50 text-teal-300 text-xs font-bold cursor-pointer transition-colors shadow-2xs flex items-center justify-center gap-1.5"
+                    >
+                      <Sparkles className="size-3.5 text-amber-500" />
+                      <span>登记关键事件</span>
+                    </button>
+                  </div>
+
+                  {/* 零碳园区基本信息 */}
+                  <div className="p-3.5 rounded-xl border border-teal-900/40 bg-teal-950/20 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-teal-300">零碳园区基本信息</span>
+                      <span className="text-[10px] font-mono text-teal-300 bg-teal-900/50 px-1.5 py-0.5 rounded font-bold">
+                        已维护
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      维护零碳园区名称、地理位置及低碳建设内容。
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsParkInfoModalOpen(true)}
+                      className="w-full py-1.5 rounded-lg border border-teal-800/60 bg-[#0e182e] hover:bg-teal-950/50 text-teal-300 text-xs font-bold cursor-pointer transition-colors shadow-2xs flex items-center justify-center gap-1.5"
+                    >
+                      <FileEdit className="size-3.5" />
+                      <span>维护园区基本信息</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* B. 紧凑对比表格布局 (配色修复：彻底适配深色/浅色模式) */}
+          {displayLayout === 'table' && (
+            <div className="rounded-2xl border bg-card border-border overflow-hidden shadow-sm">
+              <div className="p-3 bg-[#111c33] text-foreground border-b border-border flex items-center justify-between text-xs">
+                <span className="font-bold text-foreground">工厂月度定时申报全量指标明细对照表</span>
+                <span className="text-[11px] text-muted-foreground/70">支持键盘 Tab 键快速向下切换输入</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-border bg-[#0e172a] text-muted-foreground font-semibold">
+                      <th className="py-2.5 px-3 w-12 text-center text-muted-foreground/70 font-mono">#</th>
+                      <th className="py-2.5 px-3 w-28 font-bold">业务分类</th>
+                      <th className="py-2.5 px-3 w-72 font-bold text-foreground">指标名称</th>
+                      <th className="py-2.5 px-3 w-56 font-bold text-primary">本月申报值</th>
+                      <th className="py-2.5 px-3 w-16 text-center">单位</th>
+                      <th className="py-2.5 px-3 w-28 text-center text-muted-foreground/70">上月参考</th>
+                      <th className="py-2.5 px-3">补充说明</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y border-border/60 text-muted-foreground">
+                    {metrics.map((m, idx) => {
+                      const isEquip = m.category === 'equipment'
+                      const isPark = m.category === 'park'
+                      const isDayMonthSupported = m.id === 'm-1' || m.id === 'm-3'
+                      const mode = isDayMonthSupported ? dimModes[m.id as 'm-1' | 'm-3'] : 'month'
+
+                      return (
+                        <tr key={m.id} className="hover:bg-white/[0.03] transition-colors">
+                          <td className="py-2.5 px-3 text-center font-mono text-muted-foreground/70">{idx + 1}</td>
+                          <td className="py-2.5 px-3 font-semibold text-muted-foreground">{m.categoryLabel}</td>
+                          <td className="py-2.5 px-3 font-bold text-foreground">{m.name}</td>
+                          <td className="py-2 px-3">
+                            {isEquip ? (
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono font-bold text-indigo-300 bg-indigo-950/50 border-indigo-800/50 px-2 py-1 rounded border">
+                                  {m.id === 'm-15' ? level2TotalKw : allEquipTotalKw} kW
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAddModalTarget(m.id as any)
+                                    setFormDevType(m.id === 'm-15' ? '超高效电动机' : '空压机')
+                                  }}
+                                  className="px-2 py-1 rounded bg-primary hover:bg-primary/90 text-primary-foreground text-[11px] font-bold cursor-pointer"
+                                >
+                                  +添加
+                                </button>
+                              </div>
+                            ) : isPark ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (m.id === 'm-17') setIsParkPhotoModalOpen(true)
+                                  else if (m.id === 'm-18') setIsEventModalOpen(true)
+                                  else setIsParkInfoModalOpen(true)
+                                }}
+                                className="px-2.5 py-1 rounded bg-teal-950/40 hover:bg-teal-900/50 text-teal-300 border-teal-800/60 border text-xs font-bold cursor-pointer"
+                              >
+                                {m.id === 'm-19' ? '维护基本信息' : '维护凭证'}
+                              </button>
+                            ) : isDayMonthSupported ? (
+                              <div className="flex items-center gap-1.5">
+                                <div className="flex items-center bg-[#0b1324] border border-border p-0.5 rounded text-[10px] shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleDimMode(m.id as 'm-1' | 'm-3', 'month')}
+                                    className={cn(
+                                      'px-1.5 py-0.5 rounded font-bold cursor-pointer',
+                                      mode === 'month' ? 'bg-card text-primary shadow-2xs border border-border' : 'text-muted-foreground/70'
+                                    )}
+                                  >
+                                    月
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleDimMode(m.id as 'm-1' | 'm-3', 'day')}
+                                    className={cn(
+                                      'px-1.5 py-0.5 rounded font-bold cursor-pointer',
+                                      mode === 'day' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground/70'
+                                    )}
+                                  >
+                                    日
+                                  </button>
+                                </div>
+                                {mode === 'day' ? (
+                                  <div className="flex items-center gap-1 flex-1">
+                                    <span className="font-mono font-bold text-primary bg-primary/15 border-primary/30 px-2 py-0.5 rounded border text-xs">
+                                      {m.value} t
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenDailyModal(m.id as 'm-1' | 'm-3')}
+                                      className="px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border-primary/30 border text-[10px] font-bold cursor-pointer"
+                                    >
+                                      编辑31天
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="relative flex items-center flex-1">
+                                    <input
+                                      type="number"
+                                      step="any"
+                                      value={m.value}
+                                      onChange={(e) => handleMetricChange(m.id, e.target.value)}
+                                      className="w-full pl-2 pr-8 py-1 text-xs font-mono font-bold rounded border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
+                                    />
+                                    <span className="absolute right-2 text-[10px] text-muted-foreground/70">{m.unit}</span>
+                                  </div>
+                                )}
+                              </div>
+                            ) : m.unit === '日期' ? (
+                              <input
+                                type="date"
+                                value={m.value}
+                                onChange={(e) => handleMetricChange(m.id, e.target.value)}
+                                className="w-full px-2 py-1 text-xs font-mono font-bold rounded border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
+                              />
+                            ) : (
+                              <div className="relative flex items-center">
+                                <input
+                                  type="number"
+                                  step="any"
+                                  value={m.value}
+                                  onChange={(e) => handleMetricChange(m.id, e.target.value)}
+                                  className="w-full pl-3 pr-10 py-1 text-xs font-mono font-bold rounded border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
+                                />
+                                <span className="absolute right-2 text-[10px] font-bold text-muted-foreground/70 font-mono">
+                                  {m.unit}
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3 text-center font-mono text-muted-foreground">{m.unit}</td>
+                          <td className="py-2.5 px-3 text-center font-mono text-muted-foreground/70">{m.lastMonthValue}</td>
+                          <td className="py-2 px-3 text-muted-foreground/70">
+                            {isDayMonthSupported && mode === 'day' ? `已启用日数据填报（31天合计 ${m.value} ${m.unit}）` : m.remark}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* 🌟 5. 底部固定保存栏：右侧预留 pr-48 彻底避开右下角 AI 悬浮球 */}
+          <div className="rounded-2xl border bg-card border-border p-3.5 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs pr-48">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Info className="size-4 text-primary shrink-0" />
               <span>
-                当前填报属于【{selectedYear}年{selectedMonth}月】账期 · 费用合计：<span className="font-mono font-bold text-amber-600">¥ {currentCostTotal} 万元</span>
+                申报状态：已完成 <strong className="text-primary">{completedCount}/{metrics.length} 项</strong> · 当月费用支出：<strong className="text-amber-500">¥ {totalCostWan} 万元</strong> · 本地草稿已自动保存
               </span>
             </div>
 
@@ -1283,80 +1145,70 @@ export default function ManualEntryPage() {
               <button
                 type="button"
                 onClick={() => handleSaveEntry('待复核')}
-                className="px-4 py-2 rounded-lg border border-border bg-white hover:bg-slate-50 text-xs font-semibold text-foreground cursor-pointer shadow-2xs transition-colors"
+                className="px-4 py-2 rounded-lg border border-border bg-panel hover:bg-panel/80 text-foreground border-border text-xs font-bold cursor-pointer shadow-2xs transition-colors"
               >
                 暂存草稿
               </button>
               <button
                 type="button"
                 onClick={() => handleSaveEntry('已入库')}
-                className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
+                className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-xs cursor-pointer transition-colors"
               >
-                <Save className="size-4" />
-                <span>一键保存正式入库</span>
+                <CheckCircle2 className="size-4" />
+                <span>立即提交月度申报 (正式入库)</span>
               </button>
             </div>
           </div>
-        </Panel>
+        </div>
       )}
 
       {/* ========================================================================= */}
-      {/* 视图 2：历史填报台账 (内页模式) */}
+      {/* 视图模式 2：历史台账归档 */}
       {/* ========================================================================= */}
       {viewMode === 'history' && (
         <Panel className="p-4 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
             <div className="flex items-center gap-2">
-              <History className="size-4.5 text-[#1677ff]" />
-              <h3 className="text-sm font-bold text-foreground">历史填报台账全量归档</h3>
+              <History className="size-4.5 text-primary" />
+              <h3 className="text-sm font-bold text-foreground">工厂每月数据申报历史台账</h3>
               <Badge tone="info">{historyList.length} 个归档批次</Badge>
             </div>
             <button
               type="button"
-              onClick={() => alert('正在导出历史台账 (Excel)...')}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-panel hover:bg-slate-200/60 text-xs font-semibold text-foreground cursor-pointer transition-colors"
+              onClick={() => setViewMode('entry')}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold cursor-pointer"
             >
-              <Download className="size-3.5 text-slate-500" />
-              <span>导出台账 (Excel)</span>
+              <ArrowLeft className="size-3.5" />
+              <span>返回当前月度申报</span>
             </button>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-border bg-panel text-foreground font-semibold">
-                  <th className="py-2.5 px-3">批次单号</th>
-                  <th className="py-2.5 px-3 text-center">所属账期</th>
-                  <th className="py-2.5 px-3 font-bold">填报指标与资产摘要</th>
-                  <th className="py-2.5 px-3 text-right">能源费用合计</th>
-                  <th className="py-2.5 px-3">填报人</th>
-                  <th className="py-2.5 px-3">录入时间</th>
+                <tr className="border-b border-border bg-[#0e172a] text-muted-foreground font-semibold">
+                  <th className="py-2.5 px-3">申报批次</th>
+                  <th className="py-2.5 px-3 text-center">所属月份</th>
+                  <th className="py-2.5 px-3 font-bold">申报主要摘要</th>
+                  <th className="py-2.5 px-3 text-right">当月总费用</th>
+                  <th className="py-2.5 px-3">填报专员</th>
+                  <th className="py-2.5 px-3">提报时间</th>
                   <th className="py-2.5 px-3 text-center">状态</th>
-                  <th className="py-2.5 px-3 text-right">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y border-border/60 text-muted-foreground">
                 {historyList.map((h) => (
-                  <tr key={h.id} className="hover:bg-panel/60 transition-colors">
+                  <tr key={h.id} className="hover:bg-white/[0.03] transition-colors">
                     <td className="py-2.5 px-3 font-mono font-bold text-foreground">{h.batch}</td>
-                    <td className="py-2.5 px-3 font-mono text-center font-bold text-blue-600">{h.year}年{h.month}月</td>
+                    <td className="py-2.5 px-3 font-mono text-center font-bold text-primary">{h.year}年{h.month}月</td>
                     <td className="py-2.5 px-3 font-mono text-[11px] text-foreground">{h.summary}</td>
-                    <td className="py-2.5 px-3 font-mono font-bold text-amber-600 text-right">¥ {h.totalCostWan} 万</td>
+                    <td className="py-2.5 px-3 font-mono font-bold text-amber-500 text-right">¥ {h.totalCostWan} 万</td>
                     <td className="py-2.5 px-3">{h.submitter}</td>
-                    <td className="py-2.5 px-3 font-sans text-slate-400 text-[11px]">{h.submitTime}</td>
+                    <td className="py-2.5 px-3 font-sans text-muted-foreground/70 text-[11px]">{h.submitTime}</td>
                     <td className="py-2.5 px-3 text-center">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 font-bold">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
                         {h.status}
                       </span>
-                    </td>
-                    <td className="py-2.5 px-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteHistory(h.id)}
-                        className="text-rose-500 hover:underline cursor-pointer"
-                      >
-                        删除
-                      </button>
                     </td>
                   </tr>
                 ))}
@@ -1367,27 +1219,378 @@ export default function ManualEntryPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 照片管理弹窗 */}
+      {/* 弹窗 A：逐日数据填报弹窗 */}
       {/* ========================================================================= */}
-      {activePhotoModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-xl rounded-2xl border bg-card border-border shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-panel">
+      {activeDailyModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="w-full max-w-2xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border shrink-0">
               <div className="flex items-center gap-2">
-                <ImageIcon className="size-5 text-[#1677ff]" />
+                <Calendar className="size-5 text-primary" />
                 <div>
                   <h3 className="text-sm font-bold text-foreground">
-                    {activePhotoModal === 'park' ? '园区实景照片采集与管理' : '零碳项目现场照片采集与管理'}
+                    2026 年 08 月【{activeDailyModal === 'm-1' ? '用水量' : '外购蒸汽量'}】每日数据填报
                   </h3>
                   <p className="text-[11px] text-muted-foreground">
-                    支持 JPG, PNG 格式，单张最大 10MB。用于集控中心大屏轮播展示与零碳项目验收。
+                    录入 8 月 1 日 ~ 31 日每日抄表数据，系统自动汇总求和并同步回填本月申报值。
                   </p>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setActivePhotoModal(null)}
-                className="p-1 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-700 cursor-pointer"
+                onClick={() => setActiveDailyModal(null)}
+                className="p-1 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            {/* 快捷操作与总计条 */}
+            <div className="px-4 py-2.5 border-b border-border/60 bg-[#0f1b33] flex flex-wrap items-center justify-between gap-3 text-xs shrink-0">
+              <div className="flex items-baseline gap-2">
+                <span className="text-muted-foreground font-medium">31天日数据合计:</span>
+                <span className="font-mono text-base font-black text-primary">
+                  {tempDailySum.toLocaleString()}
+                </span>
+                <span className="font-bold text-muted-foreground/70">t</span>
+                <span className="text-[11px] text-muted-foreground/70 ml-2">
+                  (日均: {(tempDailySum / 31).toFixed(2)} t/天)
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDistributeAverage(activeDailyModal === 'm-1' ? 8900 : 1420)}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-panel hover:bg-panel/80 text-foreground border-border text-xs font-bold cursor-pointer transition-colors shadow-2xs"
+                >
+                  <Zap className="size-3 text-primary" />
+                  <span>智能均摊 ({activeDailyModal === 'm-1' ? '8,900' : '1,420'}t)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTempDailyList(Array(31).fill(0))}
+                  className="px-2.5 py-1 rounded-md border border-border bg-panel hover:bg-panel/80 text-foreground border-border text-xs cursor-pointer shadow-2xs"
+                >
+                  清零
+                </button>
+              </div>
+            </div>
+
+            {/* 31天数据录入网格 */}
+            <div className="p-4 overflow-y-auto flex-1">
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                {tempDailyList.map((val, idx) => {
+                  const dayNum = idx + 1
+                  const dateObj = new Date(2026, 7, dayNum)
+                  const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+                  const weekday = weekdays[dateObj.getDay()]
+                  const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6
+
+                  return (
+                    <div
+                      key={dayNum}
+                      className={cn(
+                        'p-2 rounded-xl border text-xs space-y-1 transition-colors',
+                        isWeekend
+                          ? 'bg-amber-950/20 border-amber-800/40'
+                          : 'bg-panel/70 border-border border-border focus-within:border-primary'
+                      )}
+                    >
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-foreground font-mono">8月{dayNum}日</span>
+                        <span className={cn('text-[10px] font-medium', isWeekend ? 'text-amber-500' : 'text-muted-foreground/70')}>
+                          {weekday}
+                        </span>
+                      </div>
+                      <div className="relative flex items-center">
+                        <input
+                          type="number"
+                          step="any"
+                          value={val}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value) || 0
+                            const next = [...tempDailyList]
+                            next[idx] = v
+                            setTempDailyList(next)
+                          }}
+                          className="w-full pl-2 pr-6 py-1 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-md text-xs font-mono font-bold focus:outline-none focus:border-primary"
+                        />
+                        <span className="absolute right-2 text-[10px] font-mono text-muted-foreground/70 select-none">
+                          t
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* 弹窗底部 */}
+            <div className="p-3.5 border-t border-border/60 flex items-center justify-between bg-[#131f38] border-border shrink-0 text-xs">
+              <div className="text-muted-foreground">
+                本月31天合计：<strong className="text-primary font-mono text-sm">{tempDailySum}</strong> t
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveDailyModal(null)}
+                  className="px-4 py-2 rounded-lg border border-border bg-panel hover:bg-panel/80 text-foreground border-border font-semibold cursor-pointer"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveDailyModal}
+                  className="px-5 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold cursor-pointer shadow-xs"
+                >
+                  保存并同步月总数据
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 弹窗 1：重点设备录入 */}
+      {/* ========================================================================= */}
+      {addModalTarget && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden">
+            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border">
+              <div className="flex items-center gap-2">
+                <Cpu className="size-5 text-primary" />
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">
+                    {addModalTarget === 'm-15' ? '添加达到或优于国标 2 级节能设备' : '添加纳入统计范围用能装备'}
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    可按国标规范选择 7 大类用能设备，录入设备名称、用途及额定功率。
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAddModalTarget(null)}
+                className="p-1 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmAddEquipment} className="p-5 space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-foreground mb-1.5">
+                  设备类型 <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={formDevType}
+                  onChange={(e) => setFormDevType(e.target.value as any)}
+                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-semibold focus:outline-none focus:border-primary cursor-pointer"
+                >
+                  <option value="超高效电动机" className="bg-[#0e172a] text-foreground">超高效电动机</option>
+                  <option value="节能变压器" className="bg-[#0e172a] text-foreground">节能变压器</option>
+                  <option value="工业锅炉" className="bg-[#0e172a] text-foreground">工业锅炉</option>
+                  <option value="风机" className="bg-[#0e172a] text-foreground">风机</option>
+                  <option value="空压机" className="bg-[#0e172a] text-foreground">空压机</option>
+                  <option value="制冷设备" className="bg-[#0e172a] text-foreground">制冷设备</option>
+                  <option value="热泵" className="bg-[#0e172a] text-foreground">热泵</option>
+                  <option value="其他重点设备" className="bg-[#0e172a] text-foreground">其他重点设备</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-foreground mb-1.5">
+                  设备名称 <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formDevName}
+                  onChange={(e) => setFormDevName(e.target.value)}
+                  placeholder="如：超高效电动机 #3"
+                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-foreground mb-1.5">
+                  安装用途 / 运行说明
+                </label>
+                <input
+                  type="text"
+                  value={formDevUsage}
+                  onChange={(e) => setFormDevUsage(e.target.value)}
+                  placeholder="如：车间空压机组主驱、10kV动力变电所主供"
+                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-foreground mb-1.5">
+                  额定功率 (kW) <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative flex items-center">
+                  <input
+                    type="number"
+                    step="any"
+                    value={formDevPower}
+                    onChange={(e) => setFormDevPower(e.target.value)}
+                    placeholder="输入设备装机额定功率"
+                    className="w-full pl-3 pr-12 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-primary"
+                    required
+                  />
+                  <span className="absolute right-3 text-xs font-mono font-bold text-muted-foreground/70">
+                    kW
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-border/60">
+                <button
+                  type="button"
+                  onClick={() => setAddModalTarget(null)}
+                  className="px-4 py-2 rounded-lg border border-border bg-panel hover:bg-panel/80 text-foreground border-border font-semibold cursor-pointer"
+                >
+                  取消
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold cursor-pointer shadow-xs"
+                >
+                  确认添加
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 弹窗 2：零碳园区基本信息维护 */}
+      {/* ========================================================================= */}
+      {isParkInfoModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden">
+            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border">
+              <div className="flex items-center gap-2">
+                <Building2 className="size-5 text-primary" />
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">零碳园区基本信息维护</h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    维护零碳园区名称、地理位置及低碳重点建设内容等信息。
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsParkInfoModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-3.5 text-xs">
+              <div>
+                <label className="block font-bold text-foreground mb-1.5">
+                  零碳园区 / 项目名称 <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={parkInfo.name}
+                  onChange={(e) => setParkInfo({ ...parkInfo, name: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-semibold focus:outline-none focus:border-primary"
+                  placeholder="如：特变电工沈变工业示范园区"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-foreground mb-1.5">
+                  地理位置 / 厂区地址 <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={parkInfo.location}
+                  onChange={(e) => setParkInfo({ ...parkInfo, location: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
+                  placeholder="如：辽宁省沈阳市铁西区经济技术开发区二十二号路"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-foreground mb-1.5">
+                  建设内容与主要低碳举措 <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={parkInfo.content}
+                  onChange={(e) => setParkInfo({ ...parkInfo, content: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary leading-relaxed"
+                  placeholder="如：2.8MWp分布式屋顶光伏扩建工程、10kV智能节能变配电系统改造、空压机余热循环利用、全厂能碳微电网数字化系统..."
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-foreground mb-1.5">
+                  建设规模与指标说明
+                </label>
+                <input
+                  type="text"
+                  value={parkInfo.scale}
+                  onChange={(e) => setParkInfo({ ...parkInfo, scale: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
+                  placeholder="如：光伏装机2.8MWp，年发绿电约320万kWh，园区绿电消纳率超65%"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-border/60">
+                <button
+                  type="button"
+                  onClick={() => setIsParkInfoModalOpen(false)}
+                  className="px-4 py-2 rounded-lg border border-border bg-panel hover:bg-panel/80 text-foreground border-border font-semibold cursor-pointer"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleMetricChange('m-19', parkInfo.name)
+                    setIsParkInfoModalOpen(false)
+                    alert('零碳园区基本信息已成功更新并保存！')
+                  }}
+                  className="px-5 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold cursor-pointer shadow-xs"
+                >
+                  保存信息
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 弹窗 3：园区航拍照片管理 */}
+      {/* ========================================================================= */}
+      {isParkPhotoModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="w-full max-w-xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden">
+            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="size-5 text-primary" />
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">园区全貌航拍照片管理</h3>
+                  <p className="text-[11px] text-muted-foreground">用于集控中心大屏轮播展示与现场初核核验。</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsParkPhotoModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
               >
                 <X className="size-5" />
               </button>
@@ -1395,13 +1598,13 @@ export default function ManualEntryPage() {
 
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {(activePhotoModal === 'park' ? parkPhotos : projectPhotos).map((url, idx) => (
-                  <div key={idx} className="relative group rounded-xl border border-border overflow-hidden aspect-video bg-slate-100 shadow-2xs">
+                {parkPhotos.map((url, idx) => (
+                  <div key={idx} className="relative group rounded-xl border border-border overflow-hidden aspect-video bg-black/40 shadow-2xs">
                     <img src={url} alt="现场实景" className="size-full object-cover" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <button
                         type="button"
-                        onClick={() => alert('全屏高清大图查看')}
+                        onClick={() => alert('全屏大图预览')}
                         className="p-1.5 rounded-full bg-white/80 hover:bg-white text-slate-800 cursor-pointer"
                       >
                         <Eye className="size-3.5" />
@@ -1410,8 +1613,7 @@ export default function ManualEntryPage() {
                         type="button"
                         onClick={() => {
                           if (confirm('确认删除这张照片？')) {
-                            if (activePhotoModal === 'park') setParkPhotos(parkPhotos.filter((_, i) => i !== idx))
-                            else setProjectPhotos(projectPhotos.filter((_, i) => i !== idx))
+                            setParkPhotos(parkPhotos.filter((_, i) => i !== idx))
                           }
                         }}
                         className="p-1.5 rounded-full bg-rose-500 hover:bg-rose-600 text-white cursor-pointer"
@@ -1424,20 +1626,24 @@ export default function ManualEntryPage() {
 
                 <button
                   type="button"
-                  onClick={() => handleAddPhoto(activePhotoModal)}
-                  className="aspect-video rounded-xl border-2 border-dashed border-teal-300 hover:border-teal-500 bg-teal-50/40 hover:bg-teal-50 flex flex-col items-center justify-center gap-1 text-teal-700 cursor-pointer transition-all"
+                  onClick={() => {
+                    const sample = 'https://images.unsplash.com/photo-1497440001374-f26997328c1b?w=500&auto=format&fit=crop&q=60'
+                    setParkPhotos([...parkPhotos, sample])
+                    alert('已上传 1 张园区现场照片')
+                  }}
+                  className="aspect-video rounded-xl border-2 border-dashed border-teal-700/50 hover:border-teal-500 bg-teal-950/20 hover:bg-teal-950/40 text-teal-300 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all"
                 >
                   <Upload className="size-5" />
-                  <span className="text-xs font-bold">+ 点击上传照片</span>
+                  <span className="text-xs font-bold">+ 上传照片</span>
                 </button>
               </div>
             </div>
 
-            <div className="p-3 border-t border-border/60 flex justify-end bg-panel">
+            <div className="p-3 border-t border-border/60 flex justify-end bg-[#131f38] border-border">
               <button
                 type="button"
-                onClick={() => setActivePhotoModal(null)}
-                className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold cursor-pointer"
+                onClick={() => setIsParkPhotoModalOpen(false)}
+                className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold cursor-pointer"
               >
                 完成
               </button>
@@ -1447,39 +1653,45 @@ export default function ManualEntryPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 零碳关键事件登记弹窗 */}
+      {/* 弹窗 4：关键事件登记 */}
       {/* ========================================================================= */}
       {isEventModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-xl rounded-2xl border bg-card border-border shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-panel">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="w-full max-w-xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden">
+            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border">
               <div className="flex items-center gap-2">
                 <Sparkles className="size-5 text-amber-500" />
                 <div>
                   <h3 className="text-sm font-bold text-foreground">零碳关键事件登记（事件/时间）</h3>
-                  <p className="text-[11px] text-muted-foreground">
-                    涵盖光伏并网、储能投运、碳足迹系统上线、零碳工厂申报及认证等重大里程碑。
-                  </p>
+                  <p className="text-[11px] text-muted-foreground">涵盖光伏并网、储能投运、碳足迹上线等重大里程碑。</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsEventModalOpen(false)}
-                className="p-1 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="p-1 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
               >
                 <X className="size-5" />
               </button>
             </div>
 
             <div className="p-4 space-y-4">
-              <form onSubmit={handleAddKeyEvent} className="p-3 rounded-xl border border-border bg-panel space-y-2.5">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  if (!newEventTitle.trim()) return
+                  setKeyEvents([{ id: `ev-${Date.now()}`, date: newEventDate, title: newEventTitle, type: '光伏并网' }, ...keyEvents])
+                  setNewEventTitle('')
+                }}
+                className="p-3 rounded-xl border border-border bg-panel/70 border-border space-y-2.5"
+              >
                 <div className="text-xs font-bold text-foreground">+ 新增关键事件</div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <input
                     type="date"
                     value={newEventDate}
                     onChange={(e) => setNewEventDate(e.target.value)}
-                    className="p-2 text-xs rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 font-mono"
+                    className="p-2 text-xs rounded-lg border border-border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 font-mono"
                     required
                   />
                   <input
@@ -1487,14 +1699,14 @@ export default function ManualEntryPage() {
                     value={newEventTitle}
                     onChange={(e) => setNewEventTitle(e.target.value)}
                     placeholder="事件内容: 如沈变2.8MWp光伏并网"
-                    className="sm:col-span-2 p-2 text-xs rounded-lg border border-border bg-panel border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
+                    className="sm:col-span-2 p-2 text-xs rounded-lg border border-border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
                     required
                   />
                 </div>
                 <div className="flex justify-end">
                   <button
                     type="submit"
-                    className="px-3.5 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold cursor-pointer transition-colors shadow-xs"
+                    className="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold cursor-pointer shadow-xs"
                   >
                     保存该事件
                   </button>
@@ -1502,20 +1714,20 @@ export default function ManualEntryPage() {
               </form>
 
               <div className="space-y-2">
-                <div className="text-xs font-bold text-slate-500">已归档关键事件 ({keyEvents.length})</div>
-                <div className="max-h-56 overflow-y-auto space-y-2 pr-1">
+                <div className="text-xs font-bold text-muted-foreground">已归档关键事件 ({keyEvents.length})</div>
+                <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
                   {keyEvents.map((ev) => (
-                    <div key={ev.id} className="p-2.5 rounded-lg border border-border bg-white flex items-center justify-between gap-3 shadow-2xs">
+                    <div key={ev.id} className="p-2.5 rounded-lg border bg-[#0e182e] border-border hover:border-primary/40 text-foreground flex items-center justify-between gap-3 shadow-2xs">
                       <div className="flex items-center gap-2.5">
-                        <span className="px-2 py-0.5 rounded text-[10px] bg-amber-50 text-amber-800 font-mono font-bold border border-amber-200 shrink-0">
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-amber-950/40 text-amber-300 border border-amber-800/60 font-mono font-bold shrink-0">
                           {ev.date}
                         </span>
-                        <span className="text-xs font-medium text-slate-800">{ev.title}</span>
+                        <span className="text-xs font-medium text-foreground">{ev.title}</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => setKeyEvents(keyEvents.filter((k) => k.id !== ev.id))}
-                        className="text-rose-400 hover:text-rose-600 cursor-pointer p-1"
+                        className="text-muted-foreground hover:text-rose-500 cursor-pointer p-1"
                       >
                         <Trash2 className="size-3.5" />
                       </button>
@@ -1525,11 +1737,11 @@ export default function ManualEntryPage() {
               </div>
             </div>
 
-            <div className="p-3 border-t border-border/60 flex justify-end bg-panel">
+            <div className="p-3 border-t border-border/60 flex justify-end bg-[#131f38] border-border">
               <button
                 type="button"
                 onClick={() => setIsEventModalOpen(false)}
-                className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold cursor-pointer"
               >
                 完成
               </button>
