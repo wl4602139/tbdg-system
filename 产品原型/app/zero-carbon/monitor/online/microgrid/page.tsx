@@ -161,7 +161,7 @@ interface GreenCertItem {
   dealType: '直供绿电' | '交易绿电' | '交易绿证(GEC)'
   sourceType: '屋顶光伏' | '集中式风电' | '光伏平价项目' | '自备电厂'
   provider: string
-  buyer: string // 购买方 / 消纳企业 (精确到企业级)
+  buyer: string // 购买方 (精确到企业级)
   amount: string
   unitPrice: string
   dealDate: string
@@ -1221,19 +1221,12 @@ export default function MicrogridMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2.5 rounded-full bg-emerald-500/200" />
                   <h3 className="text-xs font-bold text-foreground">
-                    全园区月度绿电结构占比走势对比 (绿电占比、直供绿电占比、交易绿电占比、交易绿证占比 4 条曲线)
+                    全园区月度绿电结构占比走势对比
                   </h3>
                 </div>
                 <div className="flex items-center gap-3 text-xs">
                   <span className="text-muted-foreground font-mono">单位：% (统计口径)</span>
-                  <button
-                    type="button"
-                    onClick={() => alert('正在导出 4 条绿电占比时序走势数据 (Excel)...')}
-                    className="flex items-center gap-1 text-primary hover:underline font-sans cursor-pointer"
-                  >
-                    <Download className="size-3" />
-                    导出曲线
-                  </button>
+                  
                 </div>
               </div>
 
@@ -1259,9 +1252,7 @@ export default function MicrogridMonitoringPage() {
                   <h3 className="text-xs font-bold text-foreground">
                     交易绿电、交易绿证详情台账
                   </h3>
-                  <span className="text-[10px] text-muted-foreground font-mono">
-                    直供绿电 / 市场化交易绿电 / GEC国家绿证
-                  </span>
+                  
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -1299,9 +1290,9 @@ export default function MicrogridMonitoringPage() {
                       <th className="py-2.5 px-3">交易单号</th>
                       <th className="py-2.5 px-3 text-center">类型</th>
                       <th className="py-2.5 px-3">录入时间</th>
-                      <th className="py-2.5 px-3 font-bold text-emerald-400">量 (电量/张数)</th>
-                      <th className="py-2.5 px-3">绿电提供方 / 项目来源</th>
-                      <th className="py-2.5 px-3 text-primary font-bold">购买方 / 消纳企业</th>
+                      <th className="py-2.5 px-3 font-bold text-emerald-400">数量</th>
+                      <th className="py-2.5 px-3">项目来源</th>
+                      <th className="py-2.5 px-3 text-primary font-bold">购买方</th>
                       <th className="py-2.5 px-3">结算单价</th>
                       <th className="py-2.5 px-3 text-right">结算金额 (万元)</th>
                       <th className="py-2.5 px-3">交易/交割日期</th>
@@ -1420,10 +1411,10 @@ export default function MicrogridMonitoringPage() {
                   </select>
                 </div>
 
-                {/* 3. 绿电提供方 / 项目来源 */}
+                {/* 3. 项目来源 */}
                 <div>
                   <label className="block text-foreground font-semibold mb-1.5">
-                    绿电提供方 / 项目来源 <span className="text-rose-500">*</span>
+                    项目来源 <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -1435,10 +1426,10 @@ export default function MicrogridMonitoringPage() {
                   />
                 </div>
 
-                {/* 4. 购买方 / 消纳企业 */}
+                {/* 4. 购买方 */}
                 <div>
                   <label className="block text-foreground font-semibold mb-1.5">
-                    购买方 / 消纳企业 <span className="text-rose-500">*</span>
+                    购买方 <span className="text-rose-500">*</span>
                   </label>
                   <select
                     value={newCert.buyer}
