@@ -138,9 +138,6 @@ export const carbonFootprintNav: NavItem[] = [
       { title: '折标煤系数库', href: '/carbon-footprint/factor/coal' },
     ],
   },
-  { title: '基础配置', href: '/carbon-footprint/config', icon: Settings2 },
-  { title: '数据接口管理', href: '/carbon-footprint/interface', icon: Plug },
-  { title: '数据采集清单', href: '/carbon-footprint/data-catalog', icon: Database },
 ]
 
 export type PlatformKey = 'zero-carbon' | 'carbon-footprint'

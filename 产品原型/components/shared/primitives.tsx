@@ -38,7 +38,6 @@ export function Panel({
             {Icon && <Icon className="size-4 text-primary" />}
             <div>
               {title && <h3 className="text-sm font-semibold text-foreground">{title}</h3>}
-              {desc && <p className="text-[11px] text-muted-foreground mt-0.5">{desc}</p>}
             </div>
           </div>
           {actions}
@@ -71,7 +70,6 @@ export function PanelTitle({
         {Icon && <Icon className="size-4 text-primary" />}
         <div>
           <h3 className="text-sm font-semibold text-foreground">{displayTitle || children}</h3>
-          {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
         </div>
       </div>
       {action}
