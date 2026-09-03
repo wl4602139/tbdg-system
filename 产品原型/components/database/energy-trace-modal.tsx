@@ -15,28 +15,28 @@ const ELEC_KGCE = 0.1229 // 电力折标系数 kgce/kWh
 const STAGE_META: Record<string, { processName: string; startTime: string; endTime: string }> = {
   绕线: {
     processName: '低压箔绕与高压绕制',
-    startTime: '2026-07-10 08:30',
-    endTime: '2026-07-11 17:30',
+    startTime: '2026-07-10 08:30:00',
+    endTime: '2026-07-11 17:30:00',
   },
   器身: {
     processName: '铁芯叠装与器身绝缘装配',
-    startTime: '2026-07-12 08:30',
-    endTime: '2026-07-14 18:00',
+    startTime: '2026-07-12 08:30:00',
+    endTime: '2026-07-14 18:00:00',
   },
   总装: {
     processName: '器身气相干燥与总装配',
-    startTime: '2026-07-15 08:30',
-    endTime: '2026-07-17 17:00',
+    startTime: '2026-07-15 08:30:00',
+    endTime: '2026-07-17 17:00:00',
   },
   成品: {
     processName: '真空注油密封与例行出厂试验',
-    startTime: '2026-07-18 09:00',
-    endTime: '2026-07-19 16:30',
+    startTime: '2026-07-18 09:00:00',
+    endTime: '2026-07-19 16:30:00',
   },
   公共: {
     processName: '厂区动力与辅助工程配电',
-    startTime: '2026-07-10 08:00',
-    endTime: '2026-07-19 18:00',
+    startTime: '2026-07-10 08:00:00',
+    endTime: '2026-07-19 18:00:00',
   },
 }
 
@@ -63,8 +63,8 @@ function EnergyTraceTabs({
     return stages.map((s) => {
       const meta = STAGE_META[s.name] ?? {
         processName: `${s.name}加工制造工序`,
-        startTime: '2026-07-10 08:30',
-        endTime: '2026-07-12 17:30',
+        startTime: '2026-07-10 08:30:00',
+        endTime: '2026-07-12 17:30:00',
       }
       const gridConvert = Math.round(s.gridKwh * ELEC_KGCE * 100) / 100
       const greenConvert = Math.round(s.greenKwh * ELEC_KGCE * 100) / 100
