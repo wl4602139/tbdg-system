@@ -1,13 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { PageHeader } from '@/components/shared/page-header'
 import { Panel, StatusBadge, Toolbar, DataTable, Badge } from '@/components/shared/primitives'
 import { Tabs } from '@/components/shared/tabs'
 import { Select } from '@/components/shared/select'
 import { Modal } from '@/components/shared/modal'
 import { interfaceConfigs, fieldMappings } from '@/lib/mock-data'
-import { Plug,  Settings, Wifi, Plus } from 'lucide-react'
+import { Plug, Settings, Wifi, Plus } from 'lucide-react'
 
 export default function InterfacePage() {
   const [tab, setTab] = useState('config')
@@ -21,13 +20,6 @@ export default function InterfacePage() {
 
   return (
     <div>
-      <PageHeader
-        icon={Plug}
-        title="接口管理"
-        badge="ERP / PLM / MES 协同"
-        desc="打通集团 ERP 物料账、PLM 设计图纸与 MES 生产时序数据接口"
-      />
-
       <Tabs
         value={tab}
         onChange={setTab}

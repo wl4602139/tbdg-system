@@ -28,13 +28,14 @@ import {
 const axisStyle = { fontSize: 11, fill: 'oklch(0.82 0.02 240)', fontWeight: 500 }
 const gridColor = 'oklch(0.72 0.12 220 / 18%)'
 
-const chartColors = [
+export const chartColors = [
   'var(--chart-1)',
   'var(--chart-2)',
   'var(--chart-3)',
   'var(--chart-4)',
   'var(--chart-5)',
 ]
+export const donutColors = chartColors
 
 const tooltipStyle = {
   background: 'rgba(11, 21, 40, 0.95)',
@@ -679,6 +680,66 @@ export function SankeyFlow({
     <div className={`w-full relative select-none ${className}`}>
       <div ref={chartRef} style={{ width: '100%', height: `${height}px` }} />
     </div>
+  )
+}
+
+/* 基准对比柱状图：各对象柱 + 基准值参考虚线；超基准柱标红 */
+export function BarBenchmark({
+  data,
+  dataKey,
+  nameKey = 'name',
+  benchmark,
+  height = 220,
+  unit = '',
+  onBarClick,
+}: {
+  data: any[]
+  dataKey: string
+  nameKey?: string
+  benchmark: number
+  height?: number
+  unit?: string
+  onBarClick?: (row: any) => void
+}) {
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={data} margin={{ top: 18, right: 8, bottom: 0, left: -14 }}>
+        <CartesianGrid stroke={gridColor} vertical={false} />
+        <XAxis
+          dataKey={nameKey}
+          tick={{ ...axisStyle, fontSize: 10 }}
+          tickLine={false}
+          axisLine={false}
+          interval={0}
+          angle={-16}
+          textAnchor="end"
+          height={48}
+        />
+        <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
+        <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => `${v}${unit}`} cursor={{ fill: 'oklch(0.72 0.12 220 / 8%)' }} />
+        <ReferenceLine
+          y={benchmark}
+          stroke="var(--chart-4)"
+          strokeDasharray="5 4"
+          strokeWidth={1.5}
+          label={{ value: `基准 ${benchmark}${unit}`, position: 'insideTopRight', fill: 'var(--chart-4)', fontSize: 10 }}
+        />
+        <Bar
+          dataKey={dataKey}
+          radius={3}
+          barSize={26}
+          onClick={onBarClick}
+          cursor={onBarClick ? 'pointer' : undefined}
+        >
+          {data.map((d, i) => (
+            <Cell
+              key={i}
+              fill={d[dataKey] > benchmark ? 'var(--destructive)' : 'var(--chart-1)'}
+            />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
   )
 }
 

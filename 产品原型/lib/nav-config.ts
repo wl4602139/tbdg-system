@@ -83,69 +83,64 @@ export const zeroCarbonNav: NavItem[] = [
 ]
 
 /* ============================================================
- * 2. 产品碳足迹集采中心 9 大核心模块（与 HTML 最终版标准对齐）
+ * 2. 产品碳足迹集采中心 核心模块（与 集采中心 原设计稿 100% 对齐）
  * ============================================================ */
 export const carbonFootprintNav: NavItem[] = [
+  { title: '对外示范窗口', href: '/carbon-footprint/cockpit', icon: LayoutDashboard },
   {
-    title: '示范窗口 (Cockpit)',
-    href: '/carbon-footprint/cockpit',
-    icon: LayoutDashboard,
-  },
-  {
-    title: '多维分析 (Analysis)',
+    title: '多维分析',
     href: '/carbon-footprint/analysis',
     icon: BarChart3,
     children: [
-      { title: '同品类跨厂对比', href: '/carbon-footprint/analysis#horizontal' },
-      { title: '红黑榜 Top10', href: '/carbon-footprint/analysis#vertical' },
-      { title: '基准与热点分析', href: '/carbon-footprint/analysis#benchmark' },
-      { title: '低碳选型模拟', href: '/carbon-footprint/analysis#simulate' },
+      { title: '横向对比', href: '/carbon-footprint/analysis/compare' },
+      { title: '纵向对比', href: '/carbon-footprint/analysis/ranking' },
+      { title: '基准对比', href: '/carbon-footprint/analysis/benchmark' },
     ],
   },
   {
-    title: '实景数据库 (Database)',
+    title: '实景数据库',
     href: '/carbon-footprint/database',
     icon: Database,
     children: [
-      { title: '核算一张图', href: '/carbon-footprint/database#accounting' },
-      { title: '工序能耗时序', href: '/carbon-footprint/database#energy' },
-      { title: 'BOM 数据链穿透', href: '/carbon-footprint/database#bom' },
+      { title: '碳足迹核算', href: '/carbon-footprint/database/accounting' },
+      { title: '能耗追踪', href: '/carbon-footprint/database/energy' },
+      { title: '碳足迹报告', href: '/carbon-footprint/database/report' },
     ],
   },
   {
-    title: 'CBAM 申报管理',
+    title: 'CBAM管理',
     href: '/carbon-footprint/cbam',
     icon: ShieldCheck,
     children: [
-      { title: 'HS 编码映射', href: '/carbon-footprint/cbam#hs' },
-      { title: '关税情景测算', href: '/carbon-footprint/cbam#cost' },
-      { title: 'XML 申报包下载', href: '/carbon-footprint/cbam#export' },
+      { title: '合规管理', href: '/carbon-footprint/cbam/compliance' },
+      { title: '申报模拟', href: '/carbon-footprint/cbam/declaration' },
+      { title: '知识库', href: '/carbon-footprint/cbam/knowledge' },
     ],
   },
   {
-    title: '第三方认证证书',
+    title: '第三方认证管理',
     href: '/carbon-footprint/certification',
     icon: BadgeCheck,
+    children: [
+      { title: '认证资料维护', href: '/carbon-footprint/certification/material' },
+      { title: '认证申请', href: '/carbon-footprint/certification/apply' },
+      { title: '认证结果管理', href: '/carbon-footprint/certification/result' },
+    ],
   },
   {
     title: '因子库管理',
     href: '/carbon-footprint/factor',
     icon: Boxes,
     children: [
-      { title: '股份因子同步', href: '/carbon-footprint/factor#sync' },
-      { title: '因子集构建与下发', href: '/carbon-footprint/factor#dispatch' },
+      { title: '原材料碳排因子', href: '/carbon-footprint/factor/material' },
+      { title: '电力碳排因子', href: '/carbon-footprint/factor/power' },
+      { title: '能源活动碳排因子', href: '/carbon-footprint/factor/energy' },
+      { title: '折标煤系数库', href: '/carbon-footprint/factor/coal' },
     ],
   },
-  {
-    title: '系统配置',
-    href: '/carbon-footprint/config',
-    icon: Settings2,
-  },
-  {
-    title: '数据接口管理',
-    href: '/carbon-footprint/interface',
-    icon: Plug,
-  },
+  { title: '基础配置', href: '/carbon-footprint/config', icon: Settings2 },
+  { title: '数据接口管理', href: '/carbon-footprint/interface', icon: Plug },
+  { title: '数据采集清单', href: '/carbon-footprint/data-catalog', icon: Database },
 ]
 
 export type PlatformKey = 'zero-carbon' | 'carbon-footprint'
@@ -168,6 +163,6 @@ export const platformMeta: Record<
     subtitle: 'LCA碳足迹 / CBAM出海',
     nav: carbonFootprintNav,
     icon: Leaf,
-    accent: '#10b981',
+    accent: 'var(--chart-1)',
   },
 }

@@ -124,19 +124,9 @@ export const alarms = [
   { time: '2026-08-16 14:02', level: '严重', source: '西安互感器厂', rule: '设备离线', status: '已处理' },
 ]
 
-/* 系统管理 - 账号列表（扩展工号/手机/归属组织） */
-export type Account = {
-  id: string
-  name: string
-  account: string
-  role: string
-  org: string
-  scope: string
-  phone: string
-  status: '启用' | '停用'
-}
-export const accounts: Account[] = [
-  { id: 'U001', name: '张伟', account: 'zhangwei', role: '集团管理员', org: '电装集团', scope: '全集团', phone: '138****8801', status: '启用' },
+/* 系统管理 - 账号 */
+export const accounts = [
+  { id: 'U001', name: '张伟', account: 'zhangwei', role: '集团管理员', org: '电装集团', scope: '集团', phone: '138****1120', status: '启用' },
   { id: 'U002', name: '李静', account: 'lijing', role: '园区管理员', org: '天变公司', scope: '天津园区', phone: '139****4022', status: '启用' },
   { id: 'U003', name: '王强', account: 'wangqiang', role: '经营单位', org: '鲁缆本部', scope: '衡阳电缆厂', phone: '137****7781', status: '启用' },
   { id: 'U004', name: '赵敏', account: 'zhaomin', role: '节能专员', org: '沈变本部', scope: '沈阳园区', phone: '135****6690', status: '停用' },
@@ -155,7 +145,7 @@ export type SysRole = {
 }
 export const sysRoles: SysRole[] = [
   { id: 'R001', name: '集团管理员', desc: '集团级最高权限，可配置全部功能与数据', users: 2, scope: '全集团', builtin: true, perms: ['权限管控', '数据录入', '能碳基础因子管理', '日志管理'] },
-  { id: 'R002', name: '园区管理员', desc: '负责所辖园区的用户、数据录入与因子应用', users: 6, scope: '所辖园区', builtin: true, perms: ['数据录入', '能碳基础因子管理'] },
+  { id: 'R002', name: '园区管理员', desc: '负责所辖园区的用户、数据录���与因子应用', users: 6, scope: '所辖园区', builtin: true, perms: ['数据录入', '能碳基础因子管理'] },
   { id: 'R003', name: '经营单位', desc: '经营单位数据录入与本单位数据查看', users: 23, scope: '本经营单位', builtin: false, perms: ['数据录入'] },
   { id: 'R004', name: '节能专员', desc: '能耗与碳排数据分析、因子查看', users: 11, scope: '所辖园区', builtin: false, perms: ['能碳基础因子管理'] },
   { id: 'R005', name: '审计员', desc: '全集团只读，专职查看操作与安全日志', users: 3, scope: '全集团（只读）', builtin: true, perms: ['日志管理'] },
@@ -267,6 +257,9 @@ export function statusColor(key: string): Tone {
     warn: 'warn',
     严重: 'danger',
     critical: 'danger',
+    可申报: 'ok',
+    待申报: 'warn',
+    材料待补: 'danger',
   }
   return map[key] ?? 'muted'
 }
@@ -293,7 +286,7 @@ export const zeroProjects = [
   { name: '天津园区分布式光伏一期', type: '光伏', park: '天津园区', invest: 2800, reduce: 4200, payback: 6.2, status: '已投运' },
   { name: '衡阳厂区储能调峰项目', type: '储能', park: '衡阳园区', invest: 1600, reduce: 1800, payback: 7.4, status: '建设中' },
   { name: '沈阳绿电替代改造', type: '绿电替代', park: '沈阳园区', invest: 960, reduce: 2600, payback: 5.1, status: '建设中' },
-  { name: '昌吉园区余热回收热泵', type: '热泵', park: '昌吉园区', invest: 640, reduce: 1200, payback: 4.8, status: '规划中' },
+  { name: '昌吉园区余热��收热泵', type: '热泵', park: '昌吉园区', invest: 640, reduce: 1200, payback: 4.8, status: '规划中' },
   { name: '西安屋顶光伏二期', type: '光伏', park: '西安园区', invest: 2100, reduce: 3400, payback: 6.6, status: '已投运' },
 ]
 
@@ -326,7 +319,7 @@ export const orderAccounting = [
   { order: 'DD-2026-08790', product: 'LGJ-240', unit: '昌吉线缆厂', material: 610, produce: 210, transport: 88, total: 908 },
 ]
 
-/* 数据链溯源节点 */
+/* 数据链溯源节�� */
 export const traceNodes = [
   { stage: '原材料获取（BOM）', value: 1180, detail: '硅钢片 620 · 电解铜 380 · 绝缘材料 180，引用因子库 v3.2' },
   { stage: '原材料运输', value: 142, detail: '公路 320km + 铁路 180km，运输因子集 v2.1' },
@@ -336,24 +329,52 @@ export const traceNodes = [
 
 /* 碳足迹报告 */
 export const cfReports = [
-  { no: 'CFR-2026-0451', product: 'SZ11-1600/10', standard: 'ISO 14067', date: '2026-08-12', status: '已生成' },
-  { no: 'CFR-2026-0448', product: 'YJV-8.7/15', standard: 'ISO 14067', date: '2026-08-10', status: '已生成' },
-  { no: 'CFR-2026-0442', product: 'ZW32-12', standard: 'ISO 14067', date: '2026-08-06', status: '已生成' },
+  { no: 'CFR-2026-0451', unit: '衡变本部', product: 'SZ11-1600/10', standard: 'ISO 14067', date: '2026-08-12', status: '已生成' },
+  { no: 'CFR-2026-0448', unit: '鲁缆本部', product: 'YJV-8.7/15', standard: 'ISO 14067', date: '2026-08-10', status: '已生成' },
+  { no: 'CFR-2026-0442', unit: '沈变本部', product: 'ZW32-12', standard: 'ISO 14067', date: '2026-08-06', status: '已生成' },
+  { no: 'CFR-2026-0438', unit: '超高压公司', product: 'SFZ11-110', standard: 'ISO 14067', date: '2026-07-22', status: '已生成' },
+  { no: 'CFR-2026-0433', unit: '衡变本部', product: 'SFZ11-110', standard: 'ISO 14067', date: '2026-07-15', status: '已生成' },
 ]
+
+/* CBAM 管控行业分类（钢铁/铝/水泥/化肥/电力/氢） */
+export const cbamSectors = ['钢铁', '铝', '水泥', '化肥', '电力', '氢']
+/* 生产工艺可选项 */
+export const cbamProcesses = ['高炉-转炉（钢铁）', '电弧炉（钢铁）', '电解（铝）', '干法回转窑（水泥）', '合成氨（化肥）', '电解水制氢（氢）', '其他']
 
 /* CBAM 产品映射台账 */
-export const cbamProducts = [
-  { name: '电力变压器', hs: '8504.23', cn: '85042300', scope: '管控', status: '有效', exempt: false },
-  { name: '电缆导体', hs: '8544.60', cn: '85446000', scope: '管控', status: '有效', exempt: false },
-  { name: '钢结构件', hs: '7308.90', cn: '73089000', scope: '管控', status: '临期', exempt: false },
-  { name: '塑料绝缘件', hs: '3926.90', cn: '39269097', scope: '不管控', status: '有效', exempt: true },
+export type CbamProduct = {
+  id: string
+  name: string
+  hs: string
+  cn: string
+  sector: string
+  scope: '管控' | '不管控'
+  status: '有效' | '临期' | '已过期'
+  exempt: boolean
+}
+export const cbamProducts: CbamProduct[] = [
+  { id: 'P001', name: '电力变压器', hs: '8504.23', cn: '85042300', sector: '钢铁', scope: '管控', status: '有效', exempt: false },
+  { id: 'P002', name: '电缆导体', hs: '8544.60', cn: '85446000', sector: '铝', scope: '管控', status: '有效', exempt: false },
+  { id: 'P003', name: '钢结构件', hs: '7308.90', cn: '73089000', sector: '钢铁', scope: '管控', status: '临期', exempt: false },
+  { id: 'P004', name: '塑料绝缘件', hs: '3926.90', cn: '39269097', sector: '化肥', scope: '不管控', status: '有效', exempt: true },
 ]
 
+/* CBAM 资质类型 */
+export const cbamQualTypes = ['EORI 编号', '进口商授权', '境外工厂注册', '授权申报人', '核查机构认可']
 /* CBAM 资质档案 */
-export const cbamQualifications = [
-  { type: 'EORI 编号', code: 'DE123456789012', validTo: '2027-05-30', status: '有效' },
-  { type: '进口商授权', code: 'IMP-AUTH-2026-08', validTo: '2026-12-31', status: '临期' },
-  { type: '境外工厂注册', code: 'REG-CN-TBEA-01', validTo: '2028-01-15', status: '有效' },
+export type CbamQual = {
+  id: string
+  type: string
+  code: string
+  holder: string
+  validFrom: string
+  validTo: string
+  status: '有效' | '临期' | '已过期'
+}
+export const cbamQualifications: CbamQual[] = [
+  { id: 'Q001', type: 'EORI 编号', code: 'DE123456789012', holder: 'Siemens Energy AG', validFrom: '2024-05-30', validTo: '2027-05-30', status: '有效' },
+  { id: 'Q002', type: '进口商授权', code: 'IMP-AUTH-2026-08', holder: 'Nexans France', validFrom: '2025-08-01', validTo: '2026-12-31', status: '临期' },
+  { id: 'Q003', type: '境外工厂注册', code: 'REG-CN-TBEA-01', holder: '衡变本部', validFrom: '2025-01-15', validTo: '2028-01-15', status: '有效' },
 ]
 
 /* CBAM 成本测算多情景 */
@@ -380,12 +401,195 @@ export const supplierCarbon = [
   { supplier: '金杯电工', material: '绝缘料', factor: 1.28, green: '71%', grade: 'B' },
 ]
 
-/* CBAM 知识库文章 */
-export const cbamKnowledge = [
-  { title: 'CBAM 法规原文（EU 2023/956）', type: '法规', updated: '2026-06-01' },
-  { title: 'CN 管控清单 2026 版', type: '清单', updated: '2026-07-15' },
-  { title: '季度申报操作指南', type: '指南', updated: '2026-08-01' },
-  { title: 'BTI 分类裁定典型案例', type: '案例', updated: '2026-05-20' },
+/* CBAM 贸易主体角色/国家可选项 */
+export const cbamTraderRoles = ['进口商', '授权代表', '间接海关代表']
+export const cbamCountries = ['德国', '法国', '意大利', '荷兰', '西班牙', '波兰', '比利时']
+/* CBAM 贸易主体（欧盟进口商 / 授权代表） */
+export type CbamTrader = {
+  id: string
+  name: string
+  country: string
+  eori: string
+  role: string
+  auth: '已授权' | '待授权'
+}
+export const cbamTraders: CbamTrader[] = [
+  { id: 'T001', name: 'Siemens Energy AG', country: '德国', eori: 'DE812305789', role: '进口商', auth: '已授权' },
+  { id: 'T002', name: 'Nexans France', country: '法国', eori: 'FR409123556', role: '进口商', auth: '已授权' },
+  { id: 'T003', name: 'ABB Italy S.p.A.', country: '意大利', eori: 'IT073920145', role: '授权代表', auth: '待授权' },
+]
+
+/* CBAM 临期预警明细：卡片点击后展示 */
+export type CbamAlert = {
+  id: string
+  qualType: string
+  code: string
+  holder: string
+  validTo: string
+  daysLeft: number
+  level: '高' | '中'
+  risk: string
+  actions: string[]
+}
+export const cbamAlerts: CbamAlert[] = [
+  {
+    id: 'Q002',
+    qualType: '进口商授权',
+    code: 'IMP-AUTH-2026-08',
+    holder: 'Nexans France',
+    validTo: '2026-12-31',
+    daysLeft: 120,
+    level: '高',
+    risk: '进口商授权将在 120 天内到期。到期后该进口商无法在欧盟 CBAM 登记处继续提交季度申报，可能导致相关订单清关受阻。',
+    actions: [
+      '提前 60 天向欧盟主管机关提交授权续期申请',
+      '准备最新的进口商 EORI 与授权委托文件',
+      '在续期完成前，安排备用授权申报人以避免申报中断',
+    ],
+  },
+  {
+    id: 'P003',
+    qualType: '产品资质（钢结构件）',
+    code: '73089000',
+    holder: '衡变本部',
+    validTo: '2026-11-15',
+    daysLeft: 74,
+    level: '中',
+    risk: '钢结构件的境外工厂注册即将进入临期状态，若不更新工厂排放数据核查，将影响该产品的实测值申报资格。',
+    actions: ['更新工厂年度排放数据并送第三方核查', '重新提交境外工厂注册信息', '临期期间可临时切换为官方默认值申报'],
+  },
+]
+
+/* CBAM 申报模拟 - 集团工厂场景 */
+export const cbamDeclScenarios = [
+  {
+    factory: '衡变本部',
+    product: 'SZ11-2500/10 电力变压器',
+    cn: '85042300',
+    customer: 'Siemens Energy AG',
+    quarter: '2026 Q3',
+    emission: 1842,
+    dataMode: '实测值',
+    readiness: 86,
+    status: '待申报',
+  },
+  {
+    factory: '沈变本部',
+    product: 'ZW32-12 户外真空断路器',
+    cn: '85362000',
+    customer: 'ABB Italy S.p.A.',
+    quarter: '2026 Q3',
+    emission: 2260,
+    dataMode: '默认值',
+    readiness: 52,
+    status: '材料待补',
+  },
+  {
+    factory: '特变山东',
+    product: 'YJV-8.7/15 电力电缆',
+    cn: '85446000',
+    customer: 'Nexans France',
+    quarter: '2026 Q3',
+    emission: 1520,
+    dataMode: '实测值',
+    readiness: 100,
+    status: '可申报',
+  },
+]
+
+/* CBAM 申报所需材料清单 */
+export const cbamDeclMaterials = [
+  { name: '产品碳排放核算报告', desc: '按 CBAM 方法学核算的嵌入式排放（直接+间接）', required: true, status: '已上传' },
+  { name: '生产工艺路线说明', desc: '含各工序能源投入与计量边界', required: true, status: '已上传' },
+  { name: '电力来源与绿电证书', desc: '市电/绿电构成及 GO 绿证凭证', required: true, status: '待上传' },
+  { name: '原材料 BOM 及供应商因子', desc: '前体材料的隐含碳数据', required: true, status: '已上传' },
+  { name: '第三方核查声明', desc: '经认可机构核查的排放数据声明', required: false, status: '待上传' },
+  { name: '进口商 EORI 与授权文件', desc: '欧盟进口商授权申报人资质', required: true, status: '已上传' },
+]
+
+/* CBAM 申报流程步骤 */
+export const cbamDeclSteps = [
+  { step: 1, name: '确定管控范围', desc: '依据 CN 码判定产品是否纳入 CBAM 管控', done: true },
+  { step: 2, name: '核算嵌入式排放', desc: '采集工序能耗与前体材料数据，核算直接与间接排放', done: true },
+  { step: 3, name: '准备申报材料', desc: '上传核算报告、绿电证书、BOM、核查声明等材料', done: false },
+  { step: 4, name: '进口商登记提交', desc: '经授权进口商在欧盟 CBAM 登记处按季度提交', done: false },
+  { step: 5, name: '核查与费用清算', desc: '接受主管机关核查，购买并清算 CBAM 证书', done: false },
+]
+
+/* CBAM 知识库文章（支持增删改查 · 富属性 + 附件） */
+export const cbamKnowledgeSources = ['欧盟委员会', '海关总署', '生态环境部', '行业协会', '内部整理']
+export const cbamKnowledgeLangs = ['中文', '英文', '中英对照']
+export type CbamKnowledge = {
+  id: string
+  title: string
+  type: string
+  sector: string // 关联行业
+  source: string // 来源机构
+  docNo: string // 文号/编号
+  lang: string
+  effectiveDate: string // 生效日期
+  updated: string
+  tags: string[]
+  summary: string
+  attachments: { name: string; size: string }[]
+}
+export const cbamKnowledge: CbamKnowledge[] = [
+  {
+    id: 'K001',
+    title: 'CBAM 法规原文（EU 2023/956）',
+    type: '法规',
+    sector: '通用',
+    source: '欧盟委员会',
+    docNo: 'EU 2023/956',
+    lang: '中英对照',
+    effectiveDate: '2023-05-17',
+    updated: '2026-06-01',
+    tags: ['过渡期', '申报义务', '管控范围'],
+    summary: '欧盟碳边境调节机制正式法规文本，界定管控范围、过渡期与申报义务。',
+    attachments: [{ name: 'EU-2023-956-full.pdf', size: '2.4 MB' }],
+  },
+  {
+    id: 'K002',
+    title: 'CN 管控清单 2026 版',
+    type: '清单',
+    sector: '通用',
+    source: '欧盟委员会',
+    docNo: 'ANNEX I-2026',
+    lang: '英文',
+    effectiveDate: '2026-01-01',
+    updated: '2026-07-15',
+    tags: ['CN 编码', '钢铁', '铝', '水泥'],
+    summary: '纳入 CBAM 管控的 CN 编码清单，覆盖钢铁、铝、水泥、电力、化肥、氢等。',
+    attachments: [{ name: 'CN-list-2026.xlsx', size: '380 KB' }],
+  },
+  {
+    id: 'K003',
+    title: '季度申报操作指南',
+    type: '指南',
+    sector: '通用',
+    source: '海关总署',
+    docNo: 'GUIDE-2026-03',
+    lang: '中文',
+    effectiveDate: '2026-08-01',
+    updated: '2026-08-01',
+    tags: ['季度报告', '提交流程'],
+    summary: '过渡期季度报告字段说明、提交流程与常见问题处理。',
+    attachments: [],
+  },
+  {
+    id: 'K004',
+    title: 'BTI 分类裁定典型案例',
+    type: '案例',
+    sector: '钢铁',
+    source: '行业协会',
+    docNo: 'BTI-CASE-08',
+    lang: '中文',
+    effectiveDate: '2026-05-20',
+    updated: '2026-05-20',
+    tags: ['归类争议', 'BTI'],
+    summary: '约束性关税信息（BTI）在 CN 码归类争议中的裁定参考案例。',
+    attachments: [{ name: 'BTI-cases.pdf', size: '1.1 MB' }],
+  },
 ]
 
 /* 第三方认证 - 资料模板 */
@@ -433,6 +637,163 @@ export const factorDispatch = [
   { unit: '衡阳电缆厂', set: '原材料因子集-线缆产业', version: 'v2.4', time: '2026-08-15 02:00', result: '成功' },
   { unit: '沈阳开关厂', set: '能源碳排因子集', version: 'v3.2', time: '2026-08-15 02:01', result: '成功' },
   { unit: '昌吉线缆厂', set: '原材料运输因子集', version: 'v2.1', time: '2026-08-15 02:03', result: '失败' },
+]
+
+/* ============ 因子库管理（四类因子模块） ============ */
+
+/* 通用来源与版本历史类型 */
+export type FactorVersion = { version: string; date: string; note: string; operator: string }
+export const factorSourceOptions = ['国家标准', '行业标准', '第三方核证', '供应商实测', '股份下发', 'IPCC 缺省值']
+
+/* 1) 原材料碳排因子 */
+export type RawMaterialFactor = {
+  id: string
+  name: string
+  industry: string // 适用产业
+  value: number
+  unit: string
+  source: string
+  version: string
+  updated: string
+  status: '启用' | '停用'
+  history: FactorVersion[]
+}
+export const rawMaterialIndustries = ['变压器产业', '线缆产业', '开关产业', '通用']
+export const rawMaterialFactors: RawMaterialFactor[] = [
+  { id: 'RM001', name: '取向硅钢片', industry: '变压器产业', value: 2.05, unit: 'kgCO2e/kg', source: '供应商实测', version: 'v3.2', updated: '2026-07-20', status: '启用', history: [
+    { version: 'v3.2', date: '2026-07-20', note: '按最新供应商实测数据更新', operator: '张伟' },
+    { version: 'v3.1', date: '2026-03-11', note: '并入宝钢新炉次数据', operator: '张伟' },
+    { version: 'v3.0', date: '2025-11-02', note: '版本固化', operator: '李静' },
+  ] },
+  { id: 'RM002', name: '电解铜', industry: '通用', value: 3.42, unit: 'kgCO2e/kg', source: '第三方核证', version: 'v3.2', updated: '2026-07-20', status: '启用', history: [
+    { version: 'v3.2', date: '2026-07-20', note: 'SGS 核证数据更新', operator: '张伟' },
+    { version: 'v3.0', date: '2025-11-02', note: '版本固化', operator: '李静' },
+  ] },
+  { id: 'RM003', name: '电工铝（铝锭）', industry: '线缆产业', value: 8.10, unit: 'kgCO2e/kg', source: '行业标准', version: 'v2.6', updated: '2026-05-08', status: '启用', history: [
+    { version: 'v2.6', date: '2026-05-08', note: '采用有色金属行业协会均值', operator: '王强' },
+  ] },
+  { id: 'RM004', name: '环氧树脂', industry: '变压器产业', value: 5.68, unit: 'kgCO2e/kg', source: '供应商实测', version: 'v2.4', updated: '2026-04-15', status: '启用', history: [
+    { version: 'v2.4', date: '2026-04-15', note: '新增巴斯夫牌号', operator: '王强' },
+  ] },
+  { id: 'RM005', name: '交联聚乙烯（XLPE）', industry: '线缆产业', value: 2.31, unit: 'kgCO2e/kg', source: '国家标准', version: 'v2.1', updated: '2026-02-19', status: '停用', history: [
+    { version: 'v2.1', date: '2026-02-19', note: '待供应商实测替换', operator: '赵敏' },
+  ] },
+  { id: 'RM006', name: '绝缘纸板', industry: '通用', value: 1.12, unit: 'kgCO2e/kg', source: 'IPCC 缺省值', version: 'v1.9', updated: '2025-12-30', status: '启用', history: [
+    { version: 'v1.9', date: '2025-12-30', note: '初始建库', operator: '李静' },
+  ] },
+]
+
+/* 2) 电力碳排因子（分区域 + 分电力来源） */
+export type PowerFactor = {
+  id: string
+  region: string // 区域电网
+  powerSource: string // 电力来源
+  value: number
+  unit: string
+  source: string
+  version: string
+  updated: string
+  status: '启用' | '停用'
+  history: FactorVersion[]
+}
+export const powerRegions = ['华北区域电网', '华东区域电网', '华中区域电网', '东北区域电网', '西北区域电网', '南方区域电网']
+export const powerSources = ['电网平均', '燃煤自备电厂', '光伏发电', '风力发电', '水力发电', '绿电（市场化交易）']
+export const powerFactors: PowerFactor[] = [
+  { id: 'PW001', region: '华北区域电网', powerSource: '电网平均', value: 0.5703, unit: 'kgCO2e/kWh', source: '国家标准', version: 'v2024.1', updated: '2026-01-01', status: '启用', history: [
+    { version: 'v2024.1', date: '2026-01-01', note: '生态环境部 2024 年度电网排放因子', operator: '张伟' },
+    { version: 'v2023.1', date: '2025-01-01', note: '2023 年度因子', operator: '张伟' },
+  ] },
+  { id: 'PW002', region: '华东区域电网', powerSource: '电网平均', value: 0.5257, unit: 'kgCO2e/kWh', source: '国家标准', version: 'v2024.1', updated: '2026-01-01', status: '启用', history: [
+    { version: 'v2024.1', date: '2026-01-01', note: '生态环境部 2024 年度电网排放因子', operator: '张伟' },
+  ] },
+  { id: 'PW003', region: '西北区域电网', powerSource: '电网平均', value: 0.6127, unit: 'kgCO2e/kWh', source: '国家标准', version: 'v2024.1', updated: '2026-01-01', status: '启用', history: [
+    { version: 'v2024.1', date: '2026-01-01', note: '生态环境部 2024 年度电网排放因子', operator: '张伟' },
+  ] },
+  { id: 'PW004', region: '南方区域电网', powerSource: '电网平均', value: 0.5271, unit: 'kgCO2e/kWh', source: '国家标准', version: 'v2024.1', updated: '2026-01-01', status: '启用', history: [
+    { version: 'v2024.1', date: '2026-01-01', note: '生态环境部 2024 年度电网排放因子', operator: '张伟' },
+  ] },
+  { id: 'PW005', region: '华北区域电网', powerSource: '光伏发电', value: 0.0480, unit: 'kgCO2e/kWh', source: '第三方核证', version: 'v1.3', updated: '2026-03-15', status: '启用', history: [
+    { version: 'v1.3', date: '2026-03-15', note: '含全生命周期制造分摊', operator: '赵敏' },
+  ] },
+  { id: 'PW006', region: '华东区域电网', powerSource: '绿电（市场化交易）', value: 0.0000, unit: 'kgCO2e/kWh', source: '第三方核证', version: 'v1.2', updated: '2026-03-15', status: '启用', history: [
+    { version: 'v1.2', date: '2026-03-15', note: '绿证核销后零排放核算', operator: '赵敏' },
+  ] },
+  { id: 'PW007', region: '西北区域电网', powerSource: '风力发电', value: 0.0250, unit: 'kgCO2e/kWh', source: '行业标准', version: 'v1.1', updated: '2026-02-10', status: '启用', history: [
+    { version: 'v1.1', date: '2026-02-10', note: '初始建库', operator: '李静' },
+  ] },
+  { id: 'PW008', region: '华北区域电网', powerSource: '燃煤自备电厂', value: 0.8320, unit: 'kgCO2e/kWh', source: '供应商实测', version: 'v2.0', updated: '2026-04-01', status: '停用', history: [
+    { version: 'v2.0', date: '2026-04-01', note: '自备电厂改造后停用', operator: '王强' },
+  ] },
+]
+
+/* 3) 能源活动碳排因子 */
+export type EnergyActivityFactor = {
+  id: string
+  name: string
+  category: string // 能源类别
+  value: number
+  unit: string
+  source: string
+  version: string
+  updated: string
+  status: '启用' | '停用'
+  history: FactorVersion[]
+}
+export const energyActivityCategories = ['化石燃料', '热力/蒸汽', '制冷剂', '其他']
+export const energyActivityFactors: EnergyActivityFactor[] = [
+  { id: 'EA001', name: '天然气', category: '化石燃料', value: 2.1622, unit: 'kgCO2e/m³', source: 'IPCC 缺省值', version: 'v2023.2', updated: '2025-06-01', status: '启用', history: [
+    { version: 'v2023.2', date: '2025-06-01', note: '按低位热值修订', operator: '张伟' },
+    { version: 'v2023.1', date: '2025-01-01', note: '初始建库', operator: '李静' },
+  ] },
+  { id: 'EA002', name: '原煤（烟煤）', category: '化石燃料', value: 1.9003, unit: 'kgCO2e/kg', source: 'IPCC 缺省值', version: 'v2023.2', updated: '2025-06-01', status: '启用', history: [
+    { version: 'v2023.2', date: '2025-06-01', note: '按低位热值修订', operator: '张伟' },
+  ] },
+  { id: 'EA003', name: '柴油', category: '化石燃料', value: 3.0959, unit: 'kgCO2e/kg', source: '国家标准', version: 'v2024.1', updated: '2026-01-01', status: '启用', history: [
+    { version: 'v2024.1', date: '2026-01-01', note: '更新至最新国标', operator: '张伟' },
+  ] },
+  { id: 'EA004', name: '外购蒸汽', category: '热力/蒸汽', value: 0.1100, unit: 'kgCO2e/MJ', source: '股份下发', version: 'v2026.1', updated: '2026-03-01', status: '启用', history: [
+    { version: 'v2026.1', date: '2026-03-01', note: '股份公司统一下发', operator: '李静' },
+  ] },
+  { id: 'EA005', name: 'R134a 制冷剂', category: '制冷剂', value: 1430, unit: 'kgCO2e/kg', source: 'IPCC 缺省值', version: 'v2023.1', updated: '2025-01-01', status: '启用', history: [
+    { version: 'v2023.1', date: '2025-01-01', note: 'GWP 值引用 AR5', operator: '赵敏' },
+  ] },
+  { id: 'EA006', name: '液化石油气（LPG）', category: '化石燃料', value: 3.1013, unit: 'kgCO2e/kg', source: '国家标准', version: 'v2023.1', updated: '2025-01-01', status: '停用', history: [
+    { version: 'v2023.1', date: '2025-01-01', note: '初始建库', operator: '李静' },
+  ] },
+]
+
+/* 4) 折标煤系数库 */
+export type CoalCoefFactor = {
+  id: string
+  name: string
+  value: number
+  unit: string // 折标煤系数单位
+  lowHeat: string // 低位热值
+  source: string
+  version: string
+  updated: string
+  status: '启用' | '停用'
+  history: FactorVersion[]
+}
+export const coalCoefFactors: CoalCoefFactor[] = [
+  { id: 'CC001', name: '电力', value: 0.1229, unit: 'kgce/kWh', lowHeat: '— (当量值)', source: '国家标准', version: 'GB/T 2589-2020', updated: '2026-01-01', status: '启用', history: [
+    { version: 'GB/T 2589-2020', date: '2026-01-01', note: '采用当量热值折算', operator: '张伟' },
+  ] },
+  { id: 'CC002', name: '天然气', value: 1.2143, unit: 'kgce/m³', lowHeat: '35.588 MJ/m³', source: '国家标准', version: 'GB/T 2589-2020', updated: '2026-01-01', status: '启用', history: [
+    { version: 'GB/T 2589-2020', date: '2026-01-01', note: '国标折标系数', operator: '张伟' },
+  ] },
+  { id: 'CC003', name: '原煤', value: 0.7143, unit: 'kgce/kg', lowHeat: '20.908 MJ/kg', source: '国家标准', version: 'GB/T 2589-2020', updated: '2026-01-01', status: '启用', history: [
+    { version: 'GB/T 2589-2020', date: '2026-01-01', note: '国标折标系数', operator: '张伟' },
+  ] },
+  { id: 'CC004', name: '柴油', value: 1.4571, unit: 'kgce/kg', lowHeat: '42.652 MJ/kg', source: '国家标准', version: 'GB/T 2589-2020', updated: '2026-01-01', status: '启用', history: [
+    { version: 'GB/T 2589-2020', date: '2026-01-01', note: '国标折标系数', operator: '张伟' },
+  ] },
+  { id: 'CC005', name: '汽油', value: 1.4714, unit: 'kgce/kg', lowHeat: '43.070 MJ/kg', source: '国家标准', version: 'GB/T 2589-2020', updated: '2026-01-01', status: '启用', history: [
+    { version: 'GB/T 2589-2020', date: '2026-01-01', note: '国标折标系数', operator: '张伟' },
+  ] },
+  { id: 'CC006', name: '外购蒸汽', value: 0.0341, unit: 'kgce/MJ', lowHeat: '—', source: '行业标准', version: 'v2026.1', updated: '2026-03-01', status: '启用', history: [
+    { version: 'v2026.1', date: '2026-03-01', note: '按热当量折算', operator: '李静' },
+  ] },
 ]
 
 /* 数据接口配置 */

@@ -1,18 +1,19 @@
 'use client'
 
 import { useState } from 'react'
-import { PageHeader } from '@/components/shared/page-header'
+import { useParams } from 'next/navigation'
 import { Panel, StatusBadge, Toolbar, DataTable, KpiCard } from '@/components/shared/primitives'
-import { Tabs } from '@/components/shared/tabs'
 import { Select } from '@/components/shared/select'
 import { Modal } from '@/components/shared/modal'
 import { certMaterials, certApplications, certResults, statusColor } from '@/lib/mock-data'
-import { BadgeCheck,  Download, Upload, Plus, FileCheck } from 'lucide-react'
+import { Download, Upload, Plus, FileCheck } from 'lucide-react'
 
 const orgLabel: Record<string, string> = { all: '', tuv: 'TÜV', sgs: 'SGS', bv: 'BV' }
 
-export default function CertificationPage() {
-  const [tab, setTab] = useState('material')
+export default function CertificationClient({ tab: propTab }: { tab?: string }) {
+  const params = useParams()
+  const seg = Array.isArray(params.section) ? params.section[0] : (params.section as string | undefined)
+  const tab = propTab ?? seg ?? 'material'
   const [applyOpen, setApplyOpen] = useState(false)
   const [org, setOrg] = useState('all')
 
@@ -22,23 +23,6 @@ export default function CertificationPage() {
 
   return (
     <div>
-      <PageHeader
-        icon={BadgeCheck}
-        title="EPD 与碳足迹证书"
-        badge="权威核查证书归档"
-        desc="对接国际与国家认证机构，维护核查申报、报告归档与证书全生命周期"
-      />
-
-      <Tabs
-        value={tab}
-        onChange={setTab}
-        items={[
-          { value: 'material', label: '认证资料维护' },
-          { value: 'apply', label: '认证申请' },
-          { value: 'result', label: '认证结果管理' },
-        ]}
-      />
-
       {tab === 'material' && (
         <div className="mt-4 space-y-4">
           <Toolbar>
