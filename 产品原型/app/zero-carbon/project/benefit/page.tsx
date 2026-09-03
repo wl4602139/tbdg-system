@@ -35,6 +35,7 @@ import {
   ArrowDownRight,
   Ruler,
   Maximize2,
+  PieChart as PieIcon,
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend, AreaTrend, Donut, BarChartGroup } from '@/components/shared/charts'
@@ -307,8 +308,8 @@ const HEAT_PUMP_BENEFIT_DATA: HeatPumpBenefitItem[] = [
     powerKwh: 15000.0,
     areaWanM2: 2.5,
     heightM: 9.0,
-    convertedAreaWanM2: 7.5, // 2.5 * 9 / 3 = 7.5 万㎡
-    kwhPerM2: 2.0, // 15000 / (7.5 * 10000) = 2.0 kWh/㎡
+    convertedAreaWanM2: 7.5,
+    kwhPerM2: 2.0,
     greenPowerRatio: 72.0,
     peakPowerRatio: 24.5,
     flatValleyPowerRatio: 3.5,
@@ -340,7 +341,7 @@ const HEAT_PUMP_BENEFIT_DATA: HeatPumpBenefitItem[] = [
     powerKwh: 10100.0,
     areaWanM2: 1.2,
     heightM: 12.5,
-    convertedAreaWanM2: 5.0, // 1.2 * 12.5 / 3 = 5.0 万㎡
+    convertedAreaWanM2: 5.0,
     kwhPerM2: 2.02,
     greenPowerRatio: 78.5,
     peakPowerRatio: 18.0,
@@ -373,7 +374,7 @@ const HEAT_PUMP_BENEFIT_DATA: HeatPumpBenefitItem[] = [
     powerKwh: 20250.0,
     areaWanM2: 1.8,
     heightM: 15.0,
-    convertedAreaWanM2: 9.0, // 1.8 * 15 / 3 = 9.0 万㎡
+    convertedAreaWanM2: 9.0,
     kwhPerM2: 2.25,
     greenPowerRatio: 65.0,
     peakPowerRatio: 30.0,
@@ -406,7 +407,7 @@ const HEAT_PUMP_BENEFIT_DATA: HeatPumpBenefitItem[] = [
     powerKwh: 11850.0,
     areaWanM2: 1.5,
     heightM: 8.0,
-    convertedAreaWanM2: 4.0, // 1.5 * 8 / 3 = 4.0 万㎡
+    convertedAreaWanM2: 4.0,
     kwhPerM2: 2.96,
     greenPowerRatio: 75.0,
     peakPowerRatio: 21.0,
@@ -438,13 +439,13 @@ const PV_BENEFIT_DATA: PvBenefitItem[] = [
     capacityMwp: 12.8,
     genKwhWan: 118.5,
     effectiveHours: 925.8,
-    consumedKwhWan: 109.5, // 厂区消纳
-    consumedIncomeWan: 79.39, // 消纳收益 = 109.5 × 0.725
-    consumedAvgPrice: 0.725, // 消纳替代均价
-    consumedRatio: 92.4, // 消纳率
-    gridKwhWan: 9.0, // 上网电量
-    gridIncomeWan: 3.42, // 上网收益 = 9.0 × 0.380
-    gridPrice: 0.380, // 上网单价
+    consumedKwhWan: 109.5,
+    consumedIncomeWan: 79.39,
+    consumedAvgPrice: 0.725,
+    consumedRatio: 92.4,
+    gridKwhWan: 9.0,
+    gridIncomeWan: 3.42,
+    gridPrice: 0.380,
     totalIncomeWan: 82.81,
     carbonReductionTons: 633.9,
     calcContext: {
@@ -599,6 +600,103 @@ export default function BenefitEvaluationPage() {
     )
     return res.length > 0 ? res : PV_BENEFIT_DATA
   }, [selectedParkNode, isParkRoot])
+
+  // ============================================================
+  // 图表多维数据集 (涵盖时序走势、负荷结构环形图与横向对标柱状图)
+  // ============================================================
+
+  // 储能图表数据
+  const storageTrendData = [
+    { date: '08-22', 充电量: 3.65, 放电量: 3.18, 收益: 2.42 },
+    { date: '08-23', 充电量: 3.72, 放电量: 3.24, 收益: 2.48 },
+    { date: '08-24', 充电量: 3.80, 放电量: 3.31, 收益: 2.55 },
+    { date: '08-25', 充电量: 3.75, 放电量: 3.26, 收益: 2.51 },
+    { date: '08-26', 充电量: 3.68, 放电量: 3.20, 收益: 2.46 },
+    { date: '08-27', 充电量: 3.78, 放电量: 3.29, 收益: 2.53 },
+    { date: '08-28', 充电量: 3.76, 放电量: 3.27, 收益: 2.51 },
+  ]
+
+  const storageChargeSourceDonut = [
+    { name: '绿电充入 (光伏直充)', value: 71.5, color: '#52c41a' },
+    { name: '市电深谷充入 (夜间低价)', value: 21.0, color: '#1677ff' },
+    { name: '市电普通谷充', value: 7.5, color: '#13c2c2' },
+  ]
+
+  const storageDischargePeriodDonut = [
+    { name: '尖峰时段释放 (收益最高)', value: 62.0, color: '#722ed1' },
+    { name: '高峰时段释放', value: 38.0, color: '#fa8c16' },
+  ]
+
+  const storageBenchmarkData = [
+    { name: '衡变储能', 综合效率: 87.0, 日套利收益千元: 8.42 },
+    { name: '沈变储能', 综合效率: 87.5, 日套利收益千元: 7.12 },
+    { name: '新变超高压', 综合效率: 86.8, 日套利收益千元: 5.38 },
+    { name: '鲁缆储能', 综合效率: 87.0, 日套利收益千元: 4.15 },
+  ]
+
+  // 热泵图表数据
+  const heatPumpTrendData = [
+    { date: '08-22', 供热量GJ: 195.2, 耗电量万kWh: 1.42, COP: 3.82 },
+    { date: '08-23', 供热量GJ: 202.5, 耗电量万kWh: 1.46, COP: 3.86 },
+    { date: '08-24', 供热量GJ: 215.0, 耗电量万kWh: 1.54, COP: 3.88 },
+    { date: '08-25', 供热量GJ: 208.4, 耗电量万kWh: 1.50, COP: 3.85 },
+    { date: '08-26', 供热量GJ: 205.1, 耗电量万kWh: 1.48, COP: 3.84 },
+    { date: '08-27', 供热量GJ: 212.8, 耗电量万kWh: 1.52, COP: 3.87 },
+    { date: '08-28', 供热量GJ: 207.9, 耗电量万kWh: 1.50, COP: 3.85 },
+  ]
+
+  const heatPumpPowerSourceDonut = [
+    { name: '清洁绿电直供 (光伏微网)', value: 72.0, color: '#52c41a' },
+    { name: '市电低谷电网输入', value: 24.5, color: '#1677ff' },
+    { name: '市电平段补充', value: 3.5, color: '#fa8c16' },
+  ]
+
+  const heatPumpPeakValleyDonut = [
+    { name: '平谷避峰时段制热', value: 75.5, color: '#13c2c2' },
+    { name: '尖峰时段运行电耗', value: 24.5, color: '#f5222d' },
+  ]
+
+  const heatPumpWorkshopBenchmark = [
+    { name: '超高压总装(18m)', 原始面积: 1.2, 折算供暖面积: 7.2, 单位面积电耗: 2.15 },
+    { name: '电缆交联跨(12m)', 原始面积: 1.5, 折算供暖面积: 6.0, 单位面积电耗: 2.00 },
+    { name: '真空干燥跨(15m)', 原始面积: 0.8, 折算供暖面积: 4.0, 单位面积电耗: 2.02 },
+    { name: '线圈装配辅跨(7.5m)', 原始面积: 0.4, 折算供暖面积: 1.0, 单位面积电耗: 2.30 },
+    { name: '研发综合楼(6m)', 原始面积: 0.5, 折算供暖面积: 1.0, 单位面积电耗: 2.96 },
+  ]
+
+  // 光伏图表数据
+  const pvHourlyTrendData = [
+    { time: '06:00', 总发电量: 0.12, 厂区消纳: 0.12, 余电上网: 0.0 },
+    { time: '07:00', 总发电量: 0.45, 厂区消纳: 0.45, 余电上网: 0.0 },
+    { time: '08:00', 总发电量: 1.28, 厂区消纳: 1.28, 余电上网: 0.0 },
+    { time: '09:00', 总发电量: 2.56, 厂区消纳: 2.42, 余电上网: 0.14 },
+    { time: '10:00', 总发电量: 3.82, 厂区消纳: 3.50, 余电上网: 0.32 },
+    { time: '11:00', 总发电量: 4.65, 厂区消纳: 4.15, 余电上网: 0.50 },
+    { time: '12:00', 总发电量: 4.80, 厂区消纳: 4.20, 余电上网: 0.60 },
+    { time: '13:00', 总发电量: 4.52, 厂区消纳: 4.08, 余电上网: 0.44 },
+    { time: '14:00', 总发电量: 3.78, 厂区消纳: 3.52, 余电上网: 0.26 },
+    { time: '15:00', 总发电量: 2.64, 厂区消纳: 2.55, 余电上网: 0.09 },
+    { time: '16:00', 总发电量: 1.45, 厂区消纳: 1.45, 余电上网: 0.0 },
+    { time: '17:00', 总发电量: 0.62, 厂区消纳: 0.62, 余电上网: 0.0 },
+    { time: '18:00', 总发电量: 0.15, 厂区消纳: 0.15, 余电上网: 0.0 },
+  ]
+
+  const pvFlowDonut = [
+    { name: '厂区车间自发自用消纳', value: 91.8, color: '#1677ff' },
+    { name: '余电反送电网上网', value: 8.2, color: '#52c41a' },
+  ]
+
+  const pvRevenueDonut = [
+    { name: '自用替代工商业电费节约', value: 95.5, color: '#fa8c16' },
+    { name: '余电上网售电收益', value: 4.5, color: '#13c2c2' },
+  ]
+
+  const pvBenchmarkData = [
+    { name: '新变超高压', 有效小时数: 1027, 综合消纳率: 93.0 },
+    { name: '衡变光伏', 有效小时数: 975, 综合消纳率: 92.0 },
+    { name: '鲁缆光伏', 有效小时数: 944, 综合消纳率: 90.5 },
+    { name: '沈变光伏', 有效小时数: 926, 综合消纳率: 92.4 },
+  ]
 
   // ============================================================
   // 核心 KPI 动态计算汇总 (严格按客户指定字段输出)
@@ -829,7 +927,7 @@ export default function BenefitEvaluationPage() {
         </div>
 
         {/* ============================================================ */}
-        {/* 模块 1：储能运行评估 (按客户指标与注项严格呈现) */}
+        {/* 模块 1：储能运行评估 (8大KPI + 充放电时序图 + 来源环形图 + 横向柱状图 + 台账) */}
         {/* ============================================================ */}
         {activeModule === 'storage' && (
           <div className="space-y-3.5 animate-in fade-in duration-200">
@@ -887,6 +985,69 @@ export default function BenefitEvaluationPage() {
                 <div className="text-xs font-bold text-purple-700 mt-1 truncate">{storageKpi.dischargePeakDesc}</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">最高价时段释放</div>
               </div>
+            </div>
+
+            {/* 🌟 储能可视化图表区 1：左右分栏（时序动态充放平衡图 + 来源/时段结构双环图） */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+              {/* 左侧 8列：充放电平衡与分时套利时序图 */}
+              <div className="lg:col-span-8 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="size-4 text-[#1677ff]" />
+                    <h3 className="text-xs font-bold text-slate-800">储能日度充放电量动态平衡与峰谷套利走势</h3>
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-mono">单位：万kWh / 千元</span>
+                </div>
+                <AreaTrend
+                  data={storageTrendData}
+                  areas={[
+                    { key: '充电量', name: '日充电量 (万kWh)', color: '#1677ff' },
+                    { key: '放电量', name: '日放电量 (万kWh)', color: '#52c41a' },
+                    { key: '收益', name: '净套利收益 (千元)', color: '#fa8c16' },
+                  ]}
+                  xKey="date"
+                  height={220}
+                />
+              </div>
+
+              {/* 右侧 4列：充电来源与放电时段双环形图 */}
+              <div className="lg:col-span-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                <div className="flex items-center gap-1.5">
+                  <PieIcon className="size-4 text-purple-600" />
+                  <h3 className="text-xs font-bold text-slate-800">充电来源与放电时段结构分析</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold text-slate-600 block mb-1">充电电量来源</span>
+                    <Donut data={storageChargeSourceDonut} height={140} unit="%" />
+                  </div>
+                  <div className="text-center border-l border-slate-100">
+                    <span className="text-[10px] font-bold text-slate-600 block mb-1">放电释放时段</span>
+                    <Donut data={storageDischargePeriodDonut} height={140} unit="%" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 🌟 储能可视化图表区 2：横向电站综合效率与套利收益对比柱状图 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="size-4 text-emerald-600" />
+                  <h3 className="text-xs font-bold text-slate-800">各园区储能电站综合转换效率与套利收益对标排行</h3>
+                </div>
+                <span className="text-[11px] text-slate-400">行业高效基准线：综合效率 ≥ 85%</span>
+              </div>
+              <BarChartGroup
+                data={storageBenchmarkData}
+                bars={[
+                  { key: '综合效率', name: '综合转换效率 (%)', color: '#52c41a' },
+                  { key: '日套利收益千元', name: '日套利收益 (千元)', color: '#fa8c16' },
+                ]}
+                xKey="name"
+                height={200}
+              />
             </div>
 
             {/* 储能电站台账明细表 */}
@@ -964,7 +1125,7 @@ export default function BenefitEvaluationPage() {
         )}
 
         {/* ============================================================ */}
-        {/* 模块 2：热泵运行评估 (按 A*H/3 面积折算模型与客户指标严格呈现) */}
+        {/* 模块 2：热泵运行评估 (8大KPI + 供热电耗COP趋势 + 驱动电能环形图 + 折算面积柱状图 + 台账) */}
         {/* ============================================================ */}
         {activeModule === 'heatpump' && (
           <div className="space-y-3.5 animate-in fade-in duration-200">
@@ -1026,6 +1187,69 @@ export default function BenefitEvaluationPage() {
                 <div className="text-base font-bold text-purple-700 mt-1">{heatPumpKpi.peakRatio}%</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">高峰时段电网输入</div>
               </div>
+            </div>
+
+            {/* 🌟 热泵可视化图表区 1：左右分栏（供热量与电耗平衡趋势图 + 驱动电能来源环形图） */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+              {/* 左侧 8列：供热量 vs 耗电量 vs COP 综合趋势图 */}
+              <div className="lg:col-span-8 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="size-4 text-orange-600" />
+                    <h3 className="text-xs font-bold text-slate-800">热泵每日供热量 (GJ) 与制热耗电量 (万kWh) 动态平衡走势</h3>
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-mono">系统平均 COP：3.85</span>
+                </div>
+                <AreaTrend
+                  data={heatPumpTrendData}
+                  areas={[
+                    { key: '供热量GJ', name: '供热量 (GJ)', color: '#fa8c16' },
+                    { key: '耗电量万kWh', name: '耗电量 (万kWh)', color: '#1677ff' },
+                  ]}
+                  xKey="date"
+                  height={220}
+                />
+              </div>
+
+              {/* 右侧 4列：驱动电力来源与避峰运行结构 */}
+              <div className="lg:col-span-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                <div className="flex items-center gap-1.5">
+                  <PieIcon className="size-4 text-orange-600" />
+                  <h3 className="text-xs font-bold text-slate-800">制热电能来源与避峰时段构成</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold text-slate-600 block mb-1">驱动电能结构</span>
+                    <Donut data={heatPumpPowerSourceDonut} height={140} unit="%" />
+                  </div>
+                  <div className="text-center border-l border-slate-100">
+                    <span className="text-[10px] font-bold text-slate-600 block mb-1">峰谷制热分布</span>
+                    <Donut data={heatPumpPeakValleyDonut} height={140} unit="%" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 🌟 热泵可视化图表区 2：不同高大厂房折算面积 (A*H/3) 与单位面积供热电耗对标柱状图 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Ruler className="size-4 text-amber-600" />
+                  <h3 className="text-xs font-bold text-slate-800">典型工业厂房原始占地 vs 折算供暖面积 (A×H/3) 与单位面积耗电量 (kWh/㎡) 对标</h3>
+                </div>
+                <span className="text-[11px] text-slate-400">工业严寒/寒冷地区特级基准：≤ 2.5 kWh/㎡</span>
+              </div>
+              <BarChartGroup
+                data={heatPumpWorkshopBenchmark}
+                bars={[
+                  { key: '原始面积', name: '原始供暖面积 (万㎡)', color: '#94a3b8' },
+                  { key: '折算供暖面积', name: '折算供暖面积 A*H/3 (万㎡)', color: '#fa8c16' },
+                  { key: '单位面积电耗', name: '单位面积供热电耗 (kWh/㎡)', color: '#1677ff' },
+                ]}
+                xKey="name"
+                height={200}
+              />
             </div>
 
             {/* 热泵效益台账明细表 (含 A*H/3 折算过程与层高明细) */}
@@ -1107,7 +1331,7 @@ export default function BenefitEvaluationPage() {
         )}
 
         {/* ============================================================ */}
-        {/* 模块 3：光伏运行评估 (全新构建，覆盖装机/发电/小时数/消纳/上网) */}
+        {/* 模块 3：光伏运行评估 (8大KPI + 24小时三轨功率平衡图 + 消纳/收益环形图 + 横向柱状图 + 台账) */}
         {/* ============================================================ */}
         {activeModule === 'pv' && (
           <div className="space-y-3.5 animate-in fade-in duration-200">
@@ -1165,6 +1389,69 @@ export default function BenefitEvaluationPage() {
                 <div className="text-base font-bold text-emerald-700 mt-1 font-mono">¥{pvKpi.totalGridIncome} <span className="text-xs font-normal">万</span></div>
                 <div className="text-[10px] text-slate-400 mt-0.5">上网单价 {pvKpi.gridPrice}元</div>
               </div>
+            </div>
+
+            {/* 🌟 光伏可视化图表区 1：左右分栏（24小时三轨功率平衡面积图 + 电量流向/收益构成双环图） */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+              {/* 左侧 8列：24小时光伏发电出力 vs 厂区就地消纳 vs 余电上网三轨平衡图 */}
+              <div className="lg:col-span-8 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sun className="size-4 text-amber-600" />
+                    <h3 className="text-xs font-bold text-slate-800">光伏 24小时出力曲线 vs 厂区消纳功率 vs 余电上网动态平衡</h3>
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-mono">单位：万kWh / 功率</span>
+                </div>
+                <AreaTrend
+                  data={pvHourlyTrendData}
+                  areas={[
+                    { key: '总发电量', name: '光伏理论总出力 (万kWh)', color: '#faad14' },
+                    { key: '厂区消纳', name: '厂区就地消纳 (万kWh)', color: '#1677ff' },
+                    { key: '余电上网', name: '余电反送上网 (万kWh)', color: '#52c41a' },
+                  ]}
+                  xKey="time"
+                  height={220}
+                />
+              </div>
+
+              {/* 右侧 4列：电量流向与双轨收益双环形图 */}
+              <div className="lg:col-span-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                <div className="flex items-center gap-1.5">
+                  <PieIcon className="size-4 text-amber-600" />
+                  <h3 className="text-xs font-bold text-slate-800">光伏电量消纳流向与经济收益构成</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold text-slate-600 block mb-1">发电量流向分布</span>
+                    <Donut data={pvFlowDonut} height={140} unit="%" />
+                  </div>
+                  <div className="text-center border-l border-slate-100">
+                    <span className="text-[10px] font-bold text-slate-600 block mb-1">总经济效益构成</span>
+                    <Donut data={pvRevenueDonut} height={140} unit="%" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 🌟 光伏可视化图表区 2：各园区电站有效利用小时数与消纳率横向排行榜 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="size-4 text-blue-600" />
+                  <h3 className="text-xs font-bold text-slate-800">各分布式光伏电站有效发电小时数 (h) 与综合消纳率 (%) 排行榜</h3>
+                </div>
+                <span className="text-[11px] text-slate-400">一类资源区基准有效利用小时数：≥ 900 h</span>
+              </div>
+              <BarChartGroup
+                data={pvBenchmarkData}
+                bars={[
+                  { key: '有效小时数', name: '有效发电小时数 (h)', color: '#1677ff' },
+                  { key: '综合消纳率', name: '综合就地消纳率 (%)', color: '#52c41a' },
+                ]}
+                xKey="name"
+                height={200}
+              />
             </div>
 
             {/* 光伏电站消纳与上网台账明细表 */}
