@@ -347,33 +347,14 @@ export default function ManualEntryPage() {
     }
   }
 
-  // 🌟 核心要求：台账明细仅显示当前选中节点的企业台账数据
+  // 🌟 台账明细数据筛选
   const filteredRecords = records.filter((r) => {
-    // 1. 机构/企业节点严格过滤 (全集团显示全量，具体企业/车间节点仅显示属于该单位的台账)
-    const isRoot = selectedOrgId === 'ent_root' || selectedOrg === '电装集团'
-    const matchesOrg =
-      isRoot ||
-      r.org === selectedOrg ||
-      (r.org && selectedOrg && (selectedOrg.includes(r.org) || r.org.includes(selectedOrg)))
-
-    if (!matchesOrg) return false
-
-    // 2. 数据类型二次筛选
     if (filterType === 'all') return true
     return r.typeKey === filterType
   })
 
   return (
-    <div className="flex gap-4 items-start">
-      {/* 🌟 1. 左侧企业结构树 (Enterprise Structure Tree) 270px 经典工业拓扑 */}
-      <StandardOrgTree
-        selectedId={selectedOrgId}
-        onSelect={handleSelectOrgNode}
-        treeType="enterprise"
-      />
-
-      {/* 🌟 2. 右侧数据录入工作台 */}
-      <div className="flex-1 min-w-0 space-y-5">
+    <div className="space-y-5">
         {/* 顶部标题栏 (已移除原红框的填报单位与账期冗余信息) */}
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-xs">
           <div className="flex items-center gap-3">
@@ -1080,12 +1061,10 @@ export default function ManualEntryPage() {
             <div className="flex items-center gap-2">
               <History className="size-4.5 text-primary" />
               <h3 className="text-sm font-bold text-foreground">
-                【{selectedOrg}】已录入数据台账明细
+                已录入数据台账明细
               </h3>
               <Badge tone="info">{filteredRecords.length} 条记录</Badge>
-              <span className="text-[11px] text-muted-foreground font-normal">
-                (已按当前选中企业节点严格过滤)
-              </span>
+              
             </div>
 
             {/* 类型筛选器 */}
@@ -1196,7 +1175,6 @@ export default function ManualEntryPage() {
             </table>
           </div>
         </Panel>
-      </div>
     </div>
   )
 }
