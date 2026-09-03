@@ -124,12 +124,117 @@ export const alarms = [
   { time: '2026-08-16 14:02', level: '严重', source: '西安互感器厂', rule: '设备离线', status: '已处理' },
 ]
 
-/* 系统管理 - 账号 */
-export const accounts = [
-  { name: '张伟', account: 'zhangwei', role: '集团管理员', scope: '集团', status: '启用' },
-  { name: '李静', account: 'lijing', role: '园区管理员', scope: '天津园区', status: '启用' },
-  { name: '王强', account: 'wangqiang', role: '经营单位', scope: '衡阳电缆厂', status: '启用' },
-  { name: '赵敏', account: 'zhaomin', role: '节能专员', scope: '沈阳园区', status: '停用' },
+/* 系统管理 - 账号列表（扩展工号/手机/归属组织） */
+export type Account = {
+  id: string
+  name: string
+  account: string
+  role: string
+  org: string
+  scope: string
+  phone: string
+  status: '启用' | '停用'
+}
+export const accounts: Account[] = [
+  { id: 'U001', name: '张伟', account: 'zhangwei', role: '集团管理员', org: '电装集团', scope: '全集团', phone: '138****8801', status: '启用' },
+  { id: 'U002', name: '李静', account: 'lijing', role: '园区管理员', org: '天变公司', scope: '天津园区', phone: '139****4022', status: '启用' },
+  { id: 'U003', name: '王强', account: 'wangqiang', role: '经营单位', org: '鲁缆本部', scope: '衡阳电缆厂', phone: '137****7781', status: '启用' },
+  { id: 'U004', name: '赵敏', account: 'zhaomin', role: '节能专员', org: '沈变本部', scope: '沈阳园区', phone: '135****6690', status: '停用' },
+  { id: 'U005', name: '陈涛', account: 'chentao', role: '审计员', org: '电装集团', scope: '集团（只读）', phone: '136****3345', status: '启用' },
+]
+
+/* 系统管理 - 角色与权限 */
+export type SysRole = {
+  id: string
+  name: string
+  desc: string
+  users: number
+  scope: string
+  builtin: boolean
+  perms: string[] // 已授权的一级功能
+}
+export const sysRoles: SysRole[] = [
+  { id: 'R001', name: '集团管理员', desc: '集团级最高权限，可配置全部功能与数据', users: 2, scope: '全集团', builtin: true, perms: ['权限管控', '数据录入', '能碳基础因子管理', '日志管理'] },
+  { id: 'R002', name: '园区管理员', desc: '负责所辖园区的用户、数据录入与因子应用', users: 6, scope: '所辖园区', builtin: true, perms: ['数据录入', '能碳基础因子管理'] },
+  { id: 'R003', name: '经营单位', desc: '经营单位数据录入与本单位数据查看', users: 23, scope: '本经营单位', builtin: false, perms: ['数据录入'] },
+  { id: 'R004', name: '节能专员', desc: '能耗与碳排数据分析、因子查看', users: 11, scope: '所辖园区', builtin: false, perms: ['能碳基础因子管理'] },
+  { id: 'R005', name: '审计员', desc: '全集团只读，专职查看操作与安全日志', users: 3, scope: '全集团（只读）', builtin: true, perms: ['日志管理'] },
+]
+
+/* 系统管理 - 菜单与功能（按钮级功能点） */
+export type SysMenu = { module: string; menu: string; actions: string[] }
+export const sysMenus: SysMenu[] = [
+  { module: '零碳园区集控中心', menu: '集中监管', actions: ['查看', '导出', '指标配置'] },
+  { module: '零碳园区集控中心', menu: '能耗能效分析', actions: ['查看', '导出', '自助分析'] },
+  { module: '零碳园区集控中心', menu: '碳管理', actions: ['查看', '核算', '报告下载', '核查提交'] },
+  { module: '产品碳足迹集采中心', menu: '多维分析', actions: ['查看', '导出', '下钻'] },
+  { module: '产品碳足迹集采中心', menu: '实景数据库', actions: ['查看', '新增', '编辑', '数据追踪'] },
+  { module: '产品碳足迹集采中心', menu: 'CBAM管理', actions: ['查看', '新增', '编辑', '删除', '申报模拟'] },
+  { module: '产品碳足迹集采中心', menu: '第三方认证管理', actions: ['查看', '申请', '结果录入'] },
+]
+
+/* 系统管理 - 能碳基础因子 */
+export type SysFactor = {
+  id: string
+  name: string
+  category: string
+  value: number
+  unit: string
+  source: string
+  scope: string
+  version: string
+  effective: string
+  status: '启用' | '停用'
+}
+export const sysFactorCategories = ['电力', '化石燃料', '热力/蒸汽', '运输', '原材料', '制冷剂']
+export const sysFactors: SysFactor[] = [
+  { id: 'F001', name: '华北电网电力', category: '电力', value: 0.5703, unit: 'kgCO2e/kWh', source: '生态环境部 2024', scope: '通用', version: 'v2024.1', effective: '2026-01-01', status: '启用' },
+  { id: 'F002', name: '华东电网电力', category: '电力', value: 0.5257, unit: 'kgCO2e/kWh', source: '生态环境部 2024', scope: '通用', version: 'v2024.1', effective: '2026-01-01', status: '启用' },
+  { id: 'F003', name: '天然气', category: '化石燃料', value: 2.1622, unit: 'kgCO2e/m³', source: 'IPCC 2006', scope: '通用', version: 'v2023.2', effective: '2025-06-01', status: '启用' },
+  { id: 'F004', name: '标准煤', category: '化石燃料', value: 2.6600, unit: 'kgCO2e/kg', source: 'IPCC 2006', scope: '通用', version: 'v2023.2', effective: '2025-06-01', status: '启用' },
+  { id: 'F005', name: '外购蒸汽', category: '热力/蒸汽', value: 0.1100, unit: 'kgCO2e/MJ', source: '股份下发', scope: '变压器产业', version: 'v2026.1', effective: '2026-03-01', status: '启用' },
+  { id: 'F006', name: '公路货运（柴油重卡）', category: '运输', value: 0.0930, unit: 'kgCO2e/t·km', source: 'GLEC 2023', scope: '通用', version: 'v2023.1', effective: '2025-01-01', status: '启用' },
+  { id: 'F007', name: '取向硅钢', category: '原材料', value: 2.8500, unit: 'kgCO2e/kg', source: '供应商实测', scope: '变压器产业', version: 'v2026.1', effective: '2026-02-01', status: '停用' },
+]
+
+/* 系统管理 - 数据录入记录 */
+export type SysEntry = {
+  id: string
+  batch: string
+  type: string
+  org: string
+  period: string
+  submitter: string
+  submitTime: string
+  status: '草稿' | '待审核' | '已入库' | '已退回'
+}
+export const sysEntryTypes = ['能耗数据', '碳排活动数据', '产量数据', '绿电数据', '原材料用量']
+export const sysEntries: SysEntry[] = [
+  { id: 'E001', batch: 'DR-260817-01', type: '能耗数据', org: '衡变本部', period: '2026-07', submitter: '王强', submitTime: '2026-08-17 09:20', status: '已入库' },
+  { id: 'E002', batch: 'DR-260817-02', type: '碳排活动数据', org: '沈变本部', period: '2026-07', submitter: '赵敏', submitTime: '2026-08-17 10:05', status: '待审核' },
+  { id: 'E003', batch: 'DR-260816-03', type: '产量数据', org: '天变公司', period: '2026-07', submitter: '李静', submitTime: '2026-08-16 16:40', status: '草稿' },
+  { id: 'E004', batch: 'DR-260816-01', type: '绿电数据', org: '超高压公司', period: '2026-07', submitter: '李静', submitTime: '2026-08-16 11:12', status: '已退回' },
+  { id: 'E005', batch: 'DR-260815-05', type: '原材料用量', org: '云集电气', period: '2026-06', submitter: '王强', submitTime: '2026-08-15 15:33', status: '已入库' },
+]
+
+/* 系统管理 - 日志 */
+export type SysLog = {
+  time: string
+  user: string
+  action: string
+  target: string
+  ip: string
+  result: '成功' | '失败'
+  category: '登录' | '数据操作' | '因子变更' | '权限变更' | '导出'
+}
+export const sysLogCategories = ['登录', '数据操作', '因子变更', '权限变更', '导出']
+export const sysLogs: SysLog[] = [
+  { time: '2026-08-17 09:41', user: '张伟', action: '修改碳排因子', target: '华北电网电力', ip: '10.20.3.11', result: '成功', category: '因子变更' },
+  { time: '2026-08-17 09:20', user: '王强', action: '提交能耗数据', target: 'DR-260817-01', ip: '10.20.4.22', result: '成功', category: '数据操作' },
+  { time: '2026-08-17 09:12', user: '李静', action: '新增账号', target: 'wangqiang', ip: '10.20.4.22', result: '成功', category: '权限变更' },
+  { time: '2026-08-16 17:30', user: '赵敏', action: '导出碳排放报告', target: '沈阳园区', ip: '10.20.6.7', result: '成功', category: '导出' },
+  { time: '2026-08-16 15:05', user: '张伟', action: '角色权限调整', target: '园区管理员', ip: '10.20.3.11', result: '成功', category: '权限变更' },
+  { time: '2026-08-16 08:59', user: 'unknown', action: '登录', target: 'admin', ip: '113.88.20.4', result: '失败', category: '登录' },
 ]
 
 /* 荣誉轮播 */
