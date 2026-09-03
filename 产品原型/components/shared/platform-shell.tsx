@@ -88,7 +88,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
       name: '零碳园区集控中心',
       shortName: '集控中心',
       desc: '微电网全景看板 · 47项关键制造工序能效 · 碳核算',
-      href: '/zero-carbon/screen',
+      href: '/zero-carbon/monitor/indicator',
       icon: Globe2,
       activeColor: 'text-[#1677ff]',
       activeBg: 'bg-blue-50/90',

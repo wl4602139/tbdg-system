@@ -20,7 +20,7 @@ const entrances = [
     en: 'ZERO-CARBON PARK CONTROL CENTER',
     desc: '面向集团领导层与企业参观对象，集中监管各园区与经营单位的能耗、能效与碳排放，支撑零碳园区建设与决策。',
     img: '/illustrations/zero-carbon.png',
-    href: '/zero-carbon/screen',
+    href: '/zero-carbon/monitor/indicator',
     icon: Globe2,
     points: ['集控中心大屏与集中监管', '能耗能效与碳排放分析', '零碳项目评估与告警管理', '智能助手语音交互'],
   },
