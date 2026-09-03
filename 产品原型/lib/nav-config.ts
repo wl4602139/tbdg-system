@@ -102,7 +102,6 @@ export const carbonFootprintNav: NavItem[] = [
     children: [
       { title: '横向对比', href: '/carbon-footprint/analysis/compare' },
       { title: '纵向对比', href: '/carbon-footprint/analysis/ranking' },
-      { title: '基准对比', href: '/carbon-footprint/analysis/benchmark' },
     ],
   },
   {
