@@ -54,7 +54,7 @@ const STAGES = [
     key: 'material' as const,
     name: '原材料获取',
     icon: Package,
-    color: 'var(--chart-1)',
+    color: '#00b4d8',
     bands: [
       { name: '<50%', lo: 0, hi: 50 },
       { name: '50–60%', lo: 50, hi: 60 },
@@ -66,7 +66,7 @@ const STAGES = [
     key: 'produce' as const,
     name: '生产制造',
     icon: Factory,
-    color: 'var(--chart-3)',
+    color: '#f59e0b',
     bands: [
       { name: '<15%', lo: 0, hi: 15 },
       { name: '15–20%', lo: 15, hi: 20 },
@@ -78,7 +78,7 @@ const STAGES = [
     key: 'transport' as const,
     name: '原材料运输',
     icon: Truck,
-    color: 'var(--chart-2)',
+    color: '#10b981',
     bands: [
       { name: '<7%', lo: 0, hi: 7 },
       { name: '7–9%', lo: 7, hi: 9 },
@@ -90,7 +90,7 @@ const STAGES = [
     key: 'waste' as const,
     name: '废弃物处理',
     icon: Recycle,
-    color: 'var(--chart-4)',
+    color: '#8b5cf6',
     bands: [
       { name: '<5%', lo: 0, hi: 5 },
       { name: '5–7%', lo: 5, hi: 7 },
@@ -250,31 +250,32 @@ export default function CockpitPage() {
         {/* 左：整体碳足迹构成 */}
         <Panel className="flex min-h-0 flex-col p-3">
           <PanelTitle title="碳足迹构成总览" subtitle="按生命周期阶段的平均占比" />
-          <div className="flex items-center gap-2">
-            <div className="w-1/2">
+          <div className="mt-1 flex items-center gap-3">
+            <div className="w-[140px] shrink-0">
               <Donut
                 data={[
-                  { name: '原材料获取', value: Math.round(agg.material * 100) },
-                  { name: '生产制造', value: Math.round(agg.produce * 100) },
-                  { name: '原材料运输', value: Math.round(agg.transport * 100) },
-                  { name: '废弃物处理', value: Math.round(agg.waste * 100) },
+                  { name: '原材料获取', value: Math.round(agg.material * 100), color: '#00b4d8' },
+                  { name: '生产制造', value: Math.round(agg.produce * 100), color: '#f59e0b' },
+                  { name: '原材料运输', value: Math.round(agg.transport * 100), color: '#10b981' },
+                  { name: '废弃物处理', value: Math.round(agg.waste * 100), color: '#8b5cf6' },
                 ]}
-                height={128}
-                innerRadius={34}
+                height={136}
+                innerRadius={36}
+                outerRadius={58}
                 showLegend={false}
               />
             </div>
             <div className="flex-1 space-y-1.5">
               {[
-                { n: '原材料获取', v: agg.material, c: 'var(--chart-1)' },
-                { n: '生产制造', v: agg.produce, c: 'var(--chart-3)' },
-                { n: '原材料运输', v: agg.transport, c: 'var(--chart-2)' },
-                { n: '废弃物处理', v: agg.waste, c: 'var(--chart-4)' },
+                { n: '原材料获取', v: agg.material, c: '#00b4d8' },
+                { n: '生产制造', v: agg.produce, c: '#f59e0b' },
+                { n: '原材料运输', v: agg.transport, c: '#10b981' },
+                { n: '废弃物处理', v: agg.waste, c: '#8b5cf6' },
               ].map((r) => (
                 <div key={r.n} className="flex items-center gap-2 text-xs">
-                  <span className="size-2.5 rounded-sm" style={{ background: r.c }} />
-                  <span className="flex-1 text-muted-foreground">{r.n}</span>
-                  <span className="font-mono text-foreground">{Math.round(r.v * 100)}%</span>
+                  <span className="size-2 shrink-0 rounded-full" style={{ background: r.c }} />
+                  <span className="flex-1 text-muted-foreground truncate">{r.n}</span>
+                  <span className="font-mono font-semibold text-foreground">{Math.round(r.v * 100)}%</span>
                 </div>
               ))}
             </div>
@@ -284,21 +285,31 @@ export default function CockpitPage() {
           <div className="mt-3 border-t border-border pt-2.5">
             <div className="mb-1.5 text-xs font-medium text-foreground">原材料内部构成</div>
             <div className="flex h-3.5 w-full overflow-hidden rounded-full">
-              {materialMix.map((m, i) => (
-                <div key={m.name} title={`${m.name} ${m.value}%`} style={{ width: `${m.value}%`, background: `color-mix(in oklch, var(--chart-1) ${100 - i * 22}%, var(--muted))` }} />
-              ))}
+              {materialMix.map((m, i) => {
+                const barColors = ['#38bdf8', '#0ea5e9', '#0284c7', '#1e3a8a']
+                return (
+                  <div
+                    key={m.name}
+                    title={`${m.name} ${m.value}%`}
+                    style={{ width: `${m.value}%`, background: barColors[i % barColors.length] }}
+                  />
+                )
+              })}
             </div>
             <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
-              {materialMix.map((m, i) => (
-                <div key={m.name} className="flex items-center gap-2 text-xs">
-                  <span className="size-2.5 rounded-sm" style={{ background: `color-mix(in oklch, var(--chart-1) ${100 - i * 22}%, var(--muted))` }} />
-                  <span className="flex-1 text-muted-foreground">{m.name}</span>
-                  <span className="font-mono text-foreground">{m.value}%</span>
-                </div>
-              ))}
+              {materialMix.map((m, i) => {
+                const barColors = ['#38bdf8', '#0ea5e9', '#0284c7', '#1e3a8a']
+                return (
+                  <div key={m.name} className="flex items-center gap-2 text-xs">
+                    <span className="size-2 shrink-0 rounded-full" style={{ background: barColors[i % barColors.length] }} />
+                    <span className="flex-1 text-muted-foreground">{m.name}</span>
+                    <span className="font-mono text-foreground font-medium">{m.value}%</span>
+                  </div>
+                )
+              })}
             </div>
             <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-              金属材料（铜/铝/钢）合计占原材料 <span className="font-mono text-primary">{metalPct}%</span>。
+              主要材料（铜/铝/钢）合计占原材料 <span className="font-mono font-medium text-primary">{metalPct}%</span>。
             </p>
           </div>
         </Panel>
@@ -312,27 +323,33 @@ export default function CockpitPage() {
             </div>
             <span className="text-[11px] text-muted-foreground">花瓣越长 = 落在该占比区间的型号越多</span>
           </div>
-          <div className="grid flex-1 grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-4">
-            {distributions.map(({ st, bands, top }) => (
-              <div key={st.key} className="flex flex-col items-center">
-                <div className="mb-0.5 flex items-center gap-1.5">
-                  <st.icon className="size-4" style={{ color: st.color }} />
-                  <span className="text-sm font-medium text-foreground">{st.name}</span>
+          <div className="grid flex-1 grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-4 items-center">
+            {distributions.map(({ st, bands, top }) => {
+              const opacities = [0.45, 0.65, 0.85, 1.0]
+              return (
+                <div key={st.key} className="flex flex-col items-center">
+                  <div className="mb-1 flex items-center gap-1.5">
+                    <st.icon className="size-4" style={{ color: st.color }} />
+                    <span className="text-xs font-semibold text-foreground">{st.name}</span>
+                  </div>
+                  <RoseChart data={bands.map((b) => ({ name: b.name, value: b.pct }))} color={st.color} size={132} />
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    主要区间 <span className="font-mono font-medium text-foreground">{top.name}</span>（{top.pct}%）
+                  </div>
+                  <div className="mt-1 grid w-full grid-cols-2 gap-x-2 gap-y-0.5">
+                    {bands.map((b, i) => (
+                      <span key={b.name} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                        <span
+                          className="size-1.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: st.color, opacity: opacities[i % opacities.length] }}
+                        />
+                        {b.name}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <RoseChart data={bands.map((b) => ({ name: b.name, value: b.pct }))} color={st.color} size={124} />
-                <div className="mt-1 text-[11px] text-muted-foreground">
-                  主要区间 <span className="font-mono text-foreground">{top.name}</span>（{top.pct}%）
-                </div>
-                <div className="mt-1 grid w-full grid-cols-2 gap-x-2 gap-y-0.5">
-                  {bands.map((b, i) => (
-                    <span key={b.name} className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <span className="size-2 shrink-0 rounded-sm" style={{ background: `color-mix(in oklch, ${st.color} ${50 + i * 16}%, var(--muted))` }} />
-                      {b.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </Panel>
       </div>

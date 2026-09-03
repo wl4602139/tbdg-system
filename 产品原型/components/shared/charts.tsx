@@ -289,34 +289,42 @@ export function AreaTrend({
 export function Donut({
   data = [],
   height = 200,
+  innerRadius = 45,
+  outerRadius,
   nameKey = 'name',
   valueKey = 'value',
-  unit,
+  unit = '%',
+  showLegend = true,
 }: {
   data?: any[]
   height?: number
+  innerRadius?: number
+  outerRadius?: number
   nameKey?: string
   valueKey?: string
   unit?: string
+  showLegend?: boolean
 }) {
   if (!data || !Array.isArray(data) || data.length === 0) return null
+  const computedOuter = outerRadius ?? (innerRadius ? innerRadius + 24 : 75)
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <PieChart>
+      <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
         <Tooltip
           contentStyle={tooltipStyle}
-          formatter={(value: any) => (unit ? `${value} ${unit}` : value)}
+          formatter={(value: any) => (unit ? `${value}${unit}` : value)}
         />
-        <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
+        {showLegend && <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />}
         <Pie
           data={data}
           dataKey={valueKey}
           nameKey={nameKey}
           cx="50%"
           cy="50%"
-          innerRadius={45}
-          outerRadius={75}
-          paddingAngle={3}
+          innerRadius={innerRadius}
+          outerRadius={computedOuter}
+          paddingAngle={2}
+          stroke="transparent"
         >
           {data.map((entry, i) => (
             <Cell key={i} fill={entry.color || chartColors[i % chartColors.length]} />
@@ -759,8 +767,8 @@ function roseSector(cx: number, cy: number, r: number, start: number, end: numbe
 }
 export function RoseChart({
   data,
-  size = 148,
-  color = 'var(--chart-1)',
+  size = 136,
+  color = '#00b4d8',
 }: {
   data: { name: string; value: number }[]
   size?: number
@@ -772,25 +780,54 @@ export function RoseChart({
   const max = Math.max(...data.map((d) => d.value), 1)
   const n = data.length || 1
   const seg = 360 / n
+  const opacities = [0.45, 0.65, 0.85, 1.0]
+
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="mx-auto block">
-      {[0.34, 0.67, 1].map((f, i) => (
-        <circle key={i} cx={cx} cy={cy} r={maxR * f} fill="none" stroke="var(--border)" strokeOpacity={0.5} strokeDasharray="2 3" />
+      {/* 3同心参考圈 */}
+      {[0.34, 0.67, 1.0].map((f, i) => (
+        <circle
+          key={i}
+          cx={cx}
+          cy={cy}
+          r={maxR * f}
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.15)"
+          strokeDasharray="2 3"
+        />
       ))}
       {data.map((d, i) => {
-        const r = Math.max(6, maxR * (d.value / max))
+        const r = Math.max(8, maxR * (d.value / max))
         const start = i * seg
         const end = start + seg - 3
         const mid = start + seg / 2
-        const fill = `color-mix(in oklch, ${color} ${50 + i * 16}%, var(--muted))`
-        const [tx, ty] = rosePolar(cx, cy, r * 0.62, mid)
+        const fill = color
+        const fillOpacity = opacities[i % opacities.length]
+        const [tx, ty] = rosePolar(cx, cy, r * 0.65, mid)
+        const showLabel = d.value >= 25 && r >= 30
+
         return (
           <g key={d.name}>
-            <path d={roseSector(cx, cy, r, start, end)} fill={fill} stroke="var(--panel)" strokeWidth={1}>
+            <path
+              d={roseSector(cx, cy, r, start, end)}
+              fill={fill}
+              fillOpacity={fillOpacity}
+              stroke="#091424"
+              strokeWidth={1}
+            >
               <title>{`${d.name}：${d.value}%`}</title>
             </path>
-            {d.value >= 15 && (
-              <text x={tx} y={ty} textAnchor="middle" dominantBaseline="middle" fontSize={11} fontWeight={600} fill="var(--panel)">
+            {showLabel && (
+              <text
+                x={tx}
+                y={ty}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize={11}
+                fontWeight={700}
+                fill="#ffffff"
+                style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}
+              >
                 {d.value}%
               </text>
             )}
