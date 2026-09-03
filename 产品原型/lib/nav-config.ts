@@ -80,6 +80,14 @@ export const zeroCarbonNav: NavItem[] = [
       { title: '单耗报表', href: '/zero-carbon/reports/unit' },
     ],
   },
+  {
+    title: '基础管理',
+    href: '/zero-carbon/config/entry',
+    icon: Settings2,
+    children: [
+      { title: '数据录入', href: '/zero-carbon/config/entry' },
+    ],
+  },
 ]
 
 /* ============================================================
