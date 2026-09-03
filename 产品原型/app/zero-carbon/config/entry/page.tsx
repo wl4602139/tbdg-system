@@ -375,20 +375,20 @@ export default function ManualEntryPage() {
       {/* 🌟 2. 右侧数据录入工作台 */}
       <div className="flex-1 min-w-0 space-y-5">
         {/* 顶部标题栏 (已移除原红框的填报单位与账期冗余信息) */}
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-[#1677ff]">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 border border-primary/30 text-primary">
               <FileEdit className="size-5" />
             </div>
-            <h1 className="text-base font-bold text-slate-800">能碳业务数据录入</h1>
+            <h1 className="text-base font-bold text-foreground">能碳业务数据录入</h1>
           </div>
         </div>
 
         {/* 成功提醒横幅 */}
         {successToast.show && (
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/90 p-4 text-xs text-emerald-800 shadow-xs animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-4 text-xs text-emerald-300 shadow-xs animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="size-5 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="size-5 text-emerald-400 shrink-0" />
               <div>
                 <span className="font-bold">入库成功（批次号：{successToast.batch}）：</span>
                 <span>{successToast.msg}</span>
@@ -397,7 +397,7 @@ export default function ManualEntryPage() {
             <button
               type="button"
               onClick={() => setSuccessToast({ show: false, msg: '', batch: '' })}
-              className="text-emerald-700 hover:text-emerald-900 p-1"
+              className="text-emerald-400 hover:text-emerald-900 p-1"
             >
               <X className="size-4" />
             </button>
@@ -405,15 +405,15 @@ export default function ManualEntryPage() {
         )}
 
         {/* 🌟 步骤一 · 数据类型选择器 (Tab 选项卡风格) */}
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="flex size-5 items-center justify-center rounded-full bg-[#1677ff] text-[11px] font-bold text-white">
+              <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
                 1
               </span>
-              <h2 className="text-sm font-bold text-slate-800">请选择录入数据类型</h2>
+              <h2 className="text-sm font-bold text-foreground">请选择录入数据类型</h2>
             </div>
-            <span className="text-xs text-slate-400">选择数据类型后，系统将自动匹配专属录入表单</span>
+            <span className="text-xs text-muted-foreground">选择数据类型后，系统将自动匹配专属录入表单</span>
           </div>
 
           {/* 数据类型选择卡片组 */}
@@ -429,30 +429,30 @@ export default function ManualEntryPage() {
                   className={cn(
                     'group flex flex-col items-start gap-2 rounded-xl border p-3.5 text-left transition-all cursor-pointer relative',
                     active
-                      ? 'border-[#1677ff] bg-blue-50/50 shadow-xs ring-2 ring-[#1677ff]/20'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60',
+                      ? 'border-primary bg-primary/20 shadow-xs ring-2 ring-primary/30'
+                      : 'border-border bg-card hover:border-border hover:bg-panel/60',
                   )}
                 >
                   <div className="flex w-full items-center justify-between">
                     <div
                       className={cn(
                         'flex size-8 items-center justify-center rounded-lg transition-colors',
-                        active ? 'bg-[#1677ff] text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200',
+                        active ? 'bg-primary text-white' : 'bg-panel text-muted-foreground group-hover:bg-slate-200',
                       )}
                     >
                       <IconComponent className="size-4.5" />
                     </div>
                     {active && (
-                      <span className="flex items-center gap-1 rounded-full bg-[#1677ff] px-2 py-0.5 text-[10px] font-bold text-white">
+                      <span className="flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white">
                         当前选中
                       </span>
                     )}
                   </div>
                   <div>
-                    <div className={cn('text-xs font-bold', active ? 'text-[#1677ff]' : 'text-slate-800')}>
+                    <div className={cn('text-xs font-bold', active ? 'text-primary' : 'text-foreground')}>
                       {dt.label}
                     </div>
-                    <div className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-snug">
+                    <div className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5 leading-snug">
                       {dt.desc}
                     </div>
                   </div>
@@ -466,25 +466,25 @@ export default function ManualEntryPage() {
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
           <div className="lg:col-span-8 space-y-4">
             <Panel className="p-5">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+              <div className="flex items-center justify-between border-b border-border/60 pb-3 mb-4">
                 <div className="flex items-center gap-2">
-                  <span className="flex size-5 items-center justify-center rounded-full bg-[#1677ff] text-[11px] font-bold text-white">
+                  <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
                     2
                   </span>
-                  <h3 className="text-sm font-bold text-slate-800">
+                  <h3 className="text-sm font-bold text-foreground">
                     填写【{DATA_TYPES.find((d) => d.key === currentType)?.label}】详细指标
                   </h3>
                 </div>
 
                 {/* 🌟 蓝框信息修改为：填报数据周期 */}
-                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/80 px-2.5 py-1 text-xs">
-                  <Calendar className="size-3.5 text-slate-500" />
-                  <span className="text-slate-600 font-medium">填报数据周期：</span>
+                <div className="flex items-center gap-2 rounded-lg border border-border bg-panel px-2.5 py-1 text-xs">
+                  <Calendar className="size-3.5 text-muted-foreground" />
+                  <span className="text-muted-foreground font-medium">填报数据周期：</span>
                   <input
                     type="month"
                     value={entryPeriod}
                     onChange={(e) => setEntryPeriod(e.target.value)}
-                    className="bg-white border border-slate-200 rounded px-2 py-0.5 font-mono font-bold text-slate-800 focus:outline-none focus:border-[#1677ff] cursor-pointer"
+                    className="bg-panel border border-border rounded px-2 py-0.5 font-mono font-bold text-foreground focus:outline-none focus:border-primary cursor-pointer"
                   />
                 </div>
               </div>
@@ -492,8 +492,8 @@ export default function ManualEntryPage() {
               {/* 1. 能耗数据录入表单 */}
               {currentType === 'energy' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
-                  <div className="rounded-lg bg-amber-50/60 border border-amber-200/60 p-3 text-xs text-amber-800 flex items-start gap-2">
-                    <Info className="size-4 shrink-0 text-amber-600 mt-0.5" />
+                  <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-xs text-amber-300 flex items-start gap-2">
+                    <Info className="size-4 shrink-0 text-amber-400 mt-0.5" />
                     <div>
                       <span className="font-semibold">适用场景：</span>
                       管道天然气、工业蒸汽、自来水及厂内叉车燃油等非电介质。实物量用于折算综合能耗与直接排放 (Scope 1/2)，费用用于核算能源成本。
@@ -501,94 +501,94 @@ export default function ManualEntryPage() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs">
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>天然气总用量 (m³)</span>
-                        <span className="text-[11px] text-slate-400">燃气表读数/账单</span>
+                        <span className="text-[11px] text-muted-foreground">燃气表读数/账单</span>
                       </label>
                       <input
                         type="number"
                         value={energyForm.gasVolume}
                         onChange={(e) => setEnergyForm({ ...energyForm, gasVolume: e.target.value })}
                         placeholder="请输入天然气立方数"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                       <div className="flex items-center justify-between pt-1 text-[11px]">
-                        <span className="text-slate-400">燃气费用支出 (万元)：</span>
+                        <span className="text-muted-foreground">燃气费用支出 (万元)：</span>
                         <input
                           type="number"
                           value={energyForm.gasCost}
                           onChange={(e) => setEnergyForm({ ...energyForm, gasCost: e.target.value })}
-                          className="w-24 rounded border border-slate-200 bg-white px-2 py-0.5 text-right font-mono text-slate-700 focus:border-[#1677ff] focus:outline-none"
+                          className="w-24 rounded border border-border bg-panel px-2 py-0.5 text-right font-mono text-foreground focus:border-primary focus:outline-none"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>工业蒸汽消耗量 (t)</span>
-                        <span className="text-[11px] text-slate-400">热力计量结算单</span>
+                        <span className="text-[11px] text-muted-foreground">热力计量结算单</span>
                       </label>
                       <input
                         type="number"
                         value={energyForm.steamVolume}
                         onChange={(e) => setEnergyForm({ ...energyForm, steamVolume: e.target.value })}
                         placeholder="请输入蒸汽吨数"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                       <div className="flex items-center justify-between pt-1 text-[11px]">
-                        <span className="text-slate-400">蒸汽费用支出 (万元)：</span>
+                        <span className="text-muted-foreground">蒸汽费用支出 (万元)：</span>
                         <input
                           type="number"
                           value={energyForm.steamCost}
                           onChange={(e) => setEnergyForm({ ...energyForm, steamCost: e.target.value })}
-                          className="w-24 rounded border border-slate-200 bg-white px-2 py-0.5 text-right font-mono text-slate-700 focus:border-[#1677ff] focus:outline-none"
+                          className="w-24 rounded border border-border bg-panel px-2 py-0.5 text-right font-mono text-foreground focus:border-primary focus:outline-none"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>工业自来水总用量 (t)</span>
-                        <span className="text-[11px] text-slate-400">自来水账单/总表</span>
+                        <span className="text-[11px] text-muted-foreground">自来水账单/总表</span>
                       </label>
                       <input
                         type="number"
                         value={energyForm.waterVolume}
                         onChange={(e) => setEnergyForm({ ...energyForm, waterVolume: e.target.value })}
                         placeholder="请输入用水吨数"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                       <div className="flex items-center justify-between pt-1 text-[11px]">
-                        <span className="text-slate-400">水费支出 (万元)：</span>
+                        <span className="text-muted-foreground">水费支出 (万元)：</span>
                         <input
                           type="number"
                           value={energyForm.waterCost}
                           onChange={(e) => setEnergyForm({ ...energyForm, waterCost: e.target.value })}
-                          className="w-24 rounded border border-slate-200 bg-white px-2 py-0.5 text-right font-mono text-slate-700 focus:border-[#1677ff] focus:outline-none"
+                          className="w-24 rounded border border-border bg-panel px-2 py-0.5 text-right font-mono text-foreground focus:border-primary focus:outline-none"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>厂内柴油/汽油消耗 (L)</span>
-                        <span className="text-[11px] text-slate-400">叉车/发电机燃料</span>
+                        <span className="text-[11px] text-muted-foreground">叉车/发电机燃料</span>
                       </label>
                       <input
                         type="number"
                         value={energyForm.dieselVolume}
                         onChange={(e) => setEnergyForm({ ...energyForm, dieselVolume: e.target.value })}
                         placeholder="请输入用油升数"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                       <div className="flex items-center justify-between pt-1 text-[11px]">
-                        <span className="text-slate-400">燃油采购支出 (万元)：</span>
+                        <span className="text-muted-foreground">燃油采购支出 (万元)：</span>
                         <input
                           type="number"
                           value={energyForm.dieselCost}
                           onChange={(e) => setEnergyForm({ ...energyForm, dieselCost: e.target.value })}
-                          className="w-24 rounded border border-slate-200 bg-white px-2 py-0.5 text-right font-mono text-slate-700 focus:border-[#1677ff] focus:outline-none"
+                          className="w-24 rounded border border-border bg-panel px-2 py-0.5 text-right font-mono text-foreground focus:border-primary focus:outline-none"
                         />
                       </div>
                     </div>
@@ -599,7 +599,7 @@ export default function ManualEntryPage() {
               {/* 2. 产量与产值数据录入表单 */}
               {currentType === 'production' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
-                  <div className="rounded-lg bg-blue-50/60 border border-blue-200/60 p-3 text-xs text-blue-800 flex items-start gap-2">
+                  <div className="rounded-lg bg-primary/15/60 border border-primary/30/60 p-3 text-xs text-blue-800 flex items-start gap-2">
                     <Info className="size-4 shrink-0 text-blue-600 mt-0.5" />
                     <div>
                       <span className="font-semibold">核心分母核算依据：</span>
@@ -608,76 +608,76 @@ export default function ManualEntryPage() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs">
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>企业工业总产值 (万元)</span>
-                        <span className="text-[11px] text-slate-400">财务经营快报口径</span>
+                        <span className="text-[11px] text-muted-foreground">财务经营快报口径</span>
                       </label>
                       <input
                         type="number"
                         value={prodForm.outputVal}
                         onChange={(e) => setProdForm({ ...prodForm, outputVal: e.target.value })}
                         placeholder="请输入总产值"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>企业工业增加值 (万元)</span>
-                        <span className="text-[11px] text-slate-400">必须 ≤ 工业总产值</span>
+                        <span className="text-[11px] text-muted-foreground">必须 ≤ 工业总产值</span>
                       </label>
                       <input
                         type="number"
                         value={prodForm.addedVal}
                         onChange={(e) => setProdForm({ ...prodForm, addedVal: e.target.value })}
                         placeholder="请输入增加值"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>变压器完工容量 (万kVA)</span>
-                        <span className="text-[11px] text-slate-400">MES 终检合格入库</span>
+                        <span className="text-[11px] text-muted-foreground">MES 终检合格入库</span>
                       </label>
                       <input
                         type="number"
                         value={prodForm.transformerKva}
                         onChange={(e) => setProdForm({ ...prodForm, transformerKva: e.target.value })}
                         placeholder="请输入容量"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                       <div className="flex items-center justify-between pt-1 text-[11px]">
-                        <span className="text-slate-400">完工台数 (台)：</span>
+                        <span className="text-muted-foreground">完工台数 (台)：</span>
                         <input
                           type="number"
                           value={prodForm.transformerUnits}
                           onChange={(e) => setProdForm({ ...prodForm, transformerUnits: e.target.value })}
-                          className="w-24 rounded border border-slate-200 bg-white px-2 py-0.5 text-right font-mono text-slate-700 focus:border-[#1677ff] focus:outline-none"
+                          className="w-24 rounded border border-border bg-panel px-2 py-0.5 text-right font-mono text-foreground focus:border-primary focus:outline-none"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>电线电缆完工长度 (万km)</span>
-                        <span className="text-[11px] text-slate-400">线缆产业完工量</span>
+                        <span className="text-[11px] text-muted-foreground">线缆产业完工量</span>
                       </label>
                       <input
                         type="number"
                         value={prodForm.cableKm}
                         onChange={(e) => setProdForm({ ...prodForm, cableKm: e.target.value })}
                         placeholder="请输入成品长度"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                       <div className="flex items-center justify-between pt-1 text-[11px]">
-                        <span className="text-slate-400">耗铜投入量 (吨)：</span>
+                        <span className="text-muted-foreground">耗铜投入量 (吨)：</span>
                         <input
                           type="number"
                           value={prodForm.copperTon}
                           onChange={(e) => setProdForm({ ...prodForm, copperTon: e.target.value })}
-                          className="w-24 rounded border border-slate-200 bg-white px-2 py-0.5 text-right font-mono text-slate-700 focus:border-[#1677ff] focus:outline-none"
+                          className="w-24 rounded border border-border bg-panel px-2 py-0.5 text-right font-mono text-foreground focus:border-primary focus:outline-none"
                         />
                       </div>
                     </div>
@@ -698,11 +698,11 @@ export default function ManualEntryPage() {
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs">
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-slate-800">交易资产类型</label>
+                      <label className="font-semibold text-foreground">交易资产类型</label>
                       <select
                         value={greenPowerForm.dealType}
                         onChange={(e) => setGreenPowerForm({ ...greenPowerForm, dealType: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2 text-slate-800 focus:border-[#1677ff] focus:outline-none font-medium cursor-pointer"
+                        className="w-full rounded-lg border border-border bg-panel/60 px-3 py-2 text-foreground focus:border-primary focus:outline-none font-medium cursor-pointer"
                       >
                         <option value="交易绿电">交易绿电（跨省/省内双边交易）</option>
                         <option value="交易绿证(GEC)">国家绿色电力证书 (GEC) 核销</option>
@@ -711,11 +711,11 @@ export default function ManualEntryPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-slate-800">绿电/发电来源类型</label>
+                      <label className="font-semibold text-foreground">绿电/发电来源类型</label>
                       <select
                         value={greenPowerForm.sourceType}
                         onChange={(e) => setGreenPowerForm({ ...greenPowerForm, sourceType: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2 text-slate-800 focus:border-[#1677ff] focus:outline-none font-medium cursor-pointer"
+                        className="w-full rounded-lg border border-border bg-panel/60 px-3 py-2 text-foreground focus:border-primary focus:outline-none font-medium cursor-pointer"
                       >
                         <option value="集中式光伏平价项目">集中式光伏平价项目</option>
                         <option value="集中式陆上风电">集中式陆上风电</option>
@@ -725,62 +725,62 @@ export default function ManualEntryPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-slate-800">提供方 / 发电企业</label>
+                      <label className="font-semibold text-foreground">提供方 / 发电企业</label>
                       <input
                         type="text"
                         value={greenPowerForm.provider}
                         onChange={(e) => setGreenPowerForm({ ...greenPowerForm, provider: e.target.value })}
                         placeholder="发电企业或交易中心项目名"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-slate-800">购买消纳主体</label>
+                      <label className="font-semibold text-foreground">购买消纳主体</label>
                       <input
                         type="text"
                         value={greenPowerForm.buyer}
                         onChange={(e) => setGreenPowerForm({ ...greenPowerForm, buyer: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>结算电量 (万kWh) / 绿证 (张)</span>
-                        <span className="text-[11px] text-slate-400">1张=1000度</span>
+                        <span className="text-[11px] text-muted-foreground">1张=1000度</span>
                       </label>
                       <input
                         type="number"
                         value={greenPowerForm.amount}
                         onChange={(e) => setGreenPowerForm({ ...greenPowerForm, amount: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>结算单价 (元/kWh 或 元/张)</span>
-                        <span className="text-[11px] text-slate-400">溢价成本</span>
+                        <span className="text-[11px] text-muted-foreground">溢价成本</span>
                       </label>
                       <input
                         type="number"
                         value={greenPowerForm.unitPrice}
                         onChange={(e) => setGreenPowerForm({ ...greenPowerForm, unitPrice: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5 sm:col-span-2">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>GEC 证书防伪编码 / 交易结算单号</span>
-                        <span className="text-[11px] text-slate-400">国家绿证中心唯一凭据号</span>
+                        <span className="text-[11px] text-muted-foreground">国家绿证中心唯一凭据号</span>
                       </label>
                       <input
                         type="text"
                         value={greenPowerForm.certCode}
                         onChange={(e) => setGreenPowerForm({ ...greenPowerForm, certCode: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
                   </div>
@@ -799,21 +799,21 @@ export default function ManualEntryPage() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs">
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>CO₂ 焊接保护气体领用量 (kg)</span>
-                        <span className="text-[11px] text-slate-400">气瓶过磅称重</span>
+                        <span className="text-[11px] text-muted-foreground">气瓶过磅称重</span>
                       </label>
                       <input
                         type="number"
                         value={carbonForm.co2GasKg}
                         onChange={(e) => setCarbonForm({ ...carbonForm, co2GasKg: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>SF₆ 六氟化硫绝缘补充量 (kg)</span>
                         <span className="text-[11px] text-rose-600 font-bold">GWP=23500 (高排放因子)</span>
                       </label>
@@ -821,43 +821,43 @@ export default function ManualEntryPage() {
                         type="number"
                         value={carbonForm.sf6GasKg}
                         onChange={(e) => setCarbonForm({ ...carbonForm, sf6GasKg: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>切割乙炔气消耗量 (m³)</span>
-                        <span className="text-[11px] text-slate-400">铁芯下料工序</span>
+                        <span className="text-[11px] text-muted-foreground">铁芯下料工序</span>
                       </label>
                       <input
                         type="number"
                         value={carbonForm.acetyleneM3}
                         onChange={(e) => setCarbonForm({ ...carbonForm, acetyleneM3: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
-                    <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50/40 p-3">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                    <div className="space-y-1.5 rounded-lg border border-border bg-panel/40 p-3">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>焊丝及辅料领用量 (kg)</span>
-                        <span className="text-[11px] text-slate-400">油箱结构焊接</span>
+                        <span className="text-[11px] text-muted-foreground">油箱结构焊接</span>
                       </label>
                       <input
                         type="number"
                         value={carbonForm.weldingFluxKg}
                         onChange={(e) => setCarbonForm({ ...carbonForm, weldingFluxKg: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5 sm:col-span-2">
-                      <label className="font-semibold text-slate-800">活动水平核算工序与边界说明</label>
+                      <label className="font-semibold text-foreground">活动水平核算工序与边界说明</label>
                       <input
                         type="text"
                         value={carbonForm.boundaryDesc}
                         onChange={(e) => setCarbonForm({ ...carbonForm, boundaryDesc: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
                   </div>
@@ -877,11 +877,11 @@ export default function ManualEntryPage() {
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs">
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-slate-800">主要原材料名称与牌号</label>
+                      <label className="font-semibold text-foreground">主要原材料名称与牌号</label>
                       <select
                         value={materialForm.materialName}
                         onChange={(e) => setMaterialForm({ ...materialForm, materialName: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2 text-slate-800 focus:border-[#1677ff] focus:outline-none font-medium cursor-pointer"
+                        className="w-full rounded-lg border border-border bg-panel/60 px-3 py-2 text-foreground focus:border-primary focus:outline-none font-medium cursor-pointer"
                       >
                         <option value="取向硅钢片 (30Q120)">取向硅钢片 (30Q120 / 铁芯主材)</option>
                         <option value="高纯无氧铜杆 (TU1/TU2)">高纯无氧铜杆 (TU1/TU2 / 线圈主材)</option>
@@ -892,61 +892,61 @@ export default function ManualEntryPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-slate-800">合格供应商主体</label>
+                      <label className="font-semibold text-foreground">合格供应商主体</label>
                       <input
                         type="text"
                         value={materialForm.supplier}
                         onChange={(e) => setMaterialForm({ ...materialForm, supplier: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>本月投料总量 (吨)</span>
-                        <span className="text-[11px] text-slate-400">领料出库单</span>
+                        <span className="text-[11px] text-muted-foreground">领料出库单</span>
                       </label>
                       <input
                         type="number"
                         value={materialForm.inputWeightTon}
                         onChange={(e) => setMaterialForm({ ...materialForm, inputWeightTon: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>产品成品净重 (吨)</span>
-                        <span className="text-[11px] text-slate-400">有效主材重量</span>
+                        <span className="text-[11px] text-muted-foreground">有效主材重量</span>
                       </label>
                       <input
                         type="number"
                         value={materialForm.netWeightTon}
                         onChange={(e) => setMaterialForm({ ...materialForm, netWeightTon: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="flex items-center justify-between font-semibold text-slate-800">
+                      <label className="flex items-center justify-between font-semibold text-foreground">
                         <span>边角料综合回收率 (%)</span>
-                        <span className="text-[11px] text-slate-400">循环利用</span>
+                        <span className="text-[11px] text-muted-foreground">循环利用</span>
                       </label>
                       <input
                         type="number"
                         value={materialForm.recycleRate}
                         onChange={(e) => setMaterialForm({ ...materialForm, recycleRate: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-slate-800">对应生产工单或批次号</label>
+                      <label className="font-semibold text-foreground">对应生产工单或批次号</label>
                       <input
                         type="text"
                         value={materialForm.workOrder}
                         onChange={(e) => setMaterialForm({ ...materialForm, workOrder: e.target.value })}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-slate-800 focus:border-[#1677ff] focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-panel px-3 py-2 font-mono text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
                   </div>
@@ -954,12 +954,12 @@ export default function ManualEntryPage() {
               )}
 
               {/* 🌟 步骤三 · 附件与操作动作按钮 */}
-              <div className="mt-6 border-t border-slate-100 pt-5 space-y-4 text-xs">
+              <div className="mt-6 border-t border-border/60 pt-5 space-y-4 text-xs">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5 sm:col-span-2">
-                    <label className="font-semibold text-slate-800">上传原始账单/凭证 (PDF / Excel)</label>
+                    <label className="font-semibold text-foreground">上传原始账单/凭证 (PDF / Excel)</label>
                     <div className="flex items-center gap-2">
-                      <label className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 px-3 py-2 text-slate-600 cursor-pointer transition-colors text-xs shrink-0">
+                      <label className="flex items-center gap-1.5 rounded-lg border border-border bg-panel hover:bg-panel px-3 py-2 text-muted-foreground cursor-pointer transition-colors text-xs shrink-0">
                         <Upload className="size-3.5" />
                         <span>选择凭证文件</span>
                         <input
@@ -972,34 +972,34 @@ export default function ManualEntryPage() {
                           }}
                         />
                       </label>
-                      <span className="text-slate-500 truncate text-[11px]">
+                      <span className="text-muted-foreground truncate text-[11px]">
                         {attachmentName ? attachmentName : '尚未选择凭证扫描件 (非必传)'}
                       </span>
                     </div>
                   </div>
 
                   <div className="space-y-1.5 sm:col-span-2">
-                    <label className="font-semibold text-slate-800">填报情况说明与核算备注</label>
+                    <label className="font-semibold text-foreground">填报情况说明与核算备注</label>
                     <textarea
                       rows={2}
                       value={remark}
                       onChange={(e) => setRemark(e.target.value)}
                       placeholder="如遇环比波动超过正常区间，请在此说明工艺检修、停产、负荷变动等原因..."
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:border-[#1677ff] focus:outline-none text-xs placeholder:text-slate-400"
+                      className="w-full rounded-lg border border-border bg-panel px-3 py-2 text-foreground focus:border-primary focus:outline-none text-xs placeholder:text-muted-foreground"
                     />
                   </div>
                 </div>
 
                 {/* 底部保存与提交操作 */}
-                <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-                  <span className="text-[11px] text-slate-400">
+                <div className="flex items-center justify-between border-t border-border/60 pt-4">
+                  <span className="text-[11px] text-muted-foreground">
                     点击保存后，数据将写入【{selectedOrg}】本地台账，并触发能碳引擎重新计算对应周期指标
                   </span>
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => handleSave('草稿')}
-                      className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+                      className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2 font-semibold text-foreground hover:bg-panel transition-colors shadow-2xs cursor-pointer"
                     >
                       <FileText className="size-3.5" />
                       保存为草稿
@@ -1007,7 +1007,7 @@ export default function ManualEntryPage() {
                     <button
                       type="button"
                       onClick={() => handleSave('已入库')}
-                      className="flex items-center gap-1.5 rounded-lg bg-[#1677ff] hover:bg-[#1565c0] px-6 py-2 font-semibold text-white transition-all shadow-sm shadow-blue-500/20 active:scale-95 cursor-pointer"
+                      className="flex items-center gap-1.5 rounded-lg bg-primary hover:bg-[#1565c0] px-6 py-2 font-semibold text-white transition-all shadow-sm shadow-blue-500/20 active:scale-95 cursor-pointer"
                     >
                       <Save className="size-4" />
                       保存并提交入库
@@ -1023,21 +1023,21 @@ export default function ManualEntryPage() {
             <Panel className="p-4 space-y-3">
               <PanelTitle title="实时数据质量校验" />
               <div className="space-y-2.5 text-xs">
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-3">
-                  <div className="flex items-center gap-1.5 font-bold text-emerald-800">
-                    <CheckCircle2 className="size-4 text-emerald-600" />
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-50/70 p-3">
+                  <div className="flex items-center gap-1.5 font-bold text-emerald-300">
+                    <CheckCircle2 className="size-4 text-emerald-400" />
                     <span>数值逻辑合规检查通过</span>
                   </div>
-                  <p className="text-[11px] text-emerald-700 mt-1">
+                  <p className="text-[11px] text-emerald-400 mt-1">
                     当前输入的所有实物消耗量与产值数值均为非负数，满足物理守恒与热力学基本定律。
                   </p>
                 </div>
 
                 {currentType === 'production' && (
-                  <div className="rounded-lg border border-blue-200 bg-blue-50/70 p-3">
+                  <div className="rounded-lg border border-primary/30 bg-primary/15/70 p-3">
                     <span className="font-bold text-blue-800 block">增加值率动态核算</span>
                     <div className="mt-1 flex items-baseline gap-2">
-                      <span className="font-mono text-lg font-bold text-[#1677ff]">
+                      <span className="font-mono text-lg font-bold text-primary">
                         {(
                           (Number(prodForm.addedVal) / (Number(prodForm.outputVal) || 1)) *
                           100
@@ -1053,7 +1053,7 @@ export default function ManualEntryPage() {
 
                 {currentType === 'energy' && (
                   <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-3">
-                    <span className="font-bold text-amber-800 block">折标煤与碳排预估</span>
+                    <span className="font-bold text-amber-300 block">折标煤与碳排预估</span>
                     <p className="text-[11px] text-amber-700 mt-1">
                       天然气折标煤系数：1.33 kgce/m³ · 蒸汽折标煤系数：0.0941 tce/t · 换算综合能耗约{' '}
                       <strong className="font-mono">171.4</strong> 吨标煤。
@@ -1061,9 +1061,9 @@ export default function ManualEntryPage() {
                   </div>
                 )}
 
-                <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3 space-y-1.5 text-slate-600">
-                  <span className="font-bold text-slate-800 block">【下游计算引擎联动流向】</span>
-                  <ul className="list-disc pl-4 space-y-1 text-[11px] text-slate-500">
+                <div className="rounded-lg border border-border bg-panel/70 p-3 space-y-1.5 text-muted-foreground">
+                  <span className="font-bold text-foreground block">【下游计算引擎联动流向】</span>
+                  <ul className="list-disc pl-4 space-y-1 text-[11px] text-muted-foreground">
                     <li>自动重算组织级温室气体直接排放 (Scope 1/2)</li>
                     <li>更新“单位增加值综合能耗”工信部考核指标</li>
                     <li>刷新集控中心大屏「绿电占比」与「碳排放强度」</li>
@@ -1076,29 +1076,29 @@ export default function ManualEntryPage() {
 
         {/* 🌟 步骤四 · 填报记录台账列表（台账明细仅显示当前选中节点的企业台账数据） */}
         <Panel className="p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3 mb-4">
             <div className="flex items-center gap-2">
-              <History className="size-4.5 text-[#1677ff]" />
-              <h3 className="text-sm font-bold text-slate-800">
+              <History className="size-4.5 text-primary" />
+              <h3 className="text-sm font-bold text-foreground">
                 【{selectedOrg}】已录入数据台账明细
               </h3>
               <Badge tone="info">{filteredRecords.length} 条记录</Badge>
-              <span className="text-[11px] text-slate-400 font-normal">
+              <span className="text-[11px] text-muted-foreground font-normal">
                 (已按当前选中企业节点严格过滤)
               </span>
             </div>
 
             {/* 类型筛选器 */}
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-slate-400">数据类型过滤：</span>
+              <span className="text-muted-foreground">数据类型过滤：</span>
               <button
                 type="button"
                 onClick={() => setFilterType('all')}
                 className={cn(
                   'px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer',
                   filterType === 'all'
-                    ? 'bg-[#1677ff] text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                    ? 'bg-primary text-white'
+                    : 'bg-panel text-muted-foreground hover:bg-slate-200',
                 )}
               >
                 全部
@@ -1111,8 +1111,8 @@ export default function ManualEntryPage() {
                   className={cn(
                     'px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer',
                     filterType === d.key
-                      ? 'bg-[#1677ff] text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                      ? 'bg-primary text-white'
+                      : 'bg-panel text-muted-foreground hover:bg-slate-200',
                   )}
                 >
                   {d.label}
@@ -1125,7 +1125,7 @@ export default function ManualEntryPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/70 text-slate-500 font-medium">
+                <tr className="border-b border-border bg-panel/70 text-muted-foreground font-medium">
                   <th className="py-2.5 px-3">批次编号</th>
                   <th className="py-2.5 px-3">数据类型</th>
                   <th className="py-2.5 px-3">填报单位</th>
@@ -1137,16 +1137,16 @@ export default function ManualEntryPage() {
                   <th className="py-2.5 px-3 text-right">操作</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
+              <tbody className="divide-y divide-border font-mono text-[11px]">
                 {filteredRecords.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="py-12 text-center text-slate-400 font-sans">
+                    <td colSpan={9} className="py-12 text-center text-muted-foreground font-sans">
                       <div className="flex flex-col items-center justify-center gap-1.5">
                         <FileText className="size-7 text-slate-300 stroke-1" />
-                        <p className="text-xs font-medium text-slate-600">
+                        <p className="text-xs font-medium text-muted-foreground">
                           暂无【{selectedOrg}】的相关数据录入记录
                         </p>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="text-[11px] text-muted-foreground">
                           您可以在上方表单填写数据并点击“保存并提交入库”，数据将自动归集到该单位名下
                         </p>
                       </div>
@@ -1154,20 +1154,20 @@ export default function ManualEntryPage() {
                   </tr>
                 ) : (
                   filteredRecords.map((r) => (
-                    <tr key={r.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-2.5 px-3 font-bold text-slate-800">{r.batch}</td>
+                    <tr key={r.id} className="hover:bg-panel transition-colors">
+                      <td className="py-2.5 px-3 font-bold text-foreground">{r.batch}</td>
                       <td className="py-2.5 px-3 font-sans">
-                        <span className="rounded-md bg-slate-100 px-2 py-0.5 font-medium text-slate-700">
+                        <span className="rounded-md bg-panel px-2 py-0.5 font-medium text-foreground">
                           {r.type}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 font-sans text-slate-700 font-medium">{r.org}</td>
-                      <td className="py-2.5 px-3 font-semibold text-slate-800">{r.period}</td>
-                      <td className="py-2.5 px-3 font-sans text-slate-600 max-w-xs truncate" title={r.summary}>
+                      <td className="py-2.5 px-3 font-sans text-foreground font-medium">{r.org}</td>
+                      <td className="py-2.5 px-3 font-semibold text-foreground">{r.period}</td>
+                      <td className="py-2.5 px-3 font-sans text-muted-foreground max-w-xs truncate" title={r.summary}>
                         {r.summary}
                       </td>
-                      <td className="py-2.5 px-3 font-sans text-slate-600">{r.submitter}</td>
-                      <td className="py-2.5 px-3 text-slate-400">{r.submitTime}</td>
+                      <td className="py-2.5 px-3 font-sans text-muted-foreground">{r.submitter}</td>
+                      <td className="py-2.5 px-3 text-muted-foreground">{r.submitTime}</td>
                       <td className="py-2.5 px-3 text-center font-sans">
                         <StatusBadge tone={r.status === '已入库' ? 'ok' : r.status === '待审核' ? 'warn' : 'danger'}>
                           {r.status}
@@ -1177,7 +1177,7 @@ export default function ManualEntryPage() {
                         <button
                           type="button"
                           onClick={() => alert(`批次 ${r.batch} 详情：\n${r.summary}\n填报单位：${r.org}\n填报人：${r.submitter}`)}
-                          className="text-[#1677ff] hover:underline cursor-pointer"
+                          className="text-primary hover:underline cursor-pointer"
                         >
                           查看
                         </button>
