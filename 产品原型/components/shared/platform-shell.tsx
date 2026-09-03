@@ -258,7 +258,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             >
               <span className="flex items-center gap-2 text-xs font-semibold">
                 <CurrentCenterIcon className="size-4 text-primary" />
-                {currentPlatform?.short || currentCenter.shortName}
+                {currentCenter.name}
               </span>
               <ChevronDown className={cn('size-4 text-muted-foreground transition-transform', dropdownOpen && 'rotate-180')} />
             </button>
