@@ -1,9 +1,17 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: '特变电工（电装集团）· 能源管理与双中心平台 v1.01',
-  description: '特变电工（电装集团）零碳园区集控中心与产品碳足迹集采中心高保真产品原型系统 v1.01',
+  title: '特变电工电装集团 · 零碳园区集控与产品碳足迹集采平台',
+  description:
+    '特变电工电装集团零碳园区集控中心与产品碳足迹集采中心一体化管理平台，覆盖集中监管、能耗能效、碳管理、CBAM、认证与因子库等能力。',
+}
+
+export const viewport: Viewport = {
+  colorScheme: 'dark',
+  themeColor: '#0b1626',
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
@@ -12,10 +20,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-CN">
-      <body className="min-h-screen bg-background text-foreground antialiased font-sans selection:bg-blue-100 selection:text-blue-700">
+    <html lang="zh-CN" className="bg-background">
+      <body className="font-sans antialiased bg-background text-foreground">
         {children}
       </body>
     </html>
   )
 }
+
