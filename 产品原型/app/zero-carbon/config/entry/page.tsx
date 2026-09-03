@@ -26,8 +26,6 @@ import {
   Factory,
   Check,
   RotateCcw,
-  LayoutGrid,
-  Table as TableIcon,
   AlertTriangle,
   FileSpreadsheet,
   Building2,
@@ -142,8 +140,6 @@ interface HistoryRecord {
 export default function FactoryMonthlyReportingPage() {
   // 视图模式：'entry' (填报工作台) | 'history' (历史台账)
   const [viewMode, setViewMode] = useState<'entry' | 'history'>('entry')
-  // 填报展现布局：'card' (业务分组卡片·推荐) | 'table' (极简对比表格)
-  const [displayLayout, setDisplayLayout] = useState<'card' | 'table'>('card')
 
   // 申报账期
   const [selectedYear, setSelectedYear] = useState('2026')
@@ -449,50 +445,20 @@ export default function FactoryMonthlyReportingPage() {
           </div>
         </div>
 
-        {/* 申报进度条与视图切换控制 */}
-        <div className="pt-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-3 flex-1 min-w-[300px]">
+        {/* 申报进度条 */}
+        <div className="pt-2 border-t border-border/60 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-3 flex-1">
             <span className="font-bold text-foreground shrink-0">
               申报完成度：
               <span className="text-primary font-mono text-sm">{completedCount}</span> / {metrics.length} 项
             </span>
-            <div className="flex-1 max-w-xs h-2 rounded-full bg-slate-800 overflow-hidden border border-border/60">
+            <div className="flex-1 max-w-sm h-2 rounded-full bg-slate-800 overflow-hidden border border-border/60">
               <div
                 className="h-full bg-linear-to-r from-blue-500 to-emerald-500 transition-all duration-300 rounded-full"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
             <span className="font-mono text-xs font-bold text-muted-foreground/70">{progressPercent}%</span>
-          </div>
-
-          {/* 切换卡片视图 vs 紧凑表格 */}
-          <div className="flex items-center gap-1 bg-[#0b1324] border-border p-0.5 rounded-lg border">
-            <button
-              type="button"
-              onClick={() => setDisplayLayout('card')}
-              className={cn(
-                'flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold cursor-pointer transition-all',
-                displayLayout === 'card'
-                  ? 'bg-card text-primary shadow-xs border border-border'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <LayoutGrid className="size-3.5" />
-              <span>业务分组卡片</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setDisplayLayout('table')}
-              className={cn(
-                'flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold cursor-pointer transition-all',
-                displayLayout === 'table'
-                  ? 'bg-card text-primary shadow-xs border border-border'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <TableIcon className="size-3.5" />
-              <span>紧凑对比表格</span>
-            </button>
           </div>
         </div>
       </div>
@@ -520,9 +486,8 @@ export default function FactoryMonthlyReportingPage() {
       {/* ========================================================================= */}
       {viewMode === 'entry' && (
         <div className="space-y-4">
-          {/* A. 业务分组卡片布局 */}
-          {displayLayout === 'card' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* 业务分组卡片布局 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* 卡片 1：💧 能源介质消耗量 (5项，支持用水量和蒸汽量选择日/月填报，已移除环比) */}
               <div className="rounded-2xl border bg-card border-border p-4 shadow-sm space-y-3">
                 <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
@@ -983,154 +948,6 @@ export default function FactoryMonthlyReportingPage() {
                 </div>
               </div>
             </div>
-          )}
-
-          {/* B. 紧凑对比表格布局 (配色修复：彻底适配深色/浅色模式) */}
-          {displayLayout === 'table' && (
-            <div className="rounded-2xl border bg-card border-border overflow-hidden shadow-sm">
-              <div className="p-3 bg-[#111c33] text-foreground border-b border-border flex items-center justify-between text-xs">
-                <span className="font-bold text-foreground">工厂月度定时申报全量指标明细对照表</span>
-                <span className="text-[11px] text-muted-foreground/70">支持键盘 Tab 键快速向下切换输入</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-border bg-[#0e172a] text-muted-foreground font-semibold">
-                      <th className="py-2.5 px-3 w-12 text-center text-muted-foreground/70 font-mono">#</th>
-                      <th className="py-2.5 px-3 w-28 font-bold">业务分类</th>
-                      <th className="py-2.5 px-3 w-72 font-bold text-foreground">指标名称</th>
-                      <th className="py-2.5 px-3 w-56 font-bold text-primary">本月申报值</th>
-                      <th className="py-2.5 px-3 w-16 text-center">单位</th>
-                      <th className="py-2.5 px-3 w-28 text-center text-muted-foreground/70">上月参考</th>
-                      <th className="py-2.5 px-3">补充说明</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y border-border/60 text-muted-foreground">
-                    {metrics.map((m, idx) => {
-                      const isEquip = m.category === 'equipment'
-                      const isPark = m.category === 'park'
-                      const isDayMonthSupported = m.id === 'm-1' || m.id === 'm-3'
-                      const mode = isDayMonthSupported ? dimModes[m.id as 'm-1' | 'm-3'] : 'month'
-
-                      return (
-                        <tr key={m.id} className="hover:bg-white/[0.03] transition-colors">
-                          <td className="py-2.5 px-3 text-center font-mono text-muted-foreground/70">{idx + 1}</td>
-                          <td className="py-2.5 px-3 font-semibold text-muted-foreground">{m.categoryLabel}</td>
-                          <td className="py-2.5 px-3 font-bold text-foreground">{m.name}</td>
-                          <td className="py-2 px-3">
-                            {isEquip ? (
-                              <div className="flex items-center gap-1.5">
-                                <span className="font-mono font-bold text-indigo-300 bg-indigo-950/50 border-indigo-800/50 px-2 py-1 rounded border">
-                                  {m.id === 'm-15' ? level2TotalKw : allEquipTotalKw} kW
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setAddModalTarget(m.id as any)
-                                    setFormDevType(m.id === 'm-15' ? '超高效电动机' : '空压机')
-                                  }}
-                                  className="px-2 py-1 rounded bg-primary hover:bg-primary/90 text-primary-foreground text-[11px] font-bold cursor-pointer"
-                                >
-                                  +添加
-                                </button>
-                              </div>
-                            ) : isPark ? (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (m.id === 'm-17') setIsParkPhotoModalOpen(true)
-                                  else if (m.id === 'm-18') setIsEventModalOpen(true)
-                                  else setIsParkInfoModalOpen(true)
-                                }}
-                                className="px-2.5 py-1 rounded bg-teal-950/40 hover:bg-teal-900/50 text-teal-300 border-teal-800/60 border text-xs font-bold cursor-pointer"
-                              >
-                                {m.id === 'm-19' ? '维护基本信息' : '维护凭证'}
-                              </button>
-                            ) : isDayMonthSupported ? (
-                              <div className="flex items-center gap-1.5">
-                                <div className="flex items-center bg-[#0b1324] border border-border p-0.5 rounded text-[10px] shrink-0">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleToggleDimMode(m.id as 'm-1' | 'm-3', 'month')}
-                                    className={cn(
-                                      'px-1.5 py-0.5 rounded font-bold cursor-pointer',
-                                      mode === 'month' ? 'bg-card text-primary shadow-2xs border border-border' : 'text-muted-foreground/70'
-                                    )}
-                                  >
-                                    月
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleToggleDimMode(m.id as 'm-1' | 'm-3', 'day')}
-                                    className={cn(
-                                      'px-1.5 py-0.5 rounded font-bold cursor-pointer',
-                                      mode === 'day' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground/70'
-                                    )}
-                                  >
-                                    日
-                                  </button>
-                                </div>
-                                {mode === 'day' ? (
-                                  <div className="flex items-center gap-1 flex-1">
-                                    <span className="font-mono font-bold text-primary bg-primary/15 border-primary/30 px-2 py-0.5 rounded border text-xs">
-                                      {m.value} t
-                                    </span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleOpenDailyModal(m.id as 'm-1' | 'm-3')}
-                                      className="px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border-primary/30 border text-[10px] font-bold cursor-pointer"
-                                    >
-                                      编辑31天
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="relative flex items-center flex-1">
-                                    <input
-                                      type="number"
-                                      step="any"
-                                      value={m.value}
-                                      onChange={(e) => handleMetricChange(m.id, e.target.value)}
-                                      className="w-full pl-2 pr-8 py-1 text-xs font-mono font-bold rounded border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
-                                    />
-                                    <span className="absolute right-2 text-[10px] text-muted-foreground/70">{m.unit}</span>
-                                  </div>
-                                )}
-                              </div>
-                            ) : m.unit === '日期' ? (
-                              <input
-                                type="date"
-                                value={m.value}
-                                onChange={(e) => handleMetricChange(m.id, e.target.value)}
-                                className="w-full px-2 py-1 text-xs font-mono font-bold rounded border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
-                              />
-                            ) : (
-                              <div className="relative flex items-center">
-                                <input
-                                  type="number"
-                                  step="any"
-                                  value={m.value}
-                                  onChange={(e) => handleMetricChange(m.id, e.target.value)}
-                                  className="w-full pl-3 pr-10 py-1 text-xs font-mono font-bold rounded border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
-                                />
-                                <span className="absolute right-2 text-[10px] font-bold text-muted-foreground/70 font-mono">
-                                  {m.unit}
-                                </span>
-                              </div>
-                            )}
-                          </td>
-                          <td className="py-2.5 px-3 text-center font-mono text-muted-foreground">{m.unit}</td>
-                          <td className="py-2.5 px-3 text-center font-mono text-muted-foreground/70">{m.lastMonthValue}</td>
-                          <td className="py-2 px-3 text-muted-foreground/70">
-                            {isDayMonthSupported && mode === 'day' ? `已启用日数据填报（31天合计 ${m.value} ${m.unit}）` : m.remark}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
 
           {/* 🌟 5. 底部固定保存栏：右侧预留 pr-48 彻底避开右下角 AI 悬浮球 */}
           <div className="rounded-2xl border bg-card border-border p-3.5 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs pr-48">
