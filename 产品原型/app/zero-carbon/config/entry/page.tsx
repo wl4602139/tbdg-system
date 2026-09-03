@@ -1219,19 +1219,21 @@ export default function FactoryMonthlyReportingPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 弹窗 A：逐日数据填报弹窗 */}
+      {/* 弹窗 A：逐日数据填报弹窗 (放大为 max-w-4xl 宽屏日历布局) */}
       {/* ========================================================================= */}
       {activeDailyModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-2xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border shrink-0">
-              <div className="flex items-center gap-2">
-                <Calendar className="size-5 text-primary" />
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in">
+          <div className="w-full max-w-4xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 sm:p-5 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
+                  <Calendar className="size-5" />
+                </div>
                 <div>
-                  <h3 className="text-sm font-bold text-foreground">
+                  <h3 className="text-base font-bold text-foreground">
                     2026 年 08 月【{activeDailyModal === 'm-1' ? '用水量' : '外购蒸汽量'}】每日数据填报
                   </h3>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     录入 8 月 1 日 ~ 31 日每日抄表数据，系统自动汇总求和并同步回填本月申报值。
                   </p>
                 </div>
@@ -1353,63 +1355,87 @@ export default function FactoryMonthlyReportingPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 弹窗 1：重点设备录入 */}
+      {/* 弹窗 1：重点设备录入 (放大为 max-w-2xl，宽敞双列排版) */}
       {/* ========================================================================= */}
       {addModalTarget && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border">
-              <div className="flex items-center gap-2">
-                <Cpu className="size-5 text-primary" />
+          <div className="w-full max-w-2xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center shrink-0">
+                  <Cpu className="size-5" />
+                </div>
                 <div>
-                  <h3 className="text-sm font-bold text-foreground">
+                  <h3 className="text-base font-bold text-foreground">
                     {addModalTarget === 'm-15' ? '添加达到或优于国标 2 级节能设备' : '添加纳入统计范围用能装备'}
                   </h3>
-                  <p className="text-[11px] text-muted-foreground">
-                    可按国标规范选择 7 大类用能设备，录入设备名称、用途及额定功率。
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    按国家能效强制标准录入重点设备明细，装机功率将自动计入全厂台账。
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setAddModalTarget(null)}
-                className="p-1 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
               >
                 <X className="size-5" />
               </button>
             </div>
 
-            <form onSubmit={handleConfirmAddEquipment} className="p-5 space-y-4 text-xs">
-              <div>
-                <label className="block font-bold text-foreground mb-1.5">
-                  设备类型 <span className="text-rose-500">*</span>
-                </label>
-                <select
-                  value={formDevType}
-                  onChange={(e) => setFormDevType(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-semibold focus:outline-none focus:border-primary cursor-pointer"
-                >
-                  <option value="超高效电动机" className="bg-[#0e172a] text-foreground">超高效电动机</option>
-                  <option value="节能变压器" className="bg-[#0e172a] text-foreground">节能变压器</option>
-                  <option value="工业锅炉" className="bg-[#0e172a] text-foreground">工业锅炉</option>
-                  <option value="风机" className="bg-[#0e172a] text-foreground">风机</option>
-                  <option value="空压机" className="bg-[#0e172a] text-foreground">空压机</option>
-                  <option value="制冷设备" className="bg-[#0e172a] text-foreground">制冷设备</option>
-                  <option value="热泵" className="bg-[#0e172a] text-foreground">热泵</option>
-                  <option value="其他重点设备" className="bg-[#0e172a] text-foreground">其他重点设备</option>
-                </select>
+            <form onSubmit={handleConfirmAddEquipment} className="p-5 sm:p-6 space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-foreground mb-1.5">
+                    设备类型 <span className="text-rose-500">*</span>
+                  </label>
+                  <select
+                    value={formDevType}
+                    onChange={(e) => setFormDevType(e.target.value as any)}
+                    className="w-full px-3 py-2.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-semibold focus:outline-none focus:border-primary cursor-pointer"
+                  >
+                    <option value="超高效电动机" className="bg-[#0e172a] text-foreground">超高效电动机</option>
+                    <option value="节能变压器" className="bg-[#0e172a] text-foreground">节能变压器</option>
+                    <option value="工业锅炉" className="bg-[#0e172a] text-foreground">工业锅炉</option>
+                    <option value="风机" className="bg-[#0e172a] text-foreground">风机</option>
+                    <option value="空压机" className="bg-[#0e172a] text-foreground">空压机</option>
+                    <option value="制冷设备" className="bg-[#0e172a] text-foreground">制冷设备</option>
+                    <option value="热泵" className="bg-[#0e172a] text-foreground">热泵</option>
+                    <option value="其他重点设备" className="bg-[#0e172a] text-foreground">其他重点设备</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-foreground mb-1.5">
+                    额定装机功率 (kW) <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative flex items-center">
+                    <input
+                      type="number"
+                      step="any"
+                      value={formDevPower}
+                      onChange={(e) => setFormDevPower(e.target.value)}
+                      placeholder="如：160"
+                      className="w-full pl-3 pr-12 py-2.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-primary"
+                      required
+                    />
+                    <span className="absolute right-3 text-xs font-mono font-bold text-muted-foreground/70">
+                      kW
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div>
                 <label className="block font-bold text-foreground mb-1.5">
-                  设备名称 <span className="text-rose-500">*</span>
+                  设备名称与规格编号 <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formDevName}
                   onChange={(e) => setFormDevName(e.target.value)}
-                  placeholder="如：超高效电动机 #3"
-                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
+                  placeholder="如：超高效电动机 #3（YE4-315L-4 160kW）"
+                  className="w-full px-3 py-2.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
                   required
                 />
               </div>
@@ -1422,32 +1448,12 @@ export default function FactoryMonthlyReportingPage() {
                   type="text"
                   value={formDevUsage}
                   onChange={(e) => setFormDevUsage(e.target.value)}
-                  placeholder="如：车间空压机组主驱、10kV动力变电所主供"
-                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
+                  placeholder="如：车间高压空压机组主驱动力源、动力变电所主供变压器"
+                  className="w-full px-3 py-2.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
                 />
               </div>
 
-              <div>
-                <label className="block font-bold text-foreground mb-1.5">
-                  额定功率 (kW) <span className="text-rose-500">*</span>
-                </label>
-                <div className="relative flex items-center">
-                  <input
-                    type="number"
-                    step="any"
-                    value={formDevPower}
-                    onChange={(e) => setFormDevPower(e.target.value)}
-                    placeholder="输入设备装机额定功率"
-                    className="w-full pl-3 pr-12 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-primary"
-                    required
-                  />
-                  <span className="absolute right-3 text-xs font-mono font-bold text-muted-foreground/70">
-                    kW
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-border/60">
+              <div className="pt-3 flex items-center justify-end gap-2.5 border-t border-border/60">
                 <button
                   type="button"
                   onClick={() => setAddModalTarget(null)}
@@ -1459,7 +1465,7 @@ export default function FactoryMonthlyReportingPage() {
                   type="submit"
                   className="px-5 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold cursor-pointer shadow-xs"
                 >
-                  确认添加
+                  确认添加设备
                 </button>
               </div>
             </form>
@@ -1468,57 +1474,69 @@ export default function FactoryMonthlyReportingPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 弹窗 2：零碳园区基本信息维护 */}
+      {/* 弹窗 2：零碳园区基本信息维护 (放大为 max-w-4xl 宽屏双列布局) */}
       {/* ========================================================================= */}
       {isParkInfoModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border">
-              <div className="flex items-center gap-2">
-                <Building2 className="size-5 text-primary" />
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in">
+          <div className="w-full max-w-4xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 sm:p-5 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-teal-500/15 text-teal-400 flex items-center justify-center shrink-0">
+                  <Building2 className="size-5" />
+                </div>
                 <div>
-                  <h3 className="text-sm font-bold text-foreground">零碳园区基本信息维护</h3>
-                  <p className="text-[11px] text-muted-foreground">
-                    维护零碳园区名称、地理位置及低碳重点建设内容等信息。
+                  <h3 className="text-base font-bold text-foreground">零碳园区基本信息维护</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    维护零碳园区全称、厂区地理位置、低碳建设核心内容及规模指标，用于集控中心大屏展示与零碳认证核验。
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsParkInfoModalOpen(false)}
-                className="p-1 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
               >
                 <X className="size-5" />
               </button>
             </div>
 
-            <div className="p-5 space-y-3.5 text-xs">
-              <div>
-                <label className="block font-bold text-foreground mb-1.5">
-                  零碳园区 / 项目名称 <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={parkInfo.name}
-                  onChange={(e) => setParkInfo({ ...parkInfo, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-semibold focus:outline-none focus:border-primary"
-                  placeholder="如：特变电工沈变工业示范园区"
-                  required
-                />
+            <div className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1 text-xs">
+              {/* 顶部引导提示条 */}
+              <div className="p-3 rounded-xl border border-teal-500/30 bg-teal-950/25 text-teal-300 flex items-center gap-2">
+                <Info className="size-4 shrink-0 text-teal-400" />
+                <span>
+                  本园区信息是集团零碳集控看板、碳足迹核算及第三方认证机构现场审核的重要基础档案，请真实完整填写。
+                </span>
               </div>
 
-              <div>
-                <label className="block font-bold text-foreground mb-1.5">
-                  地理位置 / 厂区地址 <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={parkInfo.location}
-                  onChange={(e) => setParkInfo({ ...parkInfo, location: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
-                  placeholder="如：辽宁省沈阳市铁西区经济技术开发区二十二号路"
-                  required
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-foreground mb-1.5">
+                    零碳园区 / 项目全称 <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={parkInfo.name}
+                    onChange={(e) => setParkInfo({ ...parkInfo, name: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-semibold focus:outline-none focus:border-primary"
+                    placeholder="如：特变电工沈变工业示范园区"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-foreground mb-1.5">
+                    地理位置 / 厂区详细地址 <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={parkInfo.location}
+                    onChange={(e) => setParkInfo({ ...parkInfo, location: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
+                    placeholder="如：辽宁省沈阳市铁西区经济技术开发区二十二号路"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
@@ -1526,29 +1544,35 @@ export default function FactoryMonthlyReportingPage() {
                   建设内容与主要低碳举措 <span className="text-rose-500">*</span>
                 </label>
                 <textarea
-                  rows={3}
+                  rows={4}
                   value={parkInfo.content}
                   onChange={(e) => setParkInfo({ ...parkInfo, content: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary leading-relaxed"
-                  placeholder="如：2.8MWp分布式屋顶光伏扩建工程、10kV智能节能变配电系统改造、空压机余热循环利用、全厂能碳微电网数字化系统..."
+                  className="w-full px-3.5 py-2.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary leading-relaxed"
+                  placeholder="如：2.8MWp分布式屋顶光伏扩建工程、10kV智能变配电节能改造、空压机余热循环利用、全厂能碳微电网数字化系统、中水回用绿化灌溉系统..."
                   required
                 />
+                <p className="text-[11px] text-muted-foreground/70 mt-1">
+                  请详细阐述厂区光伏、储能、节能装备改造、余热回收及数字化管理系统的建设内容。
+                </p>
               </div>
 
               <div>
                 <label className="block font-bold text-foreground mb-1.5">
-                  建设规模与指标说明
+                  建设规模与核心低碳指标说明
                 </label>
                 <input
                   type="text"
                   value={parkInfo.scale}
                   onChange={(e) => setParkInfo({ ...parkInfo, scale: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
-                  placeholder="如：光伏装机2.8MWp，年发绿电约320万kWh，园区绿电消纳率超65%"
+                  className="w-full px-3.5 py-2.5 bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg text-xs font-medium focus:outline-none focus:border-primary"
+                  placeholder="如：光伏装机2.8MWp，年发绿电约320万kWh，园区绿电消纳率超65%，年减碳量约2,100吨CO₂e"
                 />
               </div>
+            </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-border/60">
+            <div className="p-4 sm:p-5 border-t border-border/60 flex items-center justify-between bg-[#131f38] border-border shrink-0 text-xs">
+              <span className="text-muted-foreground/70">* 为必填字段，提交后将即时同步至园区总览看板</span>
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsParkInfoModalOpen(false)}
@@ -1565,7 +1589,7 @@ export default function FactoryMonthlyReportingPage() {
                   }}
                   className="px-5 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold cursor-pointer shadow-xs"
                 >
-                  保存信息
+                  保存园区基本信息
                 </button>
               </div>
             </div>
@@ -1574,40 +1598,53 @@ export default function FactoryMonthlyReportingPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 弹窗 3：园区航拍照片管理 */}
+      {/* 弹窗 3：园区航拍照片管理 (放大为 max-w-4xl 宽屏相册与上传区) */}
       {/* ========================================================================= */}
       {isParkPhotoModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border">
-              <div className="flex items-center gap-2">
-                <ImageIcon className="size-5 text-primary" />
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in">
+          <div className="w-full max-w-4xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 sm:p-5 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-teal-500/15 text-teal-400 flex items-center justify-center shrink-0">
+                  <ImageIcon className="size-5" />
+                </div>
                 <div>
-                  <h3 className="text-sm font-bold text-foreground">园区全貌航拍照片管理</h3>
-                  <p className="text-[11px] text-muted-foreground">用于集控中心大屏轮播展示与现场初核核验。</p>
+                  <h3 className="text-base font-bold text-foreground">园区全貌航拍照片管理</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    维护园区航拍全景、分布式光伏顶棚、变电站实景等，用于集控中心大屏轮播与认证核验。
+                  </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsParkPhotoModalOpen(false)}
-                className="p-1 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
               >
                 <X className="size-5" />
               </button>
             </div>
 
-            <div className="p-4 space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-foreground">
+                  已上传实景相册（<span className="text-primary font-mono font-bold">{parkPhotos.length}</span> 张照片）
+                </span>
+                <span className="text-muted-foreground/70">支持 JPG, PNG, WEBP 格式，单张不超过 20MB</span>
+              </div>
+
+              {/* 大图网格展示 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {parkPhotos.map((url, idx) => (
-                  <div key={idx} className="relative group rounded-xl border border-border overflow-hidden aspect-video bg-black/40 shadow-2xs">
-                    <img src={url} alt="现场实景" className="size-full object-cover" />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <div key={idx} className="relative group rounded-xl border border-border overflow-hidden aspect-video bg-black/40 shadow-sm">
+                    <img src={url} alt="现场实景" className="size-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                       <button
                         type="button"
-                        onClick={() => alert('全屏大图预览')}
-                        className="p-1.5 rounded-full bg-white/80 hover:bg-white text-slate-800 cursor-pointer"
+                        onClick={() => alert('全屏高清大图查看')}
+                        className="px-3 py-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-800 text-xs font-bold cursor-pointer flex items-center gap-1 shadow-md"
                       >
                         <Eye className="size-3.5" />
+                        <span>大图查看</span>
                       </button>
                       <button
                         type="button"
@@ -1616,36 +1653,44 @@ export default function FactoryMonthlyReportingPage() {
                             setParkPhotos(parkPhotos.filter((_, i) => i !== idx))
                           }
                         }}
-                        className="p-1.5 rounded-full bg-rose-500 hover:bg-rose-600 text-white cursor-pointer"
+                        className="p-2 rounded-lg bg-rose-500 hover:bg-rose-600 text-white cursor-pointer shadow-md"
+                        title="删除照片"
                       >
                         <Trash2 className="size-3.5" />
                       </button>
                     </div>
+                    <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/70 text-white text-[10px] font-mono">
+                      图 {idx + 1}
+                    </div>
                   </div>
                 ))}
 
+                {/* 宽敞上传卡片 */}
                 <button
                   type="button"
                   onClick={() => {
-                    const sample = 'https://images.unsplash.com/photo-1497440001374-f26997328c1b?w=500&auto=format&fit=crop&q=60'
+                    const sample = 'https://images.unsplash.com/photo-1497440001374-f26997328c1b?w=800&auto=format&fit=crop&q=80'
                     setParkPhotos([...parkPhotos, sample])
-                    alert('已上传 1 张园区现场照片')
+                    alert('已成功模拟上传 1 张园区航拍高清照片！')
                   }}
-                  className="aspect-video rounded-xl border-2 border-dashed border-teal-700/50 hover:border-teal-500 bg-teal-950/20 hover:bg-teal-950/40 text-teal-300 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all"
+                  className="aspect-video rounded-xl border-2 border-dashed border-teal-700/50 hover:border-teal-400 bg-teal-950/20 hover:bg-teal-950/40 text-teal-300 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all p-4 group"
                 >
-                  <Upload className="size-5" />
-                  <span className="text-xs font-bold">+ 上传照片</span>
+                  <div className="size-10 rounded-full bg-teal-900/60 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Upload className="size-5 text-teal-400" />
+                  </div>
+                  <span className="text-xs font-bold">+ 点击上传实景照片</span>
+                  <span className="text-[10px] text-muted-foreground/70">航拍全景、主门实拍、光伏顶棚</span>
                 </button>
               </div>
             </div>
 
-            <div className="p-3 border-t border-border/60 flex justify-end bg-[#131f38] border-border">
+            <div className="p-4 sm:p-5 border-t border-border/60 flex justify-end bg-[#131f38] border-border shrink-0">
               <button
                 type="button"
                 onClick={() => setIsParkPhotoModalOpen(false)}
-                className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold cursor-pointer"
+                className="px-6 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold cursor-pointer shadow-xs"
               >
-                完成
+                保存并完成
               </button>
             </div>
           </div>
@@ -1653,29 +1698,34 @@ export default function FactoryMonthlyReportingPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 弹窗 4：关键事件登记 */}
+      {/* 弹窗 4：关键事件登记 (放大为 max-w-4xl 宽屏双区排版) */}
       {/* ========================================================================= */}
       {isEventModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border">
-              <div className="flex items-center gap-2">
-                <Sparkles className="size-5 text-amber-500" />
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in">
+          <div className="w-full max-w-4xl rounded-2xl border bg-[#0e172a] border-border text-foreground shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 sm:p-5 border-b border-border/60 flex items-center justify-between bg-[#131f38] border-border shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0">
+                  <Sparkles className="size-5" />
+                </div>
                 <div>
-                  <h3 className="text-sm font-bold text-foreground">零碳关键事件登记（事件/时间）</h3>
-                  <p className="text-[11px] text-muted-foreground">涵盖光伏并网、储能投运、碳足迹上线等重大里程碑。</p>
+                  <h3 className="text-base font-bold text-foreground">零碳重大关键事件登记</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    记录并归档工厂光伏并网、储能投运、碳足迹系统上线、零碳工厂认证等重大里程碑事件。
+                  </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsEventModalOpen(false)}
-                className="p-1 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-slate-700/40 text-muted-foreground/70 hover:text-foreground cursor-pointer"
               >
                 <X className="size-5" />
               </button>
             </div>
 
-            <div className="p-4 space-y-4">
+            <div className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
+              {/* 新增事件表单 */}
               <form
                 onSubmit={(e) => {
                   e.preventDefault()
@@ -1683,53 +1733,73 @@ export default function FactoryMonthlyReportingPage() {
                   setKeyEvents([{ id: `ev-${Date.now()}`, date: newEventDate, title: newEventTitle, type: '光伏并网' }, ...keyEvents])
                   setNewEventTitle('')
                 }}
-                className="p-3 rounded-xl border border-border bg-panel/70 border-border space-y-2.5"
+                className="p-4 rounded-xl border border-border bg-panel/70 border-border space-y-3"
               >
-                <div className="text-xs font-bold text-foreground">+ 新增关键事件</div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <input
-                    type="date"
-                    value={newEventDate}
-                    onChange={(e) => setNewEventDate(e.target.value)}
-                    className="p-2 text-xs rounded-lg border border-border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 font-mono"
-                    required
-                  />
-                  <input
-                    type="text"
-                    value={newEventTitle}
-                    onChange={(e) => setNewEventTitle(e.target.value)}
-                    placeholder="事件内容: 如沈变2.8MWp光伏并网"
-                    className="sm:col-span-2 p-2 text-xs rounded-lg border border-border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
-                    required
-                  />
+                <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <Plus className="size-3.5 text-primary" />
+                  <span>登记新增零碳重大里程碑事件</span>
                 </div>
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold cursor-pointer shadow-xs"
-                  >
-                    保存该事件
-                  </button>
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-foreground mb-1">发生日期</label>
+                    <input
+                      type="date"
+                      value={newEventDate}
+                      onChange={(e) => setNewEventDate(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 font-mono font-bold"
+                      required
+                    />
+                  </div>
+                  <div className="sm:col-span-3">
+                    <label className="block text-[11px] font-bold text-foreground mb-1">事件详细内容与成果</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={newEventTitle}
+                        onChange={(e) => setNewEventTitle(e.target.value)}
+                        placeholder="如：特变电工沈变本部 2.8MWp 分布式屋顶光伏扩建工程顺利全容量并网投运"
+                        className="flex-1 px-3 py-2 text-xs rounded-lg border border-border bg-[#0b1324] border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20"
+                        required
+                      />
+                      <button
+                        type="submit"
+                        className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold cursor-pointer shrink-0 shadow-xs"
+                      >
+                        + 保存该事件
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </form>
 
-              <div className="space-y-2">
-                <div className="text-xs font-bold text-muted-foreground">已归档关键事件 ({keyEvents.length})</div>
-                <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
+              {/* 已归档事件清单 */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-foreground">
+                    已归档重大关键事件清单（<span className="text-primary font-mono font-bold">{keyEvents.length}</span> 条）
+                  </span>
+                  <span className="text-muted-foreground/70">按发生时间倒序排列</span>
+                </div>
+
+                <div className="max-h-72 overflow-y-auto space-y-2.5 pr-1">
                   {keyEvents.map((ev) => (
-                    <div key={ev.id} className="p-2.5 rounded-lg border bg-[#0e182e] border-border hover:border-primary/40 text-foreground flex items-center justify-between gap-3 shadow-2xs">
-                      <div className="flex items-center gap-2.5">
-                        <span className="px-2 py-0.5 rounded text-[10px] bg-amber-950/40 text-amber-300 border border-amber-800/60 font-mono font-bold shrink-0">
+                    <div
+                      key={ev.id}
+                      className="p-3 rounded-xl border bg-[#0e182e] border-border hover:border-primary/40 text-foreground flex items-center justify-between gap-4 shadow-2xs hover:border-primary/40 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="px-2.5 py-1 rounded-lg text-xs bg-amber-950/40 text-amber-300 border border-amber-800/60 font-mono font-bold shrink-0">
                           {ev.date}
                         </span>
-                        <span className="text-xs font-medium text-foreground">{ev.title}</span>
+                        <span className="text-xs font-bold text-foreground truncate">{ev.title}</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => setKeyEvents(keyEvents.filter((k) => k.id !== ev.id))}
-                        className="text-muted-foreground hover:text-rose-500 cursor-pointer p-1"
+                        className="text-muted-foreground hover:text-rose-500 cursor-pointer p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors shrink-0"
+                        title="删除此事件"
                       >
-                        <Trash2 className="size-3.5" />
+                        <Trash2 className="size-4" />
                       </button>
                     </div>
                   ))}
@@ -1737,11 +1807,11 @@ export default function FactoryMonthlyReportingPage() {
               </div>
             </div>
 
-            <div className="p-3 border-t border-border/60 flex justify-end bg-[#131f38] border-border">
+            <div className="p-4 sm:p-5 border-t border-border/60 flex justify-end bg-[#131f38] border-border shrink-0">
               <button
                 type="button"
                 onClick={() => setIsEventModalOpen(false)}
-                className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold cursor-pointer"
+                className="px-6 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold cursor-pointer shadow-xs"
               >
                 完成
               </button>
