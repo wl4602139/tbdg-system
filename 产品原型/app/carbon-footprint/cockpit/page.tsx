@@ -61,7 +61,6 @@ export default function CockpitPage() {
           <span className="h-6 w-1 rounded-full bg-primary" />
           <div>
             <h1 className="text-lg font-semibold tracking-wide text-foreground">集团碳足迹大屏</h1>
-            <p className="text-xs text-muted-foreground">产品碳足迹对外展示窗口 · 园区/产业碳足迹总览</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-1.5">
