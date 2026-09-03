@@ -91,35 +91,35 @@ export function SearchableUnitSelect({
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          'h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-800 shadow-2xs',
+          'h-8 px-2.5 rounded-lg border border-border bg-panel text-xs font-medium text-foreground shadow-2xs',
           'flex items-center justify-between gap-2 min-w-[200px] max-w-[260px] text-left transition-colors cursor-pointer select-none',
-          'hover:border-blue-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200',
-          open && 'border-blue-500 ring-1 ring-blue-200',
-          disabled && 'opacity-60 cursor-not-allowed bg-slate-50',
+          'hover:border-primary/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-ring',
+          open && 'border-primary ring-1 ring-ring',
+          disabled && 'opacity-60 cursor-not-allowed bg-muted',
         )}
       >
-        <span className={cn('truncate', value === 'all' || !value ? 'text-slate-800 font-medium' : 'text-slate-900 font-semibold')}>
+        <span className={cn('truncate', value === 'all' || !value ? 'text-foreground/90 font-medium' : 'text-foreground font-semibold')}>
           {currentLabel}
         </span>
         <ChevronDown
-          className={cn('size-3.5 text-slate-400 shrink-0 transition-transform duration-200', open && 'rotate-180 text-blue-500')}
+          className={cn('size-3.5 text-muted-foreground shrink-0 transition-transform duration-200', open && 'rotate-180 text-primary')}
         />
       </button>
 
       {/* 下拉面板 */}
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 min-w-[280px] max-w-[340px] rounded-xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10 overflow-hidden animate-in fade-in-50 zoom-in-95 duration-100 flex flex-col">
+        <div className="absolute left-0 top-full mt-1 z-50 min-w-[280px] max-w-[340px] rounded-xl border border-border bg-card shadow-2xl overflow-hidden animate-in fade-in-50 zoom-in-95 duration-100 flex flex-col backdrop-blur-md">
           {/* 🌟 顶部模糊匹配搜索框 */}
-          <div className="p-2 border-b border-slate-100 bg-slate-50/80 sticky top-0 z-10">
+          <div className="p-2 border-b border-border bg-panel/80 sticky top-0 z-10">
             <div className="relative flex items-center">
-              <Search className="pointer-events-none absolute left-2.5 size-3.5 text-slate-400" />
+              <Search className="pointer-events-none absolute left-2.5 size-3.5 text-muted-foreground" />
               <input
                 ref={inputRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="输入单位名称模糊搜索..."
-                className="h-7 w-full rounded-md border border-slate-200 bg-white pl-8 pr-7 text-xs text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none shadow-2xs"
+                className="h-7 w-full rounded-md border border-border bg-background pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none shadow-2xs"
               />
               {query && (
                 <button
@@ -128,7 +128,7 @@ export function SearchableUnitSelect({
                     setQuery('')
                     inputRef.current?.focus()
                   }}
-                  className="absolute right-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute right-2 text-muted-foreground hover:text-foreground cursor-pointer"
                   title="清空搜索"
                 >
                   <X className="size-3.5" />
@@ -146,17 +146,17 @@ export function SearchableUnitSelect({
               className={cn(
                 'w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer mb-0.5',
                 value === 'all' || !value
-                  ? 'bg-blue-50 text-[#1677ff] font-bold'
-                  : 'text-slate-700 hover:bg-slate-100 font-medium',
+                  ? 'bg-primary/15 text-primary font-bold'
+                  : 'text-foreground/80 hover:bg-accent/40 font-medium',
               )}
             >
               <span>全部所属单位</span>
-              {(value === 'all' || !value) && <Check className="size-3.5 text-[#1677ff] shrink-0" />}
+              {(value === 'all' || !value) && <Check className="size-3.5 text-primary shrink-0" />}
             </button>
 
             {/* 匹配的单位列表 */}
             {filteredOptions.length === 0 ? (
-              <div className="py-6 text-center text-xs text-slate-400">
+              <div className="py-6 text-center text-xs text-muted-foreground">
                 未找到匹配的单位名称
               </div>
             ) : (
@@ -170,19 +170,19 @@ export function SearchableUnitSelect({
                     className={cn(
                       'w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer group',
                       isSelected
-                        ? 'bg-blue-50 text-[#1677ff] font-bold'
-                        : 'text-slate-700 hover:bg-slate-100 font-medium',
+                        ? 'bg-primary/15 text-primary font-bold'
+                        : 'text-foreground/80 hover:bg-accent/40 font-medium',
                     )}
                   >
-                    <span className="truncate flex-1 text-slate-800 group-hover:text-slate-900 font-medium">
+                    <span className="truncate flex-1 text-foreground group-hover:text-primary font-medium">
                       {opt.name}
                     </span>
                     {hasMultipleCompanies && opt.company && (
-                      <span className="text-[10px] text-slate-400 group-hover:text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded font-normal shrink-0">
+                      <span className="text-[10px] text-muted-foreground group-hover:text-foreground bg-panel border border-border/50 px-1.5 py-0.5 rounded font-normal shrink-0">
                         {opt.company}
                       </span>
                     )}
-                    {isSelected && <Check className="size-3.5 text-[#1677ff] shrink-0 ml-1" />}
+                    {isSelected && <Check className="size-3.5 text-primary shrink-0 ml-1" />}
                   </button>
                 )
               })
