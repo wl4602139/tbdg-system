@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, Fragment } from 'react'
+import { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { Modal } from '@/components/shared/modal'
 import { DataTable } from '@/components/shared/primitives'
@@ -10,85 +10,25 @@ import type { ProdOrder } from '@/lib/procurement'
 type Stages = ReturnType<typeof energyStages>
 type EnergyRows = ReturnType<typeof orderEnergyDetail>
 
-const ELEC_KGCE = 0.1229 // 电力折标系数 kgce/kWh
+type TabKey = 'energy' | 'orders'
 
-const STAGE_META: Record<string, { processName: string; startTime: string; endTime: string }> = {
-  绕线: {
-    processName: '低压箔绕与高压绕制',
-    startTime: '2026-07-10 08:30:00',
-    endTime: '2026-07-11 17:30:00',
-  },
-  器身: {
-    processName: '铁芯叠装与器身绝缘装配',
-    startTime: '2026-07-12 08:30:00',
-    endTime: '2026-07-14 18:00:00',
-  },
-  总装: {
-    processName: '器身气相干燥与总装配',
-    startTime: '2026-07-15 08:30:00',
-    endTime: '2026-07-17 17:00:00',
-  },
-  成品: {
-    processName: '真空注油密封与例行出厂试验',
-    startTime: '2026-07-18 09:00:00',
-    endTime: '2026-07-19 16:30:00',
-  },
-  公共: {
-    processName: '厂区动力与辅助工程配电',
-    startTime: '2026-07-10 08:00:00',
-    endTime: '2026-07-19 18:00:00',
-  },
-}
-
-type TabKey = 'process' | 'energy' | 'orders'
-
-/** 能耗数据追踪：工序用能明细 / 能源类型明细 /（可选）产品订单明细 */
+/** 能耗数据追踪：能源类型明细 /（可选）产品订单明细 */
 function EnergyTraceTabs({
-  stages,
   energyRows,
   perUnitKgce,
   orders,
   onJump,
 }: {
-  stages: Stages
+  stages?: Stages
   energyRows: EnergyRows
   perUnitKgce: number
   orders?: ProdOrder[]
   onJump?: (order: string) => void
 }) {
-  const [tab, setTab] = useState<TabKey>('process')
-
-  /* 组织生产单元与工序维度数据（支持单元格合并） */
-  const procStages = useMemo(() => {
-    return stages.map((s) => {
-      const meta = STAGE_META[s.name] ?? {
-        processName: `${s.name}加工制造工序`,
-        startTime: '2026-07-10 08:30:00',
-        endTime: '2026-07-12 17:30:00',
-      }
-      const gridConvert = Math.round(s.gridKwh * ELEC_KGCE * 100) / 100
-      const greenConvert = Math.round(s.greenKwh * ELEC_KGCE * 100) / 100
-      return {
-        unit: s.name,
-        processName: meta.processName,
-        startTime: meta.startTime,
-        endTime: meta.endTime,
-        gridKwh: s.gridKwh,
-        greenKwh: s.greenKwh,
-        gridConvert,
-        greenConvert,
-      }
-    })
-  }, [stages])
-
-  const procTotal = useMemo(
-    () => Math.round(procStages.reduce((sum, s) => sum + s.gridConvert + s.greenConvert, 0) * 100) / 100,
-    [procStages],
-  )
+  const [tab, setTab] = useState<TabKey>('energy')
   const energyTotal = Math.round(energyRows.reduce((s, r) => s + r.kgce, 0) * 100) / 100
 
   const tabs: { key: TabKey; label: string }[] = [
-    { key: 'process', label: '工序用能明细' },
     { key: 'energy', label: '能源类型明细' },
     ...(orders ? [{ key: 'orders' as const, label: '产品订单明细' }] : []),
   ]
@@ -109,67 +49,6 @@ function EnergyTraceTabs({
           </button>
         ))}
       </div>
-
-      {tab === 'process' && (
-        <div>
-          <div className="overflow-x-auto rounded-lg border border-border bg-panel">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-border bg-muted/40 text-muted-foreground">
-                  <th className="px-3.5 py-2.5 font-medium text-center">生产单元</th>
-                  <th className="px-3.5 py-2.5 font-medium">工序名称</th>
-                  <th className="px-3.5 py-2.5 font-medium">能源类型</th>
-                  <th className="px-3.5 py-2.5 font-medium text-center">开始时间</th>
-                  <th className="px-3.5 py-2.5 font-medium text-center">结束时间</th>
-                  <th className="px-3.5 py-2.5 font-medium text-right">用量(kWh)</th>
-                  <th className="px-3.5 py-2.5 font-medium text-right">折标系数(kgce/kWh)</th>
-                  <th className="px-3.5 py-2.5 font-medium text-right">综合能耗(kgce)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/60">
-                {procStages.map((ps) => (
-                  <Fragment key={ps.unit}>
-                    <tr className="hover:bg-muted/15 transition-colors border-t border-border/60">
-                      <td
-                        rowSpan={2}
-                        className="border-r border-border/50 px-3.5 py-2.5 align-middle text-center font-medium text-foreground bg-muted/10"
-                      >
-                        {ps.unit}
-                      </td>
-                      <td
-                        rowSpan={2}
-                        className="border-r border-border/50 px-3.5 py-2.5 align-middle text-foreground/90 font-medium"
-                      >
-                        {ps.processName}
-                      </td>
-                      <td className="px-3.5 py-2 text-foreground border-b border-border/30">市电</td>
-                      <td className="px-3.5 py-2 text-center font-mono text-muted-foreground whitespace-nowrap border-b border-border/30">{ps.startTime}</td>
-                      <td className="px-3.5 py-2 text-center font-mono text-muted-foreground whitespace-nowrap border-b border-border/30">{ps.endTime}</td>
-                      <td className="px-3.5 py-2 text-right font-mono text-foreground border-b border-border/30">{ps.gridKwh}</td>
-                      <td className="px-3.5 py-2 text-right font-mono text-muted-foreground border-b border-border/30">{ELEC_KGCE}</td>
-                      <td className="px-3.5 py-2 text-right font-mono text-primary font-medium border-b border-border/30">{ps.gridConvert}</td>
-                    </tr>
-                    <tr className="hover:bg-muted/15 transition-colors">
-                      <td className="px-3.5 py-2 text-[var(--success)] font-medium">绿电</td>
-                      <td className="px-3.5 py-2 text-center font-mono text-muted-foreground whitespace-nowrap">{ps.startTime}</td>
-                      <td className="px-3.5 py-2 text-center font-mono text-muted-foreground whitespace-nowrap">{ps.endTime}</td>
-                      <td className="px-3.5 py-2 text-right font-mono text-foreground">{ps.greenKwh}</td>
-                      <td className="px-3.5 py-2 text-right font-mono text-muted-foreground">{ELEC_KGCE}</td>
-                      <td className="px-3.5 py-2 text-right font-mono text-primary font-medium">{ps.greenConvert}</td>
-                    </tr>
-                  </Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-3 flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm">
-            <span className="font-medium text-foreground">工序综合能耗合计</span>
-            <span className="font-mono text-primary font-semibold">
-              {procTotal.toLocaleString()} <span className="text-xs text-muted-foreground">kgce</span>
-            </span>
-          </div>
-        </div>
-      )}
 
       {tab === 'energy' && (
         <div>
