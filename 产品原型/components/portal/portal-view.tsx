@@ -1,223 +1,206 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import {
+  ArrowRight,
+  Settings,
   Globe2,
   Leaf,
-  ArrowRight,
+  Award,
+  MoreHorizontal,
 } from 'lucide-react'
+import { honors } from '@/lib/mock-data'
+
+const entrances = [
+  {
+    key: 'zero-carbon',
+    name: '零碳园区集控中心',
+    en: 'ZERO-CARBON PARK CONTROL CENTER',
+    desc: '面向集团领导层与企业参阅对象，集中监管各园区与经营单位的能耗、能效与碳排放，支撑零碳园区建设与决策。',
+    img: '/illustrations/zero-carbon.png',
+    href: '/zero-carbon/screen',
+    icon: Globe2,
+    col1: ['集控中心大屏与集中监管', '零碳项目评估与告警管理'],
+    col2: ['能耗能效与碳排放分析', '智能助手综合交互'],
+  },
+  {
+    key: 'carbon-footprint',
+    name: '产品碳足迹集采中心',
+    en: 'PRODUCT CARBON FOOTPRINT CENTER',
+    desc: '对集团产品碳足迹进行核算、填报、对标分析，覆盖实景数据库、CBAM 应对、第三方认证与因子库管理。',
+    img: '/illustrations/carbon-footprint.png',
+    href: '/carbon-footprint/cockpit',
+    icon: Leaf,
+    col1: ['集团驾驶舱与多维分析', 'CBAM 合规与成本测算'],
+    col2: ['实景数据库与碳足迹报告', '第三方认证与因子库管理'],
+  },
+]
 
 export function PortalView() {
+  const [honorIndex, setHonorIndex] = useState(0)
+
+  useEffect(() => {
+    const t = setInterval(() => setHonorIndex((i) => (i + 1) % honors.length), 3000)
+    return () => clearInterval(t)
+  }, [])
+
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-[#f8fafc] via-[#edf3fa] to-[#e6eff9] flex flex-col justify-between overflow-x-hidden selection:bg-blue-100 selection:text-blue-700 font-sans">
-      {/* 🌟 1. 高级纯净动态光晕背景（无点阵，清爽通透） */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* 顶部蓝绿双中心柔和弥散光晕 */}
-        <div className="absolute -top-32 -left-32 w-[650px] h-[650px] bg-gradient-to-br from-blue-500/15 via-sky-400/10 to-transparent rounded-full blur-3xl" />
-        <div className="absolute -top-32 -right-32 w-[650px] h-[650px] bg-gradient-to-bl from-emerald-500/15 via-teal-400/10 to-transparent rounded-full blur-3xl" />
-        
-        {/* 中部能量交汇自然渐变 */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[550px] bg-gradient-to-r from-blue-400/8 via-indigo-300/8 to-emerald-400/8 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[350px] bg-sky-200/20 rounded-full blur-2xl" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[350px] bg-emerald-200/20 rounded-full blur-2xl" />
+    <div className="tech-grid relative flex min-h-screen flex-col justify-between overflow-x-hidden bg-background">
+      <div className="tech-radial pointer-events-none absolute inset-0" />
 
-        {/* 极简优雅的半透明科技光流 */}
-        <div className="absolute top-20 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/30 to-transparent" />
-        <div className="absolute top-2/5 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-400/20 to-transparent" />
-      </div>
-
-      {/* 🌟 2. 顶部企业蓝品牌导航条 (玻璃拟态 + 呼吸光) */}
-      <header className="relative z-30 h-16 bg-[#003eb3]/95 backdrop-blur-md border-b border-blue-800/80 px-6 flex items-center justify-between text-white shadow-md">
+      {/* 顶栏 */}
+      <header className="relative z-20 flex shrink-0 items-center justify-between px-6 py-4 lg:px-12">
         <div className="flex items-center gap-3">
-          <div className="bg-white/95 rounded-lg px-2.5 py-1 flex items-center justify-center shadow-xs">
-            <img src="/logo.png" alt="TBEA 特变电工" className="h-7 w-auto object-contain" />
+          <div className="flex size-11 items-center justify-center rounded-xl border border-primary/40 bg-primary/15 text-sm font-bold text-primary shadow-xs">
+            TBEA
           </div>
-          <span className="font-extrabold text-base tracking-wide text-white drop-shadow-xs">
-            特变电工电气装备集团能碳数字化运营平台
-          </span>
+          <div className="leading-tight">
+            <p className="text-base font-semibold text-foreground tracking-wide">特变电工电装集团</p>
+            <p className="text-xs text-muted-foreground font-mono">TBEA Electrical Equipment Group</p>
+          </div>
         </div>
-
-        {/* 右上角账号信息 */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-white/10 border border-white/15 backdrop-blur-xs shadow-xs">
-            <div className="size-7 rounded-full bg-white/20 border border-white/30 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-              管
+          <Link
+            href="/system?from=/"
+            className="flex items-center gap-2 rounded-lg border border-border bg-panel px-3.5 py-2 text-sm text-foreground transition-colors hover:border-primary/50 shadow-xs"
+          >
+            <Settings className="size-4 text-primary" />
+            系统管理
+          </Link>
+          <div className="flex items-center gap-2.5 border-l border-border pl-3">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/15 text-sm font-semibold text-primary shadow-xs">
+              A
             </div>
-            <div className="hidden sm:block text-left">
-              <span className="text-xs font-semibold text-white block leading-tight">
-                管理员 (倪总)
-              </span>
-              <span className="text-[10px] text-blue-200/80 block">
-                特变电工电气装备集团
-              </span>
+            <div className="hidden leading-tight sm:block">
+              <p className="text-sm font-medium text-foreground">Admin</p>
+              <p className="text-[11px] text-muted-foreground">集团管理员</p>
             </div>
           </div>
         </div>
       </header>
 
-      {/* 🌟 3. 主体内容区 */}
-      <main className="relative z-10 max-w-6xl mx-auto w-full px-6 py-8 space-y-6 flex-1 flex flex-col justify-center">
-        {/* 头部标题与科技徽章 */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50/90 border border-blue-200/80 shadow-xs backdrop-blur-xs">
-            <span className="size-2 rounded-full bg-[#1677ff] animate-pulse" />
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#1677ff] font-mono">
-              TBEA DUAL-CENTER ENERGY & CARBON MANAGEMENT
-            </span>
-          </div>
-
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight flex items-center justify-center gap-3">
-            <span>能碳管控</span>
-            <span className="bg-gradient-to-r from-[#1677ff] via-indigo-600 to-emerald-600 bg-clip-text text-transparent drop-shadow-xs">
-              “双中心”
-            </span>
-            <span>运营平台</span>
+      {/* 主体区：标题 + 两大入口 */}
+      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-6 py-4 lg:px-12">
+        {/* 标题区 */}
+        <div className="mx-auto max-w-3xl shrink-0 text-center">
+          <h1 className="text-balance text-2xl font-bold tracking-tight text-foreground text-glow lg:text-3xl">
+            零碳园区集控与产品碳足迹集采平台
           </h1>
-
-          <p className="text-xs sm:text-sm text-slate-600 max-w-none mx-auto leading-relaxed md:whitespace-nowrap">
-            能碳一体化运营服务特变电工电气装备产业以实测数据牵引各经营单位绿色低碳转型、构建应对市场绿色招采快速响应能力。
+          <p className="mx-auto mt-2 max-w-2xl text-pretty text-xs text-muted-foreground lg:text-sm">
+            一体化能碳数字化平台，支撑集团园区集中管控与产品碳足迹集中管理，助力绿色低碳与高质量发展
           </p>
-
-          {/* 核心价值微标签 */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 text-xs pt-1">
-            <span className="px-3 py-1 rounded-md bg-white/90 border border-slate-200 text-slate-700 shadow-2xs font-sans font-medium">
-              🏭 国家零碳工厂对标
-            </span>
-            <span className="px-3 py-1 rounded-md bg-white/90 border border-slate-200 text-slate-700 shadow-2xs font-sans font-medium">
-              🌿 产品碳足迹在线核算及认证
-            </span>
-            <span className="px-3 py-1 rounded-md bg-white/90 border border-slate-200 text-slate-700 shadow-2xs font-sans font-medium">
-              ⚡ 产品能耗能效深度分析
-            </span>
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1 text-[11px] font-medium tracking-wider text-primary font-mono shadow-xs">
+            <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+            ZERO-CARBON & CARBON FOOTPRINT PLATFORM
           </div>
         </div>
 
-        {/* 🌟 4. 双中心核心大卡片 (3D 悬浮质感 + 边缘流光) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-          {/* 平台一：零碳园区集控中心 */}
-          <div className="group relative rounded-2xl bg-white/90 backdrop-blur-md border border-[#e5e7eb] hover:border-[#1677ff] p-6 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden">
-            {/* 卡片右上角装饰光晕 */}
-            <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-blue-400/20 via-sky-300/10 to-transparent rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform duration-500" />
+        {/* 两大入口卡片 */}
+        <div className="mt-6 grid w-full gap-6 md:grid-cols-2">
+          {entrances.map((e) => (
+            <div
+              key={e.key}
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 backdrop-blur-sm transition-all hover:border-primary/50 hover:shadow-[0_0_40px_-12px_var(--primary)] flex flex-col justify-between"
+            >
+              <div className="tech-radial pointer-events-none absolute inset-0 opacity-50" />
+              
+              {/* 3D 插画区域 */}
+              <div className="relative aspect-[21/9] w-full overflow-hidden rounded-xl border border-border bg-[#071019]">
+                <Image
+                  src={e.img || '/placeholder.svg'}
+                  alt={`${e.name}示意图`}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 40vw"
+                  priority
+                />
+              </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="size-13 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/80 border border-blue-200/80 flex items-center justify-center text-[#1677ff] shadow-xs group-hover:scale-105 transition-transform duration-300">
-                  <Globe2 className="size-7 text-[#1677ff]" />
+              {/* 标题与图标 */}
+              <div className="relative mt-4 flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl border border-primary/40 bg-primary/15 text-primary shadow-xs">
+                  <e.icon className="size-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{e.name}</h2>
+                  <p className="text-[11px] tracking-wider text-muted-foreground font-mono">{e.en}</p>
                 </div>
               </div>
 
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-extrabold text-slate-800 group-hover:text-[#1677ff] transition-colors">
-                    零碳园区集控中心
-                  </h2>
-                  <span className="px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 text-[10px] font-mono font-bold">
-                    EMS
-                  </span>
-                </div>
+              {/* 描述信息 */}
+              <p className="relative mt-2.5 text-xs leading-relaxed text-muted-foreground">{e.desc}</p>
 
-              </div>
-
-              {/* 描述信息列表 (4 项) */}
-              <div className="space-y-2 text-xs pt-1 text-slate-600 font-sans">
-                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-blue-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-[#1677ff] shrink-0" />
-                  <span className="font-medium text-slate-700">集团-经营单位-项目公司多级指标穿透管控</span>
+              {/* 4 项核心亮点 (双列排列) */}
+              <div className="relative mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                <div className="space-y-1.5">
+                  {e.col1.map((p) => (
+                    <div key={p} className="flex items-center gap-2 text-foreground/90">
+                      <span className="size-1.5 shrink-0 rounded-full bg-primary" />
+                      <span className="truncate">{p}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-blue-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-[#1677ff] shrink-0" />
-                  <span className="font-medium text-slate-700">工厂整体-核心产品-关键工序多维指标分类管理</span>
-                </div>
-                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-blue-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-[#1677ff] shrink-0" />
-                  <span className="font-medium text-slate-700">零碳指标集中监管&绿电运行在线监测</span>
-                </div>
-                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-blue-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-[#1677ff] shrink-0" />
-                  <span className="font-medium text-slate-700">能耗能效多维分析&零碳项目综合评估</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-6">
-              <Link
-                href="/zero-carbon/screen"
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-[#1677ff] to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all group/btn"
-              >
-                <span>进入零碳园区集控中心</span>
-                <ArrowRight className="size-4 group-hover/btn:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-
-          {/* 平台二：产品碳足迹集采中心 */}
-          <div className="group relative rounded-2xl bg-white/90 backdrop-blur-md border border-[#e5e7eb] hover:border-emerald-600 p-6 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden">
-            {/* 卡片右上角装饰光晕 */}
-            <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-emerald-400/20 via-teal-300/10 to-transparent rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform duration-500" />
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="size-13 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/80 border border-emerald-200/80 flex items-center justify-center text-emerald-600 shadow-xs group-hover:scale-105 transition-transform duration-300">
-                  <Leaf className="size-7 text-emerald-600" />
+                <div className="space-y-1.5">
+                  {e.col2.map((p) => (
+                    <div key={p} className="flex items-center gap-2 text-foreground/90">
+                      <span className="size-1.5 shrink-0 rounded-full bg-primary" />
+                      <span className="truncate">{p}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-extrabold text-slate-800 group-hover:text-emerald-600 transition-colors">
-                    产品碳足迹集采中心
-                  </h2>
-                  <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold">
-                    PCF & LCA
-                  </span>
-                </div>
-
-              </div>
-
-              {/* 描述信息列表 (4 项) */}
-              <div className="space-y-2 text-xs pt-1 text-slate-600 font-sans">
-                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-emerald-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span className="font-medium text-slate-700">产品碳足迹在线核算及快速认证</span>
-                </div>
-                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-emerald-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span className="font-medium text-slate-700">碳足迹结果与实测数据的穿透管理</span>
-                </div>
-                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-emerald-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span className="font-medium text-slate-700">构建电工装备产品碳足迹实景数据库</span>
-                </div>
-                <div className="flex items-center gap-2 p-1 rounded-md hover:bg-emerald-50/50 transition-colors">
-                  <span className="size-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span className="font-medium text-slate-700">应对CBAM知识库建设</span>
-                </div>
+              {/* 底部进入操作 */}
+              <div className="relative mt-4 flex items-center justify-between pt-1">
+                <Link
+                  href={e.href}
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 shadow-sm"
+                >
+                  进入平台
+                  <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+                <button
+                  type="button"
+                  className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent/40 cursor-pointer"
+                  aria-label="更多"
+                >
+                  <MoreHorizontal className="size-4" />
+                </button>
               </div>
             </div>
+          ))}
+        </div>
 
-            <div className="pt-6">
-              <Link
-                href="/carbon-footprint/cockpit"
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30 transition-all group/btn"
-              >
-                <span>进入产品碳足迹集采中心</span>
-                <ArrowRight className="size-4 group-hover/btn:translate-x-1 transition-transform" />
-              </Link>
+        {/* 荣誉轮播 */}
+        <div className="mt-6 w-full">
+          <div className="flex items-center gap-3 overflow-hidden rounded-xl border border-border bg-panel px-5 py-2.5 shadow-2xs">
+            <div className="flex items-center gap-2 border-r border-border pr-4 text-xs font-semibold text-primary shrink-0">
+              <Award className="size-4" />
+              荣誉成果
+            </div>
+            <div className="relative h-5 flex-1 overflow-hidden">
+              {honors.map((h, i) => (
+                <p
+                  key={h}
+                  className="absolute inset-0 text-xs text-muted-foreground transition-all duration-500 truncate"
+                  style={{
+                    opacity: i === honorIndex ? 1 : 0,
+                    transform: `translateY(${(i - honorIndex) * 100}%)`,
+                  }}
+                >
+                  {h}
+                </p>
+              ))}
             </div>
           </div>
         </div>
       </main>
 
-      {/* 🌟 5. 底部标准版权栏 */}
-      <footer className="relative z-20 h-12 border-t border-[#e5e7eb]/80 bg-white/90 backdrop-blur-md px-6 flex items-center justify-between text-xs text-slate-500">
-        <div>
-          <span>© 2026 特变电工电气装备集团</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span>原型版本：<strong className="text-slate-800 font-mono font-bold">v1.01 (TBEA Corporate Edition)</strong></span>
-          <span>技术栈：Next.js 16 + React 19 + TypeScript</span>
-        </div>
+      {/* 底部版权 */}
+      <footer className="relative z-10 py-3 text-center text-xs text-muted-foreground/80">
+        特变电工（电装集团）能碳双中心 © 2026 特变电工股份有限公司
       </footer>
     </div>
   )
