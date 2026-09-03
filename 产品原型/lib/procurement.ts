@@ -63,6 +63,19 @@ export function categoriesOf(ind: string, line: string) {
 export function modelsOf(ind: string, line: string, cat: string) {
   return cascade[ind]?.[line]?.[cat] ?? []
 }
+/* ---------- 产品维度聚合（产线已从筛选中移除，类别/型号按产业跨产线聚合） ---------- */
+/** 某产业下全部产品类别（跨产线去重） */
+export function categoriesOfInd(ind: string): string[] {
+  const set = new Set<string>()
+  for (const line of linesOf(ind)) for (const c of categoriesOf(ind, line)) set.add(c)
+  return [...set]
+}
+/** 某产业 + 类别下全部产品型号（跨产线去重） */
+export function modelsOfIndCat(ind: string, cat: string): string[] {
+  const set = new Set<string>()
+  for (const line of linesOf(ind)) for (const m of modelsOf(ind, line, cat)) set.add(m)
+  return [...set]
+}
 /** 某产业下全部型号（红黑榜用） */
 export function allModelsOf(ind: string): { model: string; line: string; category: string }[] {
   const out: { model: string; line: string; category: string }[] = []
@@ -193,6 +206,11 @@ export const unitsByIndustry: Record<string, string[]> = leafUnits.reduce<Record
 }, {})
 export function unitsOf(ind: string) {
   return unitsByIndustry[ind] ?? []
+}
+/* ---------- 项目公司（= 经营单位）筛选选项，含“全部”哨兵 ---------- */
+export const ALL_COMPANIES = '全部项目公司'
+export function projectCompaniesOf(ind: string): string[] {
+  return [ALL_COMPANIES, ...unitsOf(ind)]
 }
 /** 某型号实际有生产记录的经营单位（并非所有单位都生产所有型号，至少保留 3 家） */
 export function producingUnitsOf(model: string, ind: string) {
@@ -368,7 +386,7 @@ export function ordersOf(model: string, unit: string, industry: string): ProdOrd
   })
 }
 
-/* ---------- 主材构成（订单/型号下钻 · 柱状对比） ---------- */
+/* ---------- 主材构成（订单/型号下钻 · 柱状对比��� ---------- */
 export const mainMaterials = ['硅钢片', '电解铜', '绝缘油', '绝缘纸板', '钢结构件']
 export function materialBreakdown(seed: string): { name: string; value: number }[] {
   return mainMaterials.map((name) => ({

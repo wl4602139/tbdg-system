@@ -11,18 +11,19 @@ import {
   UserCog,
   KeyRound,
   LayoutGrid,
-  ClipboardEdit,
   Boxes,
   ScrollText,
   ChevronRight,
   ChevronDown,
+  Zap,
+  Flame,
+  Layers,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { OrgSection } from '@/components/system/sections/org-section'
 import { UserSection } from '@/components/system/sections/user-section'
 import { RoleSection } from '@/components/system/sections/role-section'
 import { MenuSection } from '@/components/system/sections/menu-section'
-import { DataEntrySection } from '@/components/system/sections/data-entry-section'
 import { FactorSection } from '@/components/system/sections/factor-section'
 import { LogSection } from '@/components/system/sections/log-section'
 
@@ -42,8 +43,16 @@ const MENU: Group[] = [
       { id: 'menu', title: '菜单与功能', icon: LayoutGrid },
     ],
   },
-  { id: 'data-entry', title: '数据录入', icon: ClipboardEdit },
-  { id: 'factor', title: '能碳基础因子管理', icon: Boxes },
+  {
+    id: 'factor',
+    title: '能碳基础因子管理',
+    icon: Boxes,
+    children: [
+      { id: 'factor-power', title: '电力碳排因子', icon: Zap },
+      { id: 'factor-energy', title: '能源活动碳排因子', icon: Flame },
+      { id: 'factor-coal', title: '折标煤系数库', icon: Layers },
+    ],
+  },
   { id: 'log', title: '日志管理', icon: ScrollText },
 ]
 
@@ -53,8 +62,9 @@ const CRUMB: Record<string, { group: string; page: string }> = {
   user: { group: '权限管控', page: '用户管理' },
   role: { group: '权限管控', page: '角色与权限' },
   menu: { group: '权限管控', page: '菜单与功能' },
-  'data-entry': { group: '系统管理', page: '数据录入' },
-  factor: { group: '系统管理', page: '能碳基础因子管理' },
+  'factor-power': { group: '能碳基础因子管理', page: '电力碳排因子' },
+  'factor-energy': { group: '能碳基础因子管理', page: '能源活动碳排因子' },
+  'factor-coal': { group: '能碳基础因子管理', page: '折标煤系数库' },
   log: { group: '系统管理', page: '日志管理' },
 }
 
@@ -201,8 +211,9 @@ export function SystemView() {
           {active === 'user' && <UserSection />}
           {active === 'role' && <RoleSection />}
           {active === 'menu' && <MenuSection />}
-          {active === 'data-entry' && <DataEntrySection />}
-          {active === 'factor' && <FactorSection />}
+          {active === 'factor-power' && <FactorSection sub="power" />}
+          {active === 'factor-energy' && <FactorSection sub="energy" />}
+          {active === 'factor-coal' && <FactorSection sub="coal" />}
           {active === 'log' && <LogSection />}
         </main>
       </div>

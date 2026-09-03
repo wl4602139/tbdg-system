@@ -7,8 +7,9 @@ import { CascadeFilter, TimeFilter, initCascade, type CascadeSel } from '@/compo
 import { Select } from '@/components/shared/select'
 import { Donut, donutColors } from '@/components/shared/charts'
 import { DataTraceModal } from '@/components/database/data-trace-modal'
+import { ProductEnergyTab, OrderEnergyTab, type EnergyJump } from '@/components/database/energy-view'
 import { modelAccounting, accountingAverage, stageBreakdown, processCarbon, materialCarbon } from '@/lib/accounting'
-import { featureOf, transformerSpec, ordersOf, industries, linesOf, categoriesOf, modelsOf } from '@/lib/procurement'
+import { featureOf, transformerSpec, ordersOf, industries, categoriesOfInd, modelsOfIndCat, ALL_COMPANIES } from '@/lib/procurement'
 import { Cloud, Layers, Boxes, Link2, Search, RotateCcw, ChevronRight } from 'lucide-react'
 
 const stageLabel: Record<string, string> = {
@@ -103,17 +104,23 @@ function UnitDetail({ model, industry, unit }: { model: string; industry: string
 }
 
 /* ============================ 产品碳足迹展示 Tab ============================ */
-function ProductTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, order: string) => void }) {
-  const [draft, setDraft] = useState<CascadeSel>(() => initCascade('变压器'))
+function ProductTab({ onJump, initial, initUnit }: { onJump: (sel: CascadeSel, unit: string, order: string) => void; initial?: CascadeSel; initUnit?: string }) {
+  const [draft, setDraft] = useState<CascadeSel>(() => initial ?? initCascade('变压器'))
   const [dFrom, setDFrom] = useState(DEFAULT_FROM)
   const [dTo, setDTo] = useState(DEFAULT_TO)
-  const [applied, setApplied] = useState<CascadeSel>(() => initCascade('变压器'))
+  const [applied, setApplied] = useState<CascadeSel>(() => initial ?? initCascade('变压器'))
   const [traceOpen, setTraceOpen] = useState(false)
 
-  const rows = useMemo(() => modelAccounting(applied.model, applied.ind), [applied.model, applied.ind])
+  const allRows = useMemo(() => modelAccounting(applied.model, applied.ind), [applied.model, applied.ind])
+  /* 项目公司范围筛选：选中具体公司时仅保留该经营单位（无匹配则回退全部） */
+  const rows = useMemo(() => {
+    if (applied.company === ALL_COMPANIES) return allRows
+    const scoped = allRows.filter((r) => r.unit === applied.company)
+    return scoped.length ? scoped : allRows
+  }, [allRows, applied.company])
   const avg = useMemo(() => accountingAverage(applied.model, applied.ind), [applied.model, applied.ind])
-  const ranked = useMemo(() => [...rows].sort((a, b) => b.perUnit - a.perUnit), [rows])
-  const [selUnit, setSelUnit] = useState<string>('')
+  const ranked = useMemo(() => [...rows].sort((a, b) => b.perUnit - a.perUnit).slice(0, 5), [rows])
+  const [selUnit, setSelUnit] = useState<string>(initUnit ?? '')
   const focusUnit = selUnit && rows.some((r) => r.unit === selUnit) ? selUnit : (rows.find((r) => !r.isProject)?.unit ?? rows[0].unit)
 
   const avgStages = useMemo(() => stageBreakdown(avg.perUnit), [avg.perUnit])
@@ -203,7 +210,7 @@ function ProductTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, order:
       </Panel>
 
       {/* 各经营单位碳排数据总量排名（可点击） */}
-      <Panel title={`各经营单位碳排总量排名 · ${applied.model}`} desc="按单台产品碳足迹从高到低排名；点击经营单位查看其明细与订单">
+      <Panel title={`各经营单位碳排总量排名 · ${applied.model}`} desc="按单台产品碳足迹从高到低排名，最多展示前 5 家；点击经营单位查看其明细与订单">
         <div className="space-y-1.5">
           {ranked.map((r, i) => {
             const active = r.unit === focusUnit
@@ -300,11 +307,6 @@ function OrderTab({ jump }: { jump: OrderJump | null }) {
   function setInd(ind: string) {
     applySel(initCascade(ind))
   }
-  function setLine(line: string) {
-    const cat = categoriesOf(sel.ind, line)[0]
-    const model = modelsOf(sel.ind, line, cat)[0]
-    applySel({ ind: sel.ind, line, cat, model })
-  }
 
   const feat = featureOf(sel.model)
   const perUnitKg = Math.round((plan?.perUnit ?? order?.perUnit ?? 0) * 1000 * 100) / 100
@@ -332,7 +334,6 @@ function OrderTab({ jump }: { jump: OrderJump | null }) {
       <Panel className="relative z-30" title="订单碳足迹追溯">
         <div className="flex flex-wrap items-end gap-3">
           <Select label="产业" value={sel.ind} onChange={setInd} options={industries.map((v) => ({ label: v, value: v }))} />
-          <Select label="产线" value={sel.line} onChange={setLine} options={linesOf(sel.ind).map((v) => ({ label: v, value: v }))} />
           <Select label="经营单位" value={unit} onChange={(u) => { setUnit(u); const no = ordersOf(sel.model, u, sel.ind); setOrderId(no[0]?.order ?? ''); setPlanId(no[0]?.plans[0]?.plan ?? '') }} options={modelAccounting(sel.model, sel.ind).map((r) => ({ label: r.unit, value: r.unit }))} />
           {/* 时间控件放在产品订单前面 */}
           <TimeFilter from={dFrom} to={dTo} onFrom={setDFrom} onTo={setDTo} />
@@ -432,41 +433,60 @@ function OrderTab({ jump }: { jump: OrderJump | null }) {
   )
 }
 
-/* ============================ 外层：Tab 容器 ============================ */
+/* ============================ 外层：Tab 容器（4 页签） ============================ */
 export function AccountingView() {
   const searchParams = useSearchParams()
-  /* 外部深链：?view=order&ind=&line=&cat=&model=&unit=&order= 直接打开订单碳足迹追溯 */
+  /* 外部深链：?view=order&... 直接打开订单碳足迹追溯 */
   const linkedJump = useMemo<OrderJump | null>(() => {
     if (searchParams.get('view') !== 'order') return null
     const ind = searchParams.get('ind') ?? '变压器'
-    const line = searchParams.get('line') ?? linesOf(ind)[0]
-    const cat = searchParams.get('cat') ?? categoriesOf(ind, line)[0]
-    const model = searchParams.get('model') ?? modelsOf(ind, line, cat)[0]
+    const cat = searchParams.get('cat') ?? categoriesOfInd(ind)[0]
+    const model = searchParams.get('model') ?? modelsOfIndCat(ind, cat)[0]
     const unit = searchParams.get('unit') ?? ''
     const order = searchParams.get('order') ?? ''
-    return { sel: { ind, line, cat, model }, unit, order }
+    return { sel: { ind, company: ALL_COMPANIES, cat, model }, unit, order }
+  }, [searchParams])
+
+  /* 实景数据库「因子详情」深链：?ind=&cat=&model=&unit= 打开产品碳足迹(型号)并定位单位 */
+  const productLink = useMemo<{ sel: CascadeSel; unit: string } | null>(() => {
+    if (searchParams.get('view') === 'order') return null
+    const model = searchParams.get('model')
+    if (!model) return null
+    const ind = searchParams.get('ind') ?? '变压器'
+    const cat = searchParams.get('cat') ?? categoriesOfInd(ind)[0]
+    const unit = searchParams.get('unit') ?? ''
+    return { sel: { ind, company: ALL_COMPANIES, cat, model }, unit }
   }, [searchParams])
 
   const [tab, setTab] = useState(linkedJump ? 'order' : 'product')
   const [jump, setJump] = useState<OrderJump | null>(linkedJump)
+  const [energyJump, setEnergyJump] = useState<EnergyJump | null>(null)
 
   function handleJump(sel: CascadeSel, unit: string, order: string) {
     setJump({ sel, unit, order })
     setTab('order')
+  }
+  function handleEnergyJump(sel: CascadeSel, unit: string, order: string) {
+    setEnergyJump({ sel, unit, order })
+    setTab('energy-order')
   }
 
   return (
     <div className="space-y-4">
       <Tabs
         tabs={[
-          { key: 'product', label: '产品碳足迹展示' },
-          { key: 'order', label: '订单碳足迹追溯' },
+          { key: 'product', label: '产品碳足迹（型号）' },
+          { key: 'order', label: '产品碳足迹（订单）' },
+          { key: 'energy-product', label: '产品用能分析' },
+          { key: 'energy-order', label: '订单能耗追溯' },
         ]}
         value={tab}
         onChange={setTab}
       />
-      {tab === 'product' && <ProductTab onJump={handleJump} />}
+      {tab === 'product' && <ProductTab onJump={handleJump} initial={productLink?.sel} initUnit={productLink?.unit} />}
       {tab === 'order' && <OrderTab key={jump ? `${jump.unit}|${jump.order}` : 'default'} jump={jump} />}
+      {tab === 'energy-product' && <ProductEnergyTab onJump={handleEnergyJump} />}
+      {tab === 'energy-order' && <OrderEnergyTab key={energyJump ? `${energyJump.unit}|${energyJump.order}` : 'default'} jump={energyJump} />}
     </div>
   )
 }

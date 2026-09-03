@@ -110,8 +110,8 @@ export const carbonFootprintNav: NavItem[] = [
     href: '/carbon-footprint/database',
     icon: Database,
     children: [
+      { title: '实景数据库', href: '/carbon-footprint/database/realscene' },
       { title: '碳足迹核算', href: '/carbon-footprint/database/accounting' },
-      { title: '能耗追踪', href: '/carbon-footprint/database/energy' },
       { title: '碳足迹报告', href: '/carbon-footprint/database/report' },
     ],
   },

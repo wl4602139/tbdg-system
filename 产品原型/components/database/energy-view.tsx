@@ -1,12 +1,13 @@
 'use client'
 
-/* 能耗追踪：产品用能分析 / 订单能耗追溯 两页签
- * 结构与交互对齐「碳足迹核算」，仅将碳排数据替换为能耗数据 */
+/* 能耗页签：产品用能分析 / 订单能耗追溯
+ * 展示形式回滚为「能耗(单台)环形图 + 生产制造用能分析(工序流) + 能源计量卡」，
+ * 数据追踪由订单级细化到工序级；能力不变，作为碳足迹核算的两个页签复用。 */
 import { useMemo, useState } from 'react'
-import { Panel, KpiCard, Tabs } from '@/components/shared/primitives'
+import { Panel, KpiCard } from '@/components/shared/primitives'
 import { CascadeFilter, TimeFilter, initCascade, type CascadeSel } from '@/components/procurement/cascade-filter'
 import { Select } from '@/components/shared/select'
-import { Donut, donutColors } from '@/components/shared/charts'
+import { Donut } from '@/components/shared/charts'
 import { EnergyTraceModal } from '@/components/database/energy-trace-modal'
 import {
   modelEnergy,
@@ -15,164 +16,151 @@ import {
   energyStages,
   orderEnergyDetail,
 } from '@/lib/accounting'
-import { featureOf, ordersOf, transformerSpec, industries, linesOf, categoriesOf, modelsOf } from '@/lib/procurement'
-import { Zap, Plug, Leaf, Boxes, Link2, Search, RotateCcw, ChevronRight } from 'lucide-react'
+import { featureOf, ordersOf, transformerSpec, industries, ALL_COMPANIES } from '@/lib/procurement'
+import { Zap, Plug, Leaf, Wind, Boxes, Link2, Search, RotateCcw, ChevronRight, Gauge } from 'lucide-react'
 
 const DEFAULT_FROM = '2026-06'
 const DEFAULT_TO = '2026-08'
 
-/* ============ 通用用能三栏明细（用能阶段占比/能源类型构成/生产制造用能） ============ */
-/* stages/energyRows 为已算好的数据，产品与订单两处复用同一表达 */
-function EnergyDetailGrid({
+/* ============ 回滚版布局：能耗(单台)环形图 + 生产制造用能分析(工序流+计量卡) ============ */
+function EnergyProcessLayout({
   suffix,
+  perUnitKgce,
   stages,
   energyRows,
 }: {
   suffix: string
+  perUnitKgce: number
   stages: ReturnType<typeof energyStages>
   energyRows: ReturnType<typeof orderEnergyDetail>
 }) {
-  const stagesColored = stages.map((s, i) => ({ ...s, color: donutColors[i % donutColors.length] }))
-  const totalKgce = stages.reduce((s, x) => s + x.kgce, 0) || 1
-  const energyTotal = energyRows.reduce((s, x) => s + x.kgce, 0) || 1
-  const maxProc = Math.max(...stages.map((s) => s.kgce))
+  const totalGrid = Math.round(stages.reduce((s, x) => s + x.gridKwh, 0) * 10) / 10
+  const totalGreen = Math.round(stages.reduce((s, x) => s + x.greenKwh, 0) * 10) / 10
+  const totalKwh = Math.round((totalGrid + totalGreen) * 10) / 10
+  const air = energyRows.find((r) => r.type === '压缩空气')
+  const gridPct = totalKwh > 0 ? (totalGrid / totalKwh) * 100 : 0
+  const greenPct = totalKwh > 0 ? (totalGreen / totalKwh) * 100 : 0
+
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      {/* 用能阶段占比：饼图 + 图例/数值/占比列表 */}
-      <Panel title={`用能阶段占比 · ${suffix}`} desc="单台产品各生产单元综合能耗（kgce）">
-        <Donut data={stagesColored.map((s) => ({ name: s.name, value: s.kgce, color: s.color }))} showLegend={false} unit=" kgce" />
-        <div className="mt-4 space-y-2">
-          {stagesColored.map((s) => (
-            <div key={s.name} className="flex items-center gap-2 text-sm">
-              <span className="size-2.5 shrink-0 rounded-sm" style={{ background: s.color }} />
-              <span className="flex-1 text-muted-foreground">{s.name}</span>
-              <span className="font-mono text-foreground">{s.kgce}</span>
-              <span className="w-12 text-right font-mono text-xs text-muted-foreground">{((s.kgce / totalKgce) * 100).toFixed(1)}%</span>
+    <div className="space-y-4">
+      {/* 上：能耗（单台）— 环形图 + 能源计量卡（占用较窄空间） */}
+      <Panel title="能耗（单台）" desc={suffix}>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr] lg:items-center">
+          <div>
+            <Donut
+              data={[
+                { name: '市电', value: totalGrid, color: 'var(--chart-1)' },
+                { name: '绿电', value: totalGreen, color: 'var(--success)' },
+              ]}
+              unit=" kWh"
+              height={200}
+            />
+            <div className="mt-1 text-center text-xs text-muted-foreground">
+              单台综合能耗 <span className="font-mono text-foreground">{perUnitKgce.toLocaleString()}</span> kgce
             </div>
-          ))}
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <MetricCard icon={Gauge} label="综合能耗" value={perUnitKgce.toLocaleString()} unit="kgce" />
+            <MetricCard icon={Zap} label="总电量" value={totalKwh.toLocaleString()} unit="kWh" />
+            <MetricCard icon={Plug} label="市电" value={totalGrid.toLocaleString()} unit="kWh" foot={`占比 ${gridPct.toFixed(1)}%`} tone="grid" />
+            <MetricCard icon={Leaf} label="绿电" value={totalGreen.toLocaleString()} unit="kWh" foot={`占比 ${greenPct.toFixed(1)}%`} tone="green" />
+            <MetricCard icon={Wind} label="压缩空气" value={air ? air.amount.toLocaleString() : '—'} unit={air?.unit ?? 'Nm³'} />
+          </div>
         </div>
       </Panel>
 
-      {/* 能源类型构成：市电/绿电/压缩空气/天然气 折标占比 */}
-      <Panel title="能源类型构成" desc="各能源折标准煤量（kgce）及占比">
-        <div className="space-y-2.5">
-          {energyRows.map((m) => (
-            <div key={m.type} className="flex items-center gap-2">
-              <span className="w-20 truncate text-sm text-foreground">{m.type}</span>
-              <div className="h-3.5 flex-1 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-[linear-gradient(90deg,var(--chart-3),var(--chart-1))]"
-                  style={{ width: `${Math.max((m.kgce / energyTotal) * 100, 3)}%` }}
-                />
-              </div>
-              <span className="w-16 text-right font-mono text-xs text-foreground">{m.kgce}</span>
-              <span className="w-12 text-right text-xs text-muted-foreground">{((m.kgce / energyTotal) * 100).toFixed(1)}%</span>
-            </div>
-          ))}
-        </div>
-        <div className="mt-3 text-[11px] text-muted-foreground">用量：{energyRows.map((m) => `${m.type} ${m.amount}${m.unit}`).join(' · ')}</div>
-      </Panel>
-
-      {/* 生产制造用能：各生产单元 kgce + 市电/绿电 */}
-      <Panel title="生产制造用能" desc="各生产单元综合能耗及市电/绿电用量">
-        <div className="space-y-2.5">
+      {/* 下：生产制造用能分析（工序流，占满整宽，给流程更宽的空间） */}
+      <Panel title="生产制造用能分析" desc="各生产单元综合能耗（kgce）与市电/绿电用量（kWh）">
+        <div className="flex items-stretch gap-2 overflow-x-auto pb-2">
+          <div className="flex shrink-0 items-center justify-center rounded-lg border border-border bg-secondary/40 px-3 text-sm text-muted-foreground">
+            开始
+          </div>
           {stages.map((p) => (
-            <div key={p.name} className="rounded-lg border border-border bg-secondary/40 p-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">{p.name}</span>
-                <span className="font-mono text-sm text-primary">
-                  {p.kgce} <span className="text-xs text-muted-foreground">kgce · {(p.ratio * 100).toFixed(1)}%</span>
-                </span>
-              </div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                <div className="h-full rounded-full bg-[linear-gradient(90deg,var(--chart-1),var(--primary))]" style={{ width: `${Math.max((p.kgce / maxProc) * 100, 3)}%` }} />
-              </div>
-              <div className="mt-1.5 flex gap-4 text-[11px] text-muted-foreground">
-                <span>市电 <span className="font-mono text-[var(--chart-1)]">{p.gridKwh}</span> kWh</span>
-                <span>绿电 <span className="font-mono text-[var(--success)]">{p.greenKwh}</span> kWh</span>
+            <div key={p.name} className="flex flex-1 items-center gap-2">
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+              <div className="min-w-40 flex-1 rounded-lg border border-border bg-card p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-foreground">{p.name}</span>
+                  <span className="font-mono text-xs text-muted-foreground">{(p.ratio * 100).toFixed(1)}%</span>
+                </div>
+                <div className="mt-1 font-mono text-xl font-semibold text-primary">
+                  {p.kgce}
+                  <span className="ml-1 text-xs font-normal text-muted-foreground">kgce</span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div className="h-full rounded-full bg-[linear-gradient(90deg,var(--chart-1),var(--primary))]" style={{ width: `${Math.max(p.ratio * 100, 3)}%` }} />
+                </div>
+                <div className="mt-2 space-y-0.5 text-[11px] text-muted-foreground">
+                  <div className="flex justify-between"><span>市电</span><span className="font-mono text-[var(--chart-1)]">{p.gridKwh} kWh</span></div>
+                  <div className="flex justify-between"><span>绿电</span><span className="font-mono text-[var(--success)]">{p.greenKwh} kWh</span></div>
+                </div>
               </div>
             </div>
           ))}
+          <div className="flex items-center gap-2">
+            <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+            <div className="flex shrink-0 items-center justify-center rounded-lg border border-border bg-secondary/40 px-3 text-sm text-muted-foreground">
+              结束
+            </div>
+          </div>
         </div>
       </Panel>
     </div>
   )
 }
 
-/* 单台总量 + 用能阶段条（对齐核算的「型号均值·生命周期阶段构成」） */
-function EnergyTotalBar({
-  title,
-  perUnitKgce,
-  perFeatureKgce,
-  featureUnit,
-  stages,
-  showFeature = false,
+function MetricCard({
+  icon: Icon,
+  label,
+  value,
+  unit,
+  foot,
+  tone,
 }: {
-  title: string
-  perUnitKgce: number
-  perFeatureKgce: number
-  featureUnit: string
-  stages: ReturnType<typeof energyStages>
-  showFeature?: boolean
+  icon: typeof Zap
+  label: string
+  value: string
+  unit: string
+  foot?: string
+  tone?: 'grid' | 'green'
 }) {
-  const total = stages.reduce((s, x) => s + x.kgce, 0) || 1
   return (
-    <Panel title={title} desc="基于综合能耗折标准煤（kgce）的单台产品用能构成">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
-        <div className="flex shrink-0 gap-3">
-          <div className="rounded-xl border border-primary/30 bg-primary/5 px-6 py-4 text-center">
-            <div className="text-xs text-muted-foreground">单台综合能耗{showFeature ? '' : '均值'}</div>
-            <div className="mt-1 font-mono text-3xl font-semibold text-primary text-glow">{perUnitKgce.toLocaleString()}</div>
-            <div className="text-xs text-muted-foreground">kgce / 台</div>
-          </div>
-          <div className="rounded-xl border border-border bg-secondary/40 px-6 py-4 text-center">
-            <div className="text-xs text-muted-foreground">单位产品能耗</div>
-            <div className="mt-1 font-mono text-3xl font-semibold text-foreground">{perFeatureKgce.toFixed(4)}</div>
-            <div className="text-xs text-muted-foreground">kgce / {featureUnit}</div>
-          </div>
-        </div>
-        <div className="flex-1 space-y-2.5">
-          {stages.map((s) => {
-            const ratio = s.kgce / total
-            return (
-              <div key={s.name} className="flex items-center gap-3">
-                <span className="w-20 shrink-0 text-sm text-muted-foreground">{s.name}</span>
-                <div className="h-5 flex-1 overflow-hidden rounded-md bg-muted">
-                  <div className="flex h-full items-center rounded-md bg-[linear-gradient(90deg,var(--chart-3),var(--primary))] px-2" style={{ width: `${Math.max(ratio * 100, 6)}%` }}>
-                    <span className="font-mono text-[10px] text-primary-foreground">{(ratio * 100).toFixed(0)}%</span>
-                  </div>
-                </div>
-                <span className="w-24 shrink-0 text-right font-mono text-sm text-foreground">
-                  {s.kgce}
-                  <span className="ml-1 text-[10px] text-muted-foreground">kgce</span>
-                </span>
-              </div>
-            )
-          })}
-        </div>
+    <div className="rounded-lg border border-border bg-secondary/40 p-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        <Icon className={`size-4 ${tone === 'green' ? 'text-[var(--success)]' : tone === 'grid' ? 'text-[var(--chart-1)]' : 'text-primary'}`} />
       </div>
-    </Panel>
+      <div className="mt-1.5 font-mono text-2xl font-semibold text-foreground">
+        {value}
+        <span className="ml-1 text-xs font-normal text-muted-foreground">{unit}</span>
+      </div>
+      {foot ? <div className="mt-0.5 text-[11px] text-muted-foreground">{foot}</div> : null}
+    </div>
   )
 }
 
 /* ============================ 产品用能分析 Tab ============================ */
-function ProductEnergyTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, order: string) => void }) {
+export function ProductEnergyTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, order: string) => void }) {
   const [draft, setDraft] = useState<CascadeSel>(() => initCascade('变压器'))
   const [dFrom, setDFrom] = useState(DEFAULT_FROM)
   const [dTo, setDTo] = useState(DEFAULT_TO)
   const [applied, setApplied] = useState<CascadeSel>(() => initCascade('变压器'))
   const [traceOpen, setTraceOpen] = useState(false)
 
-  const rows = useMemo(() => modelEnergy(applied.model, applied.ind), [applied.model, applied.ind])
+  const allRows = useMemo(() => modelEnergy(applied.model, applied.ind), [applied.model, applied.ind])
+  const rows = useMemo(() => {
+    if (applied.company === ALL_COMPANIES) return allRows
+    const scoped = allRows.filter((r) => r.unit === applied.company)
+    return scoped.length ? scoped : allRows
+  }, [allRows, applied.company])
   const avg = useMemo(() => energyAverage(applied.model, applied.ind), [applied.model, applied.ind])
-  const ranked = useMemo(() => [...rows].sort((a, b) => b.perUnitKgce - a.perUnitKgce), [rows])
+  const ranked = useMemo(() => [...rows].sort((a, b) => b.perUnitKgce - a.perUnitKgce).slice(0, 5), [rows])
   const [selUnit, setSelUnit] = useState<string>('')
   const focusUnit = selUnit && rows.some((r) => r.unit === selUnit) ? selUnit : (rows.find((r) => !r.isProject)?.unit ?? rows[0]?.unit ?? '')
 
   const focusPerUnit = rows.find((r) => r.unit === focusUnit)?.perUnitKgce ?? avg.perUnitKgce
   const focusPerFeat = rows.find((r) => r.unit === focusUnit)?.perFeatureKgce ?? avg.perFeatureKgce
   const seed = `${applied.model}|${focusUnit}|acct-e`
-  const avgStages = useMemo(() => energyStages(`${applied.model}|avg-e`, avg.perUnitKgce), [applied.model, avg.perUnitKgce])
   const focusStages = useMemo(() => energyStages(seed, focusPerUnit), [seed, focusPerUnit])
   const focusEnergyRows = useMemo(() => orderEnergyDetail(`${seed}|oe`), [seed])
   const orders = useMemo(() => ordersOf(applied.model, focusUnit, applied.ind), [applied.model, focusUnit, applied.ind])
@@ -205,7 +193,6 @@ function ProductEnergyTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, 
         </CascadeFilter>
       </Panel>
 
-      {/* KPI：综合能耗均值 / 单位产品能耗 / 特征量（变压器展示电压+容量） */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <KpiCard label="综合能耗（单台·均值）" value={avg.perUnitKgce.toLocaleString()} unit="kgce" icon={Zap} />
         <KpiCard label="单位产品能耗（均值）" value={avg.perFeatureKgce.toFixed(4)} unit={`kgce/${avg.featureUnit}`} icon={Plug} />
@@ -232,17 +219,8 @@ function ProductEnergyTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, 
         )}
       </div>
 
-      {/* 型号均值 · 用能阶段构成 */}
-      <EnergyTotalBar
-        title={`型号均值 · 用能阶段构成 · ${applied.model}`}
-        perUnitKgce={avg.perUnitKgce}
-        perFeatureKgce={avg.perFeatureKgce}
-        featureUnit={avg.featureUnit}
-        stages={avgStages}
-      />
-
-      {/* 各经营单位综合能耗总量排名 */}
-      <Panel title={`各经营单位综合能耗排名 · ${applied.model}`} desc="按单台综合能耗从高到低排名；点击经营单位查看其明细与订单">
+      {/* 各经营单位综合能耗排名（点击切换焦点单位） */}
+      <Panel title={`各经营单位综合能耗排名 · ${applied.model}`} desc="按单台综合能耗从高到低排名，最多展示前 5 家；点击经营单位查看其工序用能明细">
         <div className="space-y-1.5">
           {ranked.map((r, i) => {
             const active = r.unit === focusUnit
@@ -254,9 +232,7 @@ function ProductEnergyTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, 
                 className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors ${active ? 'border-primary/50 bg-primary/10' : 'border-transparent hover:border-border hover:bg-accent/40'}`}
               >
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">{i + 1}</span>
-                <div className="flex w-32 shrink-0 items-center gap-1.5">
-                  <span className="truncate text-sm text-foreground">{r.unit}</span>
-                </div>
+                <span className="w-32 shrink-0 truncate text-sm text-foreground">{r.unit}</span>
                 <div className="h-4 flex-1 overflow-hidden rounded-full bg-muted">
                   <div className="h-full rounded-full" style={{ width: `${Math.max((r.perUnitKgce / maxPerUnit) * 100, 4)}%`, background: 'linear-gradient(90deg,var(--chart-1),var(--primary))' }} />
                 </div>
@@ -271,8 +247,8 @@ function ProductEnergyTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, 
         </div>
       </Panel>
 
-      {/* 经营单位用能明细区块：下钻明细 + 数据追踪 */}
-      <section className="relative space-y-4 rounded-2xl border border-primary/25 bg-primary/[0.03] p-4 shadow-[0_0_0_1px_var(--primary)/10,0_8px_30px_-12px_var(--primary)]">
+      {/* 经营单位工序用能明细 + 数据追踪 */}
+      <section className="relative space-y-4 rounded-2xl border border-primary/25 bg-primary/[0.03] p-4">
         <span className="pointer-events-none absolute inset-x-0 -top-px mx-auto h-px w-2/3 bg-[linear-gradient(90deg,transparent,var(--primary),transparent)]" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -280,7 +256,7 @@ function ProductEnergyTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, 
             <h3 className="text-sm font-semibold text-foreground">
               经营单位用能明细 · <span className="text-primary">{focusUnit}</span>
             </h3>
-            <span className="text-xs text-muted-foreground">{applied.model} · 同一查询结果</span>
+            <span className="text-xs text-muted-foreground">{applied.model} · 工序能耗追踪</span>
           </div>
           <button
             type="button"
@@ -291,7 +267,7 @@ function ProductEnergyTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, 
           </button>
         </div>
 
-        <EnergyDetailGrid suffix={focusUnit} stages={focusStages} energyRows={focusEnergyRows} />
+        <EnergyProcessLayout suffix={`${focusUnit} · ${applied.model}`} perUnitKgce={focusPerUnit} stages={focusStages} energyRows={focusEnergyRows} />
       </section>
 
       <EnergyTraceModal
@@ -316,7 +292,7 @@ function ProductEnergyTab({ onJump }: { onJump: (sel: CascadeSel, unit: string, 
 /* ============================ 订单能耗追溯 Tab ============================ */
 export type EnergyJump = { sel: CascadeSel; unit: string; order: string }
 
-function OrderEnergyTab({ jump }: { jump: EnergyJump | null }) {
+export function OrderEnergyTab({ jump }: { jump: EnergyJump | null }) {
   const initSel = jump?.sel ?? initCascade('变压器')
   const [sel, setSel] = useState<CascadeSel>(initSel)
   const [dFrom, setDFrom] = useState(DEFAULT_FROM)
@@ -340,17 +316,11 @@ function OrderEnergyTab({ jump }: { jump: EnergyJump | null }) {
   function setInd(ind: string) {
     applySel(initCascade(ind))
   }
-  function setLine(line: string) {
-    const cat = categoriesOf(sel.ind, line)[0]
-    const model = modelsOf(sel.ind, line, cat)[0]
-    applySel({ ind: sel.ind, line, cat, model })
-  }
 
   const feat = featureOf(sel.model)
   const seed = `${sel.model}|${unit}|${planId}`
   const prof = useMemo(() => energyProfile(sel.model, seed), [sel.model, seed])
   const perUnitKgce = prof.totalKgce
-  const perFeatureKgce = prof.perFeatureKgce
   const stages = useMemo(() => energyStages(seed, perUnitKgce), [seed, perUnitKgce])
   const energyRows = useMemo(() => orderEnergyDetail(`${seed}|oe`), [seed])
   const orderTrSpec = sel.ind === '变压器' ? transformerSpec(sel.model) : null
@@ -363,10 +333,9 @@ function OrderEnergyTab({ jump }: { jump: EnergyJump | null }) {
 
   return (
     <div className="space-y-4">
-      <Panel className="relative z-30" title="订单能耗追溯">
+      <Panel className="relative z-30" title="订单能耗追溯" desc="将产品能耗拆分至订单与生产计划级别，追溯批次工序用能">
         <div className="flex flex-wrap items-end gap-3">
           <Select label="产业" value={sel.ind} onChange={setInd} options={industries.map((v) => ({ label: v, value: v }))} />
-          <Select label="产线" value={sel.line} onChange={setLine} options={linesOf(sel.ind).map((v) => ({ label: v, value: v }))} />
           <Select label="经营单位" value={unit} onChange={(u) => { setUnit(u); const no = ordersOf(sel.model, u, sel.ind); setOrderId(no[0]?.order ?? ''); setPlanId(no[0]?.plans[0]?.plan ?? '') }} options={modelEnergy(sel.model, sel.ind).map((r) => ({ label: r.unit, value: r.unit }))} />
           <TimeFilter from={dFrom} to={dTo} onFrom={setDFrom} onTo={setDTo} />
           <Select label="产品订单" value={orderId} onChange={(o) => { setOrderId(o); const no = orders.find((x) => x.order === o); setPlanId(no?.plans[0]?.plan ?? '') }} options={orders.map((o) => ({ label: o.order, value: o.order }))} />
@@ -380,7 +349,7 @@ function OrderEnergyTab({ jump }: { jump: EnergyJump | null }) {
         </div>
       </Panel>
 
-      {/* 计划信息条：去客户；变压器展示电压等级+容量 */}
+      {/* 计划信息条 */}
       <div className="flex flex-wrap items-center gap-x-8 gap-y-2 rounded-xl border border-border bg-card px-5 py-3 text-sm">
         <span className="font-mono text-base font-semibold text-primary">{planId}</span>
         <span className="text-muted-foreground">生产计划周期 <span className="text-foreground">{plan?.window}</span></span>
@@ -396,26 +365,16 @@ function OrderEnergyTab({ jump }: { jump: EnergyJump | null }) {
         )}
       </div>
 
-      {/* 综合能耗（单台）：与产品用能分析的「型号均值」块布局一致 */}
-      <EnergyTotalBar
-        title={`综合能耗（单台） · ${planId}`}
-        perUnitKgce={perUnitKgce}
-        perFeatureKgce={perFeatureKgce}
-        featureUnit={feat.unit}
-        stages={stages}
-        showFeature
-      />
-
-      {/* 订单/生产计划用能明细：与产品用能分析下方一致的三栏 + 数据追踪 */}
-      <section className="relative space-y-4 rounded-2xl border border-primary/25 bg-primary/[0.03] p-4 shadow-[0_0_0_1px_var(--primary)/10,0_8px_30px_-12px_var(--primary)]">
+      {/* 工序用能明细 + 数据追踪 */}
+      <section className="relative space-y-4 rounded-2xl border border-primary/25 bg-primary/[0.03] p-4">
         <span className="pointer-events-none absolute inset-x-0 -top-px mx-auto h-px w-2/3 bg-[linear-gradient(90deg,transparent,var(--primary),transparent)]" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="h-4 w-1 rounded-full bg-primary" />
             <h3 className="text-sm font-semibold text-foreground">
-              订单用能明细 · <span className="text-primary">{orderId}</span>
+              订单工序用能明细 · <span className="text-primary">{orderId}</span>
             </h3>
-            <span className="text-xs text-muted-foreground">{planId} · 生产计划</span>
+            <span className="text-xs text-muted-foreground">{planId} · 工序能耗追踪</span>
           </div>
           <button
             type="button"
@@ -426,7 +385,7 @@ function OrderEnergyTab({ jump }: { jump: EnergyJump | null }) {
           </button>
         </div>
 
-        <EnergyDetailGrid suffix={planId} stages={stages} energyRows={energyRows} />
+        <EnergyProcessLayout suffix={`${orderId} · ${planId}`} perUnitKgce={perUnitKgce} stages={stages} energyRows={energyRows} />
       </section>
 
       <EnergyTraceModal
@@ -435,37 +394,11 @@ function OrderEnergyTab({ jump }: { jump: EnergyJump | null }) {
         model={sel.model}
         unit={unit}
         perUnitKgce={perUnitKgce}
-        perFeatureKgce={perFeatureKgce}
+        perFeatureKgce={prof.perFeatureKgce}
         stages={stages}
         energyRows={energyRows}
         subtitle={`${unit} · ${orderId} · ${planId}`}
       />
-    </div>
-  )
-}
-
-/* ============================ 外层：Tab 容器 ============================ */
-export function EnergyView() {
-  const [tab, setTab] = useState('product')
-  const [jump, setJump] = useState<EnergyJump | null>(null)
-
-  function handleJump(sel: CascadeSel, unit: string, order: string) {
-    setJump({ sel, unit, order })
-    setTab('order')
-  }
-
-  return (
-    <div className="space-y-4">
-      <Tabs
-        tabs={[
-          { key: 'product', label: '产品用能分析' },
-          { key: 'order', label: '订单能耗追溯' },
-        ]}
-        value={tab}
-        onChange={setTab}
-      />
-      {tab === 'product' && <ProductEnergyTab onJump={handleJump} />}
-      {tab === 'order' && <OrderEnergyTab key={jump ? `${jump.unit}|${jump.order}` : 'default'} jump={jump} />}
     </div>
   )
 }

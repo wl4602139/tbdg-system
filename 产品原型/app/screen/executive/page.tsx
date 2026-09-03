@@ -708,13 +708,8 @@ export default function ZeroCarbonScreenPage() {
             </div>
           </div>
 
-          {/* ② 中国 3D 数字科技三维浮雕地图主展示区 */}
-          <div className="relative flex-1 rounded-xl border border-[#0e2a5c] bg-[#020817] overflow-hidden shadow-2xl flex flex-col">
-            {/* HUD 四角科技高光装饰 */}
-            <div className="absolute top-0 left-0 size-2.5 border-t-2 border-l-2 border-[#00ffff] z-30" />
-            <div className="absolute top-0 right-0 size-2.5 border-t-2 border-r-2 border-[#00ffff] z-30" />
-            <div className="absolute bottom-0 left-0 size-2.5 border-b-2 border-l-2 border-[#00ffff] z-30" />
-            <div className="absolute bottom-0 right-0 size-2.5 border-b-2 border-r-2 border-[#00ffff] z-30" />
+          {/* ② 中国 3D 数字科技三维浮雕地图主展示区 (已移除外边框与角标，画面自然融入) */}
+          <div className="relative flex-1 rounded-xl bg-transparent overflow-hidden flex flex-col">
 
             {/* 3D 中国数字科技立体地图容器 */}
             <div className="relative w-full h-full overflow-hidden flex items-center justify-center">

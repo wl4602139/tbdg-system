@@ -743,3 +743,60 @@ export function BarBenchmark({
   )
 }
 
+
+
+
+/* 南丁格尔玫瑰图：等角度扇形，半径 ∝ 数值，直观表达"哪个区间的型号最多" */
+function rosePolar(cx: number, cy: number, r: number, angleDeg: number): [number, number] {
+  const a = ((angleDeg - 90) * Math.PI) / 180
+  return [cx + r * Math.cos(a), cy + r * Math.sin(a)]
+}
+function roseSector(cx: number, cy: number, r: number, start: number, end: number) {
+  const [x1, y1] = rosePolar(cx, cy, r, start)
+  const [x2, y2] = rosePolar(cx, cy, r, end)
+  const large = end - start > 180 ? 1 : 0
+  return `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} Z`
+}
+export function RoseChart({
+  data,
+  size = 148,
+  color = 'var(--chart-1)',
+}: {
+  data: { name: string; value: number }[]
+  size?: number
+  color?: string
+}) {
+  const cx = size / 2
+  const cy = size / 2
+  const maxR = size / 2 - 8
+  const max = Math.max(...data.map((d) => d.value), 1)
+  const n = data.length || 1
+  const seg = 360 / n
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="mx-auto block">
+      {[0.34, 0.67, 1].map((f, i) => (
+        <circle key={i} cx={cx} cy={cy} r={maxR * f} fill="none" stroke="var(--border)" strokeOpacity={0.5} strokeDasharray="2 3" />
+      ))}
+      {data.map((d, i) => {
+        const r = Math.max(6, maxR * (d.value / max))
+        const start = i * seg
+        const end = start + seg - 3
+        const mid = start + seg / 2
+        const fill = `color-mix(in oklch, ${color} ${50 + i * 16}%, var(--muted))`
+        const [tx, ty] = rosePolar(cx, cy, r * 0.62, mid)
+        return (
+          <g key={d.name}>
+            <path d={roseSector(cx, cy, r, start, end)} fill={fill} stroke="var(--panel)" strokeWidth={1}>
+              <title>{`${d.name}：${d.value}%`}</title>
+            </path>
+            {d.value >= 15 && (
+              <text x={tx} y={ty} textAnchor="middle" dominantBaseline="middle" fontSize={11} fontWeight={600} fill="var(--panel)">
+                {d.value}%
+              </text>
+            )}
+          </g>
+        )
+      })}
+    </svg>
+  )
+}

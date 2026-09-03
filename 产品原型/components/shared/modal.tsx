@@ -37,7 +37,7 @@ export function Modal({
 
   if (!open) return null
 
-  const sizeClass = { md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }[size]
+  const sizeClass = { md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-5xl' }[size]
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">

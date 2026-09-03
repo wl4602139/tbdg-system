@@ -12,7 +12,11 @@ import {
   cbamDeclScenarios,
   cbamDeclMaterials,
   cbamDeclSteps,
+  cbamRequirementSections,
+  cbamSimRecords,
   cbamKnowledge,
+  type CbamDeclStep,
+  type CbamSimRecord,
   cbamSectors,
   cbamProcesses,
   cbamQualTypes,
@@ -46,12 +50,17 @@ import {
   X,
   Paperclip,
   ArrowRight,
+  Lock,
+  Info,
+  BookOpen,
+  ListChecks,
+  Eye,
 } from 'lucide-react'
 
-export default function CbamClient({ tab: propTab }: { tab?: string }) {
+export default function CbamClient({ tab: initialTab }: { tab?: string }) {
   const params = useParams()
-  const seg = Array.isArray(params.section) ? params.section[0] : (params.section as string | undefined)
-  const tab = propTab ?? seg ?? 'compliance'
+  const seg = Array.isArray(params?.section) ? params.section[0] : (params?.section as string | undefined)
+  const tab = seg ?? initialTab ?? 'compliance'
 
   return (
     <div>
@@ -637,102 +646,348 @@ function InstantAssessment({ onCreate }: { onCreate: (p: CbamProduct) => void })
 }
 
 /* ============================ 申报模拟 ============================ */
-function DeclarationModule() {
-  const [active, setActive] = useState(cbamDeclScenarios[0].factory)
-  const scenario = cbamDeclScenarios.find((s) => s.factory === active) ?? cbamDeclScenarios[0]
+const TODAY = '2026-09-03'
+const SIM_STATUS: CbamSimRecord['status'][] = ['草稿', '模拟中', '已完成']
 
-  // 每项材料的上传文件列表（本地模拟）
-  const [files, setFiles] = useState<Record<string, string[]>>({})
+function DeclarationModule() {
+  // 弹窗：单步骤详解 / CBAM 要求详解
+  const [stepDetail, setStepDetail] = useState<CbamDeclStep | null>(null)
+  const [reqOpen, setReqOpen] = useState(false)
+  // 高亮：点击「我方」步骤后，联动高亮右侧对应材料
+  const [highlight, setHighlight] = useState<string[]>([])
+
+  // 模拟任务管理（增删改查）
+  const [records, setRecords] = useState<CbamSimRecord[]>(cbamSimRecords)
+  const [recDel, setRecDel] = useState<CbamSimRecord | null>(null)
+  const [recView, setRecView] = useState<CbamSimRecord | null>(null)
+  const [taskEdit, setTaskEdit] = useState<{ data: CbamSimRecord; isNew: boolean } | null>(null)
+  // 当前进入的模拟任务：只有选中任务后才能上传申报材料
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const active = records.find((r) => r.id === activeId) ?? null
+
+  // 每个任务各自的材料上传文件列表（本地模拟）
+  const [filesByTask, setFilesByTask] = useState<Record<string, Record<string, string[]>>>({})
+  const files = activeId ? (filesByTask[activeId] ?? {}) : {}
   const uploaded = cbamDeclMaterials.filter((m) => (files[m.name]?.length ?? 0) > 0).length
   const requiredMissing = cbamDeclMaterials.filter((m) => m.required && (files[m.name]?.length ?? 0) === 0).length
 
+  const scenarioKeys = cbamDeclScenarios.map((s) => `${s.factory} · ${s.product.split(' ')[0]}`)
+
+  function syncProgress(taskId: string, next: Record<string, string[]>) {
+    const up = cbamDeclMaterials.filter((m) => (next[m.name]?.length ?? 0) > 0).length
+    setRecords((l) =>
+      l.map((r) =>
+        r.id === taskId
+          ? { ...r, docCount: up, progress: Math.round((up / cbamDeclMaterials.length) * 100), status: up === cbamDeclMaterials.length ? '已完成' : up > 0 ? '模拟中' : r.status, updated: TODAY }
+          : r,
+      ),
+    )
+  }
   function addFile(name: string) {
-    const n = (files[name]?.length ?? 0) + 1
-    setFiles((f) => ({ ...f, [name]: [...(f[name] ?? []), `${name}_附件${n}.pdf`] }))
+    if (!activeId) return
+    const cur = filesByTask[activeId] ?? {}
+    const n = (cur[name]?.length ?? 0) + 1
+    const next = { ...cur, [name]: [...(cur[name] ?? []), `${name}_附件${n}.pdf`] }
+    setFilesByTask((p) => ({ ...p, [activeId]: next }))
+    syncProgress(activeId, next)
   }
   function removeFile(name: string, i: number) {
-    setFiles((f) => ({ ...f, [name]: (f[name] ?? []).filter((_, idx) => idx !== i) }))
+    if (!activeId) return
+    const cur = filesByTask[activeId] ?? {}
+    const next = { ...cur, [name]: (cur[name] ?? []).filter((_, idx) => idx !== i) }
+    setFilesByTask((p) => ({ ...p, [activeId]: next }))
+    syncProgress(activeId, next)
+  }
+  function onStepClick(st: CbamDeclStep) {
+    setStepDetail(st)
+    setHighlight(st.owner === 'us' ? st.docs : [])
+  }
+  function newTask() {
+    const s = cbamDeclScenarios[0]
+    setTaskEdit({
+      isNew: true,
+      data: { id: `SIM-2026-${String(records.length + 1).padStart(3, '0')}`, scenario: `${s.factory} · ${s.product.split(' ')[0]}`, operator: '当前用户', quarter: s.quarter, emission: s.emission, docCount: 0, progress: 0, status: '草稿', updated: TODAY },
+    })
+  }
+  function saveTask() {
+    if (!taskEdit || !taskEdit.data.scenario.trim()) return
+    const d = taskEdit.data
+    setRecords((l) => (taskEdit.isNew ? [d, ...l] : l.map((x) => (x.id === d.id ? d : x))))
+    if (taskEdit.isNew) setActiveId(d.id) // 新建后自动进入，便于上传材料
+    setTaskEdit(null)
   }
 
   return (
     <div className="mt-4 space-y-4">
-      <Panel title="申报模拟">
-        {/* 工厂场景选择 */}
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          {cbamDeclScenarios.map((s) => {
-            const on = s.factory === active
-            return (
-              <button
-                key={s.factory}
-                type="button"
-                onClick={() => setActive(s.factory)}
-                className={`rounded-xl border p-4 text-left transition-colors ${on ? 'border-primary bg-primary/10' : 'border-border bg-secondary/40 hover:border-primary/40'}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Factory className={`size-4 ${on ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <span className="text-sm font-semibold text-foreground">{s.factory}</span>
-                  </div>
-                  <StatusBadge tone={statusColor(s.status)}>{s.status}</StatusBadge>
-                </div>
-                <div className="mt-2 text-xs text-muted-foreground">{s.product}</div>
-              </button>
-            )
-          })}
+      {/* 顶部说明条 */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-secondary/40 px-4 py-3">
+        <div className="flex items-start gap-3">
+          <Info className="mt-0.5 size-5 shrink-0 text-primary" />
+          <div>
+            <div className="text-sm font-semibold text-foreground">CBAM 申报模拟</div>
+            <div className="mt-0.5 text-xs text-muted-foreground">
+              面向出口欧盟的申报流程模拟：先在模拟任务列表中新建任务，进入任务后即可上传对应申报材料；置灰环节为进口商/主管机关职责，无需我方提供资料。
+            </div>
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setReqOpen(true)}
+          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+        >
+          <BookOpen className="size-4" /> CBAM 申报要求详解
+        </button>
+      </div>
+
+      {/* ① 模拟任务管理（列表置顶，支持增删改查） */}
+      <Panel
+        title="模拟任务管理"
+        desc="每条记录为一次独立的 CBAM 申报模拟；进入任务后方可上传该任务的申报材料"
+        actions={
+          <button type="button" onClick={newTask} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
+            <Plus className="size-4" /> 新建模拟任务
+          </button>
+        }
+      >
+        <DataTable
+          columns={[
+            { key: 'id', label: '模拟编号', className: 'font-mono' },
+            { key: 'scenario', label: '模拟场景' },
+            { key: 'operator', label: '操作人' },
+            { key: 'quarter', label: '申报季度' },
+            { key: 'emission', label: '嵌入式排放', render: (r) => <span className="font-mono">{r.emission.toLocaleString()} <span className="text-xs text-muted-foreground">tCO2e</span></span> },
+            { key: 'docCount', label: '资料', render: (r) => `${r.docCount} 份` },
+            { key: 'progress', label: '完成度', render: (r) => (
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 w-16 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-primary" style={{ width: `${r.progress}%` }} /></div>
+                <span className="text-xs text-muted-foreground">{r.progress}%</span>
+              </div>
+            ) },
+            { key: 'status', label: '状态', render: (r) => <StatusBadge tone={r.status === '已完成' ? 'ok' : r.status === '模拟中' ? 'warn' : 'default'}>{r.status}</StatusBadge> },
+            {
+              key: 'action', label: '操作',
+              render: (r) => (
+                <div className="flex items-center gap-3 text-xs">
+                  <button type="button" onClick={() => setActiveId(r.id)} className={`inline-flex items-center gap-1 hover:underline ${activeId === r.id ? 'font-semibold text-primary' : 'text-primary'}`}>
+                    <ArrowRight className="size-3.5" /> {activeId === r.id ? '已进入' : '进入'}
+                  </button>
+                  <button type="button" onClick={() => setRecView(r)} className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"><Eye className="size-3.5" /> 查看</button>
+                  <button type="button" onClick={() => setTaskEdit({ isNew: false, data: { ...r } })} className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"><Pencil className="size-3.5" /> 编辑</button>
+                  <button type="button" onClick={() => setRecDel(r)} className="inline-flex items-center gap-1 text-[var(--destructive)] hover:underline"><Trash2 className="size-3.5" /> 删除</button>
+                </div>
+              ),
+            },
+          ]}
+          rows={records}
+        />
       </Panel>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-        {/* 左：流程说明 */}
-        <div className="lg:col-span-2">
-          <Panel title="申报流程说明">
-            <p className="mb-3 text-xs text-muted-foreground">
-              {scenario.factory} · {scenario.customer} · {scenario.quarter}
-            </p>
-            <ol className="relative space-y-4 pl-2">
-              {cbamDeclSteps.map((st, i) => (
-                <li key={st.step} className="relative flex gap-3">
-                  <div className="flex flex-col items-center">
-                    <span
-                      className={`flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${st.done ? 'bg-primary text-primary-foreground' : 'border border-border bg-secondary text-muted-foreground'}`}
-                    >
-                      {st.done ? <Check className="size-4" /> : st.step}
-                    </span>
-                    {i < cbamDeclSteps.length - 1 && <span className="mt-1 h-full w-px flex-1 bg-border" />}
-                  </div>
-                  <div className="pb-1">
-                    <div className="text-sm font-medium text-foreground">{st.name}</div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">{st.desc}</div>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </Panel>
-        </div>
-
-        {/* 右：材料上传工具（对应左侧流程逐项响应） */}
-        <div className="lg:col-span-3">
-          <Panel title={`申报材料上传 · 已上传 ${uploaded}/${cbamDeclMaterials.length} 项${requiredMissing ? ` · 必填缺失 ${requiredMissing} 项` : ' · 必填齐备'}`}>
-            <div className="space-y-3">
-              {cbamDeclMaterials.map((m) => (
-                <div key={m.name} className="rounded-lg border border-border bg-secondary/40 p-3">
-                  <div className="mb-2 flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate text-sm text-foreground">{m.name}</span>
-                        <Badge tone={m.required ? 'warning' : 'default'}>{m.required ? '必填' : '选填'}</Badge>
-                      </div>
-                      <div className="mt-0.5 truncate text-xs text-muted-foreground">{m.desc}</div>
-                    </div>
-                    <StatusBadge tone={(files[m.name]?.length ?? 0) > 0 ? 'ok' : 'warn'}>{(files[m.name]?.length ?? 0) > 0 ? '已上传' : '待上传'}</StatusBadge>
-                  </div>
-                  <UploadBox files={files[m.name] ?? []} onAdd={() => addFile(m.name)} onRemove={(i) => removeFile(m.name, i)} />
-                </div>
-              ))}
+      {/* ② 进入任务后的工作区：申报流程说明 + 申报材料上传 */}
+      {active ? (
+        <div className="space-y-4 rounded-2xl border border-primary/25 bg-primary/[0.03] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="h-4 w-1 rounded-full bg-primary" />
+              <h3 className="text-sm font-semibold text-foreground">当前模拟任务 · <span className="font-mono text-primary">{active.id}</span></h3>
+              <span className="text-xs text-muted-foreground">{active.scenario} · {active.quarter}</span>
             </div>
-          </Panel>
+            <button type="button" onClick={() => setActiveId(null)} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-muted-foreground transition-colors hover:text-foreground">
+              <X className="size-3.5" /> 退出任务
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+            {/* 左：流程说明（置灰非我方环节，点击弹窗详解） */}
+            <div className="lg:col-span-2">
+              <Panel title="申报流程说明">
+                <ol className="relative space-y-3 pl-1">
+                  {cbamDeclSteps.map((st, i) => {
+                    const isUs = st.owner === 'us'
+                    return (
+                      <li key={st.step} className="relative flex gap-3">
+                        <div className="flex flex-col items-center">
+                          <span
+                            className={`flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                              !isUs
+                                ? 'border border-border bg-secondary text-muted-foreground/60'
+                                : st.done
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'border border-primary bg-primary/10 text-primary'
+                            }`}
+                          >
+                            {!isUs ? <Lock className="size-3.5" /> : st.done ? <Check className="size-4" /> : st.step}
+                          </span>
+                          {i < cbamDeclSteps.length - 1 && <span className="mt-1 h-full w-px flex-1 bg-border" />}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => onStepClick(st)}
+                          className={`flex-1 rounded-lg border p-2.5 text-left transition-colors ${
+                            isUs ? 'border-border bg-panel hover:border-primary/50' : 'border-dashed border-border bg-secondary/30 opacity-70 hover:opacity-100'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-medium ${isUs ? 'text-foreground' : 'text-muted-foreground'}`}>{st.name}</span>
+                            {isUs ? <Badge tone="default">需我方提供</Badge> : <Badge tone="default">非我方环节</Badge>}
+                          </div>
+                          <div className="mt-0.5 text-xs text-muted-foreground">{st.desc}</div>
+                          <div className="mt-1 text-[11px] text-muted-foreground/80">责任方：{st.ownerLabel} · 点击查看详解</div>
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ol>
+              </Panel>
+            </div>
+
+            {/* 右：材料上传工具（与左侧「我方」步骤联动高亮） */}
+            <div className="lg:col-span-3">
+              <Panel title={`申报材料上传 · 已上传 ${uploaded}/${cbamDeclMaterials.length} 项${requiredMissing ? ` · 必填缺失 ${requiredMissing} 项` : ' · 必填齐备'}`}>
+                {highlight.length > 0 && (
+                  <div className="mb-3 flex items-center justify-between rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary">
+                    <span>已联动高亮当前步骤所需 {highlight.length} 项材料</span>
+                    <button type="button" onClick={() => setHighlight([])} className="text-muted-foreground hover:text-foreground">
+                      清除高亮
+                    </button>
+                  </div>
+                )}
+                <div className="space-y-3">
+                  {cbamDeclMaterials.map((m) => {
+                    const on = highlight.includes(m.name)
+                    return (
+                      <div key={m.name} className={`rounded-lg border p-3 transition-colors ${on ? 'border-primary bg-primary/5' : 'border-border bg-secondary/40'}`}>
+                        <div className="mb-2 flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="truncate text-sm text-foreground">{m.name}</span>
+                              <Badge tone={m.required ? 'warning' : 'default'}>{m.required ? '必填' : '选填'}</Badge>
+                              {on && <Badge tone="default">当前步骤</Badge>}
+                            </div>
+                            <div className="mt-0.5 truncate text-xs text-muted-foreground">{m.desc}</div>
+                          </div>
+                          <StatusBadge tone={(files[m.name]?.length ?? 0) > 0 ? 'ok' : 'warn'}>{(files[m.name]?.length ?? 0) > 0 ? '已上传' : '待上传'}</StatusBadge>
+                        </div>
+                        <UploadBox files={files[m.name] ?? []} onAdd={() => addFile(m.name)} onRemove={(i) => removeFile(m.name, i)} />
+                      </div>
+                    )
+                  })}
+                </div>
+              </Panel>
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-secondary/20 px-6 py-12 text-center">
+          <Upload className="size-8 text-muted-foreground" />
+          <div className="text-sm font-medium text-foreground">尚未进入模拟任务</div>
+          <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
+            申报材料上传需先在上方「模拟任务管理」中新建并进入一个模拟任务。进入任务后，即可查看申报流程说明并上传该任务对应的申报材料。
+          </p>
+          <button type="button" onClick={newTask} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
+            <Plus className="size-4" /> 新建模拟任务
+          </button>
+        </div>
+      )}
+
+      {/* 弹窗：新建/编辑 模拟任务 */}
+      <Modal
+        open={!!taskEdit}
+        onClose={() => setTaskEdit(null)}
+        title={taskEdit?.isNew ? '新建模拟任务' : '编辑模拟任务'}
+        footer={
+          <>
+            <button type="button" onClick={() => setTaskEdit(null)} className="h-9 rounded-md border border-border px-4 text-sm text-muted-foreground hover:text-foreground">取消</button>
+            <button type="button" onClick={saveTask} className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">保存</button>
+          </>
+        }
+      >
+        {taskEdit && (
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="模拟编号"><TextInput value={taskEdit.data.id} disabled onChange={() => {}} /></Field>
+            <Field label="模拟场景">
+              <SelectInput
+                value={scenarioKeys.includes(taskEdit.data.scenario) ? taskEdit.data.scenario : scenarioKeys[0]}
+                onChange={(v) => {
+                  const s = cbamDeclScenarios.find((x) => `${x.factory} · ${x.product.split(' ')[0]}` === v)
+                  setTaskEdit({ ...taskEdit, data: { ...taskEdit.data, scenario: v, emission: s?.emission ?? taskEdit.data.emission, quarter: s?.quarter ?? taskEdit.data.quarter } })
+                }}
+                options={scenarioKeys}
+              />
+            </Field>
+            <Field label="操作人"><TextInput value={taskEdit.data.operator} onChange={(e) => setTaskEdit({ ...taskEdit, data: { ...taskEdit.data, operator: e.target.value } })} /></Field>
+            <Field label="申报季度"><TextInput value={taskEdit.data.quarter} onChange={(e) => setTaskEdit({ ...taskEdit, data: { ...taskEdit.data, quarter: e.target.value } })} /></Field>
+            <Field label="嵌入式排放 (tCO2e)"><TextInput type="number" value={String(taskEdit.data.emission)} onChange={(e) => setTaskEdit({ ...taskEdit, data: { ...taskEdit.data, emission: Number(e.target.value) || 0 } })} /></Field>
+            <Field label="状态"><SelectInput value={taskEdit.data.status} onChange={(v) => setTaskEdit({ ...taskEdit, data: { ...taskEdit.data, status: v as CbamSimRecord['status'] } })} options={SIM_STATUS} /></Field>
+          </div>
+        )}
+      </Modal>
+
+      {/* 弹窗：单步骤详解 */}
+      <Modal open={!!stepDetail} onClose={() => setStepDetail(null)} title={stepDetail ? `流程详解 · ${stepDetail.name}` : ''} description={stepDetail?.ownerLabel ? `责任方：${stepDetail.ownerLabel}` : undefined}>
+        {stepDetail && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Badge tone={stepDetail.owner === 'us' ? 'default' : 'warning'}>{stepDetail.owner === 'us' ? '需我方提供资料' : '非我方环节'}</Badge>
+            </div>
+            <p className="text-sm leading-relaxed text-foreground">{stepDetail.detail}</p>
+            {stepDetail.docs.length > 0 && (
+              <div>
+                <div className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-muted-foreground"><ListChecks className="size-4" /> 本步骤对应需上传材料</div>
+                <ul className="space-y-1">
+                  {stepDetail.docs.map((d) => (
+                    <li key={d} className="flex items-center gap-2 rounded-md border border-border bg-secondary/40 px-2.5 py-1.5 text-sm text-foreground">
+                      <Paperclip className="size-3.5 text-primary" /> {d}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
+
+      {/* 弹窗：CBAM 申报要求详解 */}
+      <Modal open={reqOpen} onClose={() => setReqOpen(false)} size="lg" title="CBAM 申报要求详解" description="碳边境调节机制（Carbon Border Adjustment Mechanism）科普">
+        <div className="space-y-4">
+          {cbamRequirementSections.map((s, i) => (
+            <div key={s.title} className="rounded-lg border border-border bg-secondary/30 p-3">
+              <div className="mb-1 flex items-center gap-2">
+                <span className="flex size-5 items-center justify-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary">{i + 1}</span>
+                <span className="text-sm font-semibold text-foreground">{s.title}</span>
+              </div>
+              <p className="text-sm leading-relaxed text-muted-foreground">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </Modal>
+
+      {/* 弹窗：模拟记录查看 */}
+      <Modal open={!!recView} onClose={() => setRecView(null)} title={recView ? `模拟记录 · ${recView.id}` : ''} description={recView?.scenario}>
+        {recView && (
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="模拟场景"><div className="text-sm text-foreground">{recView.scenario}</div></Field>
+            <Field label="操作人"><div className="text-sm text-foreground">{recView.operator}</div></Field>
+            <Field label="申报季度"><div className="text-sm text-foreground">{recView.quarter}</div></Field>
+            <Field label="嵌入式排放"><div className="font-mono text-sm text-foreground">{recView.emission.toLocaleString()} tCO2e</div></Field>
+            <Field label="已上传资料"><div className="text-sm text-foreground">{recView.docCount} 份</div></Field>
+            <Field label="完成度"><div className="text-sm text-foreground">{recView.progress}%</div></Field>
+            <Field label="状态"><div className="text-sm text-foreground">{recView.status}</div></Field>
+            <Field label="更新时间"><div className="text-sm text-foreground">{recView.updated}</div></Field>
+          </div>
+        )}
+      </Modal>
+
+      {/* 弹窗：删除模拟记录 */}
+      <Modal open={!!recDel} onClose={() => setRecDel(null)} title="删除模拟记录"
+        footer={
+          <>
+            <button type="button" onClick={() => setRecDel(null)} className="h-9 rounded-md border border-border px-4 text-sm text-muted-foreground hover:text-foreground">取消</button>
+            <button type="button" onClick={() => { if (recDel) setRecords((l) => l.filter((x) => x.id !== recDel.id)); setRecDel(null) }} className="h-9 rounded-md bg-[var(--destructive)] px-4 text-sm font-medium text-white">删除</button>
+          </>
+        }
+      >
+        <p className="text-sm text-muted-foreground">确认删除模拟记录 <span className="font-mono text-foreground">{recDel?.id}</span>？此操作不可撤销。</p>
+      </Modal>
     </div>
   )
 }
