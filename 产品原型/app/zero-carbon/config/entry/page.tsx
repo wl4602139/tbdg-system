@@ -5,7 +5,6 @@ import {
   FileEdit,
   Save,
   CheckCircle2,
-  Building2,
   Calendar,
   History,
   ArrowLeft,
@@ -253,7 +252,6 @@ interface HistoryRecord {
   batch: string
   year: string
   month: string
-  org: string
   submitter: string
   submitTime: string
   summary: string
@@ -261,14 +259,29 @@ interface HistoryRecord {
   status: '已入库' | '待复核'
 }
 
+// 12 个月度卡片定义
+const MONTH_CARDS = [
+  { value: '01', label: '01月', isFilled: true },
+  { value: '02', label: '02月', isFilled: true },
+  { value: '03', label: '03月', isFilled: true },
+  { value: '04', label: '04月', isFilled: true },
+  { value: '05', label: '05月', isFilled: true },
+  { value: '06', label: '06月', isFilled: true },
+  { value: '07', label: '07月', isFilled: true },
+  { value: '08', label: '08月', isFilled: false },
+  { value: '09', label: '09月', isFilled: false },
+  { value: '10', label: '10月', isFilled: false },
+  { value: '11', label: '11月', isFilled: false },
+  { value: '12', label: '12月', isFilled: false },
+]
+
 export default function ManualEntryPage() {
   // 页面模式：'entry' (填报清单列表页) | 'history' (历史台账内页)
   const [viewMode, setViewMode] = useState<'entry' | 'history'>('entry')
 
-  // 填报数据对应年、月度与数据对象
+  // 填报数据对应年、月度 (移除数据对象单位下拉)
   const [selectedYear, setSelectedYear] = useState('2026')
   const [selectedMonth, setSelectedMonth] = useState('08')
-  const [selectedOrg, setSelectedOrg] = useState('沈变本部')
   const [submitterName, setSubmitterName] = useState('李工 (能碳专员)')
 
   // 列表填报数据源
@@ -283,7 +296,6 @@ export default function ManualEntryPage() {
       batch: 'DR-202608-01',
       year: '2026',
       month: '08',
-      org: '沈变本部',
       submitter: '李工 (能碳专员)',
       submitTime: '2026-08-28 09:30',
       summary: '用水 8,900t · 气 28,400m³ · 蒸汽 1,420t · 购绿电 1,482MWh · 增加值 ¥4,200万',
@@ -295,7 +307,6 @@ export default function ManualEntryPage() {
       batch: 'DR-202607-02',
       year: '2026',
       month: '07',
-      org: '衡变本部',
       submitter: '王强',
       submitTime: '2026-07-28 14:15',
       summary: '用水 8,650t · 气 27,200m³ · 蒸汽 1,380t · 购绿电 1,200MWh · 增加值 ¥3,950万',
@@ -307,7 +318,6 @@ export default function ManualEntryPage() {
       batch: 'DR-202607-01',
       year: '2026',
       month: '07',
-      org: '超高压公司',
       submitter: '刘伟',
       submitTime: '2026-07-26 11:20',
       summary: '柴油 350L · 液氧 42t · 购绿电 2,100MWh · 绿证 15,000个 · 2级设备 3,400kW',
@@ -319,7 +329,6 @@ export default function ManualEntryPage() {
       batch: 'DR-202606-03',
       year: '2026',
       month: '06',
-      org: '鲁缆本部',
       submitter: '张海',
       submitTime: '2026-06-28 10:45',
       summary: '用水 6,200t · 气 19,800m³ · 购绿电 850MWh · 绿证 8,000个 · 统计设备 4,200kW',
@@ -362,7 +371,7 @@ export default function ManualEntryPage() {
     })
   }, [entryRows, categoryFilter, searchQuery])
 
-  // 🌟 核心要求：计算业务分类在第一列连续行中的合并跨度 (rowSpan)
+  // 🌟 计算业务分类在第一列连续行中的合并跨度 (rowSpan)
   const rowsWithSpans = useMemo(() => {
     return filteredRows.map((row, idx, arr) => {
       const isFirst = idx === 0 || arr[idx - 1].category !== row.category
@@ -402,7 +411,6 @@ export default function ManualEntryPage() {
       batch: batchCode,
       year: selectedYear,
       month: selectedMonth,
-      org: selectedOrg,
       submitter: submitterName,
       submitTime: timeStr,
       summary: summaryText,
@@ -413,7 +421,7 @@ export default function ManualEntryPage() {
     setHistoryList([newRecord, ...historyList])
     setSuccessToast({
       show: true,
-      msg: `【${selectedOrg}】${selectedYear}年${selectedMonth}月清单数据已成功${status === '已入库' ? '校验入库' : '保存待复核'}！已记入历史台账内页。`,
+      msg: `${selectedYear}年${selectedMonth}月全量清单数据已成功${status === '已入库' ? '校验入库' : '保存待复核'}！已记入历史台账内页。`,
       batch: batchCode,
     })
 
@@ -430,7 +438,7 @@ export default function ManualEntryPage() {
 
   return (
     <div className="space-y-4">
-      {/* 🌟 1. 顶部标题栏：已按要求移除右上角红框模块，页面清爽直观 */}
+      {/* 🌟 1. 顶部标题栏：已按要求移除右上角模块，页面清爽直观 */}
       <div className="rounded-xl border border-border bg-card p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/20 border border-primary/30 text-primary">
@@ -442,7 +450,7 @@ export default function ManualEntryPage() {
                 {viewMode === 'entry' ? '能碳业务数据填报' : '历史填报台账明细 (内页)'}
               </h1>
               <span className="px-2 py-0.5 rounded text-[10px] bg-blue-500/10 text-[#1677ff] border border-blue-500/20 font-bold">
-                {viewMode === 'entry' ? '列表填报 · 清单17项指标' : '历史归档记录'}
+                {viewMode === 'entry' ? '月度卡片切换 · 清单17项指标' : '历史归档记录'}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -487,37 +495,17 @@ export default function ManualEntryPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 视图 1：列表形式填报页 (在下方直接显示对应年、月度与数据对象控件及表格) */}
+      {/* 视图 1：列表形式填报页 (已移除数据对象，月度改为卡片形式) */}
       {/* ========================================================================= */}
       {viewMode === 'entry' && (
         <Panel className="p-4 space-y-3.5">
-          {/* 🌟 核心要求：在下方显示手动录入数据对应的年、月度与数据对象控制栏 */}
+          {/* 🌟 核心要求：已移除数据对象；月度改为卡片形式展示 */}
           <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-border bg-panel">
-            <div className="flex flex-wrap items-center gap-3">
-              {/* 数据对象 (单位) */}
-              <div className="flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs shadow-2xs">
-                <Building2 className="size-4 text-blue-500" />
-                <span className="font-semibold text-muted-foreground">数据对象 (单位):</span>
-                <select
-                  value={selectedOrg}
-                  onChange={(e) => setSelectedOrg(e.target.value)}
-                  className="border-0 bg-transparent text-xs font-bold text-foreground focus:outline-none cursor-pointer"
-                >
-                  <option value="沈变本部">沈变本部 (工厂)</option>
-                  <option value="衡变本部">衡变本部 (工厂)</option>
-                  <option value="超高压公司">超高压公司 (工厂)</option>
-                  <option value="鲁缆本部">鲁缆本部 (工厂)</option>
-                  <option value="特变电工新疆电缆有限公司">特变电工新疆电缆有限公司 (工厂)</option>
-                  <option value="特变电工（德阳）电缆股份有限公司">特变电工（德阳）电缆股份有限公司 (工厂)</option>
-                  <option value="东北输变电产业园">东北输变电产业园 (园区)</option>
-                  <option value="南方输变电产业园">南方输变电产业园 (园区)</option>
-                </select>
-              </div>
-
-              {/* 🌟 对应年度 */}
-              <div className="flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs shadow-2xs">
+            <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+              {/* 年度选择下拉 */}
+              <div className="flex items-center gap-1.5 rounded-xl border border-border bg-white px-3 py-2 text-xs shadow-2xs shrink-0">
                 <Calendar className="size-4 text-blue-500" />
-                <span className="font-semibold text-muted-foreground">对应年度:</span>
+                <span className="font-semibold text-muted-foreground">年度:</span>
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
@@ -529,42 +517,47 @@ export default function ManualEntryPage() {
                 </select>
               </div>
 
-              {/* 🌟 对应月度 */}
-              <div className="flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs shadow-2xs">
-                <Calendar className="size-4 text-emerald-500" />
-                <span className="font-semibold text-muted-foreground">对应月度:</span>
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="border-0 bg-transparent text-xs font-mono font-bold text-foreground focus:outline-none cursor-pointer"
-                >
-                  <option value="01">01 月</option>
-                  <option value="02">02 月</option>
-                  <option value="03">03 月</option>
-                  <option value="04">04 月</option>
-                  <option value="05">05 月</option>
-                  <option value="06">06 月</option>
-                  <option value="07">07 月</option>
-                  <option value="08">08 月</option>
-                  <option value="09">09 月</option>
-                  <option value="10">10 月</option>
-                  <option value="11">11 月</option>
-                  <option value="12">12 月</option>
-                </select>
-              </div>
-
-              {/* 当前录入数据对应的年、月度徽章 */}
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-50 text-[#1677ff] border border-blue-200 text-xs font-mono font-bold">
-                <span>📅 当前填报账期：{selectedYear} 年 {selectedMonth} 月</span>
+              {/* 🌟 12 个月度卡片 (直观卡片形式切换填报月度) */}
+              <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 scrollbar-none flex-1">
+                {MONTH_CARDS.map((m) => {
+                  const isSelected = selectedMonth === m.value
+                  return (
+                    <button
+                      key={m.value}
+                      type="button"
+                      onClick={() => setSelectedMonth(m.value)}
+                      className={cn(
+                        'flex flex-col items-center justify-center py-1.5 px-3 rounded-xl border text-center transition-all cursor-pointer select-none min-w-[58px]',
+                        isSelected
+                          ? 'bg-[#1677ff] text-white border-blue-600 shadow-sm ring-2 ring-blue-400/30'
+                          : 'bg-white hover:bg-slate-100/80 border-border text-foreground'
+                      )}
+                    >
+                      <span className="text-xs font-bold font-mono">{m.label}</span>
+                      <span
+                        className={cn(
+                          'text-[9px] mt-0.5 font-medium',
+                          isSelected
+                            ? 'text-white/90 font-bold'
+                            : m.isFilled
+                            ? 'text-emerald-600'
+                            : 'text-slate-400'
+                        )}
+                      >
+                        {isSelected ? '填报中' : m.isFilled ? '已填报' : '待填报'}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
-            {/* 操作按钮区 (包含历史台账内页入口与保存按钮) */}
-            <div className="flex items-center gap-2.5">
+            {/* 操作按钮区 (历史台账内页入口 + 保存按钮) */}
+            <div className="flex items-center gap-2.5 shrink-0">
               <button
                 type="button"
                 onClick={() => setViewMode('history')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-white hover:bg-slate-100 text-xs font-semibold text-foreground cursor-pointer transition-colors shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-white hover:bg-slate-100 text-xs font-semibold text-foreground cursor-pointer transition-colors shadow-2xs"
                 title="查看历史台账内页"
               >
                 <History className="size-3.5 text-[#1677ff]" />
@@ -575,7 +568,7 @@ export default function ManualEntryPage() {
               <button
                 type="button"
                 onClick={() => handleSaveEntry('已入库')}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
+                className="flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
               >
                 <Save className="size-3.5" />
                 <span>保存并入库</span>
@@ -678,7 +671,7 @@ export default function ManualEntryPage() {
             </div>
           </div>
 
-          {/* 🌟 核心填报列表表格 (业务分类第1列合并显示，明确显示数据对应年、月度) */}
+          {/* 🌟 核心填报列表表格 (业务分类第1列合并显示，明确显示数据对应年、月度卡片联动) */}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
@@ -753,7 +746,7 @@ export default function ManualEntryPage() {
                       {selectedYear} 年
                     </td>
 
-                    {/* 6. 对应月度 */}
+                    {/* 6. 对应月度 (与选中的月度卡片联动) */}
                     <td className="py-2.5 px-3 text-center font-mono font-bold text-emerald-600">
                       {row.dimension === '增量更新' ? '增量/基准' : `${selectedMonth} 月`}
                     </td>
@@ -803,7 +796,7 @@ export default function ManualEntryPage() {
           <div className="pt-3 border-t border-border/60 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Info className="size-4 text-blue-500 shrink-0" />
-              <span>当前填报数据将归入【{selectedOrg}】{selectedYear}年{selectedMonth}月账期。</span>
+              <span>当前填报数据归入【{selectedYear}年{selectedMonth}月】账期。</span>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -854,7 +847,6 @@ export default function ManualEntryPage() {
                   <th className="py-2.5 px-3">批次单号</th>
                   <th className="py-2.5 px-3 text-center">对应年度</th>
                   <th className="py-2.5 px-3 text-center">对应月度</th>
-                  <th className="py-2.5 px-3">填报单位</th>
                   <th className="py-2.5 px-3 font-bold">17项指标录入摘要</th>
                   <th className="py-2.5 px-3 text-right">能源费用合计</th>
                   <th className="py-2.5 px-3">填报人</th>
@@ -869,7 +861,6 @@ export default function ManualEntryPage() {
                     <td className="py-2.5 px-3 font-mono font-bold text-foreground">{h.batch}</td>
                     <td className="py-2.5 px-3 font-mono text-center font-bold text-blue-600">{h.year} 年</td>
                     <td className="py-2.5 px-3 font-mono text-center font-bold text-emerald-600">{h.month} 月</td>
-                    <td className="py-2.5 px-3 font-medium text-foreground">{h.org}</td>
                     <td className="py-2.5 px-3 font-mono text-[11px] text-foreground">{h.summary}</td>
                     <td className="py-2.5 px-3 font-mono font-bold text-amber-600 text-right">¥ {h.totalCostWan} 万</td>
                     <td className="py-2.5 px-3">{h.submitter}</td>
