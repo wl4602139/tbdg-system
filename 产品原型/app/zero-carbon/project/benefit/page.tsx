@@ -781,10 +781,7 @@ export default function BenefitEvaluationPage() {
             <Coins className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-foreground">项目效益评估</h1>
-            <p className="text-[11px] text-muted-foreground">
-              覆盖储能、热泵、光伏等零碳资产日度/期度用能经济账、电费节约与减排核算推导
-            </p>
+            <h1 className="text-base font-bold text-foreground">项目运行评估</h1>
           </div>
         </div>
 

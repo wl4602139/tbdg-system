@@ -233,7 +233,7 @@ const PERMISSION_TREE_DATA: PermissionTreeNode[] = [
       },
       {
         id: 'menu_project_benefit',
-        title: '项目效益评估',
+        title: '项目运行评估',
         code: 'MENU_BENEFIT',
         actions: [
           { id: 'proj_eval', label: '实时减碳效益核算', code: 'proj:benefit:calc' },
