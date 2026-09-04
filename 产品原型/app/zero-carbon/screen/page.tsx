@@ -715,17 +715,16 @@ export default function ZeroCarbonScreenPage() {
 
             {/* 3D 中国数字科技立体地图容器 */}
             <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-              {/* 3D 高保真浮雕地图底图素材 (3D 模式下作为地势底衬，卫星模式下为主景) */}
-              <Image
-                src="/images/screen/china-3d-map.jpg"
-                alt="中国3D数字科技地图"
-                fill
-                priority
-                className={cn(
-                  'object-cover object-center select-none pointer-events-none transition-opacity duration-700',
-                  mapMode === '3d' ? 'opacity-35' : 'opacity-100'
-                )}
-              />
+              {/* 3D 高保真浮雕地图底图素材 (仅在2D卫星浮雕全景模式下展示) */}
+              {mapMode === 'relief' && (
+                <Image
+                  src="/images/screen/china-3d-map.jpg"
+                  alt="中国3D数字科技地图"
+                  fill
+                  priority
+                  className="object-cover object-center select-none pointer-events-none transition-opacity duration-700"
+                />
+              )}
 
               {/* 模式切换胶囊控制条 */}
               <div className="absolute top-3 left-3 z-30 flex items-center gap-1 rounded-lg border border-[#0e2a5c] bg-[#020b1f]/90 p-1 backdrop-blur-md shadow-lg text-[10px]">
@@ -777,12 +776,13 @@ export default function ZeroCarbonScreenPage() {
               {/* 科技光栅暗角 */}
               <div className="absolute inset-0 bg-radial from-transparent via-[#020817]/10 to-[#020817]/40 pointer-events-none" />
 
-              {/* SVG 科技青色折线引线层 */}
-              <svg
-                className="absolute inset-0 w-full h-full pointer-events-none z-20"
-                viewBox="0 0 1000 650"
-                preserveAspectRatio="none"
-              >
+              {/* SVG 科技青色折线引线层 (仅在2D模式下显示) */}
+              {mapMode === 'relief' && (
+                <svg
+                  className="absolute inset-0 w-full h-full pointer-events-none z-20"
+                  viewBox="0 0 1000 650"
+                  preserveAspectRatio="none"
+                >
                 <defs>
                   <filter id="cyanGlow" x="-20%" y="-20%" width="140%" height="140%">
                     <feGaussianBlur stdDeviation="2.5" result="blur" />
@@ -811,6 +811,7 @@ export default function ZeroCarbonScreenPage() {
                   </g>
                 )}
               </svg>
+              )}
 
               {/* 3D 空间立体标记打点 */}
               {mapMode === 'relief' && PARK_MARKERS.map((p) => {

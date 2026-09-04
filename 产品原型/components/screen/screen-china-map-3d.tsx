@@ -81,9 +81,9 @@ export function ScreenChinaMap3D({
     const scene = new THREE.Scene()
 
     // 2. 摄像机
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000)
-    camera.position.set(0, 36, 44)
-    camera.lookAt(2, 0, -2)
+    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000)
+    camera.position.set(0, 36, 42)
+    camera.lookAt(2, 0, 0)
 
     // 3. 渲染器
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' })
@@ -219,12 +219,12 @@ export function ScreenChinaMap3D({
                 const [x, y] = projected
 
                 if (pIdx === 0) {
-                  shape.moveTo(x, y)
+                  shape.moveTo(x, -y)
                 } else {
-                  shape.lineTo(x, y)
+                  shape.lineTo(x, -y)
                 }
 
-                linePoints.push(new THREE.Vector3(x, 1.88, -y))
+                linePoints.push(new THREE.Vector3(x, 1.88, y))
               })
 
               const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
@@ -264,7 +264,7 @@ export function ScreenChinaMap3D({
         if (!projected) return
         const [x, y] = projected
         const posX = x
-        const posZ = -y
+        const posZ = y
         const posY = 1.9
 
         const parkGroup = new THREE.Group()
@@ -358,8 +358,8 @@ export function ScreenChinaMap3D({
         const projTo = projection(pTo.coordinates)
         if (!projFrom || !projTo) return
 
-        const vFrom = new THREE.Vector3(projFrom[0], 2.0, -projFrom[1])
-        const vTo = new THREE.Vector3(projTo[0], 2.0, -projTo[1])
+        const vFrom = new THREE.Vector3(projFrom[0], 2.0, projFrom[1])
+        const vTo = new THREE.Vector3(projTo[0], 2.0, projTo[1])
 
         const dist = vFrom.distanceTo(vTo)
         const midPoint = new THREE.Vector3()
