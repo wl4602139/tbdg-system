@@ -25,6 +25,7 @@ import {
   CloudSun,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ScreenChinaMap3D } from '@/components/screen/screen-china-map-3d'
 
 // 园区地图标记数据定义
 interface ParkMarker {
@@ -304,6 +305,7 @@ export default function ZeroCarbonScreenPage() {
   const [selectedParkId, setSelectedParkId] = useState<string>('nanjing')
   const [activeFactoryTab, setActiveFactoryTab] = useState<string>('南京变研')
   const [popupVisible, setPopupVisible] = useState(true)
+  const [mapMode, setMapMode] = useState<'3d' | 'relief'>('3d')
   const [selectedParkDropdown, setSelectedParkDropdown] = useState('南京智能电气产业园')
 
   // 实时时钟更新
@@ -713,14 +715,64 @@ export default function ZeroCarbonScreenPage() {
 
             {/* 3D 中国数字科技立体地图容器 */}
             <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-              {/* 3D 高保真浮雕地图底图素材 */}
+              {/* 3D 高保真浮雕地图底图素材 (3D 模式下作为地势底衬，卫星模式下为主景) */}
               <Image
                 src="/images/screen/china-3d-map.jpg"
                 alt="中国3D数字科技地图"
                 fill
                 priority
-                className="object-cover object-center select-none pointer-events-none"
+                className={cn(
+                  'object-cover object-center select-none pointer-events-none transition-opacity duration-700',
+                  mapMode === '3d' ? 'opacity-35' : 'opacity-100'
+                )}
               />
+
+              {/* 模式切换胶囊控制条 */}
+              <div className="absolute top-3 left-3 z-30 flex items-center gap-1 rounded-lg border border-[#0e2a5c] bg-[#020b1f]/90 p-1 backdrop-blur-md shadow-lg text-[10px]">
+                <button
+                  type="button"
+                  onClick={() => setMapMode('3d')}
+                  className={cn(
+                    'flex items-center gap-1 px-2.5 py-1 rounded transition-all cursor-pointer font-medium',
+                    mapMode === '3d'
+                      ? 'bg-primary text-primary-foreground font-bold shadow-[0_0_12px_rgba(0,240,255,0.5)]'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  )}
+                >
+                  <Cpu className="size-3" /> 3D WebGL 数字孪生
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMapMode('relief')}
+                  className={cn(
+                    'flex items-center gap-1 px-2.5 py-1 rounded transition-all cursor-pointer font-medium',
+                    mapMode === 'relief'
+                      ? 'bg-primary text-primary-foreground font-bold shadow-[0_0_12px_rgba(0,240,255,0.5)]'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  )}
+                >
+                  <CloudSun className="size-3" /> 2D 卫星浮雕全景
+                </button>
+              </div>
+
+              {/* 🌟 WebGL 3D 数字孪生地图核心交互渲染层 */}
+              {mapMode === '3d' && (
+                <ScreenChinaMap3D
+                  parks={PARK_MARKERS}
+                  selectedParkId={selectedParkId}
+                  onSelectPark={(id) => {
+                    setSelectedParkId(id)
+                    const p = PARK_MARKERS.find((item) => item.id === id)
+                    if (p) {
+                      if (p.name.includes('南京')) setSelectedParkDropdown('南京智能电气产业园')
+                      else if (p.name.includes('西安')) setSelectedParkDropdown('西安西变智能装备产业园')
+                      else if (p.name.includes('沈变')) setSelectedParkDropdown('沈变集团本部园区')
+                    }
+                    setPopupVisible(true)
+                  }}
+                  className="absolute inset-0 z-15"
+                />
+              )}
 
               {/* 科技光栅暗角 */}
               <div className="absolute inset-0 bg-radial from-transparent via-[#020817]/10 to-[#020817]/40 pointer-events-none" />
@@ -761,7 +813,7 @@ export default function ZeroCarbonScreenPage() {
               </svg>
 
               {/* 3D 空间立体标记打点 */}
-              {PARK_MARKERS.map((p) => {
+              {mapMode === 'relief' && PARK_MARKERS.map((p) => {
                 const isSelected = p.id === selectedParkId
                 const fill = getMarkerFill(p.greenRatio)
 
@@ -842,6 +894,7 @@ export default function ZeroCarbonScreenPage() {
                   </div>
                 )
               })}
+              {/* 结束 2D 散点渲染 */}
 
               {/* 地图左下角双重图例 */}
               <div className="absolute left-3 bottom-3 rounded-lg border border-[#0e2a5c] bg-[#030c22]/90 backdrop-blur-md p-2 text-[9.5px] space-y-1.5 shadow-lg z-25">
