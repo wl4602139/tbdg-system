@@ -3928,8 +3928,13 @@ export default function IndicatorControlPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
-                    {currentProductControlMetrics.map((pm) => {
+                  {currentProductControlMetrics.length === 0 ? (
+                    <div className="py-8 flex items-center justify-center text-center text-slate-400">
+                      <span className="text-xs font-medium">暂无相关产品！</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                      {currentProductControlMetrics.map((pm) => {
                       return (
                         <div
                           key={pm.id}
@@ -3953,7 +3958,8 @@ export default function IndicatorControlPage() {
                         </div>
                       )
                     })}
-                  </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* 三、关键制造工序能效对标指标 (4卡片/行) */}
@@ -4007,30 +4013,8 @@ export default function IndicatorControlPage() {
                   </div>
 
                   {filteredProcessMetrics.length === 0 ? (
-                    <div className="py-10 px-4 rounded-xl border border-dashed border-slate-200 bg-purple-50/20 flex flex-col items-center justify-center text-center space-y-2.5">
-                      <div className="size-11 rounded-full bg-purple-100 border border-purple-200 flex items-center justify-center text-purple-700">
-                        <Info className="size-5 opacity-85" />
-                      </div>
-                      <div className="space-y-1">
-                        <h3 className="text-xs font-bold text-slate-800">
-                          {(!activeUnitInfo?.processes || activeUnitInfo.processes.length === 0)
-                            ? `【${selectedNode.name || '当前单位'}】不涉及关键制造工序对标指标`
-                            : procSearchKey.trim()
-                            ? `未匹配到与【${procSearchKey}】相关的工序指标`
-                            : `当前筛选条件下暂无工序对标指标`}
-                        </h3>
-                        <p className="text-[11px] text-slate-500 max-w-lg mx-auto">
-                          {(!activeUnitInfo?.processes || activeUnitInfo.processes.length === 0)
-                            ? '依据集团《生产单位与涉及关键工序对应表》，该单位未包含工序管控制度所定义的关键制造加工工序（干燥、交联、拉丝、固化、试验等），不执行工序能效对标考核。'
-                            : '可尝试更换搜索关键词或切换产品分类标签查看对应的工序能效指标。'}
-                        </p>
-                      </div>
-                      {(!activeUnitInfo?.processes || activeUnitInfo.processes.length === 0) && (
-                        <div className="inline-flex items-center gap-1.5 text-[10.5px] px-2.5 py-1 rounded-full bg-slate-50 text-slate-600 border border-slate-200">
-                          <Check className="size-3 text-emerald-600" />
-                          <span>依据《生产单位与涉及关键工序对应表》· 免考核工序单耗</span>
-                        </div>
-                      )}
+                    <div className="py-12 flex items-center justify-center text-center text-slate-400">
+                      <span className="text-sm font-medium">暂无相关工序！</span>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 font-mono">
