@@ -52,6 +52,7 @@ import {
   Area,
   Line,
   ComposedChart,
+  ReferenceLine,
 } from 'recharts'
 import { cn } from '@/lib/utils'
 
@@ -532,6 +533,33 @@ const HEAT_PUMP_BENEFIT_DATA: HeatPumpBenefitItem[] = [
   },
 ]
 
+// ============================================================
+// 光伏和自己对比：1~8月逐月历史对标数据集 (实际 vs 去年同期同比 vs 计划/标杆)
+// ============================================================
+const PV_SELF_HISTORY_DATA = [
+  { month: '01月', gen2026: 62.4, gen2025: 57.2, genPlan: 60.0, hours2026: 48.8, hours2025: 44.7, hoursBenchmark: 45.0, ratio2026: 94.2, ratio2025: 93.0, ratioTarget: 90.0, momGen: 0, yoyGen: 9.1 },
+  { month: '02月', gen2026: 78.5, gen2025: 71.0, genPlan: 75.0, hours2026: 61.3, hours2025: 55.5, hoursBenchmark: 55.0, ratio2026: 93.8, ratio2025: 92.5, ratioTarget: 90.0, momGen: 25.8, yoyGen: 10.6 },
+  { month: '03月', gen2026: 105.2, gen2025: 98.4, genPlan: 102.0, hours2026: 82.2, hours2025: 76.9, hoursBenchmark: 80.0, ratio2026: 93.1, ratio2025: 91.8, ratioTarget: 90.0, momGen: 34.0, yoyGen: 6.9 },
+  { month: '04月', gen2026: 122.8, gen2025: 114.2, genPlan: 120.0, hours2026: 95.9, hours2025: 89.2, hoursBenchmark: 90.0, ratio2026: 92.6, ratio2025: 91.2, ratioTarget: 90.0, momGen: 16.7, yoyGen: 7.5 },
+  { month: '05月', gen2026: 138.4, gen2025: 126.5, genPlan: 132.0, hours2026: 108.1, hours2025: 98.8, hoursBenchmark: 100.0, ratio2026: 91.9, ratio2025: 90.5, ratioTarget: 90.0, momGen: 12.7, yoyGen: 9.4 },
+  { month: '06月', gen2026: 132.6, gen2025: 123.0, genPlan: 128.0, hours2026: 103.6, hours2025: 96.1, hoursBenchmark: 98.0, ratio2026: 91.5, ratio2025: 89.8, ratioTarget: 90.0, momGen: -4.2, yoyGen: 7.8 },
+  { month: '07月', gen2026: 114.8, gen2025: 106.2, genPlan: 112.0, hours2026: 89.7, hours2025: 83.0, hoursBenchmark: 88.0, ratio2026: 92.9, ratio2025: 91.0, ratioTarget: 90.0, momGen: -13.4, yoyGen: 8.1 },
+  { month: '08月', gen2026: 118.5, gen2025: 109.1, genPlan: 115.0, hours2026: 92.6, hours2025: 85.2, hoursBenchmark: 90.0, ratio2026: 92.4, ratio2025: 90.6, ratioTarget: 90.0, momGen: 3.2, yoyGen: 8.6 },
+]
+
+// ============================================================
+// 光伏横向对比：全集团 7 大分布式光伏电站横向对标数据集
+// ============================================================
+const PV_HORIZONTAL_COMPARE_DATA = [
+  { rank: 1, name: '新变超高压基地', company: '超高压公司', capacity: 13.9, gen: 142.8, hours: 1027.3, ratio: 93.0, consumedGen: 132.8, income: 96.76, isBenchmark: true },
+  { rank: 2, name: '衡变本部光伏', company: '衡变本部', capacity: 10.5, gen: 102.4, hours: 975.2, ratio: 92.0, consumedGen: 94.2, income: 72.83, isBenchmark: false },
+  { rank: 3, name: '德缆产业园光伏', company: '德缆公司', capacity: 6.2, gen: 59.8, hours: 964.5, ratio: 91.2, consumedGen: 54.5, income: 42.15, isBenchmark: false },
+  { rank: 4, name: '西变智能装备园', company: '西变装备', capacity: 7.5, gen: 72.0, hours: 960.0, ratio: 91.8, consumedGen: 66.1, income: 51.30, isBenchmark: false },
+  { rank: 5, name: '鲁缆公司 BAPV', company: '鲁缆公司', capacity: 8.6, gen: 81.2, hours: 944.2, ratio: 90.5, consumedGen: 73.5, income: 56.59, isBenchmark: false },
+  { rank: 6, name: '天变产业园光伏', company: '天变公司', capacity: 5.0, gen: 46.5, hours: 930.0, ratio: 90.8, consumedGen: 42.2, income: 32.80, isBenchmark: false },
+  { rank: 7, name: '沈变本部一期', company: '沈变本部', capacity: 12.8, gen: 118.5, hours: 925.8, ratio: 92.4, consumedGen: 109.5, income: 82.81, isCurrent: true },
+]
+
 const PV_BENEFIT_DATA: PvBenefitItem[] = [
   {
     id: 'pv-01',
@@ -625,6 +653,75 @@ const PV_BENEFIT_DATA: PvBenefitItem[] = [
       formula: '新疆充足辐照资源赋能超高利用小时数，自用均价与储能协同平抑需量电费',
     },
   },
+  {
+    id: 'pv-05',
+    name: '德缆产业园 6.2MWp 屋顶柔性支架分布式光伏',
+    park: '特变电工(德阳)电缆园区',
+    company: '德缆公司',
+    capacityMwp: 6.2,
+    genKwhWan: 59.8,
+    effectiveHours: 964.5,
+    consumedKwhWan: 54.5,
+    consumedIncomeWan: 42.15,
+    consumedAvgPrice: 0.745,
+    consumedRatio: 91.2,
+    gridKwhWan: 5.3,
+    gridIncomeWan: 2.01,
+    gridPrice: 0.380,
+    totalIncomeWan: 44.16,
+    carbonReductionTons: 320.5,
+    calcContext: {
+      co2Factor: 0.535,
+      tceFactor: 0.1229,
+      formula: '西南多阴雨区柔性光伏支架抗强风高净空，自消纳满足车间持续电力负荷',
+    },
+  },
+  {
+    id: 'pv-06',
+    name: '西变智能装备产业园 7.5MWp 厂房连跨分布式光伏',
+    park: '特变电工西安变压器产业园',
+    company: '西变装备',
+    capacityMwp: 7.5,
+    genKwhWan: 72.0,
+    effectiveHours: 960.0,
+    consumedKwhWan: 66.1,
+    consumedIncomeWan: 51.30,
+    consumedAvgPrice: 0.735,
+    consumedRatio: 91.8,
+    gridKwhWan: 5.9,
+    gridIncomeWan: 2.24,
+    gridPrice: 0.380,
+    totalIncomeWan: 53.54,
+    carbonReductionTons: 385.2,
+    calcContext: {
+      co2Factor: 0.535,
+      tceFactor: 0.1229,
+      formula: '西北黄土高原高辐照优势赋能，消纳节费协同厂区高峰负荷平抑',
+    },
+  },
+  {
+    id: 'pv-07',
+    name: '天变产业园 5.0MWp BIPV 绿色建筑一体化光伏',
+    park: '特变电工天变产业园',
+    company: '天变公司',
+    capacityMwp: 5.0,
+    genKwhWan: 46.5,
+    effectiveHours: 930.0,
+    consumedKwhWan: 42.2,
+    consumedIncomeWan: 32.80,
+    consumedAvgPrice: 0.730,
+    consumedRatio: 90.8,
+    gridKwhWan: 4.3,
+    gridIncomeWan: 1.63,
+    gridPrice: 0.380,
+    totalIncomeWan: 34.43,
+    carbonReductionTons: 248.8,
+    calcContext: {
+      co2Factor: 0.535,
+      tceFactor: 0.1229,
+      formula: 'BIPV 屋面建材级光伏一体化布置，结构自防水免维护，消纳率保持 90% 以上',
+    },
+  },
 ]
 
 export default function BenefitEvaluationPage() {
@@ -653,6 +750,11 @@ export default function BenefitEvaluationPage() {
     type: 'storage',
     data: null,
   })
+
+  // 6. 光伏对比分析模式：和自己对比(self) | 横向对比(horizontal) | 24小时出力平衡(24h)
+  const [pvCompareMode, setPvCompareMode] = useState<'self' | 'horizontal' | '24h'>('self')
+  // 对比指标维度：发电量(gen) | 发电小时数(hours) | 综合消纳率(ratio) | 综合三指标(all)
+  const [pvCompareMetric, setPvCompareMetric] = useState<'gen' | 'hours' | 'ratio' | 'all'>('gen')
 
   // 4. 热泵建筑层高折算明细弹窗
   const [selectedHeightDetail, setSelectedHeightDetail] = useState<{
@@ -784,8 +886,11 @@ export default function BenefitEvaluationPage() {
 
   const pvBenchmarkData = [
     { name: '新变超高压', 有效小时数: 1027, 综合消纳率: 93.0 },
-    { name: '衡变光伏', 有效小时数: 975, 综合消纳率: 92.0 },
+    { name: '衡变本部', 有效小时数: 975, 综合消纳率: 92.0 },
+    { name: '德缆光伏', 有效小时数: 965, 综合消纳率: 91.2 },
+    { name: '西变装备', 有效小时数: 960, 综合消纳率: 91.8 },
     { name: '鲁缆光伏', 有效小时数: 944, 综合消纳率: 90.5 },
+    { name: '天变光伏', 有效小时数: 930, 综合消纳率: 90.8 },
     { name: '沈变光伏', 有效小时数: 926, 综合消纳率: 92.4 },
   ]
 
@@ -1554,7 +1659,7 @@ export default function BenefitEvaluationPage() {
         {/* ============================================================ */}
         {activeModule === 'pv' && (
           <div className="space-y-3.5 animate-in fade-in duration-200">
-            {/* 8 大核心 KPI 卡片 (4列 × 2行 标准网格排版) */}
+            {/* 8 大核心 KPI 卡片 (4列 × 2行 标准网格排版，深度集成同比/环比/达成率) */}
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="bg-card p-3.5 rounded-xl border border-border shadow-2xs">
                 <div className="flex items-center justify-between">
@@ -1562,7 +1667,7 @@ export default function BenefitEvaluationPage() {
                   <span className="text-[10px] text-amber-400 bg-amber-500/20 px-1.5 py-0.5 rounded font-medium">装机</span>
                 </div>
                 <div className="text-lg font-bold text-amber-400 mt-1.5 font-mono">{pvKpi.totalCapacity} <span className="text-xs font-normal">MWp</span></div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">并网标称装机功率</div>
+                <div className="text-[10px] text-muted-foreground mt-1">并网标称装机功率</div>
               </div>
               <div className="bg-card p-3.5 rounded-xl border border-border shadow-2xs">
                 <div className="flex items-center justify-between">
@@ -1570,7 +1675,10 @@ export default function BenefitEvaluationPage() {
                   <span className="text-[10px] text-muted-foreground bg-panel px-1.5 py-0.5 rounded font-medium">关口发电</span>
                 </div>
                 <div className="text-lg font-bold text-foreground mt-1.5 font-mono">{pvKpi.totalGen} <span className="text-xs font-normal">万kWh</span></div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">电网关口计量总发电</div>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono">
+                  <span className="text-emerald-400 bg-emerald-500/15 px-1 py-0.2 rounded font-bold">同比 +8.6% ↑</span>
+                  <span className="text-blue-400 bg-primary/10 px-1 py-0.2 rounded">环比 +3.2% ↑</span>
+                </div>
               </div>
               <div className="bg-card p-3.5 rounded-xl border border-border shadow-2xs">
                 <div className="flex items-center justify-between">
@@ -1578,7 +1686,10 @@ export default function BenefitEvaluationPage() {
                   <span className="text-[10px] text-blue-600 bg-primary/15 px-1.5 py-0.5 rounded font-medium">利用小时</span>
                 </div>
                 <div className="text-lg font-bold text-blue-600 mt-1.5 font-mono">{pvKpi.avgHours} <span className="text-xs font-normal">h</span></div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">总发电量 ÷ 装机容量</div>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono">
+                  <span className="text-blue-400 bg-primary/15 px-1 py-0.2 rounded font-bold">同比 +4.8% ↑</span>
+                  <span className="text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded">超标杆 +25.8h</span>
+                </div>
               </div>
               <div className="bg-card p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/200/10 shadow-2xs">
                 <div className="flex items-center justify-between">
@@ -1586,7 +1697,10 @@ export default function BenefitEvaluationPage() {
                   <span className="text-[10px] text-emerald-400 bg-emerald-500/200/25 px-1.5 py-0.5 rounded font-bold">消纳/发电</span>
                 </div>
                 <div className="text-lg font-bold text-emerald-400 mt-1.5 font-mono">{pvKpi.avgConsumedRatio}%</div>
-                <div className="text-[11px] text-emerald-400 mt-0.5">厂区消纳电量 ÷ 总发电量</div>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono">
+                  <span className="text-emerald-400 bg-emerald-500/20 px-1 py-0.2 rounded font-bold">同比 +1.8% ↑</span>
+                  <span className="text-amber-400 bg-amber-500/15 px-1 py-0.2 rounded">环比 -0.5% ↓</span>
+                </div>
               </div>
 
               <div className="bg-card p-3.5 rounded-xl border border-border shadow-2xs">
@@ -1595,7 +1709,10 @@ export default function BenefitEvaluationPage() {
                   <span className="text-[10px] text-blue-600 bg-primary/15 px-1.5 py-0.5 rounded font-medium">自发自用</span>
                 </div>
                 <div className="text-lg font-bold text-foreground mt-1.5 font-mono">{pvKpi.totalConsumed} <span className="text-xs font-normal">万kWh</span></div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">车间生产负荷就地消纳</div>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono">
+                  <span className="text-blue-400 bg-primary/10 px-1 py-0.2 rounded font-bold">同比 +9.2% ↑</span>
+                  <span className="text-muted-foreground">自用消纳为主</span>
+                </div>
               </div>
               <div className="bg-card p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/200/10 shadow-2xs">
                 <div className="flex items-center justify-between">
@@ -1603,7 +1720,10 @@ export default function BenefitEvaluationPage() {
                   <span className="text-[10px] text-amber-400 bg-amber-500/200/25 px-1.5 py-0.5 rounded font-medium">替代节费</span>
                 </div>
                 <div className="text-lg font-bold text-amber-400 mt-1.5 font-mono">¥{pvKpi.totalConsumedIncome} <span className="text-xs font-normal">万</span></div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">消纳替代均价 {pvKpi.avgConsumedPrice} 元/kWh</div>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono">
+                  <span className="text-amber-400 bg-amber-500/20 px-1 py-0.2 rounded font-bold">同比 +8.4% ↑</span>
+                  <span className="text-muted-foreground">均价 {pvKpi.avgConsumedPrice}元</span>
+                </div>
               </div>
               <div className="bg-card p-3.5 rounded-xl border border-border shadow-2xs">
                 <div className="flex items-center justify-between">
@@ -1611,7 +1731,7 @@ export default function BenefitEvaluationPage() {
                   <span className="text-[10px] text-muted-foreground bg-panel px-1.5 py-0.5 rounded font-medium">反送售电</span>
                 </div>
                 <div className="text-lg font-bold text-foreground mt-1.5 font-mono">{pvKpi.totalGrid} <span className="text-xs font-normal">万kWh</span></div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">反送电网余电上网量</div>
+                <div className="text-[10px] text-muted-foreground mt-1">反送电网余电上网量</div>
               </div>
               <div className="bg-card p-3.5 rounded-xl border border-emerald-200 bg-emerald-500/20/30 shadow-2xs">
                 <div className="flex items-center justify-between">
@@ -1619,31 +1739,334 @@ export default function BenefitEvaluationPage() {
                   <span className="text-[10px] text-emerald-400 bg-emerald-500/200/25 px-1.5 py-0.5 rounded font-medium">脱硫煤价</span>
                 </div>
                 <div className="text-lg font-bold text-emerald-400 mt-1.5 font-mono">¥{pvKpi.totalGridIncome} <span className="text-xs font-normal">万</span></div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">上网结算单价 {pvKpi.gridPrice} 元/kWh</div>
+                <div className="text-[10px] text-muted-foreground mt-1">上网结算单价 {pvKpi.gridPrice} 元/kWh</div>
               </div>
             </div>
 
             {/* 🌟 光伏可视化图表区 1：左右分栏（24小时三轨功率平衡面积图 + 电量流向/收益构成双环图） */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
-              {/* 左侧 8列：24小时光伏发电出力 vs 厂区就地消纳 vs 余电上网三轨平衡图 */}
-              <div className="lg:col-span-8 bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Sun className="size-4 text-amber-400" />
-                    <h3 className="text-xs font-bold text-foreground">光伏 24小时出力曲线 vs 厂区消纳功率 vs 余电上网动态平衡</h3>
+              {/* 左侧 8列：光伏多维对标分析看板 (和自己对比 / 横向对比 / 24h出力平衡 · 发电量、发电小时数、消纳率) */}
+              <div className="lg:col-span-8 bg-card p-4 rounded-xl border border-border shadow-xs space-y-2.5">
+                {/* 顶栏控制组：模式切换 Tab + 指标切换胶囊 */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-2.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <div className="flex items-center gap-1.5 mr-1">
+                      <Sun className="size-4 text-amber-400 shrink-0" />
+                      <span className="text-xs font-bold text-foreground whitespace-nowrap">光伏多维对标看板</span>
+                    </div>
+
+                    {/* 模式选择 Tab */}
+                    <div className="flex items-center gap-1 bg-panel p-0.5 rounded-lg border border-border text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => setPvCompareMode('self')}
+                        className={cn(
+                          'flex items-center gap-1 px-2.5 py-1 rounded-md transition-all cursor-pointer font-medium',
+                          pvCompareMode === 'self'
+                            ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                        )}
+                      >
+                        <TrendingUp className="size-3" /> 和自己对比
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPvCompareMode('horizontal')}
+                        className={cn(
+                          'flex items-center gap-1 px-2.5 py-1 rounded-md transition-all cursor-pointer font-medium',
+                          pvCompareMode === 'horizontal'
+                            ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                        )}
+                      >
+                        <BarChart3 className="size-3" /> 横向对比
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPvCompareMode('24h')}
+                        className={cn(
+                          'flex items-center gap-1 px-2.5 py-1 rounded-md transition-all cursor-pointer font-medium',
+                          pvCompareMode === '24h'
+                            ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                        )}
+                      >
+                        <Activity className="size-3" /> 24h出力平衡
+                      </button>
+                    </div>
                   </div>
-                  <span className="text-[11px] text-muted-foreground font-mono">单位：万kWh / 功率</span>
+
+                  {/* 对比指标切换胶囊 (仅在 和自己对比 与 横向对比 模式下有效) */}
+                  {pvCompareMode !== '24h' && (
+                    <div className="flex items-center gap-1 text-[10.5px]">
+                      <span className="text-muted-foreground mr-0.5">对比指标:</span>
+                      {(
+                        [
+                          { key: 'gen', label: '发电量' },
+                          { key: 'hours', label: '发电小时数' },
+                          { key: 'ratio', label: '消纳率' },
+                          { key: 'all', label: '综合三指标' },
+                        ] as const
+                      ).map((m) => (
+                        <button
+                          key={m.key}
+                          type="button"
+                          onClick={() => setPvCompareMetric(m.key)}
+                          className={cn(
+                            'px-2 py-0.5 rounded transition-all cursor-pointer font-mono font-medium',
+                            pvCompareMetric === m.key
+                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold shadow-2xs'
+                              : 'text-muted-foreground bg-panel border border-border/60 hover:text-foreground'
+                          )}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <AreaTrend
-                  data={pvHourlyTrendData}
-                  areas={[
-                    { key: '总发电量', name: '光伏理论总出力 (万kWh)', color: '#faad14' },
-                    { key: '厂区消纳', name: '厂区就地消纳 (万kWh)', color: '#1677ff' },
-                    { key: '余电上网', name: '余电反送上网 (万kWh)', color: '#52c41a' },
-                  ]}
-                  xKey="time"
-                  height={220}
-                />
+
+                {/* 🌟 模式 1：和自己对比 (纵向·同比/环比/历史走势) */}
+                {pvCompareMode === 'self' && (
+                  <div className="space-y-2 animate-in fade-in duration-200">
+                    {/* 三大指标同比环比速览条 */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 bg-panel/70 p-2 rounded-lg border border-border/60 text-xs">
+                      <div className="flex flex-col">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-muted-foreground font-medium">周期总发电量</span>
+                          <span className="font-mono font-bold text-foreground">118.5 万kWh</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 text-[10px] font-mono">
+                          <span className="text-emerald-400 bg-emerald-500/15 px-1 py-0.2 rounded font-bold">同比 +8.6% ↑</span>
+                          <span className="text-blue-400 bg-primary/10 px-1 py-0.2 rounded">环比 +3.2% ↑</span>
+                          <span className="text-muted-foreground">达成率 <span className="text-amber-400 font-bold">103%</span></span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col md:border-l border-border/60 md:pl-2">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-muted-foreground font-medium">有效发电小时数</span>
+                          <span className="font-mono font-bold text-blue-400">925.8 h</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 text-[10px] font-mono">
+                          <span className="text-blue-400 bg-primary/15 px-1 py-0.2 rounded font-bold">同比 +4.8% ↑</span>
+                          <span className="text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded">环比 +2.0% ↑</span>
+                          <span className="text-muted-foreground">超标杆 <span className="text-emerald-400 font-bold">+25.8h</span></span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col md:border-l border-border/60 md:pl-2">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-muted-foreground font-medium">综合就地消纳率</span>
+                          <span className="font-mono font-bold text-emerald-400">92.4%</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 text-[10px] font-mono">
+                          <span className="text-emerald-400 bg-emerald-500/20 px-1 py-0.2 rounded font-bold">同比 +1.8% ↑</span>
+                          <span className="text-amber-400 bg-amber-500/15 px-1 py-0.2 rounded">环比 -0.5% ↓</span>
+                          <span className="text-emerald-400 font-bold">≥90%考核达标</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 1~8月历史逐月走势与同环比对照图 */}
+                    <div className="pt-0.5">
+                      <div className="flex items-center justify-between text-[10.5px] text-muted-foreground mb-1 font-mono">
+                        <span className="font-sans font-medium text-slate-300">
+                          {pvCompareMetric === 'gen' && '沈变本部 1~8月逐月发电量 (2026实际 vs 2025同期同比 vs 设计计划)'}
+                          {pvCompareMetric === 'hours' && '沈变本部 1~8月有效利用小时数 (2026实际 vs 2025同比 vs 资源区标杆)'}
+                          {pvCompareMetric === 'ratio' && '沈变本部 1~8月综合就地消纳率走势 (2026实际 vs 2025同比 vs 90%达标线)'}
+                          {pvCompareMetric === 'all' && '沈变本部 1~8月三大指标全景对标 (左轴:发电量万kWh/小时数h · 右轴:消纳率%)'}
+                        </span>
+                        <span>
+                          {pvCompareMetric === 'gen' && '单位：万kWh'}
+                          {pvCompareMetric === 'hours' && '单位：小时 (h)'}
+                          {pvCompareMetric === 'ratio' && '单位：%'}
+                        </span>
+                      </div>
+                      <ResponsiveContainer width="100%" height={180}>
+                        <ComposedChart data={PV_SELF_HISTORY_DATA} margin={{ top: 8, right: 16, left: -15, bottom: 0 }}>
+                          <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
+                          <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+
+                          {pvCompareMetric === 'gen' && (
+                            <YAxis domain={[40, 160]} unit="万" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'hours' && (
+                            <YAxis domain={[30, 120]} unit="h" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'ratio' && (
+                            <YAxis domain={[85, 100]} unit="%" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'all' && (
+                            <>
+                              <YAxis yAxisId="left" domain={[0, 150]} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                              <YAxis yAxisId="right" orientation="right" domain={[85, 100]} unit="%" tick={{ fontSize: 10, fill: '#52c41a' }} axisLine={false} tickLine={false} />
+                            </>
+                          )}
+
+                          <Tooltip
+                            contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', borderColor: 'rgba(255,255,255,0.15)', borderRadius: '8px', fontSize: '11px', color: '#f8fafc' }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: 10.5, paddingTop: 2, color: '#94a3b8' }} />
+
+                          {pvCompareMetric === 'gen' && (
+                            <>
+                              <Bar dataKey="gen2026" name="2026实际发电量 (万kWh)" fill="#faad14" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                              <Bar dataKey="gen2025" name="2025同期发电量 (同比)" fill="rgba(250, 173, 20, 0.35)" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                              <Line type="monotone" dataKey="genPlan" name="设计月度目标值" stroke="#1677ff" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 2 }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'hours' && (
+                            <>
+                              <Bar dataKey="hours2026" name="2026实际利用小时 (h)" fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                              <Bar dataKey="hours2025" name="2025同期利用小时 (同比)" fill="rgba(22, 119, 255, 0.35)" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                              <Line type="monotone" dataKey="hoursBenchmark" name="资源区月度基准小时" stroke="#52c41a" strokeWidth={2} strokeDasharray="3 3" dot={{ r: 2 }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'ratio' && (
+                            <>
+                              <Line type="monotone" dataKey="ratio2026" name="2026综合消纳率 (%)" stroke="#52c41a" strokeWidth={2.5} dot={{ r: 3, fill: '#52c41a' }} />
+                              <Line type="monotone" dataKey="ratio2025" name="2025同期消纳率 (%)" stroke="#94a3b8" strokeWidth={1.8} strokeDasharray="4 4" dot={{ r: 2 }} />
+                              <ReferenceLine y={90.0} stroke="#ff4d4f" strokeDasharray="3 3" label={{ value: '90%考核达标线', fill: '#ff4d4f', fontSize: 10, position: 'insideTopRight' }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'all' && (
+                            <>
+                              <Bar yAxisId="left" dataKey="gen2026" name="实际发电量(万kWh)" fill="#faad14" radius={[3, 3, 0, 0]} maxBarSize={18} />
+                              <Bar yAxisId="left" dataKey="hours2026" name="利用小时数(h)" fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={18} />
+                              <Line yAxisId="right" type="monotone" dataKey="ratio2026" name="综合消纳率(%)" stroke="#52c41a" strokeWidth={2.5} dot={{ r: 3 }} />
+                            </>
+                          )}
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
+                {/* 🌟 模式 2：横向对比 (各电站/园区对标排行) */}
+                {pvCompareMode === 'horizontal' && (
+                  <div className="space-y-2 animate-in fade-in duration-200">
+                    {/* 标杆领跑与对标分析看板 */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 bg-panel/70 p-2 rounded-lg border border-border/60 text-xs">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="size-2 rounded-full bg-amber-400 animate-pulse" />
+                        <span className="text-muted-foreground font-medium">领跑标杆电站:</span>
+                        <span className="font-bold text-foreground">新变超高压基地 (Top 1)</span>
+                        <span className="text-[10px] text-amber-400 bg-amber-500/20 px-1.5 py-0.2 rounded font-mono font-bold">
+                          利用小时 1027.3h · 消纳率 93.0% · 发电量 142.8万kWh
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-[10.5px] font-mono text-muted-foreground">
+                        <span>集团平均利用小时: <span className="text-blue-400 font-bold">961.0 h</span></span>
+                        <span>集团平均消纳率: <span className="text-emerald-400 font-bold">91.7%</span></span>
+                      </div>
+                    </div>
+
+                    {/* 全集团 7 大分布式光伏电站横向综合对标图 */}
+                    <div className="pt-0.5">
+                      <div className="flex items-center justify-between text-[10.5px] text-muted-foreground mb-1 font-mono">
+                        <span className="font-sans font-medium text-slate-300">
+                          {pvCompareMetric === 'gen' && '各分布式光伏电站周期发电量对标 (按发电量降序排列)'}
+                          {pvCompareMetric === 'hours' && '各分布式光伏电站有效发电小时数对标 (按小时数降序排列)'}
+                          {pvCompareMetric === 'ratio' && '各分布式光伏电站综合就地消纳率对标 (按消纳率降序排列)'}
+                          {pvCompareMetric === 'all' && '各分布式光伏电站三大核心指标全景对标 (左轴:发电量/小时数 · 右轴:消纳率)'}
+                        </span>
+                        <span>
+                          {pvCompareMetric === 'gen' && '单位：万kWh'}
+                          {pvCompareMetric === 'hours' && '单位：小时 (h)'}
+                          {pvCompareMetric === 'ratio' && '单位：%'}
+                        </span>
+                      </div>
+                      <ResponsiveContainer width="100%" height={180}>
+                        <ComposedChart
+                          data={[...PV_HORIZONTAL_COMPARE_DATA].sort((a, b) => {
+                            if (pvCompareMetric === 'gen') return b.gen - a.gen
+                            if (pvCompareMetric === 'hours') return b.hours - a.hours
+                            if (pvCompareMetric === 'ratio') return b.ratio - a.ratio
+                            return b.hours - a.hours
+                          })}
+                          margin={{ top: 8, right: 16, left: -15, bottom: 0 }}
+                        >
+                          <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+
+                          {pvCompareMetric === 'gen' && (
+                            <YAxis domain={[30, 160]} unit="万" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'hours' && (
+                            <YAxis domain={[850, 1100]} unit="h" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'ratio' && (
+                            <YAxis domain={[85, 96]} unit="%" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'all' && (
+                            <>
+                              <YAxis yAxisId="left" domain={[0, 1100]} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                              <YAxis yAxisId="right" orientation="right" domain={[85, 96]} unit="%" tick={{ fontSize: 10, fill: '#52c41a' }} axisLine={false} tickLine={false} />
+                            </>
+                          )}
+
+                          <Tooltip
+                            contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', borderColor: 'rgba(255,255,255,0.15)', borderRadius: '8px', fontSize: '11px', color: '#f8fafc' }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: 10.5, paddingTop: 2, color: '#94a3b8' }} />
+
+                          {pvCompareMetric === 'gen' && (
+                            <>
+                              <Bar dataKey="gen" name="周期总发电量 (万kWh)" fill="#faad14" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                              <ReferenceLine y={89.0} stroke="#1677ff" strokeDasharray="3 3" label={{ value: '集团均值 89.0万', fill: '#1677ff', fontSize: 10, position: 'insideTopLeft' }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'hours' && (
+                            <>
+                              <Bar dataKey="hours" name="有效发电小时数 (h)" fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                              <ReferenceLine y={961.0} stroke="#faad14" strokeDasharray="3 3" label={{ value: '集团均值 961h', fill: '#faad14', fontSize: 10, position: 'insideTopLeft' }} />
+                              <ReferenceLine y={900.0} stroke="#52c41a" strokeDasharray="3 3" label={{ value: '一类资源基准 900h', fill: '#52c41a', fontSize: 10, position: 'insideBottomLeft' }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'ratio' && (
+                            <>
+                              <Bar dataKey="ratio" name="综合就地消纳率 (%)" fill="#52c41a" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                              <ReferenceLine y={91.7} stroke="#faad14" strokeDasharray="3 3" label={{ value: '集团平均 91.7%', fill: '#faad14', fontSize: 10, position: 'insideTopLeft' }} />
+                              <ReferenceLine y={90.0} stroke="#ff4d4f" strokeDasharray="3 3" label={{ value: '90%达标红线', fill: '#ff4d4f', fontSize: 10, position: 'insideBottomLeft' }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'all' && (
+                            <>
+                              <Bar yAxisId="left" dataKey="gen" name="发电量(万kWh)" fill="#faad14" radius={[3, 3, 0, 0]} maxBarSize={16} />
+                              <Bar yAxisId="left" dataKey="hours" name="有效小时数(h)" fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={16} />
+                              <Line yAxisId="right" type="monotone" dataKey="ratio" name="消纳率(%)" stroke="#52c41a" strokeWidth={2.5} dot={{ r: 3 }} />
+                            </>
+                          )}
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
+                {/* 🌟 模式 3：24小时三轨出力平衡 (保留原有日内动态功率平衡曲线) */}
+                {pvCompareMode === '24h' && (
+                  <div className="space-y-2 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground font-mono">
+                      <span className="font-sans font-medium text-slate-300">光伏 24小时理论总出力 vs 厂区消纳功率 vs 余电上网动态平衡</span>
+                      <span>单位：万kWh / 功率</span>
+                    </div>
+                    <AreaTrend
+                      data={pvHourlyTrendData}
+                      areas={[
+                        { key: '总发电量', name: '光伏理论总出力 (万kWh)', color: '#faad14' },
+                        { key: '厂区消纳', name: '厂区就地消纳 (万kWh)', color: '#1677ff' },
+                        { key: '余电上网', name: '余电反送上网 (万kWh)', color: '#52c41a' },
+                      ]}
+                      xKey="time"
+                      height={205}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* 右侧 4列：电量流向与双轨收益双环形图 */}
