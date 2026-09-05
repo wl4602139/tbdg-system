@@ -1170,55 +1170,13 @@ export default function EquipmentPage() {
 
         {/* 2. 选中设备主卡片 (根据设备上传的数据类型动态呈现：区分电 / 蒸汽) */}
         <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
-            <div className="flex items-center gap-2.5">
-              <div className="size-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
-                <Cpu className="size-4 text-primary" />
-              </div>
-              <h2 className="text-sm font-bold text-foreground">
-                {selectedEq.name}
-              </h2>
+          <div className="flex items-center gap-2.5 border-b border-border/60 pb-2.5">
+            <div className="size-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
+              <Cpu className="size-4 text-primary" />
             </div>
-
-            {/* 右侧：数据卡片视角切换 (支持区分电 / 蒸汽) */}
-            <div>
-              {hasSteam ? (
-                <div className="flex items-center gap-1 bg-panel p-1 rounded-lg border border-border text-[11px]">
-                  <span className="text-muted-foreground mr-1 text-[10.5px]">卡片指标切换:</span>
-                  <button
-                    type="button"
-                    onClick={() => setEnergyType('elec')}
-                    className={cn(
-                      'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
-                      energyType === 'elec'
-                        ? 'bg-primary text-primary-foreground font-bold shadow-xs'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    <Zap className="size-3" /> 电力数据
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEnergyType('steam')}
-                    className={cn(
-                      'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
-                      energyType === 'steam'
-                        ? 'bg-purple-600 text-white font-bold shadow-xs'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    <Wind className="size-3" /> 蒸汽数据
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1.5 text-xs">
-                  <span className="px-2.5 py-1 rounded-lg bg-panel border border-border text-muted-foreground text-[11px] font-medium flex items-center gap-1.5">
-                    <Zap className="size-3 text-primary" />
-                    纯电设备 · 仅采集电力与负荷参数
-                  </span>
-                </div>
-              )}
-            </div>
+            <h2 className="text-sm font-bold text-foreground">
+              {selectedEq.name}
+            </h2>
           </div>
 
           {/* 数据统计卡片 (根据设备上传的数据类型显示对应指标：区分 电 或者 蒸汽) */}
