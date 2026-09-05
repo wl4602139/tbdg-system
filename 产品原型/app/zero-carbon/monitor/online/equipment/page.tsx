@@ -1171,29 +1171,13 @@ export default function EquipmentPage() {
         {/* 2. 选中设备主卡片 (根据设备上传的数据类型动态呈现：区分电 / 蒸汽) */}
         <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
-            <div className="flex items-center gap-2">
-              <div className="size-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+            <div className="flex items-center gap-2.5">
+              <div className="size-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
                 <Cpu className="size-4 text-primary" />
               </div>
-              <div>
-                <h2 className="text-xs font-bold text-foreground flex items-center gap-2">
-                  <span>{selectedEq.name}</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-panel text-muted-foreground font-normal border border-border">
-                    {selectedEq.code}
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-primary/20 text-primary border border-primary/30 font-bold font-sans">
-                    {selectedEq.company} · {selectedEq.enterprise}
-                  </span>
-                </h2>
-                <div className="text-[11px] text-muted-foreground flex items-center gap-3 pt-0.5">
-                  <span>安装车间: {selectedEq.location}</span>
-                  <span>采集数据介质: <span className="font-semibold text-foreground">{selectedEq.mediumTag}</span></span>
-                  <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
-                    <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    在线运行中
-                  </span>
-                </div>
-              </div>
+              <h2 className="text-sm font-bold text-foreground">
+                {selectedEq.name}
+              </h2>
             </div>
 
             {/* 右侧：数据卡片视角切换 (支持区分电 / 蒸汽) */}
