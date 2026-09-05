@@ -847,14 +847,6 @@ export default function BenefitEvaluationPage() {
     { name: '尖峰时段运行电耗', value: 24.5, color: '#f5222d' },
   ]
 
-  const heatPumpWorkshopBenchmark = [
-    { name: '超高压总装(18m)', 原始面积: 1.2, 折算供暖面积: 7.2, 单位面积电耗: 2.15 },
-    { name: '电缆交联跨(12m)', 原始面积: 1.5, 折算供暖面积: 6.0, 单位面积电耗: 2.00 },
-    { name: '真空干燥跨(15m)', 原始面积: 0.8, 折算供暖面积: 4.0, 单位面积电耗: 2.02 },
-    { name: '线圈装配辅跨(7.5m)', 原始面积: 0.4, 折算供暖面积: 1.0, 单位面积电耗: 2.30 },
-    { name: '研发综合楼(6m)', 原始面积: 0.5, 折算供暖面积: 1.0, 单位面积电耗: 2.96 },
-  ]
-
   // 光伏图表数据
   const pvHourlyTrendData = [
     { time: '06:00', 总发电量: 0.12, 厂区消纳: 0.12, 余电上网: 0.0 },
@@ -1551,27 +1543,6 @@ export default function BenefitEvaluationPage() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* 🌟 热泵可视化图表区 2：不同高大厂房折算面积 (A*H/3) 与单位面积供热电耗对标柱状图 */}
-            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Ruler className="size-4 text-amber-400" />
-                  <h3 className="text-xs font-bold text-foreground">典型工业厂房原始占地 vs 折算供暖面积 (A×H/3) 与单位面积耗电量 (kWh/㎡) 对标</h3>
-                </div>
-                <span className="text-[11px] text-muted-foreground">工业严寒/寒冷地区特级基准：≤ 2.5 kWh/㎡</span>
-              </div>
-              <BarChartGroup
-                data={heatPumpWorkshopBenchmark}
-                bars={[
-                  { key: '原始面积', name: '原始供暖面积 (万㎡)', color: '#94a3b8' },
-                  { key: '折算供暖面积', name: '折算供暖面积 A*H/3 (万㎡)', color: '#fa8c16' },
-                  { key: '单位面积电耗', name: '单位面积供热电耗 (kWh/㎡)', color: '#1677ff' },
-                ]}
-                xKey="name"
-                height={200}
-              />
             </div>
 
             {/* 热泵效益台账明细表 (含 A*H/3 折算过程与层高明细) */}
