@@ -576,11 +576,6 @@ export default function UsageMonitoringPage() {
                 <Zap className="size-3 text-[#1677ff]" />
                 总用电量
               </span>
-              {selectedMediumView === 'all_elec' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-100 text-[#1677ff] font-bold">
-                  图表联动中
-                </span>
-              )}
             </div>
             <div className="text-base font-extrabold font-mono text-[#1677ff] truncate">
               {(aggregatedMetrics.totalElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-slate-400 font-sans">万kWh</span>
@@ -608,11 +603,6 @@ export default function UsageMonitoringPage() {
                 <Building2 className="size-3 text-amber-600" />
                 市电量 (外购)
               </span>
-              {selectedMediumView === 'grid_elec' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-100 text-amber-700 font-bold">
-                  图表联动中
-                </span>
-              )}
             </div>
             <div className="text-base font-extrabold font-mono text-amber-600 truncate">
               {(aggregatedMetrics.gridElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-slate-400 font-sans">万kWh</span>
@@ -640,11 +630,6 @@ export default function UsageMonitoringPage() {
                 <Sun className="size-3 text-emerald-600" />
                 直供绿电量
               </span>
-              {selectedMediumView === 'solar_elec' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 font-bold">
-                  图表联动中
-                </span>
-              )}
             </div>
             <div className="text-base font-extrabold font-mono text-emerald-600 truncate">
               {(aggregatedMetrics.solarElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-slate-400 font-sans">万kWh</span>
@@ -669,11 +654,6 @@ export default function UsageMonitoringPage() {
                 <Droplets className="size-3 text-cyan-500" />
                 水资源消耗量
               </span>
-              {selectedMediumView === 'water' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-700 font-bold">
-                  图表联动中
-                </span>
-              )}
             </div>
             <div className="text-base font-extrabold font-mono text-cyan-600 truncate">
               {aggregatedMetrics.water.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">m³</span>
@@ -698,11 +678,6 @@ export default function UsageMonitoringPage() {
                 <Flame className="size-3 text-amber-500" />
                 天然气量
               </span>
-              {selectedMediumView === 'gas' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-100 text-amber-700 font-bold">
-                  图表联动中
-                </span>
-              )}
             </div>
             <div className="text-base font-extrabold font-mono text-amber-600 truncate">
               {aggregatedMetrics.gas.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">m³</span>
@@ -727,11 +702,6 @@ export default function UsageMonitoringPage() {
                 <Wind className="size-3 text-purple-500" />
                 外购蒸汽量
               </span>
-              {selectedMediumView === 'steam' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 font-bold">
-                  图表联动中
-                </span>
-              )}
             </div>
             <div className="text-base font-extrabold font-mono text-purple-600 truncate">
               {aggregatedMetrics.steam.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">t</span>
@@ -756,11 +726,6 @@ export default function UsageMonitoringPage() {
                 <Fuel className="size-3 text-rose-500" />
                 油消耗量
               </span>
-              {selectedMediumView === 'oil' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 font-bold">
-                  图表联动中
-                </span>
-              )}
             </div>
             <div className="text-base font-extrabold font-mono text-rose-600 truncate">
               {aggregatedMetrics.oil.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">L</span>
@@ -785,11 +750,6 @@ export default function UsageMonitoringPage() {
                 <Snowflake className="size-3 text-indigo-500" />
                 液氮消耗量
               </span>
-              {selectedMediumView === 'nitrogen' && (
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 font-bold">
-                  图表联动中
-                </span>
-              )}
             </div>
             <div className="text-base font-extrabold font-mono text-indigo-600 truncate">
               {aggregatedMetrics.nitrogen.toLocaleString()} <span className="text-[10px] font-normal text-slate-400 font-sans">t</span>
