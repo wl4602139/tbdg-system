@@ -31,268 +31,230 @@ import {
   DollarSign,
   Leaf,
   ShieldCheck,
+  Building,
+  ArrowDownRight,
+  Ruler,
+  Maximize2,
+  PieChart as PieIcon,
 } from 'lucide-react'
+import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend, AreaTrend, Donut, BarChartGroup } from '@/components/shared/charts'
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+  AreaChart,
+  Area,
+  Line,
+  ComposedChart,
+  ReferenceLine,
+} from 'recharts'
 import { cn } from '@/lib/utils'
 
 // ==========================================
-// 1. 储能效益数据模型与台账数据
+// 紧凑型高保真结构环形图组件 (杜绝文字重叠与视口溢出)
+// ==========================================
+interface DonutItem {
+  name: string
+  value: number
+  color: string
+}
+
+function MiniStructureDonut({
+  title,
+  mainPercentage,
+  mainLabel,
+  items,
+}: {
+  title: string
+  mainPercentage: string
+  mainLabel: string
+  items: DonutItem[]
+}) {
+  const total = items.reduce((acc, i) => acc + i.value, 0) || 1
+  let accumulatedPercent = 0
+
+  return (
+    <div className="flex flex-col items-center w-full px-1">
+      <span className="text-xs font-bold text-slate-700 block mb-1">{title}</span>
+
+      {/* SVG 环形进度圈与中央关键指标 */}
+      <div className="relative size-24 shrink-0 flex items-center justify-center my-1">
+        <svg className="size-full -rotate-90" viewBox="0 0 100 100">
+          <circle
+            cx="50"
+            cy="50"
+            r="38"
+            stroke="#f1f5f9"
+            strokeWidth="11"
+            fill="transparent"
+          />
+          {items.map((item, idx) => {
+            const percent = (item.value / total) * 100
+            const strokeDasharray = `${(percent * 2.3876).toFixed(1)} 238.76`
+            const strokeDashoffset = `-${(accumulatedPercent * 2.3876).toFixed(1)}`
+            accumulatedPercent += percent
+
+            return (
+              <circle
+                key={idx}
+                cx="50"
+                cy="50"
+                r="38"
+                stroke={item.color}
+                strokeWidth="11"
+                strokeDasharray={strokeDasharray}
+                strokeDashoffset={strokeDashoffset}
+                fill="transparent"
+                className="transition-all duration-300 hover:opacity-80"
+              />
+            )
+          })}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+          <span className="text-base font-bold font-mono text-slate-800 leading-none">
+            {mainPercentage}
+          </span>
+          <span className="text-[10px] text-slate-400 font-medium mt-0.5">
+            {mainLabel}
+          </span>
+        </div>
+      </div>
+
+      {/* 结构图例清单 */}
+      <div className="w-full mt-2 space-y-1.5 pt-2 border-t border-slate-100">
+        {items.map((item, idx) => (
+          <div key={idx} className="flex items-center justify-between text-[11px] leading-tight">
+            <span className="flex items-center gap-1.5 text-slate-600 truncate max-w-[110px]" title={item.name}>
+              <span className="size-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+              <span className="truncate">{item.name}</span>
+            </span>
+            <span className="font-mono font-bold text-slate-800 shrink-0 ml-1">
+              {item.value}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ==========================================
+// 1. 储能效益数据模型 (严格对齐客户需求)
 // ==========================================
 export interface StorageBenefitItem {
   id: string
   name: string
   park: string
   company: string
-  capacity: string // 如 6MW / 12MWh
-  chargeKwh: number // 日充电量 (kWh)
-  dischargeKwh: number // 日放电量 (kWh)
-  revenueYuan: number // 日收益 (元)
+  capacity: string // 储能装机容量，如 6MW / 12MWh
+  chargeKwh: number // 充电量 (kWh)
+  dischargeKwh: number // 放电量 (kWh)
+  revenueYuan: number // 套利收益 (元)
   efficiency: number // 综合效率 (%)
-  gridChargeRatio: number // 市充占比 (%)
-  greenChargeRatio: number // 绿充占比 (%)
+  greenChargeRatio: number // 充电量（绿电）占比 (%)
+  valleyChargeRatio: number // 充电量（市电谷/深谷）占比 (%)
   criticalPeakDischargeRatio: number // 尖放占比 (%)
   peakDischargeRatio: number // 峰放占比 (%)
-  // 扩展分析字段
-  monthlyChargeWanKwh: number // 月度累计充电量 (万kWh)
-  monthlyDischargeWanKwh: number // 月度累计放电量 (万kWh)
+  peakCombinedDesc: string // 放电量（尖/峰）占比描述，如 尖62% / 峰38%
+  monthlyChargeWanKwh: number // 月度充电量 (万kWh)
+  monthlyDischargeWanKwh: number // 月度放电量 (万kWh)
   monthlyRevenueWan: number // 月度累计收益 (万元)
   carbonReductionTons: number // 核证碳减排 (tCO2)
-  // 详细算法核算上下文参数
   calcContext: {
-    criticalPeakPrice: number // 尖段电价 (元/kWh)
-    peakPrice: number // 峰段电价 (元/kWh)
-    flatPrice: number // 平段电价 (元/kWh)
-    valleyPrice: number // 谷段电价 (元/kWh)
-    greenPowerPrice: number // 绿电消纳协议价 (元/kWh)
-    gridChargeKwh: number // 市电充电量 (kWh)
-    greenChargeKwh: number // 绿电充电量 (kWh)
-    criticalDischargeKwh: number // 尖段放电量 (kWh)
-    peakDischargeKwh: number // 峰段放电量 (kWh)
-    dischargeIncomeYuan: number // 放电总收入 (元)
-    chargeCostYuan: number // 充电总成本 (元)
-    roundTripLossKwh: number // 循环损耗电量 (kWh)
+    criticalPeakPrice: number
+    peakPrice: number
+    flatPrice: number
+    valleyPrice: number
+    greenPowerPrice: number
+    gridChargeKwh: number
+    greenChargeKwh: number
+    criticalDischargeKwh: number
+    peakDischargeKwh: number
+    dischargeIncomeYuan: number
+    chargeCostYuan: number
+    roundTripLossKwh: number
     formula: string
   }
 }
 
 // ==========================================
-// 2. 热泵效益数据模型与台账数据
+// 2. 热泵效益数据模型 (严格对齐客户 A*H/3 折算与指标需求)
 // ==========================================
+export interface BuildingHeightItem {
+  buildingName: string
+  areaWanM2: number // 原始面积 (万㎡)
+  heightM: number // 建筑层高 (m)
+  convertedAreaWanM2: number // 折算面积 = areaWanM2 * heightM / 3 (万㎡)
+}
+
 export interface HeatPumpBenefitItem {
   id: string
   name: string
   park: string
   company: string
-  capacity: string // 如 2.5 MW (制热功率)
-  gridPowerKwh: number // 市电量 (kWh)
-  greenPowerKwh: number // 绿电量 (kWh)
-  gridCostYuan: number // 市电费 (元)
-  greenCostYuan: number // 绿电费 (元)
-  greenPowerRatio: number // 绿电占比 (%)
-  peakRatio: number // 尖峰占比 (%)
-  // 扩展分析字段
-  cop: number // 制热能效比 COP
-  replacedGasM3: number // 替代天然气量 (m³)
-  dailySavingsYuan: number // 当期日节费 (元)
-  monthlySavingsWan: number // 月度累计节费 (万元)
-  carbonReductionTons: number // 减碳量 (tCO2)
-  // 详细算法核算上下文参数
+  capacity: string // 装机热功率，如 2.5 MW (制热量)
+  cop: number // COP 综合制热性能系数
+  heatOutputGj: number // 供热量 (GJ)
+  heatOutputEquivalentKwh: number // 供热量折算电量 (万kWh)
+  powerKwh: number // 耗电量 (kWh)
+  areaWanM2: number // 原始供暖面积 A (万㎡)
+  heightM: number // 建筑平均层高 H (m)
+  convertedAreaWanM2: number // 折算供暖面积 A*H/3 (万㎡)
+  kwhPerM2: number // 单位面积供热耗电量 (kWh/㎡) = powerKwh / (convertedAreaWanM2 * 10000)
+  greenPowerRatio: number // 制热电耗占比（绿电）(%)
+  peakPowerRatio: number // 制热电耗占比（市电尖/峰）(%)
+  flatValleyPowerRatio: number // 制热电耗平谷占比 (%)
+  replacedGasM3: number // 替代天然气 (m³)
+  dailySavingsYuan: number // 日节费 (元)
+  monthlySavingsWan: number // 月节费 (万元)
+  carbonReductionTons: number // 碳减排量 (tCO2)
+  heightBreakdown: BuildingHeightItem[]
   calcContext: {
-    gridAvgPrice: number // 市电平均综合电价 (元/kWh)
-    greenAvgPrice: number // 绿电加权交易电价 (元/kWh)
-    gasPricePerM3: number // 替代天然气基准单价 (元/m³)
-    gasThermalEfficiency: number // 原燃气锅炉热效率 (如 88%)
-    heatOutputGj: number // 当期总供热量 (GJ)
-    replacedGasCostYuan: number // 替代基准燃气费用 (元)
-    heatPumpTotalCostYuan: number // 热泵运行总电费 (元)
+    gasPrice: number
+    electricityAvgPrice: number
+    replacedGasCostYuan: number
+    heatPumpElecCostYuan: number
     formula: string
   }
 }
 
 // ==========================================
-// 3. 光伏效益数据模型与台账数据 (补充完善)
+// 3. 光伏效益数据模型 (全新构建，严格对齐消纳/上网双轨)
 // ==========================================
 export interface PvBenefitItem {
   id: string
   name: string
   park: string
   company: string
-  capacity: string // 如 12.8 MWp
-  dailyGenKwh: number // 日发电量 (kWh)
-  dailySelfKwh: number // 自发自用量 (kWh)
-  dailyGridKwh: number // 余电上网量 (kWh)
-  selfUseRatio: number // 自用比例 (%)
-  selfSavingsYuan: number // 自用节费 (元)
-  gridRevenueYuan: number // 上网收益 (元)
-  totalBenefitYuan: number // 综合效益 (元)
-  dailyHours: number // 等效利用小时数 (h)
-  dailyCarbonTons: number // 核证减排量 (tCO2)
-  // 扩展分析字段
-  monthlyGenWanKwh: number // 月累计发电 (万kWh)
-  monthlyBenefitWan: number // 月累计收益 (万元)
-  // 详细算法核算上下文参数
+  capacityMwp: number // 光伏装机 (MWp)
+  genKwhWan: number // 周期发电量 (万kWh)
+  effectiveHours: number // 有效发电小时数 (h) = genKwhWan * 10000 / (capacityMwp * 1000)
+  consumedKwhWan: number // 消纳电量 (万kWh)
+  consumedIncomeWan: number // 消纳收益 (万元) = 消纳电量 × 消纳均价
+  consumedAvgPrice: number // 消纳均价 (元/kWh)
+  consumedRatio: number // 消纳率 (%) = 消纳电量 / 发电量
+  gridKwhWan: number // 上网电量 (万kWh)
+  gridIncomeWan: number // 上网收益 (万元) = 上网电量 × 上网单价
+  gridPrice: number // 上网单价 (元/kWh，标杆燃煤基准价)
+  totalIncomeWan: number // 总收益 = 消纳收益 + 上网收益
+  carbonReductionTons: number // 核证减排 (tCO2)
   calcContext: {
-    gridTariffAvg: number // 替代企业外购电加权平均电价 (元/kWh)
-    feedInTariff: number // 燃煤脱硫标杆上网电价 (元/kWh)
-    prRatio: number // 光伏系统性能比 PR (%)
-    emissionFactor: number // 电网碳排放因子 (tCO2/MWh)
+    co2Factor: number
+    tceFactor: number
     formula: string
   }
 }
 
 // ==========================================
-// 4. 全景宏观项目模型
+// 4. 模拟数据清单
 // ==========================================
-export interface MacroProjectItem {
-  id: string
-  name: string
-  base: string
-  park: string
-  type: '分布式光伏' | '用户侧储能' | '工业热泵'
-  capacity: string
-  investment: number // 万元
-  actualGenKwh: string // 实际发电/节电/替代能耗
-  savingsYuan: number // 当期节费 (万元)
-  arbitrageYuan?: number // 峰谷套利/附加收益 (万元)
-  carbonReduction: number // 核证碳减排量 (tCO2)
-  tceSaving: number // 标煤节约量 (tce)
-  irr: string // 实际内部收益率 IRR
-  paybackYears: number // 动态投资回收期 (年)
-  macc: number // 单位边际减排成本 (元/tCO2)
-  npv: number // 净现值 (万元)
-}
 
-// 模拟宏观综合数据
-const ALL_PROJECT_BENEFITS: MacroProjectItem[] = [
-  {
-    id: 'p-01',
-    name: '沈变本部 12.8MWp 屋顶分布式光伏一期',
-    base: '沈变公司',
-    park: '特变电工东北输变电产业园',
-    type: '分布式光伏',
-    capacity: '12.8 MWp',
-    investment: 4850.0,
-    actualGenKwh: '118.5 万kWh',
-    savingsYuan: 78.6,
-    arbitrageYuan: 12.4,
-    carbonReduction: 634.0,
-    tceSaving: 145.6,
-    irr: '14.8%',
-    paybackYears: 4.8,
-    macc: -145.0,
-    npv: 820.5,
-  },
-  {
-    id: 'p-02',
-    name: '衡变公司 6MW/12MWh 磷酸铁锂用户侧储能',
-    base: '衡变公司',
-    park: '特变电工南方输变电产业园',
-    type: '用户侧储能',
-    capacity: '6MW / 12MWh',
-    investment: 1680.0,
-    actualGenKwh: '充放 62.0 万kWh',
-    savingsYuan: 31.2,
-    arbitrageYuan: 18.6,
-    carbonReduction: 186.0,
-    tceSaving: 76.2,
-    irr: '17.2%',
-    paybackYears: 4.2,
-    macc: -48.0,
-    npv: 345.0,
-  },
-  {
-    id: 'p-03',
-    name: '德缆产业园 2.5MW 高温工业水源热泵系统',
-    base: '德缆公司',
-    park: '特变电工(德阳)电缆园区',
-    type: '工业热泵',
-    capacity: '2.5 MW (制热量)',
-    investment: 620.0,
-    actualGenKwh: '替代天然气 3.8 万m³',
-    savingsYuan: 14.2,
-    arbitrageYuan: 2.1,
-    carbonReduction: 82.0,
-    tceSaving: 46.5,
-    irr: '24.1%',
-    paybackYears: 3.4,
-    macc: -112.0,
-    npv: 168.0,
-  },
-  {
-    id: 'p-04',
-    name: '新疆变压器厂区 20MWp 分布式光伏三期',
-    base: '新变厂',
-    park: '特变电工新疆产业园',
-    type: '分布式光伏',
-    capacity: '20.0 MWp',
-    investment: 7600.0,
-    actualGenKwh: '210.0 万kWh',
-    savingsYuan: 135.0,
-    arbitrageYuan: 15.0,
-    carbonReduction: 1482.0,
-    tceSaving: 320.0,
-    irr: '14.8%',
-    paybackYears: 5.6,
-    macc: -148.0,
-    npv: 1350.0,
-  },
-  {
-    id: 'p-05',
-    name: '鲁缆公司 3MW/6MWh 智慧储能调峰电站',
-    base: '鲁缆公司',
-    park: '特变电工华东输变电科技产业园',
-    type: '用户侧储能',
-    capacity: '3MW / 6MWh',
-    investment: 890.0,
-    actualGenKwh: '充放 31.0 万kWh',
-    savingsYuan: 16.5,
-    arbitrageYuan: 9.8,
-    carbonReduction: 98.0,
-    tceSaving: 38.5,
-    irr: '16.5%',
-    paybackYears: 4.5,
-    macc: -52.0,
-    npv: 185.0,
-  },
-  {
-    id: 'p-06',
-    name: '新缆厂 4.5MWp 屋顶分布式光伏二期',
-    base: '新缆厂',
-    park: '特变电工新疆电缆产业园',
-    type: '分布式光伏',
-    capacity: '4.5 MWp',
-    investment: 1710.0,
-    actualGenKwh: '45.8 万kWh',
-    savingsYuan: 28.5,
-    arbitrageYuan: 4.2,
-    carbonReduction: 245.0,
-    tceSaving: 56.3,
-    irr: '15.6%',
-    paybackYears: 4.6,
-    macc: -138.0,
-    npv: 290.0,
-  },
-  {
-    id: 'p-07',
-    name: '天变公司 1.8MW 真空干燥罐余热水源热泵',
-    base: '天变公司',
-    park: '特变电工天变产业园',
-    type: '工业热泵',
-    capacity: '1.8 MW (制热量)',
-    investment: 380.0,
-    actualGenKwh: '替代天然气 2.6 万m³',
-    savingsYuan: 9.8,
-    arbitrageYuan: 1.5,
-    carbonReduction: 56.0,
-    tceSaving: 31.8,
-    irr: '21.5%',
-    paybackYears: 3.9,
-    macc: -98.0,
-    npv: 112.0,
-  },
-]
-
-// 模拟储能效益详细台账数据
 const STORAGE_BENEFIT_DATA: StorageBenefitItem[] = [
   {
     id: 'st-01',
@@ -304,10 +266,11 @@ const STORAGE_BENEFIT_DATA: StorageBenefitItem[] = [
     dischargeKwh: 10831.5,
     revenueYuan: 8420.5,
     efficiency: 87.0,
-    gridChargeRatio: 28.5,
     greenChargeRatio: 71.5,
+    valleyChargeRatio: 28.5,
     criticalPeakDischargeRatio: 62.0,
     peakDischargeRatio: 38.0,
+    peakCombinedDesc: '尖 62.0% / 峰 38.0%',
     monthlyChargeWanKwh: 37.35,
     monthlyDischargeWanKwh: 32.49,
     monthlyRevenueWan: 25.26,
@@ -325,114 +288,116 @@ const STORAGE_BENEFIT_DATA: StorageBenefitItem[] = [
       dischargeIncomeYuan: 12629.53,
       chargeCostYuan: 4209.03,
       roundTripLossKwh: 1618.5,
-      formula: '收益 = (尖段放电量×尖电价 + 峰段放电量×峰电价) - (谷段市充量×谷电价 + 绿充电量×绿电价)',
+      formula: '套利收益 = (尖放电量×尖电价 + 峰放电量×峰电价) - (市电谷充电量×谷电价 + 绿充电量×绿电价)',
     },
   },
   {
     id: 'st-02',
     name: '鲁缆公司 3MW/6MWh 智慧储能调峰电站',
-    park: '特变电工华东输变电科技产业园',
+    park: '特变电工山东线缆产业园',
     company: '鲁缆公司',
     capacity: '3MW / 6MWh',
     chargeKwh: 6200.0,
     dischargeKwh: 5394.0,
     revenueYuan: 4150.0,
     efficiency: 87.0,
-    gridChargeRatio: 32.0,
     greenChargeRatio: 68.0,
+    valleyChargeRatio: 32.0,
     criticalPeakDischargeRatio: 58.0,
     peakDischargeRatio: 42.0,
+    peakCombinedDesc: '尖 58.0% / 峰 42.0%',
     monthlyChargeWanKwh: 18.6,
     monthlyDischargeWanKwh: 16.18,
     monthlyRevenueWan: 12.45,
-    carbonReductionTons: 98.0,
+    carbonReductionTons: 92.5,
     calcContext: {
-      criticalPeakPrice: 1.25,
+      criticalPeakPrice: 1.22,
       peakPrice: 0.95,
-      flatPrice: 0.63,
+      flatPrice: 0.62,
       valleyPrice: 0.31,
       greenPowerPrice: 0.41,
       gridChargeKwh: 1984.0,
       greenChargeKwh: 4216.0,
       criticalDischargeKwh: 3128.52,
       peakDischargeKwh: 2265.48,
-      dischargeIncomeYuan: 6062.86,
-      chargeCostYuan: 1912.86,
+      dischargeIncomeYuan: 6023.7,
+      chargeCostYuan: 1873.7,
       roundTripLossKwh: 806.0,
-      formula: '综合效率 = (放电总量 / 充电总量) × 100%；收益 = 尖峰放电收益 - 谷平绿充成本',
+      formula: '套利收益 = (放电总收入 - 充电总成本)；放电尖峰比严格执行电网两充两放调度策略',
     },
   },
   {
     id: 'st-03',
-    name: '沈变本部 5MW/10MWh 工业级微网储能系统',
+    name: '沈变本部 5MW/10MWh 零碳工业储能电站',
     park: '特变电工东北输变电产业园',
-    company: '沈变公司',
+    company: '沈变本部',
     capacity: '5MW / 10MWh',
     chargeKwh: 10500.0,
     dischargeKwh: 9187.5,
     revenueYuan: 7120.0,
     efficiency: 87.5,
-    gridChargeRatio: 25.0,
-    greenChargeRatio: 75.0,
-    criticalPeakDischargeRatio: 65.0,
-    peakDischargeRatio: 35.0,
+    greenChargeRatio: 76.0,
+    valleyChargeRatio: 24.0,
+    criticalPeakDischargeRatio: 60.0,
+    peakDischargeRatio: 40.0,
+    peakCombinedDesc: '尖 60.0% / 峰 40.0%',
     monthlyChargeWanKwh: 31.5,
     monthlyDischargeWanKwh: 27.56,
     monthlyRevenueWan: 21.36,
-    carbonReductionTons: 156.0,
+    carbonReductionTons: 158.0,
     calcContext: {
-      criticalPeakPrice: 1.28,
-      peakPrice: 0.98,
-      flatPrice: 0.65,
-      valleyPrice: 0.32,
-      greenPowerPrice: 0.42,
-      gridChargeKwh: 2625.0,
-      greenChargeKwh: 7875.0,
-      criticalDischargeKwh: 5971.88,
-      peakDischargeKwh: 3215.62,
-      dischargeIncomeYuan: 10795.31,
-      chargeCostYuan: 3675.0,
+      criticalPeakPrice: 1.25,
+      peakPrice: 0.96,
+      flatPrice: 0.63,
+      valleyPrice: 0.33,
+      greenPowerPrice: 0.43,
+      gridChargeKwh: 2520.0,
+      greenChargeKwh: 7980.0,
+      criticalDischargeKwh: 5512.5,
+      peakDischargeKwh: 3675.0,
+      dischargeIncomeYuan: 10418.6,
+      chargeCostYuan: 3298.6,
       roundTripLossKwh: 1312.5,
-      formula: '尖放占比 = (尖段放电量 / 总放电量) × 100%；绿充占比 = (绿充电量 / 总充电量) × 100%',
+      formula: '绿电午间充入 + 夜间深谷充入，早晚双尖峰最大化套利释放',
     },
   },
   {
     id: 'st-04',
-    name: '新变厂 4MW/8MWh 削峰填谷储能示范站',
-    park: '特变电工新疆产业园',
-    company: '新变厂',
+    name: '新变厂超高压 4MW/8MWh 调频储能电站',
+    park: '特变电工超高压智能制造基地',
+    company: '超高压公司',
     capacity: '4MW / 8MWh',
     chargeKwh: 8400.0,
     dischargeKwh: 7291.2,
     revenueYuan: 5380.0,
     efficiency: 86.8,
-    gridChargeRatio: 20.0,
-    greenChargeRatio: 80.0,
-    criticalPeakDischargeRatio: 55.0,
-    peakDischargeRatio: 45.0,
+    greenChargeRatio: 81.0,
+    valleyChargeRatio: 19.0,
+    criticalPeakDischargeRatio: 64.0,
+    peakDischargeRatio: 36.0,
+    peakCombinedDesc: '尖 64.0% / 峰 36.0%',
     monthlyChargeWanKwh: 25.2,
     monthlyDischargeWanKwh: 21.87,
     monthlyRevenueWan: 16.14,
-    carbonReductionTons: 125.0,
+    carbonReductionTons: 124.0,
     calcContext: {
-      criticalPeakPrice: 1.22,
+      criticalPeakPrice: 1.20,
       peakPrice: 0.92,
       flatPrice: 0.60,
       valleyPrice: 0.28,
       greenPowerPrice: 0.38,
-      gridChargeKwh: 1680.0,
-      greenChargeKwh: 6720.0,
-      criticalDischargeKwh: 4010.16,
-      peakDischargeKwh: 3281.04,
-      dischargeIncomeYuan: 7910.95,
-      chargeCostYuan: 2530.95,
+      gridChargeKwh: 1596.0,
+      greenChargeKwh: 6804.0,
+      criticalDischargeKwh: 4666.37,
+      peakDischargeKwh: 2624.83,
+      dischargeIncomeYuan: 8014.5,
+      chargeCostYuan: 2634.5,
       roundTripLossKwh: 1108.8,
-      formula: '收益 = (放电收入 - 充电成本)；市充占比 = (市电充电量 / 总充电量) × 100%',
+      formula: '新疆准东荒漠大光伏直接绿充电量，夜间参与电网调频辅助服务',
     },
   },
 ]
 
-// 模拟热泵效益详细台账数据
 const HEAT_PUMP_BENEFIT_DATA: HeatPumpBenefitItem[] = [
   {
     id: 'hp-01',
@@ -440,26 +405,31 @@ const HEAT_PUMP_BENEFIT_DATA: HeatPumpBenefitItem[] = [
     park: '特变电工(德阳)电缆园区',
     company: '德缆公司',
     capacity: '2.5 MW (制热量)',
-    gridPowerKwh: 4200.0,
-    greenPowerKwh: 10800.0,
-    gridCostYuan: 3150.0,
-    greenCostYuan: 4536.0,
-    greenPowerRatio: 72.0,
-    peakRatio: 24.5,
     cop: 3.85,
+    heatOutputGj: 207.9,
+    heatOutputEquivalentKwh: 5.77,
+    powerKwh: 15000.0,
+    areaWanM2: 2.5,
+    heightM: 9.0,
+    convertedAreaWanM2: 7.5,
+    kwhPerM2: 2.0,
+    greenPowerRatio: 72.0,
+    peakPowerRatio: 24.5,
+    flatValleyPowerRatio: 3.5,
     replacedGasM3: 3850,
     dailySavingsYuan: 6184.0,
     monthlySavingsWan: 18.55,
     carbonReductionTons: 82.0,
+    heightBreakdown: [
+      { buildingName: '电缆交联重型主车间', areaWanM2: 1.5, heightM: 12.0, convertedAreaWanM2: 6.0 },
+      { buildingName: '中低压线缆副厂房', areaWanM2: 1.0, heightM: 4.5, convertedAreaWanM2: 1.5 },
+    ],
     calcContext: {
-      gridAvgPrice: 0.75,
-      greenAvgPrice: 0.42,
-      gasPricePerM3: 3.6,
-      gasThermalEfficiency: 0.88,
-      heatOutputGj: 207.9,
+      gasPrice: 3.6,
+      electricityAvgPrice: 0.51,
       replacedGasCostYuan: 13860.0,
-      heatPumpTotalCostYuan: 7686.0,
-      formula: '净节费 = (替代天然气量×燃气单价) - (市电量×市电价 + 绿电量×绿电价)',
+      heatPumpElecCostYuan: 7676.0,
+      formula: '折算供暖面积 = A×H/3；单位面积供热电耗 = 制热总耗电量 ÷ (折算面积×10000)',
     },
   },
   {
@@ -468,152 +438,312 @@ const HEAT_PUMP_BENEFIT_DATA: HeatPumpBenefitItem[] = [
     park: '特变电工天变产业园',
     company: '天变公司',
     capacity: '1.8 MW (制热量)',
-    gridPowerKwh: 2800.0,
-    greenPowerKwh: 7600.0,
-    gridCostYuan: 2156.0,
-    greenCostYuan: 3192.0,
-    greenPowerRatio: 73.1,
-    peakRatio: 22.0,
     cop: 4.12,
-    replacedGasM3: 2680,
-    dailySavingsYuan: 4300.0,
-    monthlySavingsWan: 12.9,
-    carbonReductionTons: 56.0,
+    heatOutputGj: 149.7,
+    heatOutputEquivalentKwh: 4.16,
+    powerKwh: 10100.0,
+    areaWanM2: 1.2,
+    heightM: 12.5,
+    convertedAreaWanM2: 5.0,
+    kwhPerM2: 2.02,
+    greenPowerRatio: 78.5,
+    peakPowerRatio: 18.0,
+    flatValleyPowerRatio: 3.5,
+    replacedGasM3: 2780,
+    dailySavingsYuan: 4720.0,
+    monthlySavingsWan: 14.16,
+    carbonReductionTons: 63.0,
+    heightBreakdown: [
+      { buildingName: '真空注油干燥主跨', areaWanM2: 0.8, heightM: 15.0, convertedAreaWanM2: 4.0 },
+      { buildingName: '线圈装配辅跨', areaWanM2: 0.4, heightM: 7.5, convertedAreaWanM2: 1.0 },
+    ],
     calcContext: {
-      gridAvgPrice: 0.77,
-      greenAvgPrice: 0.42,
-      gasPricePerM3: 3.6,
-      gasThermalEfficiency: 0.88,
-      heatOutputGj: 153.8,
-      replacedGasCostYuan: 9648.0,
-      heatPumpTotalCostYuan: 5348.0,
-      formula: '绿电占比 = (绿电量 / (市电量+绿电量)) × 100%；尖峰占比 = (尖峰时段用电量 / 总电量) × 100%',
+      gasPrice: 3.5,
+      electricityAvgPrice: 0.48,
+      replacedGasCostYuan: 9730.0,
+      heatPumpElecCostYuan: 5010.0,
+      formula: '高大空间通过高度 H/3 修正建筑传热系数比，实现不同车间精准同频能效考核',
     },
   },
   {
     id: 'hp-03',
-    name: '沈变厂区 3.2MW 深层地源热泵集中供暖系统',
+    name: '沈变本部 3.2MW 地源/工业中温热泵机组',
     park: '特变电工东北输变电产业园',
-    company: '沈变公司',
-    capacity: '3.2 MW (供暖/供热水)',
-    gridPowerKwh: 5600.0,
-    greenPowerKwh: 13400.0,
-    gridCostYuan: 4368.0,
-    greenCostYuan: 5628.0,
-    greenPowerRatio: 70.5,
-    peakRatio: 25.8,
-    cop: 3.92,
-    replacedGasM3: 4900,
-    dailySavingsYuan: 7644.0,
-    monthlySavingsWan: 22.93,
+    company: '沈变本部',
+    capacity: '3.2 MW (制热量)',
+    cop: 3.65,
+    heatOutputGj: 266.1,
+    heatOutputEquivalentKwh: 7.39,
+    powerKwh: 20250.0,
+    areaWanM2: 1.8,
+    heightM: 15.0,
+    convertedAreaWanM2: 9.0,
+    kwhPerM2: 2.25,
+    greenPowerRatio: 65.0,
+    peakPowerRatio: 30.0,
+    flatValleyPowerRatio: 5.0,
+    replacedGasM3: 4920,
+    dailySavingsYuan: 7650.0,
+    monthlySavingsWan: 22.95,
     carbonReductionTons: 105.0,
+    heightBreakdown: [
+      { buildingName: '超高压变压器总装车间', areaWanM2: 1.2, heightM: 18.0, convertedAreaWanM2: 7.2 },
+      { buildingName: '铁芯下料与退火工段', areaWanM2: 0.6, heightM: 9.0, convertedAreaWanM2: 1.8 },
+    ],
     calcContext: {
-      gridAvgPrice: 0.78,
-      greenAvgPrice: 0.42,
-      gasPricePerM3: 3.6,
-      gasThermalEfficiency: 0.88,
-      heatOutputGj: 268.0,
-      replacedGasCostYuan: 17640.0,
-      heatPumpTotalCostYuan: 9996.0,
-      formula: '节能量 = 产热量/COP折算用电与锅炉能耗差；减碳量 = 替代化石能源碳排 - 运行耗电碳排',
+      gasPrice: 3.7,
+      electricityAvgPrice: 0.52,
+      replacedGasCostYuan: 18204.0,
+      heatPumpElecCostYuan: 10554.0,
+      formula: '东北严寒地区冬季替代燃气蒸汽锅炉采暖，通过 COP 3.65 驱动单位面积电耗压降',
+    },
+  },
+  {
+    id: 'hp-04',
+    name: '衡变本部 2.0MW 空气源跨临界CO₂热泵采暖系统',
+    park: '特变电工南方输变电产业园',
+    company: '衡变本部',
+    capacity: '2.0 MW (制热量)',
+    cop: 3.90,
+    heatOutputGj: 166.3,
+    heatOutputEquivalentKwh: 4.62,
+    powerKwh: 11850.0,
+    areaWanM2: 1.5,
+    heightM: 8.0,
+    convertedAreaWanM2: 4.0,
+    kwhPerM2: 2.96,
+    greenPowerRatio: 75.0,
+    peakPowerRatio: 21.0,
+    flatValleyPowerRatio: 4.0,
+    replacedGasM3: 3100,
+    dailySavingsYuan: 5120.0,
+    monthlySavingsWan: 15.36,
+    carbonReductionTons: 71.0,
+    heightBreakdown: [
+      { buildingName: '电气开关柜装配车间', areaWanM2: 1.0, heightM: 9.0, convertedAreaWanM2: 3.0 },
+      { buildingName: '办公与研发中心大楼', areaWanM2: 0.5, heightM: 6.0, convertedAreaWanM2: 1.0 },
+    ],
+    calcContext: {
+      gasPrice: 3.65,
+      electricityAvgPrice: 0.49,
+      replacedGasCostYuan: 11315.0,
+      heatPumpElecCostYuan: 6195.0,
+      formula: '采用环保跨临界 CO₂ 制冷剂，绿色电力就地驱动，年减排超 800 吨',
     },
   },
 ]
 
-// 模拟光伏效益详细台账数据
+// ============================================================
+// 光伏和自己对比：1~8月逐月历史对标数据集 (实际 vs 去年同期同比 vs 计划/标杆)
+// ============================================================
+const PV_SELF_HISTORY_DATA = [
+  { month: '01月', gen2026: 62.4, gen2025: 57.2, genPlan: 60.0, hours2026: 48.8, hours2025: 44.7, hoursBenchmark: 45.0, ratio2026: 94.2, ratio2025: 93.0, ratioTarget: 90.0, momGen: 0, yoyGen: 9.1 },
+  { month: '02月', gen2026: 78.5, gen2025: 71.0, genPlan: 75.0, hours2026: 61.3, hours2025: 55.5, hoursBenchmark: 55.0, ratio2026: 93.8, ratio2025: 92.5, ratioTarget: 90.0, momGen: 25.8, yoyGen: 10.6 },
+  { month: '03月', gen2026: 105.2, gen2025: 98.4, genPlan: 102.0, hours2026: 82.2, hours2025: 76.9, hoursBenchmark: 80.0, ratio2026: 93.1, ratio2025: 91.8, ratioTarget: 90.0, momGen: 34.0, yoyGen: 6.9 },
+  { month: '04月', gen2026: 122.8, gen2025: 114.2, genPlan: 120.0, hours2026: 95.9, hours2025: 89.2, hoursBenchmark: 90.0, ratio2026: 92.6, ratio2025: 91.2, ratioTarget: 90.0, momGen: 16.7, yoyGen: 7.5 },
+  { month: '05月', gen2026: 138.4, gen2025: 126.5, genPlan: 132.0, hours2026: 108.1, hours2025: 98.8, hoursBenchmark: 100.0, ratio2026: 91.9, ratio2025: 90.5, ratioTarget: 90.0, momGen: 12.7, yoyGen: 9.4 },
+  { month: '06月', gen2026: 132.6, gen2025: 123.0, genPlan: 128.0, hours2026: 103.6, hours2025: 96.1, hoursBenchmark: 98.0, ratio2026: 91.5, ratio2025: 89.8, ratioTarget: 90.0, momGen: -4.2, yoyGen: 7.8 },
+  { month: '07月', gen2026: 114.8, gen2025: 106.2, genPlan: 112.0, hours2026: 89.7, hours2025: 83.0, hoursBenchmark: 88.0, ratio2026: 92.9, ratio2025: 91.0, ratioTarget: 90.0, momGen: -13.4, yoyGen: 8.1 },
+  { month: '08月', gen2026: 118.5, gen2025: 109.1, genPlan: 115.0, hours2026: 92.6, hours2025: 85.2, hoursBenchmark: 90.0, ratio2026: 92.4, ratio2025: 90.6, ratioTarget: 90.0, momGen: 3.2, yoyGen: 8.6 },
+]
+
+// ============================================================
+// 光伏横向对比：全集团 7 大分布式光伏电站横向对标数据集
+// ============================================================
+const PV_HORIZONTAL_COMPARE_DATA = [
+  { rank: 1, name: '新变超高压基地', company: '超高压公司', capacity: 13.9, gen: 142.8, hours: 1027.3, ratio: 93.0, consumedGen: 132.8, income: 96.76, isBenchmark: true },
+  { rank: 2, name: '衡变本部光伏', company: '衡变本部', capacity: 10.5, gen: 102.4, hours: 975.2, ratio: 92.0, consumedGen: 94.2, income: 72.83, isBenchmark: false },
+  { rank: 3, name: '德缆产业园光伏', company: '德缆公司', capacity: 6.2, gen: 59.8, hours: 964.5, ratio: 91.2, consumedGen: 54.5, income: 42.15, isBenchmark: false },
+  { rank: 4, name: '西变智能装备园', company: '西变装备', capacity: 7.5, gen: 72.0, hours: 960.0, ratio: 91.8, consumedGen: 66.1, income: 51.30, isBenchmark: false },
+  { rank: 5, name: '鲁缆公司 BAPV', company: '鲁缆公司', capacity: 8.6, gen: 81.2, hours: 944.2, ratio: 90.5, consumedGen: 73.5, income: 56.59, isBenchmark: false },
+  { rank: 6, name: '天变产业园光伏', company: '天变公司', capacity: 5.0, gen: 46.5, hours: 930.0, ratio: 90.8, consumedGen: 42.2, income: 32.80, isBenchmark: false },
+  { rank: 7, name: '沈变本部一期', company: '沈变本部', capacity: 12.8, gen: 118.5, hours: 925.8, ratio: 92.4, consumedGen: 109.5, income: 82.81, isCurrent: true },
+]
+
 const PV_BENEFIT_DATA: PvBenefitItem[] = [
   {
     id: 'pv-01',
     name: '沈变本部 12.8MWp 屋顶分布式光伏一期',
     park: '特变电工东北输变电产业园',
-    company: '沈变公司',
-    capacity: '12.8 MWp',
-    dailyGenKwh: 48500.0,
-    dailySelfKwh: 42680.0,
-    dailyGridKwh: 5820.0,
-    selfUseRatio: 88.0,
-    selfSavingsYuan: 34144.0,
-    gridRevenueYuan: 2211.6,
-    totalBenefitYuan: 36355.6,
-    dailyHours: 3.79,
-    dailyCarbonTons: 25.95,
-    monthlyGenWanKwh: 118.5,
-    monthlyBenefitWan: 91.0,
+    company: '沈变本部',
+    capacityMwp: 12.8,
+    genKwhWan: 118.5,
+    effectiveHours: 925.8,
+    consumedKwhWan: 109.5,
+    consumedIncomeWan: 79.39,
+    consumedAvgPrice: 0.725,
+    consumedRatio: 92.4,
+    gridKwhWan: 9.0,
+    gridIncomeWan: 3.42,
+    gridPrice: 0.380,
+    totalIncomeWan: 82.81,
+    carbonReductionTons: 633.9,
     calcContext: {
-      gridTariffAvg: 0.80,
-      feedInTariff: 0.38,
-      prRatio: 82.5,
-      emissionFactor: 0.535,
-      formula: '综合收益 = 自发自用电量×企业电价 + 上网电量×燃煤标杆上网电价',
+      co2Factor: 0.535,
+      tceFactor: 0.1229,
+      formula: '总收益 = (消纳电量×消纳均价) + (上网电量×标杆燃煤基准电价)；消纳率 = 消纳电量 ÷ 总发电量',
     },
   },
   {
     id: 'pv-02',
-    name: '新疆变压器厂区 20MWp 分布式光伏三期',
-    park: '特变电工新疆产业园',
-    company: '新变厂',
-    capacity: '20.0 MWp',
-    dailyGenKwh: 86000.0,
-    dailySelfKwh: 73100.0,
-    dailyGridKwh: 12900.0,
-    selfUseRatio: 85.0,
-    selfSavingsYuan: 54825.0,
-    gridRevenueYuan: 4257.0,
-    totalBenefitYuan: 59082.0,
-    dailyHours: 4.3,
-    dailyCarbonTons: 46.01,
-    monthlyGenWanKwh: 210.0,
-    monthlyBenefitWan: 150.0,
+    name: '衡变本部 10.5MWp 厂房屋顶及车棚分布式光伏项目',
+    park: '特变电工南方输变电产业园',
+    company: '衡变本部',
+    capacityMwp: 10.5,
+    genKwhWan: 102.4,
+    effectiveHours: 975.2,
+    consumedKwhWan: 94.2,
+    consumedIncomeWan: 69.71,
+    consumedAvgPrice: 0.740,
+    consumedRatio: 92.0,
+    gridKwhWan: 8.2,
+    gridIncomeWan: 3.12,
+    gridPrice: 0.380,
+    totalIncomeWan: 72.83,
+    carbonReductionTons: 547.8,
     calcContext: {
-      gridTariffAvg: 0.75,
-      feedInTariff: 0.33,
-      prRatio: 84.0,
-      emissionFactor: 0.535,
-      formula: '自用比例 = (自用电量 / 总发电量) × 100%；等效利用小时 = 发电量 / 装机容量',
+      co2Factor: 0.535,
+      tceFactor: 0.1229,
+      formula: '高消纳率自发自用直接替代峰段高价市电，投资回收期缩短至 4.5 年',
     },
   },
   {
     id: 'pv-03',
-    name: '新缆厂 4.5MWp 屋顶分布式光伏二期',
-    park: '特变电工新疆电缆产业园',
-    company: '新缆厂',
-    capacity: '4.5 MWp',
-    dailyGenKwh: 18800.0,
-    dailySelfKwh: 17296.0,
-    dailyGridKwh: 1504.0,
-    selfUseRatio: 92.0,
-    selfSavingsYuan: 12972.0,
-    gridRevenueYuan: 496.3,
-    totalBenefitYuan: 13468.3,
-    dailyHours: 4.18,
-    dailyCarbonTons: 10.06,
-    monthlyGenWanKwh: 45.8,
-    monthlyBenefitWan: 32.7,
+    name: '鲁缆公司 8.6MWp BAPV 连跨厂房光伏电站',
+    park: '特变电工山东线缆产业园',
+    company: '鲁缆公司',
+    capacityMwp: 8.6,
+    genKwhWan: 81.2,
+    effectiveHours: 944.2,
+    consumedKwhWan: 73.5,
+    consumedIncomeWan: 53.66,
+    consumedAvgPrice: 0.730,
+    consumedRatio: 90.5,
+    gridKwhWan: 7.7,
+    gridIncomeWan: 2.93,
+    gridPrice: 0.380,
+    totalIncomeWan: 56.59,
+    carbonReductionTons: 434.4,
     calcContext: {
-      gridTariffAvg: 0.75,
-      feedInTariff: 0.33,
-      prRatio: 83.2,
-      emissionFactor: 0.535,
-      formula: '减碳量 = 发电量(MWh) × 区域电网碳排放因子 (0.5350 tCO2/MWh)',
+      co2Factor: 0.535,
+      tceFactor: 0.1229,
+      formula: '大跨度钢结构厂房屋顶布置防眩光组件，自发自用比例常年稳定在 90% 以上',
+    },
+  },
+  {
+    id: 'pv-04',
+    name: '新变超高压基地 13.9MWp 智能微网分布式光伏电站',
+    park: '特变电工超高压智能制造基地',
+    company: '超高压公司',
+    capacityMwp: 13.9,
+    genKwhWan: 142.8,
+    effectiveHours: 1027.3,
+    consumedKwhWan: 132.8,
+    consumedIncomeWan: 92.96,
+    consumedAvgPrice: 0.700,
+    consumedRatio: 93.0,
+    gridKwhWan: 10.0,
+    gridIncomeWan: 3.80,
+    gridPrice: 0.380,
+    totalIncomeWan: 96.76,
+    carbonReductionTons: 763.9,
+    calcContext: {
+      co2Factor: 0.535,
+      tceFactor: 0.1229,
+      formula: '新疆充足辐照资源赋能超高利用小时数，自用均价与储能协同平抑需量电费',
+    },
+  },
+  {
+    id: 'pv-05',
+    name: '德缆产业园 6.2MWp 屋顶柔性支架分布式光伏',
+    park: '特变电工(德阳)电缆园区',
+    company: '德缆公司',
+    capacityMwp: 6.2,
+    genKwhWan: 59.8,
+    effectiveHours: 964.5,
+    consumedKwhWan: 54.5,
+    consumedIncomeWan: 42.15,
+    consumedAvgPrice: 0.745,
+    consumedRatio: 91.2,
+    gridKwhWan: 5.3,
+    gridIncomeWan: 2.01,
+    gridPrice: 0.380,
+    totalIncomeWan: 44.16,
+    carbonReductionTons: 320.5,
+    calcContext: {
+      co2Factor: 0.535,
+      tceFactor: 0.1229,
+      formula: '西南多阴雨区柔性光伏支架抗强风高净空，自消纳满足车间持续电力负荷',
+    },
+  },
+  {
+    id: 'pv-06',
+    name: '西变智能装备产业园 7.5MWp 厂房连跨分布式光伏',
+    park: '特变电工西安变压器产业园',
+    company: '西变装备',
+    capacityMwp: 7.5,
+    genKwhWan: 72.0,
+    effectiveHours: 960.0,
+    consumedKwhWan: 66.1,
+    consumedIncomeWan: 51.30,
+    consumedAvgPrice: 0.735,
+    consumedRatio: 91.8,
+    gridKwhWan: 5.9,
+    gridIncomeWan: 2.24,
+    gridPrice: 0.380,
+    totalIncomeWan: 53.54,
+    carbonReductionTons: 385.2,
+    calcContext: {
+      co2Factor: 0.535,
+      tceFactor: 0.1229,
+      formula: '西北黄土高原高辐照优势赋能，消纳节费协同厂区高峰负荷平抑',
+    },
+  },
+  {
+    id: 'pv-07',
+    name: '天变产业园 5.0MWp BIPV 绿色建筑一体化光伏',
+    park: '特变电工天变产业园',
+    company: '天变公司',
+    capacityMwp: 5.0,
+    genKwhWan: 46.5,
+    effectiveHours: 930.0,
+    consumedKwhWan: 42.2,
+    consumedIncomeWan: 32.80,
+    consumedAvgPrice: 0.730,
+    consumedRatio: 90.8,
+    gridKwhWan: 4.3,
+    gridIncomeWan: 1.63,
+    gridPrice: 0.380,
+    totalIncomeWan: 34.43,
+    carbonReductionTons: 248.8,
+    calcContext: {
+      co2Factor: 0.535,
+      tceFactor: 0.1229,
+      formula: 'BIPV 屋面建材级光伏一体化布置，结构自防水免维护，消纳率保持 90% 以上',
     },
   },
 ]
 
 export default function BenefitEvaluationPage() {
-  // 1. 顶部模块大 Tab 切换: 储能效益 | 热泵效益
-  const [activeModule, setActiveModule] = useState<'storage' | 'heatpump'>('storage')
+  // 0. 园区结构树选择状态 (默认全集团)
+  const [selectedParkId, setSelectedParkId] = useState('park_root')
+  const [selectedParkNode, setSelectedParkNode] = useState<StandardOrgNode | null>(null)
+
+  const isParkRoot =
+    !selectedParkNode || selectedParkNode.id === 'park_root' || selectedParkNode.name.includes('电装集团')
+
+  // 1. 顶部模块大 Tab 切换: 储能效益 | 热泵效益 | 光伏效益 (对齐客户三大业态)
+  const [activeModule, setActiveModule] = useState<'storage' | 'heatpump' | 'pv'>('storage')
 
   // 2. 时间维度与范围选择
   const [timeDim, setTimeDim] = useState<'day' | 'month' | 'quarter' | 'year'>('month')
   const [selectedDate, setSelectedDate] = useState('2026-08-28')
   const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
-  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
-  const [selectedYear, setSelectedYear] = useState('2026')
 
   // 3. 算法计算详情弹窗状态
   const [selectedCalcDetail, setSelectedCalcDetail] = useState<{
     isOpen: boolean
-    type: 'storage' | 'heatpump' | 'pv' | 'macro'
+    type: 'storage' | 'heatpump' | 'pv'
     data: any
   }>({
     isOpen: false,
@@ -621,1677 +751,1624 @@ export default function BenefitEvaluationPage() {
     data: null,
   })
 
-  // 4. 宏观项目技术类型筛选 (全部综合视图下使用)
-  const [macroFilterType, setMacroFilterType] = useState<string>('all')
+  // 6. 光伏对比分析模式：和自己对比(self) | 横向对比(horizontal) | 24小时出力平衡(24h)
+  const [pvCompareMode, setPvCompareMode] = useState<'self' | 'horizontal' | '24h'>('self')
+  // 对比指标维度：发电量(gen) | 发电小时数(hours) | 综合消纳率(ratio) | 综合三指标(all)
+  const [pvCompareMetric, setPvCompareMetric] = useState<'gen' | 'hours' | 'ratio' | 'all'>('gen')
 
-  const filteredMacroProjects = useMemo(() => {
-    return ALL_PROJECT_BENEFITS.filter((p) => {
-      if (macroFilterType !== 'all' && p.type !== macroFilterType) return false
-      return true
-    })
-  }, [macroFilterType])
+  // 4. 热泵建筑层高折算明细弹窗
+  const [selectedHeightDetail, setSelectedHeightDetail] = useState<{
+    isOpen: boolean
+    item: HeatPumpBenefitItem | null
+  }>({
+    isOpen: false,
+    item: null,
+  })
 
-  // 宏观 KPI 汇总指标
-  const summaryStats = useMemo(() => {
-    let multiplier = 1.0
-    if (timeDim === 'day') multiplier = 1 / 30
-    else if (timeDim === 'quarter') multiplier = 3.0
-    else if (timeDim === 'year') multiplier = 12.0
-    else if (timeDim === 'month') multiplier = 1.0
-
-    const totalSavingsWan = filteredMacroProjects.reduce(
-      (acc, p) => acc + (p.savingsYuan + (p.arbitrageYuan || 0)) * multiplier,
-      0,
+  // 5. 根据当前选中的园区筛选数据
+  const filteredStorageData = useMemo(() => {
+    if (isParkRoot) return STORAGE_BENEFIT_DATA
+    const target = selectedParkNode.name
+    const res = STORAGE_BENEFIT_DATA.filter(
+      (item) =>
+        item.park.includes(target) ||
+        target.includes(item.park) ||
+        item.company.includes(target) ||
+        target.includes(item.company),
     )
-    const totalCarbonTons = filteredMacroProjects.reduce((acc, p) => acc + p.carbonReduction * multiplier, 0)
-    const totalTce = filteredMacroProjects.reduce((acc, p) => acc + p.tceSaving * multiplier, 0)
-    const avgIrr =
-      filteredMacroProjects.length > 0
-        ? (filteredMacroProjects.reduce((acc, p) => acc + parseFloat(p.irr), 0) / filteredMacroProjects.length).toFixed(1)
-        : '0.0'
-    const avgPayback =
-      filteredMacroProjects.length > 0
-        ? (filteredMacroProjects.reduce((acc, p) => acc + p.paybackYears, 0) / filteredMacroProjects.length).toFixed(1)
-        : '0.0'
+    return res.length > 0 ? res : STORAGE_BENEFIT_DATA
+  }, [selectedParkNode, isParkRoot])
 
-    return {
-      totalSavingsWan: totalSavingsWan.toFixed(1),
-      totalCarbonTons: totalCarbonTons.toFixed(1),
-      totalTce: totalTce.toFixed(1),
-      avgIrr: `${avgIrr}%`,
-      avgPayback: `${avgPayback} 年`,
-    }
-  }, [filteredMacroProjects, timeDim])
+  const filteredHeatPumpData = useMemo(() => {
+    if (isParkRoot) return HEAT_PUMP_BENEFIT_DATA
+    const target = selectedParkNode.name
+    const res = HEAT_PUMP_BENEFIT_DATA.filter(
+      (item) =>
+        item.park.includes(target) ||
+        target.includes(item.park) ||
+        item.company.includes(target) ||
+        target.includes(item.company),
+    )
+    return res.length > 0 ? res : HEAT_PUMP_BENEFIT_DATA
+  }, [selectedParkNode, isParkRoot])
 
-  // 储能模块专用汇总指标
-  const storageSummary = useMemo(() => {
-    const totalCharge = STORAGE_BENEFIT_DATA.reduce((acc, item) => acc + item.chargeKwh, 0)
-    const totalDischarge = STORAGE_BENEFIT_DATA.reduce((acc, item) => acc + item.dischargeKwh, 0)
-    const totalRev = STORAGE_BENEFIT_DATA.reduce((acc, item) => acc + item.revenueYuan, 0)
-    const avgEff = (totalDischarge / totalCharge) * 100
-    const avgGreenChargeRatio = (STORAGE_BENEFIT_DATA.reduce((acc, i) => acc + i.greenChargeRatio, 0) / STORAGE_BENEFIT_DATA.length).toFixed(1)
-    const avgCritPeakDischarge = (STORAGE_BENEFIT_DATA.reduce((acc, i) => acc + i.criticalPeakDischargeRatio, 0) / STORAGE_BENEFIT_DATA.length).toFixed(1)
-    const totalMonthlyWan = STORAGE_BENEFIT_DATA.reduce((acc, item) => acc + item.monthlyRevenueWan, 0)
+  const filteredPvData = useMemo(() => {
+    if (isParkRoot) return PV_BENEFIT_DATA
+    const target = selectedParkNode.name
+    const res = PV_BENEFIT_DATA.filter(
+      (item) =>
+        item.park.includes(target) ||
+        target.includes(item.park) ||
+        item.company.includes(target) ||
+        target.includes(item.company),
+    )
+    return res.length > 0 ? res : PV_BENEFIT_DATA
+  }, [selectedParkNode, isParkRoot])
 
-    return {
-      totalDailyChargeKwh: totalCharge.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      totalDailyDischargeKwh: totalDischarge.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      totalDailyRevenueYuan: totalRev.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      avgEfficiency: `${avgEff.toFixed(1)}%`,
-      avgGreenChargeRatio: `${avgGreenChargeRatio}%`,
-      avgCritPeakDischarge: `${avgCritPeakDischarge}%`,
-      totalMonthlyWan: totalMonthlyWan.toFixed(2),
-    }
-  }, [])
+  // ============================================================
+  // 图表多维数据集 (涵盖时序走势、负荷结构环形图与横向对标柱状图)
+  // ============================================================
 
-  // 热泵模块专用汇总指标
-  const heatPumpSummary = useMemo(() => {
-    const totalGridKwh = HEAT_PUMP_BENEFIT_DATA.reduce((acc, item) => acc + item.gridPowerKwh, 0)
-    const totalGreenKwh = HEAT_PUMP_BENEFIT_DATA.reduce((acc, item) => acc + item.greenPowerKwh, 0)
-    const totalGridCost = HEAT_PUMP_BENEFIT_DATA.reduce((acc, item) => acc + item.gridCostYuan, 0)
-    const totalGreenCost = HEAT_PUMP_BENEFIT_DATA.reduce((acc, item) => acc + item.greenCostYuan, 0)
-    const totalPower = totalGridKwh + totalGreenKwh
-    const greenRatio = ((totalGreenKwh / totalPower) * 100).toFixed(1)
-    const avgPeakRatio = (HEAT_PUMP_BENEFIT_DATA.reduce((acc, i) => acc + i.peakRatio, 0) / HEAT_PUMP_BENEFIT_DATA.length).toFixed(1)
-    const totalDailySavings = HEAT_PUMP_BENEFIT_DATA.reduce((acc, item) => acc + item.dailySavingsYuan, 0)
-    const totalMonthlySavingsWan = HEAT_PUMP_BENEFIT_DATA.reduce((acc, item) => acc + item.monthlySavingsWan, 0)
-
-    return {
-      totalGridKwh: totalGridKwh.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      totalGreenKwh: totalGreenKwh.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      totalGridCost: totalGridCost.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      totalGreenCost: totalGreenCost.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      greenRatio: `${greenRatio}%`,
-      avgPeakRatio: `${avgPeakRatio}%`,
-      totalDailySavings: totalDailySavings.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      totalMonthlySavingsWan: totalMonthlySavingsWan.toFixed(2),
-    }
-  }, [])
-
-  // 光伏模块专用汇总指标
-  const pvSummary = useMemo(() => {
-    const totalDailyGen = PV_BENEFIT_DATA.reduce((acc, item) => acc + item.dailyGenKwh, 0)
-    const totalSelfKwh = PV_BENEFIT_DATA.reduce((acc, item) => acc + item.dailySelfKwh, 0)
-    const totalGridKwh = PV_BENEFIT_DATA.reduce((acc, item) => acc + item.dailyGridKwh, 0)
-    const avgSelfUseRatio = ((totalSelfKwh / totalDailyGen) * 100).toFixed(1)
-    const totalDailyBenefit = PV_BENEFIT_DATA.reduce((acc, item) => acc + item.totalBenefitYuan, 0)
-    const totalMonthlyBenefitWan = PV_BENEFIT_DATA.reduce((acc, item) => acc + item.monthlyBenefitWan, 0)
-    const totalCarbonReduction = PV_BENEFIT_DATA.reduce((acc, item) => acc + item.dailyCarbonTons, 0)
-
-    return {
-      totalDailyGen: totalDailyGen.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      totalSelfKwh: totalSelfKwh.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      totalGridKwh: totalGridKwh.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      avgSelfUseRatio: `${avgSelfUseRatio}%`,
-      totalDailyBenefit: totalDailyBenefit.toLocaleString(undefined, { maximumFractionDigits: 1 }),
-      totalMonthlyBenefitWan: totalMonthlyBenefitWan.toFixed(2),
-      totalCarbonReduction: totalCarbonReduction.toFixed(1),
-    }
-  }, [])
-
-  // 历史月度趋势数据
-  const monthlyBenefitTrendData = [
-    { time: '1月', 累计节费: 42.5, 碳减排量: 340, 标煤节约: 78 },
-    { time: '2月', 累计节费: 86.0, 碳减排量: 690, 标煤节约: 158 },
-    { time: '3月', 累计节费: 135.2, 碳减排量: 1080, 标煤节约: 246 },
-    { time: '4月', 累计节费: 188.4, 碳减排量: 1510, 标煤节约: 345 },
-    { time: '5月', 累计节费: 246.8, 碳减排量: 1980, 标煤节约: 452 },
-    { time: '6月', 累计节费: 312.0, 碳减排量: 2500, 标煤节约: 572 },
-    { time: '7月', 累计节费: 385.6, 碳减排量: 3090, 标煤节约: 708 },
-    { time: '8月', 累计节费: 462.5, 碳减排量: 3710, 标煤节约: 850 },
-  ]
-
-  // 储能充放电与套利趋势图数据
+  // 储能图表数据
   const storageTrendData = [
-    { time: '8/22', 充电量: 37.2, 放电量: 32.4, 套利收益: 2.51 },
-    { time: '8/23', 充电量: 36.8, 放电量: 32.1, 套利收益: 2.48 },
-    { time: '8/24', 充电量: 38.5, 放电量: 33.6, 套利收益: 2.62 },
-    { time: '8/25', 充电量: 37.9, 放电量: 33.0, 套利收益: 2.56 },
-    { time: '8/26', 充电量: 39.1, 放电量: 34.2, 套利收益: 2.68 },
-    { time: '8/27', 充电量: 38.2, 放电量: 33.3, 套利收益: 2.59 },
-    { time: '8/28', 充电量: 37.55, 放电量: 32.7, 套利收益: 2.51 },
+    { date: '08-22', 充电量: 3.65, 放电量: 3.18, 收益: 2420 },
+    { date: '08-23', 充电量: 3.72, 放电量: 3.24, 收益: 2480 },
+    { date: '08-24', 充电量: 3.80, 放电量: 3.31, 收益: 2550 },
+    { date: '08-25', 充电量: 3.75, 放电量: 3.26, 收益: 2510 },
+    { date: '08-26', 充电量: 3.68, 放电量: 3.20, 收益: 2460 },
+    { date: '08-27', 充电量: 3.78, 放电量: 3.29, 收益: 2530 },
+    { date: '08-28', 充电量: 3.76, 放电量: 3.27, 收益: 2507 },
   ]
 
-  // 热泵电量与用能成本对比
+  const storageBenchmarkData = [
+    { name: '衡变储能', 综合效率: 87.0, 日套利收益: 8420 },
+    { name: '沈变储能', 综合效率: 87.5, 日套利收益: 7120 },
+    { name: '新变超高压', 综合效率: 86.8, 日套利收益: 5380 },
+    { name: '鲁缆储能', 综合效率: 87.0, 日套利收益: 4150 },
+  ]
+
+  // 热泵图表数据
   const heatPumpTrendData = [
-    { time: '8/22', 市电量: 1.25, 绿电量: 3.18, 节约气费: 1.82 },
-    { time: '8/23', 市电量: 1.22, 绿电量: 3.15, 节约气费: 1.79 },
-    { time: '8/24', 市电量: 1.30, 绿电量: 3.25, 节约气费: 1.88 },
-    { time: '8/25', 市电量: 1.28, 绿电量: 3.20, 节约气费: 1.84 },
-    { time: '8/26', 市电量: 1.32, 绿电量: 3.30, 节约气费: 1.91 },
-    { time: '8/27', 市电量: 1.27, 绿电量: 3.22, 节约气费: 1.85 },
-    { time: '8/28', 市电量: 1.26, 绿电量: 3.18, 节约气费: 1.81 },
+    { date: '08-22', 供热量GJ: 195.2, 耗电量万kWh: 1.42, COP: 3.82 },
+    { date: '08-23', 供热量GJ: 202.5, 耗电量万kWh: 1.46, COP: 3.86 },
+    { date: '08-24', 供热量GJ: 215.0, 耗电量万kWh: 1.54, COP: 3.88 },
+    { date: '08-25', 供热量GJ: 208.4, 耗电量万kWh: 1.50, COP: 3.85 },
+    { date: '08-26', 供热量GJ: 205.1, 耗电量万kWh: 1.48, COP: 3.84 },
+    { date: '08-27', 供热量GJ: 212.8, 耗电量万kWh: 1.52, COP: 3.87 },
+    { date: '08-28', 供热量GJ: 207.9, 耗电量万kWh: 1.50, COP: 3.85 },
   ]
 
-  // 打开计算推导演练弹窗
-  const handleOpenCalcDetail = (type: 'storage' | 'heatpump' | 'pv' | 'macro', item: any) => {
-    setSelectedCalcDetail({
-      isOpen: true,
-      type,
-      data: item,
-    })
-  }
+  const heatPumpPowerSourceDonut = [
+    { name: '清洁绿电直供 (光伏微网)', value: 72.0, color: '#52c41a' },
+    { name: '市电低谷电网输入', value: 24.5, color: '#1677ff' },
+    { name: '市电平段补充', value: 3.5, color: '#fa8c16' },
+  ]
+
+  const heatPumpPeakValleyDonut = [
+    { name: '平谷避峰时段制热', value: 75.5, color: '#13c2c2' },
+    { name: '尖峰时段运行电耗', value: 24.5, color: '#f5222d' },
+  ]
+
+  const heatPumpWorkshopBenchmark = [
+    { name: '超高压总装(18m)', 原始面积: 1.2, 折算供暖面积: 7.2, 单位面积电耗: 2.15 },
+    { name: '电缆交联跨(12m)', 原始面积: 1.5, 折算供暖面积: 6.0, 单位面积电耗: 2.00 },
+    { name: '真空干燥跨(15m)', 原始面积: 0.8, 折算供暖面积: 4.0, 单位面积电耗: 2.02 },
+    { name: '线圈装配辅跨(7.5m)', 原始面积: 0.4, 折算供暖面积: 1.0, 单位面积电耗: 2.30 },
+    { name: '研发综合楼(6m)', 原始面积: 0.5, 折算供暖面积: 1.0, 单位面积电耗: 2.96 },
+  ]
+
+  // 光伏图表数据
+  const pvHourlyTrendData = [
+    { time: '06:00', 总发电量: 0.12, 厂区消纳: 0.12, 余电上网: 0.0 },
+    { time: '07:00', 总发电量: 0.45, 厂区消纳: 0.45, 余电上网: 0.0 },
+    { time: '08:00', 总发电量: 1.28, 厂区消纳: 1.28, 余电上网: 0.0 },
+    { time: '09:00', 总发电量: 2.56, 厂区消纳: 2.42, 余电上网: 0.14 },
+    { time: '10:00', 总发电量: 3.82, 厂区消纳: 3.50, 余电上网: 0.32 },
+    { time: '11:00', 总发电量: 4.65, 厂区消纳: 4.15, 余电上网: 0.50 },
+    { time: '12:00', 总发电量: 4.80, 厂区消纳: 4.20, 余电上网: 0.60 },
+    { time: '13:00', 总发电量: 4.52, 厂区消纳: 4.08, 余电上网: 0.44 },
+    { time: '14:00', 总发电量: 3.78, 厂区消纳: 3.52, 余电上网: 0.26 },
+    { time: '15:00', 总发电量: 2.64, 厂区消纳: 2.55, 余电上网: 0.09 },
+    { time: '16:00', 总发电量: 1.45, 厂区消纳: 1.45, 余电上网: 0.0 },
+    { time: '17:00', 总发电量: 0.62, 厂区消纳: 0.62, 余电上网: 0.0 },
+    { time: '18:00', 总发电量: 0.15, 厂区消纳: 0.15, 余电上网: 0.0 },
+  ]
+
+  const pvFlowDonut = [
+    { name: '厂区车间自发自用消纳', value: 91.8, color: '#1677ff' },
+    { name: '余电反送电网上网', value: 8.2, color: '#52c41a' },
+  ]
+
+  const pvRevenueDonut = [
+    { name: '自用替代工商业电费节约', value: 95.5, color: '#fa8c16' },
+    { name: '余电上网售电收益', value: 4.5, color: '#13c2c2' },
+  ]
+
+  const pvBenchmarkData = [
+    { name: '新变超高压', 有效小时数: 1027, 综合消纳率: 93.0 },
+    { name: '衡变本部', 有效小时数: 975, 综合消纳率: 92.0 },
+    { name: '德缆光伏', 有效小时数: 965, 综合消纳率: 91.2 },
+    { name: '西变装备', 有效小时数: 960, 综合消纳率: 91.8 },
+    { name: '鲁缆光伏', 有效小时数: 944, 综合消纳率: 90.5 },
+    { name: '天变光伏', 有效小时数: 930, 综合消纳率: 90.8 },
+    { name: '沈变光伏', 有效小时数: 926, 综合消纳率: 92.4 },
+  ]
+
+  // ============================================================
+  // 核心 KPI 动态计算汇总 (严格按客户指定字段输出)
+  // ============================================================
+
+  // 储能 KPI
+  const storageKpi = useMemo(() => {
+    const totalCharge = filteredStorageData.reduce((acc, i) => acc + i.chargeKwh, 0)
+    const totalDischarge = filteredStorageData.reduce((acc, i) => acc + i.dischargeKwh, 0)
+    const totalRevenue = filteredStorageData.reduce((acc, i) => acc + i.revenueYuan, 0)
+    const avgEfficiency = (
+      filteredStorageData.reduce((acc, i) => acc + i.efficiency, 0) / (filteredStorageData.length || 1)
+    ).toFixed(1)
+    const avgGreenRatio = (
+      filteredStorageData.reduce((acc, i) => acc + i.greenChargeRatio, 0) / (filteredStorageData.length || 1)
+    ).toFixed(1)
+    const avgValleyRatio = (
+      filteredStorageData.reduce((acc, i) => acc + i.valleyChargeRatio, 0) / (filteredStorageData.length || 1)
+    ).toFixed(1)
+    const avgCritPeak = (
+      filteredStorageData.reduce((acc, i) => acc + i.criticalPeakDischargeRatio, 0) /
+      (filteredStorageData.length || 1)
+    ).toFixed(1)
+    const avgPeak = (
+      filteredStorageData.reduce((acc, i) => acc + i.peakDischargeRatio, 0) /
+      (filteredStorageData.length || 1)
+    ).toFixed(1)
+
+    return {
+      totalCapacity: `${filteredStorageData.reduce((acc, i) => acc + parseInt(i.capacity), 0)}MW / ${filteredStorageData.reduce((acc, i) => acc + parseInt(i.capacity.split('/')[1] || '0'), 0)}MWh`,
+      efficiency: avgEfficiency,
+      totalCharge: totalCharge.toLocaleString(),
+      totalDischarge: totalDischarge.toLocaleString(),
+      totalRevenue: totalRevenue.toLocaleString(),
+      greenChargeRatio: avgGreenRatio,
+      valleyChargeRatio: avgValleyRatio,
+      dischargePeakDesc: `尖 ${avgCritPeak}% / 峰 ${avgPeak}%`,
+    }
+  }, [filteredStorageData])
+
+  // 热泵 KPI
+  const heatPumpKpi = useMemo(() => {
+    const avgCop = (
+      filteredHeatPumpData.reduce((acc, i) => acc + i.cop, 0) / (filteredHeatPumpData.length || 1)
+    ).toFixed(2)
+    const totalHeatGj = filteredHeatPumpData.reduce((acc, i) => acc + i.heatOutputGj, 0).toFixed(1)
+    const totalPower = filteredHeatPumpData.reduce((acc, i) => acc + i.powerKwh, 0)
+    const totalRawArea = filteredHeatPumpData.reduce((acc, i) => acc + i.areaWanM2, 0).toFixed(1)
+    const totalConvertedArea = filteredHeatPumpData
+      .reduce((acc, i) => acc + i.convertedAreaWanM2, 0)
+      .toFixed(1)
+    const avgKwhPerM2 = (
+      totalPower / (parseFloat(totalConvertedArea) * 10000 || 1)
+    ).toFixed(2)
+    const avgGreenRatio = (
+      filteredHeatPumpData.reduce((acc, i) => acc + i.greenPowerRatio, 0) /
+      (filteredHeatPumpData.length || 1)
+    ).toFixed(1)
+    const avgPeakRatio = (
+      filteredHeatPumpData.reduce((acc, i) => acc + i.peakPowerRatio, 0) /
+      (filteredHeatPumpData.length || 1)
+    ).toFixed(1)
+
+    return {
+      cop: avgCop,
+      totalHeatGj,
+      totalPower: totalPower.toLocaleString(),
+      rawArea: totalRawArea,
+      convertedArea: totalConvertedArea,
+      kwhPerM2: avgKwhPerM2,
+      greenRatio: avgGreenRatio,
+      peakRatio: avgPeakRatio,
+    }
+  }, [filteredHeatPumpData])
+
+  // 光伏 KPI
+  const pvKpi = useMemo(() => {
+    const totalCapacity = filteredPvData.reduce((acc, i) => acc + i.capacityMwp, 0).toFixed(1)
+    const totalGen = filteredPvData.reduce((acc, i) => acc + i.genKwhWan, 0).toFixed(1)
+    const avgHours = (
+      filteredPvData.reduce((acc, i) => acc + i.effectiveHours, 0) / (filteredPvData.length || 1)
+    ).toFixed(1)
+    const totalConsumed = filteredPvData.reduce((acc, i) => acc + i.consumedKwhWan, 0).toFixed(1)
+    const totalConsumedIncome = filteredPvData.reduce((acc, i) => acc + i.consumedIncomeWan, 0).toFixed(2)
+    const avgConsumedPrice = (
+      filteredPvData.reduce((acc, i) => acc + i.consumedAvgPrice, 0) / (filteredPvData.length || 1)
+    ).toFixed(3)
+    const avgConsumedRatio = (
+      (parseFloat(totalConsumed) / (parseFloat(totalGen) || 1)) *
+      100
+    ).toFixed(1)
+    const totalGrid = filteredPvData.reduce((acc, i) => acc + i.gridKwhWan, 0).toFixed(1)
+    const totalGridIncome = filteredPvData.reduce((acc, i) => acc + i.gridIncomeWan, 0).toFixed(2)
+    const gridPrice = '0.380'
+
+    return {
+      totalCapacity,
+      totalGen,
+      avgHours,
+      totalConsumed,
+      totalConsumedIncome,
+      avgConsumedPrice,
+      avgConsumedRatio,
+      totalGrid,
+      totalGridIncome,
+      gridPrice,
+    }
+  }, [filteredPvData])
 
   return (
-    <div className="space-y-3.5 font-sans pb-10">
-      {/* 1. 顶部 Header (主标题 + 模块分类选择 + 时间控件 + 数据导出) */}
-      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
-            <Coins className="size-5" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-slate-800">项目效益评估</h1>
-            <p className="text-[11px] text-slate-400">
-              覆盖储能、热泵、光伏等零碳资产日度/期度用能经济账、电费节约与减排核算推导
-            </p>
-          </div>
-        </div>
+    <div className="flex gap-3.5 items-start font-sans pb-10">
+      {/* 🌟 园区结构树 (Park Structure Tree) 270px */}
+      <StandardOrgTree
+        selectedId={selectedParkId}
+        onSelect={(node) => {
+          setSelectedParkId(node.id)
+          setSelectedParkNode(node)
+        }}
+        treeType="park"
+      />
 
-        {/* 右侧：时间维度与导出 */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* 维度切换按钮组 */}
-          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-sans border border-slate-200">
-            {[
-              { key: 'day', label: '日' },
-              { key: 'month', label: '月度' },
-              { key: 'quarter', label: '季度' },
-              { key: 'year', label: '年度' },
-            ].map((p) => (
-              <button
-                key={p.key}
-                type="button"
-                onClick={() => setTimeDim(p.key as any)}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === p.key
-                    ? 'font-bold bg-white text-[#1677ff] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900',
-                )}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-
-          {/* 时间选择器 */}
-          {timeDim === 'day' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-              />
+      {/* 🌟 右侧主面板 */}
+      <div className="flex-1 min-w-0 space-y-3.5">
+        {/* 1. 顶部 Header (主标题 + 模块分类选择 + 时间控件 + 数据导出) */}
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+              <Coins className="size-5" />
             </div>
-          )}
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-base font-bold text-slate-800">项目运行评估</h1>
+              {selectedParkNode && !isParkRoot && (
+                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
+                  {selectedParkNode.name}
+                </span>
+              )}
+            </div>
+          </div>
 
-          {timeDim === 'month' && (
+          {/* 右侧：时间维度与导出 */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-sans border border-slate-200">
+              {[
+                { key: 'day', label: '日' },
+                { key: 'month', label: '月度' },
+                { key: 'quarter', label: '季度' },
+                { key: 'year', label: '年度' },
+              ].map((p) => (
+                <button
+                  key={p.key}
+                  type="button"
+                  onClick={() => setTimeDim(p.key as any)}
+                  className={cn(
+                    'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                    timeDim === p.key
+                      ? 'font-bold bg-white text-[#1677ff] shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900',
+                  )}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            {/* 时间选择器 */}
             <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
               <Calendar className="size-3.5 text-slate-400 shrink-0" />
-              <input
-                type="month"
-                value={selectedMonthRange.start}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="起始月份"
-              />
-              <span className="text-slate-400 font-sans">至</span>
               <input
                 type="month"
                 value={selectedMonthRange.end}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="结束月份"
+                onChange={(e) => setSelectedMonthRange({ ...selectedMonthRange, end: e.target.value })}
+                className="font-bold text-slate-700 focus:outline-none cursor-pointer"
               />
             </div>
-          )}
 
-          {timeDim === 'quarter' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
-              <select
-                value={selectedQuarter}
-                onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-              >
-                <option value="2026-Q1">2026年 第1季度 (Q1)</option>
-                <option value="2026-Q2">2026年 第2季度 (Q2)</option>
-                <option value="2026-Q3">2026年 第3季度 (Q3)</option>
-                <option value="2026-Q4">2026年 第4季度 (Q4)</option>
-              </select>
-            </div>
-          )}
+            <button
+              type="button"
+              onClick={() => alert(`已成功导出当前【${activeModule === 'storage' ? '储能' : activeModule === 'heatpump' ? '热泵' : '光伏'}运行评估报告】`)}
+              className="flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-colors shadow-2xs cursor-pointer"
+            >
+              <Download className="size-3.5 text-slate-500" />
+              <span>导出报表</span>
+            </button>
+          </div>
+        </div>
 
-          {timeDim === 'year' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
-              >
-                <option value="2026">2026 年度</option>
-                <option value="2025">2025 年度</option>
-              </select>
-            </div>
-          )}
-
+        {/* 🌟 2. 核心模块大 Tab 选项卡 (储能运行评估 | 热泵运行评估 | 光伏运行评估) */}
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-1">
           <button
             type="button"
-            onClick={() => alert('已导出项目经济效益台账与算法核算报告 (Excel / PDF)！')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            onClick={() => setActiveModule('storage')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-t-lg transition-all cursor-pointer border-b-2',
+              activeModule === 'storage'
+                ? 'border-[#1677ff] text-[#1677ff] bg-blue-50/50'
+                : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+            )}
           >
-            <Download className="size-3.5 text-slate-500" />
-            <span>导出报表</span>
+            <BatteryCharging className="size-4" />
+            <span>储能运行评估</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveModule('heatpump')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-t-lg transition-all cursor-pointer border-b-2',
+              activeModule === 'heatpump'
+                ? 'border-orange-500 text-orange-600 bg-orange-50/50'
+                : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+            )}
+          >
+            <Flame className="size-4" />
+            <span>热泵运行评估</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveModule('pv')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-t-lg transition-all cursor-pointer border-b-2',
+              activeModule === 'pv'
+                ? 'border-amber-500 text-amber-600 bg-amber-50/50'
+                : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+            )}
+          >
+            <Sun className="size-4" />
+            <span>光伏运行评估</span>
           </button>
         </div>
-      </div>
 
-      {/* 2. 核心大模块导航选项卡 (储能效益评估 | 热泵效益评估) */}
-      <div className="bg-white p-2 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2 overflow-x-auto">
-          {[
-            {
-              key: 'storage',
-              label: '储能效益评估',
-              icon: BatteryCharging,
-              color: 'text-blue-600',
-              activeBg: 'bg-blue-50 border-blue-200 text-blue-700',
-            },
-            {
-              key: 'heatpump',
-              label: '热泵效益评估',
-              icon: Flame,
-              color: 'text-orange-600',
-              activeBg: 'bg-orange-50 border-orange-200 text-orange-700',
-            },
-          ].map((m) => {
-            const Icon = m.icon
-            const isActive = activeModule === m.key
-            return (
-              <button
-                key={m.key}
-                type="button"
-                onClick={() => setActiveModule(m.key as any)}
-                className={cn(
-                  'flex items-center gap-2 px-3.5 py-2 rounded-lg border text-left transition-all cursor-pointer select-none shrink-0',
-                  isActive
-                    ? `${m.activeBg} font-bold shadow-2xs`
-                    : 'bg-slate-50/70 border-slate-100 text-slate-600 hover:bg-slate-100 hover:border-slate-200',
-                )}
-              >
-                <div
-                  className={cn(
-                    'size-6 rounded-md flex items-center justify-center shrink-0',
-                    isActive ? 'bg-white shadow-2xs' : 'bg-slate-200/60 text-slate-500',
-                  )}
-                >
-                  <Icon className={cn('size-3.5', isActive && m.color)} />
+        {/* ============================================================ */}
+        {/* 模块 1：储能运行评估 (8大KPI + 充放电时序图 + 来源环形图 + 横向柱状图 + 台账) */}
+        {/* ============================================================ */}
+        {activeModule === 'storage' && (
+          <div className="space-y-3.5 animate-in fade-in duration-200">
+            {/* 8 大核心 KPI 卡片 (4列 × 2行 标准网格排版) */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">储能装机规模</span>
+                  <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-medium">额定容量</span>
                 </div>
-                <span className="text-xs leading-none font-bold">{m.label}</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 模块 A：储能效益评估 (Storage Benefit Module) */}
-      {/* ========================================================================= */}
-      {activeModule === 'storage' && (
-        <div className="space-y-3.5">
-          {/* 储能 8 大核心评估指标卡 (双行 4x2 布局) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">日充电量</span>
-                <BatteryCharging className="size-3.5 text-blue-500" />
+                <div className="text-lg font-bold text-blue-700 mt-1.5 font-mono truncate">{storageKpi.totalCapacity}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">额定功率 / 储能电量</div>
               </div>
-              <div className="text-base font-bold font-mono text-slate-800">
-                {storageSummary.totalDailyChargeKwh}
-              </div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">kWh (当期合计)</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">日放电量</span>
-                <Zap className="size-3.5 text-emerald-500" />
-              </div>
-              <div className="text-base font-bold font-mono text-slate-800">
-                {storageSummary.totalDailyDischargeKwh}
-              </div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">kWh (尖峰消纳)</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">日套利收益</span>
-                <Coins className="size-3.5 text-emerald-600" />
-              </div>
-              <div className="text-base font-bold font-mono text-emerald-600">
-                ¥{storageSummary.totalDailyRevenueYuan}
-              </div>
-              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">
-                月累 ¥{storageSummary.totalMonthlyWan}万
-              </div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">综合效率</span>
-                <Gauge className="size-3.5 text-[#1677ff]" />
-              </div>
-              <div className="text-base font-bold font-mono text-[#1677ff]">
-                {storageSummary.avgEfficiency}
-              </div>
-              <div className="text-[10px] text-blue-500 font-mono mt-0.5">放电 / 充电比</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">市充占比</span>
-                <Activity className="size-3.5 text-slate-500" />
-              </div>
-              <div className="text-base font-bold font-mono text-slate-700">
-                {(100 - parseFloat(storageSummary.avgGreenChargeRatio)).toFixed(1)}%
-              </div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">夜间谷电市充</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">绿充占比</span>
-                <Leaf className="size-3.5 text-emerald-600" />
-              </div>
-              <div className="text-base font-bold font-mono text-emerald-600">
-                {storageSummary.avgGreenChargeRatio}
-              </div>
-              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">光伏绿电直充</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">尖放占比</span>
-                <TrendingUp className="size-3.5 text-purple-600" />
-              </div>
-              <div className="text-base font-bold font-mono text-purple-600">
-                {storageSummary.avgCritPeakDischarge}
-              </div>
-              <div className="text-[10px] text-purple-500 font-mono mt-0.5">尖峰高电价释放</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">峰放占比</span>
-                <TrendingUp className="size-3.5 text-blue-600" />
-              </div>
-              <div className="text-base font-bold font-mono text-blue-600">
-                {(100 - parseFloat(storageSummary.avgCritPeakDischarge)).toFixed(1)}%
-              </div>
-              <div className="text-[10px] text-blue-500 font-mono mt-0.5">高峰时段放电</div>
-            </div>
-          </div>
-
-          {/* 储能图表分析区 */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-blue-500" />
-                  <h3 className="text-xs font-bold text-slate-800">
-                    储能系统充放电量时序平衡与峰谷套利收益趋势
-                  </h3>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">综合转换效率</span>
+                  <span className="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">放/充</span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-400">
-                  充电量 (千kWh) / 放电量 (千kWh) / 套利收益 (千元)
-                </span>
+                <div className="text-lg font-bold text-emerald-600 mt-1.5 font-mono">{storageKpi.efficiency}%</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">放电量 ÷ 充电量</div>
               </div>
-              <div className="h-[240px]">
-                <LineTrend
-                  data={storageTrendData}
-                  xKey="time"
-                  height={240}
-                  lines={[
-                    { key: '充电量', name: '日充电量 (千kWh)', color: '#1677ff' },
-                    { key: '放电量', name: '日放电量 (千kWh)', color: '#52c41a' },
-                    { key: '套利收益', name: '套利净收益 (千元)', color: '#fa8c16' },
-                  ]}
-                />
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">周期总充电量</span>
+                  <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-medium">充入</span>
+                </div>
+                <div className="text-lg font-bold text-slate-800 mt-1.5 font-mono">{storageKpi.totalCharge} <span className="text-xs font-normal">kWh</span></div>
+                <div className="text-[11px] text-slate-400 mt-0.5">尖峰时段前预先充入</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">周期总放电量</span>
+                  <span className="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">释放</span>
+                </div>
+                <div className="text-lg font-bold text-slate-800 mt-1.5 font-mono">{storageKpi.totalDischarge} <span className="text-xs font-normal">kWh</span></div>
+                <div className="text-[11px] text-slate-400 mt-0.5">高峰/尖峰大负荷释放</div>
+              </div>
+
+              <div className="bg-white p-3.5 rounded-xl border border-amber-200 bg-amber-50/20 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-amber-900 font-medium">净套利收益</span>
+                  <span className="text-[10px] text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded font-medium">价差收益</span>
+                </div>
+                <div className="text-lg font-bold text-amber-600 mt-1.5 font-mono">¥{storageKpi.totalRevenue} <span className="text-xs font-normal">元</span></div>
+                <div className="text-[11px] text-amber-700/80 mt-0.5">放电收入扣除充电成本</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">充电量（绿电）占比</span>
+                  <span className="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">清洁电</span>
+                </div>
+                <div className="text-lg font-bold text-emerald-600 mt-1.5 font-mono">{storageKpi.greenChargeRatio}%</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">光伏低成本绿电直充</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">充电量（市电谷/深谷）占比</span>
+                  <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-medium">低谷电</span>
+                </div>
+                <div className="text-lg font-bold text-blue-600 mt-1.5 font-mono">{storageKpi.valleyChargeRatio}%</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">夜间深谷/低谷电网充入</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">放电量（尖/峰）占比</span>
+                  <span className="text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded font-medium">最高价</span>
+                </div>
+                <div className="text-base font-bold text-purple-700 mt-1.5 font-mono truncate">{storageKpi.dischargePeakDesc}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">早晚双尖峰最大化释放</div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-3">
+            {/* 🌟 储能可视化图表区 1：左右分栏（时序动态充放平衡图 + 来源/时段结构双环图） */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+              {/* 左侧 8列：充放电平衡与分时套利时序图 */}
+              <div className="lg:col-span-8 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-emerald-500" />
-                    <h3 className="text-xs font-bold text-slate-800">储能充电来源与放电时段结构</h3>
+                    <TrendingUp className="size-4 text-[#1677ff]" />
+                    <h3 className="text-xs font-bold text-slate-800">储能日度充放电量动态平衡与峰谷套利走势</h3>
                   </div>
-                  <span className="text-[10px] text-slate-400">综合平均</span>
+                  <span className="text-[11px] text-slate-400 font-mono">左轴：万kWh / 右轴：元</span>
                 </div>
-                <div className="space-y-3 font-mono text-xs">
-                  <div>
-                    <div className="flex justify-between text-slate-600 mb-1 text-[11px]">
-                      <span>绿电充电占比 vs 市电充电</span>
-                      <span className="font-bold text-emerald-600">绿 71.5% / 市 28.5%</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 flex overflow-hidden">
-                      <div className="bg-emerald-500 h-2" style={{ width: '71.5%' }} />
-                      <div className="bg-slate-400 h-2" style={{ width: '28.5%' }} />
-                    </div>
+                <ResponsiveContainer width="100%" height={230}>
+                  <ComposedChart data={storageTrendData} margin={{ top: 10, right: 16, bottom: 0, left: -10 }}>
+                    <defs>
+                      <linearGradient id="chargeGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#1677ff" stopOpacity={0.4} />
+                        <stop offset="100%" stopColor="#1677ff" stopOpacity={0.05} />
+                      </linearGradient>
+                      <linearGradient id="dischargeGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#52c41a" stopOpacity={0.4} />
+                        <stop offset="100%" stopColor="#52c41a" stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                    <YAxis
+                      yAxisId="left"
+                      orientation="left"
+                      domain={[0, 4.5]}
+                      unit="万"
+                      tick={{ fontSize: 10, fill: '#64748b' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      domain={[0, 3500]}
+                      unit="元"
+                      tick={{ fontSize: 10, fill: '#64748b' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
+                    <Area
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="充电量"
+                      name="日充电量 (万kWh)"
+                      stroke="#1677ff"
+                      strokeWidth={2}
+                      fill="url(#chargeGrad)"
+                    />
+                    <Area
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="放电量"
+                      name="日放电量 (万kWh)"
+                      stroke="#52c41a"
+                      strokeWidth={2}
+                      fill="url(#dischargeGrad)"
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="收益"
+                      name="净套利收益 (元)"
+                      stroke="#fa8c16"
+                      strokeWidth={2.5}
+                      dot={{ r: 3, fill: '#fa8c16' }}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* 右侧 4列：充电来源与放电时段双环形图 */}
+              <div className="lg:col-span-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <PieIcon className="size-4 text-purple-600" />
+                  <h3 className="text-xs font-bold text-slate-800">充电来源与放电时段结构分析</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+                  <MiniStructureDonut
+                    title="充电电量来源"
+                    mainPercentage="74.1%"
+                    mainLabel="绿电直充"
+                    items={[
+                      { name: '绿电充入(光伏)', value: 74.1, color: '#52c41a' },
+                      { name: '市电深谷充入', value: 18.5, color: '#1677ff' },
+                      { name: '市电普通谷充', value: 7.4, color: '#13c2c2' },
+                    ]}
+                  />
+                  <div className="border-l border-slate-100 pl-2">
+                    <MiniStructureDonut
+                      title="放电释放时段"
+                      mainPercentage="61.0%"
+                      mainLabel="尖峰释放"
+                      items={[
+                        { name: '尖峰时段释放', value: 61.0, color: '#722ed1' },
+                        { name: '高峰时段释放', value: 39.0, color: '#fa8c16' },
+                      ]}
+                    />
                   </div>
-
-                  <div>
-                    <div className="flex justify-between text-slate-600 mb-1 text-[11px]">
-                      <span>尖峰放电占比 vs 高峰放电</span>
-                      <span className="font-bold text-purple-600">尖 62.0% / 峰 38.0%</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 flex overflow-hidden">
-                      <div className="bg-purple-500 h-2" style={{ width: '62%' }} />
-                      <div className="bg-blue-500 h-2" style={{ width: '38%' }} />
-                    </div>
-                  </div>
                 </div>
               </div>
-
-              <div className="p-2.5 rounded-lg bg-blue-50/60 border border-blue-100 text-[11px] text-blue-900 font-sans mt-3 space-y-1">
-                <div className="font-bold flex items-center gap-1">
-                  <Sparkles className="size-3.5 text-blue-600" /> 储能套利调度策略
-                </div>
-                <p className="text-[10px] text-slate-600">
-                  采用「午间光伏富余大发绿充 + 夜间深谷低价市充」以及「早尖峰 + 晚高峰两充两放」智能调度策略，最大化电价差套利收益。
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* 储能效益台账明细表 (含用户要求的全部 8 项指标 + 详情按钮) */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-blue-600" />
-                <h3 className="text-xs font-bold text-slate-800">储能电站效益评估与充放电台账明细表</h3>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  共 {STORAGE_BENEFIT_DATA.length} 个电站
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-500 font-mono">
-                数据更新频率：每日0点自动结算日账单
-              </span>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
-                    <th className="py-2.5 px-3 whitespace-nowrap">储能项目名称</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">额定规模</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">日充电量 (kWh)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">日放电量 (kWh)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">日套利收益 (元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">综合效率</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">市充占比</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">绿充占比</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">尖放占比</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">峰放占比</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">月累收益 (万元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">数值计算推导</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-mono">
-                  {STORAGE_BENEFIT_DATA.map((item) => (
-                    <tr key={item.id} className="hover:bg-blue-50/40 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
-                        {item.name}
-                      </td>
-                      <td className="py-2.5 px-3 font-sans text-slate-600">
-                        <div>{item.company}</div>
-                        <div className="text-[10px] text-slate-400">{item.park}</div>
-                      </td>
-                      <td className="py-2.5 px-3 font-bold text-blue-700">{item.capacity}</td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
-                        {item.chargeKwh.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
-                        {item.dischargeKwh.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
-                        ¥{item.revenueYuan.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-[#1677ff]">
-                        {item.efficiency}%
-                      </td>
-                      <td className="py-2.5 px-3 text-center text-slate-600">
-                        {item.gridChargeRatio}%
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
-                        {item.greenChargeRatio}%
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-purple-600">
-                        {item.criticalPeakDischargeRatio}%
-                      </td>
-                      <td className="py-2.5 px-3 text-center text-blue-600">
-                        {item.peakDischargeRatio}%
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
-                        ¥{item.monthlyRevenueWan}
-                      </td>
-                      <td className="py-2.5 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenCalcDetail('storage', item)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-[#1677ff] hover:bg-blue-100 text-[11px] font-sans font-bold transition-all border border-blue-200 cursor-pointer shadow-2xs"
-                        >
-                          <Calculator className="size-3" />
-                          <span>算法详情</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 模块 B：热泵效益评估 (Heat Pump Benefit Module) */}
-      {/* ========================================================================= */}
-      {activeModule === 'heatpump' && (
-        <div className="space-y-3.5">
-          {/* 热泵 8 大核心评估指标卡 (双行 4x2 布局) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">市电量</span>
-                <Zap className="size-3.5 text-slate-500" />
-              </div>
-              <div className="text-base font-bold font-mono text-slate-800">
-                {heatPumpSummary.totalGridKwh}
-              </div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">kWh (市网外购)</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">绿电量</span>
-                <Leaf className="size-3.5 text-emerald-500" />
-              </div>
-              <div className="text-base font-bold font-mono text-emerald-600">
-                {heatPumpSummary.totalGreenKwh}
-              </div>
-              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">kWh (光伏消纳)</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">市电费</span>
-                <DollarSign className="size-3.5 text-slate-500" />
-              </div>
-              <div className="text-base font-bold font-mono text-slate-800">
-                ¥{heatPumpSummary.totalGridCost}
-              </div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">元 (综合电费)</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">绿电费</span>
-                <DollarSign className="size-3.5 text-emerald-500" />
-              </div>
-              <div className="text-base font-bold font-mono text-emerald-600">
-                ¥{heatPumpSummary.totalGreenCost}
-              </div>
-              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">元 (绿电交易)</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">绿电占比</span>
-                <Leaf className="size-3.5 text-emerald-600" />
-              </div>
-              <div className="text-base font-bold font-mono text-emerald-600">
-                {heatPumpSummary.greenRatio}
-              </div>
-              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">清洁电力替代率</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">尖峰占比</span>
-                <Flame className="size-3.5 text-amber-500" />
-              </div>
-              <div className="text-base font-bold font-mono text-amber-600">
-                {heatPumpSummary.avgPeakRatio}
-              </div>
-              <div className="text-[10px] text-amber-600/80 font-mono mt-0.5">峰段运行负荷</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">日节费收益</span>
-                <Coins className="size-3.5 text-emerald-600" />
-              </div>
-              <div className="text-base font-bold font-mono text-emerald-600">
-                ¥{heatPumpSummary.totalDailySavings}
-              </div>
-              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">相比传统燃气</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">月累计节费</span>
-                <TrendingUp className="size-3.5 text-blue-600" />
-              </div>
-              <div className="text-base font-bold font-mono text-[#1677ff]">
-                ¥{heatPumpSummary.totalMonthlySavingsWan} <span className="text-xs">万</span>
-              </div>
-              <div className="text-[10px] text-blue-500 font-mono mt-0.5">万元 / 当期</div>
-            </div>
-          </div>
-
-          {/* 热泵图表分析区 */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+            {/* 🌟 储能可视化图表区 2：横向电站综合效率与套利收益对比柱状图 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-orange-500" />
-                  <h3 className="text-xs font-bold text-slate-800">
-                    热泵用电结构 (市电/绿电) 与替代化石燃料费用节约时序趋势
-                  </h3>
+                  <BarChart3 className="size-4 text-emerald-600" />
+                  <h3 className="text-xs font-bold text-slate-800">各园区储能电站综合转换效率与套利收益对标排行</h3>
                 </div>
-                <span className="text-[10px] font-mono text-slate-400">
-                  市电量 (万kWh) / 绿电量 (万kWh) / 节约气费 (万元)
+                <span className="text-[11px] text-slate-400">行业高效基准线：综合效率 ≥ 85%</span>
+              </div>
+              <ResponsiveContainer width="100%" height={210}>
+                <BarChart data={storageBenchmarkData} margin={{ top: 10, right: 30, left: -10, bottom: 0 }}>
+                  <CartesianGrid stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    yAxisId="left"
+                    orientation="left"
+                    domain={[70, 100]}
+                    unit="%"
+                    tick={{ fontSize: 10, fill: '#64748b' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    domain={[0, 10000]}
+                    unit="元"
+                    tick={{ fontSize: 10, fill: '#64748b' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
+                  <Bar
+                    yAxisId="left"
+                    dataKey="综合效率"
+                    name="综合转换效率 (%)"
+                    fill="#52c41a"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={32}
+                  />
+                  <Bar
+                    yAxisId="right"
+                    dataKey="日套利收益"
+                    name="日套利收益 (元)"
+                    fill="#fa8c16"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={32}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* 储能电站台账明细表 */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-blue-600" />
+                  <h3 className="text-xs font-bold text-slate-800">储能电站效益评估与充放电台账明细表</h3>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    共 {filteredStorageData.length} 个电站
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-500 font-mono">
+                  数据更新频率：每日0点自动结算日账单
                 </span>
               </div>
-              <div className="h-[240px]">
-                <LineTrend
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                      <th className="py-2.5 px-3 whitespace-nowrap">储能项目名称</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap">储能装机</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">充电量 (kWh)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">放电量 (kWh)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">综合效率</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">套利收益 (元)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">充电量(绿电)占比</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">充电量(市电谷/深谷)占比</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">放电量(尖/峰)占比</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">月累收益 (万元)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-mono">
+                    {filteredStorageData.map((item) => (
+                      <tr key={item.id} className="hover:bg-blue-50/40 transition-colors">
+                        <td className="py-2.5 px-3 font-sans font-bold text-slate-900">{item.name}</td>
+                        <td className="py-2.5 px-3 font-sans text-slate-600">
+                          <div>{item.company}</div>
+                          <div className="text-[10px] text-slate-400">{item.park}</div>
+                        </td>
+                        <td className="py-2.5 px-3 font-bold text-blue-700">{item.capacity}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
+                          {item.chargeKwh.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
+                          {item.dischargeKwh.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">{item.efficiency}%</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-amber-600">
+                          ¥{item.revenueYuan.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">{item.greenChargeRatio}%</td>
+                        <td className="py-2.5 px-3 text-center text-blue-600 font-bold">{item.valleyChargeRatio}%</td>
+                        <td className="py-2.5 px-3 text-center text-purple-700 font-bold">{item.peakCombinedDesc}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-900">{item.monthlyRevenueWan}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/* 模块 2：热泵运行评估 (8大KPI + 供热电耗COP趋势 + 驱动电能环形图 + 折算面积柱状图 + 台账) */}
+        {/* ============================================================ */}
+        {activeModule === 'heatpump' && (
+          <div className="space-y-3.5 animate-in fade-in duration-200">
+            {/* 8 大核心 KPI 卡片 (4列 × 2行 标准网格排版) */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">系统综合 COP</span>
+                  <span className="text-[10px] text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded font-medium">能效比</span>
+                </div>
+                <div className="text-lg font-bold text-orange-600 mt-1.5 font-mono">{heatPumpKpi.cop}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">供热量 ÷ 制热耗电量</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">累计供热量</span>
+                  <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-medium">产热</span>
+                </div>
+                <div className="text-lg font-bold text-slate-800 mt-1.5 font-mono">{heatPumpKpi.totalHeatGj} <span className="text-xs font-normal">GJ</span></div>
+                <div className="text-[11px] text-slate-400 mt-0.5">吉焦热量输出</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">制热总耗电量</span>
+                  <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-medium">输入</span>
+                </div>
+                <div className="text-lg font-bold text-slate-800 mt-1.5 font-mono">{heatPumpKpi.totalPower} <span className="text-xs font-normal">kWh</span></div>
+                <div className="text-[11px] text-slate-400 mt-0.5">压缩机及循环泵总电耗</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">原始供暖面积 A</span>
+                  <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-medium">实测占地</span>
+                </div>
+                <div className="text-lg font-bold text-slate-800 mt-1.5 font-mono">{heatPumpKpi.rawArea} <span className="text-xs font-normal">万㎡</span></div>
+                <div className="text-[11px] text-slate-400 mt-0.5">厂房地面实测占地面积</div>
+              </div>
+
+              <div className="bg-white p-3.5 rounded-xl border border-amber-200 bg-amber-50/40 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-amber-900 font-bold">折算供暖面积</span>
+                  <span className="text-[10px] text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded font-bold">A×H/3</span>
+                </div>
+                <div className="text-lg font-bold text-amber-700 mt-1.5 font-mono">{heatPumpKpi.convertedArea} <span className="text-xs font-normal">万㎡</span></div>
+                <div className="text-[11px] text-amber-800 mt-0.5">按建筑层高 H/3 修正折算</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-orange-200 bg-orange-50/40 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-orange-950 font-bold">单位面积供热耗电量</span>
+                  <span className="text-[10px] text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded font-bold">国标指标</span>
+                </div>
+                <div className="text-lg font-bold text-orange-600 mt-1.5 font-mono">{heatPumpKpi.kwhPerM2} <span className="text-xs font-normal">kWh/㎡</span></div>
+                <div className="text-[11px] text-orange-800 mt-0.5">耗电量 ÷ (折算面积×10000)</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">制热电耗（绿电）占比</span>
+                  <span className="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">清洁电</span>
+                </div>
+                <div className="text-lg font-bold text-emerald-600 mt-1.5 font-mono">{heatPumpKpi.greenRatio}%</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">可再生绿电直供驱动比例</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">制热电耗（市电尖/峰）占比</span>
+                  <span className="text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded font-medium">避峰考核</span>
+                </div>
+                <div className="text-lg font-bold text-purple-700 mt-1.5 font-mono">{heatPumpKpi.peakRatio}%</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">高峰时段市网输入占比</div>
+              </div>
+            </div>
+
+            {/* 🌟 热泵可视化图表区 1：左右分栏（供热量与电耗平衡趋势图 + 驱动电能来源环形图） */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+              {/* 左侧 8列：供热量 vs 耗电量 vs COP 综合趋势图 */}
+              <div className="lg:col-span-8 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="size-4 text-orange-600" />
+                    <h3 className="text-xs font-bold text-slate-800">热泵每日供热量 (GJ) 与制热耗电量 (万kWh) 动态平衡走势</h3>
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-mono">系统平均 COP：3.85</span>
+                </div>
+                <AreaTrend
                   data={heatPumpTrendData}
-                  xKey="time"
-                  height={240}
-                  lines={[
-                    { key: '绿电量', name: '绿电用量 (万kWh)', color: '#52c41a' },
-                    { key: '市电量', name: '市网用电 (万kWh)', color: '#1677ff' },
-                    { key: '节约气费', name: '替代燃气节费 (万元)', color: '#fa8c16' },
+                  areas={[
+                    { key: '供热量GJ', name: '供热量 (GJ)', color: '#fa8c16' },
+                    { key: '耗电量万kWh', name: '耗电量 (万kWh)', color: '#1677ff' },
                   ]}
+                  xKey="date"
+                  height={220}
                 />
               </div>
-            </div>
 
-            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-orange-500" />
-                    <h3 className="text-xs font-bold text-slate-800">热泵供热替代效益模型</h3>
-                  </div>
-                  <span className="text-[10px] font-mono text-emerald-600 font-bold">COP 3.96 (加权)</span>
+              {/* 右侧 4列：驱动电力来源与避峰运行结构 */}
+              <div className="lg:col-span-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <PieIcon className="size-4 text-orange-600" />
+                  <h3 className="text-xs font-bold text-slate-800">制热电能来源与避峰时段构成</h3>
                 </div>
 
-                <div className="space-y-3 font-mono text-xs">
-                  <div>
-                    <div className="flex justify-between text-slate-600 mb-1 text-[11px]">
-                      <span>能源消费清洁化占比 (绿电比例)</span>
-                      <span className="font-bold text-emerald-600">72.0%</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 flex overflow-hidden">
-                      <div className="bg-emerald-500 h-2" style={{ width: '72%' }} />
-                      <div className="bg-slate-300 h-2" style={{ width: '28%' }} />
-                    </div>
-                  </div>
-
-                  <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5 text-[11px] text-slate-700">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">替代天然气单价基准：</span>
-                      <span className="font-bold font-mono">¥3.60 元/m³</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">原燃气锅炉综合热效率：</span>
-                      <span className="font-bold font-mono">88.0%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">热泵综合能效 COP：</span>
-                      <span className="font-bold font-mono text-emerald-600">3.85 ~ 4.12</span>
-                    </div>
+                <div className="grid grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+                  <MiniStructureDonut
+                    title="驱动电能来源"
+                    mainPercentage="72.0%"
+                    mainLabel="清洁绿电"
+                    items={[
+                      { name: '清洁绿电直供', value: 72.0, color: '#52c41a' },
+                      { name: '市电低谷电网', value: 24.5, color: '#1677ff' },
+                      { name: '市电平段补充', value: 3.5, color: '#fa8c16' },
+                    ]}
+                  />
+                  <div className="border-l border-slate-100 pl-2">
+                    <MiniStructureDonut
+                      title="峰谷负荷分布"
+                      mainPercentage="75.5%"
+                      mainLabel="避峰制热"
+                      items={[
+                        { name: '平谷避峰制热', value: 75.5, color: '#13c2c2' },
+                        { name: '尖峰时段耗电', value: 24.5, color: '#f5222d' },
+                      ]}
+                    />
                   </div>
                 </div>
               </div>
-
-              <div className="p-2.5 rounded-lg bg-orange-50/60 border border-orange-100 text-[11px] text-orange-900 font-sans mt-3">
-                <div className="font-bold flex items-center gap-1">
-                  <Flame className="size-3.5 text-orange-600" /> 热泵替代天然气效益测算
-                </div>
-                <p className="text-[10px] text-slate-600 mt-0.5">
-                  1份电能可驱动产生近 4 份热能，且 72% 以上由光伏绿电驱动，实现零碳排供热与大幅度运行成本削减。
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* 热泵效益台账明细表 (含用户要求的全部 6 项指标 + 详情按钮) */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-orange-600" />
-                <h3 className="text-xs font-bold text-slate-800">
-                  工业水源/地源热泵效益评估与电费节费明细表
-                </h3>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  共 {HEAT_PUMP_BENEFIT_DATA.length} 个项目
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-500 font-mono">
-                数据采集：智能热量表 + 绿电分时计量表
-              </span>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
-                    <th className="py-2.5 px-3 whitespace-nowrap">热泵项目名称</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">装机热功率</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">市电量 (kWh)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">绿电量 (kWh)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">市电费 (元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">绿电费 (元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">绿电占比</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">尖峰占比</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">替代天然气 (m³)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">日节费 (元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">月节费 (万元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">数值计算推导</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-mono">
-                  {HEAT_PUMP_BENEFIT_DATA.map((item) => (
-                    <tr key={item.id} className="hover:bg-orange-50/40 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
-                        {item.name}
-                      </td>
-                      <td className="py-2.5 px-3 font-sans text-slate-600">
-                        <div>{item.company}</div>
-                        <div className="text-[10px] text-slate-400">{item.park}</div>
-                      </td>
-                      <td className="py-2.5 px-3 font-bold text-orange-700">{item.capacity}</td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
-                        {item.gridPowerKwh.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
-                        {item.greenPowerKwh.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right text-slate-700">
-                        ¥{item.gridCostYuan.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
-                        ¥{item.greenCostYuan.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
-                        {item.greenPowerRatio}%
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-amber-600">
-                        {item.peakRatio}%
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
-                        {item.replacedGasM3.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
-                        ¥{item.dailySavingsYuan.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
-                        ¥{item.monthlySavingsWan}
-                      </td>
-                      <td className="py-2.5 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenCalcDetail('heatpump', item)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 hover:bg-orange-100 text-[11px] font-sans font-bold transition-all border border-orange-200 cursor-pointer shadow-2xs"
-                        >
-                          <Calculator className="size-3" />
-                          <span>算法详情</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 模块 C：光伏效益评估 (Photovoltaic Benefit Module) */}
-      {/* ========================================================================= */}
-      {activeModule === 'pv' && (
-        <div className="space-y-3.5">
-          {/* 光伏核心指标卡 */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">日总发电量</span>
-                <Sun className="size-3.5 text-amber-500" />
-              </div>
-              <div className="text-base font-bold font-mono text-slate-800">
-                {pvSummary.totalDailyGen}
-              </div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">kWh (清洁绿电)</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">自发自用量</span>
-                <Zap className="size-3.5 text-emerald-500" />
-              </div>
-              <div className="text-base font-bold font-mono text-emerald-600">
-                {pvSummary.totalSelfKwh}
-              </div>
-              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">kWh (厂内就地消纳)</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">余电上网量</span>
-                <ArrowUpRight className="size-3.5 text-blue-500" />
-              </div>
-              <div className="text-base font-bold font-mono text-blue-600">
-                {pvSummary.totalGridKwh}
-              </div>
-              <div className="text-[10px] text-blue-500 font-mono mt-0.5">kWh (反送电网售电)</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">自用比例</span>
-                <Gauge className="size-3.5 text-[#1677ff]" />
-              </div>
-              <div className="text-base font-bold font-mono text-[#1677ff]">
-                {pvSummary.avgSelfUseRatio}
-              </div>
-              <div className="text-[10px] text-blue-500 font-mono mt-0.5">就地消纳率</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">日综合收益</span>
-                <Coins className="size-3.5 text-emerald-600" />
-              </div>
-              <div className="text-base font-bold font-mono text-emerald-600">
-                ¥{pvSummary.totalDailyBenefit}
-              </div>
-              <div className="text-[10px] text-emerald-600/80 font-mono mt-0.5">含自用节费+上网</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">月累计收益</span>
-                <TrendingUp className="size-3.5 text-emerald-700" />
-              </div>
-              <div className="text-base font-bold font-mono text-emerald-700">
-                ¥{pvSummary.totalMonthlyBenefitWan} <span className="text-xs font-sans">万元</span>
-              </div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">万元 / 当期</div>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-              <div className="flex items-center justify-between text-slate-400 mb-1">
-                <span className="text-[11px]">日核证减碳</span>
-                <Leaf className="size-3.5 text-purple-600" />
-              </div>
-              <div className="text-base font-bold font-mono text-purple-600">
-                {pvSummary.totalCarbonReduction} <span className="text-xs font-sans">tCO₂</span>
-              </div>
-              <div className="text-[10px] text-purple-500 font-mono mt-0.5">吨二氧化碳减排</div>
-            </div>
-          </div>
-
-          {/* 光伏效益台账明细表 */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-amber-500" />
-                <h3 className="text-xs font-bold text-slate-800">
-                  屋顶分布式光伏项目发电效益与电费节约明细表
-                </h3>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  共 {PV_BENEFIT_DATA.length} 个光伏电站
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-500 font-mono">
-                计量源：关口双向电表 + 逆变器通信网关
-              </span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
-                    <th className="py-2.5 px-3 whitespace-nowrap">光伏项目名称</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">装机容量</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">日发电量 (kWh)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">自用电量 (kWh)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">上网电量 (kWh)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">自用比例</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">自用节费 (元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">上网收益 (元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">日综合效益 (元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">等效小时 (h)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">月累收益 (万元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">数值计算推导</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-mono">
-                  {PV_BENEFIT_DATA.map((item) => (
-                    <tr key={item.id} className="hover:bg-amber-50/40 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
-                        {item.name}
-                      </td>
-                      <td className="py-2.5 px-3 font-sans text-slate-600">
-                        <div>{item.company}</div>
-                        <div className="text-[10px] text-slate-400">{item.park}</div>
-                      </td>
-                      <td className="py-2.5 px-3 font-bold text-amber-700">{item.capacity}</td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
-                        {item.dailyGenKwh.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
-                        {item.dailySelfKwh.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right text-blue-600">
-                        {item.dailyGridKwh.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
-                        {item.selfUseRatio}%
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
-                        ¥{item.selfSavingsYuan.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right text-blue-600">
-                        ¥{item.gridRevenueYuan.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
-                        ¥{item.totalBenefitYuan.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-amber-600">
-                        {item.dailyHours} h
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
-                        ¥{item.monthlyBenefitWan}
-                      </td>
-                      <td className="py-2.5 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenCalcDetail('pv', item)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 hover:bg-amber-100 text-[11px] font-sans font-bold transition-all border border-amber-200 cursor-pointer shadow-2xs"
-                        >
-                          <Calculator className="size-3" />
-                          <span>算法详情</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 模块 D：全景综合评估 (Overview Module) */}
-      {/* ========================================================================= */}
-      {activeModule === 'overview' && (
-        <div className="space-y-3.5">
-          {/* 4 大宏观效益 KPI 仪表板 */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-              <div>
-                <span className="text-xs text-slate-500 block">经济效益：当期节费与收益</span>
-                <div className="text-xl font-bold font-mono text-emerald-600 mt-0.5">
-                  ¥{summaryStats.totalSavingsWan} <span className="text-xs font-sans text-slate-500 font-normal">万元</span>
-                </div>
-                <span className="text-[10px] text-emerald-600 block mt-1 font-mono">
-                  含电费节约 + 峰谷套利收益
-                </span>
-              </div>
-              <div className="size-9 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
-                <Coins className="size-4.5" />
-              </div>
-            </div>
-
-            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-              <div>
-                <span className="text-xs text-slate-500 block">环保效益：核证碳减排量</span>
-                <div className="text-xl font-bold font-mono text-purple-600 mt-0.5">
-                  {summaryStats.totalCarbonTons} <span className="text-xs font-sans text-slate-500 font-normal">tCO₂</span>
-                </div>
-                <span className="text-[10px] text-purple-600 block mt-1 font-mono">
-                  折合标煤节约 {summaryStats.totalTce} tce
-                </span>
-              </div>
-              <div className="size-9 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
-                <CheckCircle2 className="size-4.5" />
-              </div>
-            </div>
-
-            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-              <div>
-                <span className="text-xs text-slate-500 block">加权实测内部收益率 (IRR)</span>
-                <div className="text-xl font-bold font-mono text-[#1677ff] mt-0.5">
-                  {summaryStats.avgIrr}
-                </div>
-                <span className="text-[10px] text-slate-400 block mt-1 font-mono">
-                  立项测算基准基线 14.0%
-                </span>
-              </div>
-              <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff]">
-                <TrendingUp className="size-4.5" />
-              </div>
-            </div>
-
-            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-              <div>
-                <span className="text-xs text-slate-500 block">加权平均动态投资回收期</span>
-                <div className="text-xl font-bold font-mono text-amber-600 mt-0.5">
-                  {summaryStats.avgPayback}
-                </div>
-                <span className="text-[10px] text-slate-400 block mt-1 font-mono">
-                  全投资回收周期基准 5.0 年
-                </span>
-              </div>
-              <div className="size-9 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
-                <Calendar className="size-4.5" />
-              </div>
-            </div>
-          </div>
-
-          {/* 累计趋势与 MACC 成本阶梯 */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+            {/* 🌟 热泵可视化图表区 2：不同高大厂房折算面积 (A*H/3) 与单位面积供热电耗对标柱状图 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
-                  <h3 className="text-xs font-bold text-slate-800">
-                    零碳项目月度累计节费收益与核证碳减排时序增长趋势
-                  </h3>
+                  <Ruler className="size-4 text-amber-600" />
+                  <h3 className="text-xs font-bold text-slate-800">典型工业厂房原始占地 vs 折算供暖面积 (A×H/3) 与单位面积耗电量 (kWh/㎡) 对标</h3>
                 </div>
-                <span className="text-[10px] font-mono text-slate-400">
-                  累计节费 (万元) / 碳减排量 (tCO₂) / 标煤节约 (tce)
+                <span className="text-[11px] text-slate-400">工业严寒/寒冷地区特级基准：≤ 2.5 kWh/㎡</span>
+              </div>
+              <BarChartGroup
+                data={heatPumpWorkshopBenchmark}
+                bars={[
+                  { key: '原始面积', name: '原始供暖面积 (万㎡)', color: '#94a3b8' },
+                  { key: '折算供暖面积', name: '折算供暖面积 A*H/3 (万㎡)', color: '#fa8c16' },
+                  { key: '单位面积电耗', name: '单位面积供热电耗 (kWh/㎡)', color: '#1677ff' },
+                ]}
+                xKey="name"
+                height={200}
+              />
+            </div>
+
+            {/* 热泵效益台账明细表 (含 A*H/3 折算过程与层高明细) */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-orange-600" />
+                  <h3 className="text-xs font-bold text-slate-800">热泵机组供热与折算面积耗电量台账明细表</h3>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    共 {filteredHeatPumpData.length} 个热泵系统
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-500 font-mono">
+                  数据采集：智能热量表 (GJ) + 智慧电表 + 厂房层高档案
                 </span>
               </div>
 
-              <div className="h-[260px]">
-                <LineTrend
-                  data={monthlyBenefitTrendData}
-                  xKey="time"
-                  height={260}
-                  lines={[
-                    { key: '累计节费', name: '累计节费 (万元)', color: '#10b981' },
-                    { key: '碳减排量', name: '核证碳减排 (tCO₂)', color: '#8b5cf6' },
-                    { key: '标煤节约', name: '标煤节约 (tce)', color: '#f59e0b' },
-                  ]}
-                />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-purple-500" />
-                    <h3 className="text-xs font-bold text-slate-800">各技术路线单位减排成本 (MACC)</h3>
-                  </div>
-                  <span className="text-[10px] font-mono text-purple-600 font-bold">元/tCO₂</span>
-                </div>
-                <p className="text-[10px] text-slate-500 font-mono mb-3">
-                  注：负值代表项目自带自偿性财务回报（节费覆盖投资）
-                </p>
-
-                <div className="space-y-4 font-mono text-xs pt-2">
-                  <div>
-                    <div className="flex items-center justify-between text-slate-700 mb-1">
-                      <span className="font-bold truncate max-w-[150px]">屋顶分布式光伏</span>
-                      <span className="text-emerald-600 font-bold">-145 元/吨</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2">
-                      <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '85%' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between text-slate-700 mb-1">
-                      <span className="font-bold truncate max-w-[150px]">工业水源热泵</span>
-                      <span className="text-emerald-600 font-bold">-112 元/吨</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2">
-                      <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '70%' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between text-slate-700 mb-1">
-                      <span className="font-bold truncate max-w-[150px]">用户侧储能调峰</span>
-                      <span className="text-blue-600 font-bold">-48 元/吨</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '45%' }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-[10px] text-slate-600 font-mono mt-2">
-                依据标准：MACC = (总投资折现 + 运维折现 - 节电收益折现) / 累计核证碳减排量
-              </div>
-            </div>
-          </div>
-
-          {/* 全技术总表 */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-[#fafbfc]">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-[#1677ff]" />
-                <h3 className="text-xs font-bold text-slate-800">
-                  光伏、储能、热泵等零碳项目经济效益与环保指标总览表
-                </h3>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  共 {filteredMacroProjects.length} 项
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-sans">
-                {[
-                  { key: 'all', label: '全部项目' },
-                  { key: '分布式光伏', label: '光伏项目' },
-                  { key: '用户侧储能', label: '储能项目' },
-                  { key: '工业热泵', label: '热泵项目' },
-                ].map((tab) => (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => setMacroFilterType(tab.key)}
-                    className={cn(
-                      'px-2.5 py-1 rounded-md transition-all cursor-pointer font-medium',
-                      macroFilterType === tab.key
-                        ? 'bg-white text-[#1677ff] font-bold shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900',
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
-                    <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">技术类型</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">所属单位 / 园区</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">装机规模</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">总投资 (万元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">当期实际产电/替代</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">当期节费与收益 (万元)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">核证碳减排 (tCO₂)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">实测 IRR</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">回收期 (年)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-right">减排成本 MACC</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap text-center">算法推导</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-mono">
-                  {filteredMacroProjects.map((item) => (
-                    <tr key={item.id} className="hover:bg-blue-50/40 transition-colors">
-                      <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
-                        {item.name}
-                      </td>
-                      <td className="py-2.5 px-3 font-sans">
-                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium border border-slate-200">
-                          {item.type}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 font-sans text-slate-600">
-                        <div>{item.base}</div>
-                        <div className="text-[10px] text-slate-400">{item.park}</div>
-                      </td>
-                      <td className="py-2.5 px-3 font-bold text-slate-800">{item.capacity}</td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
-                        ¥{item.investment.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
-                        {item.actualGenKwh}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
-                        ¥{(item.savingsYuan + (item.arbitrageYuan || 0)).toFixed(1)} 万元
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-purple-600">
-                        {item.carbonReduction.toLocaleString()} 吨
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-[#1677ff]">
-                        {item.irr}
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-amber-600">
-                        {item.paybackYears} 年
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
-                        {item.macc} 元/吨
-                      </td>
-                      <td className="py-2.5 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (item.type === '用户侧储能') {
-                              const sItem = STORAGE_BENEFIT_DATA[0]
-                              handleOpenCalcDetail('storage', { ...sItem, name: item.name })
-                            } else if (item.type === '工业热泵') {
-                              const hItem = HEAT_PUMP_BENEFIT_DATA[0]
-                              handleOpenCalcDetail('heatpump', { ...hItem, name: item.name })
-                            } else {
-                              const pItem = PV_BENEFIT_DATA[0]
-                              handleOpenCalcDetail('pv', { ...pItem, name: item.name })
-                            }
-                          }}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-[#1677ff] hover:bg-blue-100 text-[11px] font-sans font-bold transition-all border border-blue-200 cursor-pointer shadow-2xs"
-                        >
-                          <Calculator className="size-3" />
-                          <span>算法详情</span>
-                        </button>
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                      <th className="py-2.5 px-3 whitespace-nowrap">热泵项目名称</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">COP</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">供热量 (GJ)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">耗电量 (kWh)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">原始供暖面积(万㎡)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">建筑层高(m)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center bg-amber-50/60 text-amber-900">折算供暖面积(万㎡)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right bg-orange-50/60 text-orange-900">单位面积供热电耗 (kWh/㎡)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">制热电耗(绿电)占比</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">制热电耗(市电尖/峰)占比</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">日节费 (元)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">层高折算明细</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-mono">
+                    {filteredHeatPumpData.map((item) => (
+                      <tr key={item.id} className="hover:bg-orange-50/40 transition-colors">
+                        <td className="py-2.5 px-3 font-sans font-bold text-slate-900">{item.name}</td>
+                        <td className="py-2.5 px-3 font-sans text-slate-600">
+                          <div>{item.company}</div>
+                          <div className="text-[10px] text-slate-400">{item.park}</div>
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-orange-600">{item.cop}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">{item.heatOutputGj}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
+                          {item.powerKwh.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-center">{item.areaWanM2}</td>
+                        <td className="py-2.5 px-3 text-center">{item.heightM}m</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-amber-800 bg-amber-50/30">
+                          {item.convertedAreaWanM2}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-orange-700 bg-orange-50/30">
+                          {item.kwhPerM2}
+                        </td>
+                        <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">{item.greenPowerRatio}%</td>
+                        <td className="py-2.5 px-3 text-center text-purple-700 font-bold">{item.peakPowerRatio}%</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-amber-600">
+                          ¥{item.dailySavingsYuan.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-sans">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedHeightDetail({ isOpen: true, item })}
+                            className="px-2.5 py-1 rounded bg-orange-50 text-orange-700 hover:bg-orange-100 text-[11px] font-bold transition-colors cursor-pointer border border-orange-200"
+                          >
+                            层高折算查验
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* ============================================================ */}
+        {/* 模块 3：光伏运行评估 (8大KPI + 24小时三轨功率平衡图 + 消纳/收益环形图 + 横向柱状图 + 台账) */}
+        {/* ============================================================ */}
+        {activeModule === 'pv' && (
+          <div className="space-y-3.5 animate-in fade-in duration-200">
+            {/* 8 大核心 KPI 卡片 (4列 × 2行 标准网格排版，深度集成同比/环比/达成率) */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">光伏装机容量</span>
+                  <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-medium">装机</span>
+                </div>
+                <div className="text-lg font-bold text-amber-600 mt-1.5 font-mono">{pvKpi.totalCapacity} <span className="text-xs font-normal">MWp</span></div>
+                <div className="text-[10px] text-slate-400 mt-1">并网标称装机功率</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">周期总发电量</span>
+                  <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-medium">关口发电</span>
+                </div>
+                <div className="text-lg font-bold text-slate-800 mt-1.5 font-mono">{pvKpi.totalGen} <span className="text-xs font-normal">万kWh</span></div>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono">
+                  <span className="text-emerald-700 bg-emerald-100 px-1 py-0.2 rounded font-bold">同比 +8.6% ↑</span>
+                  <span className="text-blue-700 bg-blue-100 px-1 py-0.2 rounded">环比 +3.2% ↑</span>
+                </div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">有效发电小时数</span>
+                  <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-medium">利用小时</span>
+                </div>
+                <div className="text-lg font-bold text-blue-600 mt-1.5 font-mono">{pvKpi.avgHours} <span className="text-xs font-normal">h</span></div>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono">
+                  <span className="text-blue-700 bg-blue-100 px-1 py-0.2 rounded font-bold">同比 +4.8% ↑</span>
+                  <span className="text-emerald-700 bg-emerald-100 px-1 py-0.2 rounded">超标杆 +25.8h</span>
+                </div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/40 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-emerald-900 font-bold">综合消纳率</span>
+                  <span className="text-[10px] text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded font-bold">消纳/发电</span>
+                </div>
+                <div className="text-lg font-bold text-emerald-600 mt-1.5 font-mono">{pvKpi.avgConsumedRatio}%</div>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono">
+                  <span className="text-emerald-700 bg-emerald-100 px-1 py-0.2 rounded font-bold">同比 +1.8% ↑</span>
+                  <span className="text-amber-700 bg-amber-100 px-1 py-0.2 rounded">环比 -0.5% ↓</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">厂区消纳电量</span>
+                  <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-medium">自发自用</span>
+                </div>
+                <div className="text-lg font-bold text-slate-800 mt-1.5 font-mono">{pvKpi.totalConsumed} <span className="text-xs font-normal">万kWh</span></div>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono">
+                  <span className="text-blue-700 bg-blue-100 px-1 py-0.2 rounded font-bold">同比 +9.2% ↑</span>
+                  <span className="text-slate-400">自用消纳为主</span>
+                </div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-amber-200 bg-amber-50/30 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-amber-900 font-medium">消纳节约收益</span>
+                  <span className="text-[10px] text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded font-medium">替代节费</span>
+                </div>
+                <div className="text-lg font-bold text-amber-600 mt-1.5 font-mono">¥{pvKpi.totalConsumedIncome} <span className="text-xs font-normal">万</span></div>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono">
+                  <span className="text-amber-700 bg-amber-100 px-1 py-0.2 rounded font-bold">同比 +8.4% ↑</span>
+                  <span className="text-slate-400">均价 {pvKpi.avgConsumedPrice}元</span>
+                </div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 font-medium">余电上网电量</span>
+                  <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-medium">反送售电</span>
+                </div>
+                <div className="text-lg font-bold text-slate-800 mt-1.5 font-mono">{pvKpi.totalGrid} <span className="text-xs font-normal">万kWh</span></div>
+                <div className="text-[10px] text-slate-400 mt-1">反送电网余电上网量</div>
+              </div>
+              <div className="bg-white p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/30 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-emerald-900 font-medium">上网结算收益</span>
+                  <span className="text-[10px] text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded font-medium">脱硫煤价</span>
+                </div>
+                <div className="text-lg font-bold text-emerald-700 mt-1.5 font-mono">¥{pvKpi.totalGridIncome} <span className="text-xs font-normal">万</span></div>
+                <div className="text-[10px] text-slate-400 mt-1">上网结算单价 {pvKpi.gridPrice} 元/kWh</div>
+              </div>
+            </div>
+
+            {/* 🌟 光伏可视化图表区 1：左右分栏（24小时三轨功率平衡面积图 + 电量流向/收益构成双环图） */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+              {/* 左侧 8列：光伏多维对标分析看板 (和自己对比 / 横向对比 / 24h出力平衡 · 发电量、发电小时数、消纳率) */}
+              <div className="lg:col-span-8 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2.5">
+                {/* 顶栏控制组：模式切换 Tab + 指标切换胶囊 */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <div className="flex items-center gap-1.5 mr-1">
+                      <Sun className="size-4 text-amber-600 shrink-0" />
+                      <span className="text-xs font-bold text-slate-800 whitespace-nowrap">光伏多维对标看板</span>
+                    </div>
+
+                    {/* 模式选择 Tab */}
+                    <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => setPvCompareMode('self')}
+                        className={cn(
+                          'flex items-center gap-1 px-2.5 py-1 rounded-md transition-all cursor-pointer font-medium',
+                          pvCompareMode === 'self'
+                            ? 'bg-blue-600 text-white font-bold shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                        )}
+                      >
+                        <TrendingUp className="size-3" /> 和自己对比
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPvCompareMode('horizontal')}
+                        className={cn(
+                          'flex items-center gap-1 px-2.5 py-1 rounded-md transition-all cursor-pointer font-medium',
+                          pvCompareMode === 'horizontal'
+                            ? 'bg-blue-600 text-white font-bold shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                        )}
+                      >
+                        <BarChart3 className="size-3" /> 横向对比
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPvCompareMode('24h')}
+                        className={cn(
+                          'flex items-center gap-1 px-2.5 py-1 rounded-md transition-all cursor-pointer font-medium',
+                          pvCompareMode === '24h'
+                            ? 'bg-blue-600 text-white font-bold shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                        )}
+                      >
+                        <Activity className="size-3" /> 24h出力平衡
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 对比指标切换胶囊 (仅在 和自己对比 与 横向对比 模式下有效) */}
+                  {pvCompareMode !== '24h' && (
+                    <div className="flex items-center gap-1 text-[10.5px]">
+                      <span className="text-slate-500 mr-0.5">对比指标:</span>
+                      {(
+                        [
+                          { key: 'gen', label: '发电量' },
+                          { key: 'hours', label: '发电小时数' },
+                          { key: 'ratio', label: '消纳率' },
+                          { key: 'all', label: '综合三指标' },
+                        ] as const
+                      ).map((m) => (
+                        <button
+                          key={m.key}
+                          type="button"
+                          onClick={() => setPvCompareMetric(m.key)}
+                          className={cn(
+                            'px-2 py-0.5 rounded transition-all cursor-pointer font-mono font-medium',
+                            pvCompareMetric === m.key
+                              ? 'bg-amber-100 text-amber-800 border border-amber-300 font-bold shadow-2xs'
+                              : 'text-slate-600 bg-slate-50 border border-slate-200 hover:text-slate-900'
+                          )}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 🌟 模式 1：和自己对比 (纵向·同比/环比/历史走势) */}
+                {pvCompareMode === 'self' && (
+                  <div className="space-y-2 animate-in fade-in duration-200">
+                    {/* 三大指标同比环比速览条 */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200 text-xs">
+                      <div className="flex flex-col">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500 font-medium">周期总发电量</span>
+                          <span className="font-mono font-bold text-slate-800">118.5 万kWh</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 text-[10px] font-mono">
+                          <span className="text-emerald-700 bg-emerald-100 px-1 py-0.2 rounded font-bold">同比 +8.6% ↑</span>
+                          <span className="text-blue-700 bg-blue-100 px-1 py-0.2 rounded">环比 +3.2% ↑</span>
+                          <span className="text-slate-500">达成率 <span className="text-amber-700 font-bold">103%</span></span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col md:border-l border-slate-200 md:pl-2">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500 font-medium">有效发电小时数</span>
+                          <span className="font-mono font-bold text-blue-600">925.8 h</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 text-[10px] font-mono">
+                          <span className="text-blue-700 bg-blue-100 px-1 py-0.2 rounded font-bold">同比 +4.8% ↑</span>
+                          <span className="text-emerald-700 bg-emerald-100 px-1 py-0.2 rounded">环比 +2.0% ↑</span>
+                          <span className="text-slate-500">超标杆 <span className="text-emerald-700 font-bold">+25.8h</span></span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col md:border-l border-slate-200 md:pl-2">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500 font-medium">综合就地消纳率</span>
+                          <span className="font-mono font-bold text-emerald-600">92.4%</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 text-[10px] font-mono">
+                          <span className="text-emerald-700 bg-emerald-100 px-1 py-0.2 rounded font-bold">同比 +1.8% ↑</span>
+                          <span className="text-amber-700 bg-amber-100 px-1 py-0.2 rounded">环比 -0.5% ↓</span>
+                          <span className="text-emerald-700 font-bold">≥90%考核达标</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 1~8月历史逐月走势与同环比对照图 */}
+                    <div className="pt-0.5">
+                      <div className="flex items-center justify-between text-[10.5px] text-slate-500 mb-1 font-mono">
+                        <span className="font-sans font-medium text-slate-700">
+                          {pvCompareMetric === 'gen' && '沈变本部 1~8月逐月发电量 (2026实际 vs 2025同期同比 vs 设计计划)'}
+                          {pvCompareMetric === 'hours' && '沈变本部 1~8月有效利用小时数 (2026实际 vs 2025同比 vs 资源区标杆)'}
+                          {pvCompareMetric === 'ratio' && '沈变本部 1~8月综合就地消纳率走势 (2026实际 vs 2025同比 vs 90%达标线)'}
+                          {pvCompareMetric === 'all' && '沈变本部 1~8月三大指标全景对标 (左轴:发电量万kWh/小时数h · 右轴:消纳率%)'}
+                        </span>
+                        <span>
+                          {pvCompareMetric === 'gen' && '单位：万kWh'}
+                          {pvCompareMetric === 'hours' && '单位：小时 (h)'}
+                          {pvCompareMetric === 'ratio' && '单位：%'}
+                        </span>
+                      </div>
+                      <ResponsiveContainer width="100%" height={180}>
+                        <ComposedChart data={PV_SELF_HISTORY_DATA} margin={{ top: 8, right: 16, left: -15, bottom: 0 }}>
+                          <CartesianGrid stroke="#f1f5f9" vertical={false} />
+                          <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+
+                          {pvCompareMetric === 'gen' && (
+                            <YAxis domain={[40, 160]} unit="万" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'hours' && (
+                            <YAxis domain={[30, 120]} unit="h" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'ratio' && (
+                            <YAxis domain={[85, 100]} unit="%" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'all' && (
+                            <>
+                              <YAxis yAxisId="left" domain={[0, 150]} tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                              <YAxis yAxisId="right" orientation="right" domain={[85, 100]} unit="%" tick={{ fontSize: 10, fill: '#16a34a' }} axisLine={false} tickLine={false} />
+                            </>
+                          )}
+
+                          <Tooltip
+                            contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '11px', color: '#0f172a', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: 10.5, paddingTop: 2, color: '#64748b' }} />
+
+                          {pvCompareMetric === 'gen' && (
+                            <>
+                              <Bar dataKey="gen2026" name="2026实际发电量 (万kWh)" fill="#faad14" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                              <Bar dataKey="gen2025" name="2025同期发电量 (同比)" fill="rgba(250, 173, 20, 0.35)" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                              <Line type="monotone" dataKey="genPlan" name="设计月度目标值" stroke="#1677ff" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 2 }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'hours' && (
+                            <>
+                              <Bar dataKey="hours2026" name="2026实际利用小时 (h)" fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                              <Bar dataKey="hours2025" name="2025同期利用小时 (同比)" fill="rgba(22, 119, 255, 0.35)" radius={[3, 3, 0, 0]} maxBarSize={22} />
+                              <Line type="monotone" dataKey="hoursBenchmark" name="资源区月度基准小时" stroke="#16a34a" strokeWidth={2} strokeDasharray="3 3" dot={{ r: 2 }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'ratio' && (
+                            <>
+                              <Line type="monotone" dataKey="ratio2026" name="2026综合消纳率 (%)" stroke="#16a34a" strokeWidth={2.5} dot={{ r: 3, fill: '#16a34a' }} />
+                              <Line type="monotone" dataKey="ratio2025" name="2025同期消纳率 (%)" stroke="#94a3b8" strokeWidth={1.8} strokeDasharray="4 4" dot={{ r: 2 }} />
+                              <ReferenceLine y={90.0} stroke="#dc2626" strokeDasharray="3 3" label={{ value: '90%考核达标线', fill: '#dc2626', fontSize: 10, position: 'insideTopRight' }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'all' && (
+                            <>
+                              <Bar yAxisId="left" dataKey="gen2026" name="实际发电量(万kWh)" fill="#faad14" radius={[3, 3, 0, 0]} maxBarSize={18} />
+                              <Bar yAxisId="left" dataKey="hours2026" name="利用小时数(h)" fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={18} />
+                              <Line yAxisId="right" type="monotone" dataKey="ratio2026" name="综合消纳率(%)" stroke="#16a34a" strokeWidth={2.5} dot={{ r: 3 }} />
+                            </>
+                          )}
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
+                {/* 🌟 模式 2：横向对比 (各电站/园区对标排行) */}
+                {pvCompareMode === 'horizontal' && (
+                  <div className="space-y-2 animate-in fade-in duration-200">
+                    {/* 标杆领跑与对标分析看板 */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 bg-slate-50 p-2 rounded-lg border border-slate-200 text-xs">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
+                        <span className="text-slate-500 font-medium">领跑标杆电站:</span>
+                        <span className="font-bold text-slate-800">新变超高压基地 (Top 1)</span>
+                        <span className="text-[10px] text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded font-mono font-bold">
+                          利用小时 1027.3h · 消纳率 93.0% · 发电量 142.8万kWh
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-[10.5px] font-mono text-slate-500">
+                        <span>集团平均利用小时: <span className="text-blue-600 font-bold">961.0 h</span></span>
+                        <span>集团平均消纳率: <span className="text-emerald-600 font-bold">91.7%</span></span>
+                      </div>
+                    </div>
+
+                    {/* 全集团 7 大分布式光伏电站横向综合对标图 */}
+                    <div className="pt-0.5">
+                      <div className="flex items-center justify-between text-[10.5px] text-slate-500 mb-1 font-mono">
+                        <span className="font-sans font-medium text-slate-700">
+                          {pvCompareMetric === 'gen' && '各分布式光伏电站周期发电量对标 (按发电量降序排列)'}
+                          {pvCompareMetric === 'hours' && '各分布式光伏电站有效发电小时数对标 (按小时数降序排列)'}
+                          {pvCompareMetric === 'ratio' && '各分布式光伏电站综合就地消纳率对标 (按消纳率降序排列)'}
+                          {pvCompareMetric === 'all' && '各分布式光伏电站三大核心指标全景对标 (左轴:发电量/小时数 · 右轴:消纳率)'}
+                        </span>
+                        <span>
+                          {pvCompareMetric === 'gen' && '单位：万kWh'}
+                          {pvCompareMetric === 'hours' && '单位：小时 (h)'}
+                          {pvCompareMetric === 'ratio' && '单位：%'}
+                        </span>
+                      </div>
+                      <ResponsiveContainer width="100%" height={180}>
+                        <ComposedChart
+                          data={[...PV_HORIZONTAL_COMPARE_DATA].sort((a, b) => {
+                            if (pvCompareMetric === 'gen') return b.gen - a.gen
+                            if (pvCompareMetric === 'hours') return b.hours - a.hours
+                            if (pvCompareMetric === 'ratio') return b.ratio - a.ratio
+                            return b.hours - a.hours
+                          })}
+                          margin={{ top: 8, right: 16, left: -15, bottom: 0 }}
+                        >
+                          <CartesianGrid stroke="#f1f5f9" vertical={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+
+                          {pvCompareMetric === 'gen' && (
+                            <YAxis domain={[30, 160]} unit="万" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'hours' && (
+                            <YAxis domain={[850, 1100]} unit="h" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'ratio' && (
+                            <YAxis domain={[85, 96]} unit="%" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                          )}
+                          {pvCompareMetric === 'all' && (
+                            <>
+                              <YAxis yAxisId="left" domain={[0, 1100]} tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                              <YAxis yAxisId="right" orientation="right" domain={[85, 96]} unit="%" tick={{ fontSize: 10, fill: '#16a34a' }} axisLine={false} tickLine={false} />
+                            </>
+                          )}
+
+                          <Tooltip
+                            contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '11px', color: '#0f172a', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: 10.5, paddingTop: 2, color: '#64748b' }} />
+
+                          {pvCompareMetric === 'gen' && (
+                            <>
+                              <Bar dataKey="gen" name="周期总发电量 (万kWh)" fill="#faad14" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                              <ReferenceLine y={89.0} stroke="#1677ff" strokeDasharray="3 3" label={{ value: '集团均值 89.0万', fill: '#1677ff', fontSize: 10, position: 'insideTopLeft' }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'hours' && (
+                            <>
+                              <Bar dataKey="hours" name="有效发电小时数 (h)" fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                              <ReferenceLine y={961.0} stroke="#faad14" strokeDasharray="3 3" label={{ value: '集团均值 961h', fill: '#faad14', fontSize: 10, position: 'insideTopLeft' }} />
+                              <ReferenceLine y={900.0} stroke="#16a34a" strokeDasharray="3 3" label={{ value: '一类资源基准 900h', fill: '#16a34a', fontSize: 10, position: 'insideBottomLeft' }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'ratio' && (
+                            <>
+                              <Bar dataKey="ratio" name="综合就地消纳率 (%)" fill="#16a34a" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                              <ReferenceLine y={91.7} stroke="#faad14" strokeDasharray="3 3" label={{ value: '集团平均 91.7%', fill: '#faad14', fontSize: 10, position: 'insideTopLeft' }} />
+                              <ReferenceLine y={90.0} stroke="#dc2626" strokeDasharray="3 3" label={{ value: '90%达标红线', fill: '#dc2626', fontSize: 10, position: 'insideBottomLeft' }} />
+                            </>
+                          )}
+
+                          {pvCompareMetric === 'all' && (
+                            <>
+                              <Bar yAxisId="left" dataKey="gen" name="发电量(万kWh)" fill="#faad14" radius={[3, 3, 0, 0]} maxBarSize={16} />
+                              <Bar yAxisId="left" dataKey="hours" name="有效小时数(h)" fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={16} />
+                              <Line yAxisId="right" type="monotone" dataKey="ratio" name="消纳率(%)" stroke="#16a34a" strokeWidth={2.5} dot={{ r: 3 }} />
+                            </>
+                          )}
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
+                {/* 🌟 模式 3：24小时三轨出力平衡 (保留原有日内动态功率平衡曲线) */}
+                {pvCompareMode === '24h' && (
+                  <div className="space-y-2 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                      <span className="font-sans font-medium text-slate-700">光伏 24小时理论总出力 vs 厂区消纳功率 vs 余电上网动态平衡</span>
+                      <span>单位：万kWh / 功率</span>
+                    </div>
+                    <AreaTrend
+                      data={pvHourlyTrendData}
+                      areas={[
+                        { key: '总发电量', name: '光伏理论总出力 (万kWh)', color: '#faad14' },
+                        { key: '厂区消纳', name: '厂区就地消纳 (万kWh)', color: '#1677ff' },
+                        { key: '余电上网', name: '余电反送上网 (万kWh)', color: '#52c41a' },
+                      ]}
+                      xKey="time"
+                      height={205}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* 右侧 4列：电量流向与双轨收益双环形图 */}
+              <div className="lg:col-span-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <PieIcon className="size-4 text-amber-600" />
+                  <h3 className="text-xs font-bold text-slate-800">光伏电量消纳流向与经济收益构成</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+                  <MiniStructureDonut
+                    title="发电量流向"
+                    mainPercentage="91.8%"
+                    mainLabel="自发自用"
+                    items={[
+                      { name: '厂区就地消纳', value: 91.8, color: '#1677ff' },
+                      { name: '余电反送上网', value: 8.2, color: '#52c41a' },
+                    ]}
+                  />
+                  <div className="border-l border-slate-100 pl-2">
+                    <MiniStructureDonut
+                      title="总效益构成"
+                      mainPercentage="95.5%"
+                      mainLabel="替代节费"
+                      items={[
+                        { name: '工商业节费', value: 95.5, color: '#fa8c16' },
+                        { name: '余电上网售电', value: 4.5, color: '#13c2c2' },
+                      ]}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 🌟 光伏可视化图表区 2：各园区电站有效利用小时数与消纳率横向排行榜 */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="size-4 text-blue-600" />
+                  <h3 className="text-xs font-bold text-slate-800">各分布式光伏电站有效发电小时数 (h) 与综合消纳率 (%) 排行榜</h3>
+                </div>
+                <span className="text-[11px] text-slate-400">一类资源区基准有效利用小时数：≥ 900 h</span>
+              </div>
+              <ResponsiveContainer width="100%" height={210}>
+                <BarChart data={pvBenchmarkData} margin={{ top: 10, right: 30, left: -10, bottom: 0 }}>
+                  <CartesianGrid stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    yAxisId="left"
+                    orientation="left"
+                    domain={[800, 1200]}
+                    unit="h"
+                    tick={{ fontSize: 10, fill: '#64748b' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    domain={[80, 100]}
+                    unit="%"
+                    tick={{ fontSize: 10, fill: '#64748b' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
+                  <Bar
+                    yAxisId="left"
+                    dataKey="有效小时数"
+                    name="有效发电小时数 (h)"
+                    fill="#1677ff"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={32}
+                  />
+                  <Bar
+                    yAxisId="right"
+                    dataKey="综合消纳率"
+                    name="综合就地消纳率 (%)"
+                    fill="#52c41a"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={32}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* 光伏电站消纳与上网台账明细表 */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-amber-500" />
+                  <h3 className="text-xs font-bold text-slate-800">分布式光伏电站发电出力与消纳/上网台账明细表</h3>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    共 {filteredPvData.length} 个光伏项目
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-500 font-mono">
+                  电网双向计量关口表同步结算
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                      <th className="py-2.5 px-3 whitespace-nowrap">光伏项目名称</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">光伏装机 (MWp)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">发电量 (万kWh)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">有效小时数 (h)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right bg-blue-50/50 text-blue-900">消纳电量 (万kWh)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right bg-blue-50/50 text-blue-900">消纳收益 (万元)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center bg-blue-50/50 text-blue-900">消纳均价 (元)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center font-bold text-emerald-700">消纳率 (%)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right bg-emerald-50/50 text-emerald-900">上网电量 (万kWh)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right bg-emerald-50/50 text-emerald-900">上网收益 (万元)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center bg-emerald-50/50 text-emerald-900">上网单价 (元)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-mono">
+                    {filteredPvData.map((item) => (
+                      <tr key={item.id} className="hover:bg-amber-50/40 transition-colors">
+                        <td className="py-2.5 px-3 font-sans font-bold text-slate-900">{item.name}</td>
+                        <td className="py-2.5 px-3 font-sans text-slate-600">
+                          <div>{item.company}</div>
+                          <div className="text-[10px] text-slate-400">{item.park}</div>
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-amber-700">{item.capacityMwp}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">{item.genKwhWan}</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-blue-600">{item.effectiveHours}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-blue-700 bg-blue-50/20">{item.consumedKwhWan}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-amber-600 bg-blue-50/20">¥{item.consumedIncomeWan}</td>
+                        <td className="py-2.5 px-3 text-center bg-blue-50/20">{item.consumedAvgPrice}</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">{item.consumedRatio}%</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-700 bg-emerald-50/20">{item.gridKwhWan}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-700 bg-emerald-50/20">¥{item.gridIncomeWan}</td>
+                        <td className="py-2.5 px-3 text-center bg-emerald-50/20">{item.gridPrice}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ========================================================================= */}
-      {/* 核心弹窗：数值计算公式与推导演练溯源详情对话框 (加一详情按钮) */}
+      {/* 弹窗 1：热泵供暖面积与建筑层高折算明细 (对齐 A*H/3 与不同层高车间) */}
       {/* ========================================================================= */}
-      {selectedCalcDetail.isOpen && selectedCalcDetail.data && (
+      {selectedHeightDetail.isOpen && selectedHeightDetail.item && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* 弹窗 Header */}
-            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-blue-50/50 via-white to-slate-50">
-              <div className="flex items-center gap-2.5">
-                <div className="size-9 rounded-lg bg-[#1677ff] text-white flex items-center justify-center shadow-xs">
-                  <Calculator className="size-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-slate-800">
-                      效益指标算法公式与数值推导溯源详情
-                    </h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 font-sans">
-                      {selectedCalcDetail.type === 'storage' && '储能效益模型'}
-                      {selectedCalcDetail.type === 'heatpump' && '热泵效益模型'}
-                      {selectedCalcDetail.type === 'pv' && '光伏效益模型'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5 font-sans">
-                    项目：<span className="font-bold text-slate-700">{selectedCalcDetail.data.name}</span> (
-                    {selectedCalcDetail.data.capacity})
-                  </p>
-                </div>
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-orange-50/60">
+              <div className="flex items-center gap-2">
+                <Ruler className="size-5 text-orange-600" />
+                <h3 className="text-sm font-bold text-slate-800">
+                  【{selectedHeightDetail.item.name}】供暖面积与层高折算台账
+                </h3>
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedCalcDetail({ isOpen: false, type: 'storage', data: null })}
-                className="size-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                onClick={() => setSelectedHeightDetail({ isOpen: false, item: null })}
+                className="text-slate-400 hover:text-slate-700 p-1"
               >
                 <X className="size-5" />
               </button>
             </div>
 
-            {/* 弹窗 Body (可滚动) */}
-            <div className="p-5 overflow-y-auto space-y-4 text-xs">
-              {/* 1. 项目计量上下文与数据采集源 */}
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 md:grid-cols-4 gap-2 font-mono text-[11px]">
-                <div>
-                  <span className="text-slate-400 block text-[10px] font-sans">所属园区/基地</span>
-                  <span className="font-bold text-slate-700 font-sans">
-                    {selectedCalcDetail.data.company}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block text-[10px] font-sans">计量源点位</span>
-                  <span className="font-bold text-slate-700 font-sans">
-                    {selectedCalcDetail.type === 'storage' && 'PCS变流柜双向智能表 #E-01'}
-                    {selectedCalcDetail.type === 'heatpump' && '热泵进线计量表 + 超声波热量计'}
-                    {selectedCalcDetail.type === 'pv' && '光伏并网防逆流双向关口表'}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block text-[10px] font-sans">结算周期</span>
-                  <span className="font-bold text-slate-700">2026-08-28 (日结)</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block text-[10px] font-sans">数据核验状态</span>
-                  <span className="font-bold text-emerald-600 flex items-center gap-1 font-sans">
-                    <CheckCircle2 className="size-3" /> 双表对齐核验无误
-                  </span>
-                </div>
+            <div className="p-5 space-y-4 text-xs">
+              <div className="rounded-xl border border-orange-200 bg-orange-50/40 p-3.5 space-y-1.5">
+                <span className="font-bold text-orange-900 block text-xs">标准折算计算公式与原则：</span>
+                <p className="text-slate-600 leading-relaxed font-mono">
+                  折算供暖面积 = 原始面积 A (万㎡) × 层高 H (m) ÷ 3 (标准参考层高 3m)
+                </p>
+                <p className="text-slate-500 text-[11px]">
+                  注：变压器与电缆制造厂房多为 9~18 米高大空间，热对流耗热量显著高于普通建筑，依据工信部工业绿色建筑供暖折算规范统一标准化折算。
+                </p>
               </div>
 
-              {/* 2. 储能模块算法与数值推导演练 */}
-              {selectedCalcDetail.type === 'storage' && (
-                <div className="space-y-3.5">
-                  {/* 公式定义卡片 */}
-                  <div className="p-3.5 rounded-xl bg-blue-50/50 border border-blue-200 space-y-2">
-                    <div className="flex items-center gap-1.5 font-bold text-blue-900 text-xs">
-                      <Sparkles className="size-4 text-[#1677ff]" />
-                      <span>储能 8 大指标数学模型与计算公式</span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-mono text-slate-700">
-                      <div className="bg-white p-2 rounded border border-blue-100">
-                        <span className="text-blue-700 font-bold block mb-0.5">① 综合充放效率 (η):</span>
-                        η = (日放电量 / 日充电量) × 100%
-                      </div>
-                      <div className="bg-white p-2 rounded border border-blue-100">
-                        <span className="text-blue-700 font-bold block mb-0.5">② 净套利收益 (Revenue):</span>
-                        Revenue = (尖放收益 + 峰放收益) - (市电充成本 + 绿电充成本)
-                      </div>
-                      <div className="bg-white p-2 rounded border border-blue-100">
-                        <span className="text-blue-700 font-bold block mb-0.5">③ 绿充占比 / 市充占比:</span>
-                        绿充% = (绿充电量/总充电量)×100% ；市充% = (市充电量/总充电量)×100%
-                      </div>
-                      <div className="bg-white p-2 rounded border border-blue-100">
-                        <span className="text-blue-700 font-bold block mb-0.5">④ 尖放占比 / 峰放占比:</span>
-                        尖放% = (尖段放电量/总放电量)×100% ；峰放% = (峰段放电量/总放电量)×100%
-                      </div>
-                    </div>
-                  </div>
+              <div>
+                <span className="font-bold text-slate-800 block mb-2">不同建筑层高明细分解表：</span>
+                <table className="w-full text-left border-collapse border border-slate-200 rounded-lg overflow-hidden">
+                  <thead>
+                    <tr className="bg-slate-100/80 text-slate-600 font-bold border-b border-slate-200">
+                      <th className="py-2 px-3">车间/建筑功能单元</th>
+                      <th className="py-2 px-3 text-center">原始面积 A (万㎡)</th>
+                      <th className="py-2 px-3 text-center">净空层高 H (m)</th>
+                      <th className="py-2 px-3 text-center bg-orange-50/60 text-orange-900">折算供暖面积 (万㎡)</th>
+                      <th className="py-2 px-3 text-right">折算倍率</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 font-mono text-[11px]">
+                    {selectedHeightDetail.item.heightBreakdown.map((b, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50">
+                        <td className="py-2 px-3 font-sans font-medium text-slate-800">{b.buildingName}</td>
+                        <td className="py-2 px-3 text-center">{b.areaWanM2}</td>
+                        <td className="py-2 px-3 text-center font-bold text-blue-600">{b.heightM}m</td>
+                        <td className="py-2 px-3 text-center font-bold text-orange-600 bg-orange-50/20">{b.convertedAreaWanM2}</td>
+                        <td className="py-2 px-3 text-right font-sans text-slate-500">{(b.heightM / 3).toFixed(1)}x</td>
+                      </tr>
+                    ))}
+                    <tr className="bg-orange-50/40 font-bold text-slate-800">
+                      <td className="py-2 px-3 font-sans">合计汇总</td>
+                      <td className="py-2 px-3 text-center">{selectedHeightDetail.item.areaWanM2} 万㎡</td>
+                      <td className="py-2 px-3 text-center font-sans text-slate-500">-</td>
+                      <td className="py-2 px-3 text-center text-orange-700">{selectedHeightDetail.item.convertedAreaWanM2} 万㎡</td>
+                      <td className="py-2 px-3 text-right font-sans text-orange-700">
+                        {(selectedHeightDetail.item.convertedAreaWanM2 / selectedHeightDetail.item.areaWanM2).toFixed(2)}x
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
-                  {/* 输入参数与分时电价矩阵 */}
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
-                      <Sliders className="size-3.5 text-[#1677ff]" />
-                      <span>输入参数与分时电价清单</span>
-                    </h4>
-                    <table className="w-full text-[11px] text-left border-collapse border border-slate-200 rounded-lg overflow-hidden font-mono">
-                      <thead className="bg-slate-100 text-slate-600 font-bold">
-                        <tr>
-                          <th className="p-2 border-b border-slate-200">时段类型</th>
-                          <th className="p-2 border-b border-slate-200">电价费率 (元/kWh)</th>
-                          <th className="p-2 border-b border-slate-200 text-right">充电量 (kWh)</th>
-                          <th className="p-2 border-b border-slate-200 text-right">放电量 (kWh)</th>
-                          <th className="p-2 border-b border-slate-200 text-right">费用/收入 (元)</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        <tr>
-                          <td className="p-2 font-sans font-medium text-purple-700">尖段 (18:00-20:00)</td>
-                          <td className="p-2">¥{selectedCalcDetail.data.calcContext.criticalPeakPrice}</td>
-                          <td className="p-2 text-right text-slate-400">0.0</td>
-                          <td className="p-2 text-right font-bold text-purple-600">
-                            {selectedCalcDetail.data.calcContext.criticalDischargeKwh.toLocaleString()}
-                          </td>
-                          <td className="p-2 text-right font-bold text-emerald-600">
-                            +¥{(selectedCalcDetail.data.calcContext.criticalDischargeKwh * selectedCalcDetail.data.calcContext.criticalPeakPrice).toFixed(2)}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="p-2 font-sans font-medium text-blue-700">峰段 (08:30-11:30)</td>
-                          <td className="p-2">¥{selectedCalcDetail.data.calcContext.peakPrice}</td>
-                          <td className="p-2 text-right text-slate-400">0.0</td>
-                          <td className="p-2 text-right font-bold text-blue-600">
-                            {selectedCalcDetail.data.calcContext.peakDischargeKwh.toLocaleString()}
-                          </td>
-                          <td className="p-2 text-right font-bold text-emerald-600">
-                            +¥{(selectedCalcDetail.data.calcContext.peakDischargeKwh * selectedCalcDetail.data.calcContext.peakPrice).toFixed(2)}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="p-2 font-sans font-medium text-emerald-700">
-                            午间光伏绿电充 (12:00-14:00)
-                          </td>
-                          <td className="p-2">¥{selectedCalcDetail.data.calcContext.greenPowerPrice}</td>
-                          <td className="p-2 text-right font-bold text-emerald-600">
-                            {selectedCalcDetail.data.calcContext.greenChargeKwh.toLocaleString()}
-                          </td>
-                          <td className="p-2 text-right text-slate-400">0.0</td>
-                          <td className="p-2 text-right font-bold text-rose-600">
-                            -¥{(selectedCalcDetail.data.calcContext.greenChargeKwh * selectedCalcDetail.data.calcContext.greenPowerPrice).toFixed(2)}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="p-2 font-sans font-medium text-slate-700">
-                            夜间深谷市电充 (00:00-06:00)
-                          </td>
-                          <td className="p-2">¥{selectedCalcDetail.data.calcContext.valleyPrice}</td>
-                          <td className="p-2 text-right font-bold text-slate-700">
-                            {selectedCalcDetail.data.calcContext.gridChargeKwh.toLocaleString()}
-                          </td>
-                          <td className="p-2 text-right text-slate-400">0.0</td>
-                          <td className="p-2 text-right font-bold text-rose-600">
-                            -¥{(selectedCalcDetail.data.calcContext.gridChargeKwh * selectedCalcDetail.data.calcContext.valleyPrice).toFixed(2)}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* 逐步代入演练过程 */}
-                  <div className="bg-slate-900 text-slate-200 p-3.5 rounded-xl font-mono text-[11px] space-y-2 shadow-inner">
-                    <div className="text-emerald-400 font-bold flex items-center gap-1.5">
-                      <CodeBracketIcon className="size-3.5" /> 逐步代入数值计算演算步骤 (Step-by-Step Breakdown)
-                    </div>
-                    <div className="space-y-1 text-slate-300">
-                      <div>
-                        <span className="text-blue-400">Step 1 [综合效率]:</span>{' '}
-                        {selectedCalcDetail.data.dischargeKwh} ÷ {selectedCalcDetail.data.chargeKwh} × 100% ={' '}
-                        <span className="text-emerald-400 font-bold">{selectedCalcDetail.data.efficiency}%</span> (循环损耗 {selectedCalcDetail.data.calcContext.roundTripLossKwh} kWh)
-                      </div>
-                      <div>
-                        <span className="text-blue-400">Step 2 [放电总收入]:</span>{' '}
-                        ({selectedCalcDetail.data.calcContext.criticalDischargeKwh} × 1.28) + ({selectedCalcDetail.data.calcContext.peakDischargeKwh} × 0.98) ={' '}
-                        <span className="text-emerald-400 font-bold">¥{selectedCalcDetail.data.calcContext.dischargeIncomeYuan.toFixed(2)} 元</span>
-                      </div>
-                      <div>
-                        <span className="text-blue-400">Step 3 [充电总成本]:</span>{' '}
-                        ({selectedCalcDetail.data.calcContext.greenChargeKwh} × 0.42) + ({selectedCalcDetail.data.calcContext.gridChargeKwh} × 0.32) ={' '}
-                        <span className="text-rose-400 font-bold">¥{selectedCalcDetail.data.calcContext.chargeCostYuan.toFixed(2)} 元</span>
-                      </div>
-                      <div>
-                        <span className="text-blue-400">Step 4 [净套利收益]:</span>{' '}
-                        {selectedCalcDetail.data.calcContext.dischargeIncomeYuan.toFixed(2)} - {selectedCalcDetail.data.calcContext.chargeCostYuan.toFixed(2)} ={' '}
-                        <span className="text-amber-300 font-bold text-xs">¥{selectedCalcDetail.data.revenueYuan} 元</span>
-                      </div>
-                      <div>
-                        <span className="text-blue-400">Step 5 [结构占比]:</span>{' '}
-                        绿充 {selectedCalcDetail.data.greenChargeRatio}% | 市充 {selectedCalcDetail.data.gridChargeRatio}% | 尖放 {selectedCalcDetail.data.criticalPeakDischargeRatio}% | 峰放 {selectedCalcDetail.data.peakDischargeRatio}%
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 3. 热泵模块算法与数值推导演练 */}
-              {selectedCalcDetail.type === 'heatpump' && (
-                <div className="space-y-3.5">
-                  <div className="p-3.5 rounded-xl bg-orange-50/50 border border-orange-200 space-y-2">
-                    <div className="flex items-center gap-1.5 font-bold text-orange-900 text-xs">
-                      <Sparkles className="size-4 text-orange-600" />
-                      <span>热泵 6 大核心指标与替代节费数学模型</span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-mono text-slate-700">
-                      <div className="bg-white p-2 rounded border border-orange-100">
-                        <span className="text-orange-700 font-bold block mb-0.5">① 绿电用能占比:</span>
-                        绿电占比 = [绿电量 / (市电量 + 绿电量)] × 100%
-                      </div>
-                      <div className="bg-white p-2 rounded border border-orange-100">
-                        <span className="text-orange-700 font-bold block mb-0.5">② 尖峰负荷占比:</span>
-                        尖峰占比 = (尖峰时段运行电量 / 总电量) × 100%
-                      </div>
-                      <div className="bg-white p-2 rounded border border-orange-100">
-                        <span className="text-orange-700 font-bold block mb-0.5">③ 热泵总运行电费:</span>
-                        总电费 = 市电量 × 市网加权价 + 绿电量 × 绿电协议价
-                      </div>
-                      <div className="bg-white p-2 rounded border border-orange-100">
-                        <span className="text-orange-700 font-bold block mb-0.5">④ 替代化石节费收益:</span>
-                        节费 = (替代天然气量 × 气价 ¥3.6) - 热泵运行总电费
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 详细逐步演算 */}
-                  <div className="bg-slate-900 text-slate-200 p-3.5 rounded-xl font-mono text-[11px] space-y-2 shadow-inner">
-                    <div className="text-orange-400 font-bold flex items-center gap-1.5">
-                      <CodeBracketIcon className="size-3.5" /> 热泵用电与替代天然气实测演算 (Step-by-Step Breakdown)
-                    </div>
-                    <div className="space-y-1 text-slate-300">
-                      <div>
-                        <span className="text-orange-300">Step 1 [总电量与绿电占比]:</span>{' '}
-                        {selectedCalcDetail.data.gridPowerKwh} (市) + {selectedCalcDetail.data.greenPowerKwh} (绿) ={' '}
-                        {selectedCalcDetail.data.gridPowerKwh + selectedCalcDetail.data.greenPowerKwh} kWh ；
-                        绿电占比 = <span className="text-emerald-400 font-bold">{selectedCalcDetail.data.greenPowerRatio}%</span>
-                      </div>
-                      <div>
-                        <span className="text-orange-300">Step 2 [热泵综合电费]:</span>{' '}
-                        ({selectedCalcDetail.data.gridPowerKwh} × 0.75) + ({selectedCalcDetail.data.greenPowerKwh} × 0.42) ={' '}
-                        {selectedCalcDetail.data.gridCostYuan} + {selectedCalcDetail.data.greenCostYuan} ={' '}
-                        <span className="text-rose-400 font-bold">¥{selectedCalcDetail.data.calcContext.heatPumpTotalCostYuan} 元</span>
-                      </div>
-                      <div>
-                        <span className="text-orange-300">Step 3 [基准燃气锅炉等热量折算]:</span>{' '}
-                        产供热量 {selectedCalcDetail.data.calcContext.heatOutputGj} GJ 需耗天然气 {selectedCalcDetail.data.replacedGasM3} m³ ；
-                        燃气成本 = {selectedCalcDetail.data.replacedGasM3} × ¥3.60 ={' '}
-                        <span className="text-amber-400 font-bold">¥{selectedCalcDetail.data.calcContext.replacedGasCostYuan} 元</span>
-                      </div>
-                      <div>
-                        <span className="text-orange-300">Step 4 [净节费计算]:</span>{' '}
-                        {selectedCalcDetail.data.calcContext.replacedGasCostYuan} (燃气基准) - {selectedCalcDetail.data.calcContext.heatPumpTotalCostYuan} (热泵电费) ={' '}
-                        <span className="text-emerald-400 font-bold text-xs">¥{selectedCalcDetail.data.dailySavingsYuan} 元/天</span> (月累计 ¥{selectedCalcDetail.data.monthlySavingsWan} 万元)
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 4. 光伏模块算法与数值推导演练 */}
-              {selectedCalcDetail.type === 'pv' && (
-                <div className="space-y-3.5">
-                  <div className="p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 space-y-2">
-                    <div className="flex items-center gap-1.5 font-bold text-amber-900 text-xs">
-                      <Sparkles className="size-4 text-amber-600" />
-                      <span>光伏消纳与节费收益数学模型</span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-mono text-slate-700">
-                      <div className="bg-white p-2 rounded border border-amber-100">
-                        <span className="text-amber-700 font-bold block mb-0.5">① 自发自用消纳比例:</span>
-                        自用比例 = (自用电量 / 总发电量) × 100%
-                      </div>
-                      <div className="bg-white p-2 rounded border border-amber-100">
-                        <span className="text-amber-700 font-bold block mb-0.5">② 综合电费节约与收益:</span>
-                        收益 = 自用电量 × 替代工商业电价 + 上网电量 × 脱硫煤基准价
-                      </div>
-                      <div className="bg-white p-2 rounded border border-amber-100">
-                        <span className="text-amber-700 font-bold block mb-0.5">③ 等效满发利用小时数:</span>
-                        利用小时 = 当期总发电量(kWh) / 光伏额定装机容量(kWp)
-                      </div>
-                      <div className="bg-white p-2 rounded border border-amber-100">
-                        <span className="text-amber-700 font-bold block mb-0.5">④ 核证碳减排量 (tCO₂):</span>
-                        减碳量 = 发电量(MWh) × 区域电网基线碳排放因子 (0.5350)
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 详细演算过程 */}
-                  <div className="bg-slate-900 text-slate-200 p-3.5 rounded-xl font-mono text-[11px] space-y-2 shadow-inner">
-                    <div className="text-amber-400 font-bold flex items-center gap-1.5">
-                      <CodeBracketIcon className="size-3.5" /> 光伏发电效益逐步演算 (Step-by-Step Breakdown)
-                    </div>
-                    <div className="space-y-1 text-slate-300">
-                      <div>
-                        <span className="text-amber-300">Step 1 [发电与消纳分流]:</span>{' '}
-                        日总发电 {selectedCalcDetail.data.dailyGenKwh} kWh = 自用 {selectedCalcDetail.data.dailySelfKwh} (
-                        {selectedCalcDetail.data.selfUseRatio}%) + 上网 {selectedCalcDetail.data.dailyGridKwh} kWh
-                      </div>
-                      <div>
-                        <span className="text-amber-300">Step 2 [自用节电效益]:</span>{' '}
-                        {selectedCalcDetail.data.dailySelfKwh} kWh × ¥0.80/kWh ={' '}
-                        <span className="text-emerald-400 font-bold">¥{selectedCalcDetail.data.selfSavingsYuan} 元</span>
-                      </div>
-                      <div>
-                        <span className="text-amber-300">Step 3 [余电上网收益]:</span>{' '}
-                        {selectedCalcDetail.data.dailyGridKwh} kWh × ¥0.38/kWh ={' '}
-                        <span className="text-blue-400 font-bold">¥{selectedCalcDetail.data.gridRevenueYuan} 元</span>
-                      </div>
-                      <div>
-                        <span className="text-amber-300">Step 4 [日综合经济收益]:</span>{' '}
-                        {selectedCalcDetail.data.selfSavingsYuan} + {selectedCalcDetail.data.gridRevenueYuan} ={' '}
-                        <span className="text-amber-300 font-bold text-xs">¥{selectedCalcDetail.data.totalBenefitYuan} 元</span>
-                      </div>
-                      <div>
-                        <span className="text-amber-300">Step 5 [环保减碳贡献]:</span>{' '}
-                        ({selectedCalcDetail.data.dailyGenKwh} / 1000) MWh × 0.5350 tCO2/MWh ={' '}
-                        <span className="text-purple-400 font-bold">{selectedCalcDetail.data.dailyCarbonTons} tCO₂</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 5. 合规依据与计量标准 */}
-              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-[10px] text-slate-500 font-sans space-y-1">
-                <div className="font-bold text-slate-700 flex items-center gap-1">
-                  <ShieldCheck className="size-3.5 text-emerald-600" />
-                  <span>核算方法学与标准依据</span>
-                </div>
-                <p>
-                  1. GB/T 51366-2019 《建筑碳排放计算标准》 / NB/T 33015-2014 《电化学储能系统接入配电网运行控制规范》
-                  <br />
-                  2. 国家发改委《关于进一步完善分时电价机制的通知》（发改价格〔2021〕1093号）
-                  <br />
-                  3. 生态环境部《关于做好2026年企业温室气体排放报告管理工作的通知》（全国电网平均排放因子 0.5350 tCO₂/MWh）
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1">
+                <span className="font-bold text-slate-700 block">单位面积供热耗电量推导：</span>
+                <p className="font-mono text-slate-600 text-[11px]">
+                  {selectedHeightDetail.item.powerKwh} kWh ÷ ({selectedHeightDetail.item.convertedAreaWanM2} × 10,000 ㎡) = <strong className="text-orange-600 font-bold text-xs">{selectedHeightDetail.item.kwhPerM2} kWh/㎡</strong>
                 </p>
               </div>
             </div>
 
-            {/* 弹窗 Footer */}
-            <div className="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-              <span className="text-[11px] text-slate-500 font-mono">
-                校验结果：所有指标与关口双向计量台账 100% 吻合
-              </span>
+            <div className="p-3 border-t border-slate-200 bg-slate-50 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSelectedHeightDetail({ isOpen: false, item: null })}
+                className="px-4 py-1.5 rounded-lg bg-[#1677ff] text-white font-bold text-xs hover:bg-blue-600 transition-colors"
+              >
+                已核实确认
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 弹窗 2：算法详情与计算推导演练对话框 */}
+      {/* ========================================================================= */}
+      {selectedCalcDetail.isOpen && selectedCalcDetail.data && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-blue-50/50">
+              <div className="flex items-center gap-2">
+                <Calculator className="size-5 text-[#1677ff]" />
+                <h3 className="text-sm font-bold text-slate-800">
+                  【{selectedCalcDetail.data.name}】数值计算推导演练
+                </h3>
+              </div>
               <button
                 type="button"
                 onClick={() => setSelectedCalcDetail({ isOpen: false, type: 'storage', data: null })}
-                className="px-4 py-1.5 rounded-lg bg-[#1677ff] text-white font-bold text-xs hover:bg-blue-600 transition-colors shadow-xs cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 p-1"
               >
-                已完成核算查验
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4 text-xs">
+              <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3.5 space-y-1">
+                <span className="font-bold text-blue-950 block">核算公式与业务逻辑：</span>
+                <p className="font-mono text-slate-700 leading-relaxed text-[11px]">
+                  {selectedCalcDetail.data.calcContext?.formula}
+                </p>
+              </div>
+
+              {selectedCalcDetail.type === 'storage' && (
+                <div className="space-y-2 bg-slate-900 text-slate-200 p-3.5 rounded-xl font-mono text-[11px]">
+                  <div className="text-emerald-400 font-bold">储能充放电与套利计算步骤：</div>
+                  <div>1. 综合效率 = {selectedCalcDetail.data.dischargeKwh} ÷ {selectedCalcDetail.data.chargeKwh} = {selectedCalcDetail.data.efficiency}%</div>
+                  <div>2. 放电收入 = 尖放 {selectedCalcDetail.data.calcContext.criticalDischargeKwh}kWh × 1.28 + 峰放 {selectedCalcDetail.data.calcContext.peakDischargeKwh}kWh × 0.98 = ¥{selectedCalcDetail.data.calcContext.dischargeIncomeYuan.toFixed(2)} 元</div>
+                  <div>3. 充电成本 = 绿电充 {selectedCalcDetail.data.calcContext.greenChargeKwh}kWh × 0.42 + 市电充 {selectedCalcDetail.data.calcContext.gridChargeKwh}kWh × 0.32 = ¥{selectedCalcDetail.data.calcContext.chargeCostYuan.toFixed(2)} 元</div>
+                  <div className="text-amber-300 font-bold">4. 净套利收益 = ¥{selectedCalcDetail.data.revenueYuan} 元</div>
+                </div>
+              )}
+
+              {selectedCalcDetail.type === 'pv' && (
+                <div className="space-y-2 bg-slate-900 text-slate-200 p-3.5 rounded-xl font-mono text-[11px]">
+                  <div className="text-amber-400 font-bold">光伏消纳与余电上网计算步骤：</div>
+                  <div>1. 有效发电小时数 = {selectedCalcDetail.data.genKwhWan}万kWh × 10000 ÷ ({selectedCalcDetail.data.capacityMwp}MWp × 1000) = {selectedCalcDetail.data.effectiveHours} h</div>
+                  <div>2. 消纳收益 = {selectedCalcDetail.data.consumedKwhWan}万kWh × {selectedCalcDetail.data.consumedAvgPrice}元/kWh = ¥{selectedCalcDetail.data.consumedIncomeWan} 万元</div>
+                  <div>3. 上网收益 = {selectedCalcDetail.data.gridKwhWan}万kWh × {selectedCalcDetail.data.gridPrice}元/kWh = ¥{selectedCalcDetail.data.gridIncomeWan} 万元</div>
+                  <div className="text-emerald-300 font-bold">4. 总经济效益 = ¥{selectedCalcDetail.data.totalIncomeWan} 万元 (消纳率 {selectedCalcDetail.data.consumedRatio}%)</div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-3 border-t border-slate-200 bg-slate-50 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSelectedCalcDetail({ isOpen: false, type: 'storage', data: null })}
+                className="px-4 py-1.5 rounded-lg bg-[#1677ff] text-white font-bold text-xs hover:bg-blue-600 transition-colors"
+              >
+                已完成查验
               </button>
             </div>
           </div>
         </div>
       )}
     </div>
-  )
-}
-
-function CodeBracketIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"
-      />
-    </svg>
   )
 }
