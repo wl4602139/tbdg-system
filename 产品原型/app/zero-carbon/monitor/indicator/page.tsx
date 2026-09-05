@@ -2628,6 +2628,31 @@ export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; 
     processes: ['①互感器-干燥', '②变压器-试验'],
     energies: ['电力', '蒸汽'],
   },
+  '智慧能源': {
+    products: [],
+    processes: [],
+    energies: ['电力'],
+  },
+  '印能公司': {
+    products: [],
+    processes: [],
+    energies: ['电力'],
+  },
+  '露娜公司 (特变电工露娜智能)': {
+    products: [],
+    processes: [],
+    energies: ['电力'],
+  },
+  '特变电工露娜智能': {
+    products: [],
+    processes: [],
+    energies: ['电力'],
+  },
+  '露娜智能制造': {
+    products: [],
+    processes: [],
+    energies: ['电力'],
+  },
 
   // 2. 衡变公司
   '衡变公司': {
@@ -2658,19 +2683,24 @@ export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; 
     processes: ['①变压器-高压-干燥', '②变压器-试验'],
     energies: ['电力', '蒸汽'],
   },
+  '南京电研': {
+    products: [],
+    processes: [],
+    energies: ['电力'],
+  },
+  '云集电气': {
+    products: ['中低压开关柜'],
+    processes: ['①中低压开关柜-钣金加工', '②中低压开关柜-钣金喷涂'],
+    energies: ['电力'],
+  },
   '湖南电气': {
     products: ['变压器-高压'],
     processes: ['①变压器-高压-干燥', '②变压器-试验'],
     energies: ['电力', '蒸汽'],
   },
-  '特能建': {
-    products: ['变压器-高压'],
-    processes: ['①变压器-高压-干燥', '②变压器-试验'],
-    energies: ['电力', '蒸汽'],
-  },
-  '云集电气': {
-    products: ['中低压开关柜'],
-    processes: ['①中低压开关柜-钣金加工', '②中低压开关柜-钣金喷涂'],
+  '云集高压开关': {
+    products: ['GIS'],
+    processes: ['①GIS-抽真空', '②GIS-绝缘件干燥', '③GIS-工频耐压试验', '④GIS-空调恒温除湿'],
     energies: ['电力'],
   },
   '新疆自控': {
@@ -2678,10 +2708,20 @@ export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; 
     processes: ['①中低压开关柜-钣金加工', '②中低压开关柜-钣金喷涂'],
     energies: ['电力'],
   },
-  '云集高压开关': {
-    products: ['GIS'],
-    processes: ['①GIS-抽真空', '②GIS-绝缘件干燥', '③GIS-工频耐压试验', '④GIS-空调恒温除湿'],
+  '上开': {
+    products: [],
+    processes: [],
     energies: ['电力'],
+  },
+  '柯贝尔': {
+    products: [],
+    processes: [],
+    energies: ['电力'],
+  },
+  '特能建': {
+    products: ['变压器-高压'],
+    processes: ['①变压器-高压-干燥', '②变压器-试验'],
+    energies: ['电力', '蒸汽'],
   },
   '合容电气股份': {
     products: ['干式电抗器'],
@@ -2744,6 +2784,11 @@ export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; 
     processes: ['①非晶合金铁心-退火', '②硅钢铁心-纵剪', '③硅钢铁心-中型叠装', '④硅钢铁心-大型叠装'],
     energies: ['电力'],
   },
+  '银利电气': {
+    products: [],
+    processes: [],
+    energies: ['电力'],
+  },
 
   // 4. 鲁缆公司
   '鲁缆公司': {
@@ -2754,6 +2799,16 @@ export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; 
   '鲁缆本部': {
     products: ['线缆-中低压', '线缆-高压'],
     processes: ['①线缆-拉丝', '②线缆-中低压-交联（干法）', '③线缆-高压-交联（干法）'],
+    energies: ['电力'],
+  },
+  '智缆公司': {
+    products: [],
+    processes: [],
+    energies: ['电力'],
+  },
+  '昭和公司': {
+    products: [],
+    processes: [],
     energies: ['电力'],
   },
   '曙光公司': {
@@ -3025,6 +3080,10 @@ export default function IndicatorControlPage() {
 
   // 🌟 根据选中的产品动态生成 5 大产品管控指标 (单位产品能耗、电耗、蒸汽耗、天然气耗、水耗)
   const currentProductControlMetrics = useMemo(() => {
+    // 🌟 若当前单位没有登记主要产品（如智慧能源、印能公司、南京电研等），则返回空数组，不显示产品单耗
+    if (!activeUnitInfo?.products || activeUnitInfo.products.length === 0) {
+      return []
+    }
     const prodKey = currentProduct || ''
     const spec = PRODUCT_SPECIFIC_METRICS[prodKey]
     const targetUnit = spec ? spec.unitSuffix : '万kVA'
@@ -3220,9 +3279,27 @@ export default function IndicatorControlPage() {
     return ['电力', '水', '天然气', '蒸汽']
   }, [activeViewMetric, activeUnitInfo, selectedNode])
 
-  // 🌟 工序指标过滤：依据板块三选中的产品标签动态呈现其对应的关键制造工序对标指标
+  // 🌟 工序指标过滤：严格依据当前选中单位登记的关键制造工序及选中的产品标签动态呈现
   const filteredProcessMetrics = useMemo(() => {
-    let list = PROCESS_CONTROL_METRICS
+    // 1. 若当前选中的是非集团单位，且未登记任何关键制造工序（如智慧能源、印能公司、南京电研、上开、柯贝尔、银利电气、智缆、昭和、曙光等），严格返回空数组
+    if (!activeUnitInfo?.processes || activeUnitInfo.processes.length === 0) {
+      return []
+    }
+
+    // 2. 获取该单位登记允许的关键制造工序名称列表 (去除①②③④等编号前缀)
+    const allowedProcessKeywords = activeUnitInfo.processes.map((p) =>
+      p.replace(/^[①②③④⑤⑥\d\.\s]+/, '').trim()
+    )
+
+    // 3. 从全量工序指标库中筛选出属于该单位所拥有的工序指标
+    let list = PROCESS_CONTROL_METRICS.filter((metric) => {
+      return allowedProcessKeywords.some((apk) => {
+        const normApk = apk.replace(/（干法）/, '').replace(/\(干法\)/, '')
+        return metric.name.includes(normApk) || metric.name.includes(apk)
+      })
+    })
+
+    // 4. 若在板块三中选中了特定产品标签，则进一步按产品关联工序过滤
     if (currentProcessProduct) {
       const keywords = PRODUCT_PROCESS_KEYWORD_MAP[currentProcessProduct] || [currentProcessProduct]
       const matched = list.filter((m) =>
@@ -3238,6 +3315,8 @@ export default function IndicatorControlPage() {
         list = matched
       }
     }
+
+    // 5. 搜索关键词过滤
     if (procSearchKey.trim()) {
       const kw = procSearchKey.trim().toLowerCase()
       list = list.filter(
@@ -3249,7 +3328,7 @@ export default function IndicatorControlPage() {
       )
     }
     return list
-  }, [currentProcessProduct, procSearchKey])
+  }, [activeUnitInfo, currentProcessProduct, procSearchKey])
 
   // 动态整体综合指标 (根据选中的组织节点自适应数值与同比)
   const currentOverallMetrics = useMemo(() => {
@@ -3715,32 +3794,48 @@ export default function IndicatorControlPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
-                    {currentProductControlMetrics.map((pm) => {
-                      return (
-                        <div
-                          key={pm.id}
-                          onClick={() => setActiveViewMetric(pm)}
-                          className="p-3.5 bg-panel hover:bg-amber-500/10 rounded-xl border border-border hover:border-amber-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
-                        >
-                          <div className="flex items-center justify-between font-sans">
-                            <span className="text-[11px] font-bold text-foreground truncate" title={pm.name}>
-                              {pm.name}
-                            </span>
-                          </div>
+                  {currentProductControlMetrics.length === 0 ? (
+                    <div className="py-8 px-4 rounded-xl border border-dashed border-border/70 bg-panel/40 flex flex-col items-center justify-center text-center space-y-2">
+                      <div className="size-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                        <Factory className="size-5 opacity-80" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <h3 className="text-xs font-bold text-foreground">
+                          {selectedNode.name ? `【${selectedNode.name}】暂未纳管工业产品管控指标` : '暂无产品管控指标'}
+                        </h3>
+                        <p className="text-[11px] text-muted-foreground max-w-md">
+                          依据集团管控目录，该单位属于综合管理/技术服务型单位，不设独立工业产品单耗定额。
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                      {currentProductControlMetrics.map((pm) => {
+                        return (
+                          <div
+                            key={pm.id}
+                            onClick={() => setActiveViewMetric(pm)}
+                            className="p-3.5 bg-panel hover:bg-amber-500/10 rounded-xl border border-border hover:border-amber-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                          >
+                            <div className="flex items-center justify-between font-sans">
+                              <span className="text-[11px] font-bold text-foreground truncate" title={pm.name}>
+                                {pm.name}
+                              </span>
+                            </div>
 
-                          <div className="text-lg font-extrabold text-foreground group-hover:text-amber-400 transition-colors">
-                            {pm.curVal} <span className="text-[10.5px] font-normal text-muted-foreground font-sans">{pm.unit}</span>
-                          </div>
+                            <div className="text-lg font-extrabold text-foreground group-hover:text-amber-400 transition-colors">
+                              {pm.curVal} <span className="text-[10.5px] font-normal text-muted-foreground font-sans">{pm.unit}</span>
+                            </div>
 
-                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
-                            <span className="text-muted-foreground">同比</span>
-                            <span className="font-bold text-emerald-400 font-mono">{pm.yoy} ↓</span>
+                            <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                              <span className="text-muted-foreground">同比</span>
+                              <span className="font-bold text-emerald-400 font-mono">{pm.yoy} ↓</span>
+                            </div>
                           </div>
-                        </div>
-                      )
-                    })}
-                  </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
@@ -3902,39 +3997,69 @@ export default function IndicatorControlPage() {
                           className="pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg focus:outline-none focus:border-purple-400 font-sans w-64 text-foreground"
                         />
                       </div>
-                      <span className="text-xs text-muted-foreground font-mono">集控统一采集 · 序号 17-65</span>
+                      <span className="text-xs text-muted-foreground font-mono">
+                        {filteredProcessMetrics.length > 0 ? `已筛选 ${filteredProcessMetrics.length} 项工序指标` : '工序核定清单'}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 font-mono">
-                    {filteredProcessMetrics.map((prm) => (
-                      <div
-                        key={prm.id}
-                        onClick={() => setActiveViewMetric(prm)}
-                        className="p-3.5 rounded-xl border border-border bg-panel hover:border-purple-400/40 hover:bg-purple-500/10 transition-all cursor-pointer space-y-2 group shadow-2xs"
-                      >
-                        <div className="flex items-center justify-between font-sans">
-                          <span className="text-xs font-bold text-foreground truncate" title={prm.name}>
-                            {prm.name}
-                          </span>
-                          <span className="text-[9.5px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold shrink-0">
-                            {prm.badge}
-                          </span>
-                        </div>
-
-                        <div className="text-lg font-extrabold text-primary group-hover:text-purple-300 transition-colors">
-                          {prm.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{prm.unit}</span>
-                        </div>
-
-                        <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
-                          <span className="text-muted-foreground truncate" title={prm.formula}>
-                            {prm.formula}
-                          </span>
-                          <span className="font-bold text-emerald-400 font-mono shrink-0 ml-1">{prm.yoy} ↓</span>
-                        </div>
+                  {filteredProcessMetrics.length === 0 ? (
+                    <div className="py-10 px-4 rounded-xl border border-dashed border-border/70 bg-panel/40 flex flex-col items-center justify-center text-center space-y-2.5">
+                      <div className="size-11 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                        <Info className="size-5 opacity-85" />
                       </div>
-                    ))}
-                  </div>
+                      <div className="space-y-1">
+                        <h3 className="text-xs font-bold text-foreground">
+                          {(!activeUnitInfo?.processes || activeUnitInfo.processes.length === 0)
+                            ? `【${selectedNode.name || '当前单位'}】不涉及关键制造工序对标指标`
+                            : procSearchKey.trim()
+                            ? `未匹配到与【${procSearchKey}】相关的工序指标`
+                            : `当前筛选条件下暂无工序对标指标`}
+                        </h3>
+                        <p className="text-[11px] text-muted-foreground max-w-lg mx-auto">
+                          {(!activeUnitInfo?.processes || activeUnitInfo.processes.length === 0)
+                            ? '依据集团《生产单位与涉及关键工序对应表》，该单位未包含工序管控制度所定义的关键制造加工工序（干燥、交联、拉丝、固化、试验等），不执行工序能效对标考核。'
+                            : '可尝试更换搜索关键词或切换产品分类标签查看对应的工序能效指标。'}
+                        </p>
+                      </div>
+                      {(!activeUnitInfo?.processes || activeUnitInfo.processes.length === 0) && (
+                        <div className="inline-flex items-center gap-1.5 text-[10.5px] px-2.5 py-1 rounded-full bg-panel text-muted-foreground border border-border/60">
+                          <Check className="size-3 text-emerald-400" />
+                          <span>依据《生产单位与涉及关键工序对应表》· 免考核工序单耗</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 font-mono">
+                      {filteredProcessMetrics.map((prm) => (
+                        <div
+                          key={prm.id}
+                          onClick={() => setActiveViewMetric(prm)}
+                          className="p-3.5 rounded-xl border border-border bg-panel hover:border-purple-400/40 hover:bg-purple-500/10 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                        >
+                          <div className="flex items-center justify-between font-sans">
+                            <span className="text-xs font-bold text-foreground truncate" title={prm.name}>
+                              {prm.name}
+                            </span>
+                            <span className="text-[9.5px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold shrink-0">
+                              {prm.badge}
+                            </span>
+                          </div>
+
+                          <div className="text-lg font-extrabold text-primary group-hover:text-purple-300 transition-colors">
+                            {prm.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{prm.unit}</span>
+                          </div>
+
+                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                            <span className="text-muted-foreground truncate" title={prm.formula}>
+                              {prm.formula}
+                            </span>
+                            <span className="font-bold text-emerald-400 font-mono shrink-0 ml-1">{prm.yoy} ↓</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
