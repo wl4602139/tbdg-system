@@ -40,13 +40,22 @@ export interface KeyEquipmentInfo {
   powerKW: number
   energyKWh: number
   mediumTag: string
-  steamFlowT?: number
-  gasFlowM3?: number
+  todayEnergyKWh?: number // 当日用电量 (kWh)
+  loadRate?: number       // 负荷率 (%)
+  powerFactor?: number    // 功率因数 cosφ
+  steamFlowT?: number     // 瞬时蒸汽流量 (t/h)
+  steamUsageT?: number    // 蒸汽消耗量 (当月累计 t)
+  todaySteamT?: number    // 当日累计蒸汽消耗量 (t)
+  waterFlowM3?: number    // 瞬时水流量 (m³/h)
+  waterUsageM3?: number   // 当月用水量 (m³)
+  gasFlowM3?: number      // 瞬时天然气流量 (m³/h)
+  gasUsageM3?: number     // 当月天然气量 (m³)
   pressureMpa?: number
   temperatureC?: number
   powerYoy?: string
   energyYoy?: string
   flowYoy?: string
+  steamUsageYoy?: string
   pressureYoy?: string
 }
 
@@ -68,6 +77,11 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     steamFlowT: 1.85,
     pressureMpa: 0.005,
     temperatureC: 135.2,
+    steamUsageT: 48.5,
+    todaySteamT: 2.1,
+    todayEnergyKWh: 3820,
+    loadRate: 82.5,
+    powerFactor: 0.96,
     powerYoy: '-4.2% ↓',
     energyYoy: '-3.8% ↓',
     flowYoy: '-5.1% ↓',
@@ -87,6 +101,11 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     steamFlowT: 1.62,
     pressureMpa: 0.006,
     temperatureC: 132.8,
+    steamUsageT: 42.8,
+    todaySteamT: 1.8,
+    todayEnergyKWh: 3240,
+    loadRate: 80.2,
+    powerFactor: 0.95,
     powerYoy: '-3.5% ↓',
     energyYoy: '-4.1% ↓',
     flowYoy: '-2.8% ↓',
@@ -502,6 +521,11 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     steamFlowT: 2.10,
     pressureMpa: 1.85,
     temperatureC: 210.5,
+    steamUsageT: 55.4,
+    todaySteamT: 2.4,
+    todayEnergyKWh: 3150,
+    loadRate: 83.0,
+    powerFactor: 0.96,
     powerYoy: '+1.8% ↑',
     energyYoy: '-2.4% ↓',
     flowYoy: '-3.6% ↓',
@@ -579,6 +603,11 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     steamFlowT: 1.45,
     pressureMpa: 1.20,
     temperatureC: 198.0,
+    steamUsageT: 38.0,
+    todaySteamT: 1.6,
+    todayEnergyKWh: 1920,
+    loadRate: 79.5,
+    powerFactor: 0.95,
     powerYoy: '-3.1% ↓',
     energyYoy: '-2.8% ↓',
     flowYoy: '-3.0% ↓',
@@ -726,6 +755,19 @@ export default function EquipmentPage() {
   const selectedEq = useMemo(() => {
     return KEY_EQUIPMENT_LIST.find((e) => e.id === selectedEqId) || KEY_EQUIPMENT_LIST[0]
   }, [selectedEqId])
+
+  // 🌟 设备支持的数据介质动态感知 (电力、功率、水、蒸汽、天然气)
+  const hasSteam = selectedEq.mediumTag.includes('汽') || Boolean(selectedEq.steamFlowT)
+  const hasWater = selectedEq.mediumTag.includes('水') || Boolean(selectedEq.waterFlowM3)
+  const hasGas = selectedEq.mediumTag.includes('气') || Boolean(selectedEq.gasFlowM3)
+  const isPureElec = !hasSteam && !hasWater && !hasGas && !selectedEq.mediumTag.includes('油')
+
+  // 设备切换时自适应校正能源类型：若新设备不含蒸汽则自动切回电力
+  React.useEffect(() => {
+    if (energyType === 'steam' && !hasSteam) {
+      setEnergyType('elec')
+    }
+  }, [selectedEqId, hasSteam, energyType])
 
   const basePower = selectedEq.powerKW || 4680
   const baseSteam = selectedEq.steamFlowT || 1.85
@@ -1126,7 +1168,7 @@ export default function EquipmentPage() {
         {/* 1. 顶部 Header */}
         <OnlineHeader />
 
-        {/* 2. 选中设备主卡片 */}
+        {/* 2. 选中设备主卡片 (根据设备上传的数据类型动态呈现：区分电 / 蒸汽) */}
         <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
             <div className="flex items-center gap-2">
@@ -1145,7 +1187,7 @@ export default function EquipmentPage() {
                 </h2>
                 <div className="text-[11px] text-muted-foreground flex items-center gap-3 pt-0.5">
                   <span>安装车间: {selectedEq.location}</span>
-                  <span>多能介质: {selectedEq.mediumTag}</span>
+                  <span>采集数据介质: <span className="font-semibold text-foreground">{selectedEq.mediumTag}</span></span>
                   <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
                     <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     在线运行中
@@ -1153,83 +1195,217 @@ export default function EquipmentPage() {
                 </div>
               </div>
             </div>
+
+            {/* 右侧：数据卡片视角切换 (支持区分电 / 蒸汽) */}
+            <div>
+              {hasSteam ? (
+                <div className="flex items-center gap-1 bg-panel p-1 rounded-lg border border-border text-[11px]">
+                  <span className="text-muted-foreground mr-1 text-[10.5px]">卡片指标切换:</span>
+                  <button
+                    type="button"
+                    onClick={() => setEnergyType('elec')}
+                    className={cn(
+                      'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
+                      energyType === 'elec'
+                        ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    <Zap className="size-3" /> 电力数据
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEnergyType('steam')}
+                    className={cn(
+                      'flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer',
+                      energyType === 'steam'
+                        ? 'bg-purple-600 text-white font-bold shadow-xs'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    <Wind className="size-3" /> 蒸汽数据
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 text-xs">
+                  <span className="px-2.5 py-1 rounded-lg bg-panel border border-border text-muted-foreground text-[11px] font-medium flex items-center gap-1.5">
+                    <Zap className="size-3 text-primary" />
+                    纯电设备 · 仅采集电力与负荷参数
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
+          {/* 数据统计卡片 (根据设备上传的数据类型显示对应指标：区分 电 或者 蒸汽) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-mono">
-            {/* 1. 实时有功功率 */}
-            <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
-              <div className="text-xs text-primary font-sans flex items-center gap-1 font-bold">
-                <Zap className="size-3 text-primary" />
-                实时有功功率
-              </div>
-              <div className="text-2xl font-extrabold text-primary">
-                {selectedEq.powerKW?.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">kW</span>
-              </div>
-              <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
-                <span className="text-muted-foreground">同比</span>
-                <span className={cn('font-bold font-mono', (selectedEq.powerYoy || '-4.2%').includes('+') ? 'text-rose-400' : 'text-emerald-400')}>
-                  {selectedEq.powerYoy || '-4.2% ↓'}
-                </span>
-              </div>
-            </div>
+            {/* 🌟 模式 A：查看【电力数据】（大部分设备仅使用电力，聚焦电力与功率） */}
+            {energyType === 'elec' ? (
+              <>
+                {/* 1. 实时有功功率 */}
+                <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+                  <div className="text-xs text-primary font-sans flex items-center justify-between">
+                    <span className="flex items-center gap-1 font-bold">
+                      <Zap className="size-3 text-primary" />
+                      实时有功功率
+                    </span>
+                    <span className="text-[10px] text-primary/80 bg-primary/10 px-1 rounded font-mono">电力</span>
+                  </div>
+                  <div className="text-2xl font-extrabold text-primary">
+                    {selectedEq.powerKW?.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">kW</span>
+                  </div>
+                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                    <span className="text-muted-foreground">同比</span>
+                    <span className={cn('font-bold font-mono', (selectedEq.powerYoy || '-4.2%').includes('+') ? 'text-rose-400' : 'text-emerald-400')}>
+                      {selectedEq.powerYoy || '-4.2% ↓'}
+                    </span>
+                  </div>
+                </div>
 
-            {/* 2. 当月累计用电量 */}
-            <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
-              <div className="text-xs text-emerald-400 font-sans flex items-center gap-1 font-bold">
-                <Zap className="size-3 text-emerald-400" />
-                当月累计用电量
-              </div>
-              <div className="text-2xl font-extrabold text-emerald-400">
-                {selectedEq.energyKWh?.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">kWh</span>
-              </div>
-              <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
-                <span className="text-muted-foreground">同比</span>
-                <span className={cn('font-bold font-mono', (selectedEq.energyYoy || '-3.8%').includes('+') ? 'text-rose-400' : 'text-emerald-400')}>
-                  {selectedEq.energyYoy || '-3.8% ↓'}
-                </span>
-              </div>
-            </div>
+                {/* 2. 当月累计用电量 */}
+                <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+                  <div className="text-xs text-emerald-400 font-sans flex items-center justify-between">
+                    <span className="flex items-center gap-1 font-bold">
+                      <Zap className="size-3 text-emerald-400" />
+                      当月累计用电量
+                    </span>
+                    <span className="text-[10px] text-emerald-400/80 bg-emerald-500/10 px-1 rounded font-mono">用电</span>
+                  </div>
+                  <div className="text-2xl font-extrabold text-emerald-400">
+                    {selectedEq.energyKWh?.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">kWh</span>
+                  </div>
+                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                    <span className="text-muted-foreground">同比</span>
+                    <span className={cn('font-bold font-mono', (selectedEq.energyYoy || '-3.8%').includes('+') ? 'text-rose-400' : 'text-emerald-400')}>
+                      {selectedEq.energyYoy || '-3.8% ↓'}
+                    </span>
+                  </div>
+                </div>
 
-            {/* 3. 瞬时蒸汽流量 / 瞬时天然气量 */}
-            <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
-              <div className="text-xs text-purple-400 font-sans flex items-center gap-1 font-bold">
-                <Wind className="size-3 text-purple-400" />
-                {selectedEq.gasFlowM3 ? '瞬时天然气量' : '瞬时蒸汽流量'}
-              </div>
-              <div className="text-2xl font-extrabold text-purple-400">
-                {selectedEq.gasFlowM3 ? `${selectedEq.gasFlowM3} ` : `${selectedEq.steamFlowT || 0} `}
-                <span className="text-xs font-normal text-muted-foreground font-sans">
-                  {selectedEq.gasFlowM3 ? 'm³/h' : 't/h'}
-                </span>
-              </div>
-              <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
-                <span className="text-muted-foreground">同比</span>
-                <span className={cn('font-bold font-mono', (selectedEq.flowYoy || '-5.1%').includes('+') ? 'text-rose-400' : 'text-emerald-400')}>
-                  {selectedEq.flowYoy || '-5.1% ↓'}
-                </span>
-              </div>
-            </div>
+                {/* 3. 当日累计用电量 */}
+                <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+                  <div className="text-xs text-cyan-400 font-sans flex items-center justify-between">
+                    <span className="flex items-center gap-1 font-bold">
+                      <Activity className="size-3 text-cyan-400" />
+                      当日累计用电量
+                    </span>
+                    <span className="text-[10px] text-cyan-400/80 bg-cyan-500/10 px-1 rounded font-mono">今日</span>
+                  </div>
+                  <div className="text-2xl font-extrabold text-cyan-400">
+                    {(selectedEq.todayEnergyKWh || Math.round(selectedEq.energyKWh / 28 * 0.95)).toLocaleString()}{' '}
+                    <span className="text-xs font-normal text-muted-foreground font-sans">kWh</span>
+                  </div>
+                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                    <span className="text-muted-foreground">峰段占比</span>
+                    <span className="font-bold text-foreground font-mono">64.2% (避峰达标)</span>
+                  </div>
+                </div>
 
-            {/* 4. 管道工作压力 / 运行温度 */}
-            <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
-              <div className="text-xs text-amber-400 font-sans flex items-center gap-1 font-bold">
-                <Flame className="size-3 text-amber-400" />
-                管道工作压力
-              </div>
-              <div className="text-2xl font-extrabold text-amber-400">
-                {selectedEq.pressureMpa ?? '0.005'} <span className="text-xs font-normal text-muted-foreground font-sans">MPa</span>
-              </div>
-              <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
-                <span className="text-muted-foreground">运行温度</span>
-                <span className="font-bold text-foreground font-mono">{selectedEq.temperatureC ?? 135.2}°C</span>
-              </div>
-            </div>
+                {/* 4. 运行功率因数 / 负荷率 */}
+                <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+                  <div className="text-xs text-amber-400 font-sans flex items-center justify-between">
+                    <span className="flex items-center gap-1 font-bold">
+                      <Layers className="size-3 text-amber-400" />
+                      功率因数 / 负荷率
+                    </span>
+                    <span className="text-[10px] text-amber-400/80 bg-amber-500/10 px-1 rounded font-mono">工况</span>
+                  </div>
+                  <div className="text-2xl font-extrabold text-amber-400">
+                    cosφ {selectedEq.powerFactor || 0.96}{' '}
+                    <span className="text-xs font-normal text-muted-foreground font-sans">/ {selectedEq.loadRate || 82.5}%</span>
+                  </div>
+                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                    <span className="text-muted-foreground">电能品质</span>
+                    <span className="font-bold text-emerald-400 font-mono">优良 (≥0.95考核达标)</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* 🌟 模式 B：查看【蒸汽数据】（管道工作压力已按要求改为蒸汽消耗量） */}
+                {/* 1. 瞬时蒸汽流量 */}
+                <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+                  <div className="text-xs text-purple-400 font-sans flex items-center justify-between">
+                    <span className="flex items-center gap-1 font-bold">
+                      <Wind className="size-3 text-purple-400" />
+                      瞬时蒸汽流量
+                    </span>
+                    <span className="text-[10px] text-purple-400/80 bg-purple-500/10 px-1 rounded font-mono">流量</span>
+                  </div>
+                  <div className="text-2xl font-extrabold text-purple-400">
+                    {selectedEq.steamFlowT || 1.85} <span className="text-xs font-normal text-muted-foreground font-sans">t/h</span>
+                  </div>
+                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                    <span className="text-muted-foreground">同比</span>
+                    <span className={cn('font-bold font-mono', (selectedEq.flowYoy || '-5.1%').includes('+') ? 'text-rose-400' : 'text-emerald-400')}>
+                      {selectedEq.flowYoy || '-5.1% ↓'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 2. 蒸汽消耗量 (原：管道工作压力 改为 蒸汽消耗量) */}
+                <div className="p-3 bg-panel rounded-xl border border-purple-500/30 bg-purple-500/5 space-y-1">
+                  <div className="text-xs text-purple-300 font-sans flex items-center justify-between">
+                    <span className="flex items-center gap-1 font-bold">
+                      <Wind className="size-3 text-purple-400" />
+                      蒸汽消耗量
+                    </span>
+                    <span className="text-[10px] text-purple-300 bg-purple-500/20 px-1 rounded font-mono">当月累计</span>
+                  </div>
+                  <div className="text-2xl font-extrabold text-purple-400">
+                    {(selectedEq.steamUsageT || Math.round((selectedEq.steamFlowT || 1.85) * 24 * 28 * 0.72)).toLocaleString()}{' '}
+                    <span className="text-xs font-normal text-muted-foreground font-sans">t (吨)</span>
+                  </div>
+                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                    <span className="text-muted-foreground">同比</span>
+                    <span className="font-bold text-emerald-400 font-mono">-3.6% ↓</span>
+                  </div>
+                </div>
+
+                {/* 3. 当日累计蒸汽消耗量 */}
+                <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+                  <div className="text-xs text-cyan-400 font-sans flex items-center justify-between">
+                    <span className="flex items-center gap-1 font-bold">
+                      <Activity className="size-3 text-cyan-400" />
+                      当日蒸汽消耗量
+                    </span>
+                    <span className="text-[10px] text-cyan-400/80 bg-cyan-500/10 px-1 rounded font-mono">今日</span>
+                  </div>
+                  <div className="text-2xl font-extrabold text-cyan-400">
+                    {(selectedEq.todaySteamT || Number(((selectedEq.steamFlowT || 1.85) * 18.2).toFixed(1))).toLocaleString()}{' '}
+                    <span className="text-xs font-normal text-muted-foreground font-sans">t</span>
+                  </div>
+                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                    <span className="text-muted-foreground">环比</span>
+                    <span className="font-bold text-emerald-400 font-mono">-1.2% ↓</span>
+                  </div>
+                </div>
+
+                {/* 4. 供汽管道压力与温度 */}
+                <div className="p-3 bg-panel rounded-xl border border-border space-y-1">
+                  <div className="text-xs text-amber-400 font-sans flex items-center justify-between">
+                    <span className="flex items-center gap-1 font-bold">
+                      <Flame className="size-3 text-amber-400" />
+                      供汽管道压力与温度
+                    </span>
+                    <span className="text-[10px] text-amber-400/80 bg-amber-500/10 px-1 rounded font-mono">管网</span>
+                  </div>
+                  <div className="text-2xl font-extrabold text-amber-400">
+                    {selectedEq.pressureMpa ?? '0.005'} <span className="text-xs font-normal text-muted-foreground font-sans">MPa</span>
+                  </div>
+                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                    <span className="text-muted-foreground">蒸汽温度</span>
+                    <span className="font-bold text-foreground font-mono">{selectedEq.temperatureC ?? 135.2}°C</span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* 3. 核心图表控制栏：能源类型选择 (电 / 蒸汽) + 时间维度切换 (日 / 月) */}
         <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
-          {/* 左侧：能源类型切换 (电力监测 / 蒸汽监测) */}
+          {/* 左侧：能源类型切换 (支持根据设备实际数据介质自适应显示) */}
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -1244,19 +1420,26 @@ export default function EquipmentPage() {
               <Zap className="size-3.5" />
               <span>电力监测 (电)</span>
             </button>
-            <button
-              type="button"
-              onClick={() => setEnergyType('steam')}
-              className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer shadow-xs',
-                energyType === 'steam'
-                  ? 'bg-purple-600 text-white shadow-xs'
-                  : 'bg-panel text-muted-foreground hover:text-foreground border border-border'
-              )}
-            >
-              <Wind className="size-3.5" />
-              <span>蒸汽监测 (汽)</span>
-            </button>
+
+            {hasSteam ? (
+              <button
+                type="button"
+                onClick={() => setEnergyType('steam')}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer shadow-xs',
+                  energyType === 'steam'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-panel text-muted-foreground hover:text-foreground border border-border'
+                )}
+              >
+                <Wind className="size-3.5" />
+                <span>蒸汽监测 (汽)</span>
+              </button>
+            ) : (
+              <span className="text-[11px] text-muted-foreground pl-1">
+                (该设备仅使用电力，未接入蒸汽回路)
+              </span>
+            )}
           </div>
 
           {/* 右侧：日/月 维度切换与日期选择 */}
