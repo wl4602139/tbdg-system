@@ -486,36 +486,36 @@ export function StandardOrgTree({
       const isUnconnected = Boolean(node.unconnected)
       // 检查节点是否可交互：若开启 productUnitOnly，项目公司(workshop)若不生产变压器/线缆则置灰禁用
       const isProductUnitDisabled = productUnitOnly && node.level === 'workshop' && !PRODUCT_TRANSFORMER_CABLE_WORKSHOP_IDS.has(node.id)
-      const isSelectable = (!maxSelectableLevel || currentLevelNum <= maxSelectableLevel) && !isProductUnitDisabled
+      const isSelectable = (!maxSelectableLevel || currentLevelNum <= maxSelectableLevel) && !isProductUnitDisabled && !isUnconnected
 
       return (
         <div key={node.id} className="relative select-none text-[12px]">
           {/* 节点行 */}
           <div
             onClick={() => {
-              if (isSelectable) {
+              if (isSelectable && !isUnconnected) {
                 handleSelect(node)
               }
             }}
             className={cn(
               'flex items-center gap-1.5 py-1 px-1.5 rounded-md transition-colors relative group',
               isUnconnected
-                ? 'text-slate-400 dark:text-slate-500 cursor-pointer bg-slate-100/80 dark:bg-slate-800/30 hover:opacity-85 border border-dashed border-slate-300 dark:border-slate-700/60'
+                ? 'opacity-35 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none bg-transparent hover:bg-transparent'
                 : isProductUnitDisabled
                 ? 'opacity-40 text-muted-foreground cursor-not-allowed select-none bg-panel/50'
                 : isSelectable
                 ? 'cursor-pointer'
                 : 'cursor-default',
-              isSelected && !isProductUnitDisabled
-                ? isUnconnected ? 'bg-muted/60 font-medium' : 'bg-primary/15 text-primary font-semibold shadow-xs'
-                : !isProductUnitDisabled && isSelectable
+              isSelected && !isProductUnitDisabled && !isUnconnected
+                ? 'bg-primary/15 text-primary font-semibold shadow-xs'
+                : !isProductUnitDisabled && !isUnconnected && isSelectable
                   ? 'hover:bg-accent/50 text-foreground'
-                  : !isProductUnitDisabled
+                  : !isProductUnitDisabled && !isUnconnected
                   ? 'text-muted-foreground hover:bg-accent/30'
                   : ''
             )}
             style={{ paddingLeft: `${level * 14 + 6}px` }}
-            title={isUnconnected ? `${node.name} (暂不具备数据接入条件)` : isProductUnitDisabled ? `${node.name} (非变压器/线缆生产单位 · 不参与产品单耗核算)` : !isSelectable ? `${node.name} (仅供结构展示)` : (node.fullName || node.name)}
+            title={isUnconnected ? `${node.name} (暂不具备数据接入条件 · 不允许选择)` : isProductUnitDisabled ? `${node.name} (非变压器/线缆生产单位 · 不参与产品单耗核算)` : !isSelectable ? `${node.name} (仅供结构展示)` : (node.fullName || node.name)}
           >
             {/* 折叠箭头 */}
             {hasChildren ? (
@@ -543,17 +543,13 @@ export function StandardOrgTree({
             {node.level === 'group' && <Building2 className="size-3.5 text-primary shrink-0" />}
             {node.level === 'park' && <Trees className="size-3.5 text-emerald-400 shrink-0" />}
             {node.level === 'company' && <Building2 className="size-3.5 text-amber-400 shrink-0" />}
-            {node.level === 'workshop' && <Factory className={cn('size-3.5 shrink-0', isUnconnected ? 'text-slate-400 dark:text-slate-600' : 'text-muted-foreground')} />}
+            {node.level === 'workshop' && <Factory className={cn('size-3.5 shrink-0', isUnconnected ? 'opacity-35 text-slate-400 dark:text-slate-500' : 'text-muted-foreground')} />}
 
             {/* 节点名称 */}
             <span className={cn('truncate flex-1', isUnconnected ? 'text-slate-400 dark:text-slate-500 font-normal' : '')} title={node.fullName || node.name}>
               {node.name}
             </span>
-            {isUnconnected && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-300 dark:border-slate-700 shrink-0 select-none font-normal">
-                未接入
-              </span>
-            )}
+            
           </div>
 
           {/* 子节点容器 */}
