@@ -33,6 +33,7 @@ export interface StandardOrgNode {
   level: OrgLevel
   badge?: string
   active?: boolean
+  unconnected?: boolean // 🌟 不具备数据接入条件的单位，界面置灰
   children?: StandardOrgNode[]
 }
 
@@ -56,10 +57,10 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
         children: [
           { id: 'ws_sb_main', name: '沈变本部', level: 'workshop', badge: '主体' },
           { id: 'ws_sb_luna', name: '露娜公司 (特变电工露娜智能)', level: 'workshop', badge: '智能' },
-          { id: 'ws_sb_zh', name: '智慧能源', level: 'workshop', badge: '综合' },
+          { id: 'ws_sb_zh', name: '智慧能源', level: 'workshop', badge: '未接入', unconnected: true },
           { id: 'ws_sb_hx', name: '和新套管公司', level: 'workshop', badge: '主体' },
           { id: 'ws_sb_kj', name: '康嘉互感器', level: 'workshop', badge: '主体' },
-          { id: 'ws_sb_yn', name: '印能公司', level: 'workshop' },
+          { id: 'ws_sb_yn', name: '印能公司', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
       // 2. 衡变公司 (11个二级单位)
@@ -75,8 +76,8 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
           { id: 'ws_hb_hn', name: '湖南电气', level: 'workshop', badge: '主体' },
           { id: 'ws_hb_kg', name: '云集高压开关', level: 'workshop', badge: '主体' },
           { id: 'ws_hb_xj', name: '新疆自控', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_sk', name: '上开', level: 'workshop' },
-          { id: 'ws_hb_kbe', name: '柯贝尔', level: 'workshop' },
+          { id: 'ws_hb_sk', name: '上开', level: 'workshop', badge: '未接入', unconnected: true },
+          { id: 'ws_hb_kbe', name: '柯贝尔', level: 'workshop', badge: '未接入', unconnected: true },
           { id: 'ws_hb_tnj', name: '特能建', level: 'workshop', badge: '主体' },
           { id: 'ws_hb_hr', name: '合容电气', level: 'workshop', badge: '主体' },
           { id: 'ws_hb_gil', name: '赛杰爱迪', level: 'workshop', badge: '主体' },
@@ -94,8 +95,8 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
           { id: 'ws_xb_zndq', name: '智能电气公司', level: 'workshop', badge: '主体' },
           { id: 'ws_xb_jjj', name: '京津冀公司', level: 'workshop', badge: '主体' },
           { id: 'ws_xb_zf', name: '珠峰硅钢', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_zhny', name: '智慧能源', level: 'workshop' },
-          { id: 'ws_xb_yl', name: '银利电气', level: 'workshop' },
+          { id: 'ws_xb_zhny', name: '智慧能源', level: 'workshop', badge: '未接入', unconnected: true },
+          { id: 'ws_xb_yl', name: '银利电气', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
       // 4. 鲁缆公司 (4个二级单位)
@@ -106,9 +107,9 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
         badge: '4单位',
         children: [
           { id: 'ws_ll_main', name: '鲁缆本部', level: 'workshop', badge: '主体' },
-          { id: 'ws_ll_zl', name: '智缆公司', level: 'workshop' },
-          { id: 'ws_ll_sw', name: '昭和公司', level: 'workshop' },
-          { id: 'ws_ll_sg', name: '曙光公司', level: 'workshop', badge: '主体' },
+          { id: 'ws_ll_zl', name: '智缆公司', level: 'workshop', badge: '未接入', unconnected: true },
+          { id: 'ws_ll_sw', name: '昭和公司', level: 'workshop', badge: '未接入', unconnected: true },
+          { id: 'ws_ll_sg', name: '曙光公司', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
       // 5. 新缆厂 (2个二级单位)
@@ -157,7 +158,7 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         badge: '沈阳',
         children: [
           { id: 'park_01_sb', name: '沈变本部', fullName: '沈变本部', level: 'workshop', badge: '主体' },
-          { id: 'park_01_zh', name: '智慧能源', fullName: '智慧能源', level: 'workshop', badge: '主体' },
+          { id: 'park_01_zh', name: '智慧能源', fullName: '智慧能源', level: 'workshop', badge: '未接入', unconnected: true },
           { id: 'park_01_hx', name: '和新套管公司', fullName: '和新套管公司', level: 'workshop', badge: '主体' },
           { id: 'park_01_kj', name: '康嘉互感器', fullName: '康嘉互感器', level: 'workshop', badge: '主体' },
         ],
@@ -310,7 +311,7 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         badge: '新泰',
         children: [
           { id: 'park_12_ll', name: '鲁缆本部', fullName: '鲁缆本部', level: 'workshop', badge: '主体' },
-          { id: 'park_12_zl', name: '智缆公司', fullName: '智缆公司', level: 'workshop', badge: '主体' },
+          { id: 'park_12_zl', name: '智缆公司', fullName: '智缆公司', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
       // 13. 特变电工曙光电缆产业园 (1个二级单位)
@@ -321,7 +322,7 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         level: 'park',
         badge: '新泰',
         children: [
-          { id: 'park_13_sg', name: '曙光公司', fullName: '曙光公司', level: 'workshop', badge: '主体' },
+          { id: 'park_13_sg', name: '曙光公司', fullName: '曙光公司', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
       // 14. 特变电工新疆电缆产业园 (1个二级单位)
@@ -481,6 +482,8 @@ export function StandardOrgTree({
       const isCollapsed = Boolean(collapsedKeys[node.id])
       const isSelected = node.id === currentSelectedId
       const currentLevelNum = level + 1
+      // 检查节点是否属于未接入单位
+      const isUnconnected = Boolean(node.unconnected)
       // 检查节点是否可交互：若开启 productUnitOnly，项目公司(workshop)若不生产变压器/线缆则置灰禁用
       const isProductUnitDisabled = productUnitOnly && node.level === 'workshop' && !PRODUCT_TRANSFORMER_CABLE_WORKSHOP_IDS.has(node.id)
       const isSelectable = (!maxSelectableLevel || currentLevelNum <= maxSelectableLevel) && !isProductUnitDisabled
@@ -496,13 +499,15 @@ export function StandardOrgTree({
             }}
             className={cn(
               'flex items-center gap-1.5 py-1 px-1.5 rounded-md transition-colors relative group',
-              isProductUnitDisabled
+              isUnconnected
+                ? 'text-slate-400 dark:text-slate-500 cursor-pointer bg-slate-100/80 dark:bg-slate-800/30 hover:opacity-85 border border-dashed border-slate-300 dark:border-slate-700/60'
+                : isProductUnitDisabled
                 ? 'opacity-40 text-muted-foreground cursor-not-allowed select-none bg-panel/50'
                 : isSelectable
                 ? 'cursor-pointer'
                 : 'cursor-default',
               isSelected && !isProductUnitDisabled
-                ? 'bg-primary/15 text-primary font-semibold shadow-xs'
+                ? isUnconnected ? 'bg-muted/60 font-medium' : 'bg-primary/15 text-primary font-semibold shadow-xs'
                 : !isProductUnitDisabled && isSelectable
                   ? 'hover:bg-accent/50 text-foreground'
                   : !isProductUnitDisabled
@@ -510,7 +515,7 @@ export function StandardOrgTree({
                   : ''
             )}
             style={{ paddingLeft: `${level * 14 + 6}px` }}
-            title={isProductUnitDisabled ? `${node.name} (非变压器/线缆生产单位 · 不参与产品单耗核算)` : !isSelectable ? `${node.name} (仅供结构展示)` : (node.fullName || node.name)}
+            title={isUnconnected ? `${node.name} (暂不具备数据接入条件)` : isProductUnitDisabled ? `${node.name} (非变压器/线缆生产单位 · 不参与产品单耗核算)` : !isSelectable ? `${node.name} (仅供结构展示)` : (node.fullName || node.name)}
           >
             {/* 折叠箭头 */}
             {hasChildren ? (
@@ -538,12 +543,17 @@ export function StandardOrgTree({
             {node.level === 'group' && <Building2 className="size-3.5 text-primary shrink-0" />}
             {node.level === 'park' && <Trees className="size-3.5 text-emerald-400 shrink-0" />}
             {node.level === 'company' && <Building2 className="size-3.5 text-amber-400 shrink-0" />}
-            {node.level === 'workshop' && <Factory className="size-3.5 text-muted-foreground shrink-0" />}
+            {node.level === 'workshop' && <Factory className={cn('size-3.5 shrink-0', isUnconnected ? 'text-slate-400 dark:text-slate-600' : 'text-muted-foreground')} />}
 
             {/* 节点名称 */}
-            <span className="truncate flex-1" title={node.fullName || node.name}>
+            <span className={cn('truncate flex-1', isUnconnected ? 'text-slate-400 dark:text-slate-500 font-normal' : '')} title={node.fullName || node.name}>
               {node.name}
             </span>
+            {isUnconnected && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-300 dark:border-slate-700 shrink-0 select-none font-normal">
+                未接入
+              </span>
+            )}
           </div>
 
           {/* 子节点容器 */}

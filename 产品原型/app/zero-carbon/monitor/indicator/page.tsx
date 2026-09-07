@@ -312,7 +312,7 @@ const GROUP_OVERALL_TOP10_METRICS: IndicatorMetric[] = [
     numeratorVal: '2,946.8 tCO2',
     denominatorName: '核算周期 (自然月)',
     denominatorVal: '1 个月',
-    dataSource: '基于月度电力、天然气、蒸汽实物量及全国电网平均排放因子 (0.5703 tCO2/MWh) 自动核算生成。',
+    dataSource: '基于月度电力、天然气、蒸汽实物量及各属地省级电网排放因子自动核算生成。',
     rawMeters: [
       { medium: '外购市电', meterCode: 'EM-GRID-SUM', location: '主进线柜', reading: '18,540,000 kWh', unit: 'kWh', coeff: '0.5703', tce: '10,573 t' },
     ],
@@ -707,7 +707,7 @@ const FACTORY_TOP10_METRICS: IndicatorMetric[] = [
     numeratorVal: '2,946.8 tCO2',
     denominatorName: '核算周期 (自然月)',
     denominatorVal: '1 个月',
-    dataSource: '基于月度电力、天然气、蒸汽实物量及全国电网平均排放因子 (0.5703 tCO2/MWh) 自动核算生成。',
+    dataSource: '基于月度电力、天然气、蒸汽实物量及各属地省级电网排放因子自动核算生成。',
     rawMeters: [
       { medium: '外购市电', meterCode: 'EM-GRID-01', location: '主进线柜', reading: '3,840,000 kWh', unit: 'kWh', coeff: '0.5703', tce: '2,190.0' },
       { medium: '天然气燃烧', meterCode: 'GAS-BURN-01', location: '锅炉房', reading: '197,000 m³', unit: 'm³', coeff: '2.1622', tce: '425.9' },
@@ -2040,10 +2040,24 @@ function getMetricSankeyData(
       }
 
     case 'gm-green-energy-ratio':
-      // 4. 绿电消费总量与比例 (新疆基地大漠戈壁风光电资源得天独厚，新变厂、新缆厂绿电消纳量与占比压倒性领跑！)
+      // 4. 非化石能源消费占比 (集团内部工厂均为光伏发电，无风电，规范为各园区光伏发电)
       return {
         unit: 'MWh',
-        nodes: GROUP_LEVEL_NODES,
+        nodes: [
+          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+          { name: '新变厂-昌吉园区光伏发电', depth: 2, itemStyle: { color: '#531dab' } },
+          { name: '沈变公司-沈阳园区光伏发电', depth: 2, itemStyle: { color: '#1d39c4' } },
+          { name: '衡变公司-衡阳园区光伏发电', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '新缆厂-米东园区光伏发电', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '鲁缆公司-新泰园区光伏发电', depth: 2, itemStyle: { color: '#d46b08' } },
+          { name: '德缆公司-德阳园区光伏发电', depth: 2, itemStyle: { color: '#c41d7f' } },
+        ],
         links: [
           { source: '电装集团', target: '新变厂', value: 520 },
           { source: '电装集团', target: '沈变公司', value: 310 },
@@ -2052,53 +2066,34 @@ function getMetricSankeyData(
           { source: '电装集团', target: '鲁缆公司', value: 120 },
           { source: '电装集团', target: '德缆公司', value: 62 },
 
-          // 沈变系 6家 (合计 310)
-          { source: '沈变公司', target: '露娜智能制造', value: 110 },
-          { source: '沈变公司', target: '沈变本部', value: 95 },
-          { source: '沈变公司', target: '智慧能源', value: 45 },
-          { source: '沈变公司', target: '和新套管公司', value: 35 },
-          { source: '沈变公司', target: '康嘉互感器', value: 15 },
-          { source: '沈变公司', target: '印能公司', value: 10 },
-
-          // 衡变系 9家 (合计 280)
-          { source: '衡变公司', target: '衡变本部', value: 130 },
-          { source: '衡变公司', target: '南京电研', value: 35 },
-          { source: '衡变公司', target: '云集电气', value: 30 },
-          { source: '衡变公司', target: '云集高压开关', value: 25 },
-          { source: '衡变公司', target: '湖南电气', value: 20 },
-          { source: '衡变公司', target: '合容电气', value: 15 },
-          { source: '衡变公司', target: '新疆自控', value: 10 },
-          { source: '衡变公司', target: '特能建', value: 9 },
-          { source: '衡变公司', target: '赛杰爱迪', value: 6 },
-
-          // 新变系 6家 (合计 520，新疆风光大基地直供绿电显著膨胀)
-          { source: '新变厂', target: '超高压公司', value: 245 },
-          { source: '新变厂', target: '天变公司', value: 105 },
-          { source: '新变厂', target: '珠峰硅钢', value: 76 },
-          { source: '新变厂', target: '智能电气公司', value: 44 },
-          { source: '新变厂', target: '京津冀公司', value: 29 },
-          { source: '新变厂', target: '银利电气', value: 21 },
-
-          // 鲁缆系 4家 (合计 120)
-          { source: '鲁缆公司', target: '智缆公司', value: 50 },
-          { source: '鲁缆公司', target: '鲁缆本部', value: 42 },
-          { source: '鲁缆公司', target: '曙光公司', value: 18 },
-          { source: '鲁缆公司', target: '昭和公司', value: 10 },
-
-          // 新缆系 2家 (合计 190，新疆高绿电园区)
-          { source: '新缆厂', target: '新缆厂本部', value: 135 },
-          { source: '新缆厂', target: '新疆电缆公司', value: 55 },
-
-          // 德缆系 1家 (合计 62)
-          { source: '德缆公司', target: '德缆公司本部', value: 62 },
+          { source: '新变厂', target: '新变厂-昌吉园区光伏发电', value: 520 },
+          { source: '沈变公司', target: '沈变公司-沈阳园区光伏发电', value: 310 },
+          { source: '衡变公司', target: '衡变公司-衡阳园区光伏发电', value: 280 },
+          { source: '新缆厂', target: '新缆厂-米东园区光伏发电', value: 190 },
+          { source: '鲁缆公司', target: '鲁缆公司-新泰园区光伏发电', value: 120 },
+          { source: '德缆公司', target: '德缆公司-德阳园区光伏发电', value: 62 },
         ],
       }
 
     case 'gm-phy-green-ratio':
-      // 5. 物理自发自用绿电认定量 (厂房屋顶分布式光伏自发自用，衡变高端制造产业园 28MW 屋顶光伏与新变大厂房领跑)
+      // 5. 非化石能源电力消费 (厂房屋顶光伏与物理直供光伏消纳，统一为各园区光伏发电)
       return {
         unit: 'MWh',
-        nodes: GROUP_LEVEL_NODES,
+        nodes: [
+          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+          { name: '衡变公司-衡阳园区光伏发电', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '新变厂-昌吉园区光伏发电', depth: 2, itemStyle: { color: '#531dab' } },
+          { name: '鲁缆公司-新泰园区光伏发电', depth: 2, itemStyle: { color: '#d46b08' } },
+          { name: '沈变公司-沈阳园区光伏发电', depth: 2, itemStyle: { color: '#1d39c4' } },
+          { name: '新缆厂-米东园区光伏发电', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '德缆公司-德阳园区光伏发电', depth: 2, itemStyle: { color: '#c41d7f' } },
+        ],
         links: [
           { source: '电装集团', target: '衡变公司', value: 380 },
           { source: '电装集团', target: '新变厂', value: 335 },
@@ -2107,45 +2102,12 @@ function getMetricSankeyData(
           { source: '电装集团', target: '新缆厂', value: 65 },
           { source: '电装集团', target: '德缆公司', value: 40 },
 
-          // 沈变系 6家 (合计 110，老厂区屋顶受限)
-          { source: '沈变公司', target: '露娜智能制造', value: 45 },
-          { source: '沈变公司', target: '沈变本部', value: 35 },
-          { source: '沈变公司', target: '智慧能源', value: 15 },
-          { source: '沈变公司', target: '和新套管公司', value: 8 },
-          { source: '沈变公司', target: '康嘉互感器', value: 4 },
-          { source: '沈变公司', target: '印能公司', value: 3 },
-
-          // 衡变系 9家 (合计 380，28MW屋顶光伏全网第一)
-          { source: '衡变公司', target: '衡变本部', value: 175 },
-          { source: '衡变公司', target: '南京电研', value: 48 },
-          { source: '衡变公司', target: '云集电气', value: 42 },
-          { source: '衡变公司', target: '云集高压开关', value: 35 },
-          { source: '衡变公司', target: '湖南电气', value: 28 },
-          { source: '衡变公司', target: '合容电气', value: 20 },
-          { source: '衡变公司', target: '新疆自控', value: 14 },
-          { source: '衡变公司', target: '特能建', value: 10 },
-          { source: '衡变公司', target: '赛杰爱迪', value: 8 },
-
-          // 新变系 6家 (合计 335)
-          { source: '新变厂', target: '超高压公司', value: 160 },
-          { source: '新变厂', target: '天变公司', value: 68 },
-          { source: '新变厂', target: '珠峰硅钢', value: 48 },
-          { source: '新变厂', target: '智能电气公司', value: 30 },
-          { source: '新变厂', target: '京津冀公司', value: 18 },
-          { source: '新变厂', target: '银利电气', value: 11 },
-
-          // 鲁缆系 4家 (合计 150，新园区屋顶光伏)
-          { source: '鲁缆公司', target: '鲁缆本部', value: 85 },
-          { source: '鲁缆公司', target: '智缆公司', value: 35 },
-          { source: '鲁缆公司', target: '曙光公司', value: 20 },
-          { source: '鲁缆公司', target: '昭和公司', value: 10 },
-
-          // 新缆系 2家 (合计 65)
-          { source: '新缆厂', target: '新缆厂本部', value: 46 },
-          { source: '新缆厂', target: '新疆电缆公司', value: 19 },
-
-          // 德缆系 1家 (合计 40)
-          { source: '德缆公司', target: '德缆公司本部', value: 40 },
+          { source: '衡变公司', target: '衡变公司-衡阳园区光伏发电', value: 380 },
+          { source: '新变厂', target: '新变厂-昌吉园区光伏发电', value: 335 },
+          { source: '鲁缆公司', target: '鲁缆公司-新泰园区光伏发电', value: 150 },
+          { source: '沈变公司', target: '沈变公司-沈阳园区光伏发电', value: 110 },
+          { source: '新缆厂', target: '新缆厂-米东园区光伏发电', value: 65 },
+          { source: '德缆公司', target: '德缆公司-德阳园区光伏发电', value: 40 },
         ],
       }
 
@@ -3395,7 +3357,7 @@ export const PRODUCT_SPECIFIC_METRICS: Record<string, {
   water: { val: string; yoy: string }
 }> = {
   '线缆-中低压': {
-    unitSuffix: 'km',
+    unitSuffix: 'km*mm²',
     energy: { val: '0.317', yoy: '-6.2%' },
     elec: { val: '2,420.5', yoy: '-5.8%' },
     steam: { val: '3.85', yoy: '-4.5%' },
@@ -3403,7 +3365,7 @@ export const PRODUCT_SPECIFIC_METRICS: Record<string, {
     water: { val: '12.4', yoy: '-3.9%' },
   },
   '线缆-高压': {
-    unitSuffix: 'km',
+    unitSuffix: 'km*mm²',
     energy: { val: '0.485', yoy: '-5.4%' },
     elec: { val: '3,680.0', yoy: '-5.1%' },
     steam: { val: '5.20', yoy: '-4.1%' },
@@ -3411,7 +3373,7 @@ export const PRODUCT_SPECIFIC_METRICS: Record<string, {
     water: { val: '18.5', yoy: '-3.5%' },
   },
   '线缆-特种电缆': {
-    unitSuffix: 'km',
+    unitSuffix: 'km*mm²',
     energy: { val: '0.620', yoy: '-4.8%' },
     elec: { val: '4,850.0', yoy: '-4.2%' },
     steam: { val: '6.50', yoy: '-3.6%' },
@@ -4133,7 +4095,7 @@ export default function IndicatorControlPage() {
               {/* 3. 因子说明 (根据指标动态显示折标煤系数或碳排放因子) */}
               <div className="p-4 bg-card rounded-xl border border-border shadow-xs space-y-2">
                 {(() => {
-                  const factorInfo = getFactorDescription(activeViewMetric)
+                  const factorInfo = getFactorDescription(activeViewMetric, selectedNode)
                   return (
                     <>
                       <div className="flex items-center justify-between">
@@ -4748,16 +4710,59 @@ export default function IndicatorControlPage() {
   )
 }
 // 因子说明生成函数 (依据指标类别动态返回折标煤系数或碳排放因子)
-function getFactorDescription(metric: IndicatorMetric): { title: string; subtitle: string; content: string } {
+function getFactorDescription(
+  metric: IndicatorMetric,
+  selectedNode?: StandardOrgNode
+): { title: string; subtitle: string; content: string } {
   const name = metric.name || ''
   const unit = metric.unit || ''
 
   // 1. 碳排放相关指标
   if (name.includes('碳排放') || name.includes('碳足迹') || unit.includes('tCO2')) {
+    const isGroup = !selectedNode || selectedNode.id === 'ent_root' || selectedNode.level === 'group'
+    const nodeName = selectedNode?.name || ''
+    
+    // 省级因子映射表
+    let provinceName = ''
+    let provinceFactor = ''
+    if (nodeName.includes('沈变') || nodeName.includes('露娜') || nodeName.includes('和新') || nodeName.includes('康嘉')) {
+      provinceName = '辽宁省'
+      provinceFactor = '0.5410'
+    } else if (nodeName.includes('衡变') || nodeName.includes('云集') || nodeName.includes('湖南') || nodeName.includes('特能建') || nodeName.includes('合容') || nodeName.includes('赛杰')) {
+      provinceName = '湖南省'
+      provinceFactor = '0.5120'
+    } else if (nodeName.includes('新变') || nodeName.includes('超高压') || nodeName.includes('智能电气') || nodeName.includes('新缆') || nodeName.includes('自控')) {
+      provinceName = '新疆'
+      provinceFactor = '0.5920'
+    } else if (nodeName.includes('鲁缆') || nodeName.includes('智缆') || nodeName.includes('昭和') || nodeName.includes('曙光')) {
+      provinceName = '山东省'
+      provinceFactor = '0.5880'
+    } else if (nodeName.includes('德缆')) {
+      provinceName = '四川省'
+      provinceFactor = '0.2850'
+    } else if (nodeName.includes('天变')) {
+      provinceName = '天津市'
+      provinceFactor = '0.5480'
+    } else if (nodeName.includes('保定') || nodeName.includes('京津冀') || nodeName.includes('珠峰')) {
+      provinceName = '河北省'
+      provinceFactor = '0.5620'
+    } else if (nodeName.includes('南京')) {
+      provinceName = '江苏省'
+      provinceFactor = '0.5370'
+    }
+
+    if (isGroup || !provinceFactor) {
+      return {
+        title: '碳排放因子说明',
+        subtitle: '依据生态环境部最新电网基准与发改委温室气体核算指南',
+        content: '电力碳排放因子：按各下属经营单位所在省份最新省级电网排放因子加权核算（辽宁、湖南、新疆、山东、四川各省独立适用，集团层面不设单一绝对值）；天然气碳排放因子：2.1622 tCO2/万m³（单位热值含碳量 15.32 tC/TJ）；自建分布式光伏与物理直供绿电按 0 排放核算。',
+      }
+    }
+
     return {
       title: '碳排放因子说明',
-      subtitle: '依据生态环境部最新电网基准与发改委温室气体核算指南',
-      content: '电力碳排放因子：0.5703 tCO2/MWh（全国电网平均因子）；天然气碳排放因子：2.1622 tCO2/万m³（单位热值含碳量 15.32 tC/TJ）；自建分布式光伏与物理直供绿电按 0 排放核算。',
+      subtitle: `依据生态环境部发布之最新${provinceName}电网基准与国家核算指南`,
+      content: `电力碳排放因子：${provinceFactor} tCO2/MWh（${provinceName}最新电网平均因子）；天然气碳排放因子：2.1622 tCO2/万m³（单位热值含碳量 15.32 tC/TJ）；自建分布式光伏与物理直供绿电按 0 排放核算。`,
     }
   }
 
