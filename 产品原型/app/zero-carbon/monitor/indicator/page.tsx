@@ -4503,6 +4503,14 @@ export default function IndicatorControlPage() {
             ) : (
               /* 单体公司/车间视角: 呈现工厂 10 大整体指标 + 产品管控指标 + 关键工序管控指标 */
               <div className="space-y-3.5">
+                {Boolean(selectedNode?.unconnected) && (
+                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs shrink-0 shadow-xs">
+                    <Info className="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <span className="font-medium">
+                      当前单位（{selectedNode.name}）暂不具备自动化数据联网接入条件，各专项能效指标正在推进硬件表计数字化改造，当前呈现离线归档参考值。
+                    </span>
+                  </div>
+                )}
                 {/* 一、经营单位及项目公司整体指标 (10 项指标卡片) */}
                 <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
                   <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
