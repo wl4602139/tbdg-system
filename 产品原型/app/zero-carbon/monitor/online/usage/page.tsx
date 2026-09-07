@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   Activity,
   Zap,
@@ -217,6 +217,8 @@ export default function UsageMonitoringPage() {
   const [timeDim, setTimeDim] = useState<'day' | 'month'>('day')
   const [dateRange, setDateRange] = useState({ start: '2026-08-01', end: '2026-08-28' })
   const [selectedMonth, setSelectedMonth] = useState('2026-08')
+  const [startMonth, setStartMonth] = useState('2026-01')
+  const [endMonth, setEndMonth] = useState('2026-08')
 
   // 峰平谷查看对象切换：'total' (总用电量 峰平谷) | 'grid' (市电量 峰平谷)
   const [touTarget, setTouTarget] = useState<'total' | 'grid'>('total')
@@ -243,6 +245,23 @@ export default function UsageMonitoringPage() {
     )
     return foundKey ? USAGE_PRESETS[foundKey] : USAGE_PRESETS.ws_sb_main
   }, [selectedOrgNode])
+
+  // 🌟 判定当前选定组织是否属于线缆产业 (鲁缆、新缆、德缆) 或全集团汇总
+  const isCableUnit = useMemo(() => {
+    const name = selectedOrgNode?.name || ''
+    const id = selectedOrgNode?.id || ''
+    if (id === 'ent_root' || id === 'all' || !id || name.includes('电装集团')) return true
+    if (name.includes('线缆') || name.includes('鲁缆') || name.includes('新缆') || name.includes('德缆')) return true
+    if (id.includes('ll') || id.includes('xl') || id.includes('dl')) return true
+    return false
+  }, [selectedOrgNode])
+
+  // 若切换至非线缆企业且当前正选液氮，自动回退至总用电量
+  useEffect(() => {
+    if (!isCableUnit && selectedMediumView === 'nitrogen') {
+      setSelectedMediumView('all_elec')
+    }
+  }, [isCableUnit, selectedMediumView])
 
   // 处理树节点切换
   const handleSelectNode = (node: StandardOrgNode) => {
@@ -318,51 +337,93 @@ export default function UsageMonitoringPage() {
     const baseDayOil = activeData.oilLiterMonth / 30
     const baseDayNitrogen = activeData.liquidNitrogenTMonth / 30
 
-    queryDaysList.forEach((dateStr) => {
-      const parts = dateStr.split('-').map(Number)
-      const m = parts[1]
-      const d = parts[2]
-      const isWeekend = (d + m) % 7 === 0 || (d + m) % 7 === 6
-      const dailyFluct = isWeekend ? 0.72 : 0.95 + ((d * 3 + m * 7) % 15) * 0.015
-      const solarFluct = isWeekend ? 0.90 : 0.90 + ((d * 5 + m * 3) % 20) * 0.02
+    if (timeDim === 'month') {
+      // 月维度：生成跨月区间各月份数据 (1月份 ~ 8月份)
+      const startM = parseInt(startMonth.split('-')[1]) || 1
+      const endM = parseInt(endMonth.split('-')[1]) || 8
+      const baseMonthElec = activeData.totalElecKWhMonth / 10000
+      const baseMonthGrid = activeData.gridElecKWhMonth / 10000
+      const baseMonthSolar = activeData.solarElecKWhMonth / 10000
+      const baseMonthWater = activeData.waterM3Month
+      const baseMonthGas = activeData.gasM3Month
+      const baseMonthSteam = activeData.steamTMonth
+      const baseMonthOil = activeData.oilLiterMonth
+      const baseMonthNitrogen = activeData.liquidNitrogenTMonth
 
-      const totElec = Number((baseDayElec * dailyFluct).toFixed(2))
-      const solElec = Number((baseDaySolar * solarFluct).toFixed(2))
-      const grdElec = Number(Math.max(0, totElec - solElec).toFixed(2))
-      const wat = Number((baseDayWater * dailyFluct).toFixed(1))
-      const gs = Number((baseDayGas * (0.92 + (d % 5) * 0.03)).toFixed(1))
-      const stm = Number((baseDaySteam * (0.90 + (d % 6) * 0.03)).toFixed(1))
-      const ol = Number((baseDayOil * (0.88 + (d % 4) * 0.05)).toFixed(1))
-      const nit = Number((baseDayNitrogen * (0.92 + (d % 3) * 0.05)).toFixed(2))
+      for (let m = startM; m <= endM; m++) {
+        const factor = 0.94 + ((m * 7) % 13) * 0.012
+        const solarFactor = 0.85 + ((m * 9) % 20) * 0.02
+        const totElec = Number((baseMonthElec * factor).toFixed(1))
+        const solElec = Number((baseMonthSolar * solarFactor).toFixed(1))
+        const grdElec = Number(Math.max(0, totElec - solElec).toFixed(1))
+        const wat = Math.round(baseMonthWater * factor)
+        const gs = Math.round(baseMonthGas * (0.92 + (m % 4) * 0.04))
+        const stm = Number((baseMonthSteam * (0.9 + (m % 5) * 0.04)).toFixed(1))
+        const ol = Math.round(baseMonthOil * (0.88 + (m % 3) * 0.06))
+        const nit = Number((baseMonthNitrogen * (0.9 + (m % 4) * 0.05)).toFixed(1))
+        const tce = Number((totElec * 10000 * 0.0001229 + gs * 0.0012143 + stm * 0.1286 + (ol * 0.85 * 0.0014571)).toFixed(1))
 
-      const tce = Number(
-        (
-          totElec * 10000 * 0.0001229 +
-          gs * 0.0012143 +
-          stm * 0.1286 +
-          (ol * 0.85 * 0.0014571)
-        ).toFixed(1)
-      )
+        records.push({
+          date: `2026-${String(m).padStart(2, '0')}`,
+          dayLabel: `${m}月份`,
+          总用电量: totElec,
+          市电量: grdElec,
+          直供绿电量: solElec,
+          用水量: wat,
+          天然气量: gs,
+          外购蒸汽量: stm,
+          油消耗量: ol,
+          液氮消耗量: nit,
+          综合能耗: tce,
+        })
+      }
+    } else {
+      queryDaysList.forEach((dateStr) => {
+        const parts = dateStr.split('-').map(Number)
+        const m = parts[1]
+        const d = parts[2]
+        const isWeekend = (d + m) % 7 === 0 || (d + m) % 7 === 6
+        const dailyFluct = isWeekend ? 0.72 : 0.95 + ((d * 3 + m * 7) % 15) * 0.015
+        const solarFluct = isWeekend ? 0.90 : 0.90 + ((d * 5 + m * 3) % 20) * 0.02
 
-      const dayLabel = `${m}月${String(d).padStart(2, '0')}日`
+        const totElec = Number((baseDayElec * dailyFluct).toFixed(2))
+        const solElec = Number((baseDaySolar * solarFluct).toFixed(2))
+        const grdElec = Number(Math.max(0, totElec - solElec).toFixed(2))
+        const wat = Number((baseDayWater * dailyFluct).toFixed(1))
+        const gs = Number((baseDayGas * (0.92 + (d % 5) * 0.03)).toFixed(1))
+        const stm = Number((baseDaySteam * (0.90 + (d % 6) * 0.03)).toFixed(1))
+        const ol = Number((baseDayOil * (0.88 + (d % 4) * 0.05)).toFixed(1))
+        const nit = Number((baseDayNitrogen * (0.92 + (d % 3) * 0.05)).toFixed(2))
 
-      records.push({
-        date: dateStr,
-        dayLabel,
-        总用电量: totElec,
-        市电量: grdElec,
-        直供绿电量: solElec,
-        用水量: wat,
-        天然气量: gs,
-        外购蒸汽量: stm,
-        油消耗量: ol,
-        液氮消耗量: nit,
-        综合能耗: tce,
+        const tce = Number(
+          (
+            totElec * 10000 * 0.0001229 +
+            gs * 0.0012143 +
+            stm * 0.1286 +
+            (ol * 0.85 * 0.0014571)
+          ).toFixed(1)
+        )
+
+        const dayLabel = `${m}月${String(d).padStart(2, '0')}日`
+
+        records.push({
+          date: dateStr,
+          dayLabel,
+          总用电量: totElec,
+          市电量: grdElec,
+          直供绿电量: solElec,
+          用水量: wat,
+          天然气量: gs,
+          外购蒸汽量: stm,
+          油消耗量: ol,
+          液氮消耗量: nit,
+          综合能耗: tce,
+        })
       })
-    })
+    }
 
     return records
-  }, [queryDaysList, activeData])
+  }, [queryDaysList, activeData, timeDim, startMonth, endMonth])
 
   // 8 大介质累计核算汇总 (所选日范围或指定月份总值)
   const aggregatedMetrics = useMemo(() => {
@@ -465,6 +526,108 @@ export default function UsageMonitoringPage() {
     }
   }, [touTarget, activeData, touDecomposeMonth])
 
+  // 🌟 非电能源介质工序消耗结构与负荷数据模型
+  const nonElectricStructures = useMemo(() => {
+    const map: Record<string, {
+      name: string
+      unit: string
+      donutData: Array<{ name: string; value: number; color: string; ratio: string }>
+      trendData: Array<{ time: string; 实际负荷: number; 额定基准: number }>
+    }> = {
+      water: {
+        name: '水资源消耗',
+        unit: 'm³',
+        donutData: [
+          { name: '循环冷却水', value: Math.round(aggregatedMetrics.water * 0.625), color: '#06b6d4', ratio: '62.5%' },
+          { name: '纯水制备工序', value: Math.round(aggregatedMetrics.water * 0.182), color: '#3b82f6', ratio: '18.2%' },
+          { name: '清洗与生活', value: Math.round(aggregatedMetrics.water * 0.121), color: '#10b981', ratio: '12.1%' },
+          { name: '消防与绿化', value: Math.round(aggregatedMetrics.water * 0.072), color: '#6366f1', ratio: '7.2%' },
+        ],
+        trendData: [
+          { time: '00:00', 实际负荷: 8.5, 额定基准: 10.0 },
+          { time: '04:00', 实际负荷: 6.2, 额定基准: 10.0 },
+          { time: '08:00', 实际负荷: 22.4, 额定基准: 20.0 },
+          { time: '12:00', 实际负荷: 26.8, 额定基准: 20.0 },
+          { time: '16:00', 实际负荷: 24.5, 额定基准: 20.0 },
+          { time: '20:00', 实际负荷: 14.2, 额定基准: 12.0 },
+        ],
+      },
+      gas: {
+        name: '天然气量',
+        unit: 'm³',
+        donutData: [
+          { name: '硅钢退火炉', value: Math.round(aggregatedMetrics.gas * 0.520), color: '#fa8c16', ratio: '52.0%' },
+          { name: '绝缘干燥烘房', value: Math.round(aggregatedMetrics.gas * 0.265), color: '#f5222d', ratio: '26.5%' },
+          { name: '采暖与生活锅炉', value: Math.round(aggregatedMetrics.gas * 0.142), color: '#1677ff', ratio: '14.2%' },
+          { name: '辅助公用系统', value: Math.round(aggregatedMetrics.gas * 0.073), color: '#10b981', ratio: '7.3%' },
+        ],
+        trendData: [
+          { time: '00:00', 实际负荷: 45.0, 额定基准: 50.0 },
+          { time: '04:00', 实际负荷: 42.0, 额定基准: 50.0 },
+          { time: '08:00', 实际负荷: 110.5, 额定基准: 100.0 },
+          { time: '12:00', 实际负荷: 125.0, 额定基准: 100.0 },
+          { time: '16:00', 实际负荷: 118.2, 额定基准: 100.0 },
+          { time: '20:00', 实际负荷: 75.6, 额定基准: 60.0 },
+        ],
+      },
+      steam: {
+        name: '外购蒸汽量',
+        unit: 't',
+        donutData: [
+          { name: '煤油汽相干燥', value: Number((aggregatedMetrics.steam * 0.485).toFixed(1)), color: '#a855f7', ratio: '48.5%' },
+          { name: '绝缘件热压固化', value: Number((aggregatedMetrics.steam * 0.282).toFixed(1)), color: '#ec4899', ratio: '28.2%' },
+          { name: '辅助换热采暖', value: Number((aggregatedMetrics.steam * 0.153).toFixed(1)), color: '#3b82f6', ratio: '15.3%' },
+          { name: '管网热损耗', value: Number((aggregatedMetrics.steam * 0.080).toFixed(1)), color: '#64748b', ratio: '8.0%' },
+        ],
+        trendData: [
+          { time: '00:00', 实际负荷: 1.2, 额定基准: 1.5 },
+          { time: '04:00', 实际负荷: 0.9, 额定基准: 1.5 },
+          { time: '08:00', 实际负荷: 3.8, 额定基准: 3.5 },
+          { time: '12:00', 实际负荷: 4.2, 额定基准: 3.5 },
+          { time: '16:00', 实际负荷: 3.9, 额定基准: 3.5 },
+          { time: '20:00', 实际负荷: 2.1, 额定基准: 2.0 },
+        ],
+      },
+      oil: {
+        name: '油消耗量',
+        unit: 'L',
+        donutData: [
+          { name: '重载物流叉车', value: Math.round(aggregatedMetrics.oil * 0.450), color: '#ef4444', ratio: '45.0%' },
+          { name: '应急柴油发电机', value: Math.round(aggregatedMetrics.oil * 0.280), color: '#fa8c16', ratio: '28.0%' },
+          { name: '试验站拖动油机', value: Math.round(aggregatedMetrics.oil * 0.185), color: '#eab308', ratio: '18.5%' },
+          { name: '后勤通勤车辆', value: Math.round(aggregatedMetrics.oil * 0.085), color: '#64748b', ratio: '8.5%' },
+        ],
+        trendData: [
+          { time: '00:00', 实际负荷: 0.0, 额定基准: 2.0 },
+          { time: '04:00', 实际负荷: 0.0, 额定基准: 2.0 },
+          { time: '08:00', 实际负荷: 18.5, 额定基准: 15.0 },
+          { time: '12:00', 实际负荷: 22.0, 额定基准: 15.0 },
+          { time: '16:00', 实际负荷: 19.8, 额定基准: 15.0 },
+          { time: '20:00', 实际负荷: 5.2, 额定基准: 5.0 },
+        ],
+      },
+      nitrogen: {
+        name: '液氮消耗量',
+        unit: 't',
+        donutData: [
+          { name: '高压交联连续硫化', value: Number((aggregatedMetrics.nitrogen * 0.550).toFixed(1)), color: '#6366f1', ratio: '55.0%' },
+          { name: '绝缘线芯急冷', value: Number((aggregatedMetrics.nitrogen * 0.250).toFixed(1)), color: '#8b5cf6', ratio: '25.0%' },
+          { name: '管道气密性吹扫', value: Number((aggregatedMetrics.nitrogen * 0.120).toFixed(1)), color: '#06b6d4', ratio: '12.0%' },
+          { name: '低温储罐维保损耗', value: Number((aggregatedMetrics.nitrogen * 0.080).toFixed(1)), color: '#64748b', ratio: '8.0%' },
+        ],
+        trendData: [
+          { time: '00:00', 实际负荷: 0.2, 额定基准: 0.3 },
+          { time: '04:00', 实际负荷: 0.1, 额定基准: 0.3 },
+          { time: '08:00', 实际负荷: 0.8, 额定基准: 0.6 },
+          { time: '12:00', 实际负荷: 0.9, 额定基准: 0.6 },
+          { time: '16:00', 实际负荷: 0.8, 额定基准: 0.6 },
+          { time: '20:00', 实际负荷: 0.4, 额定基准: 0.4 },
+        ],
+      },
+    }
+    return map[selectedMediumView] || null
+  }, [selectedMediumView, aggregatedMetrics])
+
   // 综合能耗介质构成饼图数据
   const energyDonutData = useMemo(() => {
     return [
@@ -554,6 +717,12 @@ export default function UsageMonitoringPage() {
           onDateRangeChange={(start, end) => setDateRange({ start, end })}
           selectedMonth={selectedMonth}
           onMonthChange={(m) => setSelectedMonth(m)}
+          startMonth={startMonth}
+          endMonth={endMonth}
+          onMonthRangeChange={(s, e) => {
+            setStartMonth(s)
+            setEndMonth(e)
+          }}
         />
 
         {/* 3. 核心 8 大能源介质消费大盘卡片 (点击卡片与下方时序图表、分时负荷深度联动) */}
@@ -735,7 +904,8 @@ export default function UsageMonitoringPage() {
             </div>
           </div>
 
-          {/* 卡片 8: 液氮消耗量 */}
+          {/* 卡片 8: 液氮消耗量 (仅限线缆企业展示) */}
+          {isCableUnit && (
           <div
             onClick={() => setSelectedMediumView('nitrogen')}
             className={cn(
@@ -758,6 +928,7 @@ export default function UsageMonitoringPage() {
               干燥与惰化
             </div>
           </div>
+          )}
         </div>
 
         {/* 🌟 4. 核心时序曲线：选择几月到几月查看曲线 (月数据，按日更新) */}
@@ -879,7 +1050,8 @@ export default function UsageMonitoringPage() {
           </div>
         </div>
 
-        {/* 🌟 5. 【核心增强】用电峰平谷监测 (总用电量 / 市电量，月度总体 + 可分解到日) */}
+        {/* 🌟 5. 【用能结构与负荷监测】电力介质展示峰平谷，非电介质动态展示重点车间/工序能耗结构 */}
+        {['all_elec', 'grid_elec', 'solar_elec'].includes(selectedMediumView) ? (
         <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
             <div className="flex items-center gap-2">
@@ -1012,6 +1184,93 @@ export default function UsageMonitoringPage() {
             </div>
           </div>
         </div>
+        ) : (
+          /* 非电介质专属工序消耗结构与连续负荷走势 */
+          nonElectricStructures && (
+            <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
+                    <span>【{nonElectricStructures.name}】重点工序/车间消耗结构与时段负荷分布</span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-primary/20 text-primary border border-primary/30 font-bold">
+                      工序分析
+                    </span>
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => alert(`正在导出【${nonElectricStructures.name}】工序消耗明细...`)}
+                  className="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer font-sans"
+                >
+                  <Download className="size-3" />
+                  导出工序分析数据
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                {/* 左侧 4/12: 重点工序消耗占比圆环图 + 明细栏 */}
+                <div className="lg:col-span-4 flex flex-col justify-between space-y-2 border-r border-border/60 pr-3">
+                  <div className="flex items-center justify-between text-xs font-bold text-foreground">
+                    <span className="flex items-center gap-1">
+                      <PieIcon className="size-3.5 text-primary" />
+                      主要工序消耗占比构成
+                    </span>
+                    <span className="text-xs font-mono text-primary font-bold">
+                      {nonElectricStructures.unit}
+                    </span>
+                  </div>
+
+                  <Donut
+                    data={nonElectricStructures.donutData}
+                    height={165}
+                    unit={nonElectricStructures.unit}
+                  />
+
+                  <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono pt-1">
+                    {nonElectricStructures.donutData.map((item) => (
+                      <div key={item.name} className="p-1.5 rounded bg-panel border border-border text-foreground">
+                        <div className="flex justify-between items-center text-[10px] font-sans truncate" style={{ color: item.color }}>
+                          <span className="truncate">{item.name}</span>
+                          <strong className="font-mono ml-1">{item.ratio}</strong>
+                        </div>
+                        <div className="text-xs font-bold font-mono text-foreground mt-0.5">
+                          {item.value.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">{nonElectricStructures.unit}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 右侧 8/12: 日连续负荷走势与额定基准线 */}
+                <div className="lg:col-span-8 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-foreground flex items-center gap-1.5">
+                      <BarChart3 className="size-3.5 text-primary" />
+                      日内连续采样负荷走势与设计基准对比
+                    </span>
+                    <span className="text-[11px] text-muted-foreground font-mono">
+                      实时采样 vs 设计基准
+                    </span>
+                  </div>
+
+                  <div className="h-[235px]">
+                    <LineTrend
+                      data={nonElectricStructures.trendData}
+                      xKey="time"
+                      height={235}
+                      yUnit={nonElectricStructures.unit}
+                      lines={[
+                        { key: '实际负荷', name: `实际负荷 (${nonElectricStructures.unit})`, color: '#1677ff' },
+                        { key: '额定基准', name: `额定设计基准 (${nonElectricStructures.unit})`, color: '#94a3b8' },
+                      ]}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        )}
 
         {/* 7. 底部数据明细：按日更新明细台账表格 (支持导出) */}
         <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">

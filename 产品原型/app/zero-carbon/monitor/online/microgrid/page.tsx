@@ -195,6 +195,8 @@ export default function MicrogridMonitoringPage() {
   const [timeDim, setTimeDim] = useState<'day' | 'month'>('day')
   const [selectedDateRange, setSelectedDateRange] = useState({ start: '2026-08-01', end: '2026-08-28' })
   const [selectedMonth, setSelectedMonth] = useState('2026-08')
+  const [selectedStartMonth, setSelectedStartMonth] = useState('2026-01')
+  const [selectedEndMonth, setSelectedEndMonth] = useState('2026-08')
   const [queryDate, setQueryDate] = useState('2026-08-27')
 
   // 🌟 绿电卡片联动选态：'trade' (各企业绿电购买数量，默认) | 'pv_gen' (新能源发电量) | 'revenue' (新能源综合收益) | 'rate' (绿电综合消纳率)
@@ -417,6 +419,58 @@ export default function MicrogridMonitoringPage() {
 
     return points
   }, [currentParkDetail])
+
+  // 🌟 全园区逐月微电网电量走势数据 (各月总用电量、市电量、直供绿电量、储能充放量)
+  const monthEnergyTrendData = useMemo(() => {
+    const months = ['01月', '02月', '03月', '04月', '05月', '06月', '07月', '08月']
+    return months.map((m, idx) => {
+      const factor = 1 + idx * 0.03
+      const total = Math.round(currentParkDetail.loadKw * 18.2 * 28 * factor / 10000)
+      const pv = Math.round(total * (0.28 + idx * 0.015))
+      const storage = Math.round(total * 0.06)
+      const grid = Math.max(0, total - pv - storage)
+      return {
+        time: m,
+        '园区总用电': total,
+        '市网购电': grid,
+        '光伏发电': pv,
+        '储能充放': storage,
+      }
+    })
+  }, [currentParkDetail])
+
+  // 🌟 全园区逐月微电网负荷走势数据
+  const monthPowerTrendData = useMemo(() => {
+    const months = ['01月', '02月', '03月', '04月', '05月', '06月', '07月', '08月']
+    return months.map((m, idx) => {
+      const factor = 1 + Math.sin(idx * 0.5) * 0.06
+      const totalKw = Math.round(currentParkDetail.loadKw * factor)
+      const pvKw = Math.round(currentParkDetail.pvKw * (0.88 + idx * 0.02))
+      const storageKw = Math.round(currentParkDetail.storageKw * 1.02)
+      const gridKw = Math.max(0, totalKw - pvKw)
+      return {
+        time: m,
+        '园区总负荷': totalKw,
+        '市电受电': gridKw,
+        '光伏出力': pvKw,
+        '储能充放电': storageKw,
+      }
+    })
+  }, [currentParkDetail])
+
+  // 🌟 月度微电网电量明细台账
+  const monthEnergyLedgerData = useMemo(() => {
+    return [
+      { id: 'm-8', month: '2026年08月', total: 684.5, grid: 420.8, pv: 213.2, storage: 50.5, rate: '45.3%' },
+      { id: 'm-7', month: '2026年07月', total: 672.0, grid: 412.5, pv: 209.5, storage: 50.0, rate: '44.6%' },
+      { id: 'm-6', month: '2026年06月', total: 648.2, grid: 401.0, pv: 198.2, storage: 49.0, rate: '42.9%' },
+      { id: 'm-5', month: '2026年05月', total: 625.0, grid: 392.5, pv: 184.5, storage: 48.0, rate: '40.6%' },
+      { id: 'm-4', month: '2026年04月', total: 598.6, grid: 382.0, pv: 170.6, storage: 46.0, rate: '37.6%' },
+      { id: 'm-3', month: '2026年03月', total: 574.2, grid: 375.0, pv: 155.2, storage: 44.0, rate: '35.5%' },
+      { id: 'm-2', month: '2026年02月', total: 532.0, grid: 360.0, pv: 130.0, storage: 42.0, rate: '33.0%' },
+      { id: 'm-1', month: '2026年01月', total: 545.8, grid: 378.0, pv: 126.8, storage: 41.0, rate: '31.5%' },
+    ]
+  }, [])
 
   // 🌟 15 分钟电量高频明细台账数据
   const detailedEnergyLedgerData = useMemo(() => {
@@ -829,18 +883,18 @@ export default function MicrogridMonitoringPage() {
 
             {/* 24 小时源网荷储功率平衡曲线 */}
             <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#1677ff]" />
+                  <span className="size-2 rounded-full bg-primary" />
                   <h3 className="text-xs font-bold text-foreground">
                     源网荷储微电网协同平衡曲线
                   </h3>
                 </div>
                 <div className="flex items-center gap-3 text-xs font-sans text-muted-foreground">
-                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-slate-800" />园区总负荷</span>
-                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-500/200" />光伏出力</span>
+                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#8b5cf6]" />园区总负荷</span>
+                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#10b981]" />光伏出力</span>
                   <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#1677ff]" />市电受电</span>
-                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-amber-500/200" />储能充放电</span>
+                  <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#fa8c16]" />储能充放电</span>
                 </div>
               </div>
               <LineTrend
@@ -850,7 +904,7 @@ export default function MicrogridMonitoringPage() {
                 yUnit="kW"
                 xInterval={7}
                 lines={[
-                  { key: '园区总负荷', name: '园区总负荷 (kW)', color: '#1e293b' },
+                  { key: '园区总负荷', name: '园区总负荷 (kW)', color: '#8b5cf6' },
                   { key: '市电受电', name: '市电受电功率 (kW)', color: '#1677ff' },
                   { key: '光伏出力', name: '光伏实时出力 (kW)', color: '#10b981' },
                   { key: '储能充放电', name: '储能充放电 (kW)', color: '#fa8c16' },
@@ -1033,7 +1087,7 @@ export default function MicrogridMonitoringPage() {
                 yUnit="kWh"
                 xInterval={7}
                 lines={[
-                  { key: '园区总用电', name: '园区总用电量 (kWh)', color: '#1e293b' },
+                  { key: '园区总用电', name: '园区总用电量 (kWh)', color: '#8b5cf6' },
                   { key: '市网购电', name: '市电量 (kWh)', color: '#1677ff' },
                   { key: '光伏发电', name: '直供绿电量 (kWh)', color: '#10b981' },
                   { key: '储能充放', name: '储能充放电量 (kWh)', color: '#fa8c16' },

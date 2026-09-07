@@ -46,6 +46,13 @@ const tooltipStyle = {
   boxShadow: '0 8px 24px -4px rgba(0, 0, 0, 0.6)',
 }
 
+const tooltipLabelStyle = {
+  color: '#f8fafc',
+  fontWeight: 600,
+  fontSize: 12,
+  marginBottom: 4,
+}
+
 export type SeriesKey = string | { key: string; name?: string; color?: string }
 function normKeys(keys?: SeriesKey[]) {
   return (keys ?? []).map((k, i) =>
@@ -139,7 +146,7 @@ export function LineTrend({
           <CartesianGrid stroke={gridColor} vertical={false} />
           <XAxis dataKey={xKey} tick={axisStyle} tickLine={false} axisLine={false} interval={xInterval} />
           <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
-          <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: 'rgba(56, 189, 248, 0.25)' }} />
+          <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} cursor={{ stroke: 'rgba(56, 189, 248, 0.25)' }} />
           <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
           {refLines?.map((rf, i) => (
             <ReferenceLine
@@ -267,7 +274,7 @@ export function AreaTrend({
         <CartesianGrid stroke={gridColor} vertical={false} />
         <XAxis dataKey={xKey} tick={axisStyle} tickLine={false} axisLine={false} />
         <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
-        <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: 'rgba(56, 189, 248, 0.25)' }} />
+        <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} cursor={{ stroke: 'rgba(56, 189, 248, 0.25)' }} />
         <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
         {series.map((s, i) => (
           <Area
@@ -310,10 +317,7 @@ export function Donut({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-        <Tooltip
-          contentStyle={tooltipStyle}
-          formatter={(value: any) => (unit ? `${value}${unit}` : value)}
-        />
+        <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} formatter={(value: any) => (unit ? `${value}${unit}` : value)} />
         {showLegend && <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />}
         <Pie
           data={data}
@@ -360,7 +364,7 @@ export function BarChartGroup({
         <CartesianGrid stroke={gridColor} vertical={false} />
         <XAxis dataKey={actualXKey} tick={axisStyle} tickLine={false} axisLine={false} />
         <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
-        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }} />
+        <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }} />
         <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
         {series.map((s) => (
           <Bar
@@ -403,7 +407,7 @@ export function RadarCompare({
           dataKey={angleKey}
           tick={{ fontSize: 11, fill: 'oklch(0.85 0.02 240)', fontWeight: 600 }}
         />
-        <Tooltip contentStyle={tooltipStyle} />
+        <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} />
         <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} />
         {series.map((s) => (
           <Radar
@@ -832,7 +836,7 @@ export function BarBenchmark({
           height={48}
         />
         <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
-        <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => `${v}${unit}`} cursor={{ fill: 'oklch(0.72 0.12 220 / 8%)' }} />
+        <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} formatter={(v: number) => `${v}${unit}`} cursor={{ fill: 'oklch(0.72 0.12 220 / 8%)' }} />
         <ReferenceLine
           y={benchmark}
           stroke="var(--chart-4)"

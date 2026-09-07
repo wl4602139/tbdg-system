@@ -40,12 +40,16 @@ export function OnlineHeader({
   const [internalTimeDim, setInternalTimeDim] = useState<'day' | 'month'>('day')
   const [internalStartDate, setInternalStartDate] = useState(propStartDate || '2026-08-01')
   const [internalEndDate, setInternalEndDate] = useState(propEndDate || '2026-08-28')
+  const [internalStartMonth, setInternalStartMonth] = useState(legacyStartMonth || '2026-01')
+  const [internalEndMonth, setInternalEndMonth] = useState(legacyEndMonth || propSelectedMonth || '2026-08')
   const [internalMonth, setInternalMonth] = useState(propSelectedMonth || legacyEndMonth || '2026-08')
 
   const timeDim = propTimeDim || internalTimeDim
   const startDate = propStartDate || internalStartDate
   const endDate = propEndDate || internalEndDate
   const selectedMonth = propSelectedMonth || internalMonth
+  const startMonth = legacyStartMonth || internalStartMonth
+  const endMonth = legacyEndMonth || propSelectedMonth || internalEndMonth
 
   const handleTimeDimChange = (dim: 'day' | 'month') => {
     setInternalTimeDim(dim)
@@ -104,8 +108,27 @@ export function OnlineHeader({
 
   const handleMonthChange = (newMonth: string) => {
     setInternalMonth(newMonth)
+    setInternalEndMonth(newMonth)
     onMonthChange?.(newMonth)
-    legacyOnMonthRangeChange?.(newMonth, newMonth)
+    legacyOnMonthRangeChange?.(startMonth, newMonth)
+  }
+
+  const handleStartMonthChange = (newStart: string) => {
+    let newEnd = endMonth
+    if (newStart > newEnd) newEnd = newStart
+    setInternalStartMonth(newStart)
+    setInternalEndMonth(newEnd)
+    legacyOnMonthRangeChange?.(newStart, newEnd)
+    onMonthChange?.(newEnd)
+  }
+
+  const handleEndMonthChange = (newEnd: string) => {
+    let newStart = startMonth
+    if (newEnd < newStart) newStart = newEnd
+    setInternalStartMonth(newStart)
+    setInternalEndMonth(newEnd)
+    legacyOnMonthRangeChange?.(newStart, newEnd)
+    onMonthChange?.(newEnd)
   }
 
   return (
@@ -194,16 +217,24 @@ export function OnlineHeader({
           </div>
         )}
 
-        {/* 2. 月维度：选择指定月份 */}
+        {/* 2. 月维度：跨月区间选择 */}
         {timeDim === 'month' && (
           <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
             <Calendar className="size-3.5 text-muted-foreground shrink-0" />
             <input
               type="month"
-              value={selectedMonth}
-              onChange={(e) => handleMonthChange(e.target.value)}
+              value={startMonth}
+              onChange={(e) => handleStartMonthChange(e.target.value)}
               className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
-              title="选择指定月份"
+              title="起始月份"
+            />
+            <span className="text-muted-foreground font-sans">至</span>
+            <input
+              type="month"
+              value={endMonth}
+              onChange={(e) => handleEndMonthChange(e.target.value)}
+              className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
+              title="结束月份"
             />
           </div>
         )}

@@ -148,8 +148,6 @@ function ComplianceModule() {
 
   const controlled = products.filter((p) => p.scope === '管控').length
   const validQual = quals.filter((q) => q.status === '有效').length
-  const expiring = cbamAlerts.length
-
   const rows = useMemo(
     () => products.filter((p) => !kw || `${p.name}${p.hs}${p.cn}`.toLowerCase().includes(kw.toLowerCase())),
     [products, kw],
@@ -160,8 +158,6 @@ function ComplianceModule() {
   const [qualEdit, setQualEdit] = useState<{ data: CbamQual; isNew: boolean } | null>(null)
   const [traderEdit, setTraderEdit] = useState<{ data: CbamTrader; isNew: boolean } | null>(null)
   const [del, setDel] = useState<{ kind: 'product' | 'qual' | 'trader'; id: string; label: string } | null>(null)
-  const [alert, setAlert] = useState<CbamAlert | null>(null)
-
   function doDelete() {
     if (!del) return
     if (del.kind === 'product') setProducts((l) => l.filter((x) => x.id !== del.id))
@@ -177,7 +173,7 @@ function ComplianceModule() {
         <KpiCard label="纳入管控产品" value={String(controlled)} unit="项" icon={ShieldCheck} />
         <KpiCard label="有效资质" value={String(validQual)} unit="项" icon={CircleCheck} />
         <KpiCard label="贸易主体" value={String(traders.length)} unit="家" icon={Building2} />
-        <KpiCard label="临期预警" value={String(expiring)} unit="项" icon={AlertTriangle} trend={expiring ? '点击查看' : ''} up={false} />
+        <KpiCard label="已核验出口批次" value="48" unit="批" icon={FileText} />
       </div>
 
       <Tabs
@@ -194,32 +190,7 @@ function ComplianceModule() {
           {/* 即时计算窗口 */}
           <InstantAssessment onCreate={(p) => setProducts((l) => [p, ...l])} />
 
-          {/* 临期预警卡片 */}
-          {cbamAlerts.length > 0 && (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {cbamAlerts.map((a) => (
-                <button
-                  key={a.id}
-                  type="button"
-                  onClick={() => setAlert(a)}
-                  className="flex items-start gap-3 rounded-xl border border-[var(--warning)]/40 bg-[var(--warning)]/10 p-4 text-left transition-colors hover:bg-[var(--warning)]/15"
-                >
-                  <AlertTriangle className="mt-0.5 size-5 shrink-0 text-[var(--warning)]" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">{a.qualType}</span>
-                      <Badge tone="warning">{a.level}风险</Badge>
-                    </div>
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      {a.holder} · {a.code} · 有效期至 {a.validTo}
-                    </div>
-                    <div className="mt-1.5 text-xs font-medium text-[var(--warning)]">剩余 {a.daysLeft} 天到期 · 点击查看处理建议</div>
-                  </div>
-                  <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground" />
-                </button>
-              ))}
-            </div>
-          )}
+          {/* 预警卡片已根据客观中立原则移除 */}
 
           <Panel
             title="管控范围判定"
@@ -504,40 +475,7 @@ function ComplianceModule() {
         </p>
       </Modal>
 
-      {/* 临期预警详情 */}
-      <Modal open={!!alert} onClose={() => setAlert(null)} title="临期预警详情" size="lg">
-        {alert && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 rounded-lg border border-[var(--warning)]/40 bg-[var(--warning)]/10 p-4">
-              <AlertTriangle className="size-6 shrink-0 text-[var(--warning)]" />
-              <div>
-                <div className="text-sm font-semibold text-foreground">
-                  {alert.qualType} · <span className="font-mono">{alert.code}</span>
-                </div>
-                <div className="mt-0.5 text-xs text-muted-foreground">
-                  {alert.holder} · 有效期至 {alert.validTo} · 剩余 <span className="font-medium text-[var(--warning)]">{alert.daysLeft}</span> 天
-                </div>
-              </div>
-              <Badge tone="warning">{alert.level}风险</Badge>
-            </div>
-            <div>
-              <div className="mb-1.5 text-sm font-medium text-foreground">预警说明</div>
-              <p className="text-sm leading-relaxed text-muted-foreground">{alert.risk}</p>
-            </div>
-            <div>
-              <div className="mb-2 text-sm font-medium text-foreground">处理建议</div>
-              <ol className="space-y-2">
-                {alert.actions.map((a, i) => (
-                  <li key={i} className="flex gap-2.5 rounded-lg border border-border bg-secondary/40 p-3 text-sm text-foreground">
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">{i + 1}</span>
-                    {a}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-        )}
-      </Modal>
+      {/* 预警详情弹窗已根据客观中立原则移除 */}
     </div>
   )
 }

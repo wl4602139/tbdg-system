@@ -1180,6 +1180,24 @@ export default function EquipmentPage() {
                       <div className="border-l border-border/60 ml-3 pl-2 space-y-1">
                         {matchedEnterprises.map((ent) => {
                           const entName = ent.name
+                          const UNCONNECTED_NAMES = ['智慧能源', '印能公司', '上开', '柯贝尔', '银利电气', '智缆', '昭和', '曙光']
+                          const isUnconnected = ent.unconnected || UNCONNECTED_NAMES.some((u) => entName.includes(u))
+
+                          if (isUnconnected) {
+                            return (
+                              <div
+                                key={ent.id}
+                                className="flex items-center gap-1 py-0.5 px-1 rounded opacity-35 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none text-[11.5px]"
+                                title={`${entName} (暂不具备数据接入条件 · 不允许选择)`}
+                              >
+                                <span className="size-3 flex items-center justify-center shrink-0" />
+                                <Factory className="size-3 text-slate-400 dark:text-slate-500 shrink-0" />
+                                <span className="flex-1 truncate">{entName}</span>
+                                <span className="text-[10px] font-mono">(0)</span>
+                              </div>
+                            )
+                          }
+
                           const hasEqs = ent.equipments.length > 0
                           const isEntCollapsed = !eqSearchKw.trim() && Boolean(collapsedEnterprises[entName])
 
@@ -1534,50 +1552,67 @@ export default function EquipmentPage() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                {/* 左侧 4/12: 峰平谷总饼图 */}
-                <div className="lg:col-span-4 border border-border rounded-xl p-3 bg-panel space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-foreground flex items-center gap-1.5">
-                      <PieIcon className="size-3.5 text-amber-400" />
-                      当日峰平谷电量总占比
+                {/* 左侧 4/12: 当日总体峰平谷构成 (Donut + 4 段卡片) */}
+                <div className="lg:col-span-4 flex flex-col justify-between space-y-2 border-r border-border/60 pr-3">
+                  <div className="flex items-center justify-between text-xs font-bold text-foreground">
+                    <span className="flex items-center gap-1">
+                      <PieIcon className="size-3.5 text-primary" />
+                      当日总体峰平谷构成
                     </span>
-                    <span className="text-[11px] text-muted-foreground font-mono">
-                      总电量: {selectedEq.energyKWh?.toLocaleString()} kWh
+                    <span className="text-xs font-mono text-primary font-bold">
+                      {(selectedEq.energyKWh || 112340).toLocaleString()} kWh
                     </span>
                   </div>
-                  <div className="h-[210px]">
-                    <Donut
-                      data={elecDayDonutData}
-                      valueKey="value"
-                      nameKey="name"
-                      height={210}
-                      unit="kWh"
-                    />
+
+                  <Donut data={elecDayDonutData} height={165} unit="kWh" />
+
+                  <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono pt-1">
+                    {elecDayDonutData.map((item) => {
+                      const colorClass =
+                        item.name.includes('尖峰')
+                          ? 'text-rose-400'
+                          : item.name.includes('高峰')
+                          ? 'text-amber-400'
+                          : item.name.includes('平段')
+                          ? 'text-primary'
+                          : 'text-emerald-400'
+                      return (
+                        <div key={item.name} className="p-1.5 rounded bg-panel border border-border text-foreground">
+                          <div className={`flex justify-between items-center text-[10px] ${colorClass} font-sans`}>
+                            <span>{item.name.replace('电量', '')}</span>
+                            <strong className="font-mono">{item.ratio}</strong>
+                          </div>
+                          <div className={`text-xs font-bold font-mono ${colorClass}`}>
+                            {item.value.toLocaleString()} kWh
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
 
                 {/* 右侧 8/12: 逐时段分时峰平谷堆叠柱状图 */}
-                <div className="lg:col-span-8 border border-border rounded-xl p-3 bg-panel space-y-2">
+                <div className="lg:col-span-8 space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-foreground flex items-center gap-1.5">
-                      <BarChart3 className="size-3.5 text-primary" />
-                      逐时段峰平谷电量堆叠 (kWh)
+                      <BarChart3 className="size-3.5 text-amber-400" />
+                      逐时段峰平谷电量连续堆叠分布 (kWh)
                     </span>
                     <span className="text-[11px] text-muted-foreground font-mono">
-                      尖/峰/平/谷 分色堆叠
+                      尖/峰/平/谷 分时连续采集
                     </span>
                   </div>
-                  <div className="h-[210px]">
+                  <div className="h-[235px]">
                     <BarChartGroup
                       data={elecDayStackedBarData}
                       xKey="time"
-                      height={210}
+                      height={235}
                       stacked
                       bars={[
-                        { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
-                        { key: '峰段', name: '高峰电量', color: '#fa8c16' },
-                        { key: '平段', name: '平段电量', color: 'oklch(0.72 0.18 210)' },
                         { key: '谷段', name: '低谷电量', color: '#10b981' },
+                        { key: '平段', name: '平段电量', color: 'oklch(0.72 0.18 210)' },
+                        { key: '峰段', name: '高峰电量', color: '#fa8c16' },
+                        { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
                       ]}
                     />
                   </div>
@@ -1655,50 +1690,67 @@ export default function EquipmentPage() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                {/* 左侧 4/12: 月度峰平谷总饼图 */}
-                <div className="lg:col-span-4 border border-border rounded-xl p-3 bg-panel space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-foreground flex items-center gap-1.5">
-                      <PieIcon className="size-3.5 text-amber-400" />
-                      月度峰平谷累计总占比
+                {/* 左侧 4/12: 月度累计峰平谷构成 (Donut + 4 段卡片) */}
+                <div className="lg:col-span-4 flex flex-col justify-between space-y-2 border-r border-border/60 pr-3">
+                  <div className="flex items-center justify-between text-xs font-bold text-foreground">
+                    <span className="flex items-center gap-1">
+                      <PieIcon className="size-3.5 text-primary" />
+                      {selectedMonth} 月度累计峰平谷构成
                     </span>
-                    <span className="text-[11px] text-muted-foreground font-mono">
-                      月总电量: {Math.round((selectedEq.energyKWh || 112340) * 25.1).toLocaleString()} kWh
+                    <span className="text-xs font-mono text-primary font-bold">
+                      {Math.round((selectedEq.energyKWh || 112340) * 25.1).toLocaleString()} kWh
                     </span>
                   </div>
-                  <div className="h-[210px]">
-                    <Donut
-                      data={elecMonthDonutData}
-                      valueKey="value"
-                      nameKey="name"
-                      height={210}
-                      unit="kWh"
-                    />
+
+                  <Donut data={elecMonthDonutData} height={165} unit="kWh" />
+
+                  <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono pt-1">
+                    {elecMonthDonutData.map((item) => {
+                      const colorClass =
+                        item.name.includes('尖峰')
+                          ? 'text-rose-400'
+                          : item.name.includes('高峰')
+                          ? 'text-amber-400'
+                          : item.name.includes('平段')
+                          ? 'text-primary'
+                          : 'text-emerald-400'
+                      return (
+                        <div key={item.name} className="p-1.5 rounded bg-panel border border-border text-foreground">
+                          <div className={`flex justify-between items-center text-[10px] ${colorClass} font-sans`}>
+                            <span>{item.name.replace('电量', '')}</span>
+                            <strong className="font-mono">{item.ratio}</strong>
+                          </div>
+                          <div className={`text-xs font-bold font-mono ${colorClass}`}>
+                            {item.value.toLocaleString()} kWh
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
 
                 {/* 右侧 8/12: 1日~31日分日峰平谷堆叠柱状图 */}
-                <div className="lg:col-span-8 border border-border rounded-xl p-3 bg-panel space-y-2">
+                <div className="lg:col-span-8 space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-foreground flex items-center gap-1.5">
-                      <BarChart3 className="size-3.5 text-primary" />
-                      1日~31日 分日峰平谷用电量堆叠 (kWh)
+                      <BarChart3 className="size-3.5 text-amber-400" />
+                      {selectedMonth} 分解到日峰平谷用电量连续堆叠分布 (kWh)
                     </span>
                     <span className="text-[11px] text-muted-foreground font-mono">
-                      按日连续分时统计
+                      尖/峰/平/谷 分时连续采集
                     </span>
                   </div>
-                  <div className="h-[210px]">
+                  <div className="h-[235px]">
                     <BarChartGroup
                       data={elecMonthStackedBarData}
                       xKey="day"
-                      height={210}
+                      height={235}
                       stacked
                       bars={[
-                        { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
-                        { key: '峰段', name: '高峰电量', color: '#fa8c16' },
-                        { key: '平段', name: '平段电量', color: 'oklch(0.72 0.18 210)' },
                         { key: '谷段', name: '低谷电量', color: '#10b981' },
+                        { key: '平段', name: '平段电量', color: 'oklch(0.72 0.18 210)' },
+                        { key: '峰段', name: '高峰电量', color: '#fa8c16' },
+                        { key: '尖峰', name: '尖峰电量', color: '#f5222d' },
                       ]}
                     />
                   </div>
