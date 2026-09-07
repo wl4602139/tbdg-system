@@ -785,9 +785,7 @@ export default function EnergyStructureAnalysisPage() {
                   【{METRICS_META[selectedMetricKey].name}】6 家直属经营单位占比与消耗对比
                 </h3>
               </div>
-              <span className="text-xs text-muted-foreground font-sans">
-                点击上方任意卡片可切换分析指标
-              </span>
+              
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
@@ -840,7 +838,7 @@ export default function EnergyStructureAnalysisPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead>
-                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
+                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                       <th className="py-2 px-3">序号</th>
                       <th className="py-2 px-3">直属经营单位</th>
                       <th className="py-2 px-3 text-primary">
@@ -857,7 +855,7 @@ export default function EnergyStructureAnalysisPage() {
                       const val = comp[selectedMetricKey] as number
                       const ratio = metricCompanyBreakdown.totalVal > 0 ? ((val / metricCompanyBreakdown.totalVal) * 100).toFixed(1) : '0.0'
                       return (
-                        <tr key={comp.id} className="hover:bg-accent/30 transition-colors">
+                        <tr key={comp.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                           <td className="py-2 px-3 font-semibold text-muted-foreground">{idx + 1}</td>
                           <td className="py-2 px-3 font-bold text-foreground font-sans flex items-center gap-1.5">
                             <Factory className="size-3.5 text-muted-foreground" />
@@ -937,7 +935,7 @@ export default function EnergyStructureAnalysisPage() {
               <div className="lg:col-span-7 border border-border rounded-xl overflow-hidden">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead>
-                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
+                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                       <th className="py-2.5 px-3">能源介质名称</th>
                       <th className="py-2.5 px-3">实物消耗量</th>
                       <th className="py-2.5 px-3">折标系数</th>
@@ -946,7 +944,7 @@ export default function EnergyStructureAnalysisPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60 text-foreground">
-                    <tr className="hover:bg-accent/30">
+                    <tr className="hover:bg-accent/30 h-[44px]">
                       <td className="py-2 px-3 font-bold font-sans flex items-center gap-1.5">
                         <Building2 className="size-3 text-muted-foreground" />
                         市网供电 (外购)
@@ -960,7 +958,7 @@ export default function EnergyStructureAnalysisPage() {
                         {(((activeData.gridElec * 10000 * 0.1229) / 1000 / activeData.totalTce) * 100).toFixed(1)}%
                       </td>
                     </tr>
-                    <tr className="hover:bg-accent/30">
+                    <tr className="hover:bg-accent/30 h-[44px]">
                       <td className="py-2 px-3 font-bold font-sans flex items-center gap-1.5 text-emerald-400">
                         <Sun className="size-3 text-emerald-400" />
                         直供绿电 (分布式光伏)
@@ -974,7 +972,7 @@ export default function EnergyStructureAnalysisPage() {
                         {(((activeData.greenElec * 10000 * 0.1229) / 1000 / activeData.totalTce) * 100).toFixed(1)}%
                       </td>
                     </tr>
-                    <tr className="hover:bg-accent/30">
+                    <tr className="hover:bg-accent/30 h-[44px]">
                       <td className="py-2 px-3 font-bold font-sans flex items-center gap-1.5">
                         <Flame className="size-3 text-amber-400" />
                         天然气消耗
@@ -988,7 +986,7 @@ export default function EnergyStructureAnalysisPage() {
                         {(((activeData.gas * 10000 * 1.2143) / 1000 / activeData.totalTce) * 100).toFixed(1)}%
                       </td>
                     </tr>
-                    <tr className="hover:bg-accent/30">
+                    <tr className="hover:bg-accent/30 h-[44px]">
                       <td className="py-2 px-3 font-bold font-sans flex items-center gap-1.5">
                         <Wind className="size-3 text-purple-400" />
                         外购蒸汽
@@ -1002,7 +1000,7 @@ export default function EnergyStructureAnalysisPage() {
                         {(((activeData.steam * 0.0943) / activeData.totalTce) * 100).toFixed(1)}%
                       </td>
                     </tr>
-                    <tr className="hover:bg-accent/30">
+                    <tr className="hover:bg-accent/30 h-[44px]">
                       <td className="py-2 px-3 font-bold font-sans flex items-center gap-1.5">
                         <Fuel className="size-3 text-rose-400" />
                         用油消耗
@@ -1017,7 +1015,7 @@ export default function EnergyStructureAnalysisPage() {
                       </td>
                     </tr>
                     {activeData.nitrogen > 0 && (
-                      <tr className="hover:bg-accent/30">
+                      <tr className="hover:bg-accent/30 h-[44px]">
                         <td className="py-2 px-3 font-bold font-sans flex items-center gap-1.5">
                           <Snowflake className="size-3 text-cyan-400" />
                           液氮消耗

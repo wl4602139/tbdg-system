@@ -487,7 +487,7 @@ export default function InterfaceConfigPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold h-[44px]">
                   <th className="py-2.5 px-3">所属单位 / 接入工厂</th>
                   <th className="py-2.5 px-3">接口访问地址 (URL)</th>
                   <th className="py-2.5 px-3">通信协议</th>
@@ -501,7 +501,7 @@ export default function InterfaceConfigPage() {
               </thead>
               <tbody className="divide-y divide-border/60 text-foreground">
                 {interfaces.map((item) => (
-                  <tr key={item.id} className="hover:bg-accent/30 transition-colors">
+                  <tr key={item.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-3 px-3">
                       <div className="font-bold text-foreground">{item.factory}</div>
                     </td>
@@ -614,7 +614,7 @@ export default function InterfaceConfigPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold h-[44px]">
                   <th className="py-2.5 px-3">工厂原始数据项 / 采集单位</th>
                   <th className="py-2.5 px-3">平台标准指标项 / 目标单位</th>
                   <th className="py-2.5 px-3">单位换算 / 转换公式</th>
@@ -624,7 +624,7 @@ export default function InterfaceConfigPage() {
               </thead>
               <tbody className="divide-y divide-border/60 text-foreground">
                 {mappings.map((row) => (
-                  <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                  <tr key={row.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-3 px-3">
                       <div className="font-bold text-foreground">{row.sourceFieldName}</div>
                       <span className="text-[10px] bg-panel text-muted-foreground px-1 rounded font-mono mt-0.5 inline-block border border-border">{row.sourceUnit}</span>
@@ -670,7 +670,7 @@ export default function InterfaceConfigPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold h-[44px]">
                   <th className="py-2.5 px-3">时间</th>
                   <th className="py-2.5 px-3">操作人</th>
                   <th className="py-2.5 px-3">操作类型</th>
@@ -680,7 +680,7 @@ export default function InterfaceConfigPage() {
               </thead>
               <tbody className="divide-y divide-border/60 text-foreground">
                 {INITIAL_LOGS.map((log) => (
-                  <tr key={log.id} className="hover:bg-accent/30 transition-colors">
+                  <tr key={log.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-3 px-3 font-mono text-muted-foreground">{log.time}</td>
                     <td className="py-3 px-3 font-bold text-foreground">{log.user}</td>
                     <td className="py-3 px-3">

@@ -566,6 +566,19 @@ export default function ProjectArchivePage() {
     }))
   }
 
+  const getCategoryIcon = (category: ProjectArchiveItem['category']) => {
+    switch (category) {
+      case '光伏':
+        return <Sun className="size-5 text-amber-400" />
+      case '储能':
+        return <BatteryCharging className="size-5 text-emerald-400" />
+      case '热泵':
+        return <Flame className="size-5 text-primary" />
+      default:
+        return <FolderKanban className="size-5 text-primary" />
+    }
+  }
+
   const getCategoryBadge = (category: ProjectArchiveItem['category']) => {
     switch (category) {
       case '光伏':
@@ -764,13 +777,13 @@ export default function ProjectArchivePage() {
                 项目台账档案库
               </h3>
             </div>
-            <span className="text-xs text-muted-foreground font-mono">点击任意行可查看详细档案与附件批复</span>
+            
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left border-collapse font-mono">
               <thead>
-                <tr className="bg-panel text-muted-foreground font-bold font-sans border-b border-border">
+                <tr className="bg-panel text-muted-foreground font-bold font-sans border-b border-border h-[44px]">
                   <th className="py-2.5 px-3 min-w-[220px]">项目名称</th>
                   <th className="py-2.5 px-3 whitespace-nowrap">项目类型</th>
                   <th className="py-2.5 px-3 whitespace-nowrap">所属园区</th>

@@ -845,7 +845,7 @@ function DeclarationModule() {
               <Panel title={`申报材料上传 · 已上传 ${uploaded}/${cbamDeclMaterials.length} 项${requiredMissing ? ` · 必填缺失 ${requiredMissing} 项` : ' · 必填齐备'}`}>
                 {highlight.length > 0 && (
                   <div className="mb-3 flex items-center justify-between rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary">
-                    <span>已联动高亮当前步骤所需 {highlight.length} 项材料</span>
+                    <span>当前步骤所需 {highlight.length} 项材料</span>
                     <button type="button" onClick={() => setHighlight([])} className="text-muted-foreground hover:text-foreground">
                       清除高亮
                     </button>

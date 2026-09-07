@@ -220,7 +220,7 @@ export function ProductEnergyTab({ onJump }: { onJump: (sel: CascadeSel, unit: s
       </div>
 
       {/* 各经营单位综合能耗排名（点击切换焦点单位） */}
-      <Panel title={`各经营单位综合能耗排名 · ${applied.model}`} desc="按单台综合能耗从高到低排名，最多展示前 5 家；点击经营单位查看其工序用能明细">
+      <Panel title={`各经营单位综合能耗排名 · ${applied.model}`} desc="按单台综合能耗从高到低排名，最多展示前 5 家">
         <div className="space-y-1.5">
           {ranked.map((r, i) => {
             const active = r.unit === focusUnit

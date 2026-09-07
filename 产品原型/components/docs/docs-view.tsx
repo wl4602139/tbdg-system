@@ -59,7 +59,7 @@ function FuncTable({ rows }: { rows: FuncRow[] }) {
     <div className="overflow-x-auto rounded-lg border border-border">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="bg-secondary text-left text-xs uppercase text-muted-foreground">
+          <tr className="bg-secondary text-left text-xs uppercase text-muted-foreground h-[44px]">
             <th className="w-12 px-3 py-2.5 font-medium">序号</th>
             <th className="w-32 px-3 py-2.5 font-medium">一级功能</th>
             <th className="w-40 px-3 py-2.5 font-medium">二级功能</th>
@@ -69,7 +69,7 @@ function FuncTable({ rows }: { rows: FuncRow[] }) {
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i} className="border-t border-border align-top hover:bg-secondary/40">
+            <tr key={i} className="border-t border-border align-top hover:bg-secondary/40 h-[44px]">
               <td className="px-3 py-2.5 font-mono text-muted-foreground">{r.no}</td>
               <td className="px-3 py-2.5 font-medium text-foreground">{r.l1}</td>
               <td className="px-3 py-2.5 text-primary">{r.l2}</td>
@@ -88,7 +88,7 @@ function ProductEnergyTable({ rows }: { rows: ProductEnergyMappingRow[] }) {
     <div className="overflow-x-auto rounded-lg border border-border">
       <table className="w-full border-collapse text-xs font-mono">
         <thead>
-          <tr className="bg-secondary text-left text-xs uppercase text-muted-foreground font-sans">
+          <tr className="bg-secondary text-left text-xs uppercase text-muted-foreground font-sans h-[44px]">
             <th className="w-10 px-2.5 py-2.5 font-medium">序号</th>
             <th className="w-20 px-2.5 py-2.5 font-medium">一级单位</th>
             <th className="w-28 px-2.5 py-2.5 font-medium">二级项目公司</th>
@@ -102,7 +102,7 @@ function ProductEnergyTable({ rows }: { rows: ProductEnergyMappingRow[] }) {
         </thead>
         <tbody className="divide-y divide-border">
           {rows.map((r) => (
-            <tr key={r.no} className="hover:bg-secondary/40 align-top">
+            <tr key={r.no} className="hover:bg-secondary/40 align-top h-[44px]">
               <td className="px-2.5 py-2 text-muted-foreground">{r.no}</td>
               <td className="px-2.5 py-2 font-bold font-sans text-foreground">{r.compL1}</td>
               <td className="px-2.5 py-2 font-sans text-foreground">{r.compL2}</td>

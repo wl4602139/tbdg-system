@@ -212,7 +212,7 @@ export default function CarbonAccountingPage() {
                     8 家主要制造基地万元产值碳强度与达标平铺看板 (tCO₂/万元)
                   </h3>
                 </div>
-                <span className="text-[11px] text-muted-foreground">点击任意基地卡片快速切换至企业级明细视角</span>
+                
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -286,7 +286,7 @@ export default function CarbonAccountingPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left">
                   <thead className="bg-panel text-muted-foreground font-semibold border-b border-border">
-                    <tr>
+                    <tr className="h-[44px]">
                       <th className="px-3 py-2">能源介质/活动源</th>
                       <th className="px-3 py-2">核算范围</th>
                       <th className="px-3 py-2">基准排放因子值</th>
@@ -296,7 +296,7 @@ export default function CarbonAccountingPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60 font-mono">
-                    <tr>
+                    <tr className="h-[44px]">
                       <td className="px-3 py-2 font-sans font-medium text-foreground">区域电网外购电力</td>
                       <td className="px-3 py-2 text-primary font-bold">Scope 2</td>
                       <td className="px-3 py-2 text-primary font-bold">0.5703</td>
@@ -308,7 +308,7 @@ export default function CarbonAccountingPage() {
                         </span>
                       </td>
                     </tr>
-                    <tr>
+                    <tr className="h-[44px]">
                       <td className="px-3 py-2 font-sans font-medium text-foreground">工业天然气燃烧</td>
                       <td className="px-3 py-2 text-amber-400 font-bold">Scope 1</td>
                       <td className="px-3 py-2 text-amber-400 font-bold">2.1622</td>
@@ -320,7 +320,7 @@ export default function CarbonAccountingPage() {
                         </span>
                       </td>
                     </tr>
-                    <tr>
+                    <tr className="h-[44px]">
                       <td className="px-3 py-2 font-sans font-medium text-foreground">自备分布式光伏绿电</td>
                       <td className="px-3 py-2 text-emerald-400 font-bold">抵扣抵减</td>
                       <td className="px-3 py-2 text-emerald-400 font-bold">0.0000</td>
@@ -436,7 +436,7 @@ export default function CarbonAccountingPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left">
                   <thead className="bg-panel text-muted-foreground font-semibold border-b border-border">
-                    <tr>
+                    <tr className="h-[44px]">
                       <th className="px-3 py-2">车间/测点名称</th>
                       <th className="px-3 py-2">表计类型</th>
                       <th className="px-3 py-2">期初底数</th>
@@ -448,7 +448,7 @@ export default function CarbonAccountingPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60 font-mono text-foreground">
-                    <tr>
+                    <tr className="h-[44px]">
                       <td className="px-3 py-2 font-sans font-medium text-foreground">1# 110kV 总降压变电站</td>
                       <td className="px-3 py-2 font-sans text-primary">高压电表</td>
                       <td className="px-3 py-2">12,450,200</td>
@@ -462,7 +462,7 @@ export default function CarbonAccountingPage() {
                         </span>
                       </td>
                     </tr>
-                    <tr>
+                    <tr className="h-[44px]">
                       <td className="px-3 py-2 font-sans font-medium text-foreground">真空干燥车间天然气总表</td>
                       <td className="px-3 py-2 font-sans text-amber-400">流量计</td>
                       <td className="px-3 py-2">1,820,400</td>

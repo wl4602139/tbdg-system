@@ -738,7 +738,7 @@ export default function UnitReportPage() {
           ) : (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none text-[11px] font-sans">
+                <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none text-[11px] font-sans h-[44px]">
                   {/* 固定左侧前两列 */}
                   <th className="py-2.5 px-3 sticky left-0 bg-panel z-10 min-w-[110px] text-center border-r border-border/60">
                     企业名称
@@ -771,7 +771,7 @@ export default function UnitReportPage() {
                 {filteredRows.map((row, idx) => {
                   const span = companyRowSpans[idx]
                   return (
-                    <tr key={row.id} className="hover:bg-accent/30 transition-colors group">
+                    <tr key={row.id} className="hover:bg-accent/30 transition-colors group h-[44px]">
                       {/* 企业名称单元格 (同企业行跨行合并居中) */}
                       {span > 0 && (
                         <td
@@ -855,7 +855,7 @@ export default function UnitReportPage() {
 
               {/* 汇总统计行 */}
               <tfoot>
-                <tr className="bg-panel font-bold border-t-2 border-border text-foreground font-mono text-[11.5px]">
+                <tr className="bg-panel font-bold border-t-2 border-border text-foreground font-mono text-[11.5px] h-[44px]">
                   <td colSpan={2} className="py-3 px-3 text-center font-sans font-bold sticky left-0 bg-panel z-10 border-r border-border">
                     全集团总计汇总 / 集团加权平均
                   </td>

@@ -210,7 +210,7 @@ function ProductTab({ onJump, initial, initUnit }: { onJump: (sel: CascadeSel, u
       </Panel>
 
       {/* 各经营单位碳排数据总量排名（可点击） */}
-      <Panel title={`各经营单位碳排总量排名 · ${applied.model}`} desc="按单台产品碳足迹从高到低排名，最多展示前 5 家；点击经营单位查看其明细与订单">
+      <Panel title={`各经营单位碳排总量排名 · ${applied.model}`} desc="按单台产品碳足迹从高到低排名，最多展示前 5 家">
         <div className="space-y-1.5">
           {ranked.map((r, i) => {
             const active = r.unit === focusUnit

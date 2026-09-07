@@ -208,7 +208,7 @@ export default function CertificationClient({ tab: initialTab }: { tab?: string 
               onChange={setAgencyFilter}
               options={[{ value: 'all', label: '全部机构' }, ...certAgencies.map((a) => ({ value: a.id, label: a.name }))]}
             />
-            <span className="text-xs text-muted-foreground">管理合作认证机构：资质范围、出证周期、合作记录与资料模板（点击卡片查看详情）</span>
+            <span className="text-xs text-muted-foreground">管理合作认证机构：资质范围、出证周期、合作记录与资料模板</span>
           </Toolbar>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

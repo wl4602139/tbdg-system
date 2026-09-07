@@ -767,7 +767,7 @@ export default function CarbonEmissionMonitoringPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead>
-                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
+                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                       <th className="py-2.5 px-3">单位名称</th>
                       <th className="py-2.5 px-3">所属电网 / 电力因子</th>
                       <th className="py-2.5 px-3 text-primary font-extrabold">净碳排放量 (tCO₂)</th>
@@ -785,7 +785,7 @@ export default function CarbonEmissionMonitoringPage() {
                     {GROUP_6_COMPANIES_DATA.map((row) => {
                       const netRatio = ((row.netCarbon / 39303.7) * 100).toFixed(1)
                       return (
-                        <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                        <tr key={row.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                           <td className="py-2.5 px-3 font-semibold text-foreground font-sans flex items-center gap-1.5">
                             <Factory className="size-3.5 text-muted-foreground" />
                             {row.name}
@@ -1153,7 +1153,7 @@ export default function CarbonEmissionMonitoringPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead>
-                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
+                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                       <th className="py-2.5 px-3">核算账期</th>
                       <th className="py-2.5 px-3">工业用电 (kWh)</th>
                       <th className="py-2.5 px-3">天然气 (m³)</th>
@@ -1168,7 +1168,7 @@ export default function CarbonEmissionMonitoringPage() {
                   </thead>
                   <tbody className="divide-y divide-border/60 text-foreground">
                     {unitTrendData.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-accent/30 transition-colors">
+                      <tr key={idx} className="hover:bg-accent/30 transition-colors h-[44px]">
                         <td className="py-2.5 px-3 font-semibold text-foreground font-sans">2026年{row.month}</td>
                         <td className="py-2.5 px-3 font-bold text-foreground">
                           {Math.round(activeFactory.elecKWh / 8 * (0.95 + idx * 0.01)).toLocaleString()}

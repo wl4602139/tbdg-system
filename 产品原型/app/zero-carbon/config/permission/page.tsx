@@ -1530,7 +1530,7 @@ export default function AccountPermissionPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold h-[44px]">
                   <th className="py-2.5 px-3">人员姓名 / 工号</th>
                   <th className="py-2.5 px-3">登录账号</th>
                   <th className="py-2.5 px-3">所属公司与部门</th>
@@ -1543,7 +1543,7 @@ export default function AccountPermissionPage() {
               </thead>
               <tbody className="divide-y divide-border/60 text-foreground">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-accent/30 transition-colors">
+                  <tr key={user.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-3 px-3">
                       <div className="font-bold text-foreground flex items-center gap-1.5">
                         <div className="size-6 rounded-full bg-primary/20 text-primary border border-primary/30 font-mono text-[11px] font-bold flex items-center justify-center">
@@ -1794,7 +1794,7 @@ export default function AccountPermissionPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold h-[44px]">
                   <th className="py-2.5 px-3">角色名称</th>
                   {orgCompanies.map((c) => (
                     <th key={c.id} className="py-2.5 px-3">
@@ -1804,33 +1804,33 @@ export default function AccountPermissionPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60 text-foreground">
-                <tr className="hover:bg-accent/30 transition-colors">
+                <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                   <td className="py-3 px-3 font-bold text-foreground">集团超级管理员</td>
                   {orgCompanies.map((c) => (
                     <td key={c.id} className="py-3 px-3 text-emerald-400 font-medium">全量读写 · 审计</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-accent/30 transition-colors">
+                <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                   <td className="py-3 px-3 font-bold text-foreground">集团能碳总监</td>
                   {orgCompanies.map((c) => (
                     <td key={c.id} className="py-3 px-3 text-primary font-medium">全量查看 · 报表审批</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-accent/30 transition-colors">
+                <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                   <td className="py-3 px-3 font-bold text-foreground">园区能管主管</td>
                   <td className="py-3 px-3 text-primary font-bold bg-primary/10">沈变辖区读写</td>
                   {orgCompanies.slice(1).map((c) => (
                     <td key={c.id} className="py-3 px-3 text-muted-foreground/60">无权限</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-accent/30 transition-colors">
+                <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                   <td className="py-3 px-3 font-bold text-foreground">工厂能耗申报员</td>
                   <td className="py-3 px-3 text-amber-400 font-medium bg-amber-500/10">沈变本部数据填报</td>
                   {orgCompanies.slice(1).map((c) => (
                     <td key={c.id} className="py-3 px-3 text-muted-foreground/60">无权限</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-accent/30 transition-colors">
+                <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                   <td className="py-3 px-3 font-bold text-foreground">审计合规专员</td>
                   {orgCompanies.map((c) => (
                     <td key={c.id} className="py-3 px-3 text-muted-foreground font-medium">只读留痕</td>

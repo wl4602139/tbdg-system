@@ -578,7 +578,7 @@ export default function ZeroCarbonScreenPage() {
               <div className="w-full overflow-hidden text-[10.5px]">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#0f326e] text-slate-400 text-[9.5px] pb-1">
+                    <tr className="border-b border-[#0f326e] text-slate-400 text-[9.5px] pb-1 h-[44px]">
                       <th className="py-1 font-normal">园区名称</th>
                       <th className="py-1 font-normal">所属单位</th>
                       <th className="py-1 font-normal text-right">装机容量(MW)</th>
@@ -588,7 +588,7 @@ export default function ZeroCarbonScreenPage() {
                   </thead>
                   <tbody className="divide-y divide-[#0c2450]/80 text-slate-200">
                     {PV_PROJECTS.map((proj, idx) => (
-                      <tr key={idx} className="hover:bg-[#071a40]/60 transition-colors">
+                      <tr key={idx} className="hover:bg-[#071a40]/60 transition-colors h-[44px]">
                         <td className="py-1 font-medium truncate max-w-[95px]" title={proj.name}>
                           {proj.name}
                         </td>

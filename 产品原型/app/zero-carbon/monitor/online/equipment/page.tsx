@@ -29,7 +29,10 @@ import { OnlineHeader } from '@/components/shared/online-header'
 import { ENTERPRISE_TREE_DATA, PARK_ORG_TREE_DATA } from '@/components/shared/standard-org-tree'
 import { cn } from '@/lib/utils'
 
+export type DeviceType = '电力设备' | '热力设备'
+
 export interface KeyEquipmentInfo {
+  deviceType: DeviceType
   id: string
   name: string
   code: string
@@ -57,6 +60,7 @@ export interface KeyEquipmentInfo {
   flowYoy?: string
   steamUsageYoy?: string
   pressureYoy?: string
+  loadMom?: string
 }
 
 export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
@@ -65,6 +69,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   // -------------------------------------------------------------
   {
     id: 'eq-dry-01',
+    deviceType: '热力设备',
     name: '1# 1000kV级气相白真空干燥罐组',
     code: 'EQ-SB-DRY-01',
     company: '沈变公司',
@@ -89,6 +94,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-dry-02',
+    deviceType: '热力设备',
     name: '2# 特高压变压器煤油汽相干燥罐',
     code: 'EQ-SB-DRY-02',
     company: '沈变公司',
@@ -113,6 +119,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-sb-tst-01',
+    deviceType: '电力设备',
     name: '1# 1000kV特高压工频耐压试验机组',
     code: 'EQ-SB-TST-01',
     company: '沈变公司',
@@ -131,6 +138,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-ln-cryo-01',
+    deviceType: '电力设备',
     name: '1# 液氮深冷装配与惰化循环机组',
     code: 'EQ-LN-CRYO-01',
     company: '沈变公司',
@@ -142,13 +150,18 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     mediumTag: '电·水',
     pressureMpa: 0.45,
     temperatureC: -196.0,
+    todayEnergyKWh: 1156,
+    loadRate: 82.5,
+    powerFactor: 0.96,
     powerYoy: '-5.1% ↓',
     energyYoy: '-4.6% ↓',
+    loadMom: '+1.8% ↑',
     flowYoy: '—',
     pressureYoy: '-0.1% ↓',
   },
   {
     id: 'eq-sb-ems-01',
+    deviceType: '电力设备',
     name: '1# 厂区光储充微电网并网变流机组',
     code: 'EQ-SB-EMS-01',
     company: '沈变公司',
@@ -167,6 +180,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-hx-furn-01',
+    deviceType: '热力设备',
     name: '1# 800kV特高压干式电容套管固化炉',
     code: 'EQ-HX-FURN-01',
     company: '沈变公司',
@@ -186,6 +200,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-kj-vac-01',
+    deviceType: '电力设备',
     name: '1# 500kV互感器绝缘注油真空机组',
     code: 'EQ-KJ-VAC-01',
     company: '沈变公司',
@@ -204,6 +219,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-yn-prs-01',
+    deviceType: '热力设备',
     name: '1# 变压器绝缘纸板热压整形生产线',
     code: 'EQ-YN-PRS-01',
     company: '沈变公司',
@@ -227,6 +243,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   // -------------------------------------------------------------
   {
     id: 'eq-hb-rec-01',
+    deviceType: '热力设备',
     name: '6# 煤油喷淋回收及热循环系统',
     code: 'EQ-HB-REC-01',
     company: '衡变公司',
@@ -235,7 +252,10 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     status: '运行中',
     powerKW: 1050,
     energyKWh: 25200,
-    mediumTag: '电·气',
+    mediumTag: '电·汽',
+    steamFlowT: 1.25,
+    steamUsageT: 32.5,
+    todaySteamT: 1.4,
     gasFlowM3: 45.2,
     pressureMpa: 0.42,
     temperatureC: 85.0,
@@ -246,6 +266,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-hb-main-01',
+    deviceType: '热力设备',
     name: '1# 750kV大型发电机主变压罐装线',
     code: 'EQ-HB-MAIN-01',
     company: '衡变公司',
@@ -265,6 +286,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-nj-test-01',
+    deviceType: '电力设备',
     name: '1# 继电保护与智能控制综测平台',
     code: 'EQ-NJ-TEST-01',
     company: '衡变公司',
@@ -283,6 +305,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-yj-gis-01',
+    deviceType: '电力设备',
     name: '1# 220kV GIS断路器自动化装配检测线',
     code: 'EQ-YJ-GIS-01',
     company: '衡变公司',
@@ -301,6 +324,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-hn-robot-01',
+    deviceType: '电力设备',
     name: '1# 220kV箱变自动焊接机器人工作站',
     code: 'EQ-HN-ROBOT-01',
     company: '衡变公司',
@@ -319,6 +343,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-yj-sw-01',
+    deviceType: '电力设备',
     name: '1# 500kV隔离开关触头精密加工机组',
     code: 'EQ-YJ-SW-01',
     company: '衡变公司',
@@ -337,6 +362,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-tnj-eng-01',
+    deviceType: '电力设备',
     name: '1# 输变电工程模块化预制舱组装工位',
     code: 'EQ-TNJ-ENG-01',
     company: '衡变公司',
@@ -355,6 +381,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-hr-cap-01',
+    deviceType: '电力设备',
     name: '1# 500kV高压并联电容器真空浸渍罐',
     code: 'EQ-HR-CAP-01',
     company: '衡变公司',
@@ -373,6 +400,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-gil-asm-01',
+    deviceType: '电力设备',
     name: '1# 1100kV特高压GIL气体绝缘输电线路装配线',
     code: 'EQ-GIL-ASM-01',
     company: '衡变公司',
@@ -396,6 +424,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   // -------------------------------------------------------------
   {
     id: 'eq-xb-wind-01',
+    deviceType: '电力设备',
     name: '1# 750kV级超高压线圈立式绕线机',
     code: 'EQ-XB-WIND-01',
     company: '新变厂',
@@ -414,6 +443,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-tb-tank-01',
+    deviceType: '电力设备',
     name: '1# 牵引变压器波纹油箱成型机组',
     code: 'EQ-TB-TANK-01',
     company: '新变厂',
@@ -432,6 +462,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-xb-box-01',
+    deviceType: '电力设备',
     name: '1# 110kV智能箱式变电站装配检测线',
     code: 'EQ-XB-BOX-01',
     company: '新变厂',
@@ -450,6 +481,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-xb-cast-01',
+    deviceType: '电力设备',
     name: '1# 110kV环氧树脂真空浇注罐',
     code: 'EQ-XB-CAST-01',
     company: '新变厂',
@@ -469,6 +501,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-xb-shr-01',
+    deviceType: '电力设备',
     name: '5# 铁心纵剪硅钢片十头纵剪线',
     code: 'EQ-XB-SHR-01',
     company: '新变厂',
@@ -487,6 +520,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-zf-cut-01',
+    deviceType: '电力设备',
     name: '1# 高导磁取向硅钢连续横剪线',
     code: 'EQ-ZF-CUT-01',
     company: '新变厂',
@@ -509,6 +543,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   // -------------------------------------------------------------
   {
     id: 'eq-dry-03',
+    deviceType: '热力设备',
     name: '3# 500kV 悬垂立塔交联生产线',
     code: 'EQ-LL-VUL-01',
     company: '鲁缆公司',
@@ -533,6 +568,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-ll-str-01',
+    deviceType: '电力设备',
     name: '1# 35kV铝合金绞线机组',
     code: 'EQ-LL-STR-01',
     company: '鲁缆公司',
@@ -551,6 +587,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-dry-04',
+    deviceType: '热力设备',
     name: '4# 连续硫化橡胶挤塑机组',
     code: 'EQ-LL-VUL-02',
     company: '鲁缆公司',
@@ -559,7 +596,10 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     status: '运行中',
     powerKW: 1620,
     energyKWh: 38880,
-    mediumTag: '电·水',
+    mediumTag: '电·汽',
+    steamFlowT: 1.15,
+    steamUsageT: 29.8,
+    todaySteamT: 1.2,
     pressureMpa: 0.65,
     temperatureC: 175.0,
     powerYoy: '-5.2% ↓',
@@ -569,6 +609,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-sg-ext-01',
+    deviceType: '电力设备',
     name: '1# 船用特种防火阻燃挤出机组',
     code: 'EQ-SG-EXT-01',
     company: '鲁缆公司',
@@ -591,6 +632,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   // -------------------------------------------------------------
   {
     id: 'eq-dry-07',
+    deviceType: '热力设备',
     name: '7# 35kV及以下三层共挤交联生产线',
     code: 'EQ-XL-VUL-01',
     company: '新缆厂',
@@ -615,6 +657,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-xl-draw-01',
+    deviceType: '电力设备',
     name: '1# 大拉连续退火铜大拉机组',
     code: 'EQ-XL-DRAW-01',
     company: '新缆厂',
@@ -633,6 +676,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-xl-str-01',
+    deviceType: '电力设备',
     name: '1# 铝合金架空导线高速框绞机组',
     code: 'EQ-XL-STR-01',
     company: '新缆厂',
@@ -655,6 +699,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   // -------------------------------------------------------------
   {
     id: 'eq-dry-08',
+    deviceType: '电力设备',
     name: '8# 铝合金杆连铸连轧机组',
     code: 'EQ-DL-CAS-01',
     company: '德缆公司',
@@ -673,6 +718,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
   },
   {
     id: 'eq-dl-ext-01',
+    deviceType: '电力设备',
     name: '1# 轨道交通特种扁线挤压包覆机',
     code: 'EQ-DL-EXT-01',
     company: '德缆公司',
@@ -696,6 +742,7 @@ export default function EquipmentPage() {
   const [treeType, setTreeType] = useState<'enterprise' | 'park'>('enterprise')
   const [selectedEqId, setSelectedEqId] = useState<string>('eq-dry-01')
   const [eqSearchKw, setEqSearchKw] = useState('')
+  const [deviceTypeFilter, setDeviceTypeFilter] = useState<'all' | '电力设备' | '热力设备'>('all')
 
   // 拓扑树折叠展开状态 (1级节点默认展开，2级与3级节点支持独立收起/展开)
   const [isRootCollapsed, setIsRootCollapsed] = useState(false)
@@ -745,16 +792,17 @@ export default function EquipmentPage() {
   }
 
   // 🌟 1. 能源类型选择：'elec' (电) | 'steam' (蒸汽)
-  const [energyType, setEnergyType] = useState<'elec' | 'steam'>('elec')
-
   // 🌟 2. 查询时间维度选择：'day' (日) | 'month' (月)
   const [timeDim, setTimeDim] = useState<'day' | 'month'>('day')
-  const [selectedDay, setSelectedDay] = useState('2026-08-27')
   const [selectedMonth, setSelectedMonth] = useState('2026-08')
 
   const selectedEq = useMemo(() => {
     return KEY_EQUIPMENT_LIST.find((e) => e.id === selectedEqId) || KEY_EQUIPMENT_LIST[0]
   }, [selectedEqId])
+
+  // 🌟 核心：直接根据左侧结构树中选择的设备类型自适应确定能源介质 (热力设备 -> steam，电力设备 -> elec)
+  const isThermal = selectedEq?.deviceType === '热力设备' || selectedEq?.mediumTag?.includes('汽')
+  const energyType: 'elec' | 'steam' = isThermal ? 'steam' : 'elec'
 
   // 🌟 设备支持的数据介质动态感知 (电力、功率、水、蒸汽、天然气)
   const hasSteam = selectedEq.mediumTag.includes('汽') || Boolean(selectedEq.steamFlowT)
@@ -762,12 +810,15 @@ export default function EquipmentPage() {
   const hasGas = selectedEq.mediumTag.includes('气') || Boolean(selectedEq.gasFlowM3)
   const isPureElec = !hasSteam && !hasWater && !hasGas && !selectedEq.mediumTag.includes('油')
 
-  // 设备切换时自适应校正能源类型：若新设备不含蒸汽则自动切回电力
+  // 设备能源类型自动由设备类型自适应（热力设备 -> 蒸汽与热力数据，电力设备 -> 电力与功率数据）
   React.useEffect(() => {
-    if (energyType === 'steam' && !hasSteam) {
-      setEnergyType('elec')
+    if (deviceTypeFilter !== 'all') {
+      const match = KEY_EQUIPMENT_LIST.find((e) => e.deviceType === deviceTypeFilter)
+      if (match && selectedEq.deviceType !== deviceTypeFilter) {
+        setSelectedEqId(match.id)
+      }
     }
-  }, [selectedEqId, hasSteam, energyType])
+  }, [deviceTypeFilter, selectedEq.deviceType])
 
   const basePower = selectedEq.powerKW || 4680
   const baseSteam = selectedEq.steamFlowT || 1.85
@@ -996,6 +1047,47 @@ export default function EquipmentPage() {
               className="w-full pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
             />
           </div>
+          {/* 设备类型快速筛选 (全部 / 电力设备 / 热力设备) */}
+          <div className="grid grid-cols-3 gap-1 bg-panel p-0.5 rounded-lg border border-border text-[11px] font-medium">
+            <button
+              type="button"
+              onClick={() => setDeviceTypeFilter('all')}
+              className={cn(
+                'py-0.5 text-center rounded transition-all cursor-pointer',
+                deviceTypeFilter === 'all'
+                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              全部
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeviceTypeFilter('电力设备')}
+              className={cn(
+                'py-0.5 text-center rounded transition-all cursor-pointer flex items-center justify-center gap-0.5',
+                deviceTypeFilter === '电力设备'
+                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Zap className="size-3" />
+              <span>电力</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeviceTypeFilter('热力设备')}
+              className={cn(
+                'py-0.5 text-center rounded transition-all cursor-pointer flex items-center justify-center gap-0.5',
+                deviceTypeFilter === '热力设备'
+                  ? 'bg-purple-600 text-white font-bold shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Flame className="size-3" />
+              <span>热力</span>
+            </button>
+          </div>
         </div>
 
         {/* 树节点内容 (自适应滚动) */}
@@ -1036,6 +1128,7 @@ export default function EquipmentPage() {
                   const filteredEqs = KEY_EQUIPMENT_LIST.filter(
                     (e) =>
                       (treeType === 'enterprise' ? e.company === compName : true) &&
+                    (deviceTypeFilter === 'all' || e.deviceType === deviceTypeFilter) &&
                       (e.enterprise.includes(ent.name.slice(0, 4)) || ent.name.includes(e.enterprise.slice(0, 4))) &&
                       (!eqSearchKw.trim() ||
                         e.name.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
@@ -1048,13 +1141,15 @@ export default function EquipmentPage() {
                     id: ent.id,
                     badge: ent.badge,
                     equipments: filteredEqs,
-                    isMatched: !eqSearchKw.trim() || ent.name.includes(eqSearchKw.trim()) || compName.includes(eqSearchKw.trim()) || filteredEqs.length > 0
+                    isMatched:
+                      (!eqSearchKw.trim() || ent.name.includes(eqSearchKw.trim()) || compName.includes(eqSearchKw.trim()) || filteredEqs.length > 0) &&
+                      (deviceTypeFilter === 'all' || filteredEqs.length > 0)
                   }
                 }).filter((ent) => ent.isMatched)
 
-                if (eqSearchKw.trim() && matchedEnterprises.length === 0) return null
+                if ((eqSearchKw.trim() || deviceTypeFilter !== 'all') && matchedEnterprises.length === 0) return null
 
-                const isCompanyCollapsed = !eqSearchKw.trim() && Boolean(collapsedCompanies[compName])
+                const isCompanyCollapsed = !eqSearchKw.trim() && deviceTypeFilter === 'all' && Boolean(collapsedCompanies[compName])
 
                 return (
                   <div key={compNode.id} className="space-y-0.5">
@@ -1134,7 +1229,11 @@ export default function EquipmentPage() {
                                           )}
                                         >
                                           <div className="flex items-center gap-1.5 truncate">
-                                            <Cpu className={cn('size-3 shrink-0', isSelected ? 'text-primary' : 'text-muted-foreground')} />
+                                            {eq.deviceType === '热力设备' ? (
+                                              <Flame className={cn('size-3 shrink-0', isSelected ? 'text-purple-400' : 'text-purple-400/80')} />
+                                            ) : (
+                                              <Zap className={cn('size-3 shrink-0', isSelected ? 'text-primary' : 'text-primary/80')} />
+                                            )}
                                             <span className="truncate" title={eq.name}>
                                               {eq.name}
                                             </span>
@@ -1166,17 +1265,33 @@ export default function EquipmentPage() {
       {/* 右侧主面板 */}
       <div className="flex-1 min-w-0 space-y-3.5">
         {/* 1. 顶部 Header */}
-        <OnlineHeader />
+        <OnlineHeader
+          timeDim={timeDim}
+          onTimeDimChange={setTimeDim}
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          onExport={() => alert(`正在导出【${selectedEq.name}】运行监测数据...`)}
+        />
 
         {/* 2. 选中设备主卡片 (根据设备上传的数据类型动态呈现：区分电 / 蒸汽) */}
         <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
-          <div className="flex items-center gap-2.5 border-b border-border/60 pb-2.5">
-            <div className="size-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
-              <Cpu className="size-4 text-primary" />
+          <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+            <div className="flex items-center gap-2.5">
+              <div className={cn(
+                "size-7 rounded-lg flex items-center justify-center shrink-0",
+                selectedEq.deviceType === '热力设备' ? "bg-purple-500/15 text-purple-400" : "bg-primary/15 text-primary"
+              )}>
+                {selectedEq.deviceType === '热力设备' ? <Flame className="size-4" /> : <Zap className="size-4" />}
+              </div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-foreground">
+                  {selectedEq.name}
+                </h2>
+              </div>
             </div>
-            <h2 className="text-sm font-bold text-foreground">
-              {selectedEq.name}
-            </h2>
+            <div className="text-xs text-muted-foreground font-mono">
+              {selectedEq.company} · {selectedEq.enterprise} · {selectedEq.location}
+            </div>
           </div>
 
           {/* 数据统计卡片 (根据设备上传的数据类型显示对应指标：区分 电 或者 蒸汽) */}
@@ -1257,8 +1372,10 @@ export default function EquipmentPage() {
                     <span className="text-xs font-normal text-muted-foreground font-sans">/ {selectedEq.loadRate || 82.5}%</span>
                   </div>
                   <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
-                    <span className="text-muted-foreground">电能品质</span>
-                    <span className="font-bold text-emerald-400 font-mono">优良 (≥0.95考核达标)</span>
+                    <span className="text-muted-foreground">环比</span>
+                    <span className={cn('font-bold font-mono', (selectedEq.loadMom || '+1.8% ↑').includes('+') ? 'text-emerald-400' : 'text-rose-400')}>
+                      {selectedEq.loadMom || '+1.8% ↑'}
+                    </span>
                   </div>
                 </div>
               </>
@@ -1342,110 +1459,6 @@ export default function EquipmentPage() {
                 </div>
               </>
             )}
-          </div>
-        </div>
-
-        {/* 3. 核心图表控制栏：能源类型选择 (电 / 蒸汽) + 时间维度切换 (日 / 月) */}
-        <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
-          {/* 左侧：能源类型切换 (支持根据设备实际数据介质自适应显示) */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setEnergyType('elec')}
-              className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer shadow-xs',
-                energyType === 'elec'
-                  ? 'bg-primary text-primary-foreground shadow-xs'
-                  : 'bg-panel text-muted-foreground hover:text-foreground border border-border'
-              )}
-            >
-              <Zap className="size-3.5" />
-              <span>电力监测 (电)</span>
-            </button>
-
-            {hasSteam ? (
-              <button
-                type="button"
-                onClick={() => setEnergyType('steam')}
-                className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer shadow-xs',
-                  energyType === 'steam'
-                    ? 'bg-purple-600 text-white shadow-xs'
-                    : 'bg-panel text-muted-foreground hover:text-foreground border border-border'
-                )}
-              >
-                <Wind className="size-3.5" />
-                <span>蒸汽监测 (汽)</span>
-              </button>
-            ) : (
-              <span className="text-[11px] text-muted-foreground pl-1">
-                (该设备仅使用电力，未接入蒸汽回路)
-              </span>
-            )}
-          </div>
-
-          {/* 右侧：日/月 维度切换与日期选择 */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border">
-              <button
-                type="button"
-                onClick={() => setTimeDim('day')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
-                  timeDim === 'day'
-                    ? 'font-bold bg-primary text-primary-foreground shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                按日监测 (日)
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimeDim('month')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer',
-                  timeDim === 'month'
-                    ? 'font-bold bg-primary text-primary-foreground shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                按月监测 (月)
-              </button>
-            </div>
-
-            {/* 日期选择器 */}
-            {timeDim === 'day' ? (
-              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-muted-foreground" />
-                <span className="text-muted-foreground font-sans">监测日期:</span>
-                <input
-                  type="date"
-                  value={selectedDay}
-                  onChange={(e) => setSelectedDay(e.target.value)}
-                  className="bg-transparent border-0 text-foreground font-mono text-xs focus:outline-none cursor-pointer"
-                />
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-muted-foreground" />
-                <span className="text-muted-foreground font-sans">监测月份:</span>
-                <input
-                  type="month"
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="bg-transparent border-0 text-foreground font-mono text-xs focus:outline-none cursor-pointer"
-                />
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={() => alert(`正在导出【${selectedEq.name}】运行监测数据...`)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-            >
-              <Download className="size-3.5" />
-              <span>导出</span>
-            </button>
           </div>
         </div>
 

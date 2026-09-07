@@ -1711,10 +1711,24 @@ export default function BenchmarkManagementPage() {
   const [processQuarter, setProcessQuarter] = useState('2026-Q3')
   const [processYear, setProcessYear] = useState('2026')
 
-  // 双周期对比状态：基准周期 (几月到几月) vs 对比周期 (几月到几月)
-  const [basePeriodRange, setBasePeriodRange] = useState({ start: '2025-01', end: '2025-08' })
-  const [comparePeriodRange, setComparePeriodRange] = useState({ start: '2026-01', end: '2026-08' })
-  const [periodPresetMode, setPeriodPresetMode] = useState<'yoy' | 'mom' | 'custom'>('yoy')
+  // 纵向双周期对比状态：同一时间周期 (起止月份区间) + 对标基准年份 (确保两期为严格同一个时间周期)
+  const [verticalPeriodRange, setVerticalPeriodRange] = useState({ start: '2026-01', end: '2026-08' })
+  const [verticalBaseYear, setVerticalBaseYear] = useState('2025')
+
+  const verticalCompareYear = useMemo(() => verticalPeriodRange.start.slice(0, 4) || '2026', [verticalPeriodRange.start])
+  const startMonthStr = useMemo(() => verticalPeriodRange.start.slice(5, 7) || '01', [verticalPeriodRange.start])
+  const endMonthStr = useMemo(() => verticalPeriodRange.end.slice(5, 7) || '08', [verticalPeriodRange.end])
+
+  // 对比期与基准期共享完全相同的起止月份周期 (同一个时间周期)
+  const comparePeriodRange = useMemo(() => ({
+    start: `${verticalCompareYear}-${startMonthStr}`,
+    end: `${verticalCompareYear}-${endMonthStr}`,
+  }), [verticalCompareYear, startMonthStr, endMonthStr])
+
+  const basePeriodRange = useMemo(() => ({
+    start: `${verticalBaseYear}-${startMonthStr}`,
+    end: `${verticalBaseYear}-${endMonthStr}`,
+  }), [verticalBaseYear, startMonthStr, endMonthStr])
 
   // 🌟 对标管理统一时间查询模块状态 (月度/季度/年度，统一放置在顶部Tab栏右侧)
   const [benchmarkTimeDim, setBenchmarkTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
@@ -1829,24 +1843,24 @@ export default function BenchmarkManagementPage() {
     return currentSelectedCategory.models.find((m) => m.id === verticalModelId) || currentSelectedCategory.models[0]
   }, [currentSelectedCategory, verticalModelId])
 
-  // 快捷切换对比预设
-  const handleSetPeriodPreset = (mode: 'yoy' | 'mom' | 'custom') => {
-    setPeriodPresetMode(mode)
-    if (mode === 'yoy') {
-      setBasePeriodRange({ start: '2025-01', end: '2025-08' })
-      setComparePeriodRange({ start: '2026-01', end: '2026-08' })
-    } else if (mode === 'mom') {
-      setBasePeriodRange({ start: '2025-09', end: '2025-12' })
-      setComparePeriodRange({ start: '2026-01', end: '2026-04' })
+  // 根据同一时间周期的起止月份动态生成连续月份列表
+  const verticalMonthsList = useMemo(() => {
+    const sMonth = parseInt(startMonthStr, 10) || 1
+    const eMonth = parseInt(endMonthStr, 10) || 8
+    const minM = Math.min(sMonth, eMonth)
+    const maxM = Math.max(sMonth, eMonth)
+    const list: string[] = []
+    for (let i = minM; i <= maxM; i++) {
+      list.push(`${String(i).padStart(2, '0')}月`)
     }
-  }
+    return list.length > 0 ? list : ['01月', '02月', '03月', '04月', '05月', '06月', '07月', '08月']
+  }, [startMonthStr, endMonthStr])
 
-  // 纵向 8 个月时序明细对比数据 (基准周期 vs 对比周期对应月份)
+  // 纵向时序明细对比数据 (基准周期 vs 对比周期对应月份，严格保证同一个时间周期月份)
   const verticalMonthlyComparisonList = useMemo(() => {
-    const months = ['01月', '02月', '03月', '04月', '05月', '06月', '07月', '08月']
     const m = currentSelectedModel
 
-    return months.map((month, idx) => {
+    return verticalMonthsList.map((month, idx) => {
       // 模拟月份波动
       const wave = (idx - 3.5) * 0.008
       const baseMonthTce = Number((m.baseTce * (1 + wave * 0.5)).toFixed(m.baseTce < 1 ? 3 : 2))
@@ -1890,7 +1904,7 @@ export default function BenchmarkManagementPage() {
         waterDiffPct,
       }
     })
-  }, [currentSelectedModel, basePeriodRange, comparePeriodRange])
+  }, [currentSelectedModel, basePeriodRange, comparePeriodRange, verticalMonthsList])
 
   // 转换图表数据格式
   const chartData = useMemo(() => {
@@ -2142,6 +2156,7 @@ export default function BenchmarkManagementPage() {
                       unit={currentMetricMeta.unit}
                     />
                     <Tooltip
+                      cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }}
                       contentStyle={{
                         background: '#0f172a',
                         border: '1px solid #1e293b',
@@ -2224,7 +2239,7 @@ export default function BenchmarkManagementPage() {
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left text-xs border-collapse font-mono">
                 <thead>
-                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
+                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                     <th className="py-2.5 px-3 w-14 text-center">排名</th>
                     <th className="py-2.5 px-3 min-w-[140px]">项目公司 / 制造车间</th>
                     <th className="py-2.5 px-3 min-w-[100px]">所属经营单位</th>
@@ -2241,7 +2256,7 @@ export default function BenchmarkManagementPage() {
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground">
                   {PROJECT_COMPANIES_BENCHMARK_DATA.map((row) => (
-                    <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                    <tr key={row.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                       <td className="py-2.5 px-3 text-center">
                         <span
                           className={cn(
@@ -2408,6 +2423,7 @@ export default function BenchmarkManagementPage() {
                     <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={{ stroke: '#334155' }} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={{ stroke: '#334155' }} tickLine={false} />
                     <Tooltip
+                      cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }}
                       formatter={(value: any, name: any, item: any) => [
                         `${value} tce/${activeSelectedProduct.unit} (${item?.payload?.isOptimal ? '🏆 集团最优' : item?.payload?.diff})`,
                         '综合单耗'
@@ -2442,7 +2458,7 @@ export default function BenchmarkManagementPage() {
             <div className="overflow-x-auto font-mono text-xs">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans">
+                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans h-[44px]">
                     <th className="py-2.5 px-3">产品种类</th>
                     <th className="py-2.5 px-3">产品型号</th>
                     <th className="py-2.5 px-3">对比制造工厂 / 项目公司</th>
@@ -2684,7 +2700,7 @@ export default function BenchmarkManagementPage() {
               </div>
             </div>
 
-            {/* 2. 选择对比周期 (基准周期几月到几月 vs 对比周期几月到几月) */}
+            {/* 2. 选择对比周期 (同一时间周期设定：分析周期 + 对标基准年，确保两期严格处于同一个时间周期) */}
             <div className="p-3 rounded-xl bg-panel border border-border flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="font-bold text-foreground flex items-center gap-1.5">
@@ -2692,42 +2708,48 @@ export default function BenchmarkManagementPage() {
                   <span>设置对比周期：</span>
                 </span>
 
-                {/* 基准期 A */}
-                <div className="flex items-center gap-1 bg-card px-2.5 py-1 rounded-lg border border-border shadow-2xs font-mono">
-                  <span className="text-muted-foreground font-sans text-[11px] font-bold">基准期：</span>
+                {/* 统一分析时间周期 (同一个时间周期起止月份) */}
+                <div className="flex items-center gap-1.5 bg-card px-2.5 py-1 rounded-lg border border-primary/40 shadow-2xs font-mono ring-1 ring-primary/20">
+                  <span className="text-primary font-sans text-[11px] font-bold">分析周期：</span>
                   <input
                     type="month"
-                    value={basePeriodRange.start}
-                    onChange={(e) => setBasePeriodRange((prev) => ({ ...prev, start: e.target.value }))}
-                    className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
+                    value={verticalPeriodRange.start}
+                    onChange={(e) => setVerticalPeriodRange((prev) => ({ ...prev, start: e.target.value }))}
+                    className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
                   />
                   <span className="text-muted-foreground font-sans">至</span>
                   <input
                     type="month"
-                    value={basePeriodRange.end}
-                    onChange={(e) => setBasePeriodRange((prev) => ({ ...prev, end: e.target.value }))}
-                    className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
+                    value={verticalPeriodRange.end}
+                    onChange={(e) => setVerticalPeriodRange((prev) => ({ ...prev, end: e.target.value }))}
+                    className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
                   />
                 </div>
 
-                <span className="text-muted-foreground font-bold">VS</span>
+                {/* 对标基准年份 (保证起止月份完全同一周期) */}
+                <div className="flex items-center gap-1 bg-card px-2.5 py-1 rounded-lg border border-border shadow-2xs">
+                  <span className="text-muted-foreground font-sans text-[11px] font-bold">对标基准年：</span>
+                  <select
+                    value={verticalBaseYear}
+                    onChange={(e) => setVerticalBaseYear(e.target.value)}
+                    className="bg-transparent border-0 text-foreground text-xs font-bold focus:outline-none cursor-pointer"
+                  >
+                    <option value="2025" className="bg-card text-foreground">2025年 (上年同期)</option>
+                    <option value="2024" className="bg-card text-foreground">2024年 (前年同期)</option>
+                    <option value="2023" className="bg-card text-foreground">2023年 (历史基准)</option>
+                    <option value="2022" className="bg-card text-foreground">2022年 (能碳基准年)</option>
+                  </select>
+                </div>
 
-                {/* 对比期 B */}
-                <div className="flex items-center gap-1 bg-card px-2.5 py-1 rounded-lg border border-primary/40 shadow-2xs font-mono ring-1 ring-primary/20">
-                  <span className="text-primary font-sans text-[11px] font-bold">对比期：</span>
-                  <input
-                    type="month"
-                    value={comparePeriodRange.start}
-                    onChange={(e) => setComparePeriodRange((prev) => ({ ...prev, start: e.target.value }))}
-                    className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
-                  />
-                  <span className="text-muted-foreground font-sans">至</span>
-                  <input
-                    type="month"
-                    value={comparePeriodRange.end}
-                    onChange={(e) => setComparePeriodRange((prev) => ({ ...prev, end: e.target.value }))}
-                    className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
-                  />
+                {/* 同一时间周期自解释状态说明 */}
+                <div className="flex items-center gap-1.5 text-[11px] font-mono">
+                  <span className="px-2 py-0.5 rounded bg-card border border-primary/30 text-primary font-medium">
+                    对比期：{verticalCompareYear}年{startMonthStr}~{endMonthStr}月
+                  </span>
+                  <span className="text-muted-foreground font-bold">VS</span>
+                  <span className="px-2 py-0.5 rounded bg-card border border-border text-muted-foreground font-medium">
+                    基准期：{verticalBaseYear}年{startMonthStr}~{endMonthStr}月 (同周期)
+                  </span>
                 </div>
               </div>
 
@@ -2738,13 +2760,13 @@ export default function BenchmarkManagementPage() {
                     setIsVerticalQuerying(true)
                     setTimeout(() => {
                       setIsVerticalQuerying(false)
-                      alert(`已成功根据【基准期: ${basePeriodRange.start}~${basePeriodRange.end}】与【对比期: ${comparePeriodRange.start}~${comparePeriodRange.end}】完成【${currentSelectedCompany.name} - ${currentSelectedModel.name}】全介质能耗双套数据对比检索！`)
+                      alert(`已成功按同一时间周期【${startMonthStr}~${endMonthStr}月】对比【${verticalCompareYear}年对比期】与【${verticalBaseYear}年基准期】能效演进数据！`)
                     }, 400)
                   }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
                   <Search className={cn("size-3.5", isVerticalQuerying && "animate-spin")} />
-                  <span>{isVerticalQuerying ? '正在检索两套数据...' : '执行纵向对比'}</span>
+                  <span>{isVerticalQuerying ? '正在检索...' : '执行纵向对比'}</span>
                 </button>
               </div>
             </div>
@@ -2764,11 +2786,6 @@ export default function BenchmarkManagementPage() {
             >
               <div className="flex items-center justify-between">
                 <span className="text-foreground font-sans block font-bold">📊 综合产品单耗</span>
-                {verticalMetricKey === 'tce' && (
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">
-                    图表已聚焦
-                  </span>
-                )}
               </div>
               <div className="text-[11px] text-muted-foreground font-mono">
                 (tce/{currentSelectedModel.unit})
@@ -2797,11 +2814,6 @@ export default function BenchmarkManagementPage() {
             >
               <div className="flex items-center justify-between">
                 <span className="text-primary font-sans block font-bold">⚡ 产品电单耗</span>
-                {verticalMetricKey === 'elec' && (
-                  <span className="text-[10px] bg-primary/20 text-primary font-bold px-1.5 py-0.5 rounded border border-primary/30">
-                    图表已聚焦
-                  </span>
-                )}
               </div>
               <div className="text-[11px] text-muted-foreground font-mono">
                 (kWh/{currentSelectedModel.unit})
@@ -2835,11 +2847,6 @@ export default function BenchmarkManagementPage() {
             >
               <div className="flex items-center justify-between">
                 <span className="text-purple-400 font-sans block font-bold">💨 蒸汽单耗</span>
-                {verticalMetricKey === 'steam' && (
-                  <span className="text-[10px] bg-purple-500/20 text-purple-400 font-bold px-1.5 py-0.5 rounded border border-purple-500/30">
-                    图表已聚焦
-                  </span>
-                )}
               </div>
               <div className="text-[11px] text-muted-foreground font-mono">
                 (t/{currentSelectedModel.unit})
@@ -2874,11 +2881,6 @@ export default function BenchmarkManagementPage() {
             >
               <div className="flex items-center justify-between">
                 <span className="text-amber-400 font-sans block font-bold">🔥 天然气单耗</span>
-                {verticalMetricKey === 'gas' && (
-                  <span className="text-[10px] bg-amber-500/20 text-amber-400 font-bold px-1.5 py-0.5 rounded border border-amber-500/30">
-                    图表已聚焦
-                  </span>
-                )}
               </div>
               <div className="text-[11px] text-muted-foreground font-mono">
                 (m³/{currentSelectedModel.unit})
@@ -2907,11 +2909,6 @@ export default function BenchmarkManagementPage() {
             >
               <div className="flex items-center justify-between">
                 <span className="text-cyan-400 font-sans block font-bold">💧 水单耗</span>
-                {verticalMetricKey === 'water' && (
-                  <span className="text-[10px] bg-cyan-500/20 text-cyan-400 font-bold px-1.5 py-0.5 rounded border border-cyan-500/30">
-                    图表已聚焦
-                  </span>
-                )}
               </div>
               <div className="text-[11px] text-muted-foreground font-mono">
                 (t/{currentSelectedModel.unit})
@@ -3007,6 +3004,7 @@ export default function BenchmarkManagementPage() {
                   <XAxis dataKey="monthName" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={{ stroke: '#334155' }} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={{ stroke: '#334155' }} tickLine={false} />
                   <Tooltip
+                    cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }}
                     formatter={(value: any, name: any, item: any) => {
                       const unitStr =
                         verticalMetricKey === 'tce'
@@ -3102,7 +3100,7 @@ export default function BenchmarkManagementPage() {
             <div className="overflow-x-auto font-mono text-xs">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans">
+                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans h-[44px]">
                     <th className="py-2.5 px-3">统计时间 / 月份</th>
                     <th className="py-2.5 px-3 text-right">产品单耗(基准期)</th>
                     <th className="py-2.5 px-3 text-right">产品单耗(对比期)</th>
@@ -3115,7 +3113,7 @@ export default function BenchmarkManagementPage() {
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground">
                   {verticalMonthlyComparisonList.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-accent/30 transition-colors">
+                    <tr key={idx} className="hover:bg-accent/30 transition-colors h-[44px]">
                       {/* 时间 */}
                       <td className="py-2.5 px-3 font-bold text-foreground font-sans">
                         <div className="space-y-0.5">
@@ -3341,6 +3339,7 @@ export default function BenchmarkManagementPage() {
                     tickLine={false}
                   />
                   <Tooltip
+                    cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }}
                     formatter={(value: any) => [
                       `${value} ${currentSelectedProcess.unit}`,
                       '工序实测单耗'
@@ -3414,7 +3413,7 @@ export default function BenchmarkManagementPage() {
             <div className="overflow-x-auto font-mono text-xs">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans">
+                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans h-[44px]">
                     <th className="py-2.5 px-3">关键工序名称</th>
                     <th className="py-2.5 px-3">项目公司 / 制造车间</th>
                     <th className="py-2.5 px-3 text-right text-primary">实测单耗值 ({currentSelectedProcess.unit})</th>
@@ -3425,7 +3424,7 @@ export default function BenchmarkManagementPage() {
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground">
                   {currentSelectedProcess.companies.map((c, idx) => (
-                    <tr key={idx} className="hover:bg-accent/30 transition-colors">
+                    <tr key={idx} className="hover:bg-accent/30 transition-colors h-[44px]">
                       {/* 1. 关键工序名称 (移动到最左侧并合并垂直居中显示) */}
                       {idx === 0 && (
                         <td
@@ -3682,7 +3681,7 @@ export default function BenchmarkManagementPage() {
             <div className="overflow-x-auto font-mono text-xs">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans">
+                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans h-[44px]">
                     <th className="py-2.5 px-3">基准分类</th>
                     <th className="py-2.5 px-3">对标指标名称</th>
                     <th className="py-2.5 px-3 text-right">标准基准值 (门槛/标杆)</th>
@@ -3694,7 +3693,7 @@ export default function BenchmarkManagementPage() {
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground">
                   {filteredStandards.map((std) => (
-                    <tr key={std.id} className="hover:bg-accent/30 transition-colors">
+                    <tr key={std.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                       {/* 基准分类 */}
                       <td className="py-2.5 px-3 font-sans align-middle">
                         <span className={cn(

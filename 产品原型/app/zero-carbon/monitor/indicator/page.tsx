@@ -1576,48 +1576,310 @@ const PROCESS_CONTROL_METRICS: IndicatorMetric[] = [
   },
 ]
 
-// 🌟 1、2、3 级组织节点能流与指标下钻桑基图数据生成器 (一级集团 ➔ 二级公司 ➔ 三级分厂车间)
-function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
-  nodes: { name: string; itemStyle?: { color: string }; depth?: number }[]
+// 🌟 1、2、3 级组织节点能流与指标下钻桑基图数据生成器 (一级集团 ➔ 二级公司 ➔ 三级全量直属工厂，从上到下严格按公司拓扑排序)
+function getMetricSankeyData(
+  metricId: string,
+  metric: IndicatorMetric,
+  selectedNode?: StandardOrgNode
+): {
+  nodes: { name: string; itemStyle?: { color: string }; depth?: number; displayVal?: string }[]
   links: { source: string; target: string; value: number }[]
   unit: string
 } {
   const unit = metric.unit || 'tce'
+  const isCompany = selectedNode?.level === 'company'
+  const compName = selectedNode?.name || ''
 
+  // 全集团 28 个直属分厂/专业制造工厂标准配色（按 6 大公司色系从上到下阶梯渐变）
+  const factoryColors: Record<string, string> = {
+    // 沈变公司系 (深蓝渐变)
+    '沈变本部': '#1d39c4',
+    '和新套管公司': '#2f54eb',
+    '康嘉互感器': '#597ef7',
+    '露娜智能制造': '#85a5ff',
+    '智慧能源': '#adc6ff',
+    '印能公司': '#d6e4ff',
+
+    // 衡变公司系 (青绿/青色渐变)
+    '衡变本部': '#08979c',
+    '南京电研': '#13c2c2',
+    '云集电气': '#36cfc9',
+    '云集高压开关': '#5cdbd3',
+    '湖南电气': '#87e8de',
+    '新疆自控': '#006d75',
+    '特能建': '#00474f',
+    '合容电气': '#13c2c2',
+    '赛杰爱迪': '#36cfc9',
+
+    // 新变厂系 (紫色/丁香渐变)
+    '超高压公司': '#531dab',
+    '天变公司': '#722ed1',
+    '珠峰硅钢': '#9254de',
+    '智能电气公司': '#b37feb',
+    '京津冀公司': '#d3adf7',
+    '银利电气': '#efdbff',
+
+    // 鲁缆公司系 (琥珀橙渐变)
+    '鲁缆本部': '#d46b08',
+    '曙光公司': '#fa8c16',
+    '智缆公司': '#ffa940',
+    '昭和公司': '#ffd591',
+
+    // 新缆厂系 (翠绿/生机渐变)
+    '新缆厂本部': '#389e0d',
+    '新疆电缆公司': '#52c41a',
+
+    // 德缆公司系 (洋红/玫瑰渐变)
+    '德缆公司本部': '#c41d7f',
+  }
+
+  // 🌟 全量 28 个直属工厂节点定义（从上到下严格依照公司组织结构严格排列）
+  const GROUP_LEVEL_NODES = [
+    // 1级 集团总部
+    { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
+
+    // 2级 6 大经营制造公司 (从上到下按企业结构)
+    { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+    { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
+    { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
+    { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+    { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
+    { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
+
+    // 3级 直属工厂 (严格按所属公司从上到下顺序分组呈现)
+    // ---------------- [1. 沈变公司直属工厂 6家] ----------------
+    { name: '沈变本部', depth: 2, itemStyle: { color: factoryColors['沈变本部'] } },
+    { name: '和新套管公司', depth: 2, itemStyle: { color: factoryColors['和新套管公司'] } },
+    { name: '康嘉互感器', depth: 2, itemStyle: { color: factoryColors['康嘉互感器'] } },
+    { name: '露娜智能制造', depth: 2, itemStyle: { color: factoryColors['露娜智能制造'] } },
+    { name: '智慧能源', depth: 2, itemStyle: { color: factoryColors['智慧能源'] } },
+    { name: '印能公司', depth: 2, itemStyle: { color: factoryColors['印能公司'] } },
+
+    // ---------------- [2. 衡变公司直属工厂 9家] ----------------
+    { name: '衡变本部', depth: 2, itemStyle: { color: factoryColors['衡变本部'] } },
+    { name: '南京电研', depth: 2, itemStyle: { color: factoryColors['南京电研'] } },
+    { name: '云集电气', depth: 2, itemStyle: { color: factoryColors['云集电气'] } },
+    { name: '云集高压开关', depth: 2, itemStyle: { color: factoryColors['云集高压开关'] } },
+    { name: '湖南电气', depth: 2, itemStyle: { color: factoryColors['湖南电气'] } },
+    { name: '新疆自控', depth: 2, itemStyle: { color: factoryColors['新疆自控'] } },
+    { name: '特能建', depth: 2, itemStyle: { color: factoryColors['特能建'] } },
+    { name: '合容电气', depth: 2, itemStyle: { color: factoryColors['合容电气'] } },
+    { name: '赛杰爱迪', depth: 2, itemStyle: { color: factoryColors['赛杰爱迪'] } },
+
+    // ---------------- [3. 新变厂直属工厂 6家] ----------------
+    { name: '超高压公司', depth: 2, itemStyle: { color: factoryColors['超高压公司'] } },
+    { name: '天变公司', depth: 2, itemStyle: { color: factoryColors['天变公司'] } },
+    { name: '珠峰硅钢', depth: 2, itemStyle: { color: factoryColors['珠峰硅钢'] } },
+    { name: '智能电气公司', depth: 2, itemStyle: { color: factoryColors['智能电气公司'] } },
+    { name: '京津冀公司', depth: 2, itemStyle: { color: factoryColors['京津冀公司'] } },
+    { name: '银利电气', depth: 2, itemStyle: { color: factoryColors['银利电气'] } },
+
+    // ---------------- [4. 鲁缆公司直属工厂 4家] ----------------
+    { name: '鲁缆本部', depth: 2, itemStyle: { color: factoryColors['鲁缆本部'] } },
+    { name: '曙光公司', depth: 2, itemStyle: { color: factoryColors['曙光公司'] } },
+    { name: '智缆公司', depth: 2, itemStyle: { color: factoryColors['智缆公司'] } },
+    { name: '昭和公司', depth: 2, itemStyle: { color: factoryColors['昭和公司'] } },
+
+    // ---------------- [5. 新缆厂直属工厂 2家] ----------------
+    { name: '新缆厂本部', depth: 2, itemStyle: { color: factoryColors['新缆厂本部'] } },
+    { name: '新疆电缆公司', depth: 2, itemStyle: { color: factoryColors['新疆电缆公司'] } },
+
+    // ---------------- [6. 德缆公司直属工厂 1家] ----------------
+    { name: '德缆公司本部', depth: 2, itemStyle: { color: factoryColors['德缆公司本部'] } },
+  ]
+
+  // =========================================================================
+  // 🏢 模式 A: 左侧组织树点击选中具体公司时，能流图自适应下钻至该企业工厂与重点车间
+  // =========================================================================
+  if (isCompany) {
+    if (compName.includes('沈变')) {
+      return {
+        unit,
+        nodes: [
+          { name: '沈变公司', depth: 0, itemStyle: { color: '#2f54eb' } },
+          { name: '沈变本部', depth: 1, itemStyle: { color: '#1d39c4' } },
+          { name: '和新套管公司', depth: 1, itemStyle: { color: '#2f54eb' } },
+          { name: '康嘉互感器', depth: 1, itemStyle: { color: '#597ef7' } },
+          { name: '露娜智能制造', depth: 1, itemStyle: { color: '#85a5ff' } },
+          { name: '智慧能源', depth: 1, itemStyle: { color: '#adc6ff' } },
+          { name: '印能公司', depth: 1, itemStyle: { color: '#d6e4ff' } },
+          { name: '超高压装配车间', depth: 2, itemStyle: { color: '#08979c' } },
+          { name: '绝缘干燥窑炉工段', depth: 2, itemStyle: { color: '#13c2c2' } },
+          { name: '高压套管卷制线', depth: 2, itemStyle: { color: '#722ed1' } },
+          { name: '互感器蒸汽干燥罐', depth: 2, itemStyle: { color: '#9254de' } },
+          { name: '智能配电柜装配线', depth: 2, itemStyle: { color: '#fa8c16' } },
+          { name: '综合能源监控中心', depth: 2, itemStyle: { color: '#389e0d' } },
+        ],
+        links: [
+          { source: '沈变公司', target: '沈变本部', value: 215.0 },
+          { source: '沈变公司', target: '和新套管公司', value: 82.0 },
+          { source: '沈变公司', target: '康嘉互感器', value: 46.0 },
+          { source: '沈变公司', target: '露娜智能制造', value: 45.0 },
+          { source: '沈变公司', target: '智慧能源', value: 18.0 },
+          { source: '沈变公司', target: '印能公司', value: 12.0 },
+          { source: '沈变本部', target: '超高压装配车间', value: 125.0 },
+          { source: '沈变本部', target: '绝缘干燥窑炉工段', value: 90.0 },
+          { source: '和新套管公司', target: '高压套管卷制线', value: 82.0 },
+          { source: '康嘉互感器', target: '互感器蒸汽干燥罐', value: 46.0 },
+          { source: '露娜智能制造', target: '智能配电柜装配线', value: 45.0 },
+          { source: '智慧能源', target: '综合能源监控中心', value: 18.0 },
+        ],
+      }
+    }
+
+    if (compName.includes('衡变')) {
+      return {
+        unit,
+        nodes: [
+          { name: '衡变公司', depth: 0, itemStyle: { color: '#13c2c2' } },
+          { name: '衡变本部', depth: 1, itemStyle: { color: '#08979c' } },
+          { name: '南京电研', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '云集电气', depth: 1, itemStyle: { color: '#36cfc9' } },
+          { name: '云集高压开关', depth: 1, itemStyle: { color: '#5cdbd3' } },
+          { name: '湖南电气', depth: 1, itemStyle: { color: '#87e8de' } },
+          { name: '新疆自控', depth: 1, itemStyle: { color: '#006d75' } },
+          { name: '特能建', depth: 1, itemStyle: { color: '#00474f' } },
+          { name: '合容电气', depth: 1, itemStyle: { color: '#13c2c2' } },
+          { name: '赛杰爱迪', depth: 1, itemStyle: { color: '#36cfc9' } },
+          { name: '特大容量变压器车间', depth: 2, itemStyle: { color: '#1677ff' } },
+          { name: 'SMT自动化贴片线', depth: 2, itemStyle: { color: '#722ed1' } },
+          { name: '中低压开关柜总装线', depth: 2, itemStyle: { color: '#fa8c16' } },
+          { name: 'GIS真空充气站', depth: 2, itemStyle: { color: '#52c41a' } },
+          { name: '电容器无尘卷绕房', depth: 2, itemStyle: { color: '#eb2f96' } },
+          { name: 'GIL铝合金焊管线', depth: 2, itemStyle: { color: '#d46b08' } },
+        ],
+        links: [
+          { source: '衡变公司', target: '衡变本部', value: 165.0 },
+          { source: '衡变公司', target: '南京电研', value: 38.0 },
+          { source: '衡变公司', target: '云集电气', value: 35.0 },
+          { source: '衡变公司', target: '云集高压开关', value: 32.0 },
+          { source: '衡变公司', target: '湖南电气', value: 28.5 },
+          { source: '衡变公司', target: '新疆自控', value: 18.0 },
+          { source: '衡变公司', target: '特能建', value: 16.0 },
+          { source: '衡变公司', target: '合容电气', value: 18.0 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 12.0 },
+          { source: '衡变本部', target: '特大容量变压器车间', value: 165.0 },
+          { source: '南京电研', target: 'SMT自动化贴片线', value: 38.0 },
+          { source: '云集电气', target: '中低压开关柜总装线', value: 35.0 },
+          { source: '云集高压开关', target: 'GIS真空充气站', value: 32.0 },
+          { source: '合容电气', target: '电容器无尘卷绕房', value: 18.0 },
+          { source: '赛杰爱迪', target: 'GIL铝合金焊管线', value: 12.0 },
+        ],
+      }
+    }
+
+    if (compName.includes('新变')) {
+      return {
+        unit,
+        nodes: [
+          { name: '新变厂', depth: 0, itemStyle: { color: '#722ed1' } },
+          { name: '超高压公司', depth: 1, itemStyle: { color: '#531dab' } },
+          { name: '天变公司', depth: 1, itemStyle: { color: '#722ed1' } },
+          { name: '珠峰硅钢', depth: 1, itemStyle: { color: '#9254de' } },
+          { name: '智能电气公司', depth: 1, itemStyle: { color: '#b37feb' } },
+          { name: '京津冀公司', depth: 1, itemStyle: { color: '#d3adf7' } },
+          { name: '银利电气', depth: 1, itemStyle: { color: '#efdbff' } },
+          { name: '特高压变压器主线', depth: 2, itemStyle: { color: '#1677ff' } },
+          { name: '干变浇注固化生产线', depth: 2, itemStyle: { color: '#13c2c2' } },
+          { name: '硅钢智能高速纵剪线', depth: 2, itemStyle: { color: '#fa8c16' } },
+          { name: '智能节能配变生产线', depth: 2, itemStyle: { color: '#389e0d' } },
+          { name: '智能箱变总装车间', depth: 2, itemStyle: { color: '#eb2f96' } },
+        ],
+        links: [
+          { source: '新变厂', target: '超高压公司', value: 145.0 },
+          { source: '新变厂', target: '天变公司', value: 62.0 },
+          { source: '新变厂', target: '珠峰硅钢', value: 45.0 },
+          { source: '新变厂', target: '智能电气公司', value: 26.5 },
+          { source: '新变厂', target: '京津冀公司', value: 18.0 },
+          { source: '新变厂', target: '银利电气', value: 13.0 },
+          { source: '超高压公司', target: '特高压变压器主线', value: 145.0 },
+          { source: '天变公司', target: '干变浇注固化生产线', value: 62.0 },
+          { source: '珠峰硅钢', target: '硅钢智能高速纵剪线', value: 45.0 },
+          { source: '智能电气公司', target: '智能节能配变生产线', value: 26.5 },
+          { source: '京津冀公司', target: '智能箱变总装车间', value: 18.0 },
+        ],
+      }
+    }
+
+    if (compName.includes('鲁缆')) {
+      return {
+        unit,
+        nodes: [
+          { name: '鲁缆公司', depth: 0, itemStyle: { color: '#fa8c16' } },
+          { name: '鲁缆本部', depth: 1, itemStyle: { color: '#d46b08' } },
+          { name: '曙光公司', depth: 1, itemStyle: { color: '#fa8c16' } },
+          { name: '智缆公司', depth: 1, itemStyle: { color: '#ffa940' } },
+          { name: '昭和公司', depth: 1, itemStyle: { color: '#ffd591' } },
+          { name: '超高压VCV立塔交联线', depth: 2, itemStyle: { color: '#1677ff' } },
+          { name: '中低压CCV悬链交联线', depth: 2, itemStyle: { color: '#722ed1' } },
+          { name: '特种智能电缆挤出线', depth: 2, itemStyle: { color: '#13c2c2' } },
+          { name: '高压电缆附件模压工段', depth: 2, itemStyle: { color: '#389e0d' } },
+        ],
+        links: [
+          { source: '鲁缆公司', target: '鲁缆本部', value: 62.0 },
+          { source: '鲁缆公司', target: '曙光公司', value: 23.5 },
+          { source: '鲁缆公司', target: '智缆公司', value: 12.0 },
+          { source: '鲁缆公司', target: '昭和公司', value: 8.0 },
+          { source: '鲁缆本部', target: '超高压VCV立塔交联线', value: 62.0 },
+          { source: '曙光公司', target: '中低压CCV悬链交联线', value: 23.5 },
+          { source: '智缆公司', target: '特种智能电缆挤出线', value: 12.0 },
+          { source: '昭和公司', target: '高压电缆附件模压工段', value: 8.0 },
+        ],
+      }
+    }
+
+    if (compName.includes('新缆')) {
+      return {
+        unit,
+        nodes: [
+          { name: '新缆厂', depth: 0, itemStyle: { color: '#52c41a' } },
+          { name: '新缆厂本部', depth: 1, itemStyle: { color: '#389e0d' } },
+          { name: '新疆电缆公司', depth: 1, itemStyle: { color: '#52c41a' } },
+          { name: '35kV干法交联生产线', depth: 2, itemStyle: { color: '#1677ff' } },
+          { name: '铝合金导线大拉机组', depth: 2, itemStyle: { color: '#13c2c2' } },
+          { name: '变压吸附自制氮气站', depth: 2, itemStyle: { color: '#fa8c16' } },
+        ],
+        links: [
+          { source: '新缆厂', target: '新缆厂本部', value: 42.0 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 16.0 },
+          { source: '新缆厂本部', target: '35kV干法交联生产线', value: 26.0 },
+          { source: '新缆厂本部', target: '铝合金导线大拉机组', value: 16.0 },
+          { source: '新疆电缆公司', target: '变压吸附自制氮气站', value: 16.0 },
+        ],
+      }
+    }
+
+    if (compName.includes('德缆')) {
+      return {
+        unit,
+        nodes: [
+          { name: '德缆公司', depth: 0, itemStyle: { color: '#eb2f96' } },
+          { name: '德缆公司本部', depth: 1, itemStyle: { color: '#c41d7f' } },
+          { name: '交联电缆智能挤出线', depth: 2, itemStyle: { color: '#1677ff' } },
+          { name: '环保橡套连续硫化线', depth: 2, itemStyle: { color: '#13c2c2' } },
+          { name: '多头铜丝高速拉拔机', depth: 2, itemStyle: { color: '#fa8c16' } },
+        ],
+        links: [
+          { source: '德缆公司', target: '德缆公司本部', value: 31.0 },
+          { source: '德缆公司本部', target: '交联电缆智能挤出线', value: 16.0 },
+          { source: '德缆公司本部', target: '环保橡套连续硫化线', value: 9.0 },
+          { source: '德缆公司本部', target: '多头铜丝高速拉拔机', value: 6.0 },
+        ],
+      }
+    }
+  }
+
+  // =========================================================================
+  // 🌐 模式 B: 集团大盘全景模式，10 项指标 100% 细分到 28 家工厂，严格从上到下按公司排布
+  // =========================================================================
   switch (metricId) {
     case 'gm-total-energy':
     default:
+      // 1. 综合能源消费量 (基准重工能耗分布：沈变/衡变特高压重工主导，新变大容量基地紧随其后)
       return {
         unit: 'tce',
-        nodes: [
-          // 1级 集团总部
-          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
-
-          // 2级 6 大经营制造公司
-          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
-          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
-          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
-          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
-          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
-          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
-
-          // 3级 下辖代表性车间与分厂
-          { name: '沈变本部', depth: 2, itemStyle: { color: '#0958d9' } },
-          { name: '和新套管公司', depth: 2, itemStyle: { color: '#1d39c4' } },
-          { name: '露娜智能制造', depth: 2, itemStyle: { color: '#597ef7' } },
-          { name: '衡变本部', depth: 2, itemStyle: { color: '#08979c' } },
-          { name: '南京电研', depth: 2, itemStyle: { color: '#36cfc9' } },
-          { name: '云集电气', depth: 2, itemStyle: { color: '#5cdbd3' } },
-          { name: '超高压公司', depth: 2, itemStyle: { color: '#531dab' } },
-          { name: '天变公司', depth: 2, itemStyle: { color: '#9254de' } },
-          { name: '珠峰硅钢', depth: 2, itemStyle: { color: '#b37feb' } },
-          { name: '鲁缆本部', depth: 2, itemStyle: { color: '#d46b08' } },
-          { name: '曙光公司', depth: 2, itemStyle: { color: '#ffc069' } },
-          { name: '新缆厂本部', depth: 2, itemStyle: { color: '#389e0d' } },
-          { name: '德缆公司本部', depth: 2, itemStyle: { color: '#c41d7f' } },
-        ],
+        nodes: GROUP_LEVEL_NODES,
         links: [
-          // 1级 ➔ 2级
           { source: '电装集团', target: '沈变公司', value: 418.0 },
           { source: '电装集团', target: '衡变公司', value: 362.5 },
           { source: '电装集团', target: '新变厂', value: 309.5 },
@@ -1625,294 +1887,539 @@ function getMetricSankeyData(metricId: string, metric: IndicatorMetric): {
           { source: '电装集团', target: '新缆厂', value: 58.0 },
           { source: '电装集团', target: '德缆公司', value: 31.0 },
 
-          // 2级 ➔ 3级
-          { source: '沈变公司', target: '沈变本部', value: 260.0 },
-          { source: '沈变公司', target: '和新套管公司', value: 98.0 },
-          { source: '沈变公司', target: '露娜智能制造', value: 60.0 },
-          { source: '衡变公司', target: '衡变本部', value: 220.0 },
-          { source: '衡变公司', target: '南京电研', value: 85.0 },
-          { source: '衡变公司', target: '云集电气', value: 57.5 },
-          { source: '新变厂', target: '超高压公司', value: 180.0 },
-          { source: '新变厂', target: '天变公司', value: 79.5 },
-          { source: '新变厂', target: '珠峰硅钢', value: 50.0 },
-          { source: '鲁缆公司', target: '鲁缆本部', value: 75.5 },
-          { source: '鲁缆公司', target: '曙光公司', value: 30.0 },
-          { source: '新缆厂', target: '新缆厂本部', value: 58.0 },
+          // 沈变系 6家 (合计 418.0)
+          { source: '沈变公司', target: '沈变本部', value: 215.0 },
+          { source: '沈变公司', target: '和新套管公司', value: 82.0 },
+          { source: '沈变公司', target: '康嘉互感器', value: 46.0 },
+          { source: '沈变公司', target: '露娜智能制造', value: 45.0 },
+          { source: '沈变公司', target: '智慧能源', value: 18.0 },
+          { source: '沈变公司', target: '印能公司', value: 12.0 },
+
+          // 衡变系 9家 (合计 362.5)
+          { source: '衡变公司', target: '衡变本部', value: 165.0 },
+          { source: '衡变公司', target: '南京电研', value: 38.0 },
+          { source: '衡变公司', target: '云集电气', value: 35.0 },
+          { source: '衡变公司', target: '云集高压开关', value: 32.5 },
+          { source: '衡变公司', target: '湖南电气', value: 28.0 },
+          { source: '衡变公司', target: '新疆自控', value: 18.0 },
+          { source: '衡变公司', target: '特能建', value: 16.0 },
+          { source: '衡变公司', target: '合容电气', value: 18.0 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 12.0 },
+
+          // 新变系 6家 (合计 309.5)
+          { source: '新变厂', target: '超高压公司', value: 145.0 },
+          { source: '新变厂', target: '天变公司', value: 62.0 },
+          { source: '新变厂', target: '珠峰硅钢', value: 45.0 },
+          { source: '新变厂', target: '智能电气公司', value: 26.5 },
+          { source: '新变厂', target: '京津冀公司', value: 18.0 },
+          { source: '新变厂', target: '银利电气', value: 13.0 },
+
+          // 鲁缆系 4家 (合计 105.5)
+          { source: '鲁缆公司', target: '鲁缆本部', value: 62.0 },
+          { source: '鲁缆公司', target: '曙光公司', value: 23.5 },
+          { source: '鲁缆公司', target: '智缆公司', value: 12.0 },
+          { source: '鲁缆公司', target: '昭和公司', value: 8.0 },
+
+          // 新缆系 2家 (合计 58.0)
+          { source: '新缆厂', target: '新缆厂本部', value: 42.0 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 16.0 },
+
+          // 德缆系 1家 (合计 31.0)
           { source: '德缆公司', target: '德缆公司本部', value: 31.0 },
         ],
       }
 
     case 'gm-total-carbon':
+      // 2. 总碳排放量 (西北电网与山东电网火电碳排放因子显著高于华中清洁水电，新变厂、鲁缆碳排权重明显上升，衡变明显缩减)
       return {
         unit: 'tCO2',
-        nodes: [
-          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
-          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
-          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
-          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
-          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
-          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
-          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
-
-          { name: '沈变本部', depth: 2, itemStyle: { color: '#0958d9' } },
-          { name: '和新套管公司', depth: 2, itemStyle: { color: '#1d39c4' } },
-          { name: '露娜智能制造', depth: 2, itemStyle: { color: '#597ef7' } },
-          { name: '衡变本部', depth: 2, itemStyle: { color: '#08979c' } },
-          { name: '南京电研', depth: 2, itemStyle: { color: '#36cfc9' } },
-          { name: '云集电气', depth: 2, itemStyle: { color: '#5cdbd3' } },
-          { name: '超高压公司', depth: 2, itemStyle: { color: '#531dab' } },
-          { name: '天变公司', depth: 2, itemStyle: { color: '#9254de' } },
-          { name: '珠峰硅钢', depth: 2, itemStyle: { color: '#b37feb' } },
-          { name: '鲁缆本部', depth: 2, itemStyle: { color: '#d46b08' } },
-          { name: '曙光公司', depth: 2, itemStyle: { color: '#ffc069' } },
-          { name: '新缆厂本部', depth: 2, itemStyle: { color: '#389e0d' } },
-          { name: '德缆公司本部', depth: 2, itemStyle: { color: '#c41d7f' } },
-        ],
+        nodes: GROUP_LEVEL_NODES,
         links: [
-          { source: '电装集团', target: '沈变公司', value: 958.0 },
-          { source: '电装集团', target: '衡变公司', value: 830.8 },
-          { source: '电装集团', target: '新变厂', value: 710.0 },
-          { source: '电装集团', target: '鲁缆公司', value: 242.0 },
-          { source: '电装集团', target: '新缆厂', value: 133.0 },
-          { source: '电装集团', target: '德缆公司', value: 73.0 },
+          { source: '电装集团', target: '沈变公司', value: 965.0 },
+          { source: '电装集团', target: '新变厂', value: 815.0 },
+          { source: '电装集团', target: '衡变公司', value: 620.0 },
+          { source: '电装集团', target: '鲁缆公司', value: 325.0 },
+          { source: '电装集团', target: '新缆厂', value: 152.0 },
+          { source: '电装集团', target: '德缆公司', value: 69.8 },
 
-          { source: '沈变公司', target: '沈变本部', value: 596.0 },
-          { source: '沈变公司', target: '和新套管公司', value: 224.0 },
-          { source: '沈变公司', target: '露娜智能制造', value: 138.0 },
-          { source: '衡变公司', target: '衡变本部', value: 505.0 },
-          { source: '衡变公司', target: '南京电研', value: 195.0 },
-          { source: '衡变公司', target: '云集电气', value: 130.8 },
-          { source: '新变厂', target: '超高压公司', value: 412.0 },
-          { source: '新变厂', target: '天变公司', value: 183.0 },
-          { source: '新变厂', target: '珠峰硅钢', value: 115.0 },
-          { source: '鲁缆公司', target: '鲁缆本部', value: 172.0 },
-          { source: '鲁缆公司', target: '曙光公司', value: 70.0 },
-          { source: '新缆厂', target: '新缆厂本部', value: 133.0 },
-          { source: '德缆公司', target: '德缆公司本部', value: 73.0 },
+          // 沈变系 6家 (合计 965.0)
+          { source: '沈变公司', target: '沈变本部', value: 495.0 },
+          { source: '沈变公司', target: '和新套管公司', value: 190.0 },
+          { source: '沈变公司', target: '康嘉互感器', value: 106.0 },
+          { source: '沈变公司', target: '露娜智能制造', value: 104.0 },
+          { source: '沈变公司', target: '智慧能源', value: 42.0 },
+          { source: '沈变公司', target: '印能公司', value: 28.0 },
+
+          // 衡变系 9家 (合计 620.0，华中绿电富集区，碳排明显收敛)
+          { source: '衡变公司', target: '衡变本部', value: 282.0 },
+          { source: '衡变公司', target: '南京电研', value: 65.0 },
+          { source: '衡变公司', target: '云集电气', value: 60.0 },
+          { source: '衡变公司', target: '云集高压开关', value: 55.0 },
+          { source: '衡变公司', target: '湖南电气', value: 48.0 },
+          { source: '衡变公司', target: '新疆自控', value: 31.0 },
+          { source: '衡变公司', target: '特能建', value: 27.0 },
+          { source: '衡变公司', target: '合容电气', value: 31.0 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 21.0 },
+
+          // 新变系 6家 (合计 815.0，大容量特高压试验与西北电网特性)
+          { source: '新变厂', target: '超高压公司', value: 382.0 },
+          { source: '新变厂', target: '天变公司', value: 162.0 },
+          { source: '新变厂', target: '珠峰硅钢', value: 120.0 },
+          { source: '新变厂', target: '智能电气公司', value: 70.0 },
+          { source: '新变厂', target: '京津冀公司', value: 47.0 },
+          { source: '新变厂', target: '银利电气', value: 34.0 },
+
+          // 鲁缆系 4家 (合计 325.0)
+          { source: '鲁缆公司', target: '鲁缆本部', value: 191.0 },
+          { source: '鲁缆公司', target: '曙光公司', value: 72.0 },
+          { source: '鲁缆公司', target: '智缆公司', value: 38.0 },
+          { source: '鲁缆公司', target: '昭和公司', value: 24.0 },
+
+          // 新缆系 2家 (合计 152.0)
+          { source: '新缆厂', target: '新缆厂本部', value: 110.0 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 42.0 },
+
+          // 德缆系 1家 (合计 69.8)
+          { source: '德缆公司', target: '德缆公司本部', value: 69.8 },
         ],
       }
 
     case 'gm-carbon-per-energy':
+      // 3. 吨标煤综合能耗碳排放量 (碳排放强度加权能流，新变、鲁缆碳强度高，衡变低碳清洁优势显著)
       return {
         unit: 'tCO2/tce',
-        nodes: [
-          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
-          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
-          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
-          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
-          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
-          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
-          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
-
-          { name: '沈变变压器制造', depth: 2, itemStyle: { color: '#0958d9' } },
-          { name: '衡变输变电生产', depth: 2, itemStyle: { color: '#08979c' } },
-          { name: '新变特高压主线', depth: 2, itemStyle: { color: '#531dab' } },
-          { name: '鲁缆高端挤出', depth: 2, itemStyle: { color: '#d46b08' } },
-          { name: '新缆特种线缆', depth: 2, itemStyle: { color: '#389e0d' } },
-          { name: '德缆常规线缆', depth: 2, itemStyle: { color: '#c41d7f' } },
-        ],
+        nodes: GROUP_LEVEL_NODES,
         links: [
-          { source: '电装集团', target: '沈变公司', value: 2.292 },
-          { source: '电装集团', target: '衡变公司', value: 2.293 },
-          { source: '电装集团', target: '新变厂', value: 2.294 },
-          { source: '电装集团', target: '鲁缆公司', value: 2.296 },
-          { source: '电装集团', target: '新缆厂', value: 2.295 },
-          { source: '电装集团', target: '德缆公司', value: 2.355 },
+          { source: '电装集团', target: '新变厂', value: 350.0 },
+          { source: '电装集团', target: '沈变公司', value: 300.0 },
+          { source: '电装集团', target: '鲁缆公司', value: 180.0 },
+          { source: '电装集团', target: '衡变公司', value: 150.0 },
+          { source: '电装集团', target: '新缆厂', value: 80.0 },
+          { source: '电装集团', target: '德缆公司', value: 40.0 },
 
-          { source: '沈变公司', target: '沈变变压器制造', value: 2.292 },
-          { source: '衡变公司', target: '衡变输变电生产', value: 2.293 },
-          { source: '新变厂', target: '新变特高压主线', value: 2.294 },
-          { source: '鲁缆公司', target: '鲁缆高端挤出', value: 2.296 },
-          { source: '新缆厂', target: '新缆特种线缆', value: 2.295 },
-          { source: '德缆公司', target: '德缆常规线缆', value: 2.355 },
+          // 沈变系 6家 (合计 300.0)
+          { source: '沈变公司', target: '沈变本部', value: 155.0 },
+          { source: '沈变公司', target: '和新套管公司', value: 59.0 },
+          { source: '沈变公司', target: '康嘉互感器', value: 33.0 },
+          { source: '沈变公司', target: '露娜智能制造', value: 32.0 },
+          { source: '沈变公司', target: '智慧能源', value: 13.0 },
+          { source: '沈变公司', target: '印能公司', value: 8.0 },
+
+          // 衡变系 9家 (合计 150.0)
+          { source: '衡变公司', target: '衡变本部', value: 68.0 },
+          { source: '衡变公司', target: '南京电研', value: 16.0 },
+          { source: '衡变公司', target: '云集电气', value: 15.0 },
+          { source: '衡变公司', target: '云集高压开关', value: 13.0 },
+          { source: '衡变公司', target: '湖南电气', value: 12.0 },
+          { source: '衡变公司', target: '新疆自控', value: 7.5 },
+          { source: '衡变公司', target: '特能建', value: 6.5 },
+          { source: '衡变公司', target: '合容电气', value: 7.5 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 4.5 },
+
+          // 新变系 6家 (合计 350.0)
+          { source: '新变厂', target: '超高压公司', value: 165.0 },
+          { source: '新变厂', target: '天变公司', value: 70.0 },
+          { source: '新变厂', target: '珠峰硅钢', value: 52.0 },
+          { source: '新变厂', target: '智能电气公司', value: 30.0 },
+          { source: '新变厂', target: '京津冀公司', value: 20.0 },
+          { source: '新变厂', target: '银利电气', value: 13.0 },
+
+          // 鲁缆系 4家 (合计 180.0)
+          { source: '鲁缆公司', target: '鲁缆本部', value: 106.0 },
+          { source: '鲁缆公司', target: '曙光公司', value: 40.0 },
+          { source: '鲁缆公司', target: '智缆公司', value: 21.0 },
+          { source: '鲁缆公司', target: '昭和公司', value: 13.0 },
+
+          // 新缆系 2家 (合计 80.0)
+          { source: '新缆厂', target: '新缆厂本部', value: 58.0 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 22.0 },
+
+          // 德缆系 1家 (合计 40.0)
+          { source: '德缆公司', target: '德缆公司本部', value: 40.0 },
         ],
       }
 
     case 'gm-green-energy-ratio':
-    case 'gm-phy-green-ratio':
+      // 4. 绿电消费总量与比例 (新疆基地大漠戈壁风光电资源得天独厚，新变厂、新缆厂绿电消纳量与占比压倒性领跑！)
       return {
         unit: 'MWh',
-        nodes: [
-          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
-          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
-          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
-          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
-          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
-          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
-          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
-
-          { name: '沈变园区屋顶光伏', depth: 2, itemStyle: { color: '#0958d9' } },
-          { name: '衡变园区绿电直供', depth: 2, itemStyle: { color: '#08979c' } },
-          { name: '新变风光互补电站', depth: 2, itemStyle: { color: '#531dab' } },
-          { name: '鲁缆分布式光伏', depth: 2, itemStyle: { color: '#d46b08' } },
-          { name: '新缆绿电微电网', depth: 2, itemStyle: { color: '#389e0d' } },
-          { name: '德缆绿色配电', depth: 2, itemStyle: { color: '#c41d7f' } },
-        ],
+        nodes: GROUP_LEVEL_NODES,
         links: [
-          { source: '电装集团', target: '沈变公司', value: 496 },
-          { source: '电装集团', target: '衡变公司', value: 418 },
-          { source: '电装集团', target: '新变厂', value: 356 },
-          { source: '电装集团', target: '鲁缆公司', value: 118 },
-          { source: '电装集团', target: '新缆厂', value: 62 },
-          { source: '电装集团', target: '德缆公司', value: 32 },
+          { source: '电装集团', target: '新变厂', value: 520 },
+          { source: '电装集团', target: '沈变公司', value: 310 },
+          { source: '电装集团', target: '衡变公司', value: 280 },
+          { source: '电装集团', target: '新缆厂', value: 190 },
+          { source: '电装集团', target: '鲁缆公司', value: 120 },
+          { source: '电装集团', target: '德缆公司', value: 62 },
 
-          { source: '沈变公司', target: '沈变园区屋顶光伏', value: 496 },
-          { source: '衡变公司', target: '衡变园区绿电直供', value: 418 },
-          { source: '新变厂', target: '新变风光互补电站', value: 356 },
-          { source: '鲁缆公司', target: '鲁缆分布式光伏', value: 118 },
-          { source: '新缆厂', target: '新缆绿电微电网', value: 62 },
-          { source: '德缆公司', target: '德缆绿色配电', value: 32 },
+          // 沈变系 6家 (合计 310)
+          { source: '沈变公司', target: '露娜智能制造', value: 110 },
+          { source: '沈变公司', target: '沈变本部', value: 95 },
+          { source: '沈变公司', target: '智慧能源', value: 45 },
+          { source: '沈变公司', target: '和新套管公司', value: 35 },
+          { source: '沈变公司', target: '康嘉互感器', value: 15 },
+          { source: '沈变公司', target: '印能公司', value: 10 },
+
+          // 衡变系 9家 (合计 280)
+          { source: '衡变公司', target: '衡变本部', value: 130 },
+          { source: '衡变公司', target: '南京电研', value: 35 },
+          { source: '衡变公司', target: '云集电气', value: 30 },
+          { source: '衡变公司', target: '云集高压开关', value: 25 },
+          { source: '衡变公司', target: '湖南电气', value: 20 },
+          { source: '衡变公司', target: '合容电气', value: 15 },
+          { source: '衡变公司', target: '新疆自控', value: 10 },
+          { source: '衡变公司', target: '特能建', value: 9 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 6 },
+
+          // 新变系 6家 (合计 520，新疆风光大基地直供绿电显著膨胀)
+          { source: '新变厂', target: '超高压公司', value: 245 },
+          { source: '新变厂', target: '天变公司', value: 105 },
+          { source: '新变厂', target: '珠峰硅钢', value: 76 },
+          { source: '新变厂', target: '智能电气公司', value: 44 },
+          { source: '新变厂', target: '京津冀公司', value: 29 },
+          { source: '新变厂', target: '银利电气', value: 21 },
+
+          // 鲁缆系 4家 (合计 120)
+          { source: '鲁缆公司', target: '智缆公司', value: 50 },
+          { source: '鲁缆公司', target: '鲁缆本部', value: 42 },
+          { source: '鲁缆公司', target: '曙光公司', value: 18 },
+          { source: '鲁缆公司', target: '昭和公司', value: 10 },
+
+          // 新缆系 2家 (合计 190，新疆高绿电园区)
+          { source: '新缆厂', target: '新缆厂本部', value: 135 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 55 },
+
+          // 德缆系 1家 (合计 62)
+          { source: '德缆公司', target: '德缆公司本部', value: 62 },
+        ],
+      }
+
+    case 'gm-phy-green-ratio':
+      // 5. 物理自发自用绿电认定量 (厂房屋顶分布式光伏自发自用，衡变高端制造产业园 28MW 屋顶光伏与新变大厂房领跑)
+      return {
+        unit: 'MWh',
+        nodes: GROUP_LEVEL_NODES,
+        links: [
+          { source: '电装集团', target: '衡变公司', value: 380 },
+          { source: '电装集团', target: '新变厂', value: 335 },
+          { source: '电装集团', target: '鲁缆公司', value: 150 },
+          { source: '电装集团', target: '沈变公司', value: 110 },
+          { source: '电装集团', target: '新缆厂', value: 65 },
+          { source: '电装集团', target: '德缆公司', value: 40 },
+
+          // 沈变系 6家 (合计 110，老厂区屋顶受限)
+          { source: '沈变公司', target: '露娜智能制造', value: 45 },
+          { source: '沈变公司', target: '沈变本部', value: 35 },
+          { source: '沈变公司', target: '智慧能源', value: 15 },
+          { source: '沈变公司', target: '和新套管公司', value: 8 },
+          { source: '沈变公司', target: '康嘉互感器', value: 4 },
+          { source: '沈变公司', target: '印能公司', value: 3 },
+
+          // 衡变系 9家 (合计 380，28MW屋顶光伏全网第一)
+          { source: '衡变公司', target: '衡变本部', value: 175 },
+          { source: '衡变公司', target: '南京电研', value: 48 },
+          { source: '衡变公司', target: '云集电气', value: 42 },
+          { source: '衡变公司', target: '云集高压开关', value: 35 },
+          { source: '衡变公司', target: '湖南电气', value: 28 },
+          { source: '衡变公司', target: '合容电气', value: 20 },
+          { source: '衡变公司', target: '新疆自控', value: 14 },
+          { source: '衡变公司', target: '特能建', value: 10 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 8 },
+
+          // 新变系 6家 (合计 335)
+          { source: '新变厂', target: '超高压公司', value: 160 },
+          { source: '新变厂', target: '天变公司', value: 68 },
+          { source: '新变厂', target: '珠峰硅钢', value: 48 },
+          { source: '新变厂', target: '智能电气公司', value: 30 },
+          { source: '新变厂', target: '京津冀公司', value: 18 },
+          { source: '新变厂', target: '银利电气', value: 11 },
+
+          // 鲁缆系 4家 (合计 150，新园区屋顶光伏)
+          { source: '鲁缆公司', target: '鲁缆本部', value: 85 },
+          { source: '鲁缆公司', target: '智缆公司', value: 35 },
+          { source: '鲁缆公司', target: '曙光公司', value: 20 },
+          { source: '鲁缆公司', target: '昭和公司', value: 10 },
+
+          // 新缆系 2家 (合计 65)
+          { source: '新缆厂', target: '新缆厂本部', value: 46 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 19 },
+
+          // 德缆系 1家 (合计 40)
+          { source: '德缆公司', target: '德缆公司本部', value: 40 },
         ],
       }
 
     case 'gm-water-consumption':
+      // 6. 水资源消耗总量 (线缆连铸连轧拉丝循环水池与挤出冷却水槽用水量极大，鲁缆、新缆、德缆占据半壁江山，呈现强烈工业异构！)
       return {
         unit: 't',
-        nodes: [
-          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
-          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
-          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
-          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
-          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
-          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
-          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
-
-          { name: '沈变本部', depth: 2, itemStyle: { color: '#0958d9' } },
-          { name: '和新套管公司', depth: 2, itemStyle: { color: '#1d39c4' } },
-          { name: '衡变本部', depth: 2, itemStyle: { color: '#08979c' } },
-          { name: '南京电研', depth: 2, itemStyle: { color: '#36cfc9' } },
-          { name: '超高压公司', depth: 2, itemStyle: { color: '#531dab' } },
-          { name: '天变公司', depth: 2, itemStyle: { color: '#9254de' } },
-          { name: '鲁缆本部', depth: 2, itemStyle: { color: '#d46b08' } },
-          { name: '新缆厂本部', depth: 2, itemStyle: { color: '#389e0d' } },
-          { name: '德缆公司本部', depth: 2, itemStyle: { color: '#c41d7f' } },
-        ],
+        nodes: GROUP_LEVEL_NODES,
         links: [
-          { source: '电装集团', target: '沈变公司', value: 5120 },
-          { source: '电装集团', target: '衡变公司', value: 4380 },
-          { source: '电装集团', target: '新变厂', value: 3650 },
-          { source: '电装集团', target: '鲁缆公司', value: 1250 },
-          { source: '电装集团', target: '新缆厂', value: 680 },
-          { source: '电装集团', target: '德缆公司', value: 400 },
+          { source: '电装集团', target: '鲁缆公司', value: 5260 },
+          { source: '电装集团', target: '沈变公司', value: 3450 },
+          { source: '电装集团', target: '新缆厂', value: 2680 },
+          { source: '电装集团', target: '衡变公司', value: 2150 },
+          { source: '电装集团', target: '德缆公司', value: 1120 },
+          { source: '电装集团', target: '新变厂', value: 820 },
 
-          { source: '沈变公司', target: '沈变本部', value: 3600 },
-          { source: '沈变公司', target: '和新套管公司', value: 1520 },
-          { source: '衡变公司', target: '衡变本部', value: 3100 },
-          { source: '衡变公司', target: '南京电研', value: 1280 },
-          { source: '新变厂', target: '超高压公司', value: 2450 },
-          { source: '新变厂', target: '天变公司', value: 1200 },
-          { source: '鲁缆公司', target: '鲁缆本部', value: 1250 },
-          { source: '新缆厂', target: '新缆厂本部', value: 680 },
-          { source: '德缆公司', target: '德缆公司本部', value: 400 },
+          // 沈变系 6家 (合计 3450)
+          { source: '沈变公司', target: '沈变本部', value: 1780 },
+          { source: '沈变公司', target: '露娜智能制造', value: 620 },
+          { source: '沈变公司', target: '和新套管公司', value: 480 },
+          { source: '沈变公司', target: '康嘉互感器', value: 310 },
+          { source: '沈变公司', target: '智慧能源', value: 140 },
+          { source: '沈变公司', target: '印能公司', value: 120 },
+
+          // 衡变系 9家 (合计 2150)
+          { source: '衡变公司', target: '衡变本部', value: 980 },
+          { source: '衡变公司', target: '南京电研', value: 280 },
+          { source: '衡变公司', target: '云集电气', value: 240 },
+          { source: '衡变公司', target: '云集高压开关', value: 210 },
+          { source: '衡变公司', target: '湖南电气', value: 180 },
+          { source: '衡变公司', target: '合容电气', value: 110 },
+          { source: '衡变公司', target: '新疆自控', value: 60 },
+          { source: '衡变公司', target: '特能建', value: 50 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 40 },
+
+          // 新变系 6家 (合计 820，干旱内陆节水闭式循环，用水量最少)
+          { source: '新变厂', target: '超高压公司', value: 390 },
+          { source: '新变厂', target: '天变公司', value: 165 },
+          { source: '新变厂', target: '珠峰硅钢', value: 120 },
+          { source: '新变厂', target: '智能电气公司', value: 75 },
+          { source: '新变厂', target: '京津冀公司', value: 45 },
+          { source: '新变厂', target: '银利电气', value: 25 },
+
+          // 鲁缆系 4家 (合计 5260，连续挤出水槽冷却水主阵地，色带极度宽阔！)
+          { source: '鲁缆公司', target: '鲁缆本部', value: 3080 },
+          { source: '鲁缆公司', target: '曙光公司', value: 1180 },
+          { source: '鲁缆公司', target: '智缆公司', value: 620 },
+          { source: '鲁缆公司', target: '昭和公司', value: 380 },
+
+          // 新缆系 2家 (合计 2680)
+          { source: '新缆厂', target: '新缆厂本部', value: 1920 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 760 },
+
+          // 德缆系 1家 (合计 1120)
+          { source: '德缆公司', target: '德缆公司本部', value: 1120 },
         ],
       }
 
     case 'gm-unit-industrial-added-value':
-    case 'gm-unit-output':
+      // 7. 单位工业增加值能耗 (特高压/超高压重型变压器附加值极高，增加值产出大，沈变、衡变经济创造力高度凸显)
       return {
-        unit: '万元',
-        nodes: [
-          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
-          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
-          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
-          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
-          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
-          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
-          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
-
-          { name: '特高压变压器制造', depth: 2, itemStyle: { color: '#0958d9' } },
-          { name: '大型电力变压器制造', depth: 2, itemStyle: { color: '#08979c' } },
-          { name: '输变电核心零部件', depth: 2, itemStyle: { color: '#531dab' } },
-          { name: '特种交联电力电缆', depth: 2, itemStyle: { color: '#d46b08' } },
-          { name: '工业铝合金导线', depth: 2, itemStyle: { color: '#389e0d' } },
-          { name: '通用橡套电缆', depth: 2, itemStyle: { color: '#c41d7f' } },
-        ],
+        unit: 'tce/万元',
+        nodes: GROUP_LEVEL_NODES,
         links: [
-          { source: '电装集团', target: '沈变公司', value: 9500 },
-          { source: '电装集团', target: '衡变公司', value: 8200 },
-          { source: '电装集团', target: '新变厂', value: 6800 },
-          { source: '电装集团', target: '鲁缆公司', value: 2400 },
-          { source: '电装集团', target: '新缆厂', value: 1100 },
-          { source: '电装集团', target: '德缆公司', value: 500 },
+          { source: '电装集团', target: '沈变公司', value: 3450 },
+          { source: '电装集团', target: '衡变公司', value: 2980 },
+          { source: '电装集团', target: '新变厂', value: 1560 },
+          { source: '电装集团', target: '鲁缆公司', value: 580 },
+          { source: '电装集团', target: '新缆厂', value: 284 },
+          { source: '电装集团', target: '德缆公司', value: 160 },
 
-          { source: '沈变公司', target: '特高压变压器制造', value: 9500 },
-          { source: '衡变公司', target: '大型电力变压器制造', value: 8200 },
-          { source: '新变厂', target: '输变电核心零部件', value: 6800 },
-          { source: '鲁缆公司', target: '特种交联电力电缆', value: 2400 },
-          { source: '新缆厂', target: '工业铝合金导线', value: 1100 },
-          { source: '德缆公司', target: '通用橡套电缆', value: 500 },
+          // 沈变系 6家 (合计 3450)
+          { source: '沈变公司', target: '沈变本部', value: 1820 },
+          { source: '沈变公司', target: '和新套管公司', value: 680 },
+          { source: '沈变公司', target: '露娜智能制造', value: 450 },
+          { source: '沈变公司', target: '康嘉互感器', value: 280 },
+          { source: '沈变公司', target: '智慧能源', value: 130 },
+          { source: '沈变公司', target: '印能公司', value: 90 },
+
+          // 衡变系 9家 (合计 2980)
+          { source: '衡变公司', target: '衡变本部', value: 1360 },
+          { source: '衡变公司', target: '南京电研', value: 380 },
+          { source: '衡变公司', target: '云集电气', value: 320 },
+          { source: '衡变公司', target: '云集高压开关', value: 290 },
+          { source: '衡变公司', target: '湖南电气', value: 240 },
+          { source: '衡变公司', target: '合容电气', value: 150 },
+          { source: '衡变公司', target: '新疆自控', value: 100 },
+          { source: '衡变公司', target: '特能建', value: 80 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 60 },
+
+          // 新变系 6家 (合计 1560)
+          { source: '新变厂', target: '超高压公司', value: 740 },
+          { source: '新变厂', target: '天变公司', value: 310 },
+          { source: '新变厂', target: '珠峰硅钢', value: 230 },
+          { source: '新变厂', target: '智能电气公司', value: 140 },
+          { source: '新变厂', target: '京津冀公司', value: 90 },
+          { source: '新变厂', target: '银利电气', value: 50 },
+
+          // 鲁缆系 4家 (合计 580)
+          { source: '鲁缆公司', target: '鲁缆本部', value: 340 },
+          { source: '鲁缆公司', target: '曙光公司', value: 130 },
+          { source: '鲁缆公司', target: '智缆公司', value: 70 },
+          { source: '鲁缆公司', target: '昭和公司', value: 40 },
+
+          // 新缆系 2家 (合计 284)
+          { source: '新缆厂', target: '新缆厂本部', value: 204 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 80 },
+
+          // 德缆系 1家 (合计 160)
+          { source: '德缆公司', target: '德缆公司本部', value: 160 },
+        ],
+      }
+
+    case 'gm-unit-output':
+      // 8. 万元工业产值综合能耗 (工业总产值流通，变压器高单价高产值，反映经济产出与能耗比例)
+      return {
+        unit: 'tce/万元',
+        nodes: GROUP_LEVEL_NODES,
+        links: [
+          { source: '电装集团', target: '沈变公司', value: 10800 },
+          { source: '电装集团', target: '衡变公司', value: 9200 },
+          { source: '电装集团', target: '新变厂', value: 4900 },
+          { source: '电装集团', target: '鲁缆公司', value: 2100 },
+          { source: '电装集团', target: '新缆厂', value: 980 },
+          { source: '电装集团', target: '德缆公司', value: 520 },
+
+          // 沈变系 6家 (合计 10800)
+          { source: '沈变公司', target: '沈变本部', value: 5600 },
+          { source: '沈变公司', target: '和新套管公司', value: 2100 },
+          { source: '沈变公司', target: '露娜智能制造', value: 1450 },
+          { source: '沈变公司', target: '康嘉互感器', value: 920 },
+          { source: '沈变公司', target: '智慧能源', value: 430 },
+          { source: '沈变公司', target: '印能公司', value: 300 },
+
+          // 衡变系 9家 (合计 9200)
+          { source: '衡变公司', target: '衡变本部', value: 4200 },
+          { source: '衡变公司', target: '南京电研', value: 1180 },
+          { source: '衡变公司', target: '云集电气', value: 1020 },
+          { source: '衡变公司', target: '云集高压开关', value: 910 },
+          { source: '衡变公司', target: '湖南电气', value: 750 },
+          { source: '衡变公司', target: '合容电气', value: 480 },
+          { source: '衡变公司', target: '新疆自控', value: 310 },
+          { source: '衡变公司', target: '特能建', value: 210 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 140 },
+
+          // 新变系 6家 (合计 4900)
+          { source: '新变厂', target: '超高压公司', value: 2340 },
+          { source: '新变厂', target: '天变公司', value: 980 },
+          { source: '新变厂', target: '珠峰硅钢', value: 720 },
+          { source: '新变厂', target: '智能电气公司', value: 440 },
+          { source: '新变厂', target: '京津冀公司', value: 260 },
+          { source: '新变厂', target: '银利电气', value: 160 },
+
+          // 鲁缆系 4家 (合计 2100)
+          { source: '鲁缆公司', target: '鲁缆本部', value: 1230 },
+          { source: '鲁缆公司', target: '曙光公司', value: 470 },
+          { source: '鲁缆公司', target: '智缆公司', value: 250 },
+          { source: '鲁缆公司', target: '昭和公司', value: 150 },
+
+          // 新缆系 2家 (合计 980)
+          { source: '新缆厂', target: '新缆厂本部', value: 705 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 275 },
+
+          // 德缆系 1家 (合计 520)
+          { source: '德缆公司', target: '德缆公司本部', value: 520 },
         ],
       }
 
     case 'gm-energy-saving-equipment-ratio':
+      // 9. 节能装备装机功率与应用占比 (露娜智能制造、智能电气公司、智缆公司等标杆数字化智慧工厂拔得头筹)
       return {
         unit: 'kW',
-        nodes: [
-          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
-          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
-          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
-          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
-          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
-          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
-          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
-
-          { name: '沈变节能电机群', depth: 2, itemStyle: { color: '#0958d9' } },
-          { name: '衡变磁悬浮空压机', depth: 2, itemStyle: { color: '#08979c' } },
-          { name: '新变高效变压器', depth: 2, itemStyle: { color: '#531dab' } },
-          { name: '鲁缆节能挤出机', depth: 2, itemStyle: { color: '#d46b08' } },
-          { name: '新缆变频动力机', depth: 2, itemStyle: { color: '#389e0d' } },
-          { name: '德缆高效循环泵', depth: 2, itemStyle: { color: '#c41d7f' } },
-        ],
+        nodes: GROUP_LEVEL_NODES,
         links: [
-          { source: '电装集团', target: '沈变公司', value: 11200 },
-          { source: '电装集团', target: '衡变公司', value: 9500 },
-          { source: '电装集团', target: '新变厂', value: 7800 },
-          { source: '电装集团', target: '鲁缆公司', value: 2650 },
-          { source: '电装集团', target: '新缆厂', value: 1100 },
-          { source: '电装集团', target: '德缆公司', value: 600 },
+          { source: '电装集团', target: '衡变公司', value: 11850 },
+          { source: '电装集团', target: '沈变公司', value: 9600 },
+          { source: '电装集团', target: '新变厂', value: 6800 },
+          { source: '电装集团', target: '鲁缆公司', value: 2750 },
+          { source: '电装集团', target: '新缆厂', value: 1150 },
+          { source: '电装集团', target: '德缆公司', value: 700 },
 
-          { source: '沈变公司', target: '沈变节能电机群', value: 11200 },
-          { source: '衡变公司', target: '衡变磁悬浮空压机', value: 9500 },
-          { source: '新变厂', target: '新变高效变压器', value: 7800 },
-          { source: '鲁缆公司', target: '鲁缆节能挤出机', value: 2650 },
-          { source: '新缆厂', target: '新缆变频动力机', value: 1100 },
-          { source: '德缆公司', target: '德缆高效循环泵', value: 600 },
+          // 沈变系 6家 (合计 9600，露娜智能制造智能化最高)
+          { source: '沈变公司', target: '露娜智能制造', value: 3850 },
+          { source: '沈变公司', target: '沈变本部', value: 3420 },
+          { source: '沈变公司', target: '和新套管公司', value: 1120 },
+          { source: '沈变公司', target: '康嘉互感器', value: 650 },
+          { source: '沈变公司', target: '智慧能源', value: 340 },
+          { source: '沈变公司', target: '印能公司', value: 220 },
+
+          // 衡变系 9家 (合计 11850，现代化智能装备总装机量第一)
+          { source: '衡变公司', target: '衡变本部', value: 5420 },
+          { source: '衡变公司', target: '合容电气', value: 1680 },
+          { source: '衡变公司', target: '南京电研', value: 1450 },
+          { source: '衡变公司', target: '云集电气', value: 1120 },
+          { source: '衡变公司', target: '云集高压开关', value: 980 },
+          { source: '衡变公司', target: '湖南电气', value: 560 },
+          { source: '衡变公司', target: '新疆自控', value: 280 },
+          { source: '衡变公司', target: '特能建', value: 210 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 150 },
+
+          // 新变系 6家 (合计 6800)
+          { source: '新变厂', target: '超高压公司', value: 3120 },
+          { source: '新变厂', target: '智能电气公司', value: 1650 },
+          { source: '新变厂', target: '天变公司', value: 980 },
+          { source: '新变厂', target: '珠峰硅钢', value: 560 },
+          { source: '新变厂', target: '京津冀公司', value: 310 },
+          { source: '新变厂', target: '银利电气', value: 180 },
+
+          // 鲁缆系 4家 (合计 2750，智缆公司数字化智能车间)
+          { source: '鲁缆公司', target: '智缆公司', value: 1320 },
+          { source: '鲁缆公司', target: '鲁缆本部', value: 980 },
+          { source: '鲁缆公司', target: '曙光公司', value: 290 },
+          { source: '鲁缆公司', target: '昭和公司', value: 160 },
+
+          // 新缆系 2家 (合计 1150)
+          { source: '新缆厂', target: '新缆厂本部', value: 820 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 330 },
+
+          // 德缆系 1家 (合计 700)
+          { source: '德缆公司', target: '德缆公司本部', value: 700 },
         ],
       }
 
     case 'gm-pcf-ratio':
+      // 10. 开展产品碳足迹认证覆盖款数 (面向海外出口认证与CBAM合规，衡变、沈变外贸重装与德缆特种出口线缆认证品类最全)
       return {
-        unit: '类',
-        nodes: [
-          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
-          { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
-          { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
-          { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
-          { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
-          { name: '新缆厂', depth: 1, itemStyle: { color: '#52c41a' } },
-          { name: '德缆公司', depth: 1, itemStyle: { color: '#eb2f96' } },
-
-          { name: '特高压换流变 (认证)', depth: 2, itemStyle: { color: '#0958d9' } },
-          { name: '大型电力变 (认证)', depth: 2, itemStyle: { color: '#08979c' } },
-          { name: '干式变压器 (认证)', depth: 2, itemStyle: { color: '#531dab' } },
-          { name: '特种交联电缆 (认证)', depth: 2, itemStyle: { color: '#d46b08' } },
-          { name: '铝合金导线 (认证)', depth: 2, itemStyle: { color: '#389e0d' } },
-          { name: '矿用橡套电缆 (认证)', depth: 2, itemStyle: { color: '#c41d7f' } },
-        ],
+        unit: '款',
+        nodes: GROUP_LEVEL_NODES,
         links: [
-          { source: '电装集团', target: '沈变公司', value: 3 },
-          { source: '电装集团', target: '衡变公司', value: 3 },
-          { source: '电装集团', target: '新变厂', value: 2 },
-          { source: '电装集团', target: '鲁缆公司', value: 2 },
-          { source: '电装集团', target: '新缆厂', value: 1 },
-          { source: '电装集团', target: '德缆公司', value: 1 },
+          { source: '电装集团', target: '衡变公司', value: 16 },
+          { source: '电装集团', target: '沈变公司', value: 14 },
+          { source: '电装集团', target: '新变厂', value: 8 },
+          { source: '电装集团', target: '德缆公司', value: 4 },
+          { source: '电装集团', target: '鲁缆公司', value: 4 },
+          { source: '电装集团', target: '新缆厂', value: 2 },
 
-          { source: '沈变公司', target: '特高压换流变 (认证)', value: 3 },
-          { source: '衡变公司', target: '大型电力变 (认证)', value: 3 },
-          { source: '新变厂', target: '干式变压器 (认证)', value: 2 },
-          { source: '鲁缆公司', target: '特种交联电缆 (认证)', value: 2 },
-          { source: '新缆厂', target: '铝合金导线 (认证)', value: 1 },
-          { source: '德缆公司', target: '矿用橡套电缆 (认证)', value: 1 },
+          // 沈变系 6家 (合计 14)
+          { source: '沈变公司', target: '沈变本部', value: 6 },
+          { source: '沈变公司', target: '和新套管公司', value: 3 },
+          { source: '沈变公司', target: '露娜智能制造', value: 3 },
+          { source: '沈变公司', target: '康嘉互感器', value: 2 },
+          { source: '沈变公司', target: '智慧能源', value: 0 },
+          { source: '沈变公司', target: '印能公司', value: 0 },
+
+          // 衡变系 9家 (合计 16，外贸高端出海重器认证最多)
+          { source: '衡变公司', target: '衡变本部', value: 7 },
+          { source: '衡变公司', target: '云集高压开关', value: 3 },
+          { source: '衡变公司', target: '南京电研', value: 2 },
+          { source: '衡变公司', target: '湖南电气', value: 2 },
+          { source: '衡变公司', target: '合容电气', value: 2 },
+          { source: '衡变公司', target: '新疆自控', value: 0 },
+          { source: '衡变公司', target: '特能建', value: 0 },
+          { source: '衡变公司', target: '赛杰爱迪', value: 0 },
+
+          // 新变系 6家 (合计 8)
+          { source: '新变厂', target: '超高压公司', value: 4 },
+          { source: '新变厂', target: '天变公司', value: 2 },
+          { source: '新变厂', target: '智能电气公司', value: 2 },
+          { source: '新变厂', target: '珠峰硅钢', value: 0 },
+          { source: '新变厂', target: '京津冀公司', value: 0 },
+          { source: '新变厂', target: '银利电气', value: 0 },
+
+          // 鲁缆系 4家 (合计 4)
+          { source: '鲁缆公司', target: '鲁缆本部', value: 2 },
+          { source: '鲁缆公司', target: '智缆公司', value: 2 },
+          { source: '鲁缆公司', target: '曙光公司', value: 0 },
+          { source: '鲁缆公司', target: '昭和公司', value: 0 },
+
+          // 新缆系 2家 (合计 2)
+          { source: '新缆厂', target: '新缆厂本部', value: 2 },
+          { source: '新缆厂', target: '新疆电缆公司', value: 0 },
+
+          // 德缆系 1家 (合计 4，欧盟出口风电光伏特种电缆)
+          { source: '德缆公司', target: '德缆公司本部', value: 4 },
         ],
       }
   }
@@ -3040,8 +3547,8 @@ export default function IndicatorControlPage() {
 
   // 动态计算当前选中指标对应的 1/2/3 级能流桑基图数据
   const currentSankeyData = useMemo(() => {
-    return getMetricSankeyData(selectedGroupMetricId, activeGroupMetric)
-  }, [selectedGroupMetricId, activeGroupMetric])
+    return getMetricSankeyData(selectedGroupMetricId, activeGroupMetric, selectedNode)
+  }, [selectedGroupMetricId, activeGroupMetric, selectedNode])
 
   const [procSearchKey, setProcSearchKey] = useState('')
 
@@ -3330,24 +3837,227 @@ export default function IndicatorControlPage() {
     return list
   }, [activeUnitInfo, currentProcessProduct, procSearchKey])
 
-  // 动态整体综合指标 (根据选中的组织节点自适应数值与同比)
+  // 动态整体综合指标 (根据选中的组织节点自适应数值与同比，彻底解决公司/工厂级数据同质化问题)
   const currentOverallMetrics = useMemo(() => {
     const isGroup = selectedNode.level === 'group' || selectedNode.id === 'ent_root'
     const nodeName = selectedNode.name || ''
-    const isCable = nodeName.includes('缆')
+
+    // 预置各主要直属制造单位与代表性工厂的自适应指标特征字典
+    const companyProfiles: Record<string, {
+      totalEnergy: string; energyYoy: string;
+      totalCarbon: string; carbonYoy: string;
+      carbonIntensity: string; carbonIntensityYoy: string;
+      greenRatio: string; greenYoy: string;
+      phyGreenRatio: string; phyGreenYoy: string;
+      unitAddedValue: string; unitAddedValueYoy: string;
+      unitOutput: string; unitOutputYoy: string;
+      waterTotal: string; waterYoy: string;
+      savingEquip: string; savingEquipYoy: string;
+      pcfRatio: string; pcfYoy: string;
+    }> = {
+      // 1. 沈变系 (特高压/大容量变压器主阵地，能耗高，产值大，单耗低)
+      '沈变公司': {
+        totalEnergy: '418.0', energyYoy: '-5.2%',
+        totalCarbon: '965.0', carbonYoy: '-5.6%',
+        carbonIntensity: '2.308', carbonIntensityYoy: '-0.4%',
+        greenRatio: '31.0%', greenYoy: '+5.8%',
+        phyGreenRatio: '18.5%', phyGreenYoy: '+3.2%',
+        unitAddedValue: '0.1212', unitAddedValueYoy: '-4.2%',
+        unitOutput: '0.0387', unitOutputYoy: '-4.5%',
+        waterTotal: '3,450', waterYoy: '-3.8%',
+        savingEquip: '91.5%', savingEquipYoy: '+3.4%',
+        pcfRatio: '87.5%', pcfYoy: '+8.0%',
+      },
+      '沈变本部': {
+        totalEnergy: '215.0', energyYoy: '-5.5%',
+        totalCarbon: '495.0', carbonYoy: '-5.8%',
+        carbonIntensity: '2.302', carbonIntensityYoy: '-0.3%',
+        greenRatio: '28.5%', greenYoy: '+4.9%',
+        phyGreenRatio: '16.2%', phyGreenYoy: '+2.8%',
+        unitAddedValue: '0.1181', unitAddedValueYoy: '-4.6%',
+        unitOutput: '0.0384', unitOutputYoy: '-4.8%',
+        waterTotal: '1,780', waterYoy: '-4.0%',
+        savingEquip: '89.2%', savingEquipYoy: '+3.1%',
+        pcfRatio: '85.7%', pcfYoy: '+7.5%',
+      },
+      '露娜智能制造': {
+        totalEnergy: '45.0', energyYoy: '-8.2%',
+        totalCarbon: '104.0', carbonYoy: '-9.0%',
+        carbonIntensity: '2.311', carbonIntensityYoy: '-0.8%',
+        greenRatio: '52.0%', greenYoy: '+12.4%',
+        phyGreenRatio: '38.0%', phyGreenYoy: '+8.5%',
+        unitAddedValue: '0.1000', unitAddedValueYoy: '-6.5%',
+        unitOutput: '0.0310', unitOutputYoy: '-6.8%',
+        waterTotal: '620', waterYoy: '-5.2%',
+        savingEquip: '98.5%', savingEquipYoy: '+5.2%',
+        pcfRatio: '100%', pcfYoy: '+15.0%',
+      },
+      // 2. 衡变系 (清洁水电比例高，28MW分布式屋顶光伏领跑)
+      '衡变公司': {
+        totalEnergy: '362.5', energyYoy: '-4.8%',
+        totalCarbon: '620.0', carbonYoy: '-6.2%',
+        carbonIntensity: '1.710', carbonIntensityYoy: '-1.5%',
+        greenRatio: '34.2%', greenYoy: '+6.5%',
+        phyGreenRatio: '35.2%', phyGreenYoy: '+7.8%',
+        unitAddedValue: '0.1215', unitAddedValueYoy: '-4.0%',
+        unitOutput: '0.0394', unitOutputYoy: '-4.3%',
+        waterTotal: '2,150', waterYoy: '-4.2%',
+        savingEquip: '94.2%', savingEquipYoy: '+4.0%',
+        pcfRatio: '93.8%', pcfYoy: '+9.2%',
+      },
+      '衡变本部': {
+        totalEnergy: '165.0', energyYoy: '-5.0%',
+        totalCarbon: '282.0', carbonYoy: '-6.5%',
+        carbonIntensity: '1.709', carbonIntensityYoy: '-1.6%',
+        greenRatio: '38.5%', greenYoy: '+7.2%',
+        phyGreenRatio: '39.0%', phyGreenYoy: '+8.5%',
+        unitAddedValue: '0.1213', unitAddedValueYoy: '-4.2%',
+        unitOutput: '0.0393', unitOutputYoy: '-4.5%',
+        waterTotal: '980', waterYoy: '-4.5%',
+        savingEquip: '95.0%', savingEquipYoy: '+4.2%',
+        pcfRatio: '92.3%', pcfYoy: '+8.8%',
+      },
+      // 3. 新变厂系 (新疆大漠戈壁风光绿电枢纽，综合绿电消费比例高达 58.5%)
+      '新变厂': {
+        totalEnergy: '309.5', energyYoy: '-4.5%',
+        totalCarbon: '815.0', carbonYoy: '-4.2%',
+        carbonIntensity: '2.633', carbonIntensityYoy: '+0.3%',
+        greenRatio: '58.5%', greenYoy: '+14.2%',
+        phyGreenRatio: '31.0%', phyGreenYoy: '+6.8%',
+        unitAddedValue: '0.1984', unitAddedValueYoy: '-3.5%',
+        unitOutput: '0.0632', unitOutputYoy: '-3.8%',
+        waterTotal: '820', waterYoy: '-2.5%',
+        savingEquip: '89.6%', savingEquipYoy: '+3.2%',
+        pcfRatio: '80.0%', pcfYoy: '+6.5%',
+      },
+      '超高压公司': {
+        totalEnergy: '145.0', energyYoy: '-4.8%',
+        totalCarbon: '382.0', carbonYoy: '-4.5%',
+        carbonIntensity: '2.634', carbonIntensityYoy: '+0.3%',
+        greenRatio: '55.0%', greenYoy: '+13.5%',
+        phyGreenRatio: '29.5%', phyGreenYoy: '+6.2%',
+        unitAddedValue: '0.1959', unitAddedValueYoy: '-3.8%',
+        unitOutput: '0.0620', unitOutputYoy: '-4.0%',
+        waterTotal: '390', waterYoy: '-2.8%',
+        savingEquip: '91.0%', savingEquipYoy: '+3.5%',
+        pcfRatio: '83.3%', pcfYoy: '+7.0%',
+      },
+      // 4. 鲁缆公司 (电线电缆龙头，连铸连轧拉丝与挤出水槽冷却水耗大)
+      '鲁缆公司': {
+        totalEnergy: '105.5', energyYoy: '-3.8%',
+        totalCarbon: '325.0', carbonYoy: '-3.5%',
+        carbonIntensity: '3.080', carbonIntensityYoy: '+0.3%',
+        greenRatio: '22.8%', greenYoy: '+4.2%',
+        phyGreenRatio: '14.2%', phyGreenYoy: '+3.0%',
+        unitAddedValue: '0.1819', unitAddedValueYoy: '-3.2%',
+        unitOutput: '0.0502', unitOutputYoy: '-3.4%',
+        waterTotal: '5,260', waterYoy: '-5.0%',
+        savingEquip: '88.2%', savingEquipYoy: '+3.0%',
+        pcfRatio: '80.0%', pcfYoy: '+6.0%',
+      },
+      '鲁缆本部': {
+        totalEnergy: '62.0', energyYoy: '-4.0%',
+        totalCarbon: '191.0', carbonYoy: '-3.8%',
+        carbonIntensity: '3.081', carbonIntensityYoy: '+0.2%',
+        greenRatio: '20.5%', greenYoy: '+3.8%',
+        phyGreenRatio: '13.8%', phyGreenYoy: '+2.8%',
+        unitAddedValue: '0.1824', unitAddedValueYoy: '-3.4%',
+        unitOutput: '0.0504', unitOutputYoy: '-3.6%',
+        waterTotal: '3,080', waterYoy: '-5.2%',
+        savingEquip: '87.5%', savingEquipYoy: '+2.8%',
+        pcfRatio: '75.0%', pcfYoy: '+5.5%',
+      },
+      // 5. 新缆厂 (新疆本地线缆枢纽，兼具高水耗与新疆高绿电消纳)
+      '新缆厂': {
+        totalEnergy: '58.0', energyYoy: '-4.0%',
+        totalCarbon: '152.0', carbonYoy: '-4.2%',
+        carbonIntensity: '2.620', carbonIntensityYoy: '-0.2%',
+        greenRatio: '62.0%', greenYoy: '+15.6%',
+        phyGreenRatio: '22.5%', phyGreenYoy: '+5.2%',
+        unitAddedValue: '0.2042', unitAddedValueYoy: '-3.0%',
+        unitOutput: '0.0592', unitOutputYoy: '-3.2%',
+        waterTotal: '2,680', waterYoy: '-4.2%',
+        savingEquip: '87.0%', savingEquipYoy: '+2.8%',
+        pcfRatio: '66.7%', pcfYoy: '+5.0%',
+      },
+      // 6. 德缆公司 (特种电缆与欧盟出口主力，水耗显著，PCF 认证覆盖率高)
+      '德缆公司': {
+        totalEnergy: '31.0', energyYoy: '-3.5%',
+        totalCarbon: '69.8', carbonYoy: '-3.8%',
+        carbonIntensity: '2.251', carbonIntensityYoy: '-0.3%',
+        greenRatio: '24.5%', greenYoy: '+4.5%',
+        phyGreenRatio: '12.9%', phyGreenYoy: '+2.5%',
+        unitAddedValue: '0.1938', unitAddedValueYoy: '-3.1%',
+        unitOutput: '0.0596', unitOutputYoy: '-3.3%',
+        waterTotal: '1,120', waterYoy: '-4.5%',
+        savingEquip: '85.0%', savingEquipYoy: '+2.5%',
+        pcfRatio: '80.0%', pcfYoy: '+7.5%',
+      },
+    }
+
+    // 匹配当前节点 profile
+    let profile = companyProfiles[nodeName]
+    if (!profile) {
+      for (const [key, p] of Object.entries(companyProfiles)) {
+        if (nodeName.includes(key) || key.includes(nodeName)) {
+          profile = p
+          break
+        }
+      }
+    }
+    // 若仍未匹配（如其他直属工厂），则根据所属行业和工厂类型自适应
+    if (!profile) {
+      const isCable = nodeName.includes('缆') || nodeName.includes('线')
+      profile = {
+        totalEnergy: isCable ? '18.5' : '32.0', energyYoy: '-4.0%',
+        totalCarbon: isCable ? '48.0' : '72.0', carbonYoy: '-4.2%',
+        carbonIntensity: '2.300', carbonIntensityYoy: '-0.2%',
+        greenRatio: isCable ? '25.0%' : '32.0%', greenYoy: '+5.0%',
+        phyGreenRatio: '15.0%', phyGreenYoy: '+3.0%',
+        unitAddedValue: isCable ? '0.1850' : '0.1250', unitAddedValueYoy: '-3.5%',
+        unitOutput: isCable ? '0.0520' : '0.0400', unitOutputYoy: '-3.8%',
+        waterTotal: isCable ? '450' : '180', waterYoy: '-3.5%',
+        savingEquip: '88.0%', savingEquipYoy: '+3.0%',
+        pcfRatio: '75.0%', pcfYoy: '+5.0%',
+      }
+    }
 
     return FACTORY_TOP10_METRICS.map((m) => {
       let curVal = m.curVal
       let yoy = m.yoy
+
       if (m.id === 'm-total-energy') {
-        curVal = isGroup ? '5,529.1' : (isCable ? '890.4' : (nodeName.includes('衡变') ? '1,420.5' : (nodeName.includes('新变') ? '1,280.0' : m.curVal)))
-        yoy = isGroup ? '-2.4%' : (isCable ? '-3.1%' : m.yoy)
+        curVal = profile.totalEnergy
+        yoy = profile.energyYoy
       } else if (m.id === 'm-total-carbon') {
-        curVal = isGroup ? '12,840.5' : (isCable ? '1,960.2' : (nodeName.includes('衡变') ? '3,120.4' : (nodeName.includes('新变') ? '2,890.0' : m.curVal)))
-        yoy = isGroup ? '-3.1%' : (isCable ? '-2.8%' : m.yoy)
-      } else if (m.id === 'm-water-total') {
-        curVal = isGroup ? '68,450' : (isCable ? '9,820' : (nodeName.includes('衡变') ? '17,200' : (nodeName.includes('新变') ? '14,600' : m.curVal)))
+        curVal = profile.totalCarbon
+        yoy = profile.carbonYoy
+      } else if (m.id === 'm-carbon-per-energy') {
+        curVal = profile.carbonIntensity
+        yoy = profile.carbonIntensityYoy
+      } else if (m.id === 'm-green-energy-ratio') {
+        curVal = profile.greenRatio
+        yoy = profile.greenYoy
+      } else if (m.id === 'm-phy-green-ratio') {
+        curVal = profile.phyGreenRatio
+        yoy = profile.phyGreenYoy
+      } else if (m.id === 'm-unit-industrial-added-value') {
+        curVal = profile.unitAddedValue
+        yoy = profile.unitAddedValueYoy
+      } else if (m.id === 'm-unit-output') {
+        curVal = profile.unitOutput
+        yoy = profile.unitOutputYoy
+      } else if (m.id === 'm-water-consumption') {
+        curVal = profile.waterTotal
+        yoy = profile.waterYoy
+      } else if (m.id === 'm-energy-saving-equipment-ratio') {
+        curVal = profile.savingEquip
+        yoy = profile.savingEquipYoy
+      } else if (m.id === 'm-pcf-ratio') {
+        curVal = profile.pcfRatio
+        yoy = profile.pcfYoy
       }
+
       return {
         ...m,
         curVal,
@@ -3498,7 +4208,7 @@ export default function IndicatorControlPage() {
                   return (
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans">
+                        <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans h-[44px]">
                           <th className="py-2.5 px-3 whitespace-nowrap min-w-[110px]">时间</th>
                           {tableConfig.columns.map((col) => (
                             <th key={col.key} className={cn('py-2.5 px-3 text-right whitespace-nowrap', col.headerClass)}>
@@ -3518,7 +4228,7 @@ export default function IndicatorControlPage() {
                           const total = activeViewMetric.trendHistory.length
 
                           return (
-                            <tr key={item.period} className="hover:bg-accent/30 transition-colors">
+                            <tr key={item.period} className="hover:bg-accent/30 transition-colors h-[44px]">
                               <td className="py-2.5 px-3 font-bold whitespace-nowrap">
                                 {item.period === '26-08' ? '2026年08月' : `20${item.period.replace('-', '年')}月`}
                               </td>
@@ -3846,7 +4556,7 @@ export default function IndicatorControlPage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
-                    {FACTORY_TOP10_METRICS.map((m) => (
+                    {currentOverallMetrics.map((m) => (
                       <div
                         key={m.id}
                         onClick={() => setActiveViewMetric(m)}

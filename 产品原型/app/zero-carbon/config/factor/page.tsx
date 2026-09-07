@@ -691,7 +691,7 @@ export default function FactorPage() {
             <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-left text-xs border-collapse font-mono">
                 <thead>
-                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
+                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                     <th className="py-2.5 px-3">省份 / 区域电网</th>
                     <th className="py-2.5 px-3">大区归属</th>
                     <th className="py-2.5 px-3 font-mono">综合电力碳排因子 (tCO2/MWh)</th>
@@ -702,7 +702,7 @@ export default function FactorPage() {
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground">
                   {filteredPowerFactors.map((row) => (
-                    <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                    <tr key={row.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                       <td className="py-2.5 px-3 font-sans font-bold text-foreground flex items-center gap-1.5">
                         <MapPin className="size-3.5 text-primary" />
                         <span>{row.province}</span>
@@ -808,7 +808,7 @@ export default function FactorPage() {
             <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-left text-xs border-collapse font-mono">
                 <thead>
-                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
+                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                     <th className="py-2.5 px-3">能源介质名称</th>
                     <th className="py-2.5 px-3">介质类别</th>
                     <th className="py-2.5 px-3">计量单位</th>
@@ -823,7 +823,7 @@ export default function FactorPage() {
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground">
                   {filteredEnergyFactors.map((row) => (
-                    <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                    <tr key={row.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                       <td className="py-2.5 px-3 font-sans font-bold text-foreground">{row.name}</td>
                       <td className="py-2.5 px-3 font-sans">
                         <span className="px-2 py-0.5 rounded bg-panel text-muted-foreground border border-border text-[10.5px]">
@@ -915,7 +915,7 @@ export default function FactorPage() {
             <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-left text-xs border-collapse font-mono">
                 <thead>
-                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
+                  <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                     <th className="py-2.5 px-3">能源介质名称</th>
                     <th className="py-2.5 px-3">介质类别</th>
                     <th className="py-2.5 px-3">计量单位</th>
@@ -930,7 +930,7 @@ export default function FactorPage() {
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground">
                   {filteredCoalFactors.map((row) => (
-                    <tr key={row.id} className="hover:bg-accent/30 transition-colors">
+                    <tr key={row.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                       <td className="py-2.5 px-3 font-sans font-bold text-foreground">{row.name}</td>
                       <td className="py-2.5 px-3 font-sans">
                         <span className="px-2 py-0.5 rounded bg-panel text-muted-foreground border border-border text-[10.5px]">

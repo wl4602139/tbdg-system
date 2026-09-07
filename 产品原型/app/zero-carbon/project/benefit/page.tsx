@@ -818,11 +818,15 @@ export default function BenefitEvaluationPage() {
     { date: '08-28', 充电量: 3.76, 放电量: 3.27, 收益: 2507 },
   ]
 
-  const storageBenchmarkData = [
-    { name: '衡变储能', 综合效率: 87.0, 日套利收益: 8420 },
-    { name: '沈变储能', 综合效率: 87.5, 日套利收益: 7120 },
-    { name: '新变超高压', 综合效率: 86.8, 日套利收益: 5380 },
-    { name: '鲁缆储能', 综合效率: 87.0, 日套利收益: 4150 },
+  const storageSelfHistoryData = [
+    { month: '01月', 综合效率: 86.2, 去年同期: 85.0, 月套利收益: 6850 },
+    { month: '02月', 综合效率: 86.5, 去年同期: 85.2, 月套利收益: 7120 },
+    { month: '03月', 综合效率: 87.0, 去年同期: 85.8, 月套利收益: 7480 },
+    { month: '04月', 综合效率: 87.2, 去年同期: 86.0, 月套利收益: 7560 },
+    { month: '05月', 综合效率: 87.6, 去年同期: 86.4, 月套利收益: 7820 },
+    { month: '06月', 综合效率: 87.4, 去年同期: 86.1, 月套利收益: 7750 },
+    { month: '07月', 综合效率: 87.8, 去年同期: 86.5, 月套利收益: 7960 },
+    { month: '08月', 综合效率: 87.5, 去年同期: 86.2, 月套利收益: 7890 },
   ]
 
   // 热泵图表数据
@@ -1230,6 +1234,7 @@ export default function BenefitEvaluationPage() {
                       tickLine={false}
                     />
                     <Tooltip
+                      cursor={{ stroke: 'rgba(56, 189, 248, 0.25)' }}
                       contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', borderColor: 'rgba(255,255,255,0.15)', borderRadius: '8px', fontSize: '12px', color: '#f8fafc' }}
                     />
                     <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4, color: '#94a3b8' }} />
@@ -1297,23 +1302,23 @@ export default function BenefitEvaluationPage() {
               </div>
             </div>
 
-            {/* 🌟 储能可视化图表区 2：横向电站综合效率与套利收益对比柱状图 */}
+            {/* 🌟 储能可视化图表区 2：选定储能电站历史时序综合效率与套利收益对比 */}
             <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="size-4 text-emerald-400" />
-                  <h3 className="text-xs font-bold text-foreground">各园区储能电站综合转换效率与套利收益对标排行</h3>
+                  <BarChart3 className="size-4 text-emerald-500" />
+                  <h3 className="text-xs font-bold text-foreground">选定储能电站逐月充放电综合效率与套利收益走势 (自身对比)</h3>
                 </div>
-                <span className="text-[11px] text-muted-foreground">行业高效基准线：综合效率 ≥ 85%</span>
+                <span className="text-[11px] text-muted-foreground">额定高效设计基准线：综合效率 ≥ 85.0%</span>
               </div>
               <ResponsiveContainer width="100%" height={210}>
-                <BarChart data={storageBenchmarkData} margin={{ top: 10, right: 30, left: -10, bottom: 0 }}>
+                <BarChart data={storageSelfHistoryData} margin={{ top: 10, right: 30, left: -10, bottom: 0 }}>
                   <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                   <YAxis
                     yAxisId="left"
                     orientation="left"
-                    domain={[70, 100]}
+                    domain={[80, 92]}
                     unit="%"
                     tick={{ fontSize: 10, fill: '#94a3b8' }}
                     axisLine={false}
@@ -1322,29 +1327,30 @@ export default function BenefitEvaluationPage() {
                   <YAxis
                     yAxisId="right"
                     orientation="right"
-                    domain={[0, 10000]}
+                    domain={[6000, 9000]}
                     unit="元"
                     tick={{ fontSize: 10, fill: '#94a3b8' }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip
+                    cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }}
                     contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', borderColor: 'rgba(255,255,255,0.15)', borderRadius: '8px', fontSize: '12px', color: '#f8fafc' }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4, color: '#94a3b8' }} />
                   <Bar
-                    yAxisId="left"
-                    dataKey="综合效率"
-                    name="综合转换效率 (%)"
-                    fill="#52c41a"
+                    yAxisId="right"
+                    dataKey="月套利收益"
+                    name="日均套利收益 (元)"
+                    fill="#10b981"
                     radius={[4, 4, 0, 0]}
                     maxBarSize={32}
                   />
                   <Bar
-                    yAxisId="right"
-                    dataKey="日套利收益"
-                    name="日套利收益 (元)"
-                    fill="#fa8c16"
+                    yAxisId="left"
+                    dataKey="综合效率"
+                    name="综合转换效率 (%)"
+                    fill="#3b82f6"
                     radius={[4, 4, 0, 0]}
                     maxBarSize={32}
                   />
@@ -1370,7 +1376,7 @@ export default function BenefitEvaluationPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border">
+                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border h-[44px]">
                       <th className="py-2.5 px-3 whitespace-nowrap">储能项目名称</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">储能装机</th>
@@ -1386,7 +1392,7 @@ export default function BenefitEvaluationPage() {
                   </thead>
                   <tbody className="divide-y divide-border font-mono">
                     {filteredStorageData.map((item) => (
-                      <tr key={item.id} className="hover:hover:bg-primary/10 transition-colors">
+                      <tr key={item.id} className="hover:hover:bg-primary/10 transition-colors h-[44px]">
                         <td className="py-2.5 px-3 font-sans font-bold text-foreground">{item.name}</td>
                         <td className="py-2.5 px-3 font-sans text-muted-foreground">
                           <div>{item.company}</div>
@@ -1563,7 +1569,7 @@ export default function BenefitEvaluationPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border">
+                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border h-[44px]">
                       <th className="py-2.5 px-3 whitespace-nowrap">热泵项目名称</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">COP</th>
@@ -1581,7 +1587,7 @@ export default function BenefitEvaluationPage() {
                   </thead>
                   <tbody className="divide-y divide-border font-mono">
                     {filteredHeatPumpData.map((item) => (
-                      <tr key={item.id} className="hover:bg-orange-500/20/40 transition-colors">
+                      <tr key={item.id} className="hover:bg-orange-500/20/40 transition-colors h-[44px]">
                         <td className="py-2.5 px-3 font-sans font-bold text-foreground">{item.name}</td>
                         <td className="py-2.5 px-3 font-sans text-muted-foreground">
                           <div>{item.company}</div>
@@ -1752,40 +1758,6 @@ export default function BenefitEvaluationPage() {
 
                 {/* 🌟 和自己对比 (纵向·同比/环比/历史走势) */}
                 <div className="space-y-2">
-                  {/* 三大指标同比环比速览条（精炼简洁，去除多余冗余信息） */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 bg-panel/70 p-2 rounded-lg border border-border/60 text-xs">
-                    <div className="flex flex-col">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-muted-foreground font-medium">周期发电量</span>
-                        <span className="font-mono font-bold text-foreground">118.5 万kWh</span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1 text-[10px] font-mono">
-                        <span className="text-emerald-400 bg-emerald-500/15 px-1 py-0.2 rounded font-bold">同比 +8.6% ↑</span>
-                        <span className="text-blue-400 bg-primary/10 px-1 py-0.2 rounded">环比 +3.2% ↑</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col md:border-l border-border/60 md:pl-2">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-muted-foreground font-medium">有效发电小时数</span>
-                        <span className="font-mono font-bold text-blue-400">925.8 h</span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1 text-[10px] font-mono">
-                        <span className="text-blue-400 bg-primary/15 px-1 py-0.2 rounded font-bold">同比 +4.8% ↑</span>
-                        <span className="text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded">环比 +2.0% ↑</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col md:border-l border-border/60 md:pl-2">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-muted-foreground font-medium">综合消纳率</span>
-                        <span className="font-mono font-bold text-emerald-400">92.4%</span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1 text-[10px] font-mono">
-                        <span className="text-emerald-400 bg-emerald-500/20 px-1 py-0.2 rounded font-bold">同比 +1.8% ↑</span>
-                        <span className="text-amber-400 bg-amber-500/15 px-1 py-0.2 rounded">环比 -0.5% ↓</span>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* 1~8月历史逐月走势与同期对照图 */}
                   <div className="pt-0.5">
                     <div className="flex items-center justify-between text-[10.5px] text-muted-foreground mb-1 font-mono">
@@ -1800,7 +1772,7 @@ export default function BenefitEvaluationPage() {
                         {pvCompareMetric === 'ratio' && '单位：%'}
                       </span>
                     </div>
-                    <ResponsiveContainer width="100%" height={195}>
+                    <ResponsiveContainer width="100%" height={235}>
                       <ComposedChart data={PV_SELF_HISTORY_DATA} margin={{ top: 8, right: 16, left: -15, bottom: 0 }}>
                         <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                         <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
@@ -1816,6 +1788,7 @@ export default function BenefitEvaluationPage() {
                         )}
 
                         <Tooltip
+                          cursor={{ fill: 'rgba(56, 189, 248, 0.08)', stroke: 'rgba(56, 189, 248, 0.25)' }}
                           contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', borderColor: 'rgba(255,255,255,0.15)', borderRadius: '8px', fontSize: '11px', color: '#f8fafc' }}
                         />
                         <Legend wrapperStyle={{ fontSize: 10.5, paddingTop: 2, color: '#94a3b8' }} />
@@ -1881,24 +1854,24 @@ export default function BenefitEvaluationPage() {
               </div>
             </div>
 
-            {/* 🌟 光伏可视化图表区 2：各园区电站有效利用小时数与消纳率横向排行榜 */}
+            {/* 🌟 光伏可视化图表区 2：选定光伏电站逐月发电量与综合消纳率自身时序走势 */}
             <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="size-4 text-blue-600" />
-                  <h3 className="text-xs font-bold text-foreground">各分布式光伏电站有效发电小时数 (h) 与综合消纳率 (%) 排行榜</h3>
+                  <BarChart3 className="size-4 text-primary" />
+                  <h3 className="text-xs font-bold text-foreground">选定分布式光伏电站逐月发电量与综合消纳率走势 (自身对比)</h3>
                 </div>
-                <span className="text-[11px] text-muted-foreground">一类资源区基准有效利用小时数：≥ 900 h</span>
+                <span className="text-[11px] text-muted-foreground">自身消纳达标基准线：综合就地消纳率 ≥ 90.0%</span>
               </div>
               <ResponsiveContainer width="100%" height={210}>
-                <BarChart data={pvBenchmarkData} margin={{ top: 10, right: 30, left: -10, bottom: 0 }}>
+                <BarChart data={PV_SELF_HISTORY_DATA} margin={{ top: 10, right: 30, left: -10, bottom: 0 }}>
                   <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                   <YAxis
                     yAxisId="left"
                     orientation="left"
-                    domain={[800, 1200]}
-                    unit="h"
+                    domain={[40, 160]}
+                    unit="万kWh"
                     tick={{ fontSize: 10, fill: '#94a3b8' }}
                     axisLine={false}
                     tickLine={false}
@@ -1906,31 +1879,40 @@ export default function BenefitEvaluationPage() {
                   <YAxis
                     yAxisId="right"
                     orientation="right"
-                    domain={[80, 100]}
+                    domain={[85, 100]}
                     unit="%"
                     tick={{ fontSize: 10, fill: '#94a3b8' }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip
+                    cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }}
                     contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', borderColor: 'rgba(255,255,255,0.15)', borderRadius: '8px', fontSize: '12px', color: '#f8fafc' }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4, color: '#94a3b8' }} />
                   <Bar
                     yAxisId="left"
-                    dataKey="有效小时数"
-                    name="有效发电小时数 (h)"
+                    dataKey="gen2026"
+                    name="2026实际发电量 (万kWh)"
                     fill="#1677ff"
                     radius={[4, 4, 0, 0]}
-                    maxBarSize={32}
+                    maxBarSize={30}
+                  />
+                  <Bar
+                    yAxisId="left"
+                    dataKey="gen2025"
+                    name="2025同期发电量 (万kWh)"
+                    fill="#93c5fd"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={30}
                   />
                   <Bar
                     yAxisId="right"
-                    dataKey="综合消纳率"
+                    dataKey="ratio2026"
                     name="综合就地消纳率 (%)"
                     fill="#52c41a"
                     radius={[4, 4, 0, 0]}
-                    maxBarSize={32}
+                    maxBarSize={30}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -1954,7 +1936,7 @@ export default function BenefitEvaluationPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border">
+                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border h-[44px]">
                       <th className="py-2.5 px-3 whitespace-nowrap">光伏项目名称</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">所属园区/基地</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">光伏装机 (MWp)</th>
@@ -1971,7 +1953,7 @@ export default function BenefitEvaluationPage() {
                   </thead>
                   <tbody className="divide-y divide-border font-mono">
                     {filteredPvData.map((item) => (
-                      <tr key={item.id} className="hover:hover:bg-amber-500/200/10 transition-colors">
+                      <tr key={item.id} className="hover:hover:bg-amber-500/200/10 transition-colors h-[44px]">
                         <td className="py-2.5 px-3 font-sans font-bold text-foreground">{item.name}</td>
                         <td className="py-2.5 px-3 font-sans text-muted-foreground">
                           <div>{item.company}</div>
@@ -2034,7 +2016,7 @@ export default function BenefitEvaluationPage() {
                 <span className="font-bold text-foreground block mb-2">不同建筑层高明细分解表：</span>
                 <table className="w-full text-left border-collapse border border-border rounded-lg overflow-hidden">
                   <thead>
-                    <tr className="bg-panel/80 text-muted-foreground font-bold border-b border-border">
+                    <tr className="bg-panel/80 text-muted-foreground font-bold border-b border-border h-[44px]">
                       <th className="py-2 px-3">车间/建筑功能单元</th>
                       <th className="py-2 px-3 text-center">原始面积 A (万㎡)</th>
                       <th className="py-2 px-3 text-center">净空层高 H (m)</th>
@@ -2044,7 +2026,7 @@ export default function BenefitEvaluationPage() {
                   </thead>
                   <tbody className="divide-y divide-border font-mono text-[11px]">
                     {selectedHeightDetail.item.heightBreakdown.map((b, idx) => (
-                      <tr key={idx} className="hover:bg-panel">
+                      <tr key={idx} className="hover:bg-panel h-[44px]">
                         <td className="py-2 px-3 font-sans font-medium text-foreground">{b.buildingName}</td>
                         <td className="py-2 px-3 text-center">{b.areaWanM2}</td>
                         <td className="py-2 px-3 text-center font-bold text-blue-600">{b.heightM}m</td>
@@ -2052,7 +2034,7 @@ export default function BenefitEvaluationPage() {
                         <td className="py-2 px-3 text-right font-sans text-muted-foreground">{(b.heightM / 3).toFixed(1)}x</td>
                       </tr>
                     ))}
-                    <tr className="bg-orange-500/20/40 font-bold text-foreground">
+                    <tr className="bg-orange-500/20/40 font-bold text-foreground h-[44px]">
                       <td className="py-2 px-3 font-sans">合计汇总</td>
                       <td className="py-2 px-3 text-center">{selectedHeightDetail.item.areaWanM2} 万㎡</td>
                       <td className="py-2 px-3 text-center font-sans text-muted-foreground">-</td>

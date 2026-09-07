@@ -891,7 +891,7 @@ export default function MicrogridMonitoringPage() {
               <div className="overflow-x-auto max-h-[360px] custom-scrollbar">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead className="sticky top-0 bg-panel z-10">
-                    <tr className="border-b border-border text-foreground font-semibold font-sans">
+                    <tr className="border-b border-border text-foreground font-semibold font-sans h-[44px]">
                       <th className="py-2.5 px-3">采样时间</th>
                       <th className="py-2.5 px-3">园区总负荷 (kW)</th>
                       <th className="py-2.5 px-3 text-primary">市电受电 (kW)</th>
@@ -901,7 +901,7 @@ export default function MicrogridMonitoringPage() {
                   </thead>
                   <tbody className="divide-y divide-border text-foreground">
                     {filteredLedger.map((row) => (
-                      <tr key={row.id} className="hover:bg-primary/15/40 transition-colors">
+                      <tr key={row.id} className="hover:bg-primary/15/40 transition-colors h-[44px]">
                         <td className="py-2 px-3 font-semibold text-foreground font-sans">{row.time}</td>
                         <td className="py-2 px-3 font-bold text-foreground">{row.loadKw.toLocaleString()}</td>
                         <td className="py-2 px-3 text-primary font-bold">{row.gridKw.toLocaleString()}</td>
@@ -1061,7 +1061,7 @@ export default function MicrogridMonitoringPage() {
               <div className="overflow-x-auto max-h-[360px] custom-scrollbar">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead className="sticky top-0 bg-panel z-10">
-                    <tr className="border-b border-border text-foreground font-semibold font-sans">
+                    <tr className="border-b border-border text-foreground font-semibold font-sans h-[44px]">
                       <th className="py-2.5 px-3">统计时段</th>
                       <th className="py-2.5 px-3">园区总用电量 (kWh)</th>
                       <th className="py-2.5 px-3 text-primary">市电量 (kWh)</th>
@@ -1071,7 +1071,7 @@ export default function MicrogridMonitoringPage() {
                   </thead>
                   <tbody className="divide-y divide-border text-foreground">
                     {filteredEnergyLedger.map((row) => (
-                      <tr key={row.id} className="hover:bg-primary/15/40 transition-colors">
+                      <tr key={row.id} className="hover:bg-primary/15/40 transition-colors h-[44px]">
                         <td className="py-2 px-3 font-semibold text-foreground font-sans">{row.time}</td>
                         <td className="py-2 px-3 font-bold text-foreground">{row.totalEnergyKWh.toLocaleString()}</td>
                         <td className="py-2 px-3 text-primary font-bold">{row.gridEnergyKWh.toLocaleString()}</td>
@@ -1278,7 +1278,7 @@ export default function MicrogridMonitoringPage() {
               <div className="overflow-x-auto max-h-[380px] custom-scrollbar">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead className="sticky top-0 bg-panel z-10">
-                    <tr className="border-b border-border text-foreground font-semibold font-sans">
+                    <tr className="border-b border-border text-foreground font-semibold font-sans h-[44px]">
                       <th className="py-2.5 px-3">交易单号</th>
                       <th className="py-2.5 px-3 text-center">类型</th>
                       <th className="py-2.5 px-3">录入时间</th>
@@ -1293,7 +1293,7 @@ export default function MicrogridMonitoringPage() {
                   </thead>
                   <tbody className="divide-y divide-border text-foreground">
                     {filteredCertList.map((row) => (
-                      <tr key={row.id} className="hover:hover:bg-emerald-500/200/10 transition-colors">
+                      <tr key={row.id} className="hover:hover:bg-emerald-500/200/10 transition-colors h-[44px]">
                         <td className="py-2.5 px-3 font-semibold text-foreground font-sans">{row.dealCode}</td>
                         <td className="py-2.5 px-3 text-center">
                           <span

@@ -108,7 +108,7 @@ export function BenchmarkView() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border text-xs text-muted-foreground">
+              <tr className="border-b border-border text-xs text-muted-foreground h-[44px]">
                 <th className="px-3 py-2.5 text-left font-medium">车间产线</th>
                 <th className="px-3 py-2.5 text-right font-medium">单台碳足迹</th>
                 <th className="px-3 py-2.5 text-right font-medium">主材碳排/占比</th>

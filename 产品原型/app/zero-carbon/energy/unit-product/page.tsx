@@ -2044,6 +2044,7 @@ export default function UnitProductPage() {
                   tickLine={{ stroke: '#334155' }}
                 />
                 <Tooltip
+                  cursor={{ stroke: 'rgba(56, 189, 248, 0.25)' }}
                   contentStyle={{
                     backgroundColor: '#0f172a',
                     borderColor: '#1e293b',
@@ -2268,9 +2269,7 @@ export default function UnitProductPage() {
           {activeSelectedCategory && (
             <div className="bg-primary/10 border-b border-primary/20 px-3.5 py-2 flex items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2 text-foreground flex-wrap">
-                <span className="px-2 py-0.5 rounded bg-primary text-primary-foreground font-bold text-[11px] shadow-2xs">
-                  已联动过滤
-                </span>
+                
                 <span className="font-bold">【{activeSelectedCategory.name}】</span>
                 <span className="text-muted-foreground text-[11px]">({activeSelectedCategory.groupTag})</span>
                 <span className="text-muted-foreground">|</span>
@@ -2296,7 +2295,7 @@ export default function UnitProductPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-mono">
               <thead>
-                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                   <th className="py-2.5 px-3">序号</th>
                   <th className="py-2.5 px-3">产品型号规格</th>
                   
@@ -2346,7 +2345,7 @@ export default function UnitProductPage() {
               <tbody className="divide-y divide-border/60 text-foreground">
                 {displayedModels.length > 0 ? (
                   displayedModels.map((m, idx) => (
-                    <tr key={m.id} className="hover:bg-accent/30 transition-colors">
+                    <tr key={m.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                       <td className="py-2.5 px-3 text-muted-foreground font-mono">
                         {(currentPage - 1) * pageSize + idx + 1}
                       </td>
@@ -2403,7 +2402,7 @@ export default function UnitProductPage() {
                     </tr>
                   ))
                 ) : (
-                  <tr>
+                  <tr className="h-[44px]">
                     <td colSpan={currentTableMode === 'all' ? 13 : 11} className="py-8 text-center text-muted-foreground font-sans">
                       未检索到符合条件的产品型号单耗数据
                     </td>

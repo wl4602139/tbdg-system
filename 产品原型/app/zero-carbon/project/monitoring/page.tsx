@@ -1125,7 +1125,7 @@ export default function RealtimeMonitoringPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border">
+                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border h-[44px]">
                       <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">所属园区/企业</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">装机容量</th>
@@ -1142,7 +1142,7 @@ export default function RealtimeMonitoringPage() {
                   </thead>
                   <tbody className="divide-y divide-border/60 font-mono text-foreground">
                     {filteredPvData.map((item) => (
-                      <tr key={item.id} className="hover:bg-accent/30 transition-colors">
+                      <tr key={item.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                         <td className="py-2.5 px-3 font-sans font-bold text-foreground">
                           {item.projectName}
                         </td>
@@ -1349,7 +1349,7 @@ export default function RealtimeMonitoringPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border">
+                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border h-[44px]">
                       <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">所属园区/企业</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">功率 (kW)</th>
@@ -1366,7 +1366,7 @@ export default function RealtimeMonitoringPage() {
                   </thead>
                   <tbody className="divide-y divide-border/60 font-mono text-foreground">
                     {filteredStorageData.map((item) => (
-                      <tr key={item.id} className="hover:bg-accent/30 transition-colors">
+                      <tr key={item.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                         <td className="py-2.5 px-3 font-sans font-bold text-foreground">
                           {item.projectName}
                         </td>
@@ -1580,7 +1580,7 @@ export default function RealtimeMonitoringPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border">
+                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border h-[44px]">
                       <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">所属园区/企业</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">COP</th>
@@ -1598,7 +1598,7 @@ export default function RealtimeMonitoringPage() {
                   </thead>
                   <tbody className="divide-y divide-border/60 font-mono text-foreground">
                     {filteredHeatPumpData.map((item) => (
-                      <tr key={item.id} className="hover:bg-accent/30 transition-colors">
+                      <tr key={item.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                         <td className="py-2.5 px-3 font-sans font-bold text-foreground">
                           {item.projectName}
                         </td>

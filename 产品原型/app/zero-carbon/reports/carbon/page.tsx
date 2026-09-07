@@ -520,12 +520,12 @@ export default function CarbonReportPage() {
         <div className="overflow-x-auto custom-scrollbar">
           {filteredRows.length === 0 ? (
             <div className="p-12 text-center text-muted-foreground text-xs flex flex-col items-center gap-2">
-              <div>暂无匹配的碳排报表数据</div>
+              <div>暂无相关记录！</div>
             </div>
           ) : (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none font-sans">
+                <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none font-sans h-[44px]">
                   <th className="py-2.5 px-3 sticky left-0 bg-panel z-10 min-w-[130px] border-r border-border/60">企业名称</th>
                   <th className="py-2.5 px-3 min-w-[150px]">单位名称</th>
                   <th className="py-2.5 px-3 text-right">化石燃料燃烧 (tCO₂)</th>
@@ -544,7 +544,7 @@ export default function CarbonReportPage() {
                 {filteredRows.map((r, idx) => {
                   const span = companyRowSpans[idx]
                   return (
-                    <tr key={r.id} className="hover:bg-accent/30 transition-colors">
+                    <tr key={r.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                       {span > 0 && (
                         <td
                           rowSpan={span}
@@ -587,7 +587,7 @@ export default function CarbonReportPage() {
               </tbody>
               {/* 汇总行 */}
               <tfoot>
-                <tr className="bg-panel font-bold text-foreground border-t-2 border-border">
+                <tr className="bg-panel font-bold text-foreground border-t-2 border-border h-[44px]">
                   <td className="py-2.5 px-3 sticky left-0 bg-panel font-sans border-r border-border" colSpan={2}>
                     全集团总碳排汇总
                   </td>

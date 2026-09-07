@@ -280,7 +280,7 @@ export function DataTable({ columns, rows }: { columns: Col[]; rows: Record<stri
     <div className="overflow-x-auto rounded-xl border border-border bg-card">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border text-xs text-muted-foreground bg-panel">
+          <tr className="border-b border-border text-xs text-muted-foreground bg-panel h-[44px]">
             {columns.map((c) => {
               const active = sort?.key === c.key
               return (
@@ -314,9 +314,8 @@ export function DataTable({ columns, rows }: { columns: Col[]; rows: Record<stri
         </thead>
         <tbody>
           {sortedRows.map((row, i) => (
-            <tr
-              key={i}
-              className="border-b border-border/50 transition-colors last:border-0 hover:bg-accent/40"
+            <tr key={i}
+              className="border-b border-border/50 transition-colors last:border-0 hover:bg-accent/40 h-[44px]"
             >
               {columns.map((c) => (
                 <td

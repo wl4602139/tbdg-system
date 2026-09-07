@@ -3811,7 +3811,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-foreground">6 大经营单位总体零碳评估大盘（点击下钻）</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">点击任意公司卡片即可穿透至第二层查看该公司的总体及关联工厂明细</p>
+                
               </div>
               <span className="text-xs px-2.5 py-1 rounded-full bg-primary/15 text-primary font-bold border border-primary/30">
                 支持三层钻取
@@ -4916,7 +4916,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
             <div className="border border-border rounded-xl overflow-y-auto max-h-[calc(92vh-130px)] shadow-xs custom-scrollbar">
               <table className="w-full text-left border-collapse text-xs">
                 <thead className="sticky top-0 z-10 bg-panel/95 backdrop-blur-sm">
-                  <tr className="text-muted-foreground font-bold border-b border-border text-[11px]">
+                  <tr className="text-muted-foreground font-bold border-b border-border text-[11px] h-[44px]">
                     <th className="py-2.5 px-3 w-[110px] min-w-[110px] text-center border-r border-border whitespace-nowrap">
                       维度类别
                     </th>
@@ -4934,7 +4934,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground text-[11.5px]">
                   {/* 1 源头减碳 (3项) */}
-                  <tr>
+                  <tr className="h-[44px]">
                     <td
                       rowSpan={3}
                       className="py-3 px-3 text-center font-bold text-foreground bg-panel/50 border-r border-border align-middle whitespace-nowrap"
@@ -4968,7 +4968,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       Re = (Ee / Et) × 100% (屋顶分布式光伏+采购绿电)
                     </td>
                   </tr>
-                  <tr>
+                  <tr className="h-[44px]">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60">[1.2] 节能与低碳改造覆盖率</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
@@ -4996,7 +4996,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       Rr = (Ar / At) × 100% (主要生产工序及重点设备节能改造)
                     </td>
                   </tr>
-                  <tr>
+                  <tr className="h-[44px]">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[1.3] 屋顶及建筑光伏利用率</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
@@ -5026,7 +5026,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                   </tr>
 
                   {/* 2 过程削碳 (3项) */}
-                  <tr className="hover:bg-accent/30 transition-colors">
+                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td
                       rowSpan={3}
                       className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap"
@@ -5059,7 +5059,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       依据 GB 18613—2020 电动机能效标准评定
                     </td>
                   </tr>
-                  <tr className="hover:bg-accent/30 transition-colors">
+                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[2.2] 空压机站节能评级</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
@@ -5086,7 +5086,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       依据 GB 19153—2019 容积式空气压缩机能效限定值
                     </td>
                   </tr>
-                  <tr className="hover:bg-accent/30 transition-colors">
+                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[2.3] 碳清除率 (Re)</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
                       ✍️ 企业申报
@@ -5116,7 +5116,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                   </tr>
 
                   {/* 3 协同降碳 (2项) */}
-                  <tr className="hover:bg-accent/30 transition-colors">
+                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td
                       rowSpan={2}
                       className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap"
@@ -5150,7 +5150,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                     </td>
                     <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">Rg = (Eg / Etotal) × 100%</td>
                   </tr>
-                  <tr className="hover:bg-accent/30 transition-colors">
+                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[3.2] 零碳供应链管理措施</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
                       ✍️ 企业申报
@@ -5177,7 +5177,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                   </tr>
 
                   {/* 4 智能控碳 (2项) */}
-                  <tr className="hover:bg-accent/30 transition-colors">
+                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td
                       rowSpan={2}
                       className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap"
@@ -5211,7 +5211,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       Ra = (Da / Dt) × 100% (GB 17167—2025 重点设备采集)
                     </td>
                   </tr>
-                  <tr className="hover:bg-accent/30 transition-colors">
+                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[4.2] 能碳管理中心功能项数</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
                       ✍️ 企业申报
@@ -5238,7 +5238,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                   </tr>
 
                   {/* 5 抵消治理 (1项) */}
-                  <tr className="hover:bg-accent/30 transition-colors">
+                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap">
                       5 抵消治理
                     </td>

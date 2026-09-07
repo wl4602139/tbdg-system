@@ -242,7 +242,7 @@ export default function CarbonReportPage() {
           <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-xs text-left">
               <thead className="bg-panel text-muted-foreground border-b border-border font-semibold font-sans">
-                <tr>
+                <tr className="h-[44px]">
                   <th className="px-3 py-2.5">报告名称</th>
                   <th className="px-3 py-2.5">报告类型</th>
                   <th className="px-3 py-2.5">核算组织边界</th>
@@ -255,7 +255,7 @@ export default function CarbonReportPage() {
               </thead>
               <tbody className="divide-y divide-border/60 font-mono text-foreground">
                 {filteredReports.map((r) => (
-                  <tr key={r.id} className="hover:bg-accent/30 transition-colors">
+                  <tr key={r.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="px-3 py-2.5 font-sans font-medium text-foreground flex items-center gap-1.5">
                       <FileText className="size-4 text-primary shrink-0" />
                       <span>{r.title}</span>

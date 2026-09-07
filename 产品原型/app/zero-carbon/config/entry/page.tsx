@@ -1003,7 +1003,7 @@ export default function FactoryMonthlyReportingPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-border bg-[#0e172a] text-muted-foreground font-semibold">
+                <tr className="border-b border-border bg-[#0e172a] text-muted-foreground font-semibold h-[44px]">
                   <th className="py-2.5 px-3">申报批次</th>
                   <th className="py-2.5 px-3 text-center">所属月份</th>
                   <th className="py-2.5 px-3 font-bold">申报主要摘要</th>
@@ -1015,7 +1015,7 @@ export default function FactoryMonthlyReportingPage() {
               </thead>
               <tbody className="divide-y border-border/60 text-muted-foreground">
                 {historyList.map((h) => (
-                  <tr key={h.id} className="hover:bg-white/[0.03] transition-colors">
+                  <tr key={h.id} className="hover:bg-white/[0.03] transition-colors h-[44px]">
                     <td className="py-2.5 px-3 font-mono font-bold text-foreground">{h.batch}</td>
                     <td className="py-2.5 px-3 font-mono text-center font-bold text-primary">{h.year}年{h.month}月</td>
                     <td className="py-2.5 px-3 font-mono text-[11px] text-foreground">{h.summary}</td>

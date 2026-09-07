@@ -546,7 +546,7 @@ export default function TariffPricePage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold h-[44px]">
                   <th className="py-2.5 px-3">阶梯档位</th>
                   <th className="py-2.5 px-3">月度用气量区间</th>
                   <th className="py-2.5 px-3">结算单价 (元/m³)</th>
@@ -555,7 +555,7 @@ export default function TariffPricePage() {
               </thead>
               <tbody className="divide-y divide-border/60 text-foreground">
                 {gasTiers.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-accent/30 transition-colors">
+                  <tr key={idx} className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-3 px-3 font-bold text-foreground">{row.tier}</td>
                     <td className="py-3 px-3 font-mono">{row.range}</td>
                     <td className="py-3 px-3">
@@ -695,7 +695,7 @@ export default function TariffPricePage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold">
+                <tr className="bg-panel border-b border-border text-muted-foreground font-semibold h-[44px]">
                   <th className="py-2.5 px-3">直属制造单位</th>
                   <th className="py-2.5 px-3">当前执行费价方案</th>
                   <th className="py-2.5 px-3">生效状态</th>
@@ -713,7 +713,7 @@ export default function TariffPricePage() {
                   { name: '新缆厂', ver: 'v2026.01', status: '已生效同步', method: '需量计费 (最优)', syncTime: '2026-08-31 16:30' },
                   { name: '德缆公司', ver: 'v2026.01', status: '已生效同步', method: '容量计费', syncTime: '2026-08-31 16:30' },
                 ].map((row, idx) => (
-                  <tr key={idx} className="hover:bg-accent/30 transition-colors">
+                  <tr key={idx} className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-3 px-3 font-bold text-foreground">{row.name}</td>
                     <td className="py-3 px-3 font-mono text-primary font-semibold">{row.ver}</td>
                     <td className="py-3 px-3">

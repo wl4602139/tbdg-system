@@ -139,7 +139,7 @@ export function LineTrend({
           <CartesianGrid stroke={gridColor} vertical={false} />
           <XAxis dataKey={xKey} tick={axisStyle} tickLine={false} axisLine={false} interval={xInterval} />
           <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
-          <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: '#cbd5e1' }} />
+          <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: 'rgba(56, 189, 248, 0.25)' }} />
           <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
           {refLines?.map((rf, i) => (
             <ReferenceLine
@@ -267,7 +267,7 @@ export function AreaTrend({
         <CartesianGrid stroke={gridColor} vertical={false} />
         <XAxis dataKey={xKey} tick={axisStyle} tickLine={false} axisLine={false} />
         <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
-        <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: '#cbd5e1' }} />
+        <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: 'rgba(56, 189, 248, 0.25)' }} />
         <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
         {series.map((s, i) => (
           <Area
@@ -360,7 +360,7 @@ export function BarChartGroup({
         <CartesianGrid stroke={gridColor} vertical={false} />
         <XAxis dataKey={actualXKey} tick={axisStyle} tickLine={false} axisLine={false} />
         <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
-        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#f8fafc' }} />
+        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }} />
         <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
         {series.map((s) => (
           <Bar
@@ -430,6 +430,9 @@ export interface SankeyNode {
   name: string
   itemStyle?: { color?: string; borderColor?: string }
   depth?: number
+  value?: number
+  displayVal?: string
+  localY?: number
 }
 
 export interface SankeyLink {
@@ -456,7 +459,7 @@ export function SankeyFlow({
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<any>(null)
 
-  // 判定当前指标是否应展示占比（仅限 tce、碳 tCO2、水 t/万t、电 kWh/万kWh、气 m³/万m³ 等资源总量指标）
+  // 判定当前指标是否应展示占比（仅限 tce、碳 tCO2、水 t/万t、电 kWh/万kWh、气 m³/万m³、绿电 MWh、额定功率 kW、产值 万元 等资源总量与实体指标）
   const shouldDisplayRatio =
     showRatio !== undefined
       ? showRatio
@@ -467,7 +470,11 @@ export function SankeyFlow({
         unit === '万kWh' ||
         unit === 'kWh' ||
         unit === 'm³' ||
-        unit === '万m³'
+        unit === '万m³' ||
+        unit === 'MWh' ||
+        unit === 'kW' ||
+        unit === '万元' ||
+        unit === '类'
 
   useEffect(() => {
     let isMounted = true
@@ -530,7 +537,144 @@ export function SankeyFlow({
         }
       })
 
-      const option: any = {
+                  // 3. 🌟 1、2、3 级全层级全景高度自适应排版算法 (localY 拓扑流向水平拉伸对齐)
+      // 保证 1 级（集团）、2 级（各经营公司）、3 级（全量直属工厂）均能优雅铺满/适配图表高度，消除上下巨大空白与严重下倾
+      const nodeGap = 3
+      const topPadding = 20
+      const bottomPadding = 20
+      const drawHeight = Math.max(100, height - topPadding - bottomPadding)
+
+      // 计算每个节点的基础流量权重 (max(出度, 入度, 自身值))
+      const nodeFlowValues: Record<string, number> = {}
+      nodes.forEach((n) => { nodeFlowValues[n.name] = 0 })
+      const outValues: Record<string, number> = {}
+      const inValues: Record<string, number> = {}
+      links.forEach((l) => {
+        const v = Number(l.value) || 0
+        outValues[l.source] = (outValues[l.source] || 0) + v
+        inValues[l.target] = (inValues[l.target] || 0) + v
+      })
+      nodes.forEach((n) => {
+        const outV = outValues[n.name] || 0
+        const inV = inValues[n.name] || 0
+        nodeFlowValues[n.name] = Math.max(outV, inV, (n as any).value || 0)
+      })
+
+      // 按层级 depth 分组
+      const depthGroups: Record<number, SankeyNode[]> = {}
+      nodes.forEach((n) => {
+        const d = n.depth ?? 0
+        if (!depthGroups[d]) depthGroups[d] = []
+        depthGroups[d].push(n)
+      })
+
+      const depths = Object.keys(depthGroups).map(Number).sort((a, b) => a - b)
+
+      // 寻找全图最小比例因子 minKy (由节点数最多的列决定，保证物理守恒及能流色带宽度统一)
+      let minKy = Infinity
+      depths.forEach((d) => {
+        const group = depthGroups[d]
+        const n = group.length
+        let sum = 0
+        group.forEach((node) => { sum += nodeFlowValues[node.name] || 0 })
+        if (sum > 0) {
+          const ky = (drawHeight - (n - 1) * nodeGap) / sum
+          if (ky < minKy) minKy = ky
+        }
+      })
+
+      const nodeLocalYMap: Record<string, number> = {}
+
+      if (depths.length === 3) {
+        // 3 级组织架构：0级集团 ➔ 1级公司 ➔ 2级工厂
+        const level2Nodes = depthGroups[2] || []
+        const level1Nodes = depthGroups[1] || []
+        const level0Nodes = depthGroups[0] || []
+
+        // 计算 3 级全量直属工厂在图表中的物理位置
+        let curY2 = 0
+        const level2Positions: Record<string, { y: number; dy: number }> = {}
+        level2Nodes.forEach((node) => {
+          const dy = (nodeFlowValues[node.name] || 0) * minKy
+          level2Positions[node.name] = { y: curY2, dy }
+          curY2 += dy + nodeGap
+        })
+
+        // 🌟 核心适配：使 2 级各经营公司在垂直方向上均匀铺展，与对应的 3 级工厂集群中轴完美对齐
+        let prevBottom = 0
+        const level1Positions: Record<string, { y: number; dy: number }> = {}
+
+        level1Nodes.forEach((comp) => {
+          const dy = (nodeFlowValues[comp.name] || 0) * minKy
+          const targetLinks = links.filter((l) => l.source === comp.name)
+          const targetNames = targetLinks.map((l) => l.target).filter((t) => level2Positions[t])
+
+          let targetCenter = 0
+          if (targetNames.length > 0) {
+            const firstTarget = level2Positions[targetNames[0]]
+            const lastTarget = level2Positions[targetNames[targetNames.length - 1]]
+            const startY = firstTarget.y
+            const endY = lastTarget.y + lastTarget.dy
+            targetCenter = (startY + endY) / 2
+          } else {
+            targetCenter = curY2 / 2
+          }
+
+          let y = targetCenter - dy / 2
+          if (y < prevBottom + nodeGap) {
+            y = prevBottom + nodeGap
+          }
+          level1Positions[comp.name] = { y, dy }
+          prevBottom = y + dy
+        })
+
+        // 反向回溯防止公司节点溢出底部
+        if (prevBottom > drawHeight) {
+          let nextTop = drawHeight
+          for (let i = level1Nodes.length - 1; i >= 0; i--) {
+            const comp = level1Nodes[i]
+            const pos = level1Positions[comp.name]
+            if (pos.y + pos.dy > nextTop) {
+              pos.y = nextTop - pos.dy
+            }
+            nextTop = pos.y - nodeGap
+          }
+        }
+
+        // 注入 2 级公司的自适应高度坐标
+        level1Nodes.forEach((comp) => {
+          const pos = level1Positions[comp.name]
+          nodeLocalYMap[comp.name] = Math.max(0, pos.y) / drawHeight
+        })
+
+        // 🌟 1 级集团总部节点垂直居中并充满核心视觉带 (占画布 ~80% 高度)
+        level0Nodes.forEach((root) => {
+          const dy = (nodeFlowValues[root.name] || 0) * minKy
+          const y = Math.max(0, (drawHeight - dy) / 2)
+          nodeLocalYMap[root.name] = y / drawHeight
+        })
+      } else if (depths.length === 2) {
+        // 单公司下钻模式 (公司 ➔ 工厂)
+        const level0Nodes = depthGroups[0] || []
+        level0Nodes.forEach((root) => {
+          const dy = (nodeFlowValues[root.name] || 0) * minKy
+          const y = Math.max(0, (drawHeight - dy) / 2)
+          nodeLocalYMap[root.name] = y / drawHeight
+        })
+      }
+
+      // 生成带自适应坐标 localY 的节点数据
+      const processedNodes = nodes.map((n) => {
+        if (nodeLocalYMap[n.name] !== undefined) {
+          return {
+            ...n,
+            localY: nodeLocalYMap[n.name],
+          }
+        }
+        return n
+      })
+
+const option: any = {
         tooltip: {
           trigger: 'item',
           triggerOn: 'mousemove',
@@ -547,6 +691,7 @@ export function SankeyFlow({
             if (params.dataType === 'node') {
               const depth = params.data?.depth
               let ratioStr = ''
+              const valStr = params.data?.displayVal !== undefined ? params.data.displayVal : (params.value !== undefined ? params.value.toLocaleString() : '-')
               if (shouldDisplayRatio && params.value !== undefined) {
                 if (depth === 1 && rootTotal > 0) {
                   const ratio = ((params.value / rootTotal) * 100).toFixed(1)
@@ -560,7 +705,7 @@ export function SankeyFlow({
                 }
               }
               return `<div style="font-weight: bold; color: #ffffff; border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding-bottom: 4px; margin-bottom: 4px;">${params.name}</div>
-                      <div style="color: #cbd5e1;">数值: <strong style="color: #38bdf8; font-family: monospace;">${params.value !== undefined ? params.value.toLocaleString() : '-'}</strong> ${unit}${ratioStr}</div>`
+                      <div style="color: #cbd5e1;">数值: <strong style="color: #38bdf8; font-family: monospace;">${valStr}</strong> ${unit}${ratioStr}</div>`
             } else if (params.dataType === 'edge') {
               let edgeRatioStr = ''
               if (shouldDisplayRatio && params.data?.value !== undefined) {
@@ -589,13 +734,14 @@ export function SankeyFlow({
               focus: 'adjacency',
             },
             nodeWidth: 18,
-            nodeGap: 14,
+            nodeGap: 3,
+            layoutIterations: 0,
             draggable: false,
-            top: 25,
+            top: 20,
             bottom: 20,
             left: 30,
-            right: 30,
-            data: nodes,
+            right: 80,
+            data: processedNodes,
             links: links,
             lineStyle: {
               color: 'gradient',
@@ -611,45 +757,7 @@ export function SankeyFlow({
               textBorderWidth: 3,
               textShadowColor: 'rgba(0, 0, 0, 0.9)',
               textShadowBlur: 4,
-              formatter: (params: any) => {
-                if (params.value === undefined) return params.name
-                const depth = params.data?.depth
-                if (!shouldDisplayRatio || depth === 0) {
-                  return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}}`
-                }
-                if (depth === 1 && rootTotal > 0) {
-                  const ratio = ((params.value / rootTotal) * 100).toFixed(1)
-                  return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}} {ratio|(${ratio}%)}`
-                }
-                if (depth === 2) {
-                  const parentInfo = nodeParentMap[params.name]
-                  if (parentInfo && parentInfo.parentTotal > 0) {
-                    const ratio = ((params.value / parentInfo.parentTotal) * 100).toFixed(1)
-                    return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}} {ratio|(${ratio}%)}`
-                  }
-                }
-                return `${params.name}\n{val|${params.value.toLocaleString()} ${unit}}`
-              },
-              rich: {
-                val: {
-                  fontSize: 11,
-                  color: '#93c5fd',
-                  fontFamily: 'monospace',
-                  fontWeight: 'bold',
-                  padding: [2, 0, 0, 0],
-                  textBorderColor: 'rgba(2, 8, 23, 0.95)',
-                  textBorderWidth: 3,
-                },
-                ratio: {
-                  fontSize: 10.5,
-                  color: '#34d399',
-                  fontWeight: 'bold',
-                  fontFamily: 'sans-serif',
-                  padding: [2, 0, 0, 0],
-                  textBorderColor: 'rgba(2, 8, 23, 0.95)',
-                  textBorderWidth: 3,
-                },
-              },
+              formatter: '{b}',
             },
             itemStyle: {
               borderWidth: 1.5,

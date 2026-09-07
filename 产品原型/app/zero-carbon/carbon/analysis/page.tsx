@@ -300,7 +300,7 @@ export default function CarbonAnalysisPage() {
             <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-xs text-left">
                 <thead className="bg-panel text-muted-foreground border-b border-border font-semibold">
-                  <tr>
+                  <tr className="h-[44px]">
                     <th className="px-3 py-2">基地名称</th>
                     <th className="px-3 py-2 text-right">碳强度 (t/万)</th>
                     <th className="px-3 py-2 text-center">所属象限</th>
@@ -308,25 +308,25 @@ export default function CarbonAnalysisPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60 font-mono text-foreground">
-                  <tr>
+                  <tr className="h-[44px]">
                     <td className="px-3 py-2 font-sans font-medium text-foreground">1. 国际集成</td>
                     <td className="px-3 py-2 text-right text-emerald-400 font-bold">0.142</td>
                     <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">I区 标杆</span></td>
                     <td className="px-3 py-2 font-sans text-muted-foreground">总装物流为主，单位产值能耗低</td>
                   </tr>
-                  <tr>
+                  <tr className="h-[44px]">
                     <td className="px-3 py-2 font-sans font-medium text-foreground">2. 鲁缆公司</td>
                     <td className="px-3 py-2 text-right text-emerald-400 font-bold">0.185</td>
                     <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">I区 标杆</span></td>
                     <td className="px-3 py-2 font-sans text-muted-foreground">分布式光伏全覆盖，氮气循环高效</td>
                   </tr>
-                  <tr>
+                  <tr className="h-[44px]">
                     <td className="px-3 py-2 font-sans font-medium text-foreground">3. 新变厂</td>
                     <td className="px-3 py-2 text-right text-emerald-400 font-bold">0.245</td>
                     <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">I区 标杆</span></td>
                     <td className="px-3 py-2 font-sans text-muted-foreground">特高压产值高，储能削峰利用充分</td>
                   </tr>
-                  <tr>
+                  <tr className="h-[44px]">
                     <td className="px-3 py-2 font-sans font-medium text-foreground">4. 德缆公司</td>
                     <td className="px-3 py-2 text-right text-rose-400 font-bold">0.268</td>
                     <td className="px-3 py-2 text-center font-sans"><span className="px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-400 text-[10px] font-bold border border-rose-500/30">IV区 待整改</span></td>

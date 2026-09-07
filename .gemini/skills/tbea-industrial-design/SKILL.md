@@ -1,6 +1,6 @@
 ---
 name: tbea-industrial-design
-description: "特变电工能碳数字化双中心专属设计系统与工程规范。固化工业实用主义、极简克制信息密度、严禁过度冗余设计与多余描述信息、状态自解释无多余联动标签、空状态无冗余文案、标题纯净无杂质、表格44px强制行高、暗黑科技蓝与浅色双端同构同步、设备能源介质自适应与权威工序映射准则。开发、重构或优化本项目任何页面时必须严格遵循。"
+description: "特变电工能碳数字化双中心专属设计系统与工程规范。固化工业实用主义、极简克制信息密度、严禁过度冗余设计与多余描述信息、状态自解释无多余联动标签、空状态无冗余文案、标题纯净无杂质、表格44px强制行高、暗黑科技蓝与浅色双端同构同步、手动按需部署与Git提交纪律、自动按功能模块维护修改记录。开发、重构或优化本项目任何页面时必须严格遵循。"
 ---
 
 # 特变电工能碳数字化双中心 · 专属设计系统与工程开发规范 (TBEA Industrial Design System)
@@ -36,6 +36,22 @@ description: "特变电工能碳数字化双中心专属设计系统与工程规
   6. **去除伪对比，聚焦自身时序**：
      - ❌ **严禁做法**：捏造跨工厂、跨车间的横向对抗排名或主观评价文案；
      - ✅ **标准做法**：光伏、热泵、储能、变压器/线缆单耗等设备或车间指标，**仅与自身历史或自身基准对比**（环比、同比、额定设计值、月度消纳率）。
+  7. **图表悬停游标反刺眼与主题自适应准则 (Non-glaring Chart Cursor Tokens)**：
+     - ❌ **严禁做法**：在深色模式下，图表 `<Tooltip>` 游标硬编码浅白/明亮色系（如 `cursor={{ fill: '#f8fafc' }}`），或在 `<BarChart>` / `<ComposedChart>` 中漏设 `cursor` 属性导致 Recharts 默认回退为浅灰白实体色块（`#f5f5f5`），鼠标悬停时出现刺眼的纯白立柱；
+     - ✅ **标准做法**：
+       - **暗黑科技蓝模式**：所有柱状图游标填充统一显式指定为微透科技蓝 `cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }}`，折线/面积图游标指定为 `cursor={{ stroke: 'rgba(56, 189, 248, 0.25)' }}`；
+       - **浅色商务模式**：柱状图游标指定为柔和浅灰 `cursor={{ fill: 'rgba(0, 0, 0, 0.04)' }}`；
+       - 确保全站图表在任何模式下交互平滑、无突兀强光、无刺眼矩形块。
+  8. **严禁评价类信息，严格保持客观中立（No Evaluative or Judgmental Information）**：
+     - **核心宗旨**：数字化平台是客观呈现工业运行状态、物理测量值、能源介质消耗与统计事实的数据中枢。系统必须秉持绝对的客观中立，**严禁在系统任何卡片、图表、表格、弹窗或报表中出现主观评价类、定性评判类或说教指责类的信息**。管理裁决与价值评估完全归属于企业管理者，系统软件绝不充当裁判员。
+     - ❌ **严禁做法**：
+       - 严禁出现主观褒贬与定性标签：如“电能品质：优良”、“表现优异”、“评级较差”、“落后单位”、“运行欠佳”、“良好”、“合格/达标奖励”等主观文字；
+       - 严禁出现对企业、车间或产线的主观评判与说教性建议：如“新变厂处于 I 区领跑标杆；德缆公司处于 IV 区，需推进技改”、“该车间能效偏低，亟需整改”等主观裁决性文字；
+       - 严禁使用带有主观情绪色彩的视觉标识或侮辱性警示标签。
+     - ✅ **标准做法**：
+       - **统一以客观时序统计数据说话**：以具体的**同比（YoY，如 `-5.1% ↓`）**、**环比（MoM，如 `+1.8% ↑`）**、**基准偏差量（如 `超标杆 +0.03` / `距基准 -1.5%`）**等客观量化指标呈现；
+       - **统一以客观运行工况事实表达**：客观呈现具体测量值与物理量（如 `功率因数 0.96 / 负荷率 82.5%`、`运行状态：运行中 / 待机 / 检修`）；
+       - **客观标杆线呈现**：图表中直接绘制客观的国家标准线、行业先进值线或集团历史基准线（如虚线 Benchmark Line），让客观数据位置自解释，不做任何主观文字定性。
 
 ---
 
@@ -78,49 +94,69 @@ description: "特变电工能碳数字化双中心专属设计系统与工程规
 
 ---
 
-## 四、 双端同构同步与部署交付流水线 (Dual-Theme & DevOps Workflow)
+## 四、 交付工作流与纪律：禁止自动部署/提交，手动按需触发 (DevOps & Git Discipline)
 
-特变电工数字化平台运行在双端生产镜像环境中，所有代码更改**必须实现 100% 双端同构更新**。
+特变电工平台工程开发必须严格遵循“修改完毕本地自测、记录入档、手动指令发布”的严谨交付工作流：
 
-### 1. 双端环境与样式映射规则
-- **暗黑科技蓝主环境**：
-  - 部署端口：`8.215.89.194:3000`
-  - 本地路径：`d:/Project/TJ-nengtan/产品原型`
-  - 核心样式：`bg-card`、`bg-panel`、`border-border`、`text-foreground`、`text-muted-foreground`、青蓝霓虹光效
-- **浅色办公商务镜像**：
-  - 部署端口：`8.215.89.194:3001`
-  - 本地路径：`d:/Project/TJ-nengtan/产品原型-旧/产品原型`
-  - 核心样式：`bg-white`、`bg-slate-50`、`border-slate-200`、`text-slate-900`、`text-slate-500`、AntD蓝（`#1677ff`）
-- **同步守则**：凡修改一端，必须使用脚本或精确替换同步至另一端，严禁遗漏。
+### 1. 核心铁律：禁止自动线上部署与自动提交 Git
+- ❌ **严禁行为**：
+  - 代码修改完成后，**严禁自动向远程生产服务器（`8.215.89.194`）推送文件或重载 Nginx 服务**；
+  - 代码修改完成后，**严禁自动执行 `git commit` 与 `git push`**。
+- ✅ **指令触发制（Manual Trigger On-Demand）**：
+  - **仅在用户明确发出指令时**（如用户要求：“部署到线上”、“发布环境”、“提交代码”、“推送git”等），才执行线上发布流水线与 Git 提交；
+  - 未收到明确部署/提交指令前，所有变更仅保存在本地工作区与本地编译产物中。
 
-### 2. 部署与交付闭环命令模版
-在每次任务交付前，必须执行以下完整闭环：
-1. **本地全量静态路由编译校验**：
-   ```bash
-   # 暗黑端
-   cd d:/Project/TJ-nengtan/产品原型 && pnpm build
-   # 浅色端
-   cd d:/Project/TJ-nengtan/产品原型-旧/产品原型 && pnpm build
-   ```
-   确保双端 76/76 静态路由均在 3 秒内编译成功，0 语法报错。
-2. **远程双端原子发布 (`8.215.89.194`)**：
-   ```powershell
-   powershell -Command "tar -czf $env:TEMP\tbea-dark.tar.gz -C 'D:\Project\TJ-nengtan\产品原型\out' .; scp -o BatchMode=yes $env:TEMP\tbea-dark.tar.gz admin@8.215.89.194:/tmp/; ssh -o BatchMode=yes admin@8.215.89.194 'sudo rm -rf /var/www/tbea-nengtan/* && sudo tar -xzf /tmp/tbea-dark.tar.gz -C /var/www/tbea-nengtan/'; tar -czf $env:TEMP\tbea-light.tar.gz -C 'D:\Project\TJ-nengtan\产品原型-旧\产品原型\out' .; scp -o BatchMode=yes $env:TEMP\tbea-light.tar.gz admin@8.215.89.194:/tmp/; ssh -o BatchMode=yes admin@8.215.89.194 'sudo rm -rf /var/www/tbea-nengtan-old/* && sudo tar -xzf /tmp/tbea-light.tar.gz -C /var/www/tbea-nengtan-old/ && sudo systemctl reload nginx'"
-   ```
-3. **健康检查与 Git 归档**：
-   - 使用 PowerShell 访问 `http://8.215.89.194:3000/...` 与 `http://8.215.89.194:3001/...`，确保 HTTP 均为 200；
-   - 双端执行 `git add .`、`git commit -m "..."` 并推送至 `origin/main`。
+### 2. 日常标准交付闭环动作
+当完成一次页面修改或优化任务后，仅执行以下操作：
+1. **双端同构代码修改**：
+   - 同步修改暗黑端（`d:/Project/TJ-nengtan/产品原型`）与浅色端（`d:/Project/TJ-nengtan/产品原型-旧/产品原型`）；
+2. **本地静态路由编译自测**：
+   - 运行 `pnpm build`，确保 76/76 静态路由导出耗时在 2 秒以内且 0 报错；
+3. **自动记录修改至档案（见下节）**：
+   - 自动在 `MODIFICATIONS_LOG.md` 中按功能模块进行归类保存或原位更新；
+4. **向用户汇报自测结果与修改详情，等待用户指令**。
+
+### 3. 用户要求时的部署与 Git 提交模版
+当用户明确要求“部署到线上”或“提交git”时，执行对应操作：
+- **线上发布流水线**：
+  ```powershell
+  powershell -Command "tar -czf $env:TEMP\tbea-dark.tar.gz -C 'D:\Project\TJ-nengtan\产品原型\out' .; scp -o BatchMode=yes $env:TEMP\tbea-dark.tar.gz admin@8.215.89.194:/tmp/; ssh -o BatchMode=yes admin@8.215.89.194 'sudo rm -rf /var/www/tbea-nengtan/* && sudo tar -xzf /tmp/tbea-dark.tar.gz -C /var/www/tbea-nengtan/'; tar -czf $env:TEMP\tbea-light.tar.gz -C 'D:\Project\TJ-nengtan\产品原型-旧\产品原型\out' .; scp -o BatchMode=yes $env:TEMP\tbea-light.tar.gz admin@8.215.89.194:/tmp/; ssh -o BatchMode=yes admin@8.215.89.194 'sudo rm -rf /var/www/tbea-nengtan-old/* && sudo tar -xzf /tmp/tbea-light.tar.gz -C /var/www/tbea-nengtan-old/ && sudo systemctl reload nginx'"
+  ```
+- **Git 提交推送**：
+  ```bash
+  git add . && git commit -m "feat/fix(scope): description" && git push origin main
+  ```
 
 ---
 
-## 五、 本 Skill 的维护与持续演化机制 (Maintenance Guidelines)
+## 五、 修改记录自动化归档与聚合维护机制 (Modular Modifications Log)
 
-1. **常态化更新触发点**：
-   - 当用户提出新的视觉偏好（如特定色值、字号微调、交互形式）；
-   - 当客户提出“避免过度冗余设计、精简描述信息”等工程体验优化意见时；
-   - 当收到新的需求业务文档或规则变更（如新增园区、新核定工序对应表、新计量介质）；
-   - 当上线新模块或新内页时。
-2. **更新原则**：
-   - 不断提炼并沉淀用户直觉认知；
-   - 发现“过度设计”苗头时及时追加反模式（Anti-patterns）清单；
-   - 保持本文档简练、精要，作为本项目的最高设计与交付宪章。
+为保证项目每一次功能演进都清晰可溯，建立并固化如下修改记录维护机制：
+
+### 1. 归档文件与定位
+- **统一归档文件**：项目根目录下的 `d:/Project/TJ-nengtan/MODIFICATIONS_LOG.md`。
+- **触发时机**：**每次代码修改完成后，自动保存并更新该文档**。
+
+### 2. 结构化模块聚类原则
+- 严禁按时间随意堆叠无序流水账，**必须严格按业务功能模块聚类组织**：
+  1. 集中监管 (Zero-Carbon Monitor)
+     - 用能在线监测 (`online/usage`)
+     - 设备在线监测 (`online/equipment`)
+     - 工业微电网监测 (`online/microgrid`)
+     - 指标管控看板 (`indicator`)
+  2. 专项能效与评估 (Zero-Carbon Project & Benefit)
+     - 节能效益评估 (`benefit`)
+     - 零碳工厂自评估 (`self`)
+  3. 能效对标分析 (Zero-Carbon Energy)
+     - 单位产品能耗与工序对标 (`unit-product` / `benchmark`)
+  4. 集中监控大屏 (Executive Screen)
+  5. 碳足迹集采中心 (Carbon Footprint)
+  6. 专属设计系统与工程规范 (Design System & Skills)
+
+### 3. 同功能模块原位更新合并原则 (In-Place Updating & Merging)
+- **当后续对某个已有功能模块进行再次修改或优化时，严禁在文档末尾新增重复的模块章节**；
+- **必须定位到该功能模块的历史条目下方**：
+  1. 将“最新更新时间”刷新为当前时间；
+  2. 在修改详情列表中追加最新修改项、修改动因与去除的冗余细节；
+  3. 更新涉及的双端文件清单；
+- 确保同一功能模块的所有演化脉络集中收敛在一处，供客户与团队随时审阅。

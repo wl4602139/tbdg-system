@@ -604,12 +604,7 @@ export default function EnergyCostPage() {
               <Coins className="size-3.5 text-primary" />
               <span>总用能成本与各类型能源成本构成</span>
             </span>
-            {!isWorkshopLevel && (
-              <span className="text-[11px] text-primary font-sans font-medium flex items-center gap-1">
-                <CheckCircle2 className="size-3" />
-                当前选中分析项: <strong>{COST_METRICS_META[selectedMetricKey].name}</strong>
-              </span>
-            )}
+            
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 font-mono">
@@ -818,9 +813,7 @@ export default function EnergyCostPage() {
                   【{COST_METRICS_META[selectedMetricKey].name}】6 家直属经营单位占电装总能源费用的比重结构分析
                 </h3>
               </div>
-              <span className="text-xs text-muted-foreground font-sans">
-                点击上方任意成本卡片可切换分析指标
-              </span>
+              
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
@@ -1022,7 +1015,7 @@ export default function EnergyCostPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead>
-                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans">
+                    <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                       <th className="py-2 px-3">序号</th>
                       <th className="py-2 px-3">直属经营单位</th>
                       <th className="py-2 px-3 text-primary">
@@ -1040,7 +1033,7 @@ export default function EnergyCostPage() {
                       const val = comp[selectedMetricKey] as number
                       const ratio = metricCompanyBreakdown.totalVal > 0 ? ((val / metricCompanyBreakdown.totalVal) * 100).toFixed(1) : '0.0'
                       return (
-                        <tr key={comp.id} className="hover:bg-accent/30 transition-colors">
+                        <tr key={comp.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                           <td className="py-2 px-3 font-semibold text-muted-foreground">{idx + 1}</td>
                           <td className="py-2 px-3 font-bold text-foreground font-sans flex items-center gap-1.5">
                             <Factory className="size-3.5 text-muted-foreground" />
@@ -1337,7 +1330,7 @@ export default function EnergyCostPage() {
 
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans">
+                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold font-sans h-[44px]">
                     <th className="py-2.5 px-3">工序 / 车间</th>
                     <th className="py-2.5 px-3 text-right">市电支出 (万元)</th>
                     <th className="py-2.5 px-3 text-right">天然气费 (万元)</th>
@@ -1350,7 +1343,7 @@ export default function EnergyCostPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground font-mono">
-                  <tr className="hover:bg-accent/30">
+                  <tr className="hover:bg-accent/30 h-[44px]">
                     <td className="py-2.5 px-3 font-sans font-medium text-foreground">1. 真空干燥工段 (煤油气相/蒸汽)</td>
                     <td className="py-2.5 px-3 text-right">303.1</td>
                     <td className="py-2.5 px-3 text-right">29.1</td>
@@ -1359,7 +1352,7 @@ export default function EnergyCostPage() {
                     <td className="py-2.5 px-3 text-right font-bold text-foreground bg-primary/10">352.3</td>
                     <td className="py-2.5 px-3 text-right font-bold text-primary">46.2%</td>
                   </tr>
-                  <tr className="hover:bg-accent/30">
+                  <tr className="hover:bg-accent/30 h-[44px]">
                     <td className="py-2.5 px-3 font-sans font-medium text-foreground">2. 铁芯剪切与叠装工序</td>
                     <td className="py-2.5 px-3 text-right">150.0</td>
                     <td className="py-2.5 px-3 text-right">9.0</td>
@@ -1368,7 +1361,7 @@ export default function EnergyCostPage() {
                     <td className="py-2.5 px-3 text-right font-bold text-foreground bg-primary/10">161.8</td>
                     <td className="py-2.5 px-3 text-right font-bold text-primary">21.2%</td>
                   </tr>
-                  <tr className="hover:bg-accent/30">
+                  <tr className="hover:bg-accent/30 h-[44px]">
                     <td className="py-2.5 px-3 font-sans font-medium text-foreground">3. 线圈绕制与绝缘处理工段</td>
                     <td className="py-2.5 px-3 text-right">121.8</td>
                     <td className="py-2.5 px-3 text-right">8.1</td>
@@ -1377,7 +1370,7 @@ export default function EnergyCostPage() {
                     <td className="py-2.5 px-3 text-right font-bold text-foreground bg-primary/10">135.6</td>
                     <td className="py-2.5 px-3 text-right font-bold text-primary">17.8%</td>
                   </tr>
-                  <tr className="hover:bg-accent/30">
+                  <tr className="hover:bg-accent/30 h-[44px]">
                     <td className="py-2.5 px-3 font-sans font-medium text-foreground">4. 总装配、试验与辅助动力站房</td>
                     <td className="py-2.5 px-3 text-right">100.1</td>
                     <td className="py-2.5 px-3 text-right">7.4</td>

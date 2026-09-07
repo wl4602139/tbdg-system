@@ -1036,7 +1036,7 @@ export default function UsageMonitoringPage() {
           <div className="overflow-x-auto max-h-[380px] custom-scrollbar">
             <table className="w-full text-left text-xs border-collapse font-mono">
               <thead className="sticky top-0 bg-panel z-10">
-                <tr className="border-b border-border text-muted-foreground font-semibold font-sans">
+                <tr className="border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
                   <th className="py-2.5 px-3">日期 / 账期</th>
                   <th className="py-2.5 px-3 text-primary font-bold">总用电量 (万kWh)</th>
                   <th className="py-2.5 px-3 text-foreground">市电量 (万kWh)</th>
@@ -1051,7 +1051,7 @@ export default function UsageMonitoringPage() {
               </thead>
               <tbody className="divide-y divide-border/60 text-foreground">
                 {[...dailyTimeSeriesData].reverse().map((row, idx) => (
-                  <tr key={idx} className="hover:bg-accent/30 transition-colors">
+                  <tr key={idx} className="hover:bg-accent/30 transition-colors h-[44px]">
                     <td className="py-2 px-3 font-semibold text-foreground font-sans">{row.date}</td>
                     <td className="py-2 px-3 font-bold text-primary">{row.总用电量.toFixed(2)}</td>
                     <td className="py-2 px-3 text-foreground">{row.市电量.toFixed(2)}</td>

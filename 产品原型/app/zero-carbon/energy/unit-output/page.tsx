@@ -1125,7 +1125,7 @@ export default function UnitOutputPage() {
               <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none">
+                    <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none h-[44px]">
                       <th className="py-2.5 px-3 sticky left-0 bg-panel z-10 w-12 text-center">序号</th>
                       <th className="py-2.5 px-3 sticky left-12 bg-panel z-10 min-w-[140px]">
                         {isGroupLevel ? '经营单位' : '项目公司 / 制造车间'}
@@ -1143,7 +1143,7 @@ export default function UnitOutputPage() {
                   </thead>
                   <tbody className="divide-y divide-border/60 text-foreground font-mono text-[11.5px]">
                     {currentSubUnits.map((r, i) => (
-                      <tr key={r.id} className="hover:bg-accent/30 transition-colors">
+                      <tr key={r.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                         <td className="py-2.5 px-3 sticky left-0 bg-card font-sans text-muted-foreground text-center">
                           {String(i + 1).padStart(2, '0')}
                         </td>
@@ -1196,7 +1196,7 @@ export default function UnitOutputPage() {
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none">
+                  <tr className="bg-panel text-muted-foreground border-b border-border font-bold select-none h-[44px]">
                     <th className="py-2.5 px-3 sticky left-0 bg-panel z-10 w-24">时间月份</th>
                     <th className="py-2.5 px-3 text-right font-bold text-primary bg-primary/10">
                       万元产值综合能耗 (tce/万元)
@@ -1217,7 +1217,7 @@ export default function UnitOutputPage() {
                     const waterItem = METRICS_TREND_DATABASE.water['12months'][11 - idx]
 
                     return (
-                      <tr key={tceItem.period} className="hover:bg-accent/30 transition-colors">
+                      <tr key={tceItem.period} className="hover:bg-accent/30 transition-colors h-[44px]">
                         <td className="py-2.5 px-3 sticky left-0 bg-card font-sans font-bold text-foreground">
                           {tceItem.period === '26-08' ? '2026年08月' : `20${tceItem.period.replace('-', '年')}月`}
                         </td>
