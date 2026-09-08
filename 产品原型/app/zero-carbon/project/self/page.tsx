@@ -99,8 +99,8 @@ export interface FactoryEvaluationData {
   notes?: string
 }
 
-// 6 大经营单位，共 31 家工厂/二级单位完整数据拓扑 (严格依据 ENTERPRISE_TREE_DATA 组织架构树)
-export const ALL_ZERO_CARBON_FACTORIES: FactoryEvaluationData[] = [
+// 6 大经营单位原始数据拓扑
+const RAW_ZERO_CARBON_FACTORIES: FactoryEvaluationData[] = [
   {
     "id": "f-sb-1",
     "company": "沈变公司",
@@ -3421,7 +3421,28 @@ export const ALL_ZERO_CARBON_FACTORIES: FactoryEvaluationData[] = [
     "evaluator": "德缆安环处",
     "declareDate": "2026-08-23"
   }
-];
+]
+
+// 剔除未接入工厂，白名单锁定为全集团 21 家有效接入智能制造工厂
+export const ALL_ZERO_CARBON_FACTORIES: FactoryEvaluationData[] = RAW_ZERO_CARBON_FACTORIES
+  .filter(
+    (f) =>
+      ![
+        'f-sb-3', // 沈变智慧能源 (未接入)
+        'f-sb-6', // 沈变印能公司 (未接入)
+        'f-hb-7', // 衡变上开 (未接入)
+        'f-hb-8', // 衡变柯贝尔 (未接入)
+        'f-xb-6', // 新变智慧能源 (未接入)
+        'f-xb-7', // 新变银利电气 (未接入)
+        'f-ll-2', // 鲁缆智缆公司 (未接入)
+        'f-ll-3', // 鲁缆昭和公司 (未接入)
+        'f-ll-4', // 鲁缆曙光公司 (未接入)
+        'f-xl-2', // 新缆新疆线缆厂 (未接入/合并)
+      ].includes(f.id)
+  )
+  .map((f) =>
+    f.id === 'f-sb-2' ? { ...f, factoryName: '露娜公司' } : f
+  )
 
 export default function ZeroCarbonSelfEvaluationPage() {
   const [factories, setFactories] = useState<FactoryEvaluationData[]>(ALL_ZERO_CARBON_FACTORIES)
@@ -3722,9 +3743,9 @@ export default function ZeroCarbonSelfEvaluationPage() {
                 <CheckSquare className="size-3.5 text-primary" />
               </div>
               <div className="text-base font-black font-mono text-foreground">
-                31 / 31 <span className="text-xs font-normal text-emerald-400">(100%)</span>
+                {factories.length} / {factories.length} <span className="text-xs font-normal text-emerald-400">(100%)</span>
               </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">集团 6 大经营单位 31 家工厂全覆盖</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">全集团 6 大经营单位 {factories.length} 家工厂全覆盖</div>
             </div>
 
             <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
@@ -3980,7 +4001,56 @@ export default function ZeroCarbonSelfEvaluationPage() {
                   </div>
                 </div>
 
-                {/* 5 大维度宏观 KPI Bento 卡片 */}
+                {/* 4 大宏观自评综合指标卡 (展示前面提到的宏观综合指标) */}
+                {stats && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
+                      <div className="flex items-center justify-between text-muted-foreground mb-1">
+                        <span className="text-[11px]">工厂自评覆盖进度</span>
+                        <CheckSquare className="size-3.5 text-primary" />
+                      </div>
+                      <div className="text-base font-black font-mono text-foreground">
+                        {companyFactories.length} / {companyFactories.length} <span className="text-xs font-normal text-emerald-400">(100%)</span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">下辖 {companyFactories.length} 家智能制造工厂全覆盖</div>
+                    </div>
+
+                    <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
+                      <div className="flex items-center justify-between text-muted-foreground mb-1">
+                        <span className="text-[11px]">清洁与绿电消纳均值</span>
+                        <Zap className="size-3.5 text-emerald-400" />
+                      </div>
+                      <div className="text-base font-black font-mono text-foreground">
+                        {stats.avgGreenPower}% <span className="text-xs font-normal text-muted-foreground">(绿电/绿证)</span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">源头减碳与协同降碳综合</div>
+                    </div>
+
+                    <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
+                      <div className="flex items-center justify-between text-muted-foreground mb-1">
+                        <span className="text-[11px]">数据自动采集平均率</span>
+                        <Cpu className="size-3.5 text-purple-400" />
+                      </div>
+                      <div className="text-base font-black font-mono text-foreground">
+                        {stats.avgAutoCollect}% <span className="text-xs font-normal text-primary">(GB 17167)</span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">重点用能设备自动采集</div>
+                    </div>
+
+                    <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
+                      <div className="flex items-center justify-between text-muted-foreground mb-1">
+                        <span className="text-[11px]">制度与披露文件齐备度</span>
+                        <FileCheck className="size-3.5 text-amber-400" />
+                      </div>
+                      <div className="text-base font-black font-mono text-foreground">
+                        {((stats.avgDisclosure / 5) * 100).toFixed(1)}% <span className="text-xs font-normal text-amber-400">({stats.avgDisclosure}/5 份)</span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">公开披露与权威核查报告</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 5 大维度深入核算 KPI Bento 卡片 */}
                 {stats && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     {/* 1. 源头减碳 */}

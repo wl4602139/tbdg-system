@@ -51,9 +51,10 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
         id: 'comp_sb',
         name: '沈变公司',
         level: 'company',
-        badge: '5单位',
+        badge: '6单位',
         children: [
           { id: 'ws_sb_main', name: '沈变本部', level: 'workshop', badge: '主体' },
+          { id: 'ws_sb_luna', name: '露娜公司', level: 'workshop', badge: '智能' },
           { id: 'ws_sb_zh', name: '智慧能源', level: 'workshop', badge: '综合' },
           { id: 'ws_sb_hx', name: '和新套管公司', level: 'workshop', badge: '主体' },
           { id: 'ws_sb_kj', name: '康嘉互感器', level: 'workshop', badge: '主体' },
@@ -284,7 +285,7 @@ export function OrgTreeSidebar({
 
             {/* 节点名称 */}
             <span className="truncate flex-1" title={node.fullName || node.name}>
-              {node.name}
+              {node.name.replace(/\s*\(.*?\)/g, '')}
             </span>
 
             {/* 徽标 */}

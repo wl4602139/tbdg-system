@@ -1140,6 +1140,7 @@ export default function EquipmentPage() {
                     name: ent.name,
                     id: ent.id,
                     badge: ent.badge,
+                    unconnected: ent.unconnected,
                     equipments: filteredEqs,
                     isMatched:
                       (!eqSearchKw.trim() || ent.name.includes(eqSearchKw.trim()) || compName.includes(eqSearchKw.trim()) || filteredEqs.length > 0) &&
@@ -1179,9 +1180,10 @@ export default function EquipmentPage() {
                     {!isCompanyCollapsed && (
                       <div className="border-l border-border/60 ml-3 pl-2 space-y-1">
                         {matchedEnterprises.map((ent) => {
-                          const entName = ent.name
+                          const rawEntName = ent.name
+                          const entName = rawEntName.replace(/\s*\(.*?\)/g, '')
                           const UNCONNECTED_NAMES = ['智慧能源', '印能公司', '上开', '柯贝尔', '银利电气', '智缆', '昭和', '曙光']
-                          const isUnconnected = ent.unconnected || UNCONNECTED_NAMES.some((u) => entName.includes(u))
+                          const isUnconnected = ent.unconnected || UNCONNECTED_NAMES.some((u) => rawEntName.includes(u))
 
                           if (isUnconnected) {
                             return (
@@ -1199,20 +1201,20 @@ export default function EquipmentPage() {
                           }
 
                           const hasEqs = ent.equipments.length > 0
-                          const isEntCollapsed = !eqSearchKw.trim() && Boolean(collapsedEnterprises[entName])
+                          const isEntCollapsed = !eqSearchKw.trim() && Boolean(collapsedEnterprises[rawEntName])
 
                           return (
                             <div key={ent.id} className="space-y-0.5">
                               {/* 3级节点：企业级单位 (支持点击展开/收起) */}
                               <div
-                                onClick={() => toggleEnterpriseCollapse(entName)}
+                                onClick={() => toggleEnterpriseCollapse(rawEntName)}
                                 className="flex items-center gap-1 py-0.5 px-1 rounded text-muted-foreground font-semibold hover:bg-accent/40 cursor-pointer select-none transition-colors text-[11.5px]"
                               >
                                 <button
                                   type="button"
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    toggleEnterpriseCollapse(entName)
+                                    toggleEnterpriseCollapse(rawEntName)
                                   }}
                                   className="size-3 flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
                                 >
@@ -1223,7 +1225,7 @@ export default function EquipmentPage() {
                                   )}
                                 </button>
                                 <Factory className="size-3 text-muted-foreground shrink-0" />
-                                <span className="flex-1 truncate" title={entName}>{entName}</span>
+                                <span className="flex-1 truncate" title={rawEntName}>{entName}</span>
                                 <span className="text-[10px] text-muted-foreground font-mono">
                                   ({ent.equipments.length})
                                 </span>

@@ -56,7 +56,7 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
         badge: '6单位',
         children: [
           { id: 'ws_sb_main', name: '沈变本部', level: 'workshop', badge: '主体' },
-          { id: 'ws_sb_luna', name: '露娜公司 (特变电工露娜智能)', level: 'workshop', badge: '智能' },
+          { id: 'ws_sb_luna', name: '露娜公司', fullName: '特变电工露娜智能电气有限公司', level: 'workshop', badge: '智能' },
           { id: 'ws_sb_zh', name: '智慧能源', level: 'workshop', badge: '未接入', unconnected: true },
           { id: 'ws_sb_hx', name: '和新套管公司', level: 'workshop', badge: '主体' },
           { id: 'ws_sb_kj', name: '康嘉互感器', level: 'workshop', badge: '主体' },
@@ -451,7 +451,10 @@ export function StandardOrgTree({
 
   // 递归过滤
   const filterNode = (node: StandardOrgNode, kw: string): StandardOrgNode | null => {
-    const matches = node.name.toLowerCase().includes(kw) || (node.badge && node.badge.toLowerCase().includes(kw))
+    const matches =
+      node.name.toLowerCase().includes(kw) ||
+      (node.fullName && node.fullName.toLowerCase().includes(kw)) ||
+      (node.badge && node.badge.toLowerCase().includes(kw))
     if (!node.children || node.children.length === 0) {
       return matches ? node : null
     }
@@ -547,7 +550,7 @@ export function StandardOrgTree({
 
             {/* 节点名称 */}
             <span className={cn('truncate flex-1', isUnconnected ? 'text-slate-400 dark:text-slate-500 font-normal' : '')} title={node.fullName || node.name}>
-              {node.name}
+              {node.name.replace(/\s*\(.*?\)/g, '')}
             </span>
             
           </div>

@@ -2128,7 +2128,6 @@ export default function UnitProductPage() {
               >
                 <option value="tce_desc" className="bg-card text-foreground">按综合单耗降序</option>
                 <option value="models_desc" className="bg-card text-foreground">按在产型号数量</option>
-                <option value="yoy_desc" className="bg-card text-foreground">按节能降耗幅度</option>
               </select>
             </div>
           </div>

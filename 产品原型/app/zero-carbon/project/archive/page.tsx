@@ -697,11 +697,9 @@ export default function ProjectArchivePage() {
               <optgroup label="🏢 沈变公司 (一级单位)" className="bg-card text-foreground">
                 <option value="沈变公司">沈变公司 (全部)</option>
                 <option value="沈变本部">└ 沈变本部</option>
-                <option value="露娜公司">└ 露娜公司 (特变电工露娜智能)</option>
-                <option value="智慧能源">└ 智慧能源</option>
+                <option value="露娜公司">└ 露娜公司</option>
                 <option value="和新套管公司">└ 和新套管公司</option>
                 <option value="康嘉互感器">└ 康嘉互感器</option>
-                <option value="印能公司">└ 印能公司</option>
               </optgroup>
               <optgroup label="🏢 衡变公司 (一级单位)" className="bg-card text-foreground">
                 <option value="衡变公司">衡变公司 (全部)</option>
@@ -722,23 +720,19 @@ export default function ProjectArchivePage() {
                 <option value="智能电气公司">└ 智能电气公司</option>
                 <option value="京津冀公司">└ 京津冀公司</option>
                 <option value="珠峰硅钢">└ 珠峰硅钢</option>
-                <option value="银利电气">└ 银利电气</option>
               </optgroup>
               <optgroup label="🏢 鲁缆公司 (一级单位)" className="bg-card text-foreground">
                 <option value="鲁缆公司">鲁缆公司 (全部)</option>
                 <option value="鲁缆本部">└ 鲁缆本部</option>
-                <option value="智缆公司">└ 智缆公司</option>
-                <option value="昭和公司">└ 昭和公司</option>
-                <option value="曙光公司">└ 曙光公司</option>
               </optgroup>
               <optgroup label="🏢 新缆厂 (一级单位)" className="bg-card text-foreground">
                 <option value="新缆厂">新缆厂 (全部)</option>
-                <option value="特变电工新疆电缆有限公司">└ 特变电工新疆电缆有限公司</option>
-                <option value="特变电工新疆线缆厂">└ 特变电工新疆线缆厂</option>
+                <option value="特变电工新疆电缆有限公司">└ 新疆电缆</option>
+                <option value="特变电工新疆线缆厂">└ 新疆线缆厂</option>
               </optgroup>
               <optgroup label="🏢 德缆公司 (一级单位)" className="bg-card text-foreground">
                 <option value="德缆公司">德缆公司 (全部)</option>
-                <option value="特变电工（德阳）电缆股份有限公司">└ 特变电工（德阳）电缆股份有限公司</option>
+                <option value="特变电工（德阳）电缆股份有限公司">└ 德阳电缆</option>
               </optgroup>
             </select>
 

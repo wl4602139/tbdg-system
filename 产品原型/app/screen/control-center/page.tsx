@@ -895,19 +895,40 @@ export default function CentralControlScreenPage() {
       {/* ========================================================================= */}
       <main className="relative z-10 flex-1 min-h-0 grid grid-cols-12 gap-2.5 p-2.5 overflow-hidden">
         {/* ======================================================================= */}
-        {/* ⬅️ 板块 1: 综合能源分析 (4列 / 12) */}
+        {/* ⬅️ 板块 1: 综合能源分析 (4列 / 12 大框) */}
         {/* ======================================================================= */}
-        <section className="col-span-4 grid grid-rows-3 gap-2 min-h-0 overflow-hidden">
-          {/* ======================================================================= */}
-          {/* 1. 顶部：2 个饼图并排 (经营单位能耗比重 + 市电与绿电结构) */}
-          {/* ======================================================================= */}
-          <div className="grid grid-cols-2 gap-2 min-h-0 h-full">
-            {/* 1.1 6家经营单位综合能耗比重 */}
-            <div className="relative rounded-xl border border-[#0e2a5c] bg-gradient-to-b from-[#061536]/90 via-[#030e28]/95 to-[#020b1e]/98 p-2.5 flex flex-col min-h-0 h-full shadow-[0_4px_20px_-2px_rgba(0,10,30,0.8),0_0_1px_1px_rgba(0,210,255,0.12)]">
-              <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-[#00d2ff]" />
-              <div className="absolute top-0 right-0 size-2 border-t-2 border-r-2 border-[#00d2ff]" />
-              <div className="absolute bottom-0 left-0 size-1.5 border-b border-l border-[#00d2ff]/40" />
-              <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-[#00d2ff]/40" />
+        <section className="col-span-4 relative rounded-xl border border-[#0e2a5c] bg-gradient-to-b from-[#061536]/90 via-[#030e28]/95 to-[#020b1e]/98 p-2.5 flex flex-col min-h-0 shadow-[0_4px_20px_-2px_rgba(0,10,30,0.8),0_0_1px_1px_rgba(0,210,255,0.12)]">
+          <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-[#00d2ff]" />
+          <div className="absolute top-0 right-0 size-2 border-t-2 border-r-2 border-[#00d2ff]" />
+          <div className="absolute bottom-0 left-0 size-1.5 border-b border-l border-[#00d2ff]/40" />
+          <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-[#00d2ff]/40" />
+
+          {/* 大框标题：综合能源分析 */}
+          <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-[#0e2a5c] shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="p-1 rounded-md bg-[#00c2ff]/15 border border-[#00c2ff]/40 text-[#00c2ff]">
+                <Zap className="size-3.5 text-[#00f0ff]" />
+              </div>
+              <h2 className="font-bold text-slate-100 tracking-wider text-xs flex items-center gap-1.5">
+                综合能源分析
+              </h2>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 font-medium">
+                ● LIVE
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-[10px] font-mono text-slate-400">
+              折标总能耗: <span className="text-cyan-300 font-bold">12.80万 tce</span>
+            </div>
+          </div>
+
+          {/* 内部 3 行 Grid 保持 100% 亚像素级严格水平对齐 */}
+          <div className="flex-1 min-h-0 grid grid-rows-3 gap-2 overflow-hidden">
+            {/* 1. 顶部：2 个饼图并排 (经营单位能耗比重 + 市电与绿电结构) */}
+            <div className="grid grid-cols-2 gap-2 min-h-0 h-full">
+              {/* 1.1 6家经营单位综合能耗比重 */}
+              <div className="relative rounded-lg border border-[#0e2a5c]/80 bg-[#02091d]/85 p-2 flex flex-col min-h-0 h-full shadow-[inset_0_0_12px_rgba(0,145,255,0.05)]">
+                <div className="absolute top-0 left-0 size-1.5 border-t border-l border-[#00d2ff]/50" />
+                <div className="absolute top-0 right-0 size-1.5 border-t border-r border-[#00d2ff]/50" />
               <div className="flex items-center justify-between border-b border-[#0e2a5c] pb-1 mb-1">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1 h-3 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_8px_#00e5ff]" />
@@ -988,11 +1009,9 @@ export default function CentralControlScreenPage() {
             </div>
 
             {/* 1.2 集团市电与绿电结构 (环形图) */}
-            <div className="relative rounded-xl border border-[#0e2a5c] bg-gradient-to-b from-[#061536]/90 via-[#030e28]/95 to-[#020b1e]/98 p-2.5 flex flex-col min-h-0 h-full shadow-[0_4px_20px_-2px_rgba(0,10,30,0.8),0_0_1px_1px_rgba(0,210,255,0.12)]">
-              <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-[#00d2ff]" />
-              <div className="absolute top-0 right-0 size-2 border-t-2 border-r-2 border-[#00d2ff]" />
-              <div className="absolute bottom-0 left-0 size-1.5 border-b border-l border-[#00d2ff]/40" />
-              <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-[#00d2ff]/40" />
+            <div className="relative rounded-lg border border-[#0e2a5c]/80 bg-[#02091d]/85 p-2 flex flex-col min-h-0 h-full shadow-[inset_0_0_12px_rgba(0,145,255,0.05)]">
+              <div className="absolute top-0 left-0 size-1.5 border-t border-l border-[#00d2ff]/50" />
+              <div className="absolute top-0 right-0 size-1.5 border-t border-r border-[#00d2ff]/50" />
               <div className="flex items-center justify-between border-b border-[#0e2a5c] pb-1 mb-1">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1 h-3 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_8px_#00e5ff]" />
@@ -1076,11 +1095,9 @@ export default function CentralControlScreenPage() {
           {/* ======================================================================= */}
           {/* 2. 中层：能源类型折标对比 (全宽水平条形图) */}
           {/* ======================================================================= */}
-          <div className="relative rounded-xl border border-[#0e2a5c] bg-gradient-to-b from-[#061536]/90 via-[#030e28]/95 to-[#020b1e]/98 p-2.5 flex flex-col min-h-0 h-full shadow-[0_4px_20px_-2px_rgba(0,10,30,0.8),0_0_1px_1px_rgba(0,210,255,0.12)]">
-            <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-[#00d2ff]" />
-            <div className="absolute top-0 right-0 size-2 border-t-2 border-r-2 border-[#00d2ff]" />
-            <div className="absolute bottom-0 left-0 size-1.5 border-b border-l border-[#00d2ff]/40" />
-            <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-[#00d2ff]/40" />
+          <div className="relative rounded-lg border border-[#0e2a5c]/80 bg-[#02091d]/85 p-2 flex flex-col min-h-0 h-full shadow-[inset_0_0_12px_rgba(0,145,255,0.05)]">
+            <div className="absolute top-0 left-0 size-1.5 border-t border-l border-[#00d2ff]/50" />
+            <div className="absolute top-0 right-0 size-1.5 border-t border-r border-[#00d2ff]/50" />
             <div className="flex items-center justify-between border-b border-[#0e2a5c] pb-1 mb-1">
               <div className="flex items-center gap-1.5">
                 <div className="w-1 h-3 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_8px_#00e5ff]" />
@@ -1182,14 +1199,10 @@ export default function CentralControlScreenPage() {
             </div>
           </div>
 
-          {/* ======================================================================= */}
           {/* 3. 下方：15个园区光伏装机容量 (全宽垂直柱状图) */}
-          {/* ======================================================================= */}
-          <div className="relative rounded-xl border border-[#0e2a5c] bg-gradient-to-b from-[#061536]/90 via-[#030e28]/95 to-[#020b1e]/98 p-2.5 flex flex-col min-h-0 h-full shadow-[0_4px_20px_-2px_rgba(0,10,30,0.8),0_0_1px_1px_rgba(0,210,255,0.12)]">
-            <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-[#00d2ff]" />
-            <div className="absolute top-0 right-0 size-2 border-t-2 border-r-2 border-[#00d2ff]" />
-            <div className="absolute bottom-0 left-0 size-1.5 border-b border-l border-[#00d2ff]/40" />
-            <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-[#00d2ff]/40" />
+          <div className="relative rounded-lg border border-[#0e2a5c]/80 bg-[#02091d]/85 p-2 flex flex-col min-h-0 h-full shadow-[inset_0_0_12px_rgba(0,145,255,0.05)]">
+            <div className="absolute top-0 left-0 size-1.5 border-t border-l border-[#00d2ff]/50" />
+            <div className="absolute top-0 right-0 size-1.5 border-t border-r border-[#00d2ff]/50" />
             <div className="flex items-center justify-between border-b border-[#0e2a5c] pb-1 mb-1">
               <div className="flex items-center gap-1.5">
                 <div className="w-1 h-3 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_8px_#00e5ff]" />
@@ -1280,26 +1293,50 @@ export default function CentralControlScreenPage() {
               </span>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
         {/* ======================================================================= */}
-        {/* ⬆️ 板块 2: 零碳项目展示 (4列 / 12) */}
+        {/* ⬆️ 板块 2: 零碳项目展示 (4列 / 12 大框) */}
         {/* ======================================================================= */}
-        <section className="col-span-4 grid grid-rows-3 gap-2 min-h-0 overflow-hidden">
-          {/* 2.1 光伏发电与消纳平衡时序趋势 */}
-          <div className="relative rounded-xl border border-[#0e2a5c] bg-gradient-to-b from-[#061536]/90 via-[#030e28]/95 to-[#020b1e]/98 p-2.5 flex flex-col min-h-0 h-full shadow-[0_4px_20px_-2px_rgba(0,10,30,0.8),0_0_1px_1px_rgba(0,210,255,0.12)]">
-            <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-[#00d2ff]" />
-            <div className="absolute top-0 right-0 size-2 border-t-2 border-r-2 border-[#00d2ff]" />
-            <div className="absolute bottom-0 left-0 size-1.5 border-b border-l border-[#00d2ff]/40" />
-            <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-[#00d2ff]/40" />
-            <div className="flex items-center justify-between border-b border-[#0e2a5c] pb-1 mb-1">
-              <div className="flex items-center gap-1.5">
-                <div className="w-1 h-3 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_8px_#00e5ff]" />
-                <h2 className="font-bold text-slate-100 tracking-wider text-xs flex items-center gap-1.5">
-                  <Sun className="size-3.5 text-amber-400" />
-                  光伏发电与消纳平衡走势
-                </h2>
+        <section className="col-span-4 relative rounded-xl border border-[#0e2a5c] bg-gradient-to-b from-[#061536]/90 via-[#030e28]/95 to-[#020b1e]/98 p-2.5 flex flex-col min-h-0 shadow-[0_4px_20px_-2px_rgba(0,10,30,0.8),0_0_1px_1px_rgba(0,210,255,0.12)]">
+          <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-[#00d2ff]" />
+          <div className="absolute top-0 right-0 size-2 border-t-2 border-r-2 border-[#00d2ff]" />
+          <div className="absolute bottom-0 left-0 size-1.5 border-b border-l border-[#00d2ff]/40" />
+          <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-[#00d2ff]/40" />
+
+          {/* 大框标题：零碳项目展示 */}
+          <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-[#0e2a5c] shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="p-1 rounded-md bg-[#00c2ff]/15 border border-[#00c2ff]/40 text-[#00c2ff]">
+                <Sun className="size-3.5 text-amber-400" />
               </div>
+              <h2 className="font-bold text-slate-100 tracking-wider text-xs flex items-center gap-1.5">
+                零碳项目展示
+              </h2>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono border border-cyan-500/40 bg-cyan-950/40 text-cyan-400 font-medium">
+                ● LIVE
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-[10px] font-mono text-slate-400">
+              光储热就地消纳: <span className="text-emerald-400 font-bold">72.8%</span>
+            </div>
+          </div>
+
+          {/* 内部 3 行 Grid 保持 100% 亚像素级严格水平对齐 */}
+          <div className="flex-1 min-h-0 grid grid-rows-3 gap-2 overflow-hidden">
+            {/* 2.1 光伏发电与消纳平衡时序趋势 */}
+            <div className="relative rounded-lg border border-[#0e2a5c]/80 bg-[#02091d]/85 p-2 flex flex-col min-h-0 h-full shadow-[inset_0_0_12px_rgba(0,145,255,0.05)]">
+              <div className="absolute top-0 left-0 size-1.5 border-t border-l border-[#00d2ff]/50" />
+              <div className="absolute top-0 right-0 size-1.5 border-t border-r border-[#00d2ff]/50" />
+              <div className="flex items-center justify-between border-b border-[#0e2a5c] pb-1 mb-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1 h-2.5 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_6px_#00e5ff]" />
+                  <h3 className="font-bold text-slate-100 tracking-wider text-[11px] flex items-center gap-1">
+                    <Sun className="size-3 text-amber-400" />
+                    光伏发电与消纳平衡走势
+                  </h3>
+                </div>
               <div className="flex items-center gap-3 text-[10px] font-mono">
                 <span className="flex items-center gap-1 text-cyan-400">
                   <span className="size-1.5 rounded-full bg-cyan-400" />
@@ -1379,20 +1416,18 @@ export default function CentralControlScreenPage() {
           </div>
 
           {/* 2.2 储能运行监测 (充放电时序 + 套利收益走势 双纵轴) */}
-          <div className="relative rounded-xl border border-[#0e2a5c] bg-gradient-to-b from-[#061536]/90 via-[#030e28]/95 to-[#020b1e]/98 p-2.5 flex flex-col min-h-0 h-full shadow-[0_4px_20px_-2px_rgba(0,10,30,0.8),0_0_1px_1px_rgba(0,210,255,0.12)]">
-            <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-[#00d2ff]" />
-            <div className="absolute top-0 right-0 size-2 border-t-2 border-r-2 border-[#00d2ff]" />
-            <div className="absolute bottom-0 left-0 size-1.5 border-b border-l border-[#00d2ff]/40" />
-            <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-[#00d2ff]/40" />
+          <div className="relative rounded-lg border border-[#0e2a5c]/80 bg-[#02091d]/85 p-2 flex flex-col min-h-0 h-full shadow-[inset_0_0_12px_rgba(0,145,255,0.05)]">
+            <div className="absolute top-0 left-0 size-1.5 border-t border-l border-[#00d2ff]/50" />
+            <div className="absolute top-0 right-0 size-1.5 border-t border-r border-[#00d2ff]/50" />
             <div className="flex items-center justify-between border-b border-[#0e2a5c] pb-1 mb-1">
               <div className="flex items-center gap-1.5">
-                <div className="w-1 h-3 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_8px_#00e5ff]" />
-                <h2 className="font-bold text-slate-100 tracking-wider text-xs flex items-center gap-1.5">
-                  <BatteryCharging className="size-3.5 text-cyan-400" />
+                <div className="w-1 h-2.5 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_6px_#00e5ff]" />
+                <h3 className="font-bold text-slate-100 tracking-wider text-[11px] flex items-center gap-1">
+                  <BatteryCharging className="size-3 text-cyan-400" />
                   储能充放运行与套利收益监测 (双纵轴)
-                </h2>
+                </h3>
               </div>
-              <div className="flex items-center gap-3 text-[10px] font-mono">
+              <div className="flex items-center gap-3 text-[9.5px] font-mono">
                 <span className="text-[#0091ff]">充/放电量(MWh)</span>
                 <span className="text-amber-400">套利收益(万元)</span>
               </div>
@@ -1489,20 +1524,18 @@ export default function CentralControlScreenPage() {
           </div>
 
           {/* 2.3 热泵运行监测 (供热量 GJ + 制热耗电量 万kWh 双纵轴) */}
-          <div className="relative rounded-xl border border-[#0e2a5c] bg-gradient-to-b from-[#061536]/90 via-[#030e28]/95 to-[#020b1e]/98 p-2.5 flex flex-col min-h-0 h-full shadow-[0_4px_20px_-2px_rgba(0,10,30,0.8),0_0_1px_1px_rgba(0,210,255,0.12)]">
-            <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-[#00d2ff]" />
-            <div className="absolute top-0 right-0 size-2 border-t-2 border-r-2 border-[#00d2ff]" />
-            <div className="absolute bottom-0 left-0 size-1.5 border-b border-l border-[#00d2ff]/40" />
-            <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-[#00d2ff]/40" />
+          <div className="relative rounded-lg border border-[#0e2a5c]/80 bg-[#02091d]/85 p-2 flex flex-col min-h-0 h-full shadow-[inset_0_0_12px_rgba(0,145,255,0.05)]">
+            <div className="absolute top-0 left-0 size-1.5 border-t border-l border-[#00d2ff]/50" />
+            <div className="absolute top-0 right-0 size-1.5 border-t border-r border-[#00d2ff]/50" />
             <div className="flex items-center justify-between border-b border-[#0e2a5c] pb-1 mb-1">
               <div className="flex items-center gap-1.5">
-                <div className="w-1 h-3 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_8px_#00e5ff]" />
-                <h2 className="font-bold text-slate-100 tracking-wider text-xs flex items-center gap-1.5">
-                  <Flame className="size-3.5 text-rose-400" />
+                <div className="w-1 h-2.5 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_6px_#00e5ff]" />
+                <h3 className="font-bold text-slate-100 tracking-wider text-[11px] flex items-center gap-1">
+                  <Flame className="size-3 text-rose-400" />
                   热泵供热量与耗电平衡监测 (双纵轴)
-                </h2>
+                </h3>
               </div>
-              <div className="flex items-center gap-3 text-[10px] font-mono">
+              <div className="flex items-center gap-3 text-[9.5px] font-mono">
                 <span className="text-rose-400">供热量(GJ)</span>
                 <span className="text-cyan-400">耗电量(万kWh)</span>
               </div>
@@ -1586,10 +1619,11 @@ export default function CentralControlScreenPage() {
               </span>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
         {/* ======================================================================= */}
-        {/* ➡️ 板块 3: 零碳工厂评估 (4列 / 12) */}
+        {/* ➡️ 板块 3: 零碳工厂评估 (4列 / 12 大框) */}
         {/* ======================================================================= */}
         <section className="col-span-4 relative rounded-xl border border-[#0e2a5c] bg-gradient-to-b from-[#061536]/90 via-[#030e28]/95 to-[#020b1e]/98 p-2.5 flex flex-col min-h-0 shadow-[0_4px_20px_-2px_rgba(0,10,30,0.8),0_0_1px_1px_rgba(0,210,255,0.12)]">
           <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-[#00d2ff]" />
@@ -1598,15 +1632,19 @@ export default function CentralControlScreenPage() {
           <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-[#00d2ff]/40" />
 
           {/* 3.1 头部与 6 大经营单位 Tab 切换 */}
-          <div className="border-b border-[#0e2a5c] pb-2 mb-2 shrink-0">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5">
-                <div className="w-1 h-3 bg-gradient-to-b from-[#00ffff] to-[#0070e0] rounded-xs shadow-[0_0_8px_#00e5ff]" />
-                <h2 className="font-bold text-slate-100 tracking-wider text-xs flex items-center gap-1.5">
+          <div className="border-b border-[#0e2a5c] pb-1.5 mb-1.5 shrink-0">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2">
+                <div className="p-1 rounded-md bg-[#00c2ff]/15 border border-[#00c2ff]/40 text-[#00c2ff]">
                   <Award className="size-3.5 text-amber-400" />
-                  零碳工厂成熟度雷达评估 (国标对标)
+                </div>
+                <h2 className="font-bold text-slate-100 tracking-wider text-xs flex items-center gap-1.5">
+                  零碳工厂成熟度雷达评估
                 </h2>
-                <span className="text-[10px] text-cyan-400 font-mono ml-1">
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono border border-amber-500/40 bg-amber-950/40 text-amber-400 font-medium">
+                  ● 国标对标
+                </span>
+                <span className="text-[10px] text-cyan-400 font-mono ml-0.5">
                   [{activeUnit} · {currentFactories.length}单位]
                 </span>
               </div>

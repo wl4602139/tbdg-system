@@ -3107,6 +3107,11 @@ export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; 
     processes: [],
     energies: ['电力'],
   },
+  '露娜公司': {
+    products: [],
+    processes: [],
+    energies: ['电力'],
+  },
   '露娜公司 (特变电工露娜智能)': {
     products: [],
     processes: [],
@@ -3117,7 +3122,19 @@ export const UNIT_PRODUCT_PROCESS_MAPPING: Record<string, { products: string[]; 
     processes: [],
     energies: ['电力'],
   },
-  '露娜智能制造': {
+        '露娜公司': {
+        totalEnergy: '45.0', energyYoy: '-8.2%',
+        totalCarbon: '104.0', carbonYoy: '-9.0%',
+        carbonIntensity: '2.311', carbonIntensityYoy: '-0.8%',
+        greenRatio: '52.0', greenYoy: '+12.4%',
+        phyGreenRatio: '38.0', phyGreenYoy: '+8.5%',
+        unitAddedValue: '0.1000', unitAddedValueYoy: '-6.5%',
+        unitOutput: '0.0310', unitOutputYoy: '-6.8%',
+        waterTotal: '620', waterYoy: '-5.2%',
+        savingEquip: '98.5', savingEquipYoy: '+5.2%',
+        pcfRatio: '100', pcfYoy: '+15.0%',
+      },
+      '露娜智能制造': {
     products: [],
     processes: [],
     energies: ['电力'],
@@ -3822,138 +3839,150 @@ export default function IndicatorControlPage() {
         totalEnergy: '418.0', energyYoy: '-5.2%',
         totalCarbon: '965.0', carbonYoy: '-5.6%',
         carbonIntensity: '2.308', carbonIntensityYoy: '-0.4%',
-        greenRatio: '31.0%', greenYoy: '+5.8%',
-        phyGreenRatio: '18.5%', phyGreenYoy: '+3.2%',
+        greenRatio: '31.0', greenYoy: '+5.8%',
+        phyGreenRatio: '18.5', phyGreenYoy: '+3.2%',
         unitAddedValue: '0.1212', unitAddedValueYoy: '-4.2%',
         unitOutput: '0.0387', unitOutputYoy: '-4.5%',
         waterTotal: '3,450', waterYoy: '-3.8%',
-        savingEquip: '91.5%', savingEquipYoy: '+3.4%',
-        pcfRatio: '87.5%', pcfYoy: '+8.0%',
+        savingEquip: '91.5', savingEquipYoy: '+3.4%',
+        pcfRatio: '87.5', pcfYoy: '+8.0%',
       },
       '沈变本部': {
         totalEnergy: '215.0', energyYoy: '-5.5%',
         totalCarbon: '495.0', carbonYoy: '-5.8%',
         carbonIntensity: '2.302', carbonIntensityYoy: '-0.3%',
-        greenRatio: '28.5%', greenYoy: '+4.9%',
-        phyGreenRatio: '16.2%', phyGreenYoy: '+2.8%',
+        greenRatio: '28.5', greenYoy: '+4.9%',
+        phyGreenRatio: '16.2', phyGreenYoy: '+2.8%',
         unitAddedValue: '0.1181', unitAddedValueYoy: '-4.6%',
         unitOutput: '0.0384', unitOutputYoy: '-4.8%',
         waterTotal: '1,780', waterYoy: '-4.0%',
-        savingEquip: '89.2%', savingEquipYoy: '+3.1%',
-        pcfRatio: '85.7%', pcfYoy: '+7.5%',
+        savingEquip: '89.2', savingEquipYoy: '+3.1%',
+        pcfRatio: '85.7', pcfYoy: '+7.5%',
+      },
+      '露娜公司': {
+        totalEnergy: '45.0', energyYoy: '-8.2%',
+        totalCarbon: '104.0', carbonYoy: '-9.0%',
+        carbonIntensity: '2.311', carbonIntensityYoy: '-0.8%',
+        greenRatio: '52.0', greenYoy: '+12.4%',
+        phyGreenRatio: '38.0', phyGreenYoy: '+8.5%',
+        unitAddedValue: '0.1000', unitAddedValueYoy: '-6.5%',
+        unitOutput: '0.0310', unitOutputYoy: '-6.8%',
+        waterTotal: '620', waterYoy: '-5.2%',
+        savingEquip: '98.5', savingEquipYoy: '+5.2%',
+        pcfRatio: '100', pcfYoy: '+15.0%',
       },
       '露娜智能制造': {
         totalEnergy: '45.0', energyYoy: '-8.2%',
         totalCarbon: '104.0', carbonYoy: '-9.0%',
         carbonIntensity: '2.311', carbonIntensityYoy: '-0.8%',
-        greenRatio: '52.0%', greenYoy: '+12.4%',
-        phyGreenRatio: '38.0%', phyGreenYoy: '+8.5%',
+        greenRatio: '52.0', greenYoy: '+12.4%',
+        phyGreenRatio: '38.0', phyGreenYoy: '+8.5%',
         unitAddedValue: '0.1000', unitAddedValueYoy: '-6.5%',
         unitOutput: '0.0310', unitOutputYoy: '-6.8%',
         waterTotal: '620', waterYoy: '-5.2%',
-        savingEquip: '98.5%', savingEquipYoy: '+5.2%',
-        pcfRatio: '100%', pcfYoy: '+15.0%',
+        savingEquip: '98.5', savingEquipYoy: '+5.2%',
+        pcfRatio: '100', pcfYoy: '+15.0%',
       },
       // 2. 衡变系 (清洁水电比例高，28MW分布式屋顶光伏领跑)
       '衡变公司': {
         totalEnergy: '362.5', energyYoy: '-4.8%',
         totalCarbon: '620.0', carbonYoy: '-6.2%',
         carbonIntensity: '1.710', carbonIntensityYoy: '-1.5%',
-        greenRatio: '34.2%', greenYoy: '+6.5%',
-        phyGreenRatio: '35.2%', phyGreenYoy: '+7.8%',
+        greenRatio: '34.2', greenYoy: '+6.5%',
+        phyGreenRatio: '35.2', phyGreenYoy: '+7.8%',
         unitAddedValue: '0.1215', unitAddedValueYoy: '-4.0%',
         unitOutput: '0.0394', unitOutputYoy: '-4.3%',
         waterTotal: '2,150', waterYoy: '-4.2%',
-        savingEquip: '94.2%', savingEquipYoy: '+4.0%',
-        pcfRatio: '93.8%', pcfYoy: '+9.2%',
+        savingEquip: '94.2', savingEquipYoy: '+4.0%',
+        pcfRatio: '93.8', pcfYoy: '+9.2%',
       },
       '衡变本部': {
         totalEnergy: '165.0', energyYoy: '-5.0%',
         totalCarbon: '282.0', carbonYoy: '-6.5%',
         carbonIntensity: '1.709', carbonIntensityYoy: '-1.6%',
-        greenRatio: '38.5%', greenYoy: '+7.2%',
-        phyGreenRatio: '39.0%', phyGreenYoy: '+8.5%',
+        greenRatio: '38.5', greenYoy: '+7.2%',
+        phyGreenRatio: '39.0', phyGreenYoy: '+8.5%',
         unitAddedValue: '0.1213', unitAddedValueYoy: '-4.2%',
         unitOutput: '0.0393', unitOutputYoy: '-4.5%',
         waterTotal: '980', waterYoy: '-4.5%',
-        savingEquip: '95.0%', savingEquipYoy: '+4.2%',
-        pcfRatio: '92.3%', pcfYoy: '+8.8%',
+        savingEquip: '95.0', savingEquipYoy: '+4.2%',
+        pcfRatio: '92.3', pcfYoy: '+8.8%',
       },
       // 3. 新变厂系 (新疆大漠戈壁风光绿电枢纽，综合绿电消费比例高达 58.5%)
       '新变厂': {
         totalEnergy: '309.5', energyYoy: '-4.5%',
         totalCarbon: '815.0', carbonYoy: '-4.2%',
         carbonIntensity: '2.633', carbonIntensityYoy: '+0.3%',
-        greenRatio: '58.5%', greenYoy: '+14.2%',
-        phyGreenRatio: '31.0%', phyGreenYoy: '+6.8%',
+        greenRatio: '58.5', greenYoy: '+14.2%',
+        phyGreenRatio: '31.0', phyGreenYoy: '+6.8%',
         unitAddedValue: '0.1984', unitAddedValueYoy: '-3.5%',
         unitOutput: '0.0632', unitOutputYoy: '-3.8%',
         waterTotal: '820', waterYoy: '-2.5%',
-        savingEquip: '89.6%', savingEquipYoy: '+3.2%',
-        pcfRatio: '80.0%', pcfYoy: '+6.5%',
+        savingEquip: '89.6', savingEquipYoy: '+3.2%',
+        pcfRatio: '80.0', pcfYoy: '+6.5%',
       },
       '超高压公司': {
         totalEnergy: '145.0', energyYoy: '-4.8%',
         totalCarbon: '382.0', carbonYoy: '-4.5%',
         carbonIntensity: '2.634', carbonIntensityYoy: '+0.3%',
-        greenRatio: '55.0%', greenYoy: '+13.5%',
-        phyGreenRatio: '29.5%', phyGreenYoy: '+6.2%',
+        greenRatio: '55.0', greenYoy: '+13.5%',
+        phyGreenRatio: '29.5', phyGreenYoy: '+6.2%',
         unitAddedValue: '0.1959', unitAddedValueYoy: '-3.8%',
         unitOutput: '0.0620', unitOutputYoy: '-4.0%',
         waterTotal: '390', waterYoy: '-2.8%',
-        savingEquip: '91.0%', savingEquipYoy: '+3.5%',
-        pcfRatio: '83.3%', pcfYoy: '+7.0%',
+        savingEquip: '91.0', savingEquipYoy: '+3.5%',
+        pcfRatio: '83.3', pcfYoy: '+7.0%',
       },
       // 4. 鲁缆公司 (电线电缆龙头，连铸连轧拉丝与挤出水槽冷却水耗大)
       '鲁缆公司': {
         totalEnergy: '105.5', energyYoy: '-3.8%',
         totalCarbon: '325.0', carbonYoy: '-3.5%',
         carbonIntensity: '3.080', carbonIntensityYoy: '+0.3%',
-        greenRatio: '22.8%', greenYoy: '+4.2%',
-        phyGreenRatio: '14.2%', phyGreenYoy: '+3.0%',
+        greenRatio: '22.8', greenYoy: '+4.2%',
+        phyGreenRatio: '14.2', phyGreenYoy: '+3.0%',
         unitAddedValue: '0.1819', unitAddedValueYoy: '-3.2%',
         unitOutput: '0.0502', unitOutputYoy: '-3.4%',
         waterTotal: '5,260', waterYoy: '-5.0%',
-        savingEquip: '88.2%', savingEquipYoy: '+3.0%',
-        pcfRatio: '80.0%', pcfYoy: '+6.0%',
+        savingEquip: '88.2', savingEquipYoy: '+3.0%',
+        pcfRatio: '80.0', pcfYoy: '+6.0%',
       },
       '鲁缆本部': {
         totalEnergy: '62.0', energyYoy: '-4.0%',
         totalCarbon: '191.0', carbonYoy: '-3.8%',
         carbonIntensity: '3.081', carbonIntensityYoy: '+0.2%',
-        greenRatio: '20.5%', greenYoy: '+3.8%',
-        phyGreenRatio: '13.8%', phyGreenYoy: '+2.8%',
+        greenRatio: '20.5', greenYoy: '+3.8%',
+        phyGreenRatio: '13.8', phyGreenYoy: '+2.8%',
         unitAddedValue: '0.1824', unitAddedValueYoy: '-3.4%',
         unitOutput: '0.0504', unitOutputYoy: '-3.6%',
         waterTotal: '3,080', waterYoy: '-5.2%',
-        savingEquip: '87.5%', savingEquipYoy: '+2.8%',
-        pcfRatio: '75.0%', pcfYoy: '+5.5%',
+        savingEquip: '87.5', savingEquipYoy: '+2.8%',
+        pcfRatio: '75.0', pcfYoy: '+5.5%',
       },
       // 5. 新缆厂 (新疆本地线缆枢纽，兼具高水耗与新疆高绿电消纳)
       '新缆厂': {
         totalEnergy: '58.0', energyYoy: '-4.0%',
         totalCarbon: '152.0', carbonYoy: '-4.2%',
         carbonIntensity: '2.620', carbonIntensityYoy: '-0.2%',
-        greenRatio: '62.0%', greenYoy: '+15.6%',
-        phyGreenRatio: '22.5%', phyGreenYoy: '+5.2%',
+        greenRatio: '62.0', greenYoy: '+15.6%',
+        phyGreenRatio: '22.5', phyGreenYoy: '+5.2%',
         unitAddedValue: '0.2042', unitAddedValueYoy: '-3.0%',
         unitOutput: '0.0592', unitOutputYoy: '-3.2%',
         waterTotal: '2,680', waterYoy: '-4.2%',
-        savingEquip: '87.0%', savingEquipYoy: '+2.8%',
-        pcfRatio: '66.7%', pcfYoy: '+5.0%',
+        savingEquip: '87.0', savingEquipYoy: '+2.8%',
+        pcfRatio: '66.7', pcfYoy: '+5.0%',
       },
       // 6. 德缆公司 (特种电缆与欧盟出口主力，水耗显著，PCF 认证覆盖率高)
       '德缆公司': {
         totalEnergy: '31.0', energyYoy: '-3.5%',
         totalCarbon: '69.8', carbonYoy: '-3.8%',
         carbonIntensity: '2.251', carbonIntensityYoy: '-0.3%',
-        greenRatio: '24.5%', greenYoy: '+4.5%',
-        phyGreenRatio: '12.9%', phyGreenYoy: '+2.5%',
+        greenRatio: '24.5', greenYoy: '+4.5%',
+        phyGreenRatio: '12.9', phyGreenYoy: '+2.5%',
         unitAddedValue: '0.1938', unitAddedValueYoy: '-3.1%',
         unitOutput: '0.0596', unitOutputYoy: '-3.3%',
         waterTotal: '1,120', waterYoy: '-4.5%',
-        savingEquip: '85.0%', savingEquipYoy: '+2.5%',
-        pcfRatio: '80.0%', pcfYoy: '+7.5%',
+        savingEquip: '85.0', savingEquipYoy: '+2.5%',
+        pcfRatio: '80.0', pcfYoy: '+7.5%',
       },
     }
 
@@ -3974,13 +4003,13 @@ export default function IndicatorControlPage() {
         totalEnergy: isCable ? '18.5' : '32.0', energyYoy: '-4.0%',
         totalCarbon: isCable ? '48.0' : '72.0', carbonYoy: '-4.2%',
         carbonIntensity: '2.300', carbonIntensityYoy: '-0.2%',
-        greenRatio: isCable ? '25.0%' : '32.0%', greenYoy: '+5.0%',
-        phyGreenRatio: '15.0%', phyGreenYoy: '+3.0%',
+        greenRatio: isCable ? '25.0' : '32.0', greenYoy: '+5.0%',
+        phyGreenRatio: '15.0', phyGreenYoy: '+3.0%',
         unitAddedValue: isCable ? '0.1850' : '0.1250', unitAddedValueYoy: '-3.5%',
         unitOutput: isCable ? '0.0520' : '0.0400', unitOutputYoy: '-3.8%',
         waterTotal: isCable ? '450' : '180', waterYoy: '-3.5%',
-        savingEquip: '88.0%', savingEquipYoy: '+3.0%',
-        pcfRatio: '75.0%', pcfYoy: '+5.0%',
+        savingEquip: '88.0', savingEquipYoy: '+3.0%',
+        pcfRatio: '75.0', pcfYoy: '+5.0%',
       }
     }
 
@@ -4018,6 +4047,11 @@ export default function IndicatorControlPage() {
       } else if (m.id === 'm-pcf-ratio') {
         curVal = profile.pcfRatio
         yoy = profile.pcfYoy
+      }
+
+      // 🌟 严格防止任何百分比指标在 curVal 中重复拼接 % 单位
+      if (m.unit === '%' && typeof curVal === 'string' && curVal.endsWith('%')) {
+        curVal = curVal.replace(/%+$/, '')
       }
 
       return {
@@ -4384,7 +4418,7 @@ export default function IndicatorControlPage() {
 
                           <div className="flex items-center justify-between">
                             <div className={cn('text-lg font-extrabold transition-colors', isSelected ? 'text-primary' : 'text-foreground')}>
-                              {m.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{m.unit}</span>
+                              {m.unit === '%' && m.curVal.endsWith('%') ? m.curVal.replace(/%+$/, '') : m.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{m.unit}</span>
                             </div>
                             <button
                               type="button"
@@ -4549,7 +4583,7 @@ export default function IndicatorControlPage() {
                         </div>
 
                         <div className="text-lg font-extrabold text-foreground group-hover:text-primary transition-colors">
-                          {m.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{m.unit}</span>
+                          {m.unit === '%' && m.curVal.endsWith('%') ? m.curVal.replace(/%+$/, '') : m.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{m.unit}</span>
                         </div>
 
                         <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">

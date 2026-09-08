@@ -65,9 +65,12 @@ npm run build
 
 ```
 TJ-nengtan/
+├── PRD/                      # 📘 项目产品需求规格文档库 (Product Requirement Documents)
+│   ├── README.md             # PRD 文档总纲索引与编写规范
+│   └── ...                   # 各核心业务模块分卷 PRD (待逐卷输出)
 ├── html/                     # 原始 HTML/Tailwind 原型页面
 └── 产品原型/                  # 现代化 Next.js App Router 完整源代码
-    ├── app/                  # 54 个全量页面组件 (App Router)
+    ├── app/                  # 76 个全量页面组件 (App Router 双端同构)
     │   ├── docs/             # 在线开发手册页面
     │   ├── carbon-footprint/ # 产品碳足迹集采中心子路由
     │   └── zero-carbon/      # 零碳园区集控中心子路由
@@ -75,6 +78,17 @@ TJ-nengtan/
     │   └── shared/           # 标准拓扑树 (StandardOrgTree)、PlatformShell、Charts 组件
     └── lib/                  # 导航配置 (nav-config.ts)、组织树机构 (org.ts)
 ```
+
+---
+
+## 📘 产品需求文档 (PRD) 与编制技能规范
+
+本项目完整产品需求规格说明书统一沉淀于 **`D:\Project\TJ-nengtan\PRD`** 目录下，并已固化专属技能库。
+- **定位**：指导特变电工能碳数字化双中心全生命周期研发、测试与演进的权威规范。
+- **架构**：采用“总纲蓝图 + 10 大业务与工程分卷”体系，融合 PM 业务价值、技术架构（DDD/API契约）、QA 测试矩阵及特变电工专属工业设计规范。
+- **Word 版规范导出**：正式文档位于 `D:\Project\TJ-nengtan\PRD\特变电工能碳数字化双中心_产品需求规格说明书_PRD_v1.0.docx`。
+- **专属技能支持**：全面遵循项目专属 Skill —— [`tbea-prd-standards`](./.gemini/skills/tbea-prd-standards/SKILL.md)。
+- **详细索引**：详见 [`PRD/README.md`](./PRD/README.md)。
 
 ---
 

@@ -39,6 +39,7 @@ export type CostMetricKey =
   | 'oilCost'
   | 'nitrogenCost'
   | 'waterCost'
+  | 'unitOutputCost'
 
 interface CostMetricMeta {
   key: CostMetricKey
@@ -106,6 +107,14 @@ const COST_METRICS_META: Record<CostMetricKey, CostMetricMeta> = {
     color: '#0284c7',
     description: '生产循环水与生活辅助用水费用',
   },
+  unitOutputCost: {
+    key: 'unitOutputCost',
+    name: '万元产值能源成本',
+    shortName: '万元产值能源成本',
+    unit: '元/万元',
+    color: '#10b981',
+    description: '单位工业产值消耗的综合能源费用支出',
+  },
 }
 
 // 6 家直属经营单位能源成本数据字典 (单位：万元)
@@ -121,6 +130,7 @@ interface CompanyCostData {
   oilCost: number // 万元
   nitrogenCost: number // 万元
   waterCost: number // 万元
+  unitOutputCost?: number // 元/万元
   elecRatio: number // %
   yoyTrend: number // 同比 %
 }
@@ -138,6 +148,7 @@ const SIX_COMPANIES_COST: CompanyCostData[] = [
     oilCost: 16.0,
     nitrogenCost: 0,
     waterCost: 5.0,
+    unitOutputCost: 385.0,
     elecRatio: 79.3,
     yoyTrend: -3.2,
   },
@@ -153,6 +164,7 @@ const SIX_COMPANIES_COST: CompanyCostData[] = [
     oilCost: 14.0,
     nitrogenCost: 0,
     waterCost: 4.2,
+    unitOutputCost: 372.0,
     elecRatio: 79.1,
     yoyTrend: -2.8,
   },
@@ -168,6 +180,7 @@ const SIX_COMPANIES_COST: CompanyCostData[] = [
     oilCost: 12.5,
     nitrogenCost: 0,
     waterCost: 3.7,
+    unitOutputCost: 360.0,
     elecRatio: 79.6,
     yoyTrend: -3.5,
   },
@@ -183,6 +196,7 @@ const SIX_COMPANIES_COST: CompanyCostData[] = [
     oilCost: 8.0,
     nitrogenCost: 0,
     waterCost: 2.6,
+    unitOutputCost: 355.0,
     elecRatio: 80.3,
     yoyTrend: -1.9,
   },
@@ -198,6 +212,7 @@ const SIX_COMPANIES_COST: CompanyCostData[] = [
     oilCost: 6.5,
     nitrogenCost: 36.0, // 仅露娜包含液氮
     waterCost: 1.8,
+    unitOutputCost: 365.0,
     elecRatio: 73.5,
     yoyTrend: -4.1,
   },
@@ -213,6 +228,7 @@ const SIX_COMPANIES_COST: CompanyCostData[] = [
     oilCost: 5.0,
     nitrogenCost: 0,
     waterCost: 1.4,
+    unitOutputCost: 348.0,
     elecRatio: 84.0,
     yoyTrend: -2.4,
   },
@@ -221,47 +237,47 @@ const SIX_COMPANIES_COST: CompanyCostData[] = [
 // 🏢 各 2 级经营公司下属 3 级单位 (车间/项目公司) 成本数据字典
 const COMPANY_SUB_UNITS_COST: Record<string, CompanyCostData[]> = {
   '沈变公司': [
-    { id: 'ws_sb_main', name: '沈变本部', fullName: '沈变本部（特高压制造车间）', province: '辽宁省 (沈阳)', totalCost: 420.0, gridElecCost: 335.0, gasCost: 55.0, steamCost: 22.0, oilCost: 8.0, nitrogenCost: 0, waterCost: 2.8, elecRatio: 79.8, yoyTrend: -3.5 },
-    { id: 'ws_sb_luna', name: '露娜公司', fullName: '特变电工露娜智能电气有限公司', province: '天津市 (武清)', totalCost: 120.0, gridElecCost: 95.0, gasCost: 15.0, steamCost: 6.0, oilCost: 2.5, nitrogenCost: 0, waterCost: 0.8, elecRatio: 79.2, yoyTrend: -2.8 },
-    { id: 'ws_sb_zh', name: '智慧能源', fullName: '沈变智慧能源微网运维', province: '辽宁省 (沈阳)', totalCost: 72.5, gridElecCost: 58.0, gasCost: 9.0, steamCost: 3.5, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, elecRatio: 80.0, yoyTrend: -4.1 },
-    { id: 'ws_sb_hx', name: '和新套管公司', fullName: '沈变和新高压套管车间', province: '辽宁省 (沈阳)', totalCost: 65.0, gridElecCost: 52.0, gasCost: 8.0, steamCost: 3.0, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, elecRatio: 80.0, yoyTrend: -3.0 },
-    { id: 'ws_sb_kj', name: '康嘉互感器', fullName: '沈变康嘉互感器制造车间', province: '辽宁省 (沈阳)', totalCost: 55.0, gridElecCost: 43.5, gasCost: 7.0, steamCost: 2.5, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, elecRatio: 79.1, yoyTrend: -2.5 },
-    { id: 'ws_sb_yn', name: '印能公司', fullName: '沈变印能绝缘材料车间', province: '辽宁省 (沈阳)', totalCost: 30.0, gridElecCost: 21.5, gasCost: 4.0, steamCost: 1.5, oilCost: 1.0, nitrogenCost: 0, waterCost: 0.4, elecRatio: 71.7, yoyTrend: -2.0 },
+    { id: 'ws_sb_main', name: '沈变本部', fullName: '沈变本部（特高压制造车间）', province: '辽宁省 (沈阳)', totalCost: 420.0, gridElecCost: 335.0, gasCost: 55.0, steamCost: 22.0, oilCost: 8.0, nitrogenCost: 0, waterCost: 2.8, unitOutputCost: 392.0, elecRatio: 79.8, yoyTrend: -3.5 },
+    { id: 'ws_sb_luna', name: '露娜公司', fullName: '特变电工露娜智能电气有限公司', province: '天津市 (武清)', totalCost: 120.0, gridElecCost: 95.0, gasCost: 15.0, steamCost: 6.0, oilCost: 2.5, nitrogenCost: 0, waterCost: 0.8, unitOutputCost: 365.0, elecRatio: 79.2, yoyTrend: -2.8 },
+    { id: 'ws_sb_zh', name: '智慧能源', fullName: '沈变智慧能源微网运维', province: '辽宁省 (沈阳)', totalCost: 72.5, gridElecCost: 58.0, gasCost: 9.0, steamCost: 3.5, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, unitOutputCost: 350.0, elecRatio: 80.0, yoyTrend: -4.1 },
+    { id: 'ws_sb_hx', name: '和新套管公司', fullName: '沈变和新高压套管车间', province: '辽宁省 (沈阳)', totalCost: 65.0, gridElecCost: 52.0, gasCost: 8.0, steamCost: 3.0, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, unitOutputCost: 378.0, elecRatio: 80.0, yoyTrend: -3.0 },
+    { id: 'ws_sb_kj', name: '康嘉互感器', fullName: '沈变康嘉互感器制造车间', province: '辽宁省 (沈阳)', totalCost: 55.0, gridElecCost: 43.5, gasCost: 7.0, steamCost: 2.5, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, unitOutputCost: 370.0, elecRatio: 79.1, yoyTrend: -2.5 },
+    { id: 'ws_sb_yn', name: '印能公司', fullName: '沈变印能绝缘材料车间', province: '辽宁省 (沈阳)', totalCost: 30.0, gridElecCost: 21.5, gasCost: 4.0, steamCost: 1.5, oilCost: 1.0, nitrogenCost: 0, waterCost: 0.4, unitOutputCost: 340.0, elecRatio: 71.7, yoyTrend: -2.0 },
   ],
   '衡变公司': [
-    { id: 'ws_hb_main', name: '衡变本部', fullName: '衡变本部（高压变压器车间）', province: '湖南省 (衡阳)', totalCost: 320.0, gridElecCost: 253.0, gasCost: 40.0, steamCost: 16.0, oilCost: 6.5, nitrogenCost: 0, waterCost: 2.0, elecRatio: 79.1, yoyTrend: -3.1 },
-    { id: 'ws_hb_nj', name: '南京电研', fullName: '南京电气自动化研发基地', province: '江苏省 (南京)', totalCost: 85.0, gridElecCost: 67.5, gasCost: 10.5, steamCost: 4.0, oilCost: 1.8, nitrogenCost: 0, waterCost: 0.5, elecRatio: 79.4, yoyTrend: -2.9 },
-    { id: 'ws_hb_yj', name: '云集电气', fullName: '衡变云集电气成套车间', province: '湖南省 (衡阳)', totalCost: 62.0, gridElecCost: 49.0, gasCost: 8.0, steamCost: 3.0, oilCost: 1.2, nitrogenCost: 0, waterCost: 0.4, elecRatio: 79.0, yoyTrend: -2.5 },
-    { id: 'ws_hb_hn', name: '湖南电气', fullName: '湖南智能输配电设备制造', province: '湖南省 (衡阳)', totalCost: 58.0, gridElecCost: 46.0, gasCost: 7.0, steamCost: 3.0, oilCost: 1.2, nitrogenCost: 0, waterCost: 0.4, elecRatio: 79.3, yoyTrend: -2.6 },
-    { id: 'ws_hb_kg', name: '云集高压开关', fullName: '云集GIS高压开关制造', province: '湖南省 (衡阳)', totalCost: 45.0, gridElecCost: 35.5, gasCost: 6.0, steamCost: 2.0, oilCost: 1.0, nitrogenCost: 0, waterCost: 0.3, elecRatio: 78.9, yoyTrend: -2.4 },
-    { id: 'ws_hb_xj', name: '新疆自控', fullName: '新疆自控系统车间', province: '新疆 (昌吉)', totalCost: 35.0, gridElecCost: 27.5, gasCost: 4.5, steamCost: 1.8, oilCost: 0.8, nitrogenCost: 0, waterCost: 0.2, elecRatio: 78.6, yoyTrend: -2.1 },
-    { id: 'ws_hb_sk', name: '上开', fullName: '上海开关制造车间', province: '上海市', totalCost: 25.0, gridElecCost: 20.0, gasCost: 3.0, steamCost: 1.2, oilCost: 0.5, nitrogenCost: 0, waterCost: 0.15, elecRatio: 80.0, yoyTrend: -1.8 },
-    { id: 'ws_hb_kbe', name: '柯贝尔', fullName: '柯贝尔绝缘器件制造', province: '湖南省 (衡阳)', totalCost: 20.0, gridElecCost: 16.0, gasCost: 2.5, steamCost: 1.0, oilCost: 0.4, nitrogenCost: 0, waterCost: 0.12, elecRatio: 80.0, yoyTrend: -2.0 },
-    { id: 'ws_hb_tnj', name: '特能建', fullName: '特能建电力工程集成', province: '湖南省 (衡阳)', totalCost: 15.0, gridElecCost: 12.0, gasCost: 2.0, steamCost: 0.7, oilCost: 0.3, nitrogenCost: 0, waterCost: 0.1, elecRatio: 80.0, yoyTrend: -3.0 },
-    { id: 'ws_hb_hr', name: '合容电气', fullName: '合容电气电容补偿车间', province: '湖南省 (衡阳)', totalCost: 12.0, gridElecCost: 9.5, gasCost: 1.5, steamCost: 0.6, oilCost: 0.3, nitrogenCost: 0, waterCost: 0.08, elecRatio: 79.2, yoyTrend: -2.2 },
-    { id: 'ws_hb_gil', name: '赛杰爱迪', fullName: '赛杰爱迪GIL管线车间', province: '湖南省 (衡阳)', totalCost: 8.0, gridElecCost: 6.0, gasCost: 1.0, steamCost: 0.7, oilCost: 0.3, nitrogenCost: 0, waterCost: 0.05, elecRatio: 75.0, yoyTrend: -1.5 },
+    { id: 'ws_hb_main', name: '衡变本部', fullName: '衡变本部（高压变压器车间）', province: '湖南省 (衡阳)', totalCost: 320.0, gridElecCost: 253.0, gasCost: 40.0, steamCost: 16.0, oilCost: 6.5, nitrogenCost: 0, waterCost: 2.0, unitOutputCost: 375.0, elecRatio: 79.1, yoyTrend: -3.1 },
+    { id: 'ws_hb_nj', name: '南京电研', fullName: '南京电气自动化研发基地', province: '江苏省 (南京)', totalCost: 85.0, gridElecCost: 67.5, gasCost: 10.5, steamCost: 4.0, oilCost: 1.8, nitrogenCost: 0, waterCost: 0.5, unitOutputCost: 362.0, elecRatio: 79.4, yoyTrend: -2.9 },
+    { id: 'ws_hb_yj', name: '云集电气', fullName: '衡变云集电气成套车间', province: '湖南省 (衡阳)', totalCost: 62.0, gridElecCost: 49.0, gasCost: 8.0, steamCost: 3.0, oilCost: 1.2, nitrogenCost: 0, waterCost: 0.4, unitOutputCost: 368.0, elecRatio: 79.0, yoyTrend: -2.5 },
+    { id: 'ws_hb_hn', name: '湖南电气', fullName: '湖南智能输配电设备制造', province: '湖南省 (衡阳)', totalCost: 58.0, gridElecCost: 46.0, gasCost: 7.0, steamCost: 3.0, oilCost: 1.2, nitrogenCost: 0, waterCost: 0.4, unitOutputCost: 370.0, elecRatio: 79.3, yoyTrend: -2.6 },
+    { id: 'ws_hb_kg', name: '云集高压开关', fullName: '云集GIS高压开关制造', province: '湖南省 (衡阳)', totalCost: 45.0, gridElecCost: 35.5, gasCost: 6.0, steamCost: 2.0, oilCost: 1.0, nitrogenCost: 0, waterCost: 0.3, unitOutputCost: 366.0, elecRatio: 78.9, yoyTrend: -2.4 },
+    { id: 'ws_hb_xj', name: '新疆自控', fullName: '新疆自控系统车间', province: '新疆 (昌吉)', totalCost: 35.0, gridElecCost: 27.5, gasCost: 4.5, steamCost: 1.8, oilCost: 0.8, nitrogenCost: 0, waterCost: 0.2, unitOutputCost: 360.0, elecRatio: 78.6, yoyTrend: -2.1 },
+    { id: 'ws_hb_sk', name: '上开', fullName: '上海开关制造车间', province: '上海市', totalCost: 25.0, gridElecCost: 20.0, gasCost: 3.0, steamCost: 1.2, oilCost: 0.5, nitrogenCost: 0, waterCost: 0.15, unitOutputCost: 350.0, elecRatio: 80.0, yoyTrend: -1.8 },
+    { id: 'ws_hb_kbe', name: '柯贝尔', fullName: '柯贝尔绝缘器件制造', province: '湖南省 (衡阳)', totalCost: 20.0, gridElecCost: 16.0, gasCost: 2.5, steamCost: 1.0, oilCost: 0.4, nitrogenCost: 0, waterCost: 0.12, unitOutputCost: 345.0, elecRatio: 80.0, yoyTrend: -2.0 },
+    { id: 'ws_hb_tnj', name: '特能建', fullName: '特能建电力工程集成', province: '湖南省 (衡阳)', totalCost: 15.0, gridElecCost: 12.0, gasCost: 2.0, steamCost: 0.7, oilCost: 0.3, nitrogenCost: 0, waterCost: 0.1, unitOutputCost: 340.0, elecRatio: 80.0, yoyTrend: -3.0 },
+    { id: 'ws_hb_hr', name: '合容电气', fullName: '合容电气电容补偿车间', province: '湖南省 (衡阳)', totalCost: 12.0, gridElecCost: 9.5, gasCost: 1.5, steamCost: 0.6, oilCost: 0.3, nitrogenCost: 0, waterCost: 0.08, unitOutputCost: 338.0, elecRatio: 79.2, yoyTrend: -2.2 },
+    { id: 'ws_hb_gil', name: '赛杰爱迪', fullName: '赛杰爱迪GIL管线车间', province: '湖南省 (衡阳)', totalCost: 8.0, gridElecCost: 6.0, gasCost: 1.0, steamCost: 0.7, oilCost: 0.3, nitrogenCost: 0, waterCost: 0.05, unitOutputCost: 330.0, elecRatio: 75.0, yoyTrend: -1.5 },
   ],
   '新变厂': [
-    { id: 'ws_xb_uhv', name: '超高压公司', fullName: '新变超高压变压器车间', province: '新疆 (昌吉)', totalCost: 280.0, gridElecCost: 223.0, gasCost: 35.0, steamCost: 14.0, oilCost: 6.0, nitrogenCost: 0, waterCost: 1.8, elecRatio: 79.6, yoyTrend: -3.8 },
-    { id: 'ws_xb_tb', name: '天变公司', fullName: '天津变压器制造基地', province: '天津市 (静海)', totalCost: 110.0, gridElecCost: 87.5, gasCost: 14.0, steamCost: 5.5, oilCost: 2.3, nitrogenCost: 0, waterCost: 0.7, elecRatio: 79.5, yoyTrend: -3.4 },
-    { id: 'ws_xb_zndq', name: '智能电气公司', fullName: '新变智能电气制造车间', province: '新疆 (昌吉)', totalCost: 80.0, gridElecCost: 63.5, gasCost: 10.0, steamCost: 4.2, oilCost: 1.7, nitrogenCost: 0, waterCost: 0.5, elecRatio: 79.4, yoyTrend: -3.2 },
-    { id: 'ws_xb_jjj', name: '京津冀公司', fullName: '京津冀变压器集成车间', province: '天津市 (武清)', totalCost: 55.0, gridElecCost: 44.0, gasCost: 7.0, steamCost: 2.8, oilCost: 1.2, nitrogenCost: 0, waterCost: 0.4, elecRatio: 80.0, yoyTrend: -3.0 },
-    { id: 'ws_xb_zf', name: '珠峰硅钢', fullName: '珠峰硅钢深加工车间', province: '新疆 (昌吉)', totalCost: 35.2, gridElecCost: 28.0, gasCost: 4.5, steamCost: 1.8, oilCost: 0.7, nitrogenCost: 0, waterCost: 0.2, elecRatio: 79.5, yoyTrend: -2.8 },
-    { id: 'ws_xb_zhny', name: '智慧能源', fullName: '新变智慧微网运维中心', province: '新疆 (昌吉)', totalCost: 18.0, gridElecCost: 14.5, gasCost: 2.2, steamCost: 0.9, oilCost: 0.4, nitrogenCost: 0, waterCost: 0.1, elecRatio: 80.6, yoyTrend: -4.0 },
-    { id: 'ws_xb_yl', name: '银利电气', fullName: '银利电气电磁线车间', province: '新疆 (昌吉)', totalCost: 12.0, gridElecCost: 9.5, gasCost: 1.3, steamCost: 0.8, oilCost: 0.2, nitrogenCost: 0, waterCost: 0.08, elecRatio: 79.2, yoyTrend: -2.5 },
+    { id: 'ws_xb_uhv', name: '超高压公司', fullName: '新变超高压变压器车间', province: '新疆 (昌吉)', totalCost: 280.0, gridElecCost: 223.0, gasCost: 35.0, steamCost: 14.0, oilCost: 6.0, nitrogenCost: 0, waterCost: 1.8, unitOutputCost: 368.0, elecRatio: 79.6, yoyTrend: -3.8 },
+    { id: 'ws_xb_tb', name: '天变公司', fullName: '天津变压器制造基地', province: '天津市 (静海)', totalCost: 110.0, gridElecCost: 87.5, gasCost: 14.0, steamCost: 5.5, oilCost: 2.3, nitrogenCost: 0, waterCost: 0.7, unitOutputCost: 358.0, elecRatio: 79.5, yoyTrend: -3.4 },
+    { id: 'ws_xb_zndq', name: '智能电气公司', fullName: '新变智能电气制造车间', province: '新疆 (昌吉)', totalCost: 80.0, gridElecCost: 63.5, gasCost: 10.0, steamCost: 4.2, oilCost: 1.7, nitrogenCost: 0, waterCost: 0.5, unitOutputCost: 352.0, elecRatio: 79.4, yoyTrend: -3.2 },
+    { id: 'ws_xb_jjj', name: '京津冀公司', fullName: '京津冀变压器集成车间', province: '天津市 (武清)', totalCost: 55.0, gridElecCost: 44.0, gasCost: 7.0, steamCost: 2.8, oilCost: 1.2, nitrogenCost: 0, waterCost: 0.4, unitOutputCost: 350.0, elecRatio: 80.0, yoyTrend: -3.0 },
+    { id: 'ws_xb_zf', name: '珠峰硅钢', fullName: '珠峰硅钢深加工车间', province: '新疆 (昌吉)', totalCost: 35.2, gridElecCost: 28.0, gasCost: 4.5, steamCost: 1.8, oilCost: 0.7, nitrogenCost: 0, waterCost: 0.2, unitOutputCost: 345.0, elecRatio: 79.5, yoyTrend: -2.8 },
+    { id: 'ws_xb_zhny', name: '智慧能源', fullName: '新变智慧微网运维中心', province: '新疆 (昌吉)', totalCost: 18.0, gridElecCost: 14.5, gasCost: 2.2, steamCost: 0.9, oilCost: 0.4, nitrogenCost: 0, waterCost: 0.1, unitOutputCost: 340.0, elecRatio: 80.6, yoyTrend: -4.0 },
+    { id: 'ws_xb_yl', name: '银利电气', fullName: '银利电气电磁线车间', province: '新疆 (昌吉)', totalCost: 12.0, gridElecCost: 9.5, gasCost: 1.3, steamCost: 0.8, oilCost: 0.2, nitrogenCost: 0, waterCost: 0.08, unitOutputCost: 335.0, elecRatio: 79.2, yoyTrend: -2.5 },
   ],
   '鲁缆公司': [
-    { id: 'ws_ll_main', name: '鲁缆本部', fullName: '鲁能泰山高压电缆车间', province: '山东省 (新泰)', totalCost: 260.0, gridElecCost: 209.0, gasCost: 32.0, steamCost: 13.0, oilCost: 5.0, nitrogenCost: 0, waterCost: 1.6, elecRatio: 80.4, yoyTrend: -2.1 },
-    { id: 'ws_ll_zl', name: '智缆公司', fullName: '智缆特种电缆车间', province: '山东省 (新泰)', totalCost: 75.0, gridElecCost: 60.0, gasCost: 9.5, steamCost: 3.8, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, elecRatio: 80.0, yoyTrend: -1.8 },
-    { id: 'ws_ll_sw', name: '昭和公司', fullName: '昭和铝包钢制造车间', province: '山东省 (新泰)', totalCost: 50.8, gridElecCost: 41.0, gasCost: 6.0, steamCost: 2.5, oilCost: 1.0, nitrogenCost: 0, waterCost: 0.3, elecRatio: 80.7, yoyTrend: -1.6 },
-    { id: 'ws_ll_sg', name: '曙光公司', fullName: '曙光电力金具车间', province: '山东省 (新泰)', totalCost: 35.0, gridElecCost: 28.0, gasCost: 4.5, steamCost: 1.7, oilCost: 0.5, nitrogenCost: 0, waterCost: 0.2, elecRatio: 80.0, yoyTrend: -1.5 },
+    { id: 'ws_ll_main', name: '鲁缆本部', fullName: '鲁能泰山高压电缆车间', province: '山东省 (新泰)', totalCost: 260.0, gridElecCost: 209.0, gasCost: 32.0, steamCost: 13.0, oilCost: 5.0, nitrogenCost: 0, waterCost: 1.6, unitOutputCost: 355.0, elecRatio: 80.4, yoyTrend: -2.1 },
+    { id: 'ws_ll_zl', name: '智缆公司', fullName: '智缆特种电缆车间', province: '山东省 (新泰)', totalCost: 75.0, gridElecCost: 60.0, gasCost: 9.5, steamCost: 3.8, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, unitOutputCost: 348.0, elecRatio: 80.0, yoyTrend: -1.8 },
+    { id: 'ws_ll_sw', name: '昭和公司', fullName: '昭和铝包钢制造车间', province: '山东省 (新泰)', totalCost: 50.8, gridElecCost: 41.0, gasCost: 6.0, steamCost: 2.5, oilCost: 1.0, nitrogenCost: 0, waterCost: 0.3, unitOutputCost: 342.0, elecRatio: 80.7, yoyTrend: -1.6 },
+    { id: 'ws_ll_sg', name: '曙光公司', fullName: '曙光电力金具车间', province: '山东省 (新泰)', totalCost: 35.0, gridElecCost: 28.0, gasCost: 4.5, steamCost: 1.7, oilCost: 0.5, nitrogenCost: 0, waterCost: 0.2, unitOutputCost: 338.0, elecRatio: 80.0, yoyTrend: -1.5 },
   ],
   '新缆厂': [
-    { id: 'ws_xl_main', name: '特变电工新疆电缆有限公司', fullName: '新疆电缆高压制造车间', province: '新疆 (乌鲁木齐)', totalCost: 200.0, gridElecCost: 168.0, gasCost: 20.0, steamCost: 7.0, oilCost: 3.5, nitrogenCost: 0, waterCost: 0.9, elecRatio: 84.0, yoyTrend: -2.6 },
-    { id: 'ws_xl_sub', name: '特变电工新疆线缆厂', fullName: '新疆线缆民用线缆车间', province: '新疆 (乌鲁木齐)', totalCost: 112.0, gridElecCost: 94.0, gasCost: 12.0, steamCost: 3.0, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, elecRatio: 83.9, yoyTrend: -2.0 },
+    { id: 'ws_xl_main', name: '特变电工新疆电缆有限公司', fullName: '新疆电缆高压制造车间', province: '新疆 (乌鲁木齐)', totalCost: 200.0, gridElecCost: 168.0, gasCost: 20.0, steamCost: 7.0, oilCost: 3.5, nitrogenCost: 0, waterCost: 0.9, unitOutputCost: 348.0, elecRatio: 84.0, yoyTrend: -2.6 },
+    { id: 'ws_xl_sub', name: '特变电工新疆线缆厂', fullName: '新疆线缆民用线缆车间', province: '新疆 (乌鲁木齐)', totalCost: 112.0, gridElecCost: 94.0, gasCost: 12.0, steamCost: 3.0, oilCost: 1.5, nitrogenCost: 0, waterCost: 0.5, unitOutputCost: 345.0, elecRatio: 83.9, yoyTrend: -2.0 },
   ],
   '德缆公司': [
-    { id: 'ws_dl_main', name: '特变电工（德阳）电缆股份有限公司', fullName: '德阳电缆制造主体车间', province: '四川省 (德阳)', totalCost: 360.5, gridElecCost: 265.0, gasCost: 43.0, steamCost: 14.5, oilCost: 6.5, nitrogenCost: 36.0, waterCost: 1.8, elecRatio: 73.5, yoyTrend: -4.1 },
+    { id: 'ws_dl_main', name: '特变电工（德阳）电缆股份有限公司', fullName: '德阳电缆制造主体车间', province: '四川省 (德阳)', totalCost: 360.5, gridElecCost: 265.0, gasCost: 43.0, steamCost: 14.5, oilCost: 6.5, nitrogenCost: 36.0, waterCost: 1.8, unitOutputCost: 362.0, elecRatio: 73.5, yoyTrend: -4.1 },
   ],
 }
 
@@ -278,6 +294,7 @@ const GROUP_SUMMARY_COST: CompanyCostData = {
   oilCost: 62.0,
   nitrogenCost: 36.0,
   waterCost: 18.0,
+  unitOutputCost: 368.5,
   elecRatio: 79.3,
   yoyTrend: -3.0,
 }
@@ -369,11 +386,17 @@ export default function EnergyCostPage() {
     if (isGroupLevel) {
       return SIX_COMPANIES_COST
     }
+    const UNCONNECTED_SUB_UNIT_IDS = new Set([
+      'ws_sb_zh', 'ws_sb_yn',      // 沈变: 智慧能源, 印能公司
+      'ws_hb_sk', 'ws_hb_kbe',     // 衡变: 上开, 柯贝尔
+      'ws_xb_zhny', 'ws_xb_yl',    // 新变: 智慧能源, 银利电气
+      'ws_ll_zl', 'ws_ll_sw', 'ws_ll_sg', // 鲁缆: 智缆公司, 昭和公司, 曙光公司
+    ])
     const matchedKey = Object.keys(COMPANY_SUB_UNITS_COST).find((k) =>
       selectedNode.name.includes(k) || k.includes(selectedNode.name.slice(0, 2))
     )
     if (matchedKey && COMPANY_SUB_UNITS_COST[matchedKey]) {
-      return COMPANY_SUB_UNITS_COST[matchedKey]
+      return COMPANY_SUB_UNITS_COST[matchedKey].filter((u) => !UNCONNECTED_SUB_UNIT_IDS.has(u.id))
     }
     return SIX_COMPANIES_COST
   }, [isGroupLevel, selectedNode.name])
@@ -798,6 +821,35 @@ export default function EnergyCostPage() {
                 <span className="font-mono font-bold text-sky-400">{costRatios.waterRatio}%</span>
               </div>
             </div>
+
+            {/* 卡片 8: 万元产值能源成本 */}
+            <div
+              onClick={() => !isWorkshopLevel && setSelectedMetricKey('unitOutputCost')}
+              className={cn(
+                'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all select-none',
+                !isWorkshopLevel ? 'cursor-pointer hover:shadow-md' : '',
+                selectedMetricKey === 'unitOutputCost' && !isWorkshopLevel
+                  ? 'bg-emerald-500/10 border-emerald-500 ring-2 ring-emerald-500/20'
+                  : 'bg-card border-border hover:border-primary/40'
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                  <TrendingUp className="size-3.5 text-emerald-400" />
+                  万元产值能源成本
+                </span>
+              </div>
+              <div className="text-xl font-extrabold text-emerald-400 truncate">
+                ¥{(activeData.unitOutputCost || 368.5).toFixed(1)}{' '}
+                <span className="text-xs font-normal text-muted-foreground font-sans">元/万元</span>
+              </div>
+              <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
+                <span>月度同比</span>
+                <span className="font-mono font-bold text-emerald-400 flex items-center gap-0.5">
+                  <TrendingDown className="size-3" /> -3.8% ↓
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1055,7 +1107,7 @@ export default function EnergyCostPage() {
                               }}
                               className="text-[11px] text-primary hover:underline font-sans font-medium cursor-pointer"
                             >
-                              {isGroupLevel ? '下钻查看该单位成本 →' : '查看车间用能明细 →'}
+                              {isGroupLevel ? '下钻查看该单位成本 →' : '查看该项目公司用能明细 →'}
                             </button>
                           </td>
                         </tr>
@@ -1242,20 +1294,22 @@ export default function EnergyCostPage() {
                 </div>
               </div>
 
-              {/* 展开明细按钮 */}
-              <div className="flex items-center justify-between pt-1 border-t border-border/60">
-                <span className="text-xs text-muted-foreground font-sans">
-                  💡 支持穿透查看各车间工段分项能源费用明细
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setIsDetailModalOpen(true)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 text-xs font-bold transition-all border border-primary/30 cursor-pointer"
-                >
-                  <Maximize2 className="size-3.5" />
-                  <span>展开车间级明细账 (弹窗)</span>
-                </button>
-              </div>
+              {/* 展开明细按钮 (仅在项目公司/车间级保留展示，集团级与经营单位级彻底隐藏) */}
+              {isWorkshopLevel && (
+                <div className="flex items-center justify-between pt-1 border-t border-border/60">
+                  <span className="text-xs text-muted-foreground font-sans">
+                    💡 支持穿透查看各车间工段分项能源费用明细
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsDetailModalOpen(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 text-xs font-bold transition-all border border-primary/30 cursor-pointer"
+                  >
+                    <Maximize2 className="size-3.5" />
+                    <span>展开车间级明细账 (弹窗)</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

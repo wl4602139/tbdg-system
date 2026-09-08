@@ -465,7 +465,7 @@ const CROSS_COMPANY_PRODUCT_BENCHMARKS: ProductModelBenchmarkGroup[] = [
     industryName: '变压器产业',
     categoryName: '变压器-高压 (特高压单相自耦)',
     model: 'ODFS-334MVA/500kV 单相自耦变压器',
-    unit: '台',
+    unit: '万kVA',
     companies: [
       { companyId: 'hb_main', companyName: '衡变本部 (特高压制造部)', isOptimal: true, tce: 13.82, elecKWh: 102400, steamTon: 3.2, gasM3: 45.0, waterTon: 18.5, diffPercent: '集团最优基准' },
       { companyId: 'sb_main', companyName: '沈变本部 (超高压车间)', isOptimal: false, tce: 14.21, elecKWh: 105900, steamTon: 3.4, gasM3: 48.0, waterTon: 19.2, diffPercent: '+2.8%' },
@@ -479,7 +479,7 @@ const CROSS_COMPANY_PRODUCT_BENCHMARKS: ProductModelBenchmarkGroup[] = [
     industryName: '变压器产业',
     categoryName: '变压器-中低压-干变 (干式变压器)',
     model: 'SCB13-1600kVA/10kV 环氧浇注干变',
-    unit: '台',
+    unit: '万kVA',
     companies: [
       { companyId: 'xb_tb', companyName: '新变天变公司', isOptimal: true, tce: 0.68, elecKWh: 5100, steamTon: 0.18, gasM3: 6.2, waterTon: 2.1, diffPercent: '集团最优基准' },
       { companyId: 'xb_zndq', companyName: '新变智能电气公司', isOptimal: false, tce: 0.70, elecKWh: 5260, steamTon: 0.19, gasM3: 6.5, waterTon: 2.2, diffPercent: '+2.9%' },
@@ -492,7 +492,7 @@ const CROSS_COMPANY_PRODUCT_BENCHMARKS: ProductModelBenchmarkGroup[] = [
     industryName: '变压器产业',
     categoryName: '变压器-中低压-油变 (油浸式变压器)',
     model: 'SZ11-50000/110kV 节能型油浸式变压器',
-    unit: '台',
+    unit: '万kVA',
     companies: [
       { companyId: 'sb_main', companyName: '沈变本部', isOptimal: true, tce: 4.15, elecKWh: 31200, steamTon: 1.1, gasM3: 15.0, waterTon: 8.2, diffPercent: '集团最优基准' },
       { companyId: 'hb_main', companyName: '衡变本部', isOptimal: false, tce: 4.28, elecKWh: 32100, steamTon: 1.2, gasM3: 16.5, waterTon: 8.6, diffPercent: '+3.1%' },
@@ -615,7 +615,7 @@ const TRANSFORMER_CASCADE_DATA: ProductCascadeStructure[] = [
               {
                 id: 'hb-m-1',
                 name: 'ODFS-334MVA/500kV 单相自耦变压器',
-                unit: '台',
+                unit: '万kVA',
                 baseTce: 14.52,
                 currTce: 13.82,
                 baseElec: 107500,
@@ -630,7 +630,7 @@ const TRANSFORMER_CASCADE_DATA: ProductCascadeStructure[] = [
               {
                 id: 'hb-m-2',
                 name: 'ODFS-250MVA/500kV 自耦变压器',
-                unit: '台',
+                unit: '万kVA',
                 baseTce: 11.20,
                 currTce: 10.65,
                 baseElec: 83000,
@@ -651,7 +651,7 @@ const TRANSFORMER_CASCADE_DATA: ProductCascadeStructure[] = [
               {
                 id: 'hb-m-3',
                 name: 'SZ11-50000/110kV 节能型油浸式变压器',
-                unit: '台',
+                unit: '万kVA',
                 baseTce: 4.45,
                 currTce: 4.28,
                 baseElec: 33400,
@@ -678,7 +678,7 @@ const TRANSFORMER_CASCADE_DATA: ProductCascadeStructure[] = [
               {
                 id: 'hb-m-4',
                 name: 'SFZ11-240MVA/220kV 三相三线圈电力变',
-                unit: '台',
+                unit: '万kVA',
                 baseTce: 8.20,
                 currTce: 7.85,
                 baseElec: 61500,
@@ -711,7 +711,7 @@ const TRANSFORMER_CASCADE_DATA: ProductCascadeStructure[] = [
               {
                 id: 'sb-m-1',
                 name: 'ODFS-334MVA/500kV 单相自耦变压器',
-                unit: '台',
+                unit: '万kVA',
                 baseTce: 14.85,
                 currTce: 14.21,
                 baseElec: 110200,
@@ -771,7 +771,7 @@ const TRANSFORMER_CASCADE_DATA: ProductCascadeStructure[] = [
               {
                 id: 'xb-m-1',
                 name: 'ODFS-334MVA/500kV 单相自耦变压器',
-                unit: '台',
+                unit: '万kVA',
                 baseTce: 15.30,
                 currTce: 14.72,
                 baseElec: 114000,
@@ -798,7 +798,7 @@ const TRANSFORMER_CASCADE_DATA: ProductCascadeStructure[] = [
               {
                 id: 'xb-m-2',
                 name: 'SCB13-1600kVA/10kV 环氧浇注干变',
-                unit: '台',
+                unit: '万kVA',
                 baseTce: 0.72,
                 currTce: 0.68,
                 baseElec: 5400,
@@ -825,7 +825,7 @@ const TRANSFORMER_CASCADE_DATA: ProductCascadeStructure[] = [
               {
                 id: 'xb-m-3',
                 name: 'SZ11-50000/110kV 节能型油浸式变压器',
-                unit: '台',
+                unit: '万kVA',
                 baseTce: 4.58,
                 currTce: 4.39,
                 baseElec: 34500,
@@ -1961,84 +1961,86 @@ export default function BenchmarkManagementPage() {
           })}
         </div>
 
-        {/* 右侧（红框位置）：统一时间查询模块 */}
-        <div className="flex items-center gap-2 text-xs font-sans">
-          {/* 月度 / 季度 / 年度 粒度切换药丸 */}
-          <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border">
-            {(['month', 'quarter', 'year'] as const).map((dim) => (
-              <button
-                key={dim}
-                type="button"
-                onClick={() => {
-                  setBenchmarkTimeDim(dim)
-                  setProcessTimeDim(dim)
-                }}
-                className={cn(
-                  'px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  benchmarkTimeDim === dim
-                    ? 'bg-primary text-primary-foreground font-bold shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {dim === 'month' ? '月度' : dim === 'quarter' ? '季度' : '年度'}
-              </button>
-            ))}
-          </div>
+        {/* 右侧（红框位置）：统一时间查询模块 (在纵向对标Tab下隐藏) */}
+        {activeTab !== 'product_vertical' && (
+          <div className="flex items-center gap-2 text-xs font-sans">
+            {/* 月度 / 季度 / 年度 粒度切换药丸 */}
+            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border">
+              {(['month', 'quarter', 'year'] as const).map((dim) => (
+                <button
+                  key={dim}
+                  type="button"
+                  onClick={() => {
+                    setBenchmarkTimeDim(dim)
+                    setProcessTimeDim(dim)
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
+                    benchmarkTimeDim === dim
+                      ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {dim === 'month' ? '月度' : dim === 'quarter' ? '季度' : '年度'}
+                </button>
+              ))}
+            </div>
 
-          {/* 时间选择器 */}
-          <div className="flex items-center">
-            {benchmarkTimeDim === 'month' && (
-              <input
-                type="month"
-                value={benchmarkSelectedMonth}
-                onChange={(e) => {
-                  setBenchmarkSelectedMonth(e.target.value)
-                  setProcessMonth(e.target.value)
-                }}
-                className="px-2.5 py-1 bg-panel border border-border rounded-lg text-xs font-mono font-bold text-foreground focus:outline-none focus:border-primary cursor-pointer"
-              />
-            )}
-            {benchmarkTimeDim === 'quarter' && (
-              <select
-                value={benchmarkSelectedQuarter}
-                onChange={(e) => {
-                  setBenchmarkSelectedQuarter(e.target.value)
-                  setProcessQuarter(e.target.value)
-                }}
-                className="px-2.5 py-1 bg-panel border border-border rounded-lg text-xs font-mono font-bold text-foreground focus:outline-none focus:border-primary cursor-pointer"
-              >
-                <option value="2026-Q1" className="bg-card text-foreground">2026年 第一季度 (Q1)</option>
-                <option value="2026-Q2" className="bg-card text-foreground">2026年 第二季度 (Q2)</option>
-                <option value="2026-Q3" className="bg-card text-foreground">2026年 第三季度 (Q3)</option>
-                <option value="2026-Q4" className="bg-card text-foreground">2026年 第四季度 (Q4)</option>
-              </select>
-            )}
-            {benchmarkTimeDim === 'year' && (
-              <select
-                value={benchmarkSelectedYear}
-                onChange={(e) => {
-                  setBenchmarkSelectedYear(e.target.value)
-                  setProcessYear(e.target.value)
-                }}
-                className="px-2.5 py-1 bg-panel border border-border rounded-lg text-xs font-mono font-bold text-foreground focus:outline-none focus:border-primary cursor-pointer"
-              >
-                <option value="2026" className="bg-card text-foreground">2026 年度</option>
-                <option value="2025" className="bg-card text-foreground">2025 年度</option>
-                <option value="2024" className="bg-card text-foreground">2024 年度</option>
-              </select>
-            )}
-          </div>
+            {/* 时间选择器 */}
+            <div className="flex items-center">
+              {benchmarkTimeDim === 'month' && (
+                <input
+                  type="month"
+                  value={benchmarkSelectedMonth}
+                  onChange={(e) => {
+                    setBenchmarkSelectedMonth(e.target.value)
+                    setProcessMonth(e.target.value)
+                  }}
+                  className="px-2.5 py-1 bg-panel border border-border rounded-lg text-xs font-mono font-bold text-foreground focus:outline-none focus:border-primary cursor-pointer"
+                />
+              )}
+              {benchmarkTimeDim === 'quarter' && (
+                <select
+                  value={benchmarkSelectedQuarter}
+                  onChange={(e) => {
+                    setBenchmarkSelectedQuarter(e.target.value)
+                    setProcessQuarter(e.target.value)
+                  }}
+                  className="px-2.5 py-1 bg-panel border border-border rounded-lg text-xs font-mono font-bold text-foreground focus:outline-none focus:border-primary cursor-pointer"
+                >
+                  <option value="2026-Q1" className="bg-card text-foreground">2026年 第一季度 (Q1)</option>
+                  <option value="2026-Q2" className="bg-card text-foreground">2026年 第二季度 (Q2)</option>
+                  <option value="2026-Q3" className="bg-card text-foreground">2026年 第三季度 (Q3)</option>
+                  <option value="2026-Q4" className="bg-card text-foreground">2026年 第四季度 (Q4)</option>
+                </select>
+              )}
+              {benchmarkTimeDim === 'year' && (
+                <select
+                  value={benchmarkSelectedYear}
+                  onChange={(e) => {
+                    setBenchmarkSelectedYear(e.target.value)
+                    setProcessYear(e.target.value)
+                  }}
+                  className="px-2.5 py-1 bg-panel border border-border rounded-lg text-xs font-mono font-bold text-foreground focus:outline-none focus:border-primary cursor-pointer"
+                >
+                  <option value="2026" className="bg-card text-foreground">2026 年度</option>
+                  <option value="2025" className="bg-card text-foreground">2025 年度</option>
+                  <option value="2024" className="bg-card text-foreground">2024 年度</option>
+                </select>
+              )}
+            </div>
 
-          {/* 查询按钮 */}
-          <button
-            type="button"
-            onClick={() => alert(`已根据对标统计周期【${benchmarkTimeLabel}】更新全集团能效对标数据！`)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-xs cursor-pointer transition-colors"
-          >
-            <Search className="size-3.5" />
-            <span>查询</span>
-          </button>
-        </div>
+            {/* 查询按钮 */}
+            <button
+              type="button"
+              onClick={() => alert(`已根据对标统计周期【${benchmarkTimeLabel}】更新全集团能效对标数据！`)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-xs cursor-pointer transition-colors"
+            >
+              <Search className="size-3.5" />
+              <span>查询</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ========================================================================= */}
