@@ -572,6 +572,17 @@ export default function ZeroCarbonScreenPage() {
               <ArrowLeft className={is46x9 ? 'size-3' : 'size-3.5'} />
               <span>返回系统</span>
             </Link>
+
+            <Link
+              href="/screen/control-center"
+              className={cn(
+                'flex items-center gap-1 rounded border border-[#00f0ff]/40 bg-[#00f0ff]/10 hover:bg-[#00f0ff]/20 text-[#00f0ff] transition-colors shadow-[0_0_10px_rgba(0,240,255,0.15)]',
+                is46x9 ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-xs'
+              )}
+            >
+              <Monitor className={is46x9 ? 'size-3' : 'size-3.5'} />
+              <span>16:9综合集控</span>
+            </Link>
           </div>
 
           {/* 中央主标题科技 HUD 金属梯形外框 */}

@@ -34,6 +34,10 @@ export const zeroCarbonNav: NavItem[] = [
     title: '集控中心大屏',
     href: '/zero-carbon/screen',
     icon: LayoutDashboard,
+    children: [
+      { title: '全景环幕大屏', href: '/zero-carbon/screen' },
+      { title: '综合集控大屏 (16:9)', href: '/screen/control-center' },
+    ],
   },
   {
     title: '集中监管',
