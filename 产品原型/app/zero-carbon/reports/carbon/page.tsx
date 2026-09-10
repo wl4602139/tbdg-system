@@ -7,6 +7,7 @@ import {
   Globe2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 
 interface CarbonRow {
   id: string
@@ -258,8 +259,24 @@ export default function CarbonReportPage() {
       rows = rows.filter((r) => r.unitName === unitFilter || r.unitId === unitFilter)
     }
 
-    return rows
-  }, [companyFilter, unitFilter])
+    // 依据时间维度动态缩放累计碳排放总量各分项
+    const periodScale = getPeriodScaleFactor('sum', timeDim, {
+      monthRange: selectedMonthRange,
+      quarter: selectedQuarter,
+      year: selectedYear,
+    })
+
+    return rows.map((r) => ({
+      ...r,
+      fossilCombustion: Number((r.fossilCombustion * periodScale).toFixed(1)),
+      processEmission: Number((r.processEmission * periodScale).toFixed(1)),
+      gridElecEmission: Number((r.gridElecEmission * periodScale).toFixed(1)),
+      steamEmission: Number((r.steamEmission * periodScale).toFixed(1)),
+      pvGreenDeduct: Number((r.pvGreenDeduct * periodScale).toFixed(1)),
+      ccerDeduct: Number((r.ccerDeduct * periodScale).toFixed(1)),
+      netEmission: Number((r.netEmission * periodScale).toFixed(1)),
+    }))
+  }, [companyFilter, unitFilter, timeDim, selectedMonthRange, selectedQuarter, selectedYear])
 
   // 预计算相同公司的 rowSpan 合并信息
   const companyRowSpans = useMemo(() => {

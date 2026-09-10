@@ -20,6 +20,7 @@ import {
   FileSpreadsheet,
   CheckCircle2,
 } from 'lucide-react'
+import { getPeriodScaleFactor, getTimeDimensionLabel } from '@/components/shared/time-dimension-engine'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
@@ -648,18 +649,37 @@ export default function UnitOutputPage() {
   const isCompanyLevel = selectedNode.level === 'company'
   const isProjectCompanyLevel = selectedNode.level === 'workshop' || (!isGroupLevel && !isCompanyLevel)
 
+  // 🌟 产值能耗周期聚合与强度计算因子 (依据所选月度范围、季度、年度动态换算)
+  const outputSumScaleFactor = useMemo(() => {
+    return getPeriodScaleFactor('sum', timeDim, {
+      selectedMonthRange,
+      selectedQuarter,
+      selectedYear,
+    }, { basePeriod: 'monthRange8' })
+  }, [timeDim, selectedMonthRange, selectedQuarter, selectedYear])
+
+  const outputIntensityFactor = useMemo(() => {
+    return getPeriodScaleFactor('intensity', timeDim, {
+      selectedMonthRange,
+      selectedQuarter,
+      selectedYear,
+    })
+  }, [timeDim, selectedMonthRange, selectedQuarter, selectedYear])
+
   // 🌟 根据选中的组织节点动态构建该单位具备的能源介质万元产值单耗卡片列表
   const kpiMetrics = useMemo<UnitOutputKpiItem[]>(() => {
     const nodeName = selectedNode.name || ''
     const isCable = nodeName.includes('缆')
     const isGroup = isGroupLevel
 
-    // 基础万元产值综合能耗
-    const baseTce = isGroup ? '0.0864' : (isCable ? '0.0872' : (nodeName.includes('衡变') ? '0.0872' : (nodeName.includes('新变') ? '0.0894' : '0.0844')))
+    // 基础万元产值综合能耗 (叠加时间维度微波动)
+    const rawTce = isGroup ? 0.0864 : (isCable ? 0.0872 : (nodeName.includes('衡变') ? 0.0872 : (nodeName.includes('新变') ? 0.0894 : 0.0844)))
+    const baseTce = (rawTce * outputIntensityFactor).toFixed(4)
     const baseTceYoy = isGroup ? '-6.2%' : (isCable ? '-5.4%' : (nodeName.includes('衡变') ? '-5.4%' : (nodeName.includes('新变') ? '-5.2%' : '-6.7%')))
 
     // 万元产值电耗 (所有单位均有)
-    const baseElec = isGroup ? '218.4' : (isCable ? '219.8' : (nodeName.includes('衡变') ? '219.0' : (nodeName.includes('新变') ? '224.8' : '212.5')))
+    const rawElec = isGroup ? 218.4 : (isCable ? 219.8 : (nodeName.includes('衡变') ? 219.0 : (nodeName.includes('新变') ? 224.8 : 212.5)))
+    const baseElec = (rawElec * outputIntensityFactor).toFixed(1)
     const baseElecYoy = isGroup ? '-5.8%' : (isCable ? '-5.1%' : (nodeName.includes('衡变') ? '-5.4%' : (nodeName.includes('新变') ? '-5.2%' : '-6.2%')))
 
     const list: UnitOutputKpiItem[] = [
@@ -687,9 +707,10 @@ export default function UnitOutputPage() {
       },
     ]
 
-    // 蒸汽消耗 (变压器产线如沈变、衡变、新变及集团有蒸汽，线缆厂通常无或极少)
+    // 蒸汽消耗
     if (isGroup || !isCable || nodeName.includes('变') || nodeName.includes('互感器')) {
-      const steamVal = isGroup ? '0.25' : (nodeName.includes('衡变') ? '0.26' : (nodeName.includes('新变') ? '0.22' : '0.28'))
+      const rawSteam = isGroup ? 0.25 : (nodeName.includes('衡变') ? 0.26 : (nodeName.includes('新变') ? 0.22 : 0.28))
+      const steamVal = (rawSteam * outputIntensityFactor).toFixed(2)
       list.push({
         key: 'steam',
         name: '万元产值蒸汽消耗',
@@ -703,9 +724,10 @@ export default function UnitOutputPage() {
       })
     }
 
-    // 天然气消耗 (除德缆等纯电拉丝外，各主要单位与集团均有窑炉/烘房气耗)
+    // 天然气消耗
     if (isGroup || !nodeName.includes('德缆')) {
-      const gasVal = isGroup ? '2.33' : (nodeName.includes('衡变') ? '2.10' : (nodeName.includes('新变') ? '2.45' : (isCable ? '1.60' : '1.85')))
+      const rawGas = isGroup ? 2.33 : (nodeName.includes('衡变') ? 2.10 : (nodeName.includes('新变') ? 2.45 : (isCable ? 1.60 : 1.85)))
+      const gasVal = (rawGas * outputIntensityFactor).toFixed(2)
       list.push({
         key: 'gas',
         name: '万元产值天然气消耗',
@@ -720,7 +742,8 @@ export default function UnitOutputPage() {
     }
 
     // 水资源消耗
-    const waterVal = isGroup ? '2.8' : (nodeName.includes('衡变') ? '3.1' : (nodeName.includes('新变') ? '2.9' : (isCable ? '2.5' : '2.8')))
+    const rawWater = isGroup ? 2.8 : (nodeName.includes('衡变') ? 3.1 : (nodeName.includes('新变') ? 2.9 : (isCable ? 2.5 : 2.8)))
+    const waterVal = (rawWater * outputIntensityFactor).toFixed(1)
     list.push({
       key: 'water',
       name: '万元产值水耗',
@@ -734,7 +757,7 @@ export default function UnitOutputPage() {
     })
 
     return list
-  }, [selectedNode, isGroupLevel])
+  }, [selectedNode, isGroupLevel, outputIntensityFactor])
 
   // 当前激活的指标元数据
   const activeMetricMeta = useMemo(() => {
@@ -743,14 +766,24 @@ export default function UnitOutputPage() {
 
   // 🌟 当前层级下属单位列表 (集团页 ➔ 6家单位; 经营单位页 ➔ 其项目公司; 项目公司页 ➔ 无)
   const currentSubUnits = useMemo<SubUnitOutputRow[]>(() => {
+    let baseList: SubUnitOutputRow[] = []
     if (isGroupLevel) {
-      return GROUP_SIX_COMPANIES_OUTPUT
+      baseList = GROUP_SIX_COMPANIES_OUTPUT
+    } else if (isCompanyLevel) {
+      baseList = getCompanySubUnits(selectedNode.name)
     }
-    if (isCompanyLevel) {
-      return getCompanySubUnits(selectedNode.name)
-    }
-    return []
-  }, [isGroupLevel, isCompanyLevel, selectedNode.name])
+    return baseList.map((item) => {
+      const outputVal = Number((item.outputValueYi * outputSumScaleFactor).toFixed(2))
+      const tceVal = Number((item.totalEnergyTce * outputSumScaleFactor).toFixed(1))
+      const unitTce = Number((item.unitOutputTce * outputIntensityFactor).toFixed(4))
+      return {
+        ...item,
+        outputValueYi: outputVal,
+        totalEnergyTce: tceVal,
+        unitOutputTce: unitTce,
+      }
+    })
+  }, [isGroupLevel, isCompanyLevel, selectedNode.name, outputSumScaleFactor, outputIntensityFactor])
 
   // 🌟 趋势图表当前选中的数据源 (严格与 activeMetricKey 同步)
   const currentTrendData = useMemo(() => {
@@ -794,7 +827,10 @@ export default function UnitOutputPage() {
             <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs">
               <button
                 type="button"
-                onClick={() => setTimeDim('month')}
+                onClick={() => {
+                  setTimeDim('month')
+                  setTrendTimeRange('12months')
+                }}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
@@ -804,7 +840,10 @@ export default function UnitOutputPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setTimeDim('quarter')}
+                onClick={() => {
+                  setTimeDim('quarter')
+                  setTrendTimeRange('12quarters')
+                }}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
@@ -814,7 +853,10 @@ export default function UnitOutputPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setTimeDim('year')}
+                onClick={() => {
+                  setTimeDim('year')
+                  setTrendTimeRange('3years')
+                }}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
@@ -961,7 +1003,10 @@ export default function UnitOutputPage() {
             <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs">
               <button
                 type="button"
-                onClick={() => setTrendTimeRange('12months')}
+                onClick={() => {
+                  setTrendTimeRange('12months')
+                  setTimeDim('month')
+                }}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   trendTimeRange === '12months'
@@ -973,7 +1018,10 @@ export default function UnitOutputPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setTrendTimeRange('12quarters')}
+                onClick={() => {
+                  setTrendTimeRange('12quarters')
+                  setTimeDim('quarter')
+                }}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   trendTimeRange === '12quarters'
@@ -985,7 +1033,10 @@ export default function UnitOutputPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setTrendTimeRange('3years')}
+                onClick={() => {
+                  setTrendTimeRange('3years')
+                  setTimeDim('year')
+                }}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
                   trendTimeRange === '3years'
@@ -1047,9 +1098,6 @@ export default function UnitOutputPage() {
                       : '各项目公司单位产值能耗'}
                   </h3>
                 </div>
-                <span className="text-xs text-muted-foreground font-mono">
-                  {isGroupLevel ? '共 6 家经营单位' : `共 ${currentSubUnits.length} 家下属项目公司/车间`}
-                </span>
               </div>
 
               <div className={cn(
@@ -1119,7 +1167,6 @@ export default function UnitOutputPage() {
                       : '各项目公司产值综合能耗明细'}
                   </h3>
                 </div>
-                <span className="text-xs text-muted-foreground font-mono">报告期：2026年08月</span>
               </div>
 
               <div className="overflow-x-auto custom-scrollbar">

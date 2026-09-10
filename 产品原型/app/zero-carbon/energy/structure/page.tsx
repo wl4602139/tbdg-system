@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend, Donut, BarChartGroup } from '@/components/shared/charts'
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 import { cn } from '@/lib/utils'
 
 // 8 大能源介质定义
@@ -328,12 +329,37 @@ export default function EnergyStructureAnalysisPage() {
     return found || SIX_COMPANIES_DATA[0]
   }, [isGroupLevel, selectedOrgNode])
 
+  // 用能结构周期缩放因子 (依据月度范围、季度或年度自动计算累计倍率)
+  const structureScaleFactor = useMemo(() => {
+    return getPeriodScaleFactor('sum', timeDim, {
+      monthRange: selectedMonthRange,
+      quarter: selectedQuarter,
+      year: selectedYear,
+    }, { basePeriod: 'monthRange8' })
+  }, [timeDim, selectedMonthRange, selectedQuarter, selectedYear])
+
+  // 依据当前时间周期动态缩放 6 家单位用能量
+  const scaledCompaniesData = useMemo(() => {
+    return SIX_COMPANIES_DATA.map((c) => ({
+      ...c,
+      totalTce: Number((c.totalTce * structureScaleFactor).toFixed(1)),
+      totalElec: Number((c.totalElec * structureScaleFactor).toFixed(1)),
+      gridElec: Number((c.gridElec * structureScaleFactor).toFixed(1)),
+      greenElec: Number((c.greenElec * structureScaleFactor).toFixed(1)),
+      gas: Number((c.gas * structureScaleFactor).toFixed(1)),
+      steam: Number((c.steam * structureScaleFactor).toFixed(1)),
+      oil: Number((c.oil * structureScaleFactor).toFixed(1)),
+      nitrogen: Number((c.nitrogen * structureScaleFactor).toFixed(1)),
+      water: Number((c.water * structureScaleFactor).toFixed(1)),
+    }))
+  }, [structureScaleFactor])
+
   // 1. 集团页：计算 6 家单位在当前选中指标下的数值与占比 (用于饼图与柱状图)
   const metricCompanyBreakdown = useMemo(() => {
-    const totalVal = SIX_COMPANIES_DATA.reduce((sum, c) => sum + (c[selectedMetricKey] as number), 0)
+    const totalVal = scaledCompaniesData.reduce((sum, c) => sum + (c[selectedMetricKey] as number), 0)
     const unit = METRICS_META[selectedMetricKey].unit
 
-    const donutData = SIX_COMPANIES_DATA.map((c, i) => {
+    const donutData = scaledCompaniesData.map((c, i) => {
       const val = c[selectedMetricKey] as number
       const ratio = totalVal > 0 ? Number(((val / totalVal) * 100).toFixed(1)) : 0
       const colors = ['#1677ff', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899']
@@ -346,7 +372,7 @@ export default function EnergyStructureAnalysisPage() {
       }
     })
 
-    const barData = SIX_COMPANIES_DATA.map((c) => {
+    const barData = scaledCompaniesData.map((c) => {
       const val = c[selectedMetricKey] as number
       const ratio = totalVal > 0 ? Number(((val / totalVal) * 100).toFixed(1)) : 0
       return {
@@ -357,7 +383,7 @@ export default function EnergyStructureAnalysisPage() {
     })
 
     return { totalVal, donutData, barData, unit }
-  }, [selectedMetricKey])
+  }, [selectedMetricKey, scaledCompaniesData])
 
   // 2. 经营单位页：计算该单位自身用能结构占比 (各能源介质折标煤与占比)
   const companyStructureDonutData = useMemo(() => {
@@ -401,7 +427,21 @@ export default function EnergyStructureAnalysisPage() {
     ]
   }, [currentCompanyData])
 
-  const activeData = isGroupLevel ? GROUP_SUMMARY_DATA : currentCompanyData
+  const rawActiveData = isGroupLevel ? GROUP_SUMMARY_DATA : currentCompanyData
+  const activeData = useMemo(() => {
+    return {
+      ...rawActiveData,
+      totalTce: Number((rawActiveData.totalTce * structureScaleFactor).toFixed(1)),
+      totalElec: Number((rawActiveData.totalElec * structureScaleFactor).toFixed(1)),
+      gridElec: Number((rawActiveData.gridElec * structureScaleFactor).toFixed(1)),
+      greenElec: Number((rawActiveData.greenElec * structureScaleFactor).toFixed(1)),
+      gas: Number((rawActiveData.gas * structureScaleFactor).toFixed(1)),
+      steam: Number((rawActiveData.steam * structureScaleFactor).toFixed(1)),
+      oil: Number((rawActiveData.oil * structureScaleFactor).toFixed(1)),
+      nitrogen: Number((rawActiveData.nitrogen * structureScaleFactor).toFixed(1)),
+      water: Number((rawActiveData.water * structureScaleFactor).toFixed(1)),
+    }
+  }, [rawActiveData, structureScaleFactor])
 
   return (
     <div className="flex gap-3.5 items-start font-sans text-slate-800">
@@ -782,7 +822,7 @@ export default function EnergyStructureAnalysisPage() {
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-primary" />
                 <h3 className="text-xs font-bold text-foreground">
-                  【{METRICS_META[selectedMetricKey].name}】6 家直属经营单位占比与消耗对比
+                  {METRICS_META[selectedMetricKey].name}
                 </h3>
               </div>
               
@@ -903,9 +943,6 @@ export default function EnergyStructureAnalysisPage() {
                   各类能源介质消费构成占比与折标煤对照明细
                 </h3>
               </div>
-              <span className="text-xs text-muted-foreground font-mono">
-                {activeData.province} · 综合折标 {activeData.totalTce.toLocaleString()} tce
-              </span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">

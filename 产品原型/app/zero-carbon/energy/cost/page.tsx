@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend, Donut, BarChartGroup } from '@/components/shared/charts'
+import { getPeriodScaleFactor, getTimeDimensionLabel } from '@/components/shared/time-dimension-engine'
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { cn } from '@/lib/utils'
 
@@ -381,8 +382,17 @@ export default function EnergyCostPage() {
     return selectedNode.level === 'workshop'
   }, [selectedNode])
 
+  // 成本周期缩放因子 (依据月度范围、季度或年度自动计算累计倍率)
+  const costScaleFactor = useMemo(() => {
+    return getPeriodScaleFactor('sum', timeDim, {
+      monthRange: selectedMonthRange,
+      quarter: selectedQuarter,
+      year: selectedYear,
+    }, { basePeriod: 'monthRange8' })
+  }, [timeDim, selectedMonthRange, selectedQuarter, selectedYear])
+
   // 🌟 当前层级展示的下级单位数据列表 (选1级集团节点 ➔ 6家2级经营公司; 选2级经营公司节点 ➔ 其下属3级车间/项目公司)
-  const currentLevelUnits = useMemo<CompanyCostData[]>(() => {
+  const rawCurrentLevelUnits = useMemo<CompanyCostData[]>(() => {
     if (isGroupLevel) {
       return SIX_COMPANIES_COST
     }
@@ -400,6 +410,20 @@ export default function EnergyCostPage() {
     }
     return SIX_COMPANIES_COST
   }, [isGroupLevel, selectedNode.name])
+
+  // 依据当前时间周期动态缩放各单位成本绝对值
+  const currentLevelUnits = useMemo<CompanyCostData[]>(() => {
+    return rawCurrentLevelUnits.map((u) => ({
+      ...u,
+      totalCost: Number((u.totalCost * costScaleFactor).toFixed(1)),
+      gridElecCost: Number((u.gridElecCost * costScaleFactor).toFixed(1)),
+      gasCost: Number((u.gasCost * costScaleFactor).toFixed(1)),
+      steamCost: Number((u.steamCost * costScaleFactor).toFixed(1)),
+      oilCost: Number((u.oilCost * costScaleFactor).toFixed(1)),
+      nitrogenCost: Number((u.nitrogenCost * costScaleFactor).toFixed(1)),
+      waterCost: Number((u.waterCost * costScaleFactor).toFixed(1)),
+    }))
+  }, [rawCurrentLevelUnits, costScaleFactor])
 
   // 当前选中的公司数据
   const currentCompanyCost = useMemo(() => {
@@ -463,7 +487,19 @@ export default function EnergyCostPage() {
     ]
   }, [currentCompanyCost])
 
-  const activeData = isGroupLevel ? GROUP_SUMMARY_COST : currentCompanyCost
+  const rawActiveData = isGroupLevel ? GROUP_SUMMARY_COST : currentCompanyCost
+  const activeData = useMemo(() => {
+    return {
+      ...rawActiveData,
+      totalCost: Number((rawActiveData.totalCost * costScaleFactor).toFixed(1)),
+      gridElecCost: Number((rawActiveData.gridElecCost * costScaleFactor).toFixed(1)),
+      gasCost: Number((rawActiveData.gasCost * costScaleFactor).toFixed(1)),
+      steamCost: Number((rawActiveData.steamCost * costScaleFactor).toFixed(1)),
+      oilCost: Number((rawActiveData.oilCost * costScaleFactor).toFixed(1)),
+      nitrogenCost: Number((rawActiveData.nitrogenCost * costScaleFactor).toFixed(1)),
+      waterCost: Number((rawActiveData.waterCost * costScaleFactor).toFixed(1)),
+    }
+  }, [rawActiveData, costScaleFactor])
 
   // 计算当前视角的成本比例
   const costRatios = useMemo(() => {
@@ -653,7 +689,7 @@ export default function EnergyCostPage() {
                 <span className="text-xs font-normal text-muted-foreground font-sans">万元</span>
               </div>
               <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
-                <span>月度同比</span>
+                <span>{getTimeDimensionLabel(timeDim)}同比</span>
                 <span className="font-mono font-bold text-emerald-400 flex items-center gap-0.5">
                   <TrendingDown className="size-3" /> {activeData.yoyTrend}% ↓
                 </span>
@@ -844,7 +880,7 @@ export default function EnergyCostPage() {
                 <span className="text-xs font-normal text-muted-foreground font-sans">元/万元</span>
               </div>
               <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
-                <span>月度同比</span>
+                <span>{getTimeDimensionLabel(timeDim)}同比</span>
                 <span className="font-mono font-bold text-emerald-400 flex items-center gap-0.5">
                   <TrendingDown className="size-3" /> -3.8% ↓
                 </span>

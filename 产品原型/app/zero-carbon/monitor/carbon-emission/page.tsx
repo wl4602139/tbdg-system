@@ -24,6 +24,8 @@ import {
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend, BarChartGroup, Donut } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
+import { getPeriodScaleFactor, getTimeDimensionLabel, resolveMonthsList, scaleFormattedNumber } from '@/components/shared/time-dimension-engine'
+
 
 // 1. 集团下属各三级工厂/车间数据字典映射 (严格去除碳汇与手动油料录入)
 interface CompanyUnitData {
@@ -353,6 +355,55 @@ export default function CarbonEmissionMonitoringPage() {
   // 当前选中工厂的数据
   const activeFactory = FACTORY_PRESETS[selectedUnitKey] || FACTORY_PRESETS.ws_sb_main
 
+  // 🌟 时间周期与缩放因子计算 (响应用户选择月度区间、季度、年度)
+  const carbonScaleFactor = useMemo(() => {
+    return getPeriodScaleFactor('sum', timeDim, {
+      selectedMonthRange,
+      selectedQuarter,
+      selectedYear,
+    }, { basePeriod: 'monthRange8' })
+  }, [timeDim, selectedMonthRange, selectedQuarter, selectedYear])
+
+  const intensityScaleFactor = useMemo(() => {
+    return getPeriodScaleFactor('intensity', timeDim, {
+      selectedMonthRange,
+      selectedQuarter,
+      selectedYear,
+    })
+  }, [timeDim, selectedMonthRange, selectedQuarter, selectedYear])
+
+  // 集团层级核心指标随所选时间周期动态换算
+  const groupNetCarbon = useMemo(() => Number((41250.6 * carbonScaleFactor).toFixed(1)), [carbonScaleFactor])
+  const groupInitialCarbon = useMemo(() => Number((58620.0 * carbonScaleFactor).toFixed(1)), [carbonScaleFactor])
+  const groupTotalOffset = useMemo(() => Number((17369.4 * carbonScaleFactor).toFixed(1)), [carbonScaleFactor])
+  const groupSolarOffset = useMemo(() => Number((8450.2 * carbonScaleFactor).toFixed(1)), [carbonScaleFactor])
+  const groupGreenElecOffset = useMemo(() => Number((5680.0 * carbonScaleFactor).toFixed(1)), [carbonScaleFactor])
+  const groupGecOffset = useMemo(() => Number((3239.2 * carbonScaleFactor).toFixed(1)), [carbonScaleFactor])
+
+  // 集团 6 家制造单位明细表随时间周期联动
+  const displayedGroup6Companies = useMemo(() => {
+    return GROUP_6_COMPANIES_DATA.map((row) => {
+      const net = Number((row.netCarbon * carbonScaleFactor).toFixed(1))
+      const init = Number((row.initialCarbon * carbonScaleFactor).toFixed(1))
+      const solar = Number((row.solarOffset * carbonScaleFactor).toFixed(1))
+      const green = Number((row.greenElecOffset * carbonScaleFactor).toFixed(1))
+      const gec = Number((row.gecOffset * carbonScaleFactor).toFixed(1))
+      const totalOff = Number((row.totalOffset * carbonScaleFactor).toFixed(1))
+      const intensity = Number((row.carbonIntensity * intensityScaleFactor).toFixed(4))
+      return {
+        ...row,
+        netCarbon: net,
+        initialCarbon: init,
+        solarOffset: solar,
+        greenElecOffset: green,
+        gecOffset: gec,
+        totalOffset: totalOff,
+        carbonIntensity: intensity,
+      }
+    })
+  }, [carbonScaleFactor, intensityScaleFactor])
+
+
   // 组织树节点点击处理
   const handleSelectTreeNode = (node: StandardOrgNode) => {
     setSelectedOrgNode(node)
@@ -379,27 +430,26 @@ export default function CarbonEmissionMonitoringPage() {
   // 经营单位/工厂级 精准碳排放核算模型 (去碳汇、直供/交易绿电/绿证抵消)
   // =========================================================================
   const unitCalculations = useMemo(() => {
-    // 1. 初始排放量 (tCO2)
-    // 电力碳排放 = (用电量 / 1000) * 分省电力因子
-    const elecGrossCarbon = Number(((activeFactory.elecKWh / 1000) * activeFactory.gridFactor).toFixed(1))
-    // 燃气碳排放 = 天然气(m3) * 0.002162 tCO2/m3
-    const gasGrossCarbon = Number((activeFactory.gasM3 * 0.002162).toFixed(1))
-    // 蒸汽碳排放 = 外购蒸汽(t) * 0.1100 tCO2/t
-    const steamGrossCarbon = Number((activeFactory.steamT * 0.1100).toFixed(1))
+    // 1. 初始排放量 (tCO2) - 随当前所选时间周期缩放
+    const baseElec = (activeFactory.elecKWh * carbonScaleFactor) / 1000
+    const elecGrossCarbon = Number((baseElec * activeFactory.gridFactor).toFixed(1))
+    const gasGrossCarbon = Number((activeFactory.gasM3 * carbonScaleFactor * 0.002162).toFixed(1))
+    const steamGrossCarbon = Number((activeFactory.steamT * carbonScaleFactor * 0.1100).toFixed(1))
     const initialCarbon = Number((elecGrossCarbon + gasGrossCarbon + steamGrossCarbon).toFixed(1))
 
     // 2. 碳抵消量 (直供绿电 + 交易绿电 + 交易绿证)
-    const solarOffset = activeFactory.solarOffsetTCO2
-    const greenElecOffset = activeFactory.greenElecOffsetTCO2
-    const gecOffset = activeFactory.gecOffsetTCO2
+    const solarOffset = Number((activeFactory.solarOffsetTCO2 * carbonScaleFactor).toFixed(1))
+    const greenElecOffset = Number((activeFactory.greenElecOffsetTCO2 * carbonScaleFactor).toFixed(1))
+    const gecOffset = Number((activeFactory.gecOffsetTCO2 * carbonScaleFactor).toFixed(1))
     const totalOffset = Number((solarOffset + greenElecOffset + gecOffset).toFixed(1))
 
     // 3. 净碳排放量 = 初始碳排放 - 碳抵消量
     const netCarbon = Number(Math.max(0, initialCarbon - totalOffset).toFixed(1))
-    const offsetRate = Number(((totalOffset / initialCarbon) * 100).toFixed(1))
+    const offsetRate = initialCarbon > 0 ? Number(((totalOffset / initialCarbon) * 100).toFixed(1)) : 0
 
     // 万元产值碳排放强度 (tCO2/万元)
-    const carbonIntensity = Number((netCarbon / activeFactory.outputValueTenThousand).toFixed(4))
+    const currentOutput = activeFactory.outputValueTenThousand * carbonScaleFactor
+    const carbonIntensity = currentOutput > 0 ? Number((netCarbon / currentOutput).toFixed(4)) : 0
 
     return {
       elecGrossCarbon,
@@ -414,27 +464,30 @@ export default function CarbonEmissionMonitoringPage() {
       offsetRate,
       carbonIntensity,
     }
-  }, [activeFactory])
+  }, [activeFactory, carbonScaleFactor])
 
   // 经营单位历史趋势数据 (月度/季度/年度自适应)
   const unitTrendData = useMemo(() => {
-    const months = ['01月', '02月', '03月', '04月', '05月', '06月', '07月', '08月']
-    const baseInitial = unitCalculations.initialCarbon / 8
-    const baseOffset = unitCalculations.totalOffset / 8
+    const months = resolveMonthsList(timeDim, { selectedMonthRange, selectedQuarter, selectedYear })
+    const monthCount = Math.max(1, months.length)
+    const baseInitial = unitCalculations.initialCarbon / monthCount
+    const baseOffset = unitCalculations.totalOffset / monthCount
     return months.map((m, idx) => {
-      const init = Number((baseInitial * (0.95 + idx * 0.015)).toFixed(1))
-      const off = Number((baseOffset * (0.90 + idx * 0.028)).toFixed(1))
-      const net = Number((init - off).toFixed(1))
-      const intensity = Number((net / (activeFactory.outputValueTenThousand / 8)).toFixed(3))
+      const monthLabel = m.includes('-') ? `${m.split('-')[1]}月` : m
+      const init = Number((baseInitial * (0.95 + (idx % 4) * 0.025)).toFixed(1))
+      const off = Number((baseOffset * (0.90 + (idx % 3) * 0.035)).toFixed(1))
+      const net = Number(Math.max(0, init - off).toFixed(1))
+      const currentVal = Math.max(1, (activeFactory.outputValueTenThousand * carbonScaleFactor) / monthCount)
+      const intensity = Number((net / currentVal).toFixed(3))
       return {
-        month: m,
+        month: monthLabel,
         初始排放: init,
         碳抵消量: off,
         净碳排放: net,
         万元产值碳排放: intensity,
       }
     })
-  }, [unitCalculations, activeFactory.outputValueTenThousand])
+  }, [unitCalculations, activeFactory.outputValueTenThousand, carbonScaleFactor, timeDim, selectedMonthRange, selectedQuarter, selectedYear])
 
   // 经营单位净碳排放结构饼图数据
   const unitNetCarbonDonutData = useMemo(() => {
@@ -449,11 +502,11 @@ export default function CarbonEmissionMonitoringPage() {
   // 集团总览净碳排放结构饼图数据
   const groupNetCarbonDonutData = useMemo(() => {
     return [
-      { name: '外购电力净排放', value: 28520, color: '#1677ff' },
-      { name: '外购蒸汽碳排放', value: 8210, color: '#a855f7' },
-      { name: '燃气及化石能源', value: 4520, color: '#fa8c16' },
+      { name: '外购电力净排放', value: Number((28520 * carbonScaleFactor).toFixed(0)), color: '#1677ff' },
+      { name: '外购蒸汽碳排放', value: Number((8210 * carbonScaleFactor).toFixed(0)), color: '#a855f7' },
+      { name: '燃气及化石能源', value: Number((4520 * carbonScaleFactor).toFixed(0)), color: '#fa8c16' },
     ]
-  }, [])
+  }, [carbonScaleFactor])
 
   return (
     <div className="flex gap-3.5 items-start">
@@ -590,7 +643,7 @@ export default function CarbonEmissionMonitoringPage() {
                   </span>
                 </div>
                 <div className="text-3xl font-extrabold font-mono text-primary flex items-baseline gap-1.5">
-                  41,250.6 <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
+                  {groupNetCarbon.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
                 </div>
                 <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs font-sans">
                   <span className="text-muted-foreground">同比变动: <strong className="font-mono text-emerald-400">-4.8% ↓</strong></span>
@@ -607,11 +660,11 @@ export default function CarbonEmissionMonitoringPage() {
                   </span>
                 </div>
                 <div className="text-3xl font-extrabold font-mono text-foreground flex items-baseline gap-1.5">
-                  58,620.0 <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
+                  {groupInitialCarbon.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
                 </div>
                 <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs font-sans text-muted-foreground">
-                  <span>外购电力: <strong className="font-mono text-foreground">48,210.0 t</strong></span>
-                  <span>其他: <strong className="font-mono text-foreground">10,410.0 t</strong></span>
+                  <span>外购电力: <strong className="font-mono text-foreground">{Number((48210 * carbonScaleFactor).toFixed(1)).toLocaleString()} t</strong></span>
+                  <span>其他: <strong className="font-mono text-foreground">{Number((10410 * carbonScaleFactor).toFixed(1)).toLocaleString()} t</strong></span>
                 </div>
               </div>
 
@@ -624,20 +677,20 @@ export default function CarbonEmissionMonitoringPage() {
                   </span>
                 </div>
                 <div className="text-3xl font-extrabold font-mono text-emerald-400 flex items-baseline gap-1.5">
-                  17,369.4 <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
+                  {groupTotalOffset.toLocaleString()} <span className="text-xs font-normal text-muted-foreground font-sans">tCO₂</span>
                 </div>
                 <div className="pt-2 border-t border-border/60 grid grid-cols-3 gap-1 text-[11px] font-sans text-muted-foreground text-center">
                   <div className="bg-panel p-1 rounded border border-border">
                     <span className="text-[10px] text-muted-foreground block">直供绿电</span>
-                    <strong className="font-mono text-emerald-400">8,450.2t</strong>
+                    <strong className="font-mono text-emerald-400">{groupSolarOffset.toLocaleString()}t</strong>
                   </div>
                   <div className="bg-panel p-1 rounded border border-border">
                     <span className="text-[10px] text-muted-foreground block">交易绿电</span>
-                    <strong className="font-mono text-primary">5,680.0t</strong>
+                    <strong className="font-mono text-primary">{groupGreenElecOffset.toLocaleString()}t</strong>
                   </div>
                   <div className="bg-panel p-1 rounded border border-border">
                     <span className="text-[10px] text-muted-foreground block">交易绿证</span>
-                    <strong className="font-mono text-purple-400">3,239.2t</strong>
+                    <strong className="font-mono text-purple-400">{groupGecOffset.toLocaleString()}t</strong>
                   </div>
                 </div>
               </div>
@@ -653,7 +706,7 @@ export default function CarbonEmissionMonitoringPage() {
                   </h3>
                 </div>
                 <span className="text-xs text-muted-foreground font-mono">
-                  公式：净碳排放量 (41,250.6 tCO₂) = 初始碳排放量 (58,620.0 tCO₂) - 碳抵消量 (17,369.4 tCO₂)
+                  公式：净碳排放量 ({groupNetCarbon.toLocaleString()} tCO₂) = 初始碳排放量 ({groupInitialCarbon.toLocaleString()} tCO₂) - 碳抵消量 ({groupTotalOffset.toLocaleString()} tCO₂)
                 </span>
               </div>
 
@@ -696,13 +749,13 @@ export default function CarbonEmissionMonitoringPage() {
                           <CheckCircle2 className="size-3.5 text-emerald-400" />
                           1. 直供绿电抵消
                         </span>
-                        <span className="font-mono font-bold text-emerald-400">8,450.2 tCO₂ (占总抵消 48.6%)</span>
+                        <span className="font-mono font-bold text-emerald-400">{groupSolarOffset.toLocaleString()} tCO₂ (占总抵消 48.6%)</span>
                       </div>
                       <div className="w-full bg-panel rounded-full h-2 overflow-hidden border border-border">
                         <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '48.6%' }} />
                       </div>
                       <div className="text-[11px] text-muted-foreground font-mono">
-                        直供绿电量: 1,481.8 万 kWh
+                        直供绿电量: {Number((1481.8 * carbonScaleFactor).toFixed(1)).toLocaleString()} 万 kWh
                       </div>
                     </div>
 
@@ -713,13 +766,13 @@ export default function CarbonEmissionMonitoringPage() {
                           <CheckCircle2 className="size-3.5 text-primary" />
                           2. 交易绿电抵消
                         </span>
-                        <span className="font-mono font-bold text-primary">5,680.0 tCO₂ (占总抵消 32.7%)</span>
+                        <span className="font-mono font-bold text-primary">{groupGreenElecOffset.toLocaleString()} tCO₂ (占总抵消 32.7%)</span>
                       </div>
                       <div className="w-full bg-panel rounded-full h-2 overflow-hidden border border-border">
                         <div className="bg-primary h-2 rounded-full" style={{ width: '32.7%' }} />
                       </div>
                       <div className="text-[11px] text-muted-foreground font-mono">
-                        交易绿电量: 996.0 万 kWh
+                        交易绿电量: {Number((996.0 * carbonScaleFactor).toFixed(1)).toLocaleString()} 万 kWh
                       </div>
                     </div>
 
@@ -730,13 +783,13 @@ export default function CarbonEmissionMonitoringPage() {
                           <CheckCircle2 className="size-3.5 text-purple-400" />
                           3. 交易绿证抵消
                         </span>
-                        <span className="font-mono font-bold text-purple-400">3,239.2 tCO₂ (占总抵消 18.7%)</span>
+                        <span className="font-mono font-bold text-purple-400">{groupGecOffset.toLocaleString()} tCO₂ (占总抵消 18.7%)</span>
                       </div>
                       <div className="w-full bg-panel rounded-full h-2 overflow-hidden border border-border">
                         <div className="bg-purple-500 h-2 rounded-full" style={{ width: '18.7%' }} />
                       </div>
                       <div className="text-[11px] text-muted-foreground font-mono">
-                        交易绿证量: 5,680 张 GEC
+                        交易绿证量: {Math.round(5680 * carbonScaleFactor).toLocaleString()} 张 GEC
                       </div>
                     </div>
                   </div>
@@ -782,8 +835,8 @@ export default function CarbonEmissionMonitoringPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60 text-foreground">
-                    {GROUP_6_COMPANIES_DATA.map((row) => {
-                      const netRatio = ((row.netCarbon / 39303.7) * 100).toFixed(1)
+                    {displayedGroup6Companies.map((row) => {
+                      const netRatio = groupNetCarbon > 0 ? ((row.netCarbon / groupNetCarbon) * 100).toFixed(1) : '0.0'
                       return (
                         <tr key={row.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                           <td className="py-2.5 px-3 font-semibold text-foreground font-sans flex items-center gap-1.5">

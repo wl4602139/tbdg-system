@@ -790,16 +790,9 @@ export default function RealtimeMonitoringPage() {
               <Activity className="size-5 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-foreground flex items-center gap-2">
+              <h1 className="text-base font-bold text-foreground">
                 实时监控
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[11px] font-bold border border-emerald-500/30">
-                  <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  {selectedNode.name}
-                </span>
               </h1>
-              <p className="text-[11px] text-muted-foreground">
-                集成光伏、储能、热泵三类零碳资产实时功率、工况与运行收益在线监测
-              </p>
             </div>
           </div>
 
@@ -1119,7 +1112,6 @@ export default function RealtimeMonitoringPage() {
                   <h3 className="text-xs font-bold text-foreground">光伏项目实时发电与消纳台账表</h3>
                   <span className="text-[10px] text-muted-foreground font-mono">共 {filteredPvData.length} 个项目</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground font-mono">数据采集周期：15分钟</span>
               </div>
 
               <div className="overflow-x-auto">
@@ -1343,7 +1335,6 @@ export default function RealtimeMonitoringPage() {
                   <h3 className="text-xs font-bold text-foreground">储能电站实时运行监测台账表</h3>
                   <span className="text-[10px] text-muted-foreground font-mono">共 {filteredStorageData.length} 个电站</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground font-mono">数据采集源：PCS变流器 + BMS</span>
               </div>
 
               <div className="overflow-x-auto">
@@ -1574,7 +1565,6 @@ export default function RealtimeMonitoringPage() {
                   </h3>
                   <span className="text-[10px] text-muted-foreground font-mono">共 {filteredHeatPumpData.length} 台套</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground font-mono">采集源：超声波热量表 + PLC控制器</span>
               </div>
 
               <div className="overflow-x-auto">

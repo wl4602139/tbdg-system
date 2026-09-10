@@ -750,7 +750,7 @@ export default function UsageMonitoringPage() {
               {(aggregatedMetrics.totalElec / 10000).toFixed(1)} <span className="text-[10px] font-normal text-muted-foreground font-sans">万kWh</span>
             </div>
             <div className="text-[10px] text-muted-foreground border-t border-border/60 pt-0.5 font-mono">
-              日均: {((aggregatedMetrics.totalElec / (dailyTimeSeriesData.length || 1)) / 10000).toFixed(2)}万
+              {timeDim === 'day' ? '日均:' : '月均:'} {((aggregatedMetrics.totalElec / (dailyTimeSeriesData.length || 1)) / 10000).toFixed(2)}万
             </div>
           </div>
 
@@ -828,7 +828,7 @@ export default function UsageMonitoringPage() {
               {aggregatedMetrics.water.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground font-sans">m³</span>
             </div>
             <div className="text-[10px] text-muted-foreground border-t border-border/60 pt-0.5 font-mono">
-              日均: {Math.round(aggregatedMetrics.water / (dailyTimeSeriesData.length || 1))}m³
+              {timeDim === 'day' ? '日均:' : '月均:'} {Math.round(aggregatedMetrics.water / (dailyTimeSeriesData.length || 1))}m³
             </div>
           </div>
 
@@ -951,9 +951,9 @@ export default function UsageMonitoringPage() {
                 height={280}
                 yUnit="万kWh"
                 lines={[
-                  { key: '总用电量', name: '总用电量 (万kWh/日)', color: '#1677ff' },
-                  { key: '市电量', name: '市网供电量 (万kWh/日)', color: '#fa8c16' },
-                  { key: '直供绿电量', name: '直供绿电量 (光伏自发自用, 万kWh/日)', color: '#10b981' },
+                  { key: '总用电量', name: `总用电量 (万kWh/${timeDim === 'day' ? '日' : '月'})`, color: '#1677ff' },
+                  { key: '市电量', name: `市网供电量 (万kWh/${timeDim === 'day' ? '日' : '月'})`, color: '#fa8c16' },
+                  { key: '直供绿电量', name: `直供绿电量 (光伏自发自用, 万kWh/${timeDim === 'day' ? '日' : '月'})`, color: '#10b981' },
                 ]}
               />
             )}
@@ -964,8 +964,8 @@ export default function UsageMonitoringPage() {
                 height={280}
                 yUnit="万kWh"
                 lines={[
-                  { key: '市电量', name: '市网外购电量 (万kWh/日)', color: '#fa8c16' },
-                  { key: '总用电量', name: '总用电量参考 (万kWh/日)', color: '#94a3b8' },
+                  { key: '市电量', name: `市网外购电量 (万kWh/${timeDim === 'day' ? '日' : '月'})`, color: '#fa8c16' },
+                  { key: '总用电量', name: `总用电量参考 (万kWh/${timeDim === 'day' ? '日' : '月'})`, color: '#94a3b8' },
                 ]}
               />
             )}
@@ -976,8 +976,8 @@ export default function UsageMonitoringPage() {
                 height={280}
                 yUnit="万kWh"
                 lines={[
-                  { key: '直供绿电量', name: '直供绿电量 (光伏自发自用, 万kWh/日)', color: '#10b981' },
-                  { key: '总用电量', name: '总用电量参考 (万kWh/日)', color: '#94a3b8' },
+                  { key: '直供绿电量', name: `直供绿电量 (光伏自发自用, 万kWh/${timeDim === 'day' ? '日' : '月'})`, color: '#10b981' },
+                  { key: '总用电量', name: `总用电量参考 (万kWh/${timeDim === 'day' ? '日' : '月'})`, color: '#94a3b8' },
                 ]}
               />
             )}
@@ -988,7 +988,7 @@ export default function UsageMonitoringPage() {
                 height={280}
                 yUnit="m³"
                 lines={[
-                  { key: '用水量', name: '水资源消耗量 (m³/日)', color: '#06b6d4' },
+                  { key: '用水量', name: `水资源消耗量 (m³/${timeDim === 'day' ? '日' : '月'})`, color: '#06b6d4' },
                 ]}
               />
             )}
@@ -1010,7 +1010,7 @@ export default function UsageMonitoringPage() {
                 height={280}
                 yUnit="t"
                 lines={[
-                  { key: '外购蒸汽量', name: '外购蒸汽量 (t/日)', color: '#a855f7' },
+                  { key: '外购蒸汽量', name: `外购蒸汽量 (t/${timeDim === 'day' ? '日' : '月'})`, color: '#a855f7' },
                 ]}
               />
             )}
@@ -1021,7 +1021,7 @@ export default function UsageMonitoringPage() {
                 height={280}
                 yUnit="L"
                 lines={[
-                  { key: '油消耗量', name: '燃油消耗量 (L/日)', color: '#ef4444' },
+                  { key: '油消耗量', name: `燃油消耗量 (L/${timeDim === 'day' ? '日' : '月'})`, color: '#ef4444' },
                 ]}
               />
             )}
@@ -1032,7 +1032,7 @@ export default function UsageMonitoringPage() {
                 height={280}
                 yUnit="t"
                 lines={[
-                  { key: '液氮消耗量', name: '液氮消耗量 (t/日)', color: '#6366f1' },
+                  { key: '液氮消耗量', name: `液氮消耗量 (t/${timeDim === 'day' ? '日' : '月'})`, color: '#6366f1' },
                 ]}
               />
             )}
@@ -1043,7 +1043,7 @@ export default function UsageMonitoringPage() {
                 height={280}
                 yUnit="tce"
                 lines={[
-                  { key: '综合能耗', name: '综合能耗总量 (tce/日)', color: '#059669' },
+                  { key: '综合能耗', name: `综合能耗总量 (tce/${timeDim === 'day' ? '日' : '月'})`, color: '#059669' },
                 ]}
               />
             )}
@@ -1275,16 +1275,16 @@ export default function UsageMonitoringPage() {
         {/* 7. 底部数据明细：按日更新明细台账表格 (支持导出) */}
         <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
           <div className="p-3.5 border-b border-border/60 flex flex-wrap items-center justify-between bg-panel/60 gap-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="size-2 rounded-full bg-primary" />
               <h3 className="text-xs font-bold text-foreground">
-                8 大能源介质按日连续更新明细台账
+                8 大能源介质{timeDim === 'day' ? '按日连续更新' : '月度汇总'}明细台账
               </h3>
             </div>
 
             <button
               type="button"
-              onClick={() => alert(`正在导出【${activeData.name}】按日能耗明细台账 (Excel)...`)}
+              onClick={() => alert(`正在导出【${activeData.name}】${timeDim === 'day' ? '按日' : '按月'}能耗明细台账 (Excel)...`)}
               className="flex items-center gap-1 px-2.5 py-1 rounded bg-panel border border-border text-foreground font-medium hover:bg-accent/40 cursor-pointer shadow-2xs text-xs"
             >
               <Download className="size-3.5 text-muted-foreground" />

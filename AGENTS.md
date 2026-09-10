@@ -81,8 +81,19 @@
   3. **PM/Dev/QA 三位一体闭环**：融入 INVEST 用户故事、Gherkin 验收准则、44px 行高约束、白名单精准判空（10家无工序单位单行输出 `暂无相关工序！`）及破坏性边界防刷测试；
   4. **Word (.docx) 工业级排版导出**：统一通过 `D:\Project\TJ-nengtan\PRD\build_prd_docx.py` 自动化引擎构建，保持深蓝封面、高密表格与 Callout 业务约束样式。
 
-### 4. Skill 持续演进机制
-- 当客户提出新的交互偏好、反模式或业务核算模型变更时，Agent 必须第一时间将该规则提炼并更新沉淀至 `tbea-industrial-design` 或 `tbea-prd-standards` 的 `SKILL.md` 中，形成闭环。
+### 4. 本项目标准化交付打包专属技能 (Project Custom Skill: tbea-delivery-packaging)
+- **项目级路径**：[`.gemini/skills/tbea-delivery-packaging/SKILL.md`](./.gemini/skills/tbea-delivery-packaging/SKILL.md)
+- **全局级路径**：`C:\Users\54321\.gemini\config\skills\tbea-delivery-packaging\SKILL.md`
+- **自动化构建脚本**：[`.gemini/skills/tbea-delivery-packaging/scripts/package_release.py`](./.gemini/skills/tbea-delivery-packaging/scripts/package_release.py)
+- **调用规则**：Agent 在执行前端代码打包、签发交付包、交接归档或部署准备时，**必须优先激活并全量遵循本 Skill**。
+- **核心规范要点**：
+  1. **三大标准化交付工程包体系**：双端同构+PRD总包（~29.3MB）、暗黑科技蓝独立包（~18.2MB）、浅色商务办公独立包（~18.2MB）；
+  2. **零门槛开箱即用**：各工程包内嵌免配置的 Windows 启动脚本（`一键安装依赖并启动.bat` 与 `启动开发调试服务.bat`），双击自适应 pnpm/npm 并在独立端口（3000/3001）快速拉起；
+  3. **PRD 文档与业务字典强闭环**：随包挂载全套 PRD v1.1 docx、工序/园区/产线白名单权威对应表、MODIFICATIONS_LOG.md 以及 35 篇详尽开发手册；
+  4. **纯净源码过滤铁律**：严密剔除 `node_modules`、`.next`、`out`、`.git`、`.turbo`、`.vscode` 等临时缓存产物。
+
+### 5. Skill 持续演进机制
+- 当客户提出新的交互偏好、反模式、打包交付结构或业务核算模型变更时，Agent 必须第一时间将该规则提炼并更新沉淀至 `tbea-industrial-design`、`tbea-prd-standards` 或 `tbea-delivery-packaging` 的 `SKILL.md` 中，形成闭环。
 
 ---
 
@@ -99,7 +110,8 @@
 ### 2. 线上部署与 Git 提交纪律：严格禁止自动执行，手动按需触发（最高执行铁律）
 - ❌ **绝对严禁行为（红线）**：
   - **每次修改完成后，绝不允许自动向远程生产服务器（`8.215.89.194`）执行打包推送或 Nginx 重载**；
-  - **每次修改完成后，绝不允许自动执行 `git commit` 与 `git push`**。
+  - **每次修改完成后，绝不允许自动执行 `git commit` 与 `git push`**；
+  - **Vue 3 工程（`VUE/` 目录）严格禁止提交 Git**：`VUE/` 目录仅作为本地独立研发与验证工作区，已在根目录 `.gitignore` 中加入全局忽略，任何情况下绝不向 Git 仓库提交或推送 `VUE/` 目录下的任何代码与资产！
 - ✅ **指令触发制（Strict Manual Trigger On-Demand）**：
   - **每次任务或代码修改完成后，仅在本地执行双端静态编译检查**（`pnpm build`，确保双端 76/76 路由编译通过且 0 报错）；
   - 自动将修改内容原位维护更新至 `MODIFICATIONS_LOG.md`；

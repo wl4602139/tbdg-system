@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SearchableUnitSelect } from '@/components/shared/searchable-unit-select'
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 
 interface CostRow {
   id: string
@@ -287,8 +288,26 @@ export default function CostReportPage() {
       rows = rows.filter((r) => r.unitName === unitFilter || r.unitId === unitFilter)
     }
 
-    return rows
-  }, [companyFilter, unitFilter])
+    // 依据时间维度动态缩放累计成本与费用
+    const periodScale = getPeriodScaleFactor('sum', timeDim, {
+      monthRange: selectedMonthRange,
+      quarter: selectedQuarter,
+      year: selectedYear,
+    })
+
+    return rows.map((r) => ({
+      ...r,
+      tipElec: Number((r.tipElec * periodScale).toFixed(1)),
+      peakElec: Number((r.peakElec * periodScale).toFixed(1)),
+      flatElec: Number((r.flatElec * periodScale).toFixed(1)),
+      valleyElec: Number((r.valleyElec * periodScale).toFixed(1)),
+      gasCost: Number((r.gasCost * periodScale).toFixed(1)),
+      waterCost: Number((r.waterCost * periodScale).toFixed(1)),
+      steamCost: Number((r.steamCost * periodScale).toFixed(1)),
+      greenDeduct: Number((r.greenDeduct * periodScale).toFixed(1)),
+      netCost: Number((r.netCost * periodScale).toFixed(1)),
+    }))
+  }, [companyFilter, unitFilter, timeDim, selectedMonthRange, selectedQuarter, selectedYear])
 
   // 预计算相同公司的 rowSpan 合并信息
   const companyRowSpans = useMemo(() => {
@@ -345,7 +364,7 @@ export default function CostReportPage() {
             <Coins className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-foreground">成本报表 (财务级对账单)</h1>
+            <h1 className="text-base font-bold text-foreground">成本报表</h1>
           </div>
         </div>
 

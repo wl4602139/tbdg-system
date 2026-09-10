@@ -88,17 +88,17 @@ export function allModelsOf(ind: string): { model: string; line: string; categor
 }
 
 /* ---------- 组织结构：电装集团 → 二级单位 → 三级经营单位（部分含下级基地/子公司） ---------- */
-export type OrgNode = { name: string; industry?: string; park?: string; children?: OrgNode[] }
+export type OrgNode = { name: string; industry?: string; park?: string; unconnected?: boolean; children?: OrgNode[] }
 export const orgTree: OrgNode[] = [
   {
     name: '沈变公司',
     industry: '变压器',
     children: [
       { name: '沈变本部', park: '特变电工东北输变电产业园' },
-      { name: '沈变智慧能源', park: '特变电工东北输变电产业园' },
-      { name: '和新套管公司', park: '特变电工东北输变电产业园' },
+      { name: '智慧能源', park: '特变电工东北输变电产业园', unconnected: true },
+      { name: '和新套管', park: '特变电工东北输变电产业园' },
       { name: '康嘉互感器', park: '特变电工东北输变电产业园' },
-      { name: '印能公司', park: '特变电工东北输变电产业园' },
+      { name: '印能公司', unconnected: true },
     ],
   },
   {
@@ -106,62 +106,88 @@ export const orgTree: OrgNode[] = [
     industry: '变压器',
     children: [
       { name: '衡变本部', park: '特变电工南方输变电产业园' },
-      { name: '南京电研', park: '特变电工二次产业园区' },
+      { name: '南京公司', park: '特变电工二次产业园区' },
       { name: '云集电气', park: '特变电工云集5G科技产业园' },
       { name: '湖南电气', park: '特变电工云集5G科技产业园' },
-      { name: '云集高压开关', industry: '开关', park: '特变电工云集5G科技产业园' },
-      { name: '新疆自控', park: '特变电工智能电气产业园' },
-      { name: '上开', industry: '开关' },
-      { name: '柯贝尔' },
-      { name: '特能建', park: '特变电工湖南能源建设园区' },
+      {
+        name: '云集高压开关',
+        industry: '开关',
+        park: '特变电工云集5G科技产业园',
+        children: [
+          { name: '云集', park: '特变电工云集5G科技产业园' },
+          { name: '上开', park: '上海园区' },
+        ],
+      },
+      { name: '新疆自控', park: '新疆智能电气产业园' },
+      { name: '特缆建', park: '特变电工湖南能源建设园区' },
       {
         name: '合容电气',
         industry: '开关',
         park: '特变电工西安智能装备产业园',
-        children: [{ name: '合容电气股份' }, { name: '合容开关' }, { name: '合容电力设备' }],
+        children: [
+          { name: '科贝尔', park: '嘉兴园区' },
+          { name: '合容西安基地', park: '特变电工西安智能装备产业园' },
+        ],
       },
-      { name: '赛杰爱迪', industry: '开关', park: '特变电工GIL产业园' },
+      { name: '事杰爱迪', industry: '开关', park: '特变电工GIL产业园' },
     ],
   },
   {
     name: '新变厂',
     industry: '变压器',
     children: [
-      { name: '超高压公司', park: '特变电工输变电产业园' },
+      { name: '超高压公司', park: '西北输变电科技产业园' },
       {
         name: '天变公司',
-        park: '特变电工天变产业园',
-        children: [{ name: '天变天津基地' }, { name: '天变智慧能源' }, { name: '天变智能科技' }, { name: '天变衡阳基地' }, { name: '天变沈阳基地' }],
+        park: '华北输变电科技产业园',
+        children: [
+          { name: '天变天津基地' },
+          { name: '天变智慧能源' },
+          { name: '天变智能科技' },
+          { name: '天变衡阳基地' },
+          { name: '天变沈阳基地' },
+        ],
       },
-      { name: '智能电气公司', park: '特变电工智能电气产业园' },
-      { name: '京津冀公司', park: '特变电工京津冀智能科技产业园' },
+      { name: '智能电气', park: '新疆智能电气产业园' },
+      { name: '京津冀科技', park: '特变电工京津冀智能科技产业园' },
       { name: '珠峰硅钢', park: '特变电工京津冀智能科技产业园' },
-      { name: '新变智慧能源', park: '特变电工京津冀智能科技产业园' },
-      { name: '银利电气', park: '特变电工京津冀智能科技产业园' },
+      { name: '智慧能源', unconnected: true },
+      { name: '银利电气', unconnected: true },
     ],
   },
   {
     name: '鲁缆公司',
     industry: '线缆',
     children: [
-      { name: '鲁缆本部', park: '特变电工华东输变电科技产业园' },
-      { name: '智缆公司', park: '特变电工华东输变电科技产业园' },
-      { name: '昭和公司', park: '特变电工华东输变电科技产业园' },
-      { name: '曙光公司', park: '特变电工曙光电缆产业园' },
+      {
+        name: '鲁缆公司',
+        park: '特变电工华东输变电科技产业园',
+        children: [
+          { name: '鲁缆本部', park: '特变电工华东输变电科技产业园' },
+          { name: '昭和', park: '特变电工华东输变电科技产业园' },
+          { name: '曙光', park: '特变电工曙光电缆产业园', unconnected: true },
+        ],
+      },
     ],
   },
   {
     name: '新缆厂',
     industry: '线缆',
     children: [
-      { name: '特变电工新疆电缆有限公司', park: '特变电工新疆电缆产业园' },
-      { name: '特变电工新疆线缆厂', park: '特变电工输变电产业园' },
+      {
+        name: '新缆厂',
+        park: '特变电工输变电产业园',
+        children: [
+          { name: '新疆线缆厂', park: '特变电工输变电产业园' },
+          { name: '新疆电缆', park: '特变电工新疆电缆产业园' },
+        ],
+      },
     ],
   },
   {
     name: '德缆公司',
     industry: '线缆',
-    children: [{ name: '特变电工(德阳)电缆股份有限公司', park: '特变电工(德阳)电缆园区' }],
+    children: [{ name: '德缆公司', park: '特变电工(德阳)电缆园区' }],
   },
 ]
 

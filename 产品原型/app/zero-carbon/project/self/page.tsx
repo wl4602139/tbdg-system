@@ -3455,7 +3455,10 @@ export default function ZeroCarbonSelfEvaluationPage() {
   const [userRole, setUserRole] = useState<'group' | 'unit'>('group')
   const [selectedCompany, setSelectedCompany] = useState<string>('全部')
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const [timeDim, setTimeDim] = useState<'day' | 'month' | 'quarter' | 'year'>('month')
+  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('year')
+  const [selectedYear, setSelectedYear] = useState('2026')
+  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
   
   // 详情模态框 (面向查验与计算推导)
   const [factoryDetailModal, setFactoryDetailModal] = useState<FactoryEvaluationData | null>(null)
@@ -3682,9 +3685,6 @@ export default function ZeroCarbonSelfEvaluationPage() {
           </div>
           <div>
             <h1 className="text-base font-bold text-foreground">零碳工厂自评估</h1>
-            <p className="text-[11px] text-muted-foreground">
-              依据国家级零碳工厂建设与评估规范，开展集团、经营单位、工厂三级自评估与 5 大维度核算
-            </p>
           </div>
         </div>
 
@@ -3693,7 +3693,6 @@ export default function ZeroCarbonSelfEvaluationPage() {
           {/* 维度切换按钮组 */}
           <div className="flex items-center gap-1 bg-panel p-0.5 rounded-lg text-xs font-sans border border-border">
             {[
-              { key: 'day', label: '日' },
               { key: 'month', label: '月度' },
               { key: 'quarter', label: '季度' },
               { key: 'year', label: '年度' },
@@ -3714,10 +3713,53 @@ export default function ZeroCarbonSelfEvaluationPage() {
             ))}
           </div>
 
-          <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs font-mono">
-            <Calendar className="size-3.5 text-muted-foreground shrink-0" />
-            <span className="text-foreground text-xs">2026年01月 至 2026年08月</span>
-          </div>
+          {timeDim === 'month' && (
+            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs font-mono">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+              <input
+                type="month"
+                value={selectedMonthRange.start}
+                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
+                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
+              />
+              <span className="text-muted-foreground">至</span>
+              <input
+                type="month"
+                value={selectedMonthRange.end}
+                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
+                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
+              />
+            </div>
+          )}
+          {timeDim === 'quarter' && (
+            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs font-mono">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+              <select
+                value={selectedQuarter}
+                onChange={(e) => setSelectedQuarter(e.target.value)}
+                className="bg-transparent border-0 text-foreground text-xs font-bold focus:outline-none cursor-pointer"
+              >
+                <option value="2026-Q1" className="bg-card text-foreground">2026年 第1季度 (Q1)</option>
+                <option value="2026-Q2" className="bg-card text-foreground">2026年 第2季度 (Q2)</option>
+                <option value="2026-Q3" className="bg-card text-foreground">2026年 第3季度 (Q3)</option>
+                <option value="2026-Q4" className="bg-card text-foreground">2026年 第4季度 (Q4)</option>
+              </select>
+            </div>
+          )}
+          {timeDim === 'year' && (
+            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs font-mono">
+              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="bg-transparent border-0 text-foreground text-xs font-bold focus:outline-none cursor-pointer"
+              >
+                <option value="2026" className="bg-card text-foreground">2026 年度</option>
+                <option value="2025" className="bg-card text-foreground">2025 年度</option>
+                <option value="2024" className="bg-card text-foreground">2024 年度</option>
+              </select>
+            </div>
+          )}
 
           <button
             type="button"
@@ -3735,8 +3777,8 @@ export default function ZeroCarbonSelfEvaluationPage() {
       {/* ========================================================================= */}
       {viewLevel === 'group' && (
         <div className="space-y-3.5 animate-in fade-in duration-200">
-          {/* 1.1 集团宏观 4 大核心评估指标卡 (标准化 KPI 卡片) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          {/* 1.1 集团宏观 3 大核心评估指标卡 (标准化 KPI 卡片) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
               <div className="flex items-center justify-between text-muted-foreground mb-1">
                 <span className="text-[11px]">工厂自评覆盖进度</span>
@@ -3757,17 +3799,6 @@ export default function ZeroCarbonSelfEvaluationPage() {
                 88.6% <span className="text-xs font-normal text-muted-foreground">(绿电/绿证)</span>
               </div>
               <div className="text-[10px] text-muted-foreground mt-0.5">源头减碳与协同降碳综合</div>
-            </div>
-
-            <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
-                <span className="text-[11px]">数据自动采集平均率</span>
-                <Cpu className="size-3.5 text-purple-400" />
-              </div>
-              <div className="text-base font-black font-mono text-foreground">
-                96.5% <span className="text-xs font-normal text-primary">(GB 17167)</span>
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">重点用能设备自动采集</div>
             </div>
 
             <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
@@ -3831,7 +3862,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
           <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-foreground">6 大经营单位总体零碳评估大盘（点击下钻）</h3>
+                <h3 className="text-sm font-bold text-foreground">6 大经营单位总体零碳评估大盘</h3>
                 
               </div>
               <span className="text-xs px-2.5 py-1 rounded-full bg-primary/15 text-primary font-bold border border-primary/30">
@@ -3973,17 +4004,9 @@ export default function ZeroCarbonSelfEvaluationPage() {
                     <div className="size-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold shadow-xs shrink-0">
                       <Building2 className="size-6" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2.5">
+                      <div>
                         <h2 className="text-lg font-black text-foreground">【{selectedCompanyId}】 零碳工厂评估运营中心</h2>
-                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/15 text-primary font-bold border border-primary/20">
-                          经营单位视角
-                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        下辖 <strong className="text-primary font-mono font-bold">{companyFactories.length}</strong> 家智能制造工厂 · 全面管控源头减碳、过程脱碳与能碳数字化运行
-                      </p>
-                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 text-xs">
@@ -3996,14 +4019,14 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       className="px-3.5 py-2 rounded-lg border border-border bg-panel hover:bg-accent/40 text-foreground font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
                     >
                       <ArrowRight className="size-3.5 rotate-180" />
-                      <span>返回集团宏观大盘</span>
+                      <span>返回</span>
                     </button>
                   </div>
                 </div>
 
-                {/* 4 大宏观自评综合指标卡 (展示前面提到的宏观综合指标) */}
+                {/* 3 大宏观自评综合指标卡 (展示前面提到的宏观综合指标) */}
                 {stats && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
                       <div className="flex items-center justify-between text-muted-foreground mb-1">
                         <span className="text-[11px]">工厂自评覆盖进度</span>
@@ -4024,17 +4047,6 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         {stats.avgGreenPower}% <span className="text-xs font-normal text-muted-foreground">(绿电/绿证)</span>
                       </div>
                       <div className="text-[10px] text-muted-foreground mt-0.5">源头减碳与协同降碳综合</div>
-                    </div>
-
-                    <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
-                      <div className="flex items-center justify-between text-muted-foreground mb-1">
-                        <span className="text-[11px]">数据自动采集平均率</span>
-                        <Cpu className="size-3.5 text-purple-400" />
-                      </div>
-                      <div className="text-base font-black font-mono text-foreground">
-                        {stats.avgAutoCollect}% <span className="text-xs font-normal text-primary">(GB 17167)</span>
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">重点用能设备自动采集</div>
                     </div>
 
                     <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
@@ -4388,7 +4400,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                 className="px-3.5 py-2 rounded-lg border border-border bg-panel hover:bg-accent/40 text-foreground font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs group"
               >
                 <ArrowRight className="size-3.5 rotate-180 text-primary group-hover:-translate-x-0.5 transition-transform" />
-                <span>返回【{selectedFactoryId.company}】大盘</span>
+                <span>返回</span>
               </button>
 
               <button
@@ -4573,7 +4585,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-foreground">智能控碳（能碳管理中心与自动采集）</h3>
-                    <span className="text-[11px] text-muted-foreground">自动采集率: <strong className="text-purple-400 font-mono">{selectedFactoryId.autoCollectRate}%</strong> · 数字化功能: <strong className="text-purple-400 font-mono">{selectedFactoryId.controlCenterFeaturesCount}/13 项</strong></span>
+                    <span className="text-[11px] text-muted-foreground">数字化功能: <strong className="text-purple-400 font-mono">{selectedFactoryId.controlCenterFeaturesCount}/13 项</strong></span>
                   </div>
                 </div>
                 <span className="text-[11px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 font-bold border border-purple-500/20">

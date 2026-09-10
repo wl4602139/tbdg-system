@@ -28,3 +28,11 @@ Thumbs.db
 .workbuddy/
 产品原型-旧/
 集采中心/
+
+# Vue 3 独立工程 (禁止提交 Git)
+VUE/
+scratch/
+
+# Temporary Office & Build Cache
+~$*
+*.tsbuildinfo

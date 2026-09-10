@@ -48,99 +48,142 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
     level: 'group',
     badge: '全集团',
     children: [
-      // 1. 沈变公司 (6个二级单位)
+      // 1. 沈变公司 (5个项目公司)
       {
         id: 'comp_sb',
         name: '沈变公司',
         level: 'company',
-        badge: '6单位',
+        badge: '5公司',
         children: [
-          { id: 'ws_sb_main', name: '沈变本部', level: 'workshop', badge: '主体' },
-          { id: 'ws_sb_luna', name: '露娜公司', fullName: '特变电工露娜智能电气有限公司', level: 'workshop', badge: '智能' },
-          { id: 'ws_sb_zh', name: '智慧能源', level: 'workshop', badge: '未接入', unconnected: true },
-          { id: 'ws_sb_hx', name: '和新套管公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_sb_kj', name: '康嘉互感器', level: 'workshop', badge: '主体' },
-          { id: 'ws_sb_yn', name: '印能公司', level: 'workshop', badge: '未接入', unconnected: true },
+          { id: 'ws_sb_main', name: '沈变本部', fullName: '特变电工沈阳变压器集团本部', level: 'workshop', badge: '主体' },
+          { id: 'ws_sb_zh', name: '智慧能源', fullName: '沈变智慧能源中心', level: 'workshop', badge: '未接入', unconnected: true },
+          { id: 'ws_sb_hx', name: '和新套管', fullName: '特变电工沈变和新高压套管', level: 'workshop', badge: '主体' },
+          { id: 'ws_sb_kj', name: '康嘉互感器', fullName: '沈变康嘉互感器制造部', level: 'workshop', badge: '主体' },
+          { id: 'ws_sb_yn', name: '印能公司', fullName: '沈变印能电气制造分厂', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
-      // 2. 衡变公司 (11个二级单位)
+      // 2. 衡变公司 (9个项目公司)
       {
         id: 'comp_hb',
         name: '衡变公司',
         level: 'company',
-        badge: '11单位',
+        badge: '9公司',
         children: [
-          { id: 'ws_hb_main', name: '衡变本部', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_nj', name: '南京电研', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_yj', name: '云集电气', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_hn', name: '湖南电气', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_kg', name: '云集高压开关', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_xj', name: '新疆自控', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_sk', name: '上开', level: 'workshop', badge: '未接入', unconnected: true },
-          { id: 'ws_hb_kbe', name: '柯贝尔', level: 'workshop', badge: '未接入', unconnected: true },
-          { id: 'ws_hb_tnj', name: '特能建', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_hr', name: '合容电气', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_gil', name: '赛杰爱迪', level: 'workshop', badge: '主体' },
+          { id: 'ws_hb_main', name: '衡变本部', fullName: '特变电工衡阳变压器本部', level: 'workshop', badge: '主体' },
+          { id: 'ws_hb_nj', name: '南京公司', fullName: '特变电工南京智能电气有限公司', level: 'workshop', badge: '主体' },
+          { id: 'ws_hb_yj', name: '云集电气', fullName: '特变电工云集5G智能成套设备', level: 'workshop', badge: '主体' },
+          { id: 'ws_hb_hn', name: '湖南电气', fullName: '特变电工湖南电气装备制造部', level: 'workshop', badge: '主体' },
+          {
+            id: 'ws_hb_kg',
+            name: '云集高压开关',
+            fullName: '特变电工云集高压开关有限公司',
+            level: 'workshop',
+            badge: '2三级单位',
+            children: [
+              { id: 'ws_hb_kg_yj', name: '云集', fullName: '云集制造基地', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_hb_sk', name: '上开', fullName: '上海开件制造厂', level: 'workshop', badge: '三级单位' },
+            ],
+          },
+          { id: 'ws_hb_xj', name: '新疆自控', fullName: '特变电工新疆自控成套车间', level: 'workshop', badge: '主体' },
+          { id: 'ws_hb_tnj', name: '特缆建', fullName: '特变电工湖南能电建设园区', level: 'workshop', badge: '主体' },
+          {
+            id: 'ws_hb_hr',
+            name: '合容电气',
+            fullName: '特变电工合容电气有限公司',
+            level: 'workshop',
+            badge: '2三级单位',
+            children: [
+              { id: 'ws_hb_kbe', name: '科贝尔', fullName: '科贝尔高压材料基地', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_hb_hr_xa', name: '合容西安基地', fullName: '合容西安智能装备基地', level: 'workshop', badge: '三级单位' },
+            ],
+          },
+          { id: 'ws_hb_gil', name: '事杰爱迪', fullName: '特变电工事杰爱迪GIL公司', level: 'workshop', badge: '主体' },
         ],
       },
-      // 3. 新变厂 (7个二级单位)
+      // 3. 新变厂 (7个项目公司)
       {
         id: 'comp_xb',
         name: '新变厂',
         level: 'company',
-        badge: '7单位',
+        badge: '7公司',
         children: [
-          { id: 'ws_xb_uhv', name: '超高压公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_tb', name: '天变公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_zndq', name: '智能电气公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_jjj', name: '京津冀公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_zf', name: '珠峰硅钢', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_zhny', name: '智慧能源', level: 'workshop', badge: '未接入', unconnected: true },
-          { id: 'ws_xb_yl', name: '银利电气', level: 'workshop', badge: '未接入', unconnected: true },
+          { id: 'ws_xb_uhv', name: '超高压公司', fullName: '特变电工新疆超高压制造中心', level: 'workshop', badge: '主体' },
+          {
+            id: 'ws_xb_tb',
+            name: '天变公司',
+            fullName: '特变电工天津变压器有限公司',
+            level: 'workshop',
+            badge: '5三级单位',
+            children: [
+              { id: 'ws_xb_tb_tj', name: '天变天津基地', fullName: '天变天津生产基地', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_xb_tb_zh', name: '天变智慧能源', fullName: '天变智慧能源制造中心', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_xb_tb_zn', name: '天变智能科技', fullName: '天变智能科技研发制造中心', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_xb_tb_hy', name: '天变衡阳基地', fullName: '天变衡阳干变车间', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_xb_tb_sy', name: '天变沈阳基地', fullName: '天变沈阳特变基地', level: 'workshop', badge: '三级单位' },
+            ],
+          },
+          { id: 'ws_xb_zndq', name: '智能电气', fullName: '特变电工智能电气配变车间', level: 'workshop', badge: '主体' },
+          { id: 'ws_xb_jjj', name: '京津冀科技', fullName: '特变电工京津冀智能科技产业基地', level: 'workshop', badge: '主体' },
+          { id: 'ws_xb_zf', name: '珠峰硅钢', fullName: '珠峰硅钢精密冲剪退火制造部', level: 'workshop', badge: '主体' },
+          { id: 'ws_xb_zhny', name: '智慧能源', fullName: '新变智慧能源综合能管部', level: 'workshop', badge: '未接入', unconnected: true },
+          { id: 'ws_xb_yl', name: '银利电气', fullName: '特变电工银利智能电气制造厂', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
-      // 4. 鲁缆公司 (4个二级单位)
+      // 4. 鲁缆公司 (1个项目公司 · 3个三级单位)
       {
         id: 'comp_ll',
         name: '鲁缆公司',
         level: 'company',
-        badge: '4单位',
+        badge: '1公司',
         children: [
-          { id: 'ws_ll_main', name: '鲁缆本部', level: 'workshop', badge: '主体' },
-          { id: 'ws_ll_zl', name: '智缆公司', level: 'workshop', badge: '未接入', unconnected: true },
-          { id: 'ws_ll_sw', name: '昭和公司', level: 'workshop', badge: '未接入', unconnected: true },
-          { id: 'ws_ll_sg', name: '曙光公司', level: 'workshop', badge: '未接入', unconnected: true },
+          {
+            id: 'ws_ll_comp',
+            name: '鲁缆公司',
+            fullName: '特变电工山东鲁能泰山电缆有限公司',
+            level: 'workshop',
+            badge: '3三级单位',
+            children: [
+              { id: 'ws_ll_main', name: '鲁缆本部', fullName: '鲁缆本部高压交联立塔制造部', level: 'workshop', badge: '主体' },
+              { id: 'ws_ll_sw', name: '昭和', fullName: '特变电工昭和高压电缆附件制造厂', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_ll_sg', name: '曙光', fullName: '特变电工曙光特种电缆分厂', level: 'workshop', badge: '未接入', unconnected: true },
+            ],
+          },
         ],
       },
-      // 5. 新缆厂 (2个二级单位)
+      // 5. 新缆厂 (1个项目公司 · 2个三级单位)
       {
         id: 'comp_xl',
         name: '新缆厂',
         level: 'company',
-        badge: '2单位',
+        badge: '1公司',
         children: [
-          { id: 'ws_xl_main', name: '特变电工新疆电缆有限公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_xl_sub', name: '特变电工新疆线缆厂', level: 'workshop', badge: '主体' },
+          {
+            id: 'ws_xl_comp',
+            name: '新缆厂',
+            fullName: '特变电工新疆线缆厂制造总厂',
+            level: 'workshop',
+            badge: '2三级单位',
+            children: [
+              { id: 'ws_xl_sub', name: '新疆线缆厂', fullName: '特变电工新疆特种线缆制造厂', level: 'workshop', badge: '主体' },
+              { id: 'ws_xl_main', name: '新疆电缆', fullName: '特变电工新疆电缆实业公司', level: 'workshop', badge: '主体' },
+            ],
+          },
         ],
       },
-      // 6. 德缆公司 (1个二级单位)
+      // 6. 德缆公司 (1个项目公司 · 无三级单位)
       {
         id: 'comp_dl',
         name: '德缆公司',
         level: 'company',
-        badge: '1单位',
+        badge: '1公司',
         children: [
-          { id: 'ws_dl_main', name: '特变电工（德阳）电缆股份有限公司', level: 'workshop', badge: '主体' },
+          { id: 'ws_dl_main', name: '德缆公司', fullName: '特变电工（德阳）电缆股份有限公司', level: 'workshop', badge: '主体' },
         ],
       },
     ],
   },
 ]
 
-/**
- * 🏞️ 零碳园区拓扑数据 (严格依据官方核定表构建：1级集团 ➔ 2级所属园区 ➔ 3级二级单位)
- * 15 个零碳产业园区 ➔ 包含对应的二级单位（及所属三级单位）
- */
 export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
   {
     id: 'park_root',
@@ -358,16 +401,19 @@ export const PRODUCT_TRANSFORMER_CABLE_WORKSHOP_IDS = new Set([
   'ws_sb_main',  // 沈变本部 (变压器-高压)
   'ws_hb_main',  // 衡变本部 (变压器-高压)
   'ws_hb_hn',    // 湖南电气 (变压器-高压)
-  'ws_hb_tnj',   // 特能建 (变压器-高压)
+  'ws_hb_tnj',   // 特缆建 (变压器-高压)
   'ws_xb_uhv',   // 超高压公司 (变压器-高压)
   'ws_xb_tb',    // 天变公司 (变压器-中低压-干变)
-  'ws_xb_zndq',  // 智能电气公司 (变压器-中低压-干变)
-  'ws_xb_jjj',   // 京津冀公司 (变压器-中低压-油变)
+  'ws_xb_zndq',  // 智能电气 (变压器-中低压-干变)
+  'ws_xb_jjj',   // 京津冀科技 (变压器-中低压-油变)
   'ws_ll_main',  // 鲁缆本部 (线缆-高压、中低压)
-  'ws_ll_sg',    // 曙光公司 (线缆-特种电缆)
-  'ws_xl_main',  // 特变电工新疆电缆有限公司 (线缆-中低压)
-  'ws_xl_sub',   // 特变电工新疆线缆厂 (线缆-中低压)
-  'ws_dl_main',  // 特变电工（德阳）电缆股份有限公司 (线缆-中低压、高压)
+  'ws_ll_comp',  // 鲁缆公司
+  'ws_ll_sw',    // 昭和 (线缆-高压附件)
+  'ws_ll_sg',    // 曙光 (线缆-特种电缆)
+  'ws_xl_comp',  // 新缆厂
+  'ws_xl_main',  // 新疆电缆 (线缆-中低压)
+  'ws_xl_sub',   // 新疆线缆厂 (线缆-中低压)
+  'ws_dl_main',  // 德缆公司 (线缆-中低压、高压)
 ])
 
 export interface StandardOrgTreeProps {
@@ -413,8 +459,11 @@ export function StandardOrgTree({
       comp_ll: true,
       comp_xl: true,
       comp_dl: true,
+      ws_hb_kg: true,
       ws_hb_hr: true,
       ws_xb_tb: true,
+      ws_ll_comp: true,
+      ws_xl_comp: true,
     }
   })
 
@@ -436,8 +485,11 @@ export function StandardOrgTree({
         comp_ll: true,
         comp_xl: true,
         comp_dl: true,
+        ws_hb_kg: true,
         ws_hb_hr: true,
         ws_xb_tb: true,
+        ws_ll_comp: true,
+        ws_xl_comp: true,
       })
     }
   }, [treeType])

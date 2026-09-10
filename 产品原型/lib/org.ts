@@ -14,10 +14,11 @@ export interface TreeNodeData {
   badge?: string
   tag?: string
   level: number
+  unconnected?: boolean
   children?: TreeNodeData[]
 }
 
-/* 1. 🏢 企业结构 */
+/* 1. 🏢 企业结构 (严格依据核定图表) */
 export const enterpriseTreeData: TreeNodeData = {
   key: 'root-enterprise',
   label: '电装集团',
@@ -36,11 +37,11 @@ export const enterpriseTreeData: TreeNodeData = {
           badge: '东北中心',
           level: 2,
           children: [
-            { key: 'ws-sb-1', label: '沈变本部 (超高压车间)', level: 3 },
-            { key: 'ws-sb-2', label: '智慧能源 (综合能效)', level: 3 },
-            { key: 'ws-sb-3', label: '和新套管公司 (卷制干燥)', level: 3 },
-            { key: 'ws-sb-4', label: '康嘉互感器 (蒸汽干燥)', level: 3 },
-            { key: 'ws-sb-5', label: '印能公司', level: 3 },
+            { key: 'ws-sb-1', label: '沈变本部', level: 3 },
+            { key: 'ws-sb-2', label: '智慧能源', level: 3, unconnected: true },
+            { key: 'ws-sb-3', label: '和新套管', level: 3 },
+            { key: 'ws-sb-4', label: '康嘉互感器', level: 3 },
+            { key: 'ws-sb-5', label: '印能公司', level: 3, unconnected: true },
           ],
         },
         {
@@ -49,15 +50,31 @@ export const enterpriseTreeData: TreeNodeData = {
           badge: '南方中心',
           level: 2,
           children: [
-            { key: 'ws-hb-1', label: '衡变本部 (变压器制造)', level: 3 },
-            { key: 'ws-hb-2', label: '南京电研 (二次SMT贴片)', level: 3 },
-            { key: 'ws-hb-3', label: '云集电气 (开关柜/钣金喷涂)', level: 3 },
-            { key: 'ws-hb-4', label: '湖南电气 (变压器线圈)', level: 3 },
-            { key: 'ws-hb-5', label: '云集高压开关 (GIS抽真空)', level: 3 },
-            { key: 'ws-hb-6', label: '新疆自控 (开关柜车间)', level: 3 },
-            { key: 'ws-hb-7', label: '特能建 (能源建设园区)', level: 3 },
-            { key: 'ws-hb-8', label: '合容电气 (电容器卷绕/浸渍)', level: 3 },
-            { key: 'ws-hb-9', label: '赛杰爱迪 (GIL管道车间)', level: 3 },
+            { key: 'ws-hb-1', label: '衡变本部', level: 3 },
+            { key: 'ws-hb-2', label: '南京公司', level: 3 },
+            { key: 'ws-hb-3', label: '云集电气', level: 3 },
+            { key: 'ws-hb-4', label: '湖南电气', level: 3 },
+            {
+              key: 'ws-hb-5',
+              label: '云集高压开关',
+              level: 3,
+              children: [
+                { key: 'ws-hb-5-1', label: '云集', level: 4 },
+                { key: 'ws-hb-5-2', label: '上开', level: 4 },
+              ],
+            },
+            { key: 'ws-hb-6', label: '新疆自控', level: 3 },
+            { key: 'ws-hb-7', label: '特缆建', level: 3 },
+            {
+              key: 'ws-hb-8',
+              label: '合容电气',
+              level: 3,
+              children: [
+                { key: 'ws-hb-8-1', label: '科贝尔', level: 4 },
+                { key: 'ws-hb-8-2', label: '合容西安基地', level: 4 },
+              ],
+            },
+            { key: 'ws-hb-9', label: '事杰爱迪', level: 3 },
           ],
         },
         {
@@ -66,11 +83,24 @@ export const enterpriseTreeData: TreeNodeData = {
           badge: '西北中心',
           level: 2,
           children: [
-            { key: 'ws-xb-1', label: '超高压公司 (超高压变压器)', level: 3 },
-            { key: 'ws-xb-2', label: '天变公司 (天津/各分支基地)', level: 3 },
-            { key: 'ws-xb-3', label: '智能电气公司 (配变车间)', level: 3 },
-            { key: 'ws-xb-4', label: '京津冀公司 (智能装备)', level: 3 },
-            { key: 'ws-xb-5', label: '珠峰硅钢 (铁心加工/退火)', level: 3 },
+            { key: 'ws-xb-1', label: '超高压公司', level: 3 },
+            {
+              key: 'ws-xb-2',
+              label: '天变公司',
+              level: 3,
+              children: [
+                { key: 'ws-xb-2-1', label: '天变天津基地', level: 4 },
+                { key: 'ws-xb-2-2', label: '天变智慧能源', level: 4 },
+                { key: 'ws-xb-2-3', label: '天变智能科技', level: 4 },
+                { key: 'ws-xb-2-4', label: '天变衡阳基地', level: 4 },
+                { key: 'ws-xb-2-5', label: '天变沈阳基地', level: 4 },
+              ],
+            },
+            { key: 'ws-xb-3', label: '智能电气', level: 3 },
+            { key: 'ws-xb-4', label: '京津冀科技', level: 3 },
+            { key: 'ws-xb-5', label: '珠峰硅钢', level: 3 },
+            { key: 'ws-xb-6', label: '智慧能源', level: 3, unconnected: true },
+            { key: 'ws-xb-7', label: '银利电气', level: 3, unconnected: true },
           ],
         },
       ],
@@ -87,10 +117,16 @@ export const enterpriseTreeData: TreeNodeData = {
           badge: '华东中心',
           level: 2,
           children: [
-            { key: 'ws-ll-1', label: '鲁缆本部 (电缆车间/交联)', level: 3 },
-            { key: 'ws-ll-2', label: '智缆公司 (智能特种电缆)', level: 3 },
-            { key: 'ws-ll-3', label: '昭和公司 (高压附件制造)', level: 3 },
-            { key: 'ws-ll-4', label: '曙光公司 (中低压交联)', level: 3 },
+            {
+              key: 'ws-ll-comp',
+              label: '鲁缆公司',
+              level: 3,
+              children: [
+                { key: 'ws-ll-1', label: '鲁缆本部', level: 4 },
+                { key: 'ws-ll-3', label: '昭和', level: 4 },
+                { key: 'ws-ll-4', label: '曙光', level: 4, unconnected: true },
+              ],
+            },
           ],
         },
         {
@@ -99,8 +135,15 @@ export const enterpriseTreeData: TreeNodeData = {
           badge: '新疆中心',
           level: 2,
           children: [
-            { key: 'ws-xl-1', label: '新疆电缆公司 (自制氮气站)', level: 3 },
-            { key: 'ws-xl-2', label: '新疆线缆厂 (特种线缆制造)', level: 3 },
+            {
+              key: 'ws-xl-comp',
+              label: '新缆厂',
+              level: 3,
+              children: [
+                { key: 'ws-xl-2', label: '新疆线缆厂', level: 4 },
+                { key: 'ws-xl-1', label: '新疆电缆', level: 4 },
+              ],
+            },
           ],
         },
         {
@@ -108,7 +151,7 @@ export const enterpriseTreeData: TreeNodeData = {
           label: '德缆公司',
           badge: '西南中心',
           level: 2,
-          children: [{ key: 'ws-dl-1', label: '德缆股份公司 (高低压交联)', level: 3 }],
+          children: [{ key: 'ws-dl-1', label: '德缆公司', level: 3 }],
         },
       ],
     },

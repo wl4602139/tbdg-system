@@ -217,9 +217,34 @@ export default function MicrogridMonitoringPage() {
     certCode: '',
   })
 
+  // 🌟 当前有效查询日期 (日维度取结束日期，月维度取该月28日)
+  const effectiveDate = useMemo(() => {
+    return timeDim === 'day' ? selectedDateRange.end : `${selectedMonth}-28`
+  }, [timeDim, selectedDateRange.end, selectedMonth])
+
+  // 🌟 根据选定日期动态生成工业负荷与光照真实波动因子 (工作日满负荷/周末微降/日照波动)
+  const dateFluctuation = useMemo(() => {
+    const parts = effectiveDate.split('-').map(Number)
+    const day = parts[2] || 28
+    const month = parts[1] || 8
+    const isWeekend = (day % 7 === 0 || day % 7 === 6)
+    const loadMult = isWeekend ? 0.88 : Number((1.0 + ((day % 5) - 2) * 0.018).toFixed(3))
+    const pvMult = Number((1.0 + ((day % 4) - 1.5) * 0.035).toFixed(3))
+    return { loadMult, pvMult, day, month }
+  }, [effectiveDate])
+
   const currentParkDetail = useMemo(() => {
-    return PARK_GRID_MAP[selectedParkNode.id] || PARK_GRID_MAP['park_01']
-  }, [selectedParkNode.id])
+    const base = PARK_GRID_MAP[selectedParkNode.id] || PARK_GRID_MAP['park_01']
+    const scaledLoad = Math.round(base.loadKw * dateFluctuation.loadMult)
+    const scaledPv = Math.round(base.pvKw * dateFluctuation.pvMult)
+    const grid = Math.max(0, scaledLoad - scaledPv - (base.storageKw > 0 ? base.storageKw : 0))
+    return {
+      ...base,
+      loadKw: scaledLoad,
+      gridKw: grid,
+      pvKw: scaledPv,
+    }
+  }, [selectedParkNode.id, dateFluctuation])
 
   // 15 分钟功率台账
   const detailedLedgerData = useMemo(() => {
@@ -252,7 +277,7 @@ export default function MicrogridMonitoringPage() {
 
       records.push({
         id: `rec-${idx + 1}`,
-        time: `${queryDate} ${t}:00`,
+        time: `${effectiveDate} ${t}:00`,
         pointName: p.name,
         accountName: p.accountName,
         loadKw: totalL,
@@ -266,7 +291,7 @@ export default function MicrogridMonitoringPage() {
     })
 
     return records
-  }, [queryDate, currentParkDetail])
+  }, [effectiveDate, currentParkDetail])
 
   // 🌟 24 小时 15 分钟高频监测点数据生成器 (全天 96 个采样点，每 15 分钟一个监测点)
   const dayTrendData = useMemo(() => {
@@ -489,7 +514,7 @@ export default function MicrogridMonitoringPage() {
 
       return {
         id: `eng-rec-${idx + 1}`,
-        time: `${queryDate} ${t}`,
+        time: `${effectiveDate} ${t}`,
         totalEnergyKWh: totalEnergy,
         gridEnergyKWh: gridEnergy,
         pvEnergyKWh: pvEnergy,
@@ -497,7 +522,30 @@ export default function MicrogridMonitoringPage() {
         greenRate,
       }
     })
-  }, [queryDate, currentParkDetail])
+  }, [effectiveDate, currentParkDetail])
+
+  // 🌟 统一电量台账适配器 (随日/月维度自适应切换数据源与单位)
+  const displayedEnergyLedger = useMemo(() => {
+    if (timeDim === 'day') {
+      return detailedEnergyLedgerData.map((r) => ({
+        id: r.id,
+        time: r.time,
+        total: r.totalEnergyKWh.toLocaleString(),
+        grid: r.gridEnergyKWh.toLocaleString(),
+        pv: r.pvEnergyKWh.toLocaleString(),
+        storage: r.storageEnergyKWh > 0 ? `+${r.storageEnergyKWh} (放)` : `${r.storageEnergyKWh} (充)`,
+      }))
+    }
+    return monthEnergyLedgerData.map((r) => ({
+      id: r.id,
+      time: r.month,
+      total: `${(r.total * 10).toFixed(1)} 万`,
+      grid: `${(r.grid * 10).toFixed(1)} 万`,
+      pv: `${(r.pv * 10).toFixed(1)} 万`,
+      storage: `+${(r.storage * 10).toFixed(1)} 万 (调峰)`,
+    }))
+  }, [timeDim, detailedEnergyLedgerData, monthEnergyLedgerData])
+
 
   // 🌟 全园区月度绿电结构占比走势数据 (绿电占比、直供绿电占比、交易绿电占比、交易绿证占比 4条曲线)
   const greenRatioTrendData = useMemo(() => {
@@ -732,6 +780,7 @@ export default function MicrogridMonitoringPage() {
                         newEnd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
                       }
                       setSelectedDateRange({ start: newStart, end: newEnd })
+                      setQueryDate(newEnd)
                     }}
                     className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                     title="起始日期 (最多可选30天)"
@@ -751,6 +800,7 @@ export default function MicrogridMonitoringPage() {
                         newStart = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
                       }
                       setSelectedDateRange({ start: newStart, end: newEnd })
+                      setQueryDate(newEnd)
                     }}
                     className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
                     title="结束日期 (最多可选30天)"
@@ -768,7 +818,10 @@ export default function MicrogridMonitoringPage() {
                 <input
                   type="month"
                   value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedMonth(e.target.value)
+                    setQueryDate(`${e.target.value}-28`)
+                  }}
                   className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
                   title="选择指定月份"
                 />
@@ -898,16 +951,16 @@ export default function MicrogridMonitoringPage() {
                 </div>
               </div>
               <LineTrend
-                data={dayTrendData}
+                data={timeDim === 'day' ? dayTrendData : monthPowerTrendData}
                 xKey="time"
                 height={260}
                 yUnit="kW"
-                xInterval={7}
+                xInterval={timeDim === 'day' ? 7 : 0}
                 lines={[
-                  { key: '园区总负荷', name: '园区总负荷 (kW)', color: '#8b5cf6' },
-                  { key: '市电受电', name: '市电受电功率 (kW)', color: '#1677ff' },
-                  { key: '光伏出力', name: '光伏实时出力 (kW)', color: '#10b981' },
-                  { key: '储能充放电', name: '储能充放电 (kW)', color: '#fa8c16' },
+                  { key: '园区总负荷', name: `园区总负荷 (kW${timeDim === 'day' ? '' : '/月均'})`, color: '#8b5cf6' },
+                  { key: '市电受电', name: `市电受电功率 (kW${timeDim === 'day' ? '' : '/月均'})`, color: '#1677ff' },
+                  { key: '光伏出力', name: `光伏实时出力 (kW${timeDim === 'day' ? '' : '/月均'})`, color: '#10b981' },
+                  { key: '储能充放电', name: `储能充放电 (kW${timeDim === 'day' ? '' : '/月均'})`, color: '#fa8c16' },
                 ]}
               />
             </div>
@@ -1081,16 +1134,16 @@ export default function MicrogridMonitoringPage() {
                 </div>
               </div>
               <LineTrend
-                data={dayEnergyTrendData}
+                data={timeDim === 'day' ? dayEnergyTrendData : monthEnergyTrendData}
                 xKey="time"
                 height={260}
-                yUnit="kWh"
-                xInterval={7}
+                yUnit={timeDim === 'day' ? 'kWh' : '万kWh'}
+                xInterval={timeDim === 'day' ? 7 : 0}
                 lines={[
-                  { key: '园区总用电', name: '园区总用电量 (kWh)', color: '#8b5cf6' },
-                  { key: '市网购电', name: '市电量 (kWh)', color: '#1677ff' },
-                  { key: '光伏发电', name: '直供绿电量 (kWh)', color: '#10b981' },
-                  { key: '储能充放', name: '储能充放电量 (kWh)', color: '#fa8c16' },
+                  { key: '园区总用电', name: `园区总用电量 (${timeDim === 'day' ? 'kWh' : '万kWh'})`, color: '#8b5cf6' },
+                  { key: '市网购电', name: `市电量 (${timeDim === 'day' ? 'kWh' : '万kWh'})`, color: '#1677ff' },
+                  { key: '光伏发电', name: `直供绿电量 (${timeDim === 'day' ? 'kWh' : '万kWh'})`, color: '#10b981' },
+                  { key: '储能充放', name: `储能充放电量 (${timeDim === 'day' ? 'kWh' : '万kWh'})`, color: '#fa8c16' },
                 ]}
               />
             </div>
@@ -1117,22 +1170,20 @@ export default function MicrogridMonitoringPage() {
                   <thead className="sticky top-0 bg-panel z-10">
                     <tr className="border-b border-border text-foreground font-semibold font-sans h-[44px]">
                       <th className="py-2.5 px-3">统计时段</th>
-                      <th className="py-2.5 px-3">园区总用电量 (kWh)</th>
-                      <th className="py-2.5 px-3 text-primary">市电量 (kWh)</th>
-                      <th className="py-2.5 px-3 text-emerald-400">直供绿电量 (kWh)</th>
-                      <th className="py-2.5 px-3 text-amber-400">储能充放电量 (kWh)</th>
+                      <th className="py-2.5 px-3">园区总用电量 ({timeDim === 'day' ? 'kWh' : '万kWh'})</th>
+                      <th className="py-2.5 px-3 text-primary">市电量 ({timeDim === 'day' ? 'kWh' : '万kWh'})</th>
+                      <th className="py-2.5 px-3 text-emerald-400">直供绿电量 ({timeDim === 'day' ? 'kWh' : '万kWh'})</th>
+                      <th className="py-2.5 px-3 text-amber-400">储能充放电量 ({timeDim === 'day' ? 'kWh' : '万kWh'})</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border text-foreground">
-                    {filteredEnergyLedger.map((row) => (
+                    {displayedEnergyLedger.map((row) => (
                       <tr key={row.id} className="hover:bg-primary/15/40 transition-colors h-[44px]">
                         <td className="py-2 px-3 font-semibold text-foreground font-sans">{row.time}</td>
-                        <td className="py-2 px-3 font-bold text-foreground">{row.totalEnergyKWh.toLocaleString()}</td>
-                        <td className="py-2 px-3 text-primary font-bold">{row.gridEnergyKWh.toLocaleString()}</td>
-                        <td className="py-2 px-3 text-emerald-400 font-bold">{row.pvEnergyKWh.toLocaleString()}</td>
-                        <td className="py-2 px-3 text-amber-400 font-bold">
-                          {row.storageEnergyKWh > 0 ? `+${row.storageEnergyKWh} (放)` : `${row.storageEnergyKWh} (充)`}
-                        </td>
+                        <td className="py-2 px-3 font-bold text-foreground">{row.total}</td>
+                        <td className="py-2 px-3 text-primary font-bold">{row.grid}</td>
+                        <td className="py-2 px-3 text-emerald-400 font-bold">{row.pv}</td>
+                        <td className="py-2 px-3 text-amber-400 font-bold">{row.storage}</td>
                       </tr>
                     ))}
                   </tbody>

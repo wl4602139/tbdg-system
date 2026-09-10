@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SearchableUnitSelect } from '@/components/shared/searchable-unit-select'
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 
 // 🌟 指标管控 10 大核心参数元数据定义（对齐国家级零碳工厂与集团管理要求）
 export interface IndicatorMeta {
@@ -477,8 +478,20 @@ export default function UnitReportPage() {
       rows = rows.filter((r) => r.unitName === unitFilter || r.unitId === unitFilter)
     }
 
-    return rows
-  }, [companyFilter, unitFilter])
+    // 依据时间维度动态缩放累计总量指标 (综合能耗、总碳排、用水量)
+    const periodScale = getPeriodScaleFactor('sum', timeDim, {
+      monthRange: selectedMonthRange,
+      quarter: selectedQuarter,
+      year: selectedYear,
+    })
+
+    return rows.map((r) => ({
+      ...r,
+      totalTce: Number((r.totalTce * periodScale).toFixed(1)),
+      totalCarbon: Number((r.totalCarbon * periodScale).toFixed(1)),
+      waterM3: Math.round(r.waterM3 * periodScale),
+    }))
+  }, [companyFilter, unitFilter, timeDim, selectedMonthRange, selectedQuarter, selectedYear])
 
   // 预计算相同公司的 rowSpan 合并信息
   const companyRowSpans = useMemo(() => {
@@ -551,7 +564,7 @@ export default function UnitReportPage() {
             <Gauge className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-foreground">单耗报表 (指标管控十参数)</h1>
+            <h1 className="text-base font-bold text-foreground">单耗报表</h1>
           </div>
         </div>
 

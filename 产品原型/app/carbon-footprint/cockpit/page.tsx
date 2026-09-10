@@ -1198,7 +1198,7 @@ export default function CockpitPage() {
                     </div>
 
                     <div className="space-y-1 pt-0.5">
-                      {p.subModels.slice(0, 3).map((sub) => (
+                      {p.subModels.slice(0, 1).map((sub) => (
                         <div
                           key={sub.name}
                           className="flex items-center justify-between rounded-md px-2 py-1 text-xs hover:bg-secondary/50 transition-colors"

@@ -184,7 +184,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     name: '1# 800kV特高压干式电容套管固化炉',
     code: 'EQ-HX-FURN-01',
     company: '沈变公司',
-    enterprise: '和新套管公司',
+    enterprise: '和新套管',
     location: '套管生产车间',
     status: '运行中',
     powerKW: 1850,
@@ -290,7 +290,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     name: '1# 继电保护与智能控制综测平台',
     code: 'EQ-NJ-TEST-01',
     company: '衡变公司',
-    enterprise: '南京电研',
+    enterprise: '南京公司',
     location: '电研综测车间',
     status: '运行中',
     powerKW: 680,
@@ -366,7 +366,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     name: '1# 输变电工程模块化预制舱组装工位',
     code: 'EQ-TNJ-ENG-01',
     company: '衡变公司',
-    enterprise: '特能建',
+    enterprise: '特缆建',
     location: '预制舱拼装中心',
     status: '运行中',
     powerKW: 1250,
@@ -404,7 +404,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     name: '1# 1100kV特高压GIL气体绝缘输电线路装配线',
     code: 'EQ-GIL-ASM-01',
     company: '衡变公司',
-    enterprise: '赛杰爱迪',
+    enterprise: '事杰爱迪',
     location: 'GIL百级净化大厅',
     status: '运行中',
     powerKW: 2150,
@@ -466,7 +466,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     name: '1# 110kV智能箱式变电站装配检测线',
     code: 'EQ-XB-BOX-01',
     company: '新变厂',
-    enterprise: '智能电气公司',
+    enterprise: '智能电气',
     location: '智能化箱变车间',
     status: '运行中',
     powerKW: 1450,
@@ -485,7 +485,7 @@ export const KEY_EQUIPMENT_LIST: KeyEquipmentInfo[] = [
     name: '1# 110kV环氧树脂真空浇注罐',
     code: 'EQ-XB-CAST-01',
     company: '新变厂',
-    enterprise: '京津冀公司',
+    enterprise: '京津冀科技',
     location: '干变浇注车间',
     status: '运行中',
     powerKW: 1750,
@@ -1123,28 +1123,59 @@ export default function EquipmentPage() {
                 const compName = compNode.name
                 const enterprises = compNode.children || []
 
-                // 搜索过滤匹配
+                // 搜索过滤匹配 (支持三级单位下钻与设备绑定)
                 const matchedEnterprises = enterprises.map((ent) => {
-                  const filteredEqs = KEY_EQUIPMENT_LIST.filter(
+                  const hasSubUnits = Boolean(ent.children && ent.children.length > 0)
+                  const subUnits = (ent.children || []).map((sub) => {
+                    const subEqs = KEY_EQUIPMENT_LIST.filter(
+                      (e) =>
+                        (treeType === 'enterprise' ? e.company === compName : true) &&
+                        (deviceTypeFilter === 'all' || e.deviceType === deviceTypeFilter) &&
+                        (e.enterprise.includes(sub.name.slice(0, 3)) || sub.name.includes(e.enterprise.slice(0, 3))) &&
+                        (!eqSearchKw.trim() ||
+                          e.name.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
+                          e.code.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
+                          sub.name.includes(eqSearchKw.trim()) ||
+                          ent.name.includes(eqSearchKw.trim()) ||
+                          compName.includes(eqSearchKw.trim()))
+                    )
+                    return {
+                      name: sub.name,
+                      id: sub.id,
+                      badge: sub.badge,
+                      unconnected: sub.unconnected,
+                      equipments: subEqs,
+                      isMatched:
+                        (!eqSearchKw.trim() || sub.name.includes(eqSearchKw.trim()) || subEqs.length > 0) &&
+                        (deviceTypeFilter === 'all' || subEqs.length > 0),
+                    }
+                  })
+
+                  const directEqs = KEY_EQUIPMENT_LIST.filter(
                     (e) =>
                       (treeType === 'enterprise' ? e.company === compName : true) &&
-                    (deviceTypeFilter === 'all' || e.deviceType === deviceTypeFilter) &&
-                      (e.enterprise.includes(ent.name.slice(0, 4)) || ent.name.includes(e.enterprise.slice(0, 4))) &&
+                      (deviceTypeFilter === 'all' || e.deviceType === deviceTypeFilter) &&
+                      (e.enterprise.includes(ent.name.slice(0, 3)) || ent.name.includes(e.enterprise.slice(0, 3)) || subUnits.some(s => e.enterprise.includes(s.name.slice(0, 3)))) &&
                       (!eqSearchKw.trim() ||
                         e.name.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
                         e.code.toLowerCase().includes(eqSearchKw.trim().toLowerCase()) ||
                         ent.name.includes(eqSearchKw.trim()) ||
                         compName.includes(eqSearchKw.trim()))
                   )
+
+                  const allEqs = hasSubUnits ? subUnits.flatMap(s => s.equipments) : directEqs
+                  const isMatched =
+                    (!eqSearchKw.trim() || ent.name.includes(eqSearchKw.trim()) || compName.includes(eqSearchKw.trim()) || allEqs.length > 0) &&
+                    (deviceTypeFilter === 'all' || allEqs.length > 0)
+
                   return {
                     name: ent.name,
                     id: ent.id,
                     badge: ent.badge,
                     unconnected: ent.unconnected,
-                    equipments: filteredEqs,
-                    isMatched:
-                      (!eqSearchKw.trim() || ent.name.includes(eqSearchKw.trim()) || compName.includes(eqSearchKw.trim()) || filteredEqs.length > 0) &&
-                      (deviceTypeFilter === 'all' || filteredEqs.length > 0)
+                    children: subUnits,
+                    equipments: allEqs,
+                    isMatched,
                   }
                 }).filter((ent) => ent.isMatched)
 
@@ -1182,7 +1213,7 @@ export default function EquipmentPage() {
                         {matchedEnterprises.map((ent) => {
                           const rawEntName = ent.name
                           const entName = rawEntName.replace(/\s*\(.*?\)/g, '')
-                          const UNCONNECTED_NAMES = ['智慧能源', '印能公司', '上开', '柯贝尔', '银利电气', '智缆', '昭和', '曙光']
+                          const UNCONNECTED_NAMES = ['智慧能源', '印能公司', '银利电气', '曙光']
                           const isUnconnected = ent.unconnected || UNCONNECTED_NAMES.some((u) => rawEntName.includes(u))
 
                           if (isUnconnected) {
@@ -1231,10 +1262,68 @@ export default function EquipmentPage() {
                                 </span>
                               </div>
 
-                              {/* 4级节点：重点设备列表 */}
+                              {/* 4级节点：三级单位 / 重点设备列表 */}
                               {!isEntCollapsed && (
                                 <div className="border-l border-border/60 ml-2.5 pl-2 space-y-0.5">
-                                  {hasEqs ? (
+                                  {ent.children && ent.children.length > 0 ? (
+                                    ent.children.map((sub: any) => {
+                                      const isSubUnconnected = sub.unconnected || UNCONNECTED_NAMES.some((u) => sub.name.includes(u))
+                                      if (isSubUnconnected) {
+                                        return (
+                                          <div
+                                            key={sub.id}
+                                            className="flex items-center gap-1 py-0.5 px-1 rounded opacity-35 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none text-[11px]"
+                                            title={`${sub.name} (暂不具备数据接入条件 · 不允许选择)`}
+                                          >
+                                            <span className="size-2.5 flex items-center justify-center shrink-0" />
+                                            <Factory className="size-2.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                                            <span className="flex-1 truncate">{sub.name}</span>
+                                            <span className="text-[9.5px] font-mono">(0)</span>
+                                          </div>
+                                        )
+                                      }
+                                      return (
+                                        <div key={sub.id} className="space-y-0.5">
+                                          <div className="flex items-center gap-1 py-0.5 px-1 rounded text-foreground/80 font-medium text-[11px]">
+                                            <span className="size-1 rounded-full bg-primary/60 shrink-0" />
+                                            <span className="flex-1 truncate">{sub.name}</span>
+                                            <span className="text-[9.5px] text-muted-foreground font-mono">({sub.equipments.length})</span>
+                                          </div>
+                                          {sub.equipments.length > 0 && (
+                                            <div className="border-l border-border/50 ml-2 pl-1.5 space-y-0.5">
+                                              {sub.equipments.map((eq: any) => {
+                                                const isSelected = selectedEqId === eq.id
+                                                return (
+                                                  <div
+                                                    key={eq.id}
+                                                    onClick={() => setSelectedEqId(eq.id)}
+                                                    className={cn(
+                                                      'flex items-center justify-between py-1 px-1.5 rounded cursor-pointer transition-colors text-[10.5px] group',
+                                                      isSelected
+                                                        ? 'bg-primary/20 text-primary font-bold shadow-2xs border border-primary/30'
+                                                        : 'hover:bg-accent/40 text-muted-foreground'
+                                                    )}
+                                                  >
+                                                    <div className="flex items-center gap-1.5 truncate">
+                                                      {eq.deviceType === '热力设备' ? (
+                                                        <Flame className={cn('size-3 shrink-0', isSelected ? 'text-purple-400' : 'text-purple-400/80')} />
+                                                      ) : (
+                                                        <Zap className={cn('size-3 shrink-0', isSelected ? 'text-primary' : 'text-primary/80')} />
+                                                      )}
+                                                      <span className="truncate" title={eq.name}>
+                                                        {eq.name}
+                                                      </span>
+                                                    </div>
+                                                    <span className="size-1.5 rounded-full bg-emerald-400 shrink-0" title="在线运行" />
+                                                  </div>
+                                                )
+                                              })}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )
+                                    })
+                                  ) : hasEqs ? (
                                     ent.equipments.map((eq) => {
                                       const isSelected = selectedEqId === eq.id
                                       return (
@@ -1308,9 +1397,6 @@ export default function EquipmentPage() {
                   {selectedEq.name}
                 </h2>
               </div>
-            </div>
-            <div className="text-xs text-muted-foreground font-mono">
-              {selectedEq.company} · {selectedEq.enterprise} · {selectedEq.location}
             </div>
           </div>
 

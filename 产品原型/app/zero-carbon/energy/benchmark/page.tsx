@@ -47,6 +47,8 @@ import {
 } from 'recharts'
 import { TimeRange } from '@/components/shared/time-range'
 import { cn } from '@/lib/utils'
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
+
 
 // 5 大 Tab 键名
 type BenchmarkTabKey = 'horizontal' | 'product_horizontal' | 'product_vertical' | 'process' | 'standard_manage'
@@ -1766,8 +1768,40 @@ export default function BenchmarkManagementPage() {
   const [verticalMetricKey, setVerticalMetricKey] = useState<'tce' | 'elec' | 'steam' | 'gas' | 'water'>('tce')
   const [isVerticalQuerying, setIsVerticalQuerying] = useState(false)
 
-  // 当前激活指标元信息
-  const currentMetricMeta = ZERO_CARBON_METRICS_META[activeZeroCarbonMetric]
+  // 🌟 对标指标周期强度微调因子 (依据所选月度、季度、年度动态计算)
+  const benchmarkIntensityFactor = useMemo(() => {
+    return getPeriodScaleFactor('intensity', benchmarkTimeDim, {
+      selectedMonth: benchmarkSelectedMonth,
+      selectedQuarter: benchmarkSelectedQuarter,
+      selectedYear: benchmarkSelectedYear,
+    })
+  }, [benchmarkTimeDim, benchmarkSelectedMonth, benchmarkSelectedQuarter, benchmarkSelectedYear])
+
+  const dynamicMetaMap = useMemo(() => {
+    const carbonAvg = Number((1.62 * (2 - benchmarkIntensityFactor)).toFixed(2))
+    const nonFossilAvg = Number((41.5 * benchmarkIntensityFactor).toFixed(1))
+    const physicalAvg = Number((38.6 * benchmarkIntensityFactor).toFixed(1))
+    return {
+      carbon_per_tce: {
+        ...ZERO_CARBON_METRICS_META.carbon_per_tce,
+        groupAvg: carbonAvg,
+        groupAvgLabel: `电装集团平均值 (${carbonAvg})`,
+      },
+      non_fossil_ratio: {
+        ...ZERO_CARBON_METRICS_META.non_fossil_ratio,
+        groupAvg: nonFossilAvg,
+        groupAvgLabel: `电装集团平均值 (${nonFossilAvg}%)`,
+      },
+      physical_green_ratio: {
+        ...ZERO_CARBON_METRICS_META.physical_green_ratio,
+        groupAvg: physicalAvg,
+        groupAvgLabel: `电装集团平均值 (${physicalAvg}%)`,
+      },
+    }
+  }, [benchmarkIntensityFactor])
+
+  // 当前激活指标元信息 (动态)
+  const currentMetricMeta = dynamicMetaMap[activeZeroCarbonMetric]
 
   // 过滤后的同型号产品对比列表
   const filteredProductBenchmarks = useMemo(() => {
@@ -1906,22 +1940,36 @@ export default function BenchmarkManagementPage() {
     })
   }, [currentSelectedModel, basePeriodRange, comparePeriodRange, verticalMonthsList])
 
-  // 转换图表数据格式
+  // 转换图表数据格式 (随当前时间维度动态自适应)
   const chartData = useMemo(() => {
-    return PROJECT_COMPANIES_BENCHMARK_DATA.map((item) => ({
-      name: item.name,
-      parentCompany: item.parentCompany,
-      carbon_per_tce: item.carbonPerTce,
-      non_fossil_ratio: item.nonFossilRatio,
-      physical_green_ratio: item.physicalGreenRatio,
-      currentVal:
-        activeZeroCarbonMetric === 'carbon_per_tce'
-          ? item.carbonPerTce
-          : activeZeroCarbonMetric === 'non_fossil_ratio'
-          ? item.nonFossilRatio
-          : item.physicalGreenRatio,
+    return PROJECT_COMPANIES_BENCHMARK_DATA.map((item) => {
+      const scaledCarbon = Number((item.carbonPerTce * (2 - benchmarkIntensityFactor)).toFixed(2))
+      const scaledNonFossil = Number((item.nonFossilRatio * benchmarkIntensityFactor).toFixed(1))
+      const scaledPhysical = Number((item.physicalGreenRatio * benchmarkIntensityFactor).toFixed(1))
+      return {
+        name: item.name,
+        parentCompany: item.parentCompany,
+        carbon_per_tce: scaledCarbon,
+        non_fossil_ratio: scaledNonFossil,
+        physical_green_ratio: scaledPhysical,
+        currentVal:
+          activeZeroCarbonMetric === 'carbon_per_tce'
+            ? scaledCarbon
+            : activeZeroCarbonMetric === 'non_fossil_ratio'
+            ? scaledNonFossil
+            : scaledPhysical,
+      }
+    })
+  }, [activeZeroCarbonMetric, benchmarkIntensityFactor])
+
+  // 表格数据根据时间维度动态换算
+  const displayedBenchmarkTable = useMemo(() => {
+    return PROJECT_COMPANIES_BENCHMARK_DATA.map((row) => ({
+      ...row,
+      unitOutputTce: Number((row.unitOutputTce * benchmarkIntensityFactor).toFixed(4)),
+      unitValueAddedTce: Number((row.unitValueAddedTce * benchmarkIntensityFactor).toFixed(3)),
     }))
-  }, [activeZeroCarbonMetric])
+  }, [benchmarkIntensityFactor])
 
   return (
     <div className="w-full flex flex-col gap-3.5 font-sans">
@@ -2063,7 +2111,7 @@ export default function BenchmarkManagementPage() {
             {/* 3 大核心指标切换卡片 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono">
               {(Object.keys(ZERO_CARBON_METRICS_META) as ZeroCarbonMetricType[]).map((key) => {
-                const meta = ZERO_CARBON_METRICS_META[key]
+                const meta = dynamicMetaMap[key]
                 const isSelected = activeZeroCarbonMetric === key
 
                 return (
@@ -2233,9 +2281,6 @@ export default function BenchmarkManagementPage() {
                   【核心管控指标排名】
                 </h3>
               </div>
-              <span className="text-xs text-muted-foreground font-mono">
-                全集团 19 家项目公司 · 依据单位产值能耗升序排名 · 包含同比变动
-              </span>
             </div>
 
             <div className="overflow-x-auto custom-scrollbar">
@@ -2257,7 +2302,7 @@ export default function BenchmarkManagementPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground">
-                  {PROJECT_COMPANIES_BENCHMARK_DATA.map((row) => (
+                  {displayedBenchmarkTable.map((row) => (
                     <tr key={row.id} className="hover:bg-accent/30 transition-colors h-[44px]">
                       <td className="py-2.5 px-3 text-center">
                         <span
@@ -2452,9 +2497,6 @@ export default function BenchmarkManagementPage() {
                   同型号产品项目公司单耗对比明细表
                 </h3>
               </div>
-              <span className="text-xs text-muted-foreground font-mono">
-                共匹配 <strong className="text-foreground">{filteredProductBenchmarks.length}</strong> 款同型产品对标组
-              </span>
             </div>
 
             <div className="overflow-x-auto font-mono text-xs">
@@ -3094,9 +3136,6 @@ export default function BenchmarkManagementPage() {
                   双周期各月份单耗与各能源介质明细对比台账
                 </h3>
               </div>
-              <div className="text-xs text-muted-foreground font-mono">
-                基准期 ({basePeriodRange.start} ~ {basePeriodRange.end}) ⇄ 对比期 ({comparePeriodRange.start} ~ {comparePeriodRange.end})
-              </div>
             </div>
 
             <div className="overflow-x-auto font-mono text-xs">
@@ -3407,9 +3446,6 @@ export default function BenchmarkManagementPage() {
                   关键工序单耗对比数据明细表
                 </h3>
               </div>
-              <span className="text-xs text-muted-foreground font-mono">
-                产业归属：{currentSelectedProcess.industryName} · 共涉及 {currentSelectedProcess.companies.length} 家项目公司
-              </span>
             </div>
 
             <div className="overflow-x-auto font-mono text-xs">
@@ -3675,9 +3711,6 @@ export default function BenchmarkManagementPage() {
                   能效对标基准与内控标准维护明细表
                 </h3>
               </div>
-              <span className="text-xs text-muted-foreground font-mono">
-                当前筛选展示 <strong className="text-foreground">{filteredStandards.length}</strong> 条基准规则
-              </span>
             </div>
 
             <div className="overflow-x-auto font-mono text-xs">
@@ -3774,13 +3807,6 @@ export default function BenchmarkManagementPage() {
                           className="text-xs text-primary hover:underline font-bold cursor-pointer"
                         >
                           编辑
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => alert(`已打开【${std.indicatorName}】历史修订版本与变更记录。`)}
-                          className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
-                        >
-                          版本
                         </button>
                       </td>
                     </tr>

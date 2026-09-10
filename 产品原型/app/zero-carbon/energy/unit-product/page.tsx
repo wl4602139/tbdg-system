@@ -27,6 +27,7 @@ import {
   Boxes,
   PieChart as PieChartIcon,
   BarChart3,
+  RotateCcw,
 } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -42,6 +43,7 @@ import {
   LineChart,
   Line,
 } from 'recharts'
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
@@ -1349,6 +1351,15 @@ export default function UnitProductPage() {
     return category
   }, [category])
 
+  // 🌟 单位产品单耗强度因子 (依据所选月度区间、季度、年度动态计算微调)
+  const productIntensityFactor = useMemo(() => {
+    return getPeriodScaleFactor('intensity', timeDim, {
+      selectedMonthRange,
+      selectedQuarter,
+      selectedYear,
+    })
+  }, [timeDim, selectedMonthRange, selectedQuarter, selectedYear])
+
   // 🌟 当前大类下的数十种细分产品分类全景库
   const currentCategories = useMemo(() => {
     return category === 'transformer' ? TRANSFORMER_CATEGORIES : CABLE_CATEGORIES
@@ -1453,7 +1464,8 @@ export default function UnitProductPage() {
   const trendChartConfig = useMemo(() => {
     const periodsMonth = ['25-09', '25-10', '25-11', '25-12', '26-01', '26-02', '26-03', '26-04', '26-05', '26-06', '26-07', '26-08']
     const periodsQuarter = ['23-Q4', '24-Q1', '24-Q2', '24-Q3', '24-Q4', '25-Q1', '25-Q2', '25-Q3', '25-Q4', '26-Q1', '26-Q2', '26-Q3']
-    const periodsYear = ['2024年度', '2025年度', '2026年(累计)']
+    const curY = parseInt(selectedYear || '2026', 10)
+    const periodsYear = [`${curY - 2}年度`, `${curY - 1}年度`, `${curY}年(累计)`]
 
     const periodList = timeDim === 'month' ? periodsMonth : timeDim === 'quarter' ? periodsQuarter : periodsYear
     const periodName = timeDim === 'month' ? '近12个月' : timeDim === 'quarter' ? '近12个季度' : '近3年'
@@ -1516,7 +1528,7 @@ export default function UnitProductPage() {
       data,
       periodName,
     }
-  }, [timeDim, selectedKpiId])
+  }, [timeDim, selectedKpiId, selectedYear, selectedQuarter, selectedMonthRange])
 
   // 🌟 2. 坐标轴单位与曲线根据选中的介质和种类动态配置 (参考图片 1)
   const chartAxisAndLines = useMemo(() => {
@@ -1624,7 +1636,12 @@ export default function UnitProductPage() {
       // 5. 关键词过滤
       if (searchKw.trim()) {
         const kw = searchKw.trim().toLowerCase()
-        return m.modelCode.toLowerCase().includes(kw) || m.modelName.toLowerCase().includes(kw) || m.companyName.toLowerCase().includes(kw)
+        return (
+          m.modelCode.toLowerCase().includes(kw) ||
+          m.modelName.toLowerCase().includes(kw) ||
+          m.companyName.toLowerCase().includes(kw) ||
+          (m.voltageLevel && m.voltageLevel.toLowerCase().includes(kw))
+        )
       }
       return true
     })
@@ -1717,7 +1734,7 @@ export default function UnitProductPage() {
       {
         id: 'kpi-tce',
         name: '单位产品综合能耗',
-        value: '0.485',
+        value: (0.485 * productIntensityFactor).toFixed(3),
         unit: 'tce/万kVA',
         diffText: '同比 -5.2% ↓',
         badge: '综合折标',
@@ -1729,7 +1746,7 @@ export default function UnitProductPage() {
       {
         id: 'kpi-elec',
         name: '单位产品电耗',
-        value: '0.317',
+        value: (0.317 * productIntensityFactor).toFixed(3),
         unit: 'kWh/kVA',
         diffText: '同比 -5.4% ↓',
         badge: '电力',
@@ -1741,7 +1758,7 @@ export default function UnitProductPage() {
       {
         id: 'kpi-steam',
         name: '单位产品蒸汽消耗',
-        value: '0.020',
+        value: (0.020 * productIntensityFactor).toFixed(3),
         unit: 't/万kVA',
         diffText: '同比 -4.8% ↓',
         badge: '蒸汽',
@@ -1753,7 +1770,7 @@ export default function UnitProductPage() {
       {
         id: 'kpi-gas',
         name: '单位产品天然气消耗',
-        value: '0.168',
+        value: (0.168 * productIntensityFactor).toFixed(3),
         unit: 'm³/万kVA',
         diffText: '同比 -4.1% ↓',
         badge: '天然气',
@@ -1765,7 +1782,7 @@ export default function UnitProductPage() {
       {
         id: 'kpi-water',
         name: '单位产品水消耗',
-        value: '0.085',
+        value: (0.085 * productIntensityFactor).toFixed(3),
         unit: 't/万kVA',
         diffText: '同比 -3.9% ↓',
         badge: '新鲜水',
@@ -1775,7 +1792,7 @@ export default function UnitProductPage() {
         badgeClass: 'bg-cyan-500/20 text-cyan-400',
       },
     ]
-  }, [activeIndustry])
+  }, [activeIndustry, productIntensityFactor])
 
   return (
     <div className="flex gap-3.5 items-start">
@@ -2011,7 +2028,7 @@ export default function UnitProductPage() {
             <div className="flex items-center gap-2">
               <span className="size-2.5 rounded-full bg-primary animate-pulse shrink-0" />
               <h3 className="text-xs font-bold text-foreground">
-                【全集团两大核心产品】{chartAxisAndLines.name}变化趋势 ({trendChartConfig.periodName})
+                {chartAxisAndLines.name}变化趋势
               </h3>
               {selectedNode.id !== 'ent_root' && (
                 <span className="text-[11px] px-2 py-0.5 rounded bg-primary/20 text-primary font-sans font-bold border border-primary/30">
@@ -2094,7 +2111,7 @@ export default function UnitProductPage() {
             <div className="flex items-center gap-2">
               <Boxes className="size-4 text-primary" />
               <h3 className="text-xs font-bold text-foreground">
-                {category === 'transformer' ? '【变压器产业】主要产品分类' : '【线缆产业】主要产品分类'}
+                主要产品分类
               </h3>
             </div>
 
@@ -2245,22 +2262,62 @@ export default function UnitProductPage() {
 
         {/* 🌟 5. 产品型号单耗明细台账 (根据选择的产品，精准匹配对应的能源消耗类型) */}
         <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-          <div className="p-3.5 border-b border-border flex flex-wrap items-center justify-between bg-panel gap-2">
-            <div className="flex items-center gap-2">
+          <div className="p-3.5 border-b border-border flex flex-wrap items-center justify-between bg-panel gap-3">
+            <div className="flex items-center gap-2 shrink-0">
               <FileSpreadsheet className="size-4 text-primary" />
               <h3 className="text-xs font-bold text-foreground">
-                {activeSelectedCategory
-                  ? `【${activeSelectedCategory.name}】产品型号单耗明细台账`
-                  : currentTableMode === 'transformer'
-                  ? '【变压器产品全谱系】型号单耗明细台账 (电耗 · 蒸汽耗 · 气水耗)'
-                  : currentTableMode === 'cable'
-                  ? '【线缆产品全谱系】型号单耗明细台账 (电耗 · 氮气耗 · 气水耗)'
-                  : '全集团产品型号单耗明细台账'}
+                产品型号单耗明细台账
               </h3>
             </div>
 
-            <div className="text-xs text-muted-foreground font-mono">
-              在产型号总库共 <strong className="text-foreground">2,840</strong> 种 · 当前筛选展示 <strong className="text-primary">{filteredModels.length}</strong> 条型号
+            {/* 🌟 快速检索模块 (靠右显示，紧邻型号计数统计) */}
+            <div className="flex items-center gap-3 text-xs ml-auto">
+              {/* 关键词检索输入框 (靠右显示) */}
+              <div className="relative w-56 sm:w-64">
+                <input
+                  type="text"
+                  value={searchKw}
+                  onChange={(e) => {
+                    setSearchKw(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  placeholder="快速检索型号规格 / 编码 / 单位..."
+                  className="w-full pl-7 pr-7 py-1 bg-card border border-border rounded-lg text-xs font-sans placeholder:text-muted-foreground focus:outline-none focus:border-primary text-foreground h-7.5 transition-colors shadow-2xs"
+                />
+                <Search className="size-3.5 text-muted-foreground absolute left-2 top-2 pointer-events-none" />
+                {searchKw && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchKw('')
+                      setCurrentPage(1)
+                    }}
+                    className="absolute right-2 top-2 text-muted-foreground hover:text-foreground cursor-pointer"
+                    title="清空搜索"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {searchKw && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchKw('')
+                    setCurrentPage(1)
+                  }}
+                  className="px-2 py-1 bg-primary/10 hover:bg-primary/20 text-primary rounded-md text-[11px] font-bold cursor-pointer transition-colors flex items-center gap-1 shrink-0 h-7.5"
+                  title="重置检索"
+                >
+                  <RotateCcw className="size-3" />
+                  <span>重置</span>
+                </button>
+              )}
+
+              <div className="text-xs text-muted-foreground font-mono shrink-0 pl-2 border-l border-border/50">
+                在产型号总库共 <strong className="text-foreground">2,840</strong> 种
+              </div>
             </div>
           </div>
 

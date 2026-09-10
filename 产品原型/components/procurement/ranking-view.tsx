@@ -236,10 +236,10 @@ function OrgTreePanel({ scope, onScope }: { scope: string; onScope: (v: string) 
 
 function OrgBranch({ node, level, scope, onScope }: { node: OrgNode; level: number; scope: string; onScope: (v: string) => void }) {
   if (!node.children?.length) {
-    return <TreeLeaf name={node.name} level={level} scope={scope} onScope={onScope} />
+    return <TreeLeaf name={node.name} level={level} scope={scope} onScope={onScope} unconnected={node.unconnected} />
   }
   return (
-    <TreeRow name={node.name} level={level} scope={scope} onScope={onScope}>
+    <TreeRow name={node.name} level={level} scope={scope} onScope={onScope} unconnected={node.unconnected}>
       {node.children.map((c) => (
         <OrgBranch key={c.name} node={c} level={level + 1} scope={scope} onScope={onScope} />
       ))}
@@ -283,8 +283,18 @@ function TreeRow({
   )
 }
 
-function TreeLeaf({ name, level, scope, onScope }: { name: string; level: number; scope: string; onScope: (v: string) => void }) {
+function TreeLeaf({ name, level, scope, onScope, unconnected }: { name: string; level: number; scope: string; onScope: (v: string) => void; unconnected?: boolean }) {
   const active = scope === name
+  if (unconnected) {
+    return (
+      <div
+        className="flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 pl-4 text-left text-[13px] opacity-35 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none"
+        title={`${name} (暂不具备数据接入条件 · 不允许选择)`}
+      >
+        <span className="truncate">{name}</span>
+      </div>
+    )
+  }
   return (
     <button
       onClick={() => onScope(name)}

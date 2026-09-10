@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SearchableUnitSelect } from '@/components/shared/searchable-unit-select'
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 
 // 🌟 依据【用能在线监测】统一的能源介质字段模型
 interface UsageRow {
@@ -317,8 +318,26 @@ export default function UsageReportPage() {
       rows = rows.filter((r) => r.unitName === unitFilter || r.unitId === unitFilter)
     }
 
-    return rows
-  }, [companyFilter, unitFilter])
+    // 依据时间维度动态缩放累计能耗数值
+    const periodScale = getPeriodScaleFactor('sum', timeDim, {
+      monthRange: selectedMonthRange,
+      quarter: selectedQuarter,
+      year: selectedYear,
+    })
+
+    return rows.map((r) => ({
+      ...r,
+      totalElec: Number((r.totalElec * periodScale).toFixed(1)),
+      gridElec: Number((r.gridElec * periodScale).toFixed(1)),
+      solarElec: Number((r.solarElec * periodScale).toFixed(1)),
+      gasM3: Number((r.gasM3 * periodScale).toFixed(1)),
+      waterM3: Number((r.waterM3 * periodScale).toFixed(2)),
+      steamT: Number((r.steamT * periodScale).toFixed(1)),
+      oilLiter: Math.round(r.oilLiter * periodScale),
+      liquidNitrogenT: Number((r.liquidNitrogenT * periodScale).toFixed(1)),
+      totalTce: Number((r.totalTce * periodScale).toFixed(1)),
+    }))
+  }, [companyFilter, unitFilter, timeDim, selectedMonthRange, selectedQuarter, selectedYear])
 
   // 预计算相同公司的 rowSpan 合并信息
   const companyRowSpans = useMemo(() => {
