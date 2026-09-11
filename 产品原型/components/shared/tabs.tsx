@@ -19,28 +19,31 @@ export function Tabs({
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-1 rounded-lg border border-border bg-panel p-1',
+        'inline-flex items-center gap-1 p-0.5',
         className,
       )}
       role="tablist"
     >
-      {list.map((t) => (
-        <button
-          key={t.value}
-          type="button"
-          role="tab"
-          aria-selected={value === t.value}
-          onClick={() => onChange(t.value)}
-          className={cn(
-            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-            value === t.value
-              ? 'bg-primary/15 text-primary shadow-[0_0_16px_-6px_var(--primary)]'
-              : 'text-muted-foreground hover:text-foreground',
-          )}
-        >
-          {t.label}
-        </button>
-      ))}
+      {list.map((t) => {
+        const active = value === t.value
+        return (
+          <button
+            key={t.value}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(t.value)}
+            className={cn(
+              'rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer select-none',
+              active
+                ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                : 'text-muted-foreground hover:text-foreground hover:bg-accent/40',
+            )}
+          >
+            {t.label}
+          </button>
+        )
+      })}
     </div>
   )
 }

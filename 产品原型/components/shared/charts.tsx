@@ -28,6 +28,26 @@ import {
 const axisStyle = { fontSize: 11, fill: 'oklch(0.82 0.02 240)', fontWeight: 500 }
 const gridColor = 'oklch(0.72 0.12 220 / 18%)'
 
+/* 特变电工 8 大能源介质官方标准色表 */
+export const ENERGY_COLORS = {
+  total: '#2C7CFF',        // 总用电量
+  grid: '#41C0FF',         // 市电量
+  greenPower: '#00D492',   // 直供绿电量
+  water: '#10C4CE',        // 水资源
+  gas: '#FF6536',          // 天然气
+  steam: '#FFBA00',        // 蒸汽
+  diesel: '#8E73ED',       // 油消耗
+  nitrogen: '#4F39F6',     // 液氮
+} as const
+
+/* 特变电工 TOU 4 段分时电量官方标准色表 */
+export const TOU_COLORS = {
+  sharp: '#FF6536',        // 尖
+  peak: '#FFBA00',         // 峰
+  flat: '#2C7CFF',         // 平
+  valley: '#10C4CE',       // 谷
+} as const
+
 export const chartColors = [
   'var(--chart-1)',
   'var(--chart-2)',

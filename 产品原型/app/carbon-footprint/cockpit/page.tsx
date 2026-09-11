@@ -773,9 +773,9 @@ export default function CockpitPage() {
   }, [activeCategory])
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {/* ① 顶部标题栏 + 跨月时间维度筛选 */}
-      <div className="flex flex-col gap-2 rounded-xl border border-border bg-[linear-gradient(120deg,color-mix(in_oklch,var(--primary)_14%,var(--panel)),var(--panel))] px-4 py-2.5 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-2 rounded-lg border border-border bg-[linear-gradient(120deg,color-mix(in_oklch,var(--primary)_14%,var(--panel)),var(--panel))] px-4 py-2.5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-3">
           <span className="h-6 w-1 rounded-full bg-primary" />
           <div>
@@ -789,7 +789,7 @@ export default function CockpitPage() {
           <select
             value={from}
             onChange={(e) => setFrom(e.target.value)}
-            className="h-7 rounded-md border border-border bg-panel px-2 text-xs text-foreground outline-none focus:border-primary"
+            className="h-9 rounded-lg border border-border bg-panel px-3 text-xs text-foreground outline-none focus:border-primary"
           >
             {MONTHS.map((m) => (
               <option key={m} value={m}>
@@ -801,7 +801,7 @@ export default function CockpitPage() {
           <select
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            className="h-7 rounded-md border border-border bg-panel px-2 text-xs text-foreground outline-none focus:border-primary"
+            className="h-9 rounded-lg border border-border bg-panel px-3 text-xs text-foreground outline-none focus:border-primary"
           >
             {MONTHS.map((m) => (
               <option key={m} value={m}>
@@ -855,9 +855,9 @@ export default function CockpitPage() {
         </div>
 
         {/* 4 大阶段标准工业指标卡 —— 4 列标准栅格 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {/* 阶段 1：原材料获取 */}
-          <div className="rounded-xl border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
+          <div className="rounded-lg border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs pb-1 border-b border-border/60">
                 <div className="flex items-center gap-2 font-bold text-foreground">
@@ -893,7 +893,7 @@ export default function CockpitPage() {
           </div>
 
           {/* 阶段 2：生产制造 */}
-          <div className="rounded-xl border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
+          <div className="rounded-lg border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 font-bold text-foreground">
@@ -929,7 +929,7 @@ export default function CockpitPage() {
           </div>
 
           {/* 阶段 3：原材料运输 */}
-          <div className="rounded-xl border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
+          <div className="rounded-lg border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 font-bold text-foreground">
@@ -965,7 +965,7 @@ export default function CockpitPage() {
           </div>
 
           {/* 阶段 4：废弃物处理 */}
-          <div className="rounded-xl border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
+          <div className="rounded-lg border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 font-bold text-foreground">
@@ -1110,7 +1110,7 @@ export default function CockpitPage() {
 
         {/* 视图展现：卡片模式 (Card View) */}
         {viewMode === 'card' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
             {filteredProducts.map((p) => {
               const IconComponent = p.icon
 
@@ -1118,7 +1118,7 @@ export default function CockpitPage() {
                 <div
                   key={p.id}
                   onClick={() => setModalProduct(p)}
-                  className="group relative flex flex-col justify-between rounded-xl border border-border/80 bg-card p-4 shadow-xs transition-all cursor-pointer hover:border-primary/70 hover:shadow-md hover:bg-card/90"
+                  className="group relative flex flex-col justify-between rounded-lg border border-border/80 bg-card p-4 shadow-xs transition-all cursor-pointer hover:border-primary/70 hover:shadow-md hover:bg-card/90"
                 >
                   <div>
                     {/* 1. 卡片头部：产品身份与综合碳足迹核心大指标一体化呈现 */}

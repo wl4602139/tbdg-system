@@ -12,18 +12,27 @@ import { useRouter } from 'next/navigation'
 import { Database, Boxes, CalendarRange, Search, RotateCcw, ArrowUpRight } from 'lucide-react'
 import { Panel, DataTable } from '@/components/shared/primitives'
 import { Select } from '@/components/shared/select'
-import { industries, categoriesOfInd, modelsOfIndCat } from '@/lib/procurement'
+import {
+  industries,
+  majorCategoriesOf,
+  mediumCategoriesOf,
+  modelsOf,
+} from '@/lib/procurement'
 import { modelAccounting } from '@/lib/accounting'
 
 type Granularity = 'month' | 'year' | 'range'
 type ViewMode = 'model' | 'measured' | 'category'
 const ALL_UNIT = '全部经营单位'
+const ALL_MAJOR = '全部大类'
+const ALL_MEDIUM = '全部中类'
 const DEFAULT_FROM = '2026-06'
 const DEFAULT_TO = '2026-08'
 
 type FactorEntry = {
   id: string
   ind: string
+  majorCat: string
+  mediumCat: string
   cat: string
   model: string
   unit: string
@@ -36,6 +45,8 @@ type FactorEntry = {
 export function RealSceneView() {
   const router = useRouter()
   const [ind, setInd] = useState('变压器')
+  const [majorCat, setMajorCat] = useState(ALL_MAJOR)
+  const [mediumCat, setMediumCat] = useState(ALL_MEDIUM)
   const [granularity, setGranularity] = useState<Granularity>('range')
   const [from, setFrom] = useState(DEFAULT_FROM)
   const [to, setTo] = useState(DEFAULT_TO)
@@ -45,7 +56,36 @@ export function RealSceneView() {
   // 视图模式（由上方卡片点击切换，直接作为筛选设置）
   const [view, setView] = useState<ViewMode>('model')
   // 提交态
-  const [applied, setApplied] = useState({ ind: '变压器', granularity: 'range' as Granularity, from: DEFAULT_FROM, to: DEFAULT_TO, year: '2026', unit: ALL_UNIT, kw: '' })
+  const [applied, setApplied] = useState({
+    ind: '变压器',
+    majorCat: ALL_MAJOR,
+    mediumCat: ALL_MEDIUM,
+    granularity: 'range' as Granularity,
+    from: DEFAULT_FROM,
+    to: DEFAULT_TO,
+    year: '2026',
+    unit: ALL_UNIT,
+    kw: '',
+  })
+
+  // 大类与中类下拉选项
+  const majorCatOptions = useMemo(() => {
+    return [
+      { label: '全部产品大类', value: ALL_MAJOR },
+      ...majorCategoriesOf(ind).map((c) => ({ label: c, value: c })),
+    ]
+  }, [ind])
+
+  const mediumCatOptions = useMemo(() => {
+    const meds =
+      majorCat === ALL_MAJOR
+        ? Array.from(new Set(majorCategoriesOf(ind).flatMap((maj) => mediumCategoriesOf(ind, maj))))
+        : mediumCategoriesOf(ind, majorCat)
+    return [
+      { label: '全部产品中类', value: ALL_MEDIUM },
+      ...meds.map((m) => ({ label: m, value: m })),
+    ]
+  }, [ind, majorCat])
 
   // 根据粒度换算查询区间
   const range = useMemo(() => {
@@ -61,23 +101,30 @@ export function RealSceneView() {
     return `${range.from} 至 ${range.to}`
   }, [applied.granularity, applied.year, applied.from, range.from, range.to])
 
-  // 全量因子：该产业下 分类→型号→各生产经营单位 的已核算结果（实测明细）
+  // 全量因子：该产业下 大类→中类→型号→各生产经营单位 的已核算结果（实测明细）
   const allEntries = useMemo<FactorEntry[]>(() => {
     const out: FactorEntry[] = []
-    for (const cat of categoriesOfInd(applied.ind)) {
-      for (const model of modelsOfIndCat(applied.ind, cat)) {
-        for (const r of modelAccounting(model, applied.ind)) {
-          out.push({
-            id: `${model}|${r.unit}`,
-            ind: applied.ind,
-            cat,
-            model,
-            unit: r.unit,
-            perUnit: r.perUnit,
-            perFeature: r.perFeature,
-            feature: r.feature,
-            featureUnit: r.featureUnit,
-          })
+    const majorCats = majorCategoriesOf(applied.ind)
+    for (const maj of majorCats) {
+      const medCats = mediumCategoriesOf(applied.ind, maj)
+      for (const med of medCats) {
+        const models = modelsOf(applied.ind, maj, med)
+        for (const model of models) {
+          for (const r of modelAccounting(model, applied.ind)) {
+            out.push({
+              id: `${model}|${r.unit}`,
+              ind: applied.ind,
+              majorCat: maj,
+              mediumCat: med,
+              cat: med,
+              model,
+              unit: r.unit,
+              perUnit: r.perUnit,
+              perFeature: r.perFeature,
+              feature: r.feature,
+              featureUnit: r.featureUnit,
+            })
+          }
         }
       }
     }
@@ -89,20 +136,22 @@ export function RealSceneView() {
     [allEntries],
   )
 
-  // 实测明细（经关键词、经营单位筛选后）
+  // 实测明细（经产品大类、产品中类、关键词、经营单位筛选后）
   const entries = useMemo(() => {
     return allEntries.filter((e) => {
+      if (applied.majorCat !== ALL_MAJOR && e.majorCat !== applied.majorCat) return false
+      if (applied.mediumCat !== ALL_MEDIUM && e.mediumCat !== applied.mediumCat) return false
       if (applied.unit !== ALL_UNIT && e.unit !== applied.unit) return false
-      if (applied.kw && !`${e.model}${e.cat}`.toLowerCase().includes(applied.kw.toLowerCase())) return false
+      if (applied.kw && !`${e.model}${e.cat}${e.majorCat}${e.mediumCat}`.toLowerCase().includes(applied.kw.toLowerCase())) return false
       return true
     })
-  }, [allEntries, applied.unit, applied.kw])
+  }, [allEntries, applied.majorCat, applied.mediumCat, applied.unit, applied.kw])
 
   // 视图一：同一型号跨经营单位取平均 —— 每个型号一条
   const modelRows = useMemo(() => {
-    const map = new Map<string, { cat: string; model: string; ind: string; perUnitSum: number; perFeatureSum: number; n: number; featureUnit: string }>()
+    const map = new Map<string, { majorCat: string; mediumCat: string; cat: string; model: string; ind: string; perUnitSum: number; perFeatureSum: number; n: number; featureUnit: string }>()
     for (const e of entries) {
-      const cur = map.get(e.model) ?? { cat: e.cat, model: e.model, ind: e.ind, perUnitSum: 0, perFeatureSum: 0, n: 0, featureUnit: e.featureUnit }
+      const cur = map.get(e.model) ?? { majorCat: e.majorCat, mediumCat: e.mediumCat, cat: e.cat, model: e.model, ind: e.ind, perUnitSum: 0, perFeatureSum: 0, n: 0, featureUnit: e.featureUnit }
       cur.perUnitSum += e.perUnit
       cur.perFeatureSum += e.perFeature
       cur.n += 1
@@ -111,6 +160,8 @@ export function RealSceneView() {
     return Array.from(map.values()).map((m) => ({
       id: m.model,
       ind: m.ind,
+      majorCat: m.majorCat,
+      mediumCat: m.mediumCat,
       cat: m.cat,
       model: m.model,
       unitCount: m.n,
@@ -121,19 +172,21 @@ export function RealSceneView() {
     }))
   }, [entries, rangeLabel])
 
-  // 视图三：按细分产品类别聚合 —— 每个类别一条（仅单位产品碳足迹）
+  // 视图三：按产品中类聚合 —— 每个类别一条（仅单位产品碳足迹）
   const categoryRows = useMemo(() => {
-    const map = new Map<string, { cat: string; ind: string; perFeatureSum: number; n: number; featureUnit: string; models: Set<string> }>()
+    const map = new Map<string, { majorCat: string; mediumCat: string; cat: string; ind: string; perFeatureSum: number; n: number; featureUnit: string; models: Set<string> }>()
     for (const e of entries) {
-      const cur = map.get(e.cat) ?? { cat: e.cat, ind: e.ind, perFeatureSum: 0, n: 0, featureUnit: e.featureUnit, models: new Set<string>() }
+      const cur = map.get(e.mediumCat) ?? { majorCat: e.majorCat, mediumCat: e.mediumCat, cat: e.cat, ind: e.ind, perFeatureSum: 0, n: 0, featureUnit: e.featureUnit, models: new Set<string>() }
       cur.perFeatureSum += e.perFeature
       cur.n += 1
       cur.models.add(e.model)
-      map.set(e.cat, cur)
+      map.set(e.mediumCat, cur)
     }
     return Array.from(map.values()).map((c) => ({
-      id: c.cat,
+      id: c.mediumCat,
       ind: c.ind,
+      majorCat: c.majorCat,
+      mediumCat: c.mediumCat,
       cat: c.cat,
       modelCount: c.models.size,
       perFeature: c.perFeatureSum / c.n,
@@ -153,22 +206,22 @@ export function RealSceneView() {
   ]
 
   function onQuery() {
-    setApplied({ ind, granularity, from, to, year, unit, kw })
+    setApplied({ ind, majorCat, mediumCat, granularity, from, to, year, unit, kw })
   }
   function onReset() {
-    setInd('变压器'); setGranularity('range'); setFrom(DEFAULT_FROM); setTo(DEFAULT_TO); setYear('2026'); setUnit(ALL_UNIT); setKw('')
-    setApplied({ ind: '变压器', granularity: 'range', from: DEFAULT_FROM, to: DEFAULT_TO, year: '2026', unit: ALL_UNIT, kw: '' })
+    setInd('变压器'); setMajorCat(ALL_MAJOR); setMediumCat(ALL_MEDIUM); setGranularity('range'); setFrom(DEFAULT_FROM); setTo(DEFAULT_TO); setYear('2026'); setUnit(ALL_UNIT); setKw('')
+    setApplied({ ind: '变压器', majorCat: ALL_MAJOR, mediumCat: ALL_MEDIUM, granularity: 'range', from: DEFAULT_FROM, to: DEFAULT_TO, year: '2026', unit: ALL_UNIT, kw: '' })
   }
 
-  function toDetail(ind: string, cat: string, model: string, unit?: string) {
-    const q = new URLSearchParams({ ind, cat, model, ...(unit ? { unit } : {}) })
+  function toDetail(ind: string, majorCat: string, mediumCat: string, model: string, unit?: string) {
+    const q = new URLSearchParams({ ind, majorCat, mediumCat, cat: mediumCat, model, ...(unit ? { unit } : {}) })
     router.push(`/carbon-footprint/database/accounting?${q.toString()}`)
   }
 
-  const detailBtn = (ind: string, cat: string, model: string, unit?: string) => (
+  const detailBtn = (ind: string, majorCat: string, mediumCat: string, model: string, unit?: string) => (
     <button
       type="button"
-      onClick={() => toDetail(ind, cat, model, unit)}
+      onClick={() => toDetail(ind, majorCat, mediumCat, model, unit)}
       className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
     >
       因子详情 <ArrowUpRight className="size-3.5" />
@@ -182,13 +235,14 @@ export function RealSceneView() {
         title: '实测值记录明细',
         desc: '各经营单位对同一型号的实测碳足迹明细；点击「因子详情」穿透至碳足迹核算查看数据来源与算法',
         columns: [
-          { key: 'cat', label: '细分类别' },
+          { key: 'majorCat', label: '产品大类' },
+          { key: 'mediumCat', label: '产品中类' },
           { key: 'model', label: '产品型号', className: 'font-mono text-xs text-foreground' },
           { key: 'unit', label: '经营单位' },
           { key: 'perUnit', label: '单台碳足迹', align: 'right', className: 'font-mono', render: (r: any) => <span>{r.perUnit.toLocaleString()} <span className="text-[10px] text-muted-foreground">kgCO2e/台</span></span> },
           { key: 'perFeature', label: '单位产品碳足迹', align: 'right', className: 'font-mono', render: (r: any) => <span>{r.perFeature.toFixed(4)} <span className="text-[10px] text-muted-foreground">kgCO2e/{r.featureUnit}</span></span> },
           { key: 'time', label: '数据时间', align: 'right', className: 'font-mono text-xs text-muted-foreground', render: () => rangeLabel },
-          { key: 'action', label: '操作', align: 'right', render: (r: any) => detailBtn(r.ind, r.cat, r.model, r.unit) },
+          { key: 'action', label: '操作', align: 'right', render: (r: any) => detailBtn(r.ind, r.majorCat, r.mediumCat, r.model, r.unit) },
         ],
         rows: entries as any[],
       }
@@ -198,7 +252,8 @@ export function RealSceneView() {
         title: '细分类别碳足迹',
         desc: '按细分产品类别聚合的单位产品碳足迹（该类别下各型号取平均），有几个类别展示几条',
         columns: [
-          { key: 'cat', label: '细分类别' },
+          { key: 'majorCat', label: '产品大类' },
+          { key: 'mediumCat', label: '产品中类' },
           { key: 'modelCount', label: '覆盖型号', align: 'right', className: 'font-mono', render: (r: any) => <span>{r.modelCount} <span className="text-[10px] text-muted-foreground">个</span></span> },
           { key: 'perFeature', label: '单位产品碳足迹', align: 'right', className: 'font-mono', render: (r: any) => <span>{r.perFeature.toFixed(4)} <span className="text-[10px] text-muted-foreground">kgCO2e/{r.featureUnit}</span></span> },
           { key: 'time', label: '数据时间', align: 'right', className: 'font-mono text-xs text-muted-foreground', render: () => rangeLabel },
@@ -211,13 +266,14 @@ export function RealSceneView() {
       title: '产品碳足迹因子清单',
       desc: '同一型号跨经营单位取平均后的产品碳足迹因子，每个型号一条；点击「因子详情」穿透至碳足迹核算查看数据来源与算法',
       columns: [
-        { key: 'cat', label: '细分类别' },
+        { key: 'majorCat', label: '产品大类' },
+        { key: 'mediumCat', label: '产品中类' },
         { key: 'model', label: '产品型号', className: 'font-mono text-xs text-foreground' },
         { key: 'unitCount', label: '生产单位数', align: 'right', className: 'font-mono', render: (r: any) => <span>{r.unitCount} <span className="text-[10px] text-muted-foreground">家平均</span></span> },
         { key: 'perUnit', label: '单台碳足迹(均)', align: 'right', className: 'font-mono', render: (r: any) => <span>{r.perUnit.toLocaleString()} <span className="text-[10px] text-muted-foreground">kgCO2e/台</span></span> },
         { key: 'perFeature', label: '单位产品碳足迹(均)', align: 'right', className: 'font-mono', render: (r: any) => <span>{r.perFeature.toFixed(4)} <span className="text-[10px] text-muted-foreground">kgCO2e/{r.featureUnit}</span></span> },
         { key: 'time', label: '数据时间', align: 'right', className: 'font-mono text-xs text-muted-foreground', render: () => rangeLabel },
-        { key: 'action', label: '操作', align: 'right', render: (r: any) => detailBtn(r.ind, r.cat, r.model) },
+        { key: 'action', label: '操作', align: 'right', render: (r: any) => detailBtn(r.ind, r.majorCat, r.mediumCat, r.model) },
       ],
       rows: modelRows as any[],
     }
@@ -231,23 +287,50 @@ export function RealSceneView() {
         title="实景数据库"
         desc="已核算完成的产品型号碳足迹因子，作为最终成果沉淀，支持按时间检索、按产品与经营单位筛选，并可穿透追溯核算过程"
       >
-        {/* 产品标签（产业宏观产品） */}
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="mr-1 text-xs text-muted-foreground">产品</span>
-          {industries.map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setInd(p)}
-              className={`rounded-full border px-3 py-1 text-sm transition-colors ${
-                ind === p
-                  ? 'border-primary bg-primary/15 text-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
-              }`}
-            >
-              {p}
-            </button>
-          ))}
+        {/* 产品产业、产品大类与产品中类（种类）多级筛选 */}
+        <div className="mb-4 flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">产业</span>
+            {industries.map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => {
+                  setInd(p)
+                  setMajorCat(ALL_MAJOR)
+                  setMediumCat(ALL_MEDIUM)
+                }}
+                className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+                  ind === p
+                    ? 'border-primary bg-primary/15 text-primary font-medium'
+                    : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+
+          <div className="h-5 w-px bg-border/60" />
+
+          {/* 产品大类 */}
+          <Select
+            label="产品大类"
+            value={majorCat}
+            onChange={(v) => {
+              setMajorCat(v)
+              setMediumCat(ALL_MEDIUM)
+            }}
+            options={majorCatOptions}
+          />
+
+          {/* 产品中类（种类） */}
+          <Select
+            label="产品中类"
+            value={mediumCat}
+            onChange={(v) => setMediumCat(v)}
+            options={mediumCatOptions}
+          />
         </div>
 
         <div className="flex flex-wrap items-end gap-3">

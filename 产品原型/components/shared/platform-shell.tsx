@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Sparkles,
   Search,
+  Globe,
   Globe2,
   Leaf,
   FileText,
@@ -205,104 +206,119 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
 
   return (
     <div className="tech-grid flex min-h-screen bg-background font-sans antialiased text-foreground">
-      {/* 1. 侧边导航 (深色半透毛玻璃科技蓝) */}
+      {/* 1. 侧边导航 (深色半透毛玻璃科技蓝 260px 固定宽) */}
       <aside
         className={cn(
           'sticky top-0 flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar backdrop-blur-md transition-[width] duration-300 z-30',
-          sidebarOpen ? 'w-64' : 'w-16'
+          sidebarOpen ? 'w-[260px]' : 'w-16'
         )}
       >
-        {/* 顶部特变电工官方 LOGO 品牌栏 */}
-        <div className="flex items-center justify-between border-b border-sidebar-border px-3 py-4 shrink-0">
-          <Link href="/" className={cn('flex items-center gap-2.5', !sidebarOpen && 'justify-center')} title="返回总览门户">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-primary/40 bg-primary/15 text-sm font-bold text-primary">
-              TBEA
-            </div>
-            {sidebarOpen && (
-              <div className="leading-tight">
-                <p className="text-sm font-semibold text-foreground">特变电工电装集团</p>
-                <p className="text-[11px] text-muted-foreground">{currentPlatform.name}</p>
+        {/* 顶部特变电工官方 LOGO 品牌栏 + 业务中心选择器 (与官方设计规范图 100% 像素级对齐) */}
+        <div className="px-4 pt-6 pb-5 shrink-0 border-b border-sidebar-border">
+          {sidebarOpen ? (
+            <div className="flex flex-col items-center">
+              {/* 官方纯白矢量 LOGO */}
+              <Link
+                href="/"
+                className="group focus:outline-none transition-transform hover:scale-[1.02]"
+                title="特变电工能碳数字化双中心"
+              >
+                <img
+                  src="/logo-white.png"
+                  alt="TBEA 特变电工"
+                  className="h-[22px] w-auto object-contain mx-auto"
+                />
+              </Link>
+
+              {/* 系统中文大标题 */}
+              <div className="mt-4 text-center">
+                <span className="font-bold text-[18px] tracking-[0.06em] text-white block leading-tight">
+                  {resolvedPlatformKey === 'carbon-footprint' ? '产品碳足迹集采中心' : '零碳园区集控中心'}
+                </span>
+                {/* 系统英文小字 (缩小字号，强制单行显示) */}
+                <span className="text-[8px] font-medium text-white/75 block tracking-[0.1em] uppercase text-center mt-1.5 leading-none whitespace-nowrap">
+                  {resolvedPlatformKey === 'carbon-footprint' ? 'PRODUCT CARBON FOOTPRINT CENTER' : 'PARK CENTRALIZED CONTROL CENTER'}
+                </span>
               </div>
-            )}
-          </Link>
-          {sidebarOpen && (
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(false)}
-              className="rounded p-1 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
-              aria-label="收起导航"
-            >
-              <Menu className="size-4" />
-            </button>
+
+              {/* 业务中心切换圆角胶囊下拉菜单 */}
+              <div className="relative w-full mt-5" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen((v) => !v)}
+                  className="flex w-full items-center justify-between rounded-xl border border-white/25 bg-white/10 hover:bg-white/15 active:bg-white/20 px-3.5 py-2.5 text-white transition-all cursor-pointer shadow-xs backdrop-blur-xs select-none"
+                  title="点击切换业务中心"
+                >
+                  <div className="flex items-center gap-2.5 overflow-hidden">
+                    <Globe className="size-5 text-white shrink-0" strokeWidth={1.8} />
+                    <span className="text-[14px] font-medium text-white tracking-wide truncate">
+                      {resolvedPlatformKey === 'carbon-footprint' ? '产品碳足迹集采中心' : '零碳园区集控中心'}
+                    </span>
+                  </div>
+                  <ChevronDown className={cn('size-4 text-white/90 shrink-0 transition-transform duration-200', dropdownOpen && 'rotate-180')} />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-1.5 rounded-xl border border-border bg-popover p-1.5 shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95 text-foreground">
+                    <div className="px-2.5 py-1 mb-1 border-b border-border/50 flex items-center justify-between">
+                      <span className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">切换业务中心</span>
+                      <span className="text-[10px] text-muted-foreground font-mono">DUAL CENTER</span>
+                    </div>
+                    {centers.map((center) => {
+                      const isSelected = resolvedPlatformKey === center.key
+                      const CenterIcon = center.icon
+                      return (
+                        <button
+                          key={center.key}
+                          type="button"
+                          onClick={() => {
+                            setDropdownOpen(false)
+                            if (!isSelected) router.push(center.href)
+                          }}
+                          className={cn(
+                            'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs text-left transition-colors cursor-pointer',
+                            isSelected ? 'bg-primary/20 font-bold text-primary' : 'text-foreground hover:bg-accent'
+                          )}
+                        >
+                          <CenterIcon className="size-4 text-primary shrink-0" />
+                          <span className="font-semibold truncate flex-1">{center.name}</span>
+                          {isSelected && <Check className="size-3.5 text-primary shrink-0" />}
+                        </button>
+                      )
+                    })}
+                    <div className="border-t border-border/50 mt-1 pt-1">
+                      <Link
+                        href="/"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      >
+                        <Globe className="size-4 text-primary" />
+                        返回总览门户
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <Link href="/" title="特变电工能碳数字化双中心">
+                <Globe className="size-6 text-white hover:text-white/80 transition-colors" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(true)}
+                className="flex size-8 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+                aria-label="展开导航"
+              >
+                <Menu className="size-4" />
+              </button>
+            </div>
           )}
         </div>
 
-        {!sidebarOpen && (
-          <button
-            type="button"
-            onClick={() => setSidebarOpen(true)}
-            className="mx-auto mt-3 flex size-9 items-center justify-center rounded-md border border-border bg-panel text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground cursor-pointer"
-            aria-label="展开导航"
-          >
-            <Menu className="size-4" />
-          </button>
-        )}
-
-        {/* 平台切换 (展开态) */}
-        {sidebarOpen && (
-          <div className="relative px-3 py-3 shrink-0" ref={dropdownRef}>
-            <button
-              type="button"
-              onClick={() => setDropdownOpen((v) => !v)}
-              className="flex w-full items-center justify-between rounded-lg border border-border bg-panel px-3 py-2 text-sm text-foreground transition-colors hover:border-primary/50 cursor-pointer"
-            >
-              <span className="flex items-center gap-2 text-xs font-semibold">
-                <CurrentCenterIcon className="size-4 text-primary" />
-                {currentCenter.name}
-              </span>
-              <ChevronDown className={cn('size-4 text-muted-foreground transition-transform', dropdownOpen && 'rotate-180')} />
-            </button>
-            {dropdownOpen && (
-              <div className="absolute left-3 right-3 z-40 mt-1 rounded-xl border border-border bg-popover p-1 shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95">
-                {centers.map((center) => {
-                  const isSelected = resolvedPlatformKey === center.key
-                  const CenterIcon = center.icon
-                  return (
-                    <button
-                      key={center.key}
-                      type="button"
-                      onClick={() => {
-                        setDropdownOpen(false)
-                        if (!isSelected) router.push(center.href)
-                      }}
-                      className={cn(
-                        'flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs text-left transition-colors cursor-pointer',
-                        isSelected ? 'bg-primary/15 font-bold text-primary' : 'text-popover-foreground hover:bg-accent'
-                      )}
-                    >
-                      <CenterIcon className="size-4 text-primary shrink-0" />
-                      <span className="font-semibold truncate flex-1">{center.name}</span>
-                      {isSelected && <Check className="size-3.5 text-primary shrink-0" />}
-                    </button>
-                  )
-                })}
-                <div className="border-t border-border mt-1 pt-1">
-                  <Link
-                    href="/"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                  >
-                    <Globe2 className="size-4 text-primary" />
-                    返回总览门户
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* 菜单列表 */}
-        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+        {/* 菜单列表 (文字行高/间距 30px) */}
+        <nav className="flex-1 overflow-y-auto p-2 space-y-1">
           <ul className="flex flex-col gap-1">
             {currentPlatform.nav.map((item) => {
               const Icon = item.icon
@@ -319,15 +335,15 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                       href={item.href}
                       title={!sidebarOpen ? item.title : undefined}
                       className={cn(
-                        'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors',
+                        'flex items-center gap-2.5 px-3 h-[36px] rounded-lg text-sm font-medium transition-all group my-0.5',
                         isActive
-                          ? 'bg-primary/15 font-medium text-primary'
+                          ? 'bg-primary text-primary-foreground font-bold shadow-xs'
                           : 'text-sidebar-foreground hover:bg-accent/50 hover:text-foreground',
                         !sidebarOpen && 'justify-center px-2'
                       )}
                     >
                       <Icon className="size-4 shrink-0" />
-                      {sidebarOpen && <span className="flex-1 text-xs truncate">{item.title}</span>}
+                      {sidebarOpen && <span className="flex-1 truncate">{item.title}</span>}
                     </Link>
                   </li>
                 )
@@ -340,16 +356,16 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                       type="button"
                       onClick={() => toggleSubMenu(item.title)}
                       className={cn(
-                        'flex flex-1 items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors text-left cursor-pointer',
+                        'flex flex-1 items-center gap-2.5 px-3 h-[36px] rounded-lg text-sm font-medium transition-all text-left cursor-pointer my-0.5',
                         isActive
-                          ? 'bg-primary/10 text-primary font-medium'
+                          ? 'bg-primary/20 text-primary font-bold'
                           : 'text-sidebar-foreground hover:bg-accent/50 hover:text-foreground',
                         !sidebarOpen && 'justify-center px-2'
                       )}
                       title={!sidebarOpen ? item.title : undefined}
                     >
                       <Icon className="size-4 shrink-0" />
-                      {sidebarOpen && <span className="flex-1 text-xs truncate">{item.title}</span>}
+                      {sidebarOpen && <span className="flex-1 truncate">{item.title}</span>}
                     </button>
                     {sidebarOpen && (
                       <button
@@ -363,7 +379,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                     )}
                   </div>
                   {sidebarOpen && isSubOpen && (
-                    <ul className="ml-6 mt-1 flex flex-col gap-0.5 border-l border-border pl-3">
+                    <ul className="ml-5 mt-1 flex flex-col gap-0.5 border-l border-border pl-2.5">
                       {item.children!.map((sub) => {
                         const isSubActive = isNavActive(pathname, sub.href)
                         return (
@@ -371,13 +387,13 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                             <Link
                               href={sub.href}
                               className={cn(
-                                'block rounded-md px-2.5 py-1.5 text-[12px] transition-colors',
+                                'flex items-center px-2.5 h-[32px] rounded-md text-xs transition-colors',
                                 isSubActive
-                                  ? 'bg-primary/15 font-medium text-primary'
+                                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
                                   : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground'
                               )}
                             >
-                              {sub.title}
+                              <span className="truncate">{sub.title}</span>
                             </Link>
                           </li>
                         )
@@ -406,6 +422,14 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
         {/* 顶栏 */}
         <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border bg-background/80 px-6 py-3 backdrop-blur-md">
           <div className="flex items-center gap-2 text-sm">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors shrink-0 cursor-pointer"
+              title="折叠/展开侧边栏"
+            >
+              <Menu className="size-4" />
+            </button>
             <Globe2 className="size-4 text-primary" />
             <span className="text-muted-foreground font-medium">{currentPlatform.name}</span>
             <ChevronRight className="size-3.5 text-muted-foreground" />

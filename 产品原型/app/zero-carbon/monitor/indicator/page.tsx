@@ -21,6 +21,8 @@ import {
   Sparkles,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Download,
   ExternalLink,
   Table,
@@ -37,6 +39,7 @@ import {
   Filter,
   Maximize2,
 } from 'lucide-react'
+import { ExportButton } from '@/components/shared/primitives'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend, SankeyFlow } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
@@ -51,6 +54,7 @@ import {
   getProductLinesForUnit,
   getSubcategoriesForLine,
   convertSubcategoryToMetric,
+  getSubcategory5Metrics,
   PRODUCT_TO_LINES_MAPPING,
   PRODUCT_LINE_DICTIONARY,
   LINE_TO_PRODUCT_CATEGORY_MAPPING,
@@ -1658,7 +1662,7 @@ function getMetricSankeyData(
   // 🌟 全量 28 个直属工厂节点定义（从上到下严格依照公司组织结构严格排列）
   const GROUP_LEVEL_NODES = [
     // 1级 集团总部
-    { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
+    { name: '电装集团', depth: 0, itemStyle: { color: '#2C7CFF' } },
 
     // 2级 6 大经营制造公司 (从上到下按企业结构)
     { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
@@ -1763,7 +1767,7 @@ function getMetricSankeyData(
           { name: '特能建', depth: 1, itemStyle: { color: '#00474f' } },
           { name: '合容电气', depth: 1, itemStyle: { color: '#13c2c2' } },
           { name: '赛杰爱迪', depth: 1, itemStyle: { color: '#36cfc9' } },
-          { name: '特大容量变压器车间', depth: 2, itemStyle: { color: '#1677ff' } },
+          { name: '特大容量变压器车间', depth: 2, itemStyle: { color: '#2C7CFF' } },
           { name: 'SMT自动化贴片线', depth: 2, itemStyle: { color: '#722ed1' } },
           { name: '中低压开关柜总装线', depth: 2, itemStyle: { color: '#fa8c16' } },
           { name: 'GIS真空充气站', depth: 2, itemStyle: { color: '#52c41a' } },
@@ -1801,7 +1805,7 @@ function getMetricSankeyData(
           { name: '智能电气公司', depth: 1, itemStyle: { color: '#b37feb' } },
           { name: '京津冀公司', depth: 1, itemStyle: { color: '#d3adf7' } },
           { name: '银利电气', depth: 1, itemStyle: { color: '#efdbff' } },
-          { name: '特高压变压器主线', depth: 2, itemStyle: { color: '#1677ff' } },
+          { name: '特高压变压器主线', depth: 2, itemStyle: { color: '#2C7CFF' } },
           { name: '干变浇注固化生产线', depth: 2, itemStyle: { color: '#13c2c2' } },
           { name: '硅钢智能高速纵剪线', depth: 2, itemStyle: { color: '#fa8c16' } },
           { name: '智能节能配变生产线', depth: 2, itemStyle: { color: '#389e0d' } },
@@ -1832,7 +1836,7 @@ function getMetricSankeyData(
           { name: '曙光公司', depth: 1, itemStyle: { color: '#fa8c16' } },
           { name: '智缆公司', depth: 1, itemStyle: { color: '#ffa940' } },
           { name: '昭和公司', depth: 1, itemStyle: { color: '#ffd591' } },
-          { name: '超高压VCV立塔交联线', depth: 2, itemStyle: { color: '#1677ff' } },
+          { name: '超高压VCV立塔交联线', depth: 2, itemStyle: { color: '#2C7CFF' } },
           { name: '中低压CCV悬链交联线', depth: 2, itemStyle: { color: '#722ed1' } },
           { name: '特种智能电缆挤出线', depth: 2, itemStyle: { color: '#13c2c2' } },
           { name: '高压电缆附件模压工段', depth: 2, itemStyle: { color: '#389e0d' } },
@@ -1857,7 +1861,7 @@ function getMetricSankeyData(
           { name: '新缆厂', depth: 0, itemStyle: { color: '#52c41a' } },
           { name: '新缆厂本部', depth: 1, itemStyle: { color: '#389e0d' } },
           { name: '新疆电缆公司', depth: 1, itemStyle: { color: '#52c41a' } },
-          { name: '35kV干法交联生产线', depth: 2, itemStyle: { color: '#1677ff' } },
+          { name: '35kV干法交联生产线', depth: 2, itemStyle: { color: '#2C7CFF' } },
           { name: '铝合金导线大拉机组', depth: 2, itemStyle: { color: '#13c2c2' } },
           { name: '变压吸附自制氮气站', depth: 2, itemStyle: { color: '#fa8c16' } },
         ],
@@ -1877,7 +1881,7 @@ function getMetricSankeyData(
         nodes: [
           { name: '德缆公司', depth: 0, itemStyle: { color: '#eb2f96' } },
           { name: '德缆公司本部', depth: 1, itemStyle: { color: '#c41d7f' } },
-          { name: '交联电缆智能挤出线', depth: 2, itemStyle: { color: '#1677ff' } },
+          { name: '交联电缆智能挤出线', depth: 2, itemStyle: { color: '#2C7CFF' } },
           { name: '环保橡套连续硫化线', depth: 2, itemStyle: { color: '#13c2c2' } },
           { name: '多头铜丝高速拉拔机', depth: 2, itemStyle: { color: '#fa8c16' } },
         ],
@@ -2066,7 +2070,7 @@ function getMetricSankeyData(
       return {
         unit: 'MWh',
         nodes: [
-          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '电装集团', depth: 0, itemStyle: { color: '#2C7CFF' } },
           { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
           { name: '沈变公司', depth: 1, itemStyle: { color: '#2f54eb' } },
           { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
@@ -2102,7 +2106,7 @@ function getMetricSankeyData(
       return {
         unit: 'MWh',
         nodes: [
-          { name: '电装集团', depth: 0, itemStyle: { color: '#1677ff' } },
+          { name: '电装集团', depth: 0, itemStyle: { color: '#2C7CFF' } },
           { name: '衡变公司', depth: 1, itemStyle: { color: '#13c2c2' } },
           { name: '新变厂', depth: 1, itemStyle: { color: '#722ed1' } },
           { name: '鲁缆公司', depth: 1, itemStyle: { color: '#fa8c16' } },
@@ -2540,8 +2544,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'c_num',
           label: '二氧化碳排放量 C',
           unit: 'tCO2',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 1260 + (idx / Math.max(total - 1, 1)) * 24.5
             const val = denVal * item.value
@@ -2572,8 +2576,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'r_num',
           label: '非化石能源消费量 R',
           unit: 'tce',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 1260 + (idx / Math.max(total - 1, 1)) * 24.5
             const val = (denVal * item.value) / 100
@@ -2604,8 +2608,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'ez_num',
           label: '物理可溯源非化石电量 Ez',
           unit: '万kWh',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 510 + (idx / Math.max(total - 1, 1)) * 22.2
             const val = (denVal * item.value) / 100
@@ -2636,8 +2640,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'e_num',
           label: '综合能源消费量 E',
           unit: 'tce',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 8600 + (idx / Math.max(total - 1, 1)) * 258.6
             const val = denVal * item.value
@@ -2668,8 +2672,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'e_num',
           label: '综合能源消费量 E',
           unit: 'tce',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 27500 + (idx / Math.max(total - 1, 1)) * 1000
             const val = denVal * item.value
@@ -2700,8 +2704,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'res_num',
           label: '节能水平装备额定总功率 Res',
           unit: 'kW',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 55000 + (idx / Math.max(total - 1, 1)) * 3000
             const val = (denVal * item.value) / 100
@@ -2732,8 +2736,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'ncf_num',
           label: '开展碳足迹分析类别数 Ncf',
           unit: '个',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item) => Math.round((8 * item.value) / 100).toString(),
         },
         {
@@ -2757,8 +2761,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'e_num',
           label: '综合能源消费量 E',
           unit: 'tce',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
             const val = denVal * item.value
@@ -2789,8 +2793,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'q_num',
           label: '电能源消费量 Q_电',
           unit: metric.unit.startsWith('kWh') ? 'kWh' : '万kWh',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
             const val = denVal * item.value
@@ -2821,8 +2825,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'q_steam',
           label: '蒸汽能源消费量 Q_蒸汽',
           unit: metric.unit.startsWith('GJ') ? 'GJ' : 't',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
             const val = denVal * item.value
@@ -2853,8 +2857,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'q_gas',
           label: '天然气能源消费量 Q_天然气',
           unit: 'm³',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
             const val = denVal * item.value
@@ -2885,8 +2889,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'q_water',
           label: '水能源消费量 Q_水',
           unit: 't',
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 1500 + (idx / Math.max(total - 1, 1)) * 77.2
             const val = denVal * item.value
@@ -2921,8 +2925,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
           key: 'p_energy',
           label: energyLabel,
           unit: energyUnit,
-          headerClass: 'text-[#1677ff]',
-          valClass: 'text-[#1677ff] font-bold',
+          headerClass: 'text-[#2C7CFF]',
+          valClass: 'text-[#2C7CFF] font-bold',
           renderVal: (item, idx, total) => {
             const denVal = 14000 + (idx / Math.max(total - 1, 1)) * 824
             const val = denVal * item.value
@@ -2978,8 +2982,8 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
         key: 'numerator',
         label: numLabel,
         unit: numInfo.unit || undefined,
-        headerClass: 'text-[#1677ff]',
-        valClass: 'text-[#1677ff] font-bold',
+        headerClass: 'text-[#2C7CFF]',
+        valClass: 'text-[#2C7CFF] font-bold',
         renderVal: (item, idx, total) => {
           const timeFactor = 0.94 + (idx / Math.max(total - 1, 1)) * 0.06
           let val = numInfo.num * timeFactor
@@ -3860,6 +3864,7 @@ export default function IndicatorControlPage() {
   // 🌟 板块三【产线子分类管控指标】独立选中的 ERP 导出产品标签（去前缀说明）与搜索关键词
   const [selectedSubcategoryTag, setSelectedSubcategoryTag] = useState<string>('全部')
   const [lineSearchKey, setLineSearchKey] = useState('')
+  const [isSubcategoriesExpanded, setIsSubcategoriesExpanded] = useState<boolean>(false)
 
   // 🌟 关键制造工序能效对标指标独立选中的产品标签
   const [selectedProcessProduct, setSelectedProcessProduct] = useState<string | null>(null)
@@ -4000,6 +4005,34 @@ export default function IndicatorControlPage() {
     if (!currentProductLine || !currentSubcategoryTag) return []
     return getModelsForSubcategory(currentProductLine, currentSubcategoryTag, lineSearchKey)
   }, [currentProductLine, currentSubcategoryTag, lineSearchKey])
+
+  // 🌟 产线分类对应的基础能耗指标基准 (提供蒸汽、天然气、水耗基准)
+  const currentLineSpec = useMemo(() => {
+    if (!currentProductLine) return undefined
+    return PRODUCT_SPECIFIC_METRICS[currentProductLine] || PRODUCT_SPECIFIC_METRICS['高压产线']
+  }, [currentProductLine])
+
+  // 🌟 产线子分类（产品中类）搜索过滤列表
+  const filteredSubcategories = useMemo(() => {
+    if (!lineSearchKey || !lineSearchKey.trim()) {
+      return subcategoriesForCurrentLine
+    }
+    const q = lineSearchKey.trim().toLowerCase()
+    return subcategoriesForCurrentLine.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.code.toLowerCase().includes(q) ||
+        s.fullDesc.toLowerCase().includes(q)
+    )
+  }, [subcategoriesForCurrentLine, lineSearchKey])
+
+  // 🌟 实际展示的产品中类列表（产品种类超过2个且未搜索时，默认折叠仅展示前2个，点击展开全部）
+  const displayedSubcategories = useMemo(() => {
+    if (isSubcategoriesExpanded || lineSearchKey.trim() !== '') {
+      return filteredSubcategories
+    }
+    return filteredSubcategories.slice(0, 2)
+  }, [filteredSubcategories, isSubcategoriesExpanded, lineSearchKey])
 
   // 🌟 当前在关键制造工序能效对标指标中选中的产品
   const currentProcessProduct = useMemo(() => {
@@ -4541,6 +4574,7 @@ export default function IndicatorControlPage() {
           setSelectedNode(node)
           setSelectedProductLine(null)
           setSelectedSubcategoryTag('')
+          setIsSubcategoriesExpanded(false)
           setSelectedProcessProduct(null)
           setActiveViewMetric(null) // 切换组织节点时自动回到全景概览
         }}
@@ -4555,7 +4589,7 @@ export default function IndicatorControlPage() {
         {activeViewMetric !== null ? (
           <div className="space-y-3.5 animate-in fade-in zoom-in-95 duration-150">
             {/* 顶部面包屑与全景概览返回导航 */}
-            <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex items-center justify-between gap-3">
+            <div className="bg-card p-6 rounded-lg border border-border shadow-xs flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
@@ -4661,14 +4695,7 @@ export default function IndicatorControlPage() {
                     数据明细
                   </h3>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => alert(`正在导出【${activeViewMetric.name}】历史明细台账 (Excel)...`)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
-                >
-                  <Download className="size-3.5" />
-                  <span>导出</span>
-                </button>
+                <ExportButton onClick={() => alert(`正在导出【${activeViewMetric.name}】历史明细台账 (Excel)...`)} />
               </div>
 
               <div className="overflow-x-auto font-mono text-xs">
@@ -4729,9 +4756,9 @@ export default function IndicatorControlPage() {
           /* ========================================================================= */
           /* 模式 A: 全景概览 View (Section 1 5-cols, Section 2 5-cols, Section 3 4-cols) */
           /* ========================================================================= */
-          <div className="space-y-3.5">
+          <div className="space-y-6">
             {/* 1. 顶部 Header 与 统一时间筛选 */}
-            <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-xl border border-border shadow-xs">
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-6 rounded-lg border border-border shadow-xs">
               <div className="flex items-center gap-3">
                 <div className="size-9 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
                   <BarChart3 className="size-5" />
@@ -4747,7 +4774,7 @@ export default function IndicatorControlPage() {
                     onClick={() => setTimeDim('month')}
                     className={cn(
                       'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                      timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                      timeDim === 'month' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     月度
@@ -4757,7 +4784,7 @@ export default function IndicatorControlPage() {
                     onClick={() => setTimeDim('quarter')}
                     className={cn(
                       'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                      timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                      timeDim === 'quarter' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     季度
@@ -4767,7 +4794,7 @@ export default function IndicatorControlPage() {
                     onClick={() => setTimeDim('year')}
                     className={cn(
                       'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                      timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                      timeDim === 'year' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     年度
@@ -4776,13 +4803,13 @@ export default function IndicatorControlPage() {
 
                 {/* 时间范围选择控件 (随维度自适应切换) */}
                 {timeDim === 'month' && (
-                  <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
-                    <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+                  <div className="flex items-center gap-1.5 bg-panel px-3 h-9 rounded-lg border border-border text-sm shadow-2xs font-mono">
+                    <Calendar className="size-4 text-muted-foreground shrink-0" />
                     <input
                       type="month"
                       value={selectedMonthRange.start}
                       onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                      className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
+                      className="bg-transparent border-0 text-foreground text-sm focus:outline-none cursor-pointer"
                       title="起始月份"
                     />
                     <span className="text-muted-foreground font-sans">至</span>
@@ -4790,19 +4817,19 @@ export default function IndicatorControlPage() {
                       type="month"
                       value={selectedMonthRange.end}
                       onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                      className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
+                      className="bg-transparent border-0 text-foreground text-sm focus:outline-none cursor-pointer"
                       title="结束月份"
                     />
                   </div>
                 )}
 
                 {timeDim === 'quarter' && (
-                  <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
-                    <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+                  <div className="flex items-center gap-1.5 bg-panel px-3 h-9 rounded-lg border border-border text-sm shadow-2xs">
+                    <Calendar className="size-4 text-muted-foreground shrink-0" />
                     <select
                       value={selectedQuarter}
                       onChange={(e) => setSelectedQuarter(e.target.value)}
-                      className="bg-transparent border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                      className="bg-transparent border-0 text-foreground text-sm font-mono font-medium focus:outline-none cursor-pointer pr-1"
                     >
                       <option value="2026-Q1" className="bg-popover text-foreground">2026年 第1季度 (Q1)</option>
                       <option value="2026-Q2" className="bg-popover text-foreground">2026年 第2季度 (Q2)</option>
@@ -4814,12 +4841,12 @@ export default function IndicatorControlPage() {
                 )}
 
                 {timeDim === 'year' && (
-                  <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
-                    <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+                  <div className="flex items-center gap-1.5 bg-panel px-3 h-9 rounded-lg border border-border text-sm shadow-2xs">
+                    <Calendar className="size-4 text-muted-foreground shrink-0" />
                     <select
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(e.target.value)}
-                      className="bg-transparent border-0 text-foreground text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                      className="bg-transparent border-0 text-foreground text-sm font-mono font-medium focus:outline-none cursor-pointer pr-1"
                     >
                       <option value="2026" className="bg-popover text-foreground">2026 年度</option>
                       <option value="2025" className="bg-popover text-foreground">2025 年度</option>
@@ -4829,32 +4856,25 @@ export default function IndicatorControlPage() {
                 )}
 
                 {/* 导出按钮 */}
-                <button
-                  type="button"
-                  onClick={() => alert(`正在导出【${selectedNode.name}】指标管控报表 (Excel)...`)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-                >
-                  <Download className="size-3.5" />
-                  <span>导出</span>
-                </button>
+                <ExportButton onClick={() => alert(`正在导出【${selectedNode.name}】指标管控报表 (Excel)...`)} />
               </div>
             </div>
 
             {/* 🌟 依据节点层级区分呈现：集团级 (1级节点) 呈现 10 大指标联动看板 + 6 大单位横向 PK；单体公司/车间呈现产品与工序指标 */}
             {isGroupLevel ? (
-              <div className="space-y-3.5">
+              <div className="space-y-6">
                 {/* 一、经营单位及项目公司整体指标 (10 项指标卡片) */}
-                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+                <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
                   <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                     <div className="flex items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-primary shrink-0" />
-                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                      <h2 className="text-base font-bold text-foreground">
                         【一、经营单位及项目公司整体指标】
                       </h2>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 font-mono">
                     {currentGroupOverallMetrics.map((m) => {
                       const isSelected = selectedGroupMetricId === m.id
                       return (
@@ -4862,14 +4882,14 @@ export default function IndicatorControlPage() {
                           key={m.id}
                           onClick={() => setSelectedGroupMetricId(m.id)}
                           className={cn(
-                            'p-3.5 rounded-xl border transition-all cursor-pointer space-y-2 group shadow-2xs relative select-none bg-panel',
+                            'p-4 rounded-lg border transition-all cursor-pointer space-y-2 group shadow-2xs relative select-none bg-panel',
                             isSelected
                               ? 'border-primary ring-2 ring-primary/20 shadow-xs bg-primary/15'
                               : 'border-border hover:border-primary/40 hover:bg-accent/40'
                           )}
                         >
                           <div className="flex items-center justify-between font-sans gap-1">
-                            <span className={cn('text-[11px] font-bold truncate', isSelected ? 'text-primary' : 'text-foreground')} title={m.name}>
+                            <span className={cn('text-sm font-medium truncate', isSelected ? 'text-primary' : 'text-foreground')} title={m.name}>
                               {m.name}
                             </span>
                             {m.badge && (
@@ -4887,8 +4907,8 @@ export default function IndicatorControlPage() {
                           </div>
 
                           <div className="flex items-center justify-between">
-                            <div className={cn('text-lg font-extrabold transition-colors', isSelected ? 'text-primary' : 'text-foreground')}>
-                              {m.unit === '%' && m.curVal.endsWith('%') ? m.curVal.replace(/%+$/, '') : m.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{m.unit}</span>
+                            <div className={cn('text-2xl font-bold font-mono transition-colors', isSelected ? 'text-primary' : 'text-foreground')}>
+                              {m.unit === '%' && m.curVal.endsWith('%') ? m.curVal.replace(/%+$/, '') : m.curVal} <span className="text-sm font-normal text-muted-foreground font-sans">{m.unit}</span>
                             </div>
                             <button
                               type="button"
@@ -4902,7 +4922,7 @@ export default function IndicatorControlPage() {
                             </button>
                           </div>
 
-                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
                             <span className="text-muted-foreground">同比</span>
                             <span className="font-bold font-mono text-emerald-400">
                               {m.yoy} {m.isYoyDown ? '↓' : '↑'}
@@ -4915,7 +4935,7 @@ export default function IndicatorControlPage() {
                 </div>
 
                 {/* 二、1、2、3 级全景能流桑基图 */}
-                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-2">
+                <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
                   <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                     <div className="flex items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-primary shrink-0" />
@@ -4937,11 +4957,11 @@ export default function IndicatorControlPage() {
                 </div>
 
                 {/* 三、产品管控指标 (集团全谱系主要产品联动) */}
-                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+                <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
                   <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                     <div className="min-w-0 flex-1 flex items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-amber-400 shrink-0" />
-                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider shrink-0">
+                      <h2 className="text-base font-bold text-foreground shrink-0">
                         【三、产品管控指标】
                       </h2>
                       {availableProductLines.length > 0 && (
@@ -4950,6 +4970,7 @@ export default function IndicatorControlPage() {
                           activeItem={currentProductLine}
                           onSelect={(line) => {
                             setSelectedProductLine(line)
+                            setIsSubcategoriesExpanded(false)
                             const lineSubs = PRODUCT_LINE_DICTIONARY[line] || []
                             if (lineSubs.length > 0) {
                               setSelectedSubcategoryTag(lineSubs[0].name)
@@ -4968,7 +4989,7 @@ export default function IndicatorControlPage() {
                       <span className="text-xs font-medium">暂无相关产线！</span>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 font-mono">
                       {currentProductControlMetrics.map((pm) => {
                         return (
                           <div
@@ -4977,16 +4998,16 @@ export default function IndicatorControlPage() {
                             className="p-3.5 bg-panel hover:bg-amber-500/10 rounded-xl border border-border hover:border-amber-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
                           >
                             <div className="flex items-center justify-between font-sans">
-                              <span className="text-[11px] font-bold text-foreground truncate" title={pm.name}>
+                              <span className="text-sm font-medium text-foreground truncate" title={pm.name}>
                                 {pm.name}
                               </span>
                             </div>
 
-                            <div className="text-lg font-extrabold text-foreground group-hover:text-amber-400 transition-colors">
-                              {pm.curVal} <span className="text-[10.5px] font-normal text-muted-foreground font-sans">{pm.unit}</span>
+                            <div className="text-2xl font-bold font-mono text-foreground group-hover:text-amber-400 transition-colors">
+                              {pm.curVal} <span className="text-sm font-normal text-muted-foreground font-sans">{pm.unit}</span>
                             </div>
 
-                            <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                            <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
                               <span className="text-muted-foreground">同比</span>
                               <span className="font-bold text-emerald-400 font-mono">{pm.yoy} ↓</span>
                             </div>
@@ -4998,20 +5019,19 @@ export default function IndicatorControlPage() {
                 </div>
 
                 {/* 四、产线子分类管控指标 */}
-                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
-                  <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5">
-                    <div className="min-w-0 flex-1 flex items-center gap-2">
+                <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
+                    <div className="min-w-0 flex items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-cyan-400 shrink-0" />
-                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider shrink-0">
+                      <h2 className="text-base font-bold text-foreground shrink-0">
                         【四、产线子分类管控指标】
                       </h2>
-                      {erpSubcategoryTags.length > 0 && (
-                        <CollapsibleTagBar
-                          items={erpSubcategoryTags}
-                          activeItem={currentSubcategoryTag}
-                          onSelect={(tag) => setSelectedSubcategoryTag(tag)}
-                          colorTheme="cyan"
-                        />
+                      {currentProductLine && (
+                        <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline">
+                          所属产线: <span className="font-semibold text-foreground">{currentProductLine}</span>
+                          <span className="mx-1.5 text-border">|</span>
+                          产品种类: <span className="font-semibold text-cyan-400 font-mono">{filteredSubcategories.length} 类</span>
+                        </span>
                       )}
                     </div>
 
@@ -5021,62 +5041,102 @@ export default function IndicatorControlPage() {
                         type="text"
                         value={lineSearchKey}
                         onChange={(e) => setLineSearchKey(e.target.value)}
-                        placeholder="搜索产品型号 (如: SFZ-63000 / 110kV)..."
+                        placeholder="搜索产品种类 (如: 1000kV / 直流 / 电抗器)..."
                         className="pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg focus:outline-none focus:border-cyan-400 font-sans w-64 text-foreground"
                       />
                     </div>
                   </div>
 
-                  {currentSubcategoryModels.length === 0 ? (
+                  {filteredSubcategories.length === 0 ? (
                     <div className="py-10 flex items-center justify-center text-center text-muted-foreground">
-                      <span className="text-sm font-medium">暂无相关产品型号！</span>
+                      <span className="text-sm font-medium">暂无相关产品种类！</span>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
-                      {currentSubcategoryModels.map((m) => (
-                        <div
-                          key={m.id}
-                          onClick={() => setActiveViewMetric(convertModelToMetric(m, selectedNode.name))}
-                          className="p-3 bg-panel hover:bg-cyan-500/10 rounded-xl border border-border hover:border-cyan-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
-                        >
-                          <div className="flex items-center justify-between font-sans gap-1.5">
-                            <span className="text-[11.5px] font-bold text-foreground truncate" title={m.model}>
-                              {m.model}
-                            </span>
-                            {m.voltage && (
-                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono shrink-0">
-                                {m.voltage}
+                    <div className="space-y-4">
+                      {displayedSubcategories.map((sub, sIdx) => {
+                        const sub5Metrics = getSubcategory5Metrics(sub, currentLineSpec, selectedNode?.name)
+                        return (
+                          <div
+                            key={sub.id}
+                            className={cn('space-y-2.5', sIdx > 0 && 'pt-3.5 border-t border-border/50')}
+                          >
+                            {/* 产品种类标签 */}
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-sans text-xs font-bold shadow-2xs">
+                                  <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                                  {sub.name}
+                                </span>
+                                <span className="text-[11px] text-muted-foreground font-mono">
+                                  ERP编码: {sub.code} · 折算单位: {sub.unitSuffix}
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-muted-foreground font-sans hidden md:inline truncate max-w-md">
+                                {sub.fullDesc}
                               </span>
+                            </div>
+
+                            {/* 5项管控指标卡片网格 */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 font-mono">
+                              {sub5Metrics.map((pm) => (
+                                <div
+                                  key={pm.id}
+                                  onClick={() => setActiveViewMetric(pm)}
+                                  className="p-3.5 bg-panel hover:bg-cyan-500/10 rounded-xl border border-border hover:border-cyan-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                                >
+                                  <div className="flex items-center justify-between font-sans">
+                                    <span className="text-sm font-medium text-foreground truncate" title={pm.name}>
+                                      {pm.name}
+                                    </span>
+                                  </div>
+
+                                  <div className="text-2xl font-bold font-mono text-foreground group-hover:text-cyan-400 transition-colors">
+                                    {pm.curVal}{' '}
+                                    <span className="text-sm font-normal text-muted-foreground font-sans">
+                                      {pm.unit}
+                                    </span>
+                                  </div>
+
+                                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
+                                    <span className="text-muted-foreground">同比</span>
+                                    <span className="font-bold text-emerald-400 font-mono">{pm.yoy} ↓</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      })}
+
+                      {/* 产品种类超过2个时的展开/收起按钮 */}
+                      {filteredSubcategories.length > 2 && lineSearchKey.trim() === '' && (
+                        <div className="pt-2 flex items-center justify-center border-t border-border/40">
+                          <button
+                            type="button"
+                            onClick={() => setIsSubcategoriesExpanded((prev) => !prev)}
+                            className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-lg bg-panel hover:bg-cyan-500/10 border border-border hover:border-cyan-400/40 text-foreground transition-all cursor-pointer shadow-2xs group"
+                          >
+                            {isSubcategoriesExpanded ? (
+                              <>
+                                <span>收起产品种类</span>
+                                <ChevronUp className="size-3.5 text-muted-foreground group-hover:text-cyan-400 transition-colors" />
+                              </>
+                            ) : (
+                              <>
+                                <span>展开全部产品种类 (共 {filteredSubcategories.length} 类)</span>
+                                <ChevronDown className="size-3.5 text-muted-foreground group-hover:text-cyan-400 transition-colors" />
+                              </>
                             )}
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-2 font-mono">
-                            <div className="min-w-0">
-                              <div className="text-[10px] text-muted-foreground font-sans truncate">综合能耗</div>
-                              <div className="text-[13px] font-extrabold text-foreground group-hover:text-cyan-400 transition-colors truncate">
-                                {m.energyVal} <span className="text-[9.5px] font-normal text-muted-foreground font-sans">{m.energyUnit}</span>
-                              </div>
-                            </div>
-                            <div className="min-w-0 border-l border-border/50 pl-2">
-                              <div className="text-[10px] text-muted-foreground font-sans truncate">单耗电耗</div>
-                              <div className="text-[13px] font-extrabold text-foreground group-hover:text-cyan-400 transition-colors truncate">
-                                {m.elecVal} <span className="text-[9.5px] font-normal text-muted-foreground font-sans">{m.elecUnit}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="pt-1.5 border-t border-border/60 text-[10.5px] text-muted-foreground font-sans truncate" title={m.capacity ? '容量: ' + m.capacity : m.desc || '额定规格'}>
-                            {m.capacity ? '容量: ' + m.capacity : '额定规格'}
-                          </div>
+                          </button>
                         </div>
-                      ))}
+                      )}
                     </div>
                   )}
                 </div>
               </div>
             ) : (
               /* 单体公司/车间视角: 呈现工厂 10 大整体指标 + 产品管控指标 + 关键工序管控指标 */
-              <div className="space-y-3.5">
+              <div className="space-y-6">
                 {Boolean(selectedNode?.unconnected) && (
                   <div className="flex items-center gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs shrink-0 shadow-xs">
                     <Info className="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
@@ -5086,17 +5146,17 @@ export default function IndicatorControlPage() {
                   </div>
                 )}
                 {/* 一、经营单位及项目公司整体指标 (10 项指标卡片) */}
-                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+                <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
                   <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                     <div className="flex items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-primary shrink-0" />
-                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                      <h2 className="text-base font-bold text-foreground">
                         【一、经营单位及项目公司整体指标】
                       </h2>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 font-mono">
                     {currentOverallMetrics.map((m) => (
                       <div
                         key={m.id}
@@ -5104,7 +5164,7 @@ export default function IndicatorControlPage() {
                         className="p-3.5 bg-panel hover:bg-accent/40 rounded-xl border border-border hover:border-primary/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
                       >
                         <div className="flex items-center justify-between font-sans gap-1">
-                          <span className="text-[11px] font-bold text-foreground truncate">{m.name}</span>
+                          <span className="text-sm font-medium text-foreground truncate">{m.name}</span>
                           {m.badge && (
                             <span
                               className={cn(
@@ -5119,11 +5179,11 @@ export default function IndicatorControlPage() {
                           )}
                         </div>
 
-                        <div className="text-lg font-extrabold text-foreground group-hover:text-primary transition-colors">
-                          {m.unit === '%' && m.curVal.endsWith('%') ? m.curVal.replace(/%+$/, '') : m.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{m.unit}</span>
+                        <div className="text-2xl font-bold font-mono text-foreground group-hover:text-primary transition-colors">
+                          {m.unit === '%' && m.curVal.endsWith('%') ? m.curVal.replace(/%+$/, '') : m.curVal} <span className="text-sm font-normal text-muted-foreground font-sans">{m.unit}</span>
                         </div>
 
-                        <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                        <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
                           <span className="text-muted-foreground">同比</span>
                           <span className="font-bold text-emerald-400 font-mono">{m.yoy} ↓</span>
                         </div>
@@ -5133,11 +5193,11 @@ export default function IndicatorControlPage() {
                 </div>
 
                 {/* 二、产品管控指标 (5卡片/行) */}
-                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+                <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
                   <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                     <div className="min-w-0 flex-1 flex items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-amber-400 shrink-0" />
-                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider shrink-0">
+                      <h2 className="text-base font-bold text-foreground shrink-0">
                         【二、产品管控指标】
                       </h2>
                       {availableProductLines.length > 0 && (
@@ -5146,6 +5206,7 @@ export default function IndicatorControlPage() {
                           activeItem={currentProductLine}
                           onSelect={(line) => {
                             setSelectedProductLine(line)
+                            setIsSubcategoriesExpanded(false)
                             const lineSubs = PRODUCT_LINE_DICTIONARY[line] || []
                             if (lineSubs.length > 0) {
                               setSelectedSubcategoryTag(lineSubs[0].name)
@@ -5159,7 +5220,7 @@ export default function IndicatorControlPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 font-mono">
                     {currentProductControlMetrics.map((pm) => {
                       return (
                         <div
@@ -5168,16 +5229,16 @@ export default function IndicatorControlPage() {
                           className="p-3.5 bg-panel hover:bg-amber-500/10 rounded-xl border border-border hover:border-amber-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
                         >
                           <div className="flex items-center justify-between font-sans">
-                            <span className="text-[11px] font-bold text-foreground truncate" title={pm.name}>
+                            <span className="text-sm font-medium text-foreground truncate" title={pm.name}>
                               {pm.name}
                             </span>
                           </div>
 
-                          <div className="text-lg font-extrabold text-foreground group-hover:text-amber-400 transition-colors">
-                            {pm.curVal} <span className="text-[10.5px] font-normal text-muted-foreground font-sans">{pm.unit}</span>
+                          <div className="text-2xl font-bold font-mono text-foreground group-hover:text-amber-400 transition-colors">
+                            {pm.curVal} <span className="text-sm font-normal text-muted-foreground font-sans">{pm.unit}</span>
                           </div>
 
-                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
                             <span className="text-muted-foreground">同比</span>
                             <span className="font-bold text-emerald-400 font-mono">{pm.yoy} ↓</span>
                           </div>
@@ -5187,91 +5248,130 @@ export default function IndicatorControlPage() {
                   </div>
                 </div>
 
-                {/* 三、产线子分类管控指标 (三级卡片) */}
+                {/* 三、产线子分类管控指标 (按产品中类垂直展示5大指标) */}
                 {!isCableUnit && (
-                  <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
-                  <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5">
-                    <div className="min-w-0 flex-1 flex items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-cyan-400 shrink-0" />
-                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider shrink-0">
-                        【三、产线子分类管控指标】
-                      </h2>
-                      {erpSubcategoryTags.length > 0 && (
-                        <CollapsibleTagBar
-                          items={erpSubcategoryTags}
-                          activeItem={currentSubcategoryTag}
-                          onSelect={(tag) => setSelectedSubcategoryTag(tag)}
-                          colorTheme="cyan"
+                  <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
+                      <div className="min-w-0 flex items-center gap-2">
+                        <span className="h-3.5 w-1 rounded-full bg-cyan-400 shrink-0" />
+                        <h2 className="text-base font-bold text-foreground shrink-0">
+                          【三、产线子分类管控指标】
+                        </h2>
+                        {currentProductLine && (
+                          <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline">
+                            所属产线: <span className="font-semibold text-foreground">{currentProductLine}</span>
+                            <span className="mx-1.5 text-border">|</span>
+                            产品种类: <span className="font-semibold text-cyan-400 font-mono">{filteredSubcategories.length} 类</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="relative shrink-0">
+                        <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={lineSearchKey}
+                          onChange={(e) => setLineSearchKey(e.target.value)}
+                          placeholder="搜索产品种类 (如: 1000kV / 直流 / 电抗器)..."
+                          className="pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg focus:outline-none focus:border-cyan-400 font-sans w-64 text-foreground"
                         />
-                      )}
+                      </div>
                     </div>
 
-                    <div className="relative shrink-0">
-                      <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      <input
-                        type="text"
-                        value={lineSearchKey}
-                        onChange={(e) => setLineSearchKey(e.target.value)}
-                        placeholder="搜索产品型号 (如: SFZ-63000 / 110kV)..."
-                        className="pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg focus:outline-none focus:border-cyan-400 font-sans w-64 text-foreground"
-                      />
-                    </div>
+                    {filteredSubcategories.length === 0 ? (
+                      <div className="py-10 flex items-center justify-center text-center text-muted-foreground">
+                        <span className="text-sm font-medium">暂无相关产品种类！</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {displayedSubcategories.map((sub, sIdx) => {
+                          const sub5Metrics = getSubcategory5Metrics(sub, currentLineSpec, selectedNode?.name)
+                          return (
+                            <div
+                              key={sub.id}
+                              className={cn('space-y-2.5', sIdx > 0 && 'pt-3.5 border-t border-border/50')}
+                            >
+                              {/* 产品种类标签 */}
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-sans text-xs font-bold shadow-2xs">
+                                    <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                                    {sub.name}
+                                  </span>
+                                  <span className="text-[11px] text-muted-foreground font-mono">
+                                    ERP编码: {sub.code} · 折算单位: {sub.unitSuffix}
+                                  </span>
+                                </div>
+                                <span className="text-[11px] text-muted-foreground font-sans hidden md:inline truncate max-w-md">
+                                  {sub.fullDesc}
+                                </span>
+                              </div>
+
+                              {/* 5项管控指标卡片网格 */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 font-mono">
+                                {sub5Metrics.map((pm) => (
+                                  <div
+                                    key={pm.id}
+                                    onClick={() => setActiveViewMetric(pm)}
+                                    className="p-3.5 bg-panel hover:bg-cyan-500/10 rounded-xl border border-border hover:border-cyan-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                                  >
+                                    <div className="flex items-center justify-between font-sans">
+                                      <span className="text-sm font-medium text-foreground truncate" title={pm.name}>
+                                        {pm.name}
+                                      </span>
+                                    </div>
+
+                                    <div className="text-2xl font-bold font-mono text-foreground group-hover:text-cyan-400 transition-colors">
+                                      {pm.curVal}{' '}
+                                      <span className="text-sm font-normal text-muted-foreground font-sans">
+                                        {pm.unit}
+                                      </span>
+                                    </div>
+
+                                    <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
+                                      <span className="text-muted-foreground">同比</span>
+                                      <span className="font-bold text-emerald-400 font-mono">{pm.yoy} ↓</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )
+                        })}
+
+                        {/* 产品种类超过2个时的展开/收起按钮 */}
+                        {filteredSubcategories.length > 2 && lineSearchKey.trim() === '' && (
+                          <div className="pt-2 flex items-center justify-center border-t border-border/40">
+                            <button
+                              type="button"
+                              onClick={() => setIsSubcategoriesExpanded((prev) => !prev)}
+                              className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-lg bg-panel hover:bg-cyan-500/10 border border-border hover:border-cyan-400/40 text-foreground transition-all cursor-pointer shadow-2xs group"
+                            >
+                              {isSubcategoriesExpanded ? (
+                                <>
+                                  <span>收起产品种类</span>
+                                  <ChevronUp className="size-3.5 text-muted-foreground group-hover:text-cyan-400 transition-colors" />
+                                </>
+                              ) : (
+                                <>
+                                  <span>展开全部产品种类 (共 {filteredSubcategories.length} 类)</span>
+                                  <ChevronDown className="size-3.5 text-muted-foreground group-hover:text-cyan-400 transition-colors" />
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-
-                  {currentSubcategoryModels.length === 0 ? (
-                    <div className="py-10 flex items-center justify-center text-center text-muted-foreground">
-                      <span className="text-sm font-medium">暂无相关产品型号！</span>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono">
-                      {currentSubcategoryModels.map((m) => (
-                        <div
-                          key={m.id}
-                          onClick={() => setActiveViewMetric(convertModelToMetric(m, selectedNode.name))}
-                          className="p-3 bg-panel hover:bg-cyan-500/10 rounded-xl border border-border hover:border-cyan-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
-                        >
-                          <div className="flex items-center justify-between font-sans gap-1.5">
-                            <span className="text-[11.5px] font-bold text-foreground truncate" title={m.model}>
-                              {m.model}
-                            </span>
-                            {m.voltage && (
-                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono shrink-0">
-                                {m.voltage}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-2 font-mono">
-                            <div className="min-w-0">
-                              <div className="text-[10px] text-muted-foreground font-sans truncate">综合能耗</div>
-                              <div className="text-[13px] font-extrabold text-foreground group-hover:text-cyan-400 transition-colors truncate">
-                                {m.energyVal} <span className="text-[9.5px] font-normal text-muted-foreground font-sans">{m.energyUnit}</span>
-                              </div>
-                            </div>
-                            <div className="min-w-0 border-l border-border/50 pl-2">
-                              <div className="text-[10px] text-muted-foreground font-sans truncate">单耗电耗</div>
-                              <div className="text-[13px] font-extrabold text-foreground group-hover:text-cyan-400 transition-colors truncate">
-                                {m.elecVal} <span className="text-[9.5px] font-normal text-muted-foreground font-sans">{m.elecUnit}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="pt-1.5 border-t border-border/60 text-[10.5px] text-muted-foreground font-sans truncate" title={m.capacity ? '容量: ' + m.capacity : m.desc || '额定规格'}>
-                            {m.capacity ? '容量: ' + m.capacity : '额定规格'}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
                 )}
 
                                 {/* 四、关键制造工序能效对标指标 (4卡片/行) */}
-                <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+                <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="h-3.5 w-1 rounded-full bg-purple-400 shrink-0" />
-                      <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                      <h2 className="text-base font-bold text-foreground">
                         【{isCableUnit ? '三' : '四'}、关键制造工序能效对标指标】
                       </h2>
                       {activeUnitInfo?.products && activeUnitInfo.products.length > 0 && (
@@ -5321,12 +5421,12 @@ export default function IndicatorControlPage() {
                       <span className="text-sm font-medium">暂无相关工序！</span>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 font-mono">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 font-mono">
                       {filteredProcessMetrics.map((prm) => (
                         <div
                           key={prm.id}
                           onClick={() => setActiveViewMetric(prm)}
-                          className="p-3.5 rounded-xl border border-border bg-panel hover:border-purple-400/40 hover:bg-purple-500/10 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                          className="p-4 rounded-lg border border-border bg-panel hover:border-purple-400/40 hover:bg-purple-500/10 transition-all cursor-pointer space-y-2 group shadow-2xs"
                         >
                           <div className="flex items-center justify-between font-sans">
                             <span className="text-xs font-bold text-foreground truncate" title={prm.name}>
@@ -5338,10 +5438,10 @@ export default function IndicatorControlPage() {
                           </div>
 
                           <div className="text-lg font-extrabold text-primary group-hover:text-purple-300 transition-colors">
-                            {prm.curVal} <span className="text-xs font-normal text-muted-foreground font-sans">{prm.unit}</span>
+                            {prm.curVal} <span className="text-sm font-normal text-muted-foreground font-sans">{prm.unit}</span>
                           </div>
 
-                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-sans">
+                          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
                             <span className="text-muted-foreground truncate" title={prm.formula}>
                               {prm.formula}
                             </span>

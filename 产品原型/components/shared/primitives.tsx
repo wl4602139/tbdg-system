@@ -2,10 +2,10 @@
 
 import type { LucideIcon } from 'lucide-react'
 import * as React from 'react'
-import { ArrowDownRight, ArrowUpRight, ChevronUp, ChevronDown } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, ChevronUp, ChevronDown, Download } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-/* 面板：既可作为纯容器，也可传 title/desc/actions 自带标题栏 */
+/* 面板：既可作为纯容器，也可传 title/desc/actions 自带标题栏 (圆角 8px, 标题 16px 加粗) */
 export function Panel({
   title,
   desc,
@@ -26,7 +26,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        'rounded-xl border border-border bg-card p-4 backdrop-blur-sm',
+        'rounded-lg border border-border bg-card p-4 backdrop-blur-sm',
         'shadow-[0_1px_0_0_oklch(0.8_0.1_220/8%)_inset]',
         className,
       )}
@@ -37,7 +37,7 @@ export function Panel({
             <span className="h-4 w-1 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
             {Icon && <Icon className="size-4 text-primary" />}
             <div>
-              {title && <h3 className="text-sm font-semibold text-foreground">{title}</h3>}
+              {title && <h3 className="text-base font-bold text-foreground">{title}</h3>}
             </div>
           </div>
           {actions}
@@ -48,7 +48,7 @@ export function Panel({
   )
 }
 
-/* 面板内标题栏（用于 Panel 作纯容器时手动放置标题） */
+/* 面板内标题栏（用于 Panel 作纯容器时手动放置标题，16px 加粗） */
 export function PanelTitle({
   title,
   subtitle,
@@ -69,7 +69,7 @@ export function PanelTitle({
         <span className="mt-0.5 h-4 w-1 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
         {Icon && <Icon className="size-4 text-primary" />}
         <div>
-          <h3 className="text-sm font-semibold text-foreground">{displayTitle || children}</h3>
+          <h3 className="text-base font-bold text-foreground">{displayTitle || children}</h3>
         </div>
       </div>
       {action}
@@ -77,7 +77,7 @@ export function PanelTitle({
   )
 }
 
-/* KPI 卡片：trend 与 delta 二选一均可，兼容 title / label */
+/* KPI 卡片：trend 与 delta 二选一均可，兼容 title / label (标题 14px, 主数值 24px Mono 加粗, 辅助 14px) */
 export function KpiCard({
   title,
   label,
@@ -103,24 +103,24 @@ export function KpiCard({
   const displayLabel = label || title || ''
   const change = trend ?? delta
   return (
-    <div className={cn('relative overflow-hidden rounded-xl border border-border bg-card p-4 backdrop-blur-sm', className)}>
+    <div className={cn('relative overflow-hidden rounded-lg border border-border bg-card p-4 backdrop-blur-sm', className)}>
       <div className="tech-radial pointer-events-none absolute inset-0 opacity-40" />
       <div className="relative flex items-start justify-between">
         <div>
-          <p className="text-xs text-muted-foreground">{displayLabel}</p>
-          <div className="mt-2 flex items-baseline gap-1">
-            <span className="font-mono text-2xl font-semibold text-foreground text-glow">{value}</span>
-            {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
+          <p className="text-sm text-muted-foreground font-medium">{displayLabel}</p>
+          <div className="mt-2 flex items-baseline gap-1.5">
+            <span className="font-mono text-2xl font-bold text-foreground text-glow">{value}</span>
+            {unit && <span className="text-sm text-muted-foreground font-sans">{unit}</span>}
           </div>
           {change && (
             <div
               className={cn(
-                'mt-2 flex items-center gap-1 text-xs',
+                'mt-2 flex items-center gap-1 text-sm font-mono font-medium',
                 up ? 'text-[var(--success)]' : 'text-[var(--warning)]',
               )}
             >
               {up ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}
-              {change}
+              <span>{change}</span>
             </div>
           )}
         </div>
@@ -200,7 +200,7 @@ export function Toolbar({ children, className }: { children: React.ReactNode; cl
   return <div className={cn('mb-4 flex flex-wrap items-end gap-3', className)}>{children}</div>
 }
 
-/* 页签：分段式 Tab 切换 */
+/* 页签：实心科技蓝胶囊 Tab 切换 (规范标准: 激活态实心胶囊 + 8px 圆角, 未激活纯文本) */
 export function Tabs({
   tabs,
   items,
@@ -216,7 +216,7 @@ export function Tabs({
 }) {
   const list = tabs ?? items ?? []
   return (
-    <div className={cn('inline-flex items-center gap-1 rounded-lg border border-border bg-panel p-1', className)}>
+    <div className={cn('inline-flex items-center gap-1 p-0.5', className)} role="tablist">
       {list.map((t) => {
         const itemKey = t.value ?? t.key ?? ''
         const active = itemKey === value
@@ -224,12 +224,14 @@ export function Tabs({
           <button
             key={itemKey}
             type="button"
+            role="tab"
+            aria-selected={active}
             onClick={() => onChange(itemKey)}
             className={cn(
-              'rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors',
+              'rounded-lg px-4 py-1.5 text-sm font-medium transition-all cursor-pointer select-none',
               active
-                ? 'bg-primary/15 text-primary shadow-[0_0_16px_-6px_var(--primary)]'
-                : 'text-muted-foreground hover:text-foreground',
+                ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                : 'text-muted-foreground hover:text-foreground hover:bg-accent/40',
             )}
           >
             {t.label}
@@ -240,7 +242,7 @@ export function Tabs({
   )
 }
 
-/* 数据表格 */
+/* 数据表格 (圆角 8px, 44px 行高) */
 type Col = {
   key: string
   label: string
@@ -277,7 +279,7 @@ export function DataTable({ columns, rows }: { columns: Col[]; rows: Record<stri
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-card">
+    <div className="overflow-x-auto rounded-lg border border-border bg-card">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border text-xs text-muted-foreground bg-panel h-[44px]">
@@ -330,5 +332,34 @@ export function DataTable({ columns, rows }: { columns: Col[]; rows: Record<stri
         </tbody>
       </table>
     </div>
+  )
+}
+
+/* 全系统统一导出按钮规格 (80px × 36px, #2C7CFF, 8px 圆角, 白字白图标) */
+export function ExportButton({
+  onClick,
+  disabled,
+  title = '导出',
+  className,
+}: {
+  onClick?: () => void
+  disabled?: boolean
+  title?: string
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'w-[80px] h-9 rounded-lg bg-[#2C7CFF] hover:bg-[#1f6be8] disabled:opacity-50 text-white text-xs font-medium flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer shrink-0',
+        className
+      )}
+      title={title}
+    >
+      <Download className="size-3.5 text-white" />
+      <span>{title}</span>
+    </button>
   )
 }

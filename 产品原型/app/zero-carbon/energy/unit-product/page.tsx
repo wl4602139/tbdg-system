@@ -44,6 +44,7 @@ import {
   Line,
 } from 'recharts'
 import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
+import { ExportButton } from '@/components/shared/primitives'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
@@ -1582,13 +1583,13 @@ export default function UnitProductPage() {
     const isCableOnly = selectedKpiId === 'kpi-nitrogen'
 
     let lines = [
-      { key: '变压器单耗', name: meta.transLineName, color: '#1677ff' },
+      { key: '变压器单耗', name: meta.transLineName, color: '#2C7CFF' },
       { key: '线缆单耗', name: meta.cableLineName, color: '#8b5cf6' },
     ]
     let yUnit = `${meta.transUnit} (变压器) · ${meta.cableUnit} (线缆)`
 
     if (isTransOnly) {
-      lines = [{ key: '变压器单耗', name: meta.transLineName, color: '#1677ff' }]
+      lines = [{ key: '变压器单耗', name: meta.transLineName, color: '#2C7CFF' }]
       yUnit = `${meta.transUnit} (变压器)`
     } else if (isCableOnly) {
       lines = [{ key: '线缆单耗', name: meta.cableLineName, color: '#8b5cf6' }]
@@ -1810,7 +1811,7 @@ export default function UnitProductPage() {
       <div className="flex-1 min-w-0 flex flex-col gap-3.5">
         
         {/* 1. 顶部 Header 与 统一标准时间筛选 */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-xl border border-border shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-lg border border-border shadow-xs">
           <div className="flex items-center gap-3">
             <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <Factory className="size-5" />
@@ -1826,7 +1827,7 @@ export default function UnitProductPage() {
                 onClick={() => setTimeDim('month')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                  timeDim === 'month' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 月度
@@ -1836,7 +1837,7 @@ export default function UnitProductPage() {
                 onClick={() => setTimeDim('quarter')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                  timeDim === 'quarter' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 季度
@@ -1846,7 +1847,7 @@ export default function UnitProductPage() {
                 onClick={() => setTimeDim('year')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                  timeDim === 'year' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 年度
@@ -1907,19 +1908,12 @@ export default function UnitProductPage() {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={() => alert(`正在导出【${selectedNode.name}】单位产品能耗分析报表 (Excel)...`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-            >
-              <Download className="size-3.5" />
-              <span>导出</span>
-            </button>
+            <ExportButton onClick={() => alert(`正在导出【${selectedNode.name}】单位产品能耗分析报表 (Excel)...`)} />
           </div>
         </div>
 
         {/* 🌟 2. 核心筛选控制栏 (单位产品能耗种类切换 + 搜索框) */}
-        <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="bg-card p-3.5 rounded-lg border border-border shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             <span className="font-bold text-foreground">单位产品能耗:</span>
             <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border font-sans">
@@ -1931,9 +1925,7 @@ export default function UnitProductPage() {
                 }}
                 className={cn(
                   'px-3 py-1.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer',
-                  category === 'transformer'
-                    ? 'bg-primary text-primary-foreground shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground'
+                  category === 'transformer' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 <Zap className="size-3.5 text-amber-400" />
@@ -1947,9 +1939,7 @@ export default function UnitProductPage() {
                 }}
                 className={cn(
                   'px-3 py-1.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer',
-                  category === 'cable'
-                    ? 'bg-primary text-primary-foreground shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground'
+                  category === 'cable' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 <Cable className="size-3.5 text-emerald-400" />
@@ -1997,7 +1987,7 @@ export default function UnitProductPage() {
                 key={kpi.id}
                 onClick={() => setSelectedKpiId(kpi.id)}
                 className={cn(
-                  'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all cursor-pointer select-none relative group',
+                  'p-3.5 rounded-lg border shadow-xs space-y-1.5 transition-all cursor-pointer select-none relative group',
                   isSelected
                     ? 'bg-primary/15 border-2 border-primary ring-2 ring-primary/20 shadow-sm scale-[1.01]'
                     : 'bg-card border-border hover:border-primary/40 hover:bg-accent/30'
@@ -2023,7 +2013,7 @@ export default function UnitProductPage() {
         {/* ========================================================================= */}
         {/* 🌟 3.5. 选定能耗指标近 12 个月变化趋势全景折线图 (参考图片 1：点击上方卡片动态联动) */}
         {/* ========================================================================= */}
-        <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+        <div className="bg-card p-4 rounded-lg border border-border shadow-xs space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
             <div className="flex items-center gap-2">
               <span className="size-2.5 rounded-full bg-primary animate-pulse shrink-0" />
@@ -2105,7 +2095,7 @@ export default function UnitProductPage() {
         {/* ========================================================================= */}
         {/* 🌟 4. 中间主要产品分类层级 (卡片形式展现分类名称、类型、消耗资源类型等) */}
         {/* ========================================================================= */}
-        <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3">
+        <div className="bg-card p-4 rounded-lg border border-border shadow-xs space-y-3">
           {/* ① 顶部功能栏：品类标题、品类搜索与排序 (已移除冗余红框信息) */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-2.5">
             <div className="flex items-center gap-2">
@@ -2206,7 +2196,7 @@ export default function UnitProductPage() {
                     setCurrentPage(1)
                   }}
                   className={cn(
-                    'rounded-xl border p-3 flex flex-col justify-between transition-all cursor-pointer select-none relative group',
+                    'rounded-lg border p-3 flex flex-col justify-between transition-all cursor-pointer select-none relative group',
                     isSelected
                       ? 'bg-primary/15 border-2 border-primary ring-2 ring-primary/20 shadow-sm scale-[1.01]'
                       : 'bg-card border-border hover:border-primary/40 hover:bg-accent/30 hover:shadow-xs'
@@ -2261,7 +2251,7 @@ export default function UnitProductPage() {
         </div>
 
         {/* 🌟 5. 产品型号单耗明细台账 (根据选择的产品，精准匹配对应的能源消耗类型) */}
-        <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+        <div className="bg-card rounded-lg border border-border shadow-xs overflow-hidden">
           <div className="p-3.5 border-b border-border flex flex-wrap items-center justify-between bg-panel gap-3">
             <div className="flex items-center gap-2 shrink-0">
               <FileSpreadsheet className="size-4 text-primary" />

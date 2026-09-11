@@ -24,6 +24,7 @@ import {
   FileSpreadsheet,
   Info,
 } from 'lucide-react'
+import { ExportButton } from '@/components/shared/primitives'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend, Donut, BarChartGroup } from '@/components/shared/charts'
 import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
@@ -66,7 +67,7 @@ const METRICS_META: Record<MetricKey, MetricMeta> = {
     shortName: '总电量',
     unit: '万kWh',
     tceFactor: 0.1229,
-    color: '#1677ff',
+    color: '#2C7CFF',
     description: '市网供电与直供绿电总和',
   },
   gridElec: {
@@ -75,7 +76,7 @@ const METRICS_META: Record<MetricKey, MetricMeta> = {
     shortName: '市电量',
     unit: '万kWh',
     tceFactor: 0.1229,
-    color: '#3b82f6',
+    color: '#41C0FF',
     description: '从公共电网外购结算电力',
   },
   greenElec: {
@@ -84,7 +85,7 @@ const METRICS_META: Record<MetricKey, MetricMeta> = {
     shortName: '直供绿电',
     unit: '万kWh',
     tceFactor: 0.1229,
-    color: '#10b981',
+    color: '#00D492',
     description: '厂区分布式光伏及点对点绿色直供电',
   },
   gas: {
@@ -93,7 +94,7 @@ const METRICS_META: Record<MetricKey, MetricMeta> = {
     shortName: '天然气',
     unit: '万m³',
     tceFactor: 1.2143,
-    color: '#f59e0b',
+    color: '#FF6536',
     description: '窑炉、烘房及厂区采暖天然气消耗',
   },
   steam: {
@@ -102,7 +103,7 @@ const METRICS_META: Record<MetricKey, MetricMeta> = {
     shortName: '外购蒸汽',
     unit: 't',
     tceFactor: 0.0943,
-    color: '#8b5cf6',
+    color: '#FFBA00',
     description: '工业园区集中供热与工艺外购蒸汽',
   },
   oil: {
@@ -111,7 +112,7 @@ const METRICS_META: Record<MetricKey, MetricMeta> = {
     shortName: '用油消耗',
     unit: '万L',
     tceFactor: 1.09,
-    color: '#f43f5e',
+    color: '#8E73ED',
     description: '厂区物流运输车辆及柴油发电机消耗',
   },
   nitrogen: {
@@ -120,7 +121,7 @@ const METRICS_META: Record<MetricKey, MetricMeta> = {
     shortName: '液氮消耗',
     unit: 't',
     tceFactor: 0.66,
-    color: '#06b6d4',
+    color: '#4F39F6',
     description: '变压器及特种绝缘干燥惰化工艺介质 (主要集中在露娜)',
   },
   water: {
@@ -128,7 +129,7 @@ const METRICS_META: Record<MetricKey, MetricMeta> = {
     name: '工业用水量',
     shortName: '工业用水',
     unit: '万m³',
-    color: '#0284c7',
+    color: '#10C4CE',
     description: '生产循环冷却水与生活辅助用水',
   },
 }
@@ -362,7 +363,7 @@ export default function EnergyStructureAnalysisPage() {
     const donutData = scaledCompaniesData.map((c, i) => {
       const val = c[selectedMetricKey] as number
       const ratio = totalVal > 0 ? Number(((val / totalVal) * 100).toFixed(1)) : 0
-      const colors = ['#1677ff', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899']
+      const colors = ['#2C7CFF', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899']
       return {
         name: c.name,
         value: val,
@@ -453,9 +454,9 @@ export default function EnergyStructureAnalysisPage() {
       />
 
       {/* 右侧主面板 */}
-      <div className="flex-1 min-w-0 flex flex-col gap-3.5">
+      <div className="flex-1 min-w-0 flex flex-col gap-6">
         {/* 1. 顶部 Header 与 统一时间维度选择 */}
-        <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-card p-6 rounded-lg border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <PieChartIcon className="size-5" />
@@ -483,7 +484,7 @@ export default function EnergyStructureAnalysisPage() {
                 onClick={() => setTimeDim('month')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                  timeDim === 'month' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 月度
@@ -493,7 +494,7 @@ export default function EnergyStructureAnalysisPage() {
                 onClick={() => setTimeDim('quarter')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                  timeDim === 'quarter' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 季度
@@ -503,7 +504,7 @@ export default function EnergyStructureAnalysisPage() {
                 onClick={() => setTimeDim('year')}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                  timeDim === 'year' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 年度
@@ -512,7 +513,7 @@ export default function EnergyStructureAnalysisPage() {
 
             {/* 时间范围选择控件 (随维度自适应切换) */}
             {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
+              <div className="flex items-center gap-1.5 bg-panel px-3 h-9 rounded-lg border border-border text-sm shadow-2xs font-mono">
                 <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <input
                   type="month"
@@ -533,7 +534,7 @@ export default function EnergyStructureAnalysisPage() {
             )}
 
             {timeDim === 'quarter' && (
-              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+              <div className="flex items-center gap-1.5 bg-panel px-3 h-9 rounded-lg border border-border text-sm shadow-2xs">
                 <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <select
                   value={selectedQuarter}
@@ -550,7 +551,7 @@ export default function EnergyStructureAnalysisPage() {
             )}
 
             {timeDim === 'year' && (
-              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs">
+              <div className="flex items-center gap-1.5 bg-panel px-3 h-9 rounded-lg border border-border text-sm shadow-2xs">
                 <Calendar className="size-3.5 text-muted-foreground shrink-0" />
                 <select
                   value={selectedYear}
@@ -565,14 +566,7 @@ export default function EnergyStructureAnalysisPage() {
             )}
 
             {/* 导出按钮 */}
-            <button
-              type="button"
-              onClick={() => alert(`正在导出【${activeData.name}】用能结构多维分析报表 (Excel)...`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-            >
-              <Download className="size-3.5" />
-              <span>导出</span>
-            </button>
+            <ExportButton onClick={() => alert(`正在导出【${activeData.name}】用能结构多维分析报表 (Excel)...`)} />
           </div>
         </div>
 
@@ -594,12 +588,12 @@ export default function EnergyStructureAnalysisPage() {
           </div>
 
           {/* 8 大能源介质卡片网格 (2行4列 + 综合能耗核心首卡) */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 font-mono">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 font-mono">
             {/* 卡片 1: 综合能源消耗总量 (tce) */}
             <div
               onClick={() => isGroupLevel && setSelectedMetricKey('totalTce')}
               className={cn(
-                'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all select-none',
+                'p-4 rounded-lg border shadow-xs space-y-1.5 transition-all select-none',
                 isGroupLevel ? 'cursor-pointer hover:shadow-md' : '',
                 selectedMetricKey === 'totalTce' && isGroupLevel
                   ? 'bg-emerald-500/10 border-emerald-500 ring-2 ring-emerald-500/20'
@@ -607,16 +601,16 @@ export default function EnergyStructureAnalysisPage() {
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                <span className="text-sm font-medium text-foreground flex items-center gap-1.5 font-sans">
                   <div className="size-2 rounded-full bg-emerald-500" />
                   综合能源消耗
                 </span>
               </div>
-              <div className="text-xl font-extrabold text-emerald-400 truncate">
+              <div className="text-2xl font-bold font-mono text-emerald-400 truncate">
                 {activeData.totalTce.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-muted-foreground font-sans">tce</span>
               </div>
-              <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
                 <span>非化石占比 <strong className="font-mono text-emerald-400 font-bold">{activeData.nonFossilRatio}%</strong></span>
                 <span className="text-emerald-400 font-mono font-bold">同比 -3.8% ↓</span>
               </div>
@@ -626,7 +620,7 @@ export default function EnergyStructureAnalysisPage() {
             <div
               onClick={() => isGroupLevel && setSelectedMetricKey('totalElec')}
               className={cn(
-                'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all select-none',
+                'p-4 rounded-lg border shadow-xs space-y-1.5 transition-all select-none',
                 isGroupLevel ? 'cursor-pointer hover:shadow-md' : '',
                 selectedMetricKey === 'totalElec' && isGroupLevel
                   ? 'bg-primary/10 border-primary ring-2 ring-primary/20'
@@ -634,16 +628,16 @@ export default function EnergyStructureAnalysisPage() {
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                <span className="text-sm font-medium text-foreground flex items-center gap-1.5 font-sans">
                   <Zap className="size-3.5 text-primary" />
                   总用电量
                 </span>
               </div>
-              <div className="text-xl font-extrabold text-primary truncate">
+              <div className="text-2xl font-bold font-mono text-primary truncate">
                 {activeData.totalElec.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-muted-foreground font-sans">万kWh</span>
               </div>
-              <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
                 <span>总量占比 <strong className="font-mono text-foreground font-bold">{(((activeData.totalElec * 10000 * 0.1229) / 1000 / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
                 <span className="text-emerald-400 font-mono font-bold">同比 -4.2% ↓</span>
               </div>
@@ -653,7 +647,7 @@ export default function EnergyStructureAnalysisPage() {
             <div
               onClick={() => isGroupLevel && setSelectedMetricKey('gridElec')}
               className={cn(
-                'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all select-none',
+                'p-4 rounded-lg border shadow-xs space-y-1.5 transition-all select-none',
                 isGroupLevel ? 'cursor-pointer hover:shadow-md' : '',
                 selectedMetricKey === 'gridElec' && isGroupLevel
                   ? 'bg-primary/10 border-primary ring-2 ring-primary/20'
@@ -661,16 +655,16 @@ export default function EnergyStructureAnalysisPage() {
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                <span className="text-sm font-medium text-foreground flex items-center gap-1.5 font-sans">
                   <Building2 className="size-3.5 text-muted-foreground" />
                   市电量 (外购网电)
                 </span>
               </div>
-              <div className="text-xl font-extrabold text-foreground truncate">
+              <div className="text-2xl font-bold font-mono text-foreground truncate">
                 {activeData.gridElec.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-muted-foreground font-sans">万kWh</span>
               </div>
-              <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
                 <span>总量占比 <strong className="font-mono text-foreground font-bold">{(((activeData.gridElec * 10000 * 0.1229) / 1000 / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
                 <span className="text-emerald-400 font-mono font-bold">同比 -6.5% ↓</span>
               </div>
@@ -680,7 +674,7 @@ export default function EnergyStructureAnalysisPage() {
             <div
               onClick={() => isGroupLevel && setSelectedMetricKey('greenElec')}
               className={cn(
-                'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all select-none',
+                'p-4 rounded-lg border shadow-xs space-y-1.5 transition-all select-none',
                 isGroupLevel ? 'cursor-pointer hover:shadow-md' : '',
                 selectedMetricKey === 'greenElec' && isGroupLevel
                   ? 'bg-emerald-500/10 border-emerald-500 ring-2 ring-emerald-500/20'
@@ -688,16 +682,16 @@ export default function EnergyStructureAnalysisPage() {
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                <span className="text-sm font-medium text-foreground flex items-center gap-1.5 font-sans">
                   <Sun className="size-3.5 text-emerald-400" />
                   直供绿电量
                 </span>
               </div>
-              <div className="text-xl font-extrabold text-emerald-400 truncate">
+              <div className="text-2xl font-bold font-mono text-emerald-400 truncate">
                 {activeData.greenElec.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-muted-foreground font-sans">万kWh</span>
               </div>
-              <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
                 <span>总量占比 <strong className="font-mono text-emerald-400 font-bold">{(((activeData.greenElec * 10000 * 0.1229) / 1000 / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
                 <span className="text-emerald-400 font-mono font-bold">同比 +12.4% ↑</span>
               </div>
@@ -707,7 +701,7 @@ export default function EnergyStructureAnalysisPage() {
             <div
               onClick={() => isGroupLevel && setSelectedMetricKey('gas')}
               className={cn(
-                'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all select-none',
+                'p-4 rounded-lg border shadow-xs space-y-1.5 transition-all select-none',
                 isGroupLevel ? 'cursor-pointer hover:shadow-md' : '',
                 selectedMetricKey === 'gas' && isGroupLevel
                   ? 'bg-amber-500/10 border-amber-500 ring-2 ring-amber-500/20'
@@ -715,16 +709,16 @@ export default function EnergyStructureAnalysisPage() {
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                <span className="text-sm font-medium text-foreground flex items-center gap-1.5 font-sans">
                   <Flame className="size-3.5 text-amber-400" />
                   天然气消耗量
                 </span>
               </div>
-              <div className="text-xl font-extrabold text-amber-400 truncate">
+              <div className="text-2xl font-bold font-mono text-amber-400 truncate">
                 {activeData.gas.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-muted-foreground font-sans">万m³</span>
               </div>
-              <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
                 <span>总量占比 <strong className="font-mono text-foreground font-bold">{(((activeData.gas * 10000 * 1.2143) / 1000 / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
                 <span className="text-emerald-400 font-mono font-bold">同比 -2.1% ↓</span>
               </div>
@@ -734,7 +728,7 @@ export default function EnergyStructureAnalysisPage() {
             <div
               onClick={() => isGroupLevel && setSelectedMetricKey('steam')}
               className={cn(
-                'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all select-none',
+                'p-4 rounded-lg border shadow-xs space-y-1.5 transition-all select-none',
                 isGroupLevel ? 'cursor-pointer hover:shadow-md' : '',
                 selectedMetricKey === 'steam' && isGroupLevel
                   ? 'bg-purple-500/10 border-purple-500 ring-2 ring-purple-500/20'
@@ -742,16 +736,16 @@ export default function EnergyStructureAnalysisPage() {
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                <span className="text-sm font-medium text-foreground flex items-center gap-1.5 font-sans">
                   <Wind className="size-3.5 text-purple-400" />
                   外购蒸汽量
                 </span>
               </div>
-              <div className="text-xl font-extrabold text-purple-400 truncate">
+              <div className="text-2xl font-bold font-mono text-purple-400 truncate">
                 {activeData.steam.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-muted-foreground font-sans">t</span>
               </div>
-              <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
                 <span>总量占比 <strong className="font-mono text-foreground font-bold">{(((activeData.steam * 0.0943) / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
                 <span className="text-emerald-400 font-mono font-bold">同比 -1.5% ↓</span>
               </div>
@@ -761,7 +755,7 @@ export default function EnergyStructureAnalysisPage() {
             <div
               onClick={() => isGroupLevel && setSelectedMetricKey('oil')}
               className={cn(
-                'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all select-none',
+                'p-4 rounded-lg border shadow-xs space-y-1.5 transition-all select-none',
                 isGroupLevel ? 'cursor-pointer hover:shadow-md' : '',
                 selectedMetricKey === 'oil' && isGroupLevel
                   ? 'bg-rose-500/10 border-rose-500 ring-2 ring-rose-500/20'
@@ -769,16 +763,16 @@ export default function EnergyStructureAnalysisPage() {
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                <span className="text-sm font-medium text-foreground flex items-center gap-1.5 font-sans">
                   <Fuel className="size-3.5 text-rose-400" />
                   油消耗量
                 </span>
               </div>
-              <div className="text-xl font-extrabold text-rose-400 truncate">
+              <div className="text-2xl font-bold font-mono text-rose-400 truncate">
                 {activeData.oil.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-muted-foreground font-sans">万L</span>
               </div>
-              <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
                 <span>总量占比 <strong className="font-mono text-foreground font-bold">{(((activeData.oil * 10000 * 1.09) / 1000 / activeData.totalTce) * 100).toFixed(1)}%</strong></span>
                 <span className="text-emerald-400 font-mono font-bold">同比 -8.3% ↓</span>
               </div>
@@ -788,7 +782,7 @@ export default function EnergyStructureAnalysisPage() {
             <div
               onClick={() => isGroupLevel && setSelectedMetricKey('nitrogen')}
               className={cn(
-                'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all select-none',
+                'p-4 rounded-lg border shadow-xs space-y-1.5 transition-all select-none',
                 isGroupLevel ? 'cursor-pointer hover:shadow-md' : '',
                 selectedMetricKey === 'nitrogen' && isGroupLevel
                   ? 'bg-cyan-500/10 border-cyan-500 ring-2 ring-cyan-500/20'
@@ -796,16 +790,16 @@ export default function EnergyStructureAnalysisPage() {
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
+                <span className="text-sm font-medium text-foreground flex items-center gap-1.5 font-sans">
                   <Snowflake className="size-3.5 text-cyan-400" />
                   液氮消耗量
                 </span>
               </div>
-              <div className="text-xl font-extrabold text-cyan-400 truncate">
+              <div className="text-2xl font-bold font-mono text-cyan-400 truncate">
                 {activeData.nitrogen.toLocaleString()}{' '}
                 <span className="text-xs font-normal text-muted-foreground font-sans">t</span>
               </div>
-              <div className="text-[11px] text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground font-sans border-t border-border/60 pt-1 flex items-center justify-between">
                 <span>总量占比 <strong className="font-mono text-foreground font-bold">{activeData.totalTce > 0 ? (((activeData.nitrogen * 0.66) / activeData.totalTce) * 100).toFixed(1) : '0.0'}%</strong></span>
                 <span className="text-emerald-400 font-mono font-bold">同比 -3.2% ↓</span>
               </div>
@@ -817,11 +811,11 @@ export default function EnergyStructureAnalysisPage() {
         {/* 🌟 2. 集团页视角：点击各数据项展示 6 家单位占电装总量的比重 (饼图 + 柱状图) */}
         {/* ========================================================================= */}
         {isGroupLevel && (
-          <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+          <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
             <div className="flex flex-wrap items-center justify-between border-b border-border/60 pb-3 gap-2">
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-primary" />
-                <h3 className="text-xs font-bold text-foreground">
+                <h3 className="text-sm font-medium text-foreground">
                   {METRICS_META[selectedMetricKey].name}
                 </h3>
               </div>
@@ -830,7 +824,7 @@ export default function EnergyStructureAnalysisPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
               {/* 左侧 5/12: 饼图/环形图 (6 家直属经营单位占比份额) */}
-              <div className="lg:col-span-5 border border-border rounded-xl p-3 bg-panel space-y-2">
+              <div className="lg:col-span-5 border border-border rounded-lg p-3 bg-panel space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-foreground flex items-center gap-1.5">
                     <PieChartIcon className="size-3.5 text-primary" />
@@ -852,7 +846,7 @@ export default function EnergyStructureAnalysisPage() {
               </div>
 
               {/* 右侧 7/12: 柱状图 (6 家直属经营单位消耗量绝对值与排名对比) */}
-              <div className="lg:col-span-7 border border-border rounded-xl p-3 bg-panel space-y-2">
+              <div className="lg:col-span-7 border border-border rounded-lg p-3 bg-panel space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-foreground flex items-center gap-1.5">
                     <BarChart3 className="size-3.5 text-emerald-400" />
@@ -874,7 +868,7 @@ export default function EnergyStructureAnalysisPage() {
             </div>
 
             {/* 6 家直属经营单位数据明细表格 */}
-            <div className="border border-border rounded-xl overflow-hidden">
+            <div className="border border-border rounded-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead>
@@ -935,11 +929,11 @@ export default function EnergyStructureAnalysisPage() {
         {/* 🌟 3. 经营单位及项目公司视角：该单位自身用能结构占比分析 (移至趋势图上方) */}
         {/* ========================================================================= */}
         {!isGroupLevel && (
-          <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+          <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-border/60 pb-3">
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-primary" />
-                <h3 className="text-xs font-bold text-foreground">
+                <h3 className="text-sm font-medium text-foreground">
                   各类能源介质消费构成占比与折标煤对照明细
                 </h3>
               </div>
@@ -947,7 +941,7 @@ export default function EnergyStructureAnalysisPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
               {/* 左侧 5/12: 该单位能源结构环形图 */}
-              <div className="lg:col-span-5 border border-border rounded-xl p-3 bg-panel space-y-2">
+              <div className="lg:col-span-5 border border-border rounded-lg p-3 bg-panel space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-foreground flex items-center gap-1.5">
                     <PieChartIcon className="size-3.5 text-primary" />
@@ -969,7 +963,7 @@ export default function EnergyStructureAnalysisPage() {
               </div>
 
               {/* 右侧 7/12: 各介质折标明细台账 */}
-              <div className="lg:col-span-7 border border-border rounded-xl overflow-hidden">
+              <div className="lg:col-span-7 border border-border rounded-lg overflow-hidden">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead>
                     <tr className="bg-panel border-b border-border text-muted-foreground font-semibold font-sans h-[44px]">
@@ -1081,7 +1075,7 @@ export default function EnergyStructureAnalysisPage() {
           <div className="flex flex-wrap items-center justify-between border-b border-border/60 pb-3 gap-2">
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-400" />
-              <h3 className="text-xs font-bold text-foreground">
+              <h3 className="text-sm font-medium text-foreground">
                 01月 至 08月 各类能源占比历史变化趋势曲线 (%)
               </h3>
             </div>
@@ -1100,7 +1094,7 @@ export default function EnergyStructureAnalysisPage() {
               height={260}
               yUnit="%"
               lines={[
-                { key: '市电占比', name: '市网供电占比 (%)', color: '#1677ff' },
+                { key: '市电占比', name: '市网供电占比 (%)', color: '#2C7CFF' },
                 { key: '直供绿电占比', name: '直供绿电占比 (%)', color: '#10b981' },
                 { key: '天然气占比', name: '天然气占比 (%)', color: '#f59e0b' },
                 { key: '外购蒸汽占比', name: '外购蒸汽占比 (%)', color: '#8b5cf6' },

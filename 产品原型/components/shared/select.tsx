@@ -49,14 +49,14 @@ export function Select({
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      {label && <span className="whitespace-nowrap text-xs text-muted-foreground">{label}</span>}
+      {label && <span className="whitespace-nowrap text-sm text-muted-foreground font-medium">{label}</span>}
       <div className="relative" ref={ref}>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           className={cn(
-            'flex h-9 min-w-[9rem] items-center justify-between gap-3 rounded-md border border-border bg-panel px-3 text-sm text-foreground transition-colors',
-            'hover:border-primary/60 focus:outline-none focus:ring-2 focus:ring-ring',
+            'flex h-9 min-w-[200px] items-center justify-between gap-3 rounded-lg border border-border bg-panel px-3 text-sm text-foreground transition-colors',
+            'hover:border-primary/60 focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer',
           )}
           aria-haspopup="listbox"
           aria-expanded={open}
@@ -71,7 +71,7 @@ export function Select({
         {open && (
           <ul
             role="listbox"
-            className="absolute z-50 mt-1 max-h-64 w-full min-w-full overflow-auto rounded-md border border-border bg-popover p-1 shadow-xl shadow-black/40 backdrop-blur"
+            className="absolute z-50 mt-1 max-h-64 w-full min-w-full overflow-auto rounded-lg border border-border bg-popover p-1 shadow-xl shadow-black/40 backdrop-blur"
           >
             {options.map((o) => (
               <li key={o.value}>

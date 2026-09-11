@@ -11,7 +11,8 @@ import { TimeFilter } from './cascade-filter'
 import {
   industries,
   linesOf,
-  categoriesOf,
+  majorCategoriesOf,
+  mediumCategoriesOf,
   allModelsOf,
   unitMetrics,
   featureOf,
@@ -25,6 +26,8 @@ import {
 type AggModel = {
   model: string
   line: string
+  majorCategory?: string
+  mediumCategory?: string
   category: string
   perKva: number
   perUnit: number
@@ -36,15 +39,22 @@ type AggModel = {
 
 export function RankingView() {
   const [ind, setInd] = useState('变压器')
-  const [line, setLine] = useState(() => linesOf('变压器')[0])
-  const [cat, setCat] = useState(() => categoriesOf('变压器', linesOf('变压器')[0])[0])
+  const [line, setLine] = useState(() => linesOf('变压器')[0] || '高压产线')
+  const [majorCat, setMajorCat] = useState(() => majorCategoriesOf('变压器', '高压产线')[0] || '变压器-高压')
+  const [mediumCat, setMediumCat] = useState(() => mediumCategoriesOf('变压器', '变压器-高压')[0] || '交流变压器-110KV')
   const [from, setFrom] = useState('2026-06')
   const [to, setTo] = useState('2026-08')
 
   /* 组织树选中节点（可为集团/二级单位/三级经营单位） */
   const [scope, setScope] = useState<string>('特变电工电装集团')
   /* 已应用的查询条件 */
-  const [applied, setApplied] = useState({ ind: '变压器', line: linesOf('变压器')[0], cat: categoriesOf('变压器', linesOf('变压器')[0])[0], scope: '特变电工电装集团' })
+  const [applied, setApplied] = useState({
+    ind: '变压器',
+    line: linesOf('变压器')[0] || '高压产线',
+    majorCat: majorCategoriesOf('变压器', '高压产线')[0] || '变压器-高压',
+    mediumCat: mediumCategoriesOf('变压器', '变压器-高压')[0] || '交流变压器-110KV',
+    scope: '特变电工电装集团',
+  })
   const [drill, setDrill] = useState<AggModel | null>(null)
 
   /* 选中节点覆盖的叶子经营单位集合 */
@@ -55,7 +65,7 @@ export function RankingView() {
 
   /* 型号聚合：对选中范围内的叶子单位取均值 */
   const agg = useMemo<AggModel[]>(() => {
-    return allModelsOf(applied.ind).map((m) => {
+    return allModelsOf(applied.ind, applied.majorCat, applied.mediumCat, applied.line).map((m) => {
       let ms = unitMetrics(m.model, applied.ind)
       if (scopeLeaves) ms = ms.filter((x) => scopeLeaves.includes(x.unit))
       if (ms.length === 0) ms = unitMetrics(m.model, applied.ind)
@@ -82,26 +92,29 @@ export function RankingView() {
   const meanKva = agg.length ? agg.reduce((s, m) => s + m.perKva, 0) / agg.length : 0
 
   function onQuery() {
-    setApplied({ ind, line, cat, scope })
+    setApplied({ ind, line, majorCat, mediumCat, scope })
   }
   function onReset() {
-    const l = linesOf('变压器')[0]
-    const c = categoriesOf('变压器', l)[0]
-    setInd('变压器')
+    const defaultInd = '变压器'
+    const l = linesOf(defaultInd)[0] || '高压产线'
+    const maj = majorCategoriesOf(defaultInd, l)[0] || '变压器-高压'
+    const med = mediumCategoriesOf(defaultInd, maj)[0] || '交流变压器-110KV'
+    setInd(defaultInd)
     setLine(l)
-    setCat(c)
+    setMajorCat(maj)
+    setMediumCat(med)
     setScope('特变电工电装集团')
     setFrom('2026-06')
     setTo('2026-08')
-    setApplied({ ind: '变压器', line: l, cat: c, scope: '特变电工电装集团' })
+    setApplied({ ind: defaultInd, line: l, majorCat: maj, mediumCat: med, scope: '特变电工电装集团' })
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
+    <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
       {/* 左侧三级组织树 */}
       <OrgTreePanel scope={scope} onScope={setScope} />
 
-      <div className="space-y-5">
+      <div className="space-y-6">
         <Panel className="relative z-30" title="纵向对比">
           <div className="flex flex-wrap items-center gap-3">
             <Select
@@ -109,9 +122,12 @@ export function RankingView() {
               value={ind}
               onChange={(v) => {
                 setInd(v)
-                const l = linesOf(v)[0]
+                const l = linesOf(v)[0] || (v === '线缆' ? '导线产线' : '高压产线')
+                const maj = majorCategoriesOf(v, l)[0] || (v === '线缆' ? '裸导线' : '变压器-高压')
+                const med = mediumCategoriesOf(v, maj)[0] || (v === '线缆' ? '钢芯铝绞线' : '交流变压器-110KV')
                 setLine(l)
-                setCat(categoriesOf(v, l)[0])
+                setMajorCat(maj)
+                setMediumCat(med)
               }}
               options={industries.map((v) => ({ label: v, value: v }))}
             />
@@ -120,11 +136,30 @@ export function RankingView() {
               value={line}
               onChange={(v) => {
                 setLine(v)
-                setCat(categoriesOf(ind, v)[0])
+                const majs = majorCategoriesOf(ind, v)
+                const nextMaj = majs[0] || majorCategoriesOf(ind)[0] || ''
+                const nextMed = mediumCategoriesOf(ind, nextMaj)[0] || ''
+                setMajorCat(nextMaj)
+                setMediumCat(nextMed)
               }}
               options={linesOf(ind).map((v) => ({ label: v, value: v }))}
             />
-            <Select label="产品类别" value={cat} onChange={setCat} options={categoriesOf(ind, line).map((v) => ({ label: v, value: v }))} />
+            <Select
+              label="产品大类"
+              value={majorCat}
+              onChange={(v) => {
+                setMajorCat(v)
+                const med = mediumCategoriesOf(ind, v)[0] || ''
+                setMediumCat(med)
+              }}
+              options={majorCategoriesOf(ind, line).map((v) => ({ label: v, value: v }))}
+            />
+            <Select
+              label="产品中类"
+              value={mediumCat}
+              onChange={(v) => setMediumCat(v)}
+              options={mediumCategoriesOf(ind, majorCat).map((v) => ({ label: v, value: v }))}
+            />
             <TimeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} />
             <button type="button" onClick={onQuery} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
               <Search className="size-4" /> 查询
@@ -145,22 +180,22 @@ export function RankingView() {
         </div>
 
         {/* 重点指标 */}
-        <div className="grid grid-cols-3 gap-4">
-          <KpiCard label="产品型号数量" value={String(agg.length)} unit="个" icon={Boxes} />
+        <div className="grid grid-cols-3 gap-6">
+          <KpiCard label="产品品规数量" value={String(agg.length)} unit="个" icon={Boxes} />
           <KpiCard label="生产产品总数" value={totalQty.toLocaleString()} unit="台" icon={Package} />
           <KpiCard label="单位产品碳足迹（均值）" value={meanKva.toFixed(4)} unit="kgCO2/kVA" icon={Ruler} />
         </div>
 
         {/* 榜单 */}
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Panel title="低碳标杆 Top5" className="border-t-2 border-t-[var(--success)]">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Panel title="碳强度最低 Top 5" className="border-t-2 border-t-[var(--success)]">
             <div className="space-y-2">
               {good.map((m, i) => (
                 <RankCard key={m.model} m={m} idx={i} kind="good" onClick={() => setDrill(m)} />
               ))}
             </div>
           </Panel>
-          <Panel title="改进对象 Top5" className="border-t-2 border-t-[var(--destructive)]">
+          <Panel title="碳强度居高 Top 5" className="border-t-2 border-t-[var(--destructive)]">
             <div className="space-y-2">
               {poor.map((m, i) => (
                 <RankCard key={m.model} m={m} idx={i} kind="poor" onClick={() => setDrill(m)} />
@@ -345,7 +380,7 @@ function ModelDrill({
         <div className="mb-4 flex flex-wrap gap-2">
           {units.map((u, i) => (
             <button
-              key={u}
+              key={`${u}-${i}`}
               onClick={() => setActiveUnit(i)}
               className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
                 i === activeUnit ? 'bg-primary text-primary-foreground' : 'border border-border text-muted-foreground hover:text-foreground'

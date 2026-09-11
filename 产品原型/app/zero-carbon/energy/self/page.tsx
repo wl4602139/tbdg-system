@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Gauge, PieChart, Package, TrendingUp, Wand2, Sparkles } from 'lucide-react'
-import { Panel, PanelTitle, DataTable, Badge, KpiCard } from '@/components/shared/primitives'
+import { Panel, PanelTitle, DataTable, Badge, KpiCard, ExportButton } from '@/components/shared/primitives'
 import { Select } from '@/components/shared/select'
 import { BarGroup } from '@/components/shared/charts'
 import { factories } from '@/lib/mock-data'
@@ -42,7 +42,7 @@ export default function SelfPage() {
   const worstObj = meta.better === 'low' ? genData[vals.indexOf(Math.max(...vals))] : genData[vals.indexOf(Math.min(...vals))]
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-6">
       <Panel>
         <PanelTitle
           title="自助分析"
@@ -74,14 +74,14 @@ export default function SelfPage() {
         </div>
       </Panel>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
         <KpiCard label={`平均${aMetric}`} value={String(avg)} unit={meta.unit} icon={Gauge} />
-        <KpiCard label="标杆对象" value={bestObj.name} icon={TrendingUp} />
-        <KpiCard label="待改进对象" value={worstObj.name} icon={Package} />
+        <KpiCard label="最优对象" value={bestObj.name} icon={TrendingUp} />
+        <KpiCard label="最高单耗对象" value={worstObj.name} icon={Package} />
         <KpiCard label="对象数量" value={String(objs.length)} unit="个" icon={PieChart} />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <Panel className="lg:col-span-2">
           <PanelTitle title={`${aDim} · ${aMetric}对比`} subtitle={`统计周期：${aPeriod}（${meta.unit}）`} icon={Wand2} />
           <BarGroup
@@ -92,15 +92,15 @@ export default function SelfPage() {
           />
         </Panel>
         <Panel>
-          <PanelTitle title="分析评价" subtitle="系统自动生成" icon={Sparkles} />
+          <PanelTitle title="对比分析" subtitle="系统客观统计" icon={Sparkles} />
           <div className="grid gap-3 text-sm leading-relaxed text-muted-foreground">
             <p>
               本次以 <span className="text-foreground">{aDim.replace('按', '')}</span> 为维度，对
               <span className="text-primary"> {aMetric}</span> 进行 {aPeriod} 分析，共覆盖 {objs.length} 个对象。
             </p>
             <p>
-              平均值为 <span className="font-mono text-foreground">{avg} {meta.unit}</span>；标杆对象为
-              <span className="text-[var(--success)]"> {bestObj.name}</span>（{bestObj.数值} {meta.unit}），待改进对象为
+              平均值为 <span className="font-mono text-foreground">{avg} {meta.unit}</span>；最优对象为
+              <span className="text-[var(--success)]"> {bestObj.name}</span>（{bestObj.数值} {meta.unit}），最高单耗对象为
               <span className="text-[var(--warning)]">{worstObj.name}</span>（{worstObj.数值} {meta.unit}）。
             </p>
           </div>
@@ -108,7 +108,10 @@ export default function SelfPage() {
       </div>
 
       <Panel>
-        <PanelTitle title="分析数据明细" subtitle="可导出用于统计报表与效益评估" icon={Package} />
+        <div className="flex items-center justify-between pb-2">
+          <PanelTitle title="分析数据明细" subtitle="可导出用于统计报表与效益评估" icon={Package} />
+          <ExportButton />
+        </div>
         <DataTable
           columns={[
             { key: 'name', label: aDim.replace('按', '') },
@@ -125,7 +128,7 @@ export default function SelfPage() {
             },
             {
               key: 'eval',
-              label: '评价',
+              label: '基准对比',
               render: (r) => {
                 const good = meta.better === 'low' ? r.数值 <= avg : r.数值 >= avg
                 return <Badge tone={good ? 'success' : 'warning'}>{good ? '优于均值' : '低于均值'}</Badge>

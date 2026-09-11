@@ -12,7 +12,7 @@ export function ComboBox({
   label,
   placeholder = '搜索…',
   className,
-  minWidth = '11rem',
+  minWidth = '200px',
 }: {
   options: string[]
   value: string
@@ -38,7 +38,7 @@ export function ComboBox({
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      {label && <span className="whitespace-nowrap text-xs text-muted-foreground">{label}</span>}
+      {label && <span className="whitespace-nowrap text-sm text-muted-foreground font-medium">{label}</span>}
       <div className="relative" ref={ref} style={{ minWidth }}>
         <button
           type="button"
@@ -47,15 +47,15 @@ export function ComboBox({
             setQ('')
           }}
           className={cn(
-            'flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border bg-panel px-3 text-sm text-foreground transition-colors',
-            'hover:border-primary/60 focus:outline-none focus:ring-2 focus:ring-ring',
+            'flex h-9 w-full items-center justify-between gap-2 rounded-lg border border-border bg-panel px-3 text-sm text-foreground transition-colors',
+            'hover:border-primary/60 focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer',
           )}
         >
           <span className="truncate font-mono text-[13px]">{value || placeholder}</span>
           <ChevronDown className={cn('size-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} />
         </button>
         {open && (
-          <div className="absolute z-50 mt-1 w-full min-w-[13rem] overflow-hidden rounded-md border border-border bg-popover shadow-xl shadow-black/40 backdrop-blur">
+          <div className="absolute z-50 mt-1 w-full min-w-[200px] overflow-hidden rounded-lg border border-border bg-popover shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex items-center gap-2 border-b border-border px-2.5 py-2">
               <Search className="size-3.5 text-muted-foreground" />
               <input

@@ -37,7 +37,7 @@ export function CompareView() {
   const [breakdown, setBreakdown] = useState(false)
 
   const feat = featureOf(applied.sel.model)
-  const trSpec = applied.sel.ind === '变压器' ? transformerSpec(applied.sel.model) : null
+  const trSpec = (applied.sel.ind === '变压器' || applied.sel.majorCat?.startsWith('变压器') || applied.sel.majorCat === '变压器') ? transformerSpec(applied.sel.model) : null
 
   function onQuery() {
     setApplied({ sel, from, to })
@@ -66,11 +66,12 @@ export function CompareView() {
   const stageData = rows.map((r) => ({ name: r.unit, material: r.material, transport: r.transport, produce: r.produce, waste: r.waste }))
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <Panel className="relative z-30" title="横向对比">
         <CascadeFilter
           value={sel}
           onChange={setSel}
+          showModel={false}
           time={<TimeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} />}
         >
           <button
@@ -93,17 +94,17 @@ export function CompareView() {
       </Panel>
 
       {/* 重点指标（去掉车间产线数量） */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <KpiCard label="涉及经营单位" value={String(rows.length)} unit="家" icon={Building2} />
         <button
           type="button"
           onClick={() => setBreakdown(true)}
-          className="rounded-xl text-left transition-transform hover:-translate-y-0.5"
+          className="rounded-lg text-left transition-transform hover:-translate-y-0.5"
         >
           <KpiCard label="生产订单数" value={String(totalOrders)} unit="条" icon={FileStack} trend="点击查看各经营单位明细" up />
         </button>
         {trSpec ? (
-          <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-card px-5 py-4">
             <div className="flex flex-col gap-2">
               <span className="text-xs text-muted-foreground">产品特征量</span>
               <div className="flex items-end gap-5">
@@ -126,7 +127,7 @@ export function CompareView() {
       </div>
 
       {/* 单台产品碳足迹排序（横向排名条） */}
-      <Panel title={`同型号经营单位排序 · ${applied.sel.model}`} desc="按单台产品碳足迹升序排列（越低越优），最多展示 5 家同时生产的经营单位">
+      <Panel title={`各经营单位产品碳足迹排序 · ${applied.sel.mediumCat || applied.sel.majorCat}`} desc="按单台产品碳足迹升序排列，最多展示 5 家同时生产的经营单位">
         <div className="space-y-1.5">
           {rows.map((r, i) => {
             const pct = maxPerUnit > 0 ? (r.perUnit / maxPerUnit) * 100 : 0
@@ -203,6 +204,7 @@ export function CompareView() {
       <UnitDrill
         unit={drillUnit}
         model={applied.sel.model}
+        mediumCat={applied.sel.mediumCat || applied.sel.majorCat}
         industry={applied.sel.ind}
         period={`${applied.from} 至 ${applied.to}`}
         onClose={() => setDrillUnit(null)}
@@ -215,12 +217,14 @@ export function CompareView() {
 function UnitDrill({
   unit,
   model,
+  mediumCat,
   industry,
   period,
   onClose,
 }: {
   unit: UnitMetric | null
   model: string
+  mediumCat?: string
   industry: string
   period: string
   onClose: () => void
@@ -238,7 +242,7 @@ function UnitDrill({
   if (!unit) return null
 
   return (
-    <Modal open={!!unit} onClose={onClose} title={`${unit.unit} · ${model}`} size="xl">
+    <Modal open={!!unit} onClose={onClose} title={`${unit.unit} · ${mediumCat || model}`} size="xl">
       <p className="mb-4 text-xs text-muted-foreground">{period} · 全部生产订单统一对比分析</p>
       <div className="space-y-4">
         <div className="rounded-lg border border-border p-3">

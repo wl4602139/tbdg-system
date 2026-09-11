@@ -417,3 +417,296 @@ export function convertSubcategoryToMetric(sub: ProductLineSubcategory, unitName
     trendHistory: sub.trendHistory,
   }
 }
+
+/**
+ * 🌟 计算并获取指定产品中类（产线子分类）的 5 大管控指标：
+ * 1. 单位产品能耗
+ * 2. 单位产品电耗
+ * 3. 单位产品蒸汽耗
+ * 4. 单位产品天然气耗
+ * 5. 单位产品水耗
+ */
+export function getSubcategory5Metrics(
+  sub: ProductLineSubcategory,
+  lineSpec?: {
+    unitSuffix?: string
+    energy?: { val: string; yoy: string }
+    elec?: { val: string; yoy: string }
+    steam?: { val: string; yoy: string }
+    gas?: { val: string; yoy: string }
+    water?: { val: string; yoy: string }
+  },
+  unitName = ''
+): any[] {
+  const targetUnit = sub.unitSuffix || lineSpec?.unitSuffix || '万kVA'
+  const subEnergyNum = parseFloat(sub.energyVal) || 0.3
+  const specEnergyNum = lineSpec?.energy?.val ? parseFloat(lineSpec.energy.val) : 0.328
+  const ratio = specEnergyNum > 0 ? subEnergyNum / specEnergyNum : 1
+
+  // 1. 单位产品能耗
+  const energyMetric = {
+    id: `${sub.id}-energy`,
+    code: `SEC-SUB-${sub.code}-01`,
+    name: `单位产品能耗 (${sub.name})`,
+    category: 'product' as const,
+    categoryName: `产线子分类管控指标 · ${sub.lineName}`,
+    unit: sub.energyUnit,
+    curVal: sub.energyVal,
+    yoy: sub.yoy,
+    isYoyDown: sub.isYoyDown,
+    status: '常规监测' as const,
+    statusType: 'green' as const,
+    badge: sub.code,
+    tipText: sub.tipText || `考核统计期内【${sub.name}】每单位合格产成品的综合能源消耗量（折标煤）。`,
+    formula: sub.formula || 'e = E / M',
+    formulaDesc: sub.formulaDesc || `月度指标。e: 综合单耗，单位为 ${sub.energyUnit}；E: 产线实际消耗综合能源量（tce）；M: 子分类产品合格入库产量（${targetUnit}）。`,
+    numeratorName: '产线实际消耗综合能源量',
+    numeratorVal: `${(subEnergyNum * 1250).toFixed(1)} tce`,
+    denominatorName: '子分类产品入库合格产量',
+    denominatorVal: `1,250 ${targetUnit}`,
+    dataSource: `${unitName || '生产厂区'} ERP生产批次与产线数字化能源计量系统`,
+    rawMeters: [
+      {
+        medium: '电力',
+        meterCode: `EM-LINE-${sub.code.slice(-4)}-01`,
+        location: `${sub.lineName}主装与试验配电进线柜`,
+        reading: sub.elecVal,
+        unit: 'kWh',
+        coeff: '0.0001229',
+        tce: (parseFloat(sub.elecVal.replace(/,/g, '')) * 0.0001229).toFixed(3),
+      },
+      ...(sub.steamVal ? [{
+        medium: '蒸汽',
+        meterCode: `STM-LINE-${sub.code.slice(-4)}-01`,
+        location: `${sub.lineName}干燥及热力管道分表`,
+        reading: sub.steamVal,
+        unit: 'GJ',
+        coeff: '0.0341',
+        tce: (parseFloat(sub.steamVal) * 0.0341).toFixed(3),
+      }] : []),
+    ],
+    trendHistory: sub.trendHistory || [],
+  }
+
+  // 2. 单位产品电耗
+  const elecNum = parseFloat(sub.elecVal.replace(/,/g, '')) || 2400
+  const elecHistory = [
+    { period: '25-09', value: parseFloat((elecNum * 1.08).toFixed(1)), mom: '-0.8%', yoy: '-4.8%' },
+    { period: '25-10', value: parseFloat((elecNum * 1.07).toFixed(1)), mom: '-0.9%', yoy: '-4.9%' },
+    { period: '25-11', value: parseFloat((elecNum * 1.06).toFixed(1)), mom: '-0.9%', yoy: '-5.0%' },
+    { period: '25-12', value: parseFloat((elecNum * 1.05).toFixed(1)), mom: '-1.0%', yoy: '-5.1%' },
+    { period: '26-01', value: parseFloat((elecNum * 1.04).toFixed(1)), mom: '-0.9%', yoy: '-5.2%' },
+    { period: '26-02', value: parseFloat((elecNum * 1.03).toFixed(1)), mom: '-0.9%', yoy: '-5.3%' },
+    { period: '26-03', value: parseFloat((elecNum * 1.025).toFixed(1)), mom: '-0.5%', yoy: '-5.4%' },
+    { period: '26-04', value: parseFloat((elecNum * 1.02).toFixed(1)), mom: '-0.5%', yoy: '-5.5%' },
+    { period: '26-05', value: parseFloat((elecNum * 1.015).toFixed(1)), mom: '-0.5%', yoy: '-5.5%' },
+    { period: '26-06', value: parseFloat((elecNum * 1.01).toFixed(1)), mom: '-0.5%', yoy: '-5.6%' },
+    { period: '26-07', value: parseFloat((elecNum * 1.005).toFixed(1)), mom: '-0.5%', yoy: '-5.6%' },
+    { period: '26-08', value: elecNum, mom: '-0.5%', yoy: sub.yoy || '-5.2%' },
+  ]
+  const elecMetric = {
+    id: `${sub.id}-elec`,
+    code: `SEC-SUB-${sub.code}-02`,
+    name: `单位产品电耗 (${sub.name})`,
+    category: 'product' as const,
+    categoryName: `产线子分类管控指标 · ${sub.lineName}`,
+    unit: sub.elecUnit,
+    curVal: sub.elecVal,
+    yoy: sub.yoy || '-5.2%',
+    isYoyDown: true,
+    status: '常规监测' as const,
+    statusType: 'green' as const,
+    badge: sub.code,
+    tipText: `考核统计期内【${sub.name}】每单位合格产成品消耗的电力量。`,
+    formula: 'e_elec = E_elec / M',
+    formulaDesc: `月度指标。e_elec: 单位产品电耗，单位为 ${sub.elecUnit}；E_elec: 耗电总量，单位 kWh；M: 产成品产量。`,
+    numeratorName: '产线实际消耗电力量',
+    numeratorVal: `${(elecNum * 1250).toLocaleString()} kWh`,
+    denominatorName: '子分类产品入库合格产量',
+    denominatorVal: `1,250 ${targetUnit}`,
+    dataSource: `${unitName || '生产厂区'} ERP生产批次与产线数字化能源计量系统`,
+    rawMeters: [
+      {
+        medium: '电力',
+        meterCode: `EM-LINE-${sub.code.slice(-4)}-01`,
+        location: `${sub.lineName}主装与试验配电进线柜`,
+        reading: sub.elecVal,
+        unit: 'kWh',
+        coeff: '0.0001229',
+        tce: (elecNum * 0.0001229).toFixed(3),
+      },
+    ],
+    trendHistory: elecHistory,
+  }
+
+  // 3. 单位产品蒸汽耗
+  const rawSteamSpec = lineSpec?.steam?.val !== undefined ? parseFloat(lineSpec.steam.val) : 3.85
+  const steamValNum = sub.steamVal
+    ? parseFloat(sub.steamVal)
+    : rawSteamSpec > 0
+    ? parseFloat((rawSteamSpec * ratio).toFixed(2))
+    : 0
+  const steamValStr = steamValNum.toFixed(2)
+  const steamUnit = sub.steamUnit || `GJ/${targetUnit}`
+  const steamYoy = lineSpec?.steam?.yoy || '-4.5%'
+  const steamHistory = [
+    { period: '25-09', value: parseFloat((steamValNum * 1.10).toFixed(2)), mom: '-0.7%', yoy: '-3.8%' },
+    { period: '25-10', value: parseFloat((steamValNum * 1.08).toFixed(2)), mom: '-1.2%', yoy: '-3.9%' },
+    { period: '25-11', value: parseFloat((steamValNum * 1.07).toFixed(2)), mom: '-0.9%', yoy: '-4.0%' },
+    { period: '25-12', value: parseFloat((steamValNum * 1.05).toFixed(2)), mom: '-1.2%', yoy: '-4.1%' },
+    { period: '26-01', value: parseFloat((steamValNum * 1.04).toFixed(2)), mom: '-1.0%', yoy: '-4.2%' },
+    { period: '26-02', value: parseFloat((steamValNum * 1.03).toFixed(2)), mom: '-1.0%', yoy: '-4.3%' },
+    { period: '26-03', value: parseFloat((steamValNum * 1.025).toFixed(2)), mom: '-0.5%', yoy: '-4.3%' },
+    { period: '26-04', value: parseFloat((steamValNum * 1.02).toFixed(2)), mom: '-0.5%', yoy: '-4.4%' },
+    { period: '26-05', value: parseFloat((steamValNum * 1.015).toFixed(2)), mom: '-0.5%', yoy: '-4.4%' },
+    { period: '26-06', value: parseFloat((steamValNum * 1.01).toFixed(2)), mom: '-0.5%', yoy: '-4.4%' },
+    { period: '26-07', value: parseFloat((steamValNum * 1.005).toFixed(2)), mom: '-0.5%', yoy: '-4.5%' },
+    { period: '26-08', value: steamValNum, mom: '-0.5%', yoy: steamYoy },
+  ]
+  const steamMetric = {
+    id: `${sub.id}-steam`,
+    code: `SEC-SUB-${sub.code}-03`,
+    name: `单位产品蒸汽耗 (${sub.name})`,
+    category: 'product' as const,
+    categoryName: `产线子分类管控指标 · ${sub.lineName}`,
+    unit: steamUnit,
+    curVal: steamValStr,
+    yoy: steamYoy,
+    isYoyDown: true,
+    status: '常规监测' as const,
+    statusType: 'green' as const,
+    badge: sub.code,
+    tipText: `考核统计期内【${sub.name}】生产工序（如干燥、固化等）的蒸汽能效。`,
+    formula: 'e_steam = E_steam / M',
+    formulaDesc: `月度指标。e_steam: 单位产品蒸汽耗，单位为 ${steamUnit}；E_steam: 消耗蒸汽总量折算热量，单位 GJ；M: 产成品产量。`,
+    numeratorName: '产线实际消耗蒸汽折算热量',
+    numeratorVal: `${(steamValNum * 1250).toFixed(1)} GJ`,
+    denominatorName: '子分类产品入库合格产量',
+    denominatorVal: `1,250 ${targetUnit}`,
+    dataSource: `${unitName || '生产厂区'} ERP生产批次与产线数字化能源计量系统`,
+    rawMeters: steamValNum > 0 ? [
+      {
+        medium: '蒸汽',
+        meterCode: `STM-LINE-${sub.code.slice(-4)}-01`,
+        location: `${sub.lineName}干燥及热力管道分表`,
+        reading: steamValStr,
+        unit: 'GJ',
+        coeff: '0.0341',
+        tce: (steamValNum * 0.0341).toFixed(3),
+      },
+    ] : [],
+    trendHistory: steamHistory,
+  }
+
+  // 4. 单位产品天然气耗
+  const rawGasSpec = lineSpec?.gas?.val !== undefined ? parseFloat(lineSpec.gas.val) : 45.2
+  const gasValNum = rawGasSpec > 0 ? parseFloat((rawGasSpec * ratio).toFixed(1)) : 0
+  const gasValStr = gasValNum.toFixed(1)
+  const gasUnit = `m³/${targetUnit}`
+  const gasYoy = lineSpec?.gas?.yoy || '-4.1%'
+  const gasHistory = [
+    { period: '25-09', value: parseFloat((gasValNum * 1.09).toFixed(1)), mom: '-0.8%', yoy: '-3.2%' },
+    { period: '25-10', value: parseFloat((gasValNum * 1.08).toFixed(1)), mom: '-1.0%', yoy: '-3.4%' },
+    { period: '25-11', value: parseFloat((gasValNum * 1.07).toFixed(1)), mom: '-1.0%', yoy: '-3.5%' },
+    { period: '25-12', value: parseFloat((gasValNum * 1.05).toFixed(1)), mom: '-1.4%', yoy: '-3.6%' },
+    { period: '26-01', value: parseFloat((gasValNum * 1.04).toFixed(1)), mom: '-1.0%', yoy: '-3.8%' },
+    { period: '26-02', value: parseFloat((gasValNum * 1.03).toFixed(1)), mom: '-0.8%', yoy: '-3.8%' },
+    { period: '26-03', value: parseFloat((gasValNum * 1.025).toFixed(1)), mom: '-0.5%', yoy: '-3.9%' },
+    { period: '26-04', value: parseFloat((gasValNum * 1.02).toFixed(1)), mom: '-0.5%', yoy: '-4.0%' },
+    { period: '26-05', value: parseFloat((gasValNum * 1.015).toFixed(1)), mom: '-0.5%', yoy: '-4.0%' },
+    { period: '26-06', value: parseFloat((gasValNum * 1.01).toFixed(1)), mom: '-0.5%', yoy: '-4.1%' },
+    { period: '26-07', value: parseFloat((gasValNum * 1.005).toFixed(1)), mom: '-0.5%', yoy: '-4.1%' },
+    { period: '26-08', value: gasValNum, mom: '-0.5%', yoy: gasYoy },
+  ]
+  const gasMetric = {
+    id: `${sub.id}-gas`,
+    code: `SEC-SUB-${sub.code}-04`,
+    name: `单位产品天然气耗 (${sub.name})`,
+    category: 'product' as const,
+    categoryName: `产线子分类管控指标 · ${sub.lineName}`,
+    unit: gasUnit,
+    curVal: gasValStr,
+    yoy: gasYoy,
+    isYoyDown: true,
+    status: '常规监测' as const,
+    statusType: 'green' as const,
+    badge: sub.code,
+    tipText: `考核统计期内【${sub.name}】生产供热与工艺用气单耗。`,
+    formula: 'e_gas = E_gas / M',
+    formulaDesc: `月度指标。e_gas: 单位产品天然气耗，单位为 ${gasUnit}；E_gas: 天然气总耗量，单位 m³；M: 产成品产量。`,
+    numeratorName: '产线实际消耗天然气总量',
+    numeratorVal: `${(gasValNum * 1250).toFixed(0)} m³`,
+    denominatorName: '子分类产品入库合格产量',
+    denominatorVal: `1,250 ${targetUnit}`,
+    dataSource: `${unitName || '生产厂区'} ERP生产批次与产线数字化能源计量系统`,
+    rawMeters: gasValNum > 0 ? [
+      {
+        medium: '天然气',
+        meterCode: `GAS-LINE-${sub.code.slice(-4)}-01`,
+        location: `${sub.lineName}燃烧及加热系统进气分表`,
+        reading: gasValStr,
+        unit: 'm³',
+        coeff: '0.001214',
+        tce: (gasValNum * 0.001214).toFixed(3),
+      },
+    ] : [],
+    trendHistory: gasHistory,
+  }
+
+  // 5. 单位产品水耗
+  const rawWaterSpec = lineSpec?.water?.val !== undefined ? parseFloat(lineSpec.water.val) : 12.4
+  const waterValNum = rawWaterSpec > 0 ? parseFloat((rawWaterSpec * ratio).toFixed(1)) : 0
+  const waterValStr = waterValNum.toFixed(1)
+  const waterUnit = `t/${targetUnit}`
+  const waterYoy = lineSpec?.water?.yoy || '-3.9%'
+  const waterHistory = [
+    { period: '25-09', value: parseFloat((waterValNum * 1.09).toFixed(1)), mom: '-0.7%', yoy: '-3.1%' },
+    { period: '25-10', value: parseFloat((waterValNum * 1.08).toFixed(1)), mom: '-0.7%', yoy: '-3.2%' },
+    { period: '25-11', value: parseFloat((waterValNum * 1.06).toFixed(1)), mom: '-1.5%', yoy: '-3.3%' },
+    { period: '25-12', value: parseFloat((waterValNum * 1.05).toFixed(1)), mom: '-1.5%', yoy: '-3.5%' },
+    { period: '26-01', value: parseFloat((waterValNum * 1.04).toFixed(1)), mom: '-0.8%', yoy: '-3.6%' },
+    { period: '26-02', value: parseFloat((waterValNum * 1.03).toFixed(1)), mom: '-0.8%', yoy: '-3.6%' },
+    { period: '26-03', value: parseFloat((waterValNum * 1.025).toFixed(1)), mom: '-0.5%', yoy: '-3.7%' },
+    { period: '26-04', value: parseFloat((waterValNum * 1.02).toFixed(1)), mom: '-0.5%', yoy: '-3.8%' },
+    { period: '26-05', value: parseFloat((waterValNum * 1.015).toFixed(1)), mom: '-0.5%', yoy: '-3.8%' },
+    { period: '26-06', value: parseFloat((waterValNum * 1.01).toFixed(1)), mom: '-0.5%', yoy: '-3.8%' },
+    { period: '26-07', value: parseFloat((waterValNum * 1.005).toFixed(1)), mom: '-0.5%', yoy: '-3.9%' },
+    { period: '26-08', value: waterValNum, mom: '-0.5%', yoy: waterYoy },
+  ]
+  const waterMetric = {
+    id: `${sub.id}-water`,
+    code: `SEC-SUB-${sub.code}-05`,
+    name: `单位产品水耗 (${sub.name})`,
+    category: 'product' as const,
+    categoryName: `产线子分类管控指标 · ${sub.lineName}`,
+    unit: waterUnit,
+    curVal: waterValStr,
+    yoy: waterYoy,
+    isYoyDown: true,
+    status: '常规监测' as const,
+    statusType: 'green' as const,
+    badge: sub.code,
+    tipText: `考核统计期内【${sub.name}】每单位合格产成品的工业新鲜水耗用水平。`,
+    formula: 'e_water = W_total / M',
+    formulaDesc: `月度指标。e_water: 单位产品取水量，单位为 ${waterUnit}；W_total: 新鲜水消耗总量，单位 t；M: 产成品产量。`,
+    numeratorName: '产线实际消耗新鲜水总量',
+    numeratorVal: `${(waterValNum * 1250).toFixed(0)} t`,
+    denominatorName: '子分类产品入库合格产量',
+    denominatorVal: `1,250 ${targetUnit}`,
+    dataSource: `${unitName || '生产厂区'} ERP生产批次与产线数字化能源计量系统`,
+    rawMeters: waterValNum > 0 ? [
+      {
+        medium: '水',
+        meterCode: `WTR-LINE-${sub.code.slice(-4)}-01`,
+        location: `${sub.lineName}工业循环水及工艺用水分表`,
+        reading: waterValStr,
+        unit: 't',
+        coeff: '0.0002571',
+        tce: (waterValNum * 0.0002571).toFixed(3),
+      },
+    ] : [],
+    trendHistory: waterHistory,
+  }
+
+  return [energyMetric, elecMetric, steamMetric, gasMetric, waterMetric]
+}

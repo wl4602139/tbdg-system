@@ -544,8 +544,8 @@ export function StandardOrgTree({
       const isSelectable = (!maxSelectableLevel || currentLevelNum <= maxSelectableLevel) && !isProductUnitDisabled && !isUnconnected
 
       return (
-        <div key={node.id} className="relative select-none text-[12px]">
-          {/* 节点行 */}
+        <div key={node.id} className="relative select-none text-sm">
+          {/* 节点行 (固定 30px 高度) */}
           <div
             onClick={() => {
               if (isSelectable && !isUnconnected) {
@@ -553,7 +553,7 @@ export function StandardOrgTree({
               }
             }}
             className={cn(
-              'flex items-center gap-1.5 py-1 px-1.5 rounded-md transition-colors relative group',
+              'flex items-center gap-1.5 h-[30px] px-2 rounded-lg text-sm transition-colors relative group',
               isUnconnected
                 ? 'opacity-35 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none bg-transparent hover:bg-transparent'
                 : isProductUnitDisabled
@@ -562,7 +562,7 @@ export function StandardOrgTree({
                 ? 'cursor-pointer'
                 : 'cursor-default',
               isSelected && !isProductUnitDisabled && !isUnconnected
-                ? 'bg-primary/15 text-primary font-semibold shadow-xs'
+                ? 'bg-primary/20 text-primary font-semibold shadow-xs'
                 : !isProductUnitDisabled && !isUnconnected && isSelectable
                   ? 'hover:bg-accent/50 text-foreground'
                   : !isProductUnitDisabled && !isUnconnected
@@ -621,7 +621,7 @@ export function StandardOrgTree({
   return (
     <aside
       className={cn(
-        'w-[270px] min-w-[270px] max-w-[270px] shrink-0 bg-card rounded-xl border border-border backdrop-blur-sm shadow-sm flex flex-col h-[calc(100vh-84px)] sticky top-0 overflow-hidden',
+        'w-[270px] min-w-[270px] max-w-[270px] shrink-0 bg-card rounded-lg border border-border backdrop-blur-sm shadow-sm flex flex-col h-[calc(100vh-84px)] sticky top-0 overflow-hidden',
         className
       )}
     >
@@ -651,7 +651,7 @@ export function StandardOrgTree({
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder={treeType === 'park' ? '搜索产业园 / 厂区 / 微电网...' : '搜索单位 / 车间 / 工序...'}
-            className="w-full pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground transition-all"
+            className="w-full pl-8 pr-2.5 h-9 text-xs bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground transition-all"
           />
         </div>
       </div>

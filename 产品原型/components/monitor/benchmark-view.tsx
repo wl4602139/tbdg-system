@@ -346,7 +346,7 @@ export function BenchmarkView() {
           </div>
           <div className="mt-3 flex items-center gap-4 border-t border-border/50 pt-3 text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1">
-              <span className="size-2 rounded-full" style={{ background: 'var(--success)' }} /> 优秀·达标
+              <span className="size-2 rounded-full" style={{ background: 'var(--success)' }} /> 已达标杆
             </span>
             <span className="flex items-center gap-1">
               <span className="size-2 rounded-full" style={{ background: 'var(--warning)' }} /> 正常·接近

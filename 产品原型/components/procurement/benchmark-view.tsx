@@ -44,7 +44,7 @@ export function BenchmarkView() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <Panel
         className="relative z-30"
         title="基准对比"
@@ -84,7 +84,7 @@ export function BenchmarkView() {
           />
         }
       >
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3">
           <div className="rounded-lg border border-border p-3">
             <div className="mb-1 text-xs font-medium text-foreground">单台产品碳足迹</div>
             <div className="mb-1 text-[11px] text-muted-foreground">tCO2/台 vs 单台基准</div>
@@ -124,7 +124,7 @@ export function BenchmarkView() {
                   <tr
                     key={l.name}
                     onClick={() => setDrillLine(l)}
-                    className="cursor-pointer border-b border-border/60 transition-colors last:border-0 hover:bg-accent/40"
+                    className="h-[44px] cursor-pointer border-b border-border/60 transition-colors last:border-0 hover:bg-accent/40"
                   >
                     <td className="px-3 py-2.5 text-foreground">{l.name}</td>
                     <td className="px-3 py-2.5 text-right font-mono text-foreground">{l.perUnit}</td>
@@ -152,7 +152,7 @@ export function BenchmarkView() {
 
       {/* 高碳排热点 */}
       <Panel title="高碳排热点 · 建议与分析" desc="点击热点卡片查看详情与改进建议" className="border-l-2 border-l-[var(--destructive)]">
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3">
           {carbonHotspots.map((h) => (
             <button
               key={h.title}

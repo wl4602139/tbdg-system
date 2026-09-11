@@ -21,6 +21,7 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { getPeriodScaleFactor, getTimeDimensionLabel } from '@/components/shared/time-dimension-engine'
+import { ExportButton } from '@/components/shared/primitives'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
@@ -429,7 +430,7 @@ const METRICS_TREND_DATABASE: Record<MetricType, {
   tce: {
     name: '万元产值综合能耗',
     unit: 'tce/万元',
-    color: '#1677ff',
+    color: '#2C7CFF',
     '12months': [
       { period: '25-09', value: 0.0932, yoy: '-5.0%', mom: '-0.5%' },
       { period: '25-10', value: 0.0925, yoy: '-5.2%', mom: '-0.8%' },
@@ -467,7 +468,7 @@ const METRICS_TREND_DATABASE: Record<MetricType, {
   elec: {
     name: '万元产值电耗',
     unit: 'kWh/万元',
-    color: '#1677ff',
+    color: '#2C7CFF',
     '12months': [
       { period: '25-09', value: 235.0, yoy: '-4.8%', mom: '-0.4%' },
       { period: '25-10', value: 233.2, yoy: '-5.0%', mom: '-0.8%' },
@@ -691,7 +692,7 @@ export default function UnitOutputPage() {
         unit: 'tce/万元',
         yoy: baseTceYoy,
         mom: '-0.5%',
-        color: '#1677ff',
+        color: '#2C7CFF',
         icon: Award,
       },
       {
@@ -702,7 +703,7 @@ export default function UnitOutputPage() {
         unit: 'kWh/万元',
         yoy: baseElecYoy,
         mom: '-0.4%',
-        color: '#1677ff',
+        color: '#2C7CFF',
         icon: Zap,
       },
     ]
@@ -814,7 +815,7 @@ export default function UnitOutputPage() {
       <div className="flex-1 min-w-0 flex flex-col gap-3.5">
         
         {/* 1. 顶部 Header 与 统一标准时间筛选 (与单位产品能耗完全一致) */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-xl border border-border shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-lg border border-border shadow-xs">
           <div className="flex items-center gap-3">
             <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <TrendingUp className="size-5" />
@@ -833,7 +834,7 @@ export default function UnitOutputPage() {
                 }}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                  timeDim === 'month' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 月度
@@ -846,7 +847,7 @@ export default function UnitOutputPage() {
                 }}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                  timeDim === 'quarter' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 季度
@@ -859,7 +860,7 @@ export default function UnitOutputPage() {
                 }}
                 className={cn(
                   'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                  timeDim === 'year' ? 'bg-[#2C7CFF] text-white font-bold rounded-lg shadow-xs' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 年度
@@ -920,14 +921,7 @@ export default function UnitOutputPage() {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={() => alert(`正在导出【${selectedNode.name}】单位产值能耗分析报表 (Excel)...`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-            >
-              <Download className="size-3.5" />
-              <span>导出</span>
-            </button>
+            <ExportButton onClick={() => alert(`正在导出【${selectedNode.name}】单位产值能耗分析报表 (Excel)...`)} />
           </div>
         </div>
 
@@ -955,7 +949,7 @@ export default function UnitOutputPage() {
                   key={m.key}
                   onClick={() => setActiveMetricKey(m.key)}
                   className={cn(
-                    'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all cursor-pointer relative select-none group',
+                    'p-3.5 rounded-lg border shadow-xs space-y-1.5 transition-all cursor-pointer relative select-none group',
                     isSelected
                       ? 'bg-primary/15 border-2 border-primary ring-2 ring-primary/20 shadow-sm scale-[1.01]'
                       : 'bg-card border-border hover:border-primary/40 hover:bg-accent/30'
@@ -987,7 +981,7 @@ export default function UnitOutputPage() {
         </div>
 
         {/* 3. 万元产值能耗变化趋势 (随卡片点击精准同步切换数值与单位) */}
-        <div className="bg-card p-4 rounded-xl border border-border shadow-xs space-y-3.5">
+        <div className="bg-card p-4 rounded-lg border border-border shadow-xs space-y-3.5">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
             <div className="flex items-center gap-2">
               <span className="w-1 h-3.5 bg-primary rounded-full" />
@@ -1059,7 +1053,7 @@ export default function UnitOutputPage() {
                 {
                   key: 'value',
                   name: `${activeMetricMeta.name} (${activeMetricMeta.unit})`,
-                  color: activeMetricMeta.color || '#1677ff',
+                  color: activeMetricMeta.color || '#2C7CFF',
                 },
               ]}
             />
@@ -1086,9 +1080,9 @@ export default function UnitOutputPage() {
 
         {/* 4. 下级单位对比展示 (集团页 ➔ 6家单位; 经营单位页 ➔ 下属项目公司; 项目公司页 ➔ 历史明细台账) */}
         {isGroupLevel || isCompanyLevel ? (
-          <div className="space-y-3.5">
+          <div className="space-y-6">
             {/* 卡片网格 */}
-            <div className="p-4 bg-card rounded-xl border border-border shadow-xs space-y-3">
+            <div className="p-4 bg-card rounded-lg border border-border shadow-xs space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-1 h-3.5 bg-primary rounded-full" />
@@ -1125,7 +1119,7 @@ export default function UnitOutputPage() {
                   return (
                     <div
                       key={r.id}
-                      className="p-3.5 rounded-xl border border-border bg-panel hover:bg-accent/30 transition-all space-y-2.5 shadow-2xs"
+                      className="p-3.5 rounded-lg border border-border bg-panel hover:bg-accent/30 transition-all space-y-2.5 shadow-2xs"
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-xs font-sans text-foreground flex items-center gap-1.5">
@@ -1157,7 +1151,7 @@ export default function UnitOutputPage() {
             </div>
 
             {/* 明细表格 */}
-            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden flex flex-col">
+            <div className="bg-card rounded-lg border border-border shadow-xs overflow-hidden flex flex-col">
               <div className="p-3.5 border-b border-border flex items-center justify-between bg-panel">
                 <div className="flex items-center gap-2">
                   <span className="w-1 h-3.5 bg-primary rounded-full" />
@@ -1229,7 +1223,7 @@ export default function UnitOutputPage() {
           </div>
         ) : (
           /* 项目公司 / 车间视角: 展示该项目公司的 12 个月历史明细台账 */
-          <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden flex flex-col">
+          <div className="bg-card rounded-lg border border-border shadow-xs overflow-hidden flex flex-col">
             <div className="p-3.5 border-b border-border flex items-center justify-between bg-panel">
               <div className="flex items-center gap-2">
                 <span className="w-1 h-3.5 bg-primary rounded-full" />
