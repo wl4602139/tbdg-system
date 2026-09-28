@@ -10,7 +10,7 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Database, Boxes, CalendarRange, Search, RotateCcw, ArrowUpRight } from 'lucide-react'
-import { Panel, DataTable } from '@/components/shared/primitives'
+import { Panel, DataTable, SearchInput } from '@/components/shared/primitives'
 import { Select } from '@/components/shared/select'
 import {
   industries,
@@ -333,7 +333,7 @@ export function RealSceneView() {
           />
         </div>
 
-        <div className="flex flex-wrap items-end gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Select
             label="时间粒度"
             value={granularity}
@@ -347,32 +347,52 @@ export function RealSceneView() {
           {granularity === 'year' ? (
             <Select label="年份" value={year} onChange={setYear} options={['2024', '2025', '2026'].map((y) => ({ label: `${y} 年`, value: y }))} />
           ) : granularity === 'month' ? (
-            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-              月份
-              <input type="month" value={from} onChange={(e) => setFrom(e.target.value)} className="h-9 rounded-md border border-border bg-input px-3 text-sm text-foreground" />
-            </label>
+            <div className="flex items-center gap-2">
+              <span className="whitespace-nowrap text-sm font-medium text-muted-foreground">月份</span>
+              <input
+                type="month"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                className="h-9 w-[160px] rounded-lg border border-[#E2E8F0] dark:border-border bg-white dark:bg-card px-3 text-sm text-foreground outline-none focus:border-[#2C7CFF] focus:ring-1 focus:ring-[#2C7CFF]"
+              />
+            </div>
           ) : (
-            <div className="flex items-end gap-2">
-              <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-                起始月
-                <input type="month" value={from} onChange={(e) => setFrom(e.target.value)} className="h-9 rounded-md border border-border bg-input px-3 text-sm text-foreground" />
-              </label>
-              <span className="pb-2 text-muted-foreground">至</span>
-              <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-                结束月
-                <input type="month" value={to} onChange={(e) => setTo(e.target.value)} className="h-9 rounded-md border border-border bg-input px-3 text-sm text-foreground" />
-              </label>
+            <div className="flex items-center gap-2">
+              <span className="whitespace-nowrap text-sm font-medium text-muted-foreground">起始月</span>
+              <input
+                type="month"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                className="h-9 w-[150px] rounded-lg border border-[#E2E8F0] dark:border-border bg-white dark:bg-card px-3 text-sm text-foreground outline-none focus:border-[#2C7CFF] focus:ring-1 focus:ring-[#2C7CFF]"
+              />
+              <span className="text-sm text-muted-foreground">至</span>
+              <input
+                type="month"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                className="h-9 w-[150px] rounded-lg border border-[#E2E8F0] dark:border-border bg-white dark:bg-card px-3 text-sm text-foreground outline-none focus:border-[#2C7CFF] focus:ring-1 focus:ring-[#2C7CFF]"
+              />
             </div>
           )}
           <Select label="经营单位" value={unit} onChange={setUnit} options={unitOptions.map((u) => ({ label: u, value: u }))} />
-          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-            型号 / 类别
-            <input value={kw} onChange={(e) => setKw(e.target.value)} placeholder="搜索型号或类别" className="h-9 w-44 rounded-md border border-border bg-input px-3 text-sm text-foreground placeholder:text-muted-foreground" />
-          </label>
-          <button type="button" onClick={onQuery} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
+          <SearchInput
+            label="型号/类别"
+            value={kw}
+            onChange={(e) => setKw(e.target.value)}
+            placeholder="搜索型号或类别"
+          />
+          <button
+            type="button"
+            onClick={onQuery}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 cursor-pointer shadow-xs"
+          >
             <Search className="size-4" /> 查询
           </button>
-          <button type="button" onClick={onReset} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <button
+            type="button"
+            onClick={onReset}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+          >
             <RotateCcw className="size-4" /> 重置
           </button>
         </div>
@@ -406,9 +426,6 @@ export function RealSceneView() {
                 <span className={`flex size-9 items-center justify-center rounded-lg ${on ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'}`}>
                   <Icon className="size-4" />
                 </span>
-              </div>
-              <div className={`relative mt-3 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${on ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>
-                {on ? '当前视图' : '点击切换'}
               </div>
             </button>
           )

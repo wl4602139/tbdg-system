@@ -188,14 +188,14 @@ export function RankingView() {
 
         {/* 榜单 */}
         <div className="grid gap-6 lg:grid-cols-2">
-          <Panel title="碳强度最低 Top 5" className="border-t-2 border-t-[var(--success)]">
+          <Panel title="单位产品碳足迹（升序分布 Top 5）">
             <div className="space-y-2">
               {good.map((m, i) => (
                 <RankCard key={m.model} m={m} idx={i} kind="good" onClick={() => setDrill(m)} />
               ))}
             </div>
           </Panel>
-          <Panel title="碳强度居高 Top 5" className="border-t-2 border-t-[var(--destructive)]">
+          <Panel title="单位产品碳足迹（降序分布 Top 5）">
             <div className="space-y-2">
               {poor.map((m, i) => (
                 <RankCard key={m.model} m={m} idx={i} kind="poor" onClick={() => setDrill(m)} />
@@ -222,15 +222,13 @@ function RankCard({
   kind: 'good' | 'poor'
   onClick: () => void
 }) {
-  const tone = kind === 'good' ? 'var(--success)' : 'var(--destructive)'
   return (
     <button
       onClick={onClick}
       className="group flex w-full items-center gap-3 rounded-lg border border-border px-3 py-2.5 text-left transition-colors hover:bg-accent/40"
     >
       <span
-        className="flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold"
-        style={{ background: `color-mix(in oklch, ${tone} 16%, transparent)`, color: tone }}
+        className="flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold bg-primary/15 text-primary"
       >
         {idx + 1}
       </span>
@@ -242,7 +240,7 @@ function RankCard({
         </div>
       </div>
       <div className="shrink-0 text-right">
-        <div className="font-mono text-sm font-semibold" style={{ color: tone }}>
+        <div className="font-mono text-sm font-semibold text-foreground">
           {m.perKva}
         </div>
         <div className="text-[10px] text-muted-foreground">kgCO2/{m.featureUnit}</div>

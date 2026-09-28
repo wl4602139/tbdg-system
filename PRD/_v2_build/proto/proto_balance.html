@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1912px;height:948px;overflow:hidden}
+  body{font-family:"Microsoft YaHei","Segoe UI",sans-serif;background:#F4F6FA;color:#1F2A37;display:flex}
+  aside{width:196px;flex:none;background:linear-gradient(180deg,#123A6B,#0C2A50);color:#C7DCF5;
+     display:flex;flex-direction:column;padding-bottom:16px}
+  aside .lg{height:56px;display:flex;align-items:center;gap:9px;padding:0 16px;
+     border-bottom:1px solid rgba(255,255,255,.1);font-weight:700;color:#fff;font-size:15px;letter-spacing:.5px}
+  aside .lg i{width:22px;height:22px;background:#16A34A;border-radius:4px;display:block}
+  aside .lg em{font-style:normal;font-size:10px;color:#7FA8DA;font-weight:400;display:block;letter-spacing:1.6px}
+  aside .grp{padding:14px 16px 5px;font-size:11px;color:#6E93C4;letter-spacing:1.5px}
+  nav a{display:flex;align-items:center;gap:9px;height:38px;padding:0 16px;font-size:13px;color:#B9D0EC;text-decoration:none}
+  nav a i{width:6px;height:6px;border-radius:50%;background:#4A7BB0;flex:none}
+  nav a.on{background:rgba(22,163,74,.22);color:#fff;border-left:3px solid #16A34A;font-weight:600}
+  nav a.on i{background:#16A34A}
+  nav a.sub{padding-left:38px;font-size:12.5px;color:#93B4DA}
+  nav a.sub.on{color:#fff}
+  nav a.sub.act{color:#4ADE80;background:rgba(22,163,74,.12);border-left:3px solid #4ADE80}
+  main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  header{height:56px;background:#fff;border-bottom:1px solid #E4E9F2;display:flex;align-items:center;
+     gap:14px;padding:0 22px;flex:none}
+  header .rb{font-size:13px;color:#6B7A90}
+  header .chip{background:#E9F7EF;color:#15803D;border:1px solid #BBE7CD;border-radius:4px;
+     padding:3px 9px;font-size:12px;font-weight:600}
+  header .sp{flex:1}
+  header .hbtn{height:30px;border:1px solid #D7DEEA;border-radius:5px;padding:0 13px;font-size:12.5px;
+     color:#3E4C60;background:#fff;display:flex;align-items:center;gap:6px}
+  header .hbtn.p{background:#16A34A;color:#fff;border-color:#16A34A;font-weight:600}
+  .crumb{height:38px;display:flex;align-items:center;gap:8px;padding:0 22px;font-size:12.5px;color:#8795A8;
+     background:#fff;border-bottom:1px solid #EEF1F7}
+  .crumb b{color:#1F2A37;font-weight:600}
+  .body{flex:1;padding:16px 22px 18px;overflow:hidden}
+  .titlebar{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+  .titlebar h2{font-size:19px;font-weight:700;display:flex;align-items:center;gap:9px}
+  .titlebar h2 i{width:4px;height:17px;background:#16A34A;border-radius:2px;display:block}
+  .titlebar .seg{margin-left:auto;display:flex;border:1px solid #D7DEEA;border-radius:5px;overflow:hidden;background:#fff}
+  .titlebar .seg span{padding:5px 15px;font-size:12.5px;color:#5A6B82}
+  .titlebar .seg span.on{background:#16A34A;color:#fff;font-weight:600}
+  .titlebar .pill{border:1px solid #D7DEEA;background:#fff;border-radius:5px;padding:5px 12px;font-size:12.5px;color:#3E4C60}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:13px}
+  .kc{background:#fff;border:1px solid #E4E9F2;border-radius:8px;padding:11px 14px;position:relative}
+  .kc:before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:2px;background:#16A34A}
+  .kc .k{font-size:12.5px;color:#6B7A90}
+  .kc .v{font-size:25px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+  .kc .v small{font-size:11.5px;color:#8795A8;font-weight:400;margin-left:3px}
+  .kc .d{font-size:11.5px;color:#8795A8;margin-top:3px}
+  .ok{color:#15803D}.bad{color:#DC2626}
+  .cols{display:grid;grid-template-columns:1fr 430px;gap:13px;height:372px}
+  .card{background:#fff;border:1px solid #E4E9F2;border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+  .card h3{font-size:13.5px;font-weight:600;padding:11px 14px;border-bottom:1px solid #EEF1F7;
+     display:flex;align-items:center;gap:8px;color:#25344A}
+  .card h3 i{width:3px;height:13px;background:#16A34A;border-radius:2px;display:block}
+  .card h3 .tag{margin-left:auto;font-size:11px;font-weight:500;color:#15803D;background:#E9F7EF;
+     border:1px solid #BBE7CD;border-radius:4px;padding:2px 7px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{padding:8px 11px;text-align:right;border-bottom:1px solid #EEF1F7}
+  th:first-child,td:first-child{text-align:left}
+  thead th{background:#F7F9FC;color:#5A6B82;font-weight:600;font-size:12px}
+  tbody tr.total{background:#F2FBF6;font-weight:700}
+  tbody tr.total td{color:#15803D}
+  tbody tr.sum td{background:#FBFCFE;font-weight:600;color:#25344A}
+  td.num{font-variant-numeric:tabular-nums}
+  .neg{color:#DC2626}
+  .sankey{padding:6px 12px 0}
+  .dev{padding:12px 14px;font-size:12.5px;color:#3E4C60;line-height:1.85}
+  .dev .bar{height:8px;border-radius:5px;background:#EEF1F7;margin:7px 0 11px;overflow:hidden}
+  .dev .bar i{display:block;height:100%;width:60%;background:linear-gradient(90deg,#22C55E,#15803D)}
+  .selfeval{margin-top:13px;display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:13px;height:214px}
+  .lv{display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:12.5px;color:#3E4C60;border-bottom:1px solid #F4F6FA}
+  .lv:last-child{border-bottom:0}
+  .lv .nm{width:96px;flex:none;color:#5A6B82}
+  .lv .tr{flex:1;height:9px;border-radius:5px;background:#EEF1F7;overflow:hidden}
+  .lv .tr i{display:block;height:100%;background:linear-gradient(90deg,#4ADE80,#16A34A)}
+  .lv .pc{width:48px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:#25344A}
+  ol.sug{padding:11px 14px 11px 32px;font-size:12.5px;color:#3E4C60;line-height:2.05}
+  ol.sug li::marker{color:#16A34A;font-weight:700}
+</style>
+</head>
+<body>
+<aside>
+  <div class="lg"><i></i><span>TBEA 特变电工<em>ZERO-CARBON PARK</em></span></div>
+  <div class="grp">零碳园区集控中心</div>
+  <nav>
+    <a href="#"><i></i>集控中心大屏</a>
+    <a href="#"><i></i>集中监管</a>
+    <a href="#"><i></i>用能在线监测</a>
+    <a href="#" class="on"><i></i>能耗能效分析</a>
+    <a href="#" class="sub">用能结构分析</a>
+    <a href="#" class="sub">能源成本分析</a>
+    <a href="#" class="sub">单位产品能耗</a>
+    <a href="#" class="sub">单位产值能耗</a>
+    <a href="#" class="sub">对标管理</a>
+    <a href="#" class="sub act">综合能耗平衡与能效自评估</a>
+    <a href="#"><i></i>零碳项目评估</a>
+    <a href="#"><i></i>统计报表</a>
+    <a href="#"><i></i>基础管理</a>
+  </nav>
+</aside>
+<main>
+  <header>
+    <span class="chip">零碳园区集控中心</span>
+    <span class="rb">能耗能效分析 / 综合能耗平衡与能效自评估</span>
+    <span class="sp"></span>
+    <span class="hbtn">2026 年 8 月 ▾</span>
+    <span class="hbtn">十六进制园区 ▾</span>
+    <span class="hbtn p">导出平衡表</span>
+  </header>
+  <div class="crumb">位置：能耗能效分析 › <b>综合能耗平衡与能效自评估</b> ｜ 能源管理体系内审（ISO 50001）佐证视图</div>
+  <div class="body">
+    <div class="titlebar">
+      <h2><i></i>全厂能量平衡表与能效自评估</h2>
+      <span class="pill">量纲口径：内部统一折算 tce</span>
+      <span class="seg"><span class="on">月度</span><span>季度</span><span>年度</span></span>
+    </div>
+
+    <div class="kpi">
+      <div class="kc"><div class="k">购入侧折标总量</div><div class="v">1 512.4<small>tce</small></div><div class="d">环比 <span class="ok">-2.14%</span></div></div>
+      <div class="kc"><div class="k">输配损耗率</div><div class="v">4.87<small>%</small></div><div class="d">去年同期 5.32% <span class="ok">-0.45pp</span></div></div>
+      <div class="kc"><div class="k">平衡偏差率</div><div class="v">+1.2<small>%</small></div><div class="d">阈值 ±2% · 判定 <span class="ok">平衡</span></div></div>
+      <div class="kc"><div class="k">能效自评估得分</div><div class="v">88.6<small>分</small></div><div class="d">星级 <span class="ok">★★★★☆</span></div></div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <h3><i></i>全厂能量平衡表（购入 — 转换 — 输送 — 终端消费）<span class="tag">末行 / 末列封闭校验通过</span></h3>
+        <table>
+          <thead>
+            <tr><th>环节</th><th>电力 (kWh)</th><th>蒸汽 (t)</th><th>天然气 (m³)</th><th>水 (m³)</th><th>折标合计 (tce)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>购入侧</td><td class="num">12 846 000</td><td class="num">18 642</td><td class="num">384 200</td><td class="num">96 400</td><td class="num">1 512.4</td></tr>
+            <tr><td>转换环节（锅炉 / 空压）</td><td class="num">- 1 284 600</td><td class="num">+ 17 240</td><td class="num">- 361 800</td><td class="num">—</td><td class="num neg">- 46.2</td></tr>
+            <tr><td>输送环节（变配电 / 管网）</td><td class="num">- 231 200</td><td class="num">- 842</td><td class="num">- 3 960</td><td class="num">- 1 240</td><td class="num neg">- 27.6</td></tr>
+            <tr><td>终端消费</td><td class="num">11 330 200</td><td class="num">17 956</td><td class="num">18 440</td><td class="num">95 160</td><td class="num">1 438.6</td></tr>
+            <tr class="total"><td>合计校验（购入 = 终端 + 损耗）</td><td class="num">12 846 000</td><td class="num">18 642</td><td class="num">384 200</td><td class="num">96 400</td><td class="num">1 512.4</td></tr>
+            <tr class="sum"><td>平衡偏差（输入 − 输出）</td><td class="num">0</td><td class="num">- 842</td><td class="num">0</td><td class="num">0</td><td class="num">+ 1.2%</td></tr>
+          </tbody>
+        </table>
+        <div class="dev">
+          <b>损耗分解说明</b>：电能损耗集中于 3# 主变（占配电损耗 42.6%）；蒸汽管网损耗集中于北区 2# 支线（占管网损耗 57.1%），已生成「管网保温改造」技改依据。
+          <div class="bar"><i style="width:42.6%"></i></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i></i>输配损耗流向分解（桑基图）</h3>
+        <div class="sankey">
+          <svg width="100%" height="270" viewBox="0 0 400 270">
+            <g font-size="11" font-family="Microsoft YaHei" fill="#5A6B82">
+              <text x="6" y="24">购入 1 512.4 tce</text>
+              <text x="286" y="24">终端 1 438.6</text>
+              <text x="286" y="212">损耗 73.8</text>
+            </g>
+            <path d="M118 34 C 200 34 210 42 282 42 L282 118 C 210 118 200 92 118 92 Z" fill="#16A34A" opacity=".22"/>
+            <path d="M118 96 C 200 96 205 116 282 116 L282 152 C 205 152 200 138 118 138 Z" fill="#F59E0B" opacity=".28"/>
+            <path d="M118 142 C 200 142 205 184 282 186 L282 214 C 205 214 200 190 118 190 Z" fill="#DC2626" opacity=".22"/>
+            <g font-size="11.5" font-family="Microsoft YaHei" fill="#3E4C60">
+              <text x="130" y="66">终端消费 1 438.6 tce（95.1%）</text>
+              <text x="130" y="128">转换损失 46.2 tce（3.1%）</text>
+              <text x="130" y="172">输送损失 27.6 tce（1.8%）</text>
+            </g>
+            <g stroke="#E4E9F2" stroke-width="1">
+              <line x1="6" y1="248" x2="394" y2="248"/>
+            </g>
+            <g font-size="10.5" font-family="Microsoft YaHei" fill="#8795A8">
+              <text x="6" y="264">损耗仅统计计量点之间的差额，不含未计量区域估算量</text>
+            </g>
+          </svg>
+        </div>
+        <div class="dev" style="border-top:1px solid #EEF1F7">
+          <b>平衡偏差自检</b>：偏差率 +1.2%，绝对值 ≤ 2%，判定「平衡」；偏差最大介质为 <b>蒸汽</b>（-842 t，-0.14%）。
+        </div>
+      </div>
+    </div>
+
+    <div class="selfeval">
+      <div class="card">
+        <h3><i></i>能效基线（ISO 50001）</h3>
+        <div class="dev" style="padding:12px 14px">
+          基线期：2025-01 ~ 2025-12（12 个月）<br>
+          单位产值综合能耗基线：<b>0.0862 tce/万元</b><br>
+          当期实测：<b class="ok">0.0821 tce/万元</b><br>
+          基线偏差：<b class="ok">- 4.76%</b>（优于基线）
+        </div>
+      </div>
+      <div class="card">
+        <h3><i></i>主要用能设备能效等级分布</h3>
+        <div class="lv"><span class="nm">一级能效</span><span class="tr"><i style="width:46%"></i></span><span class="pc">46%</span></div>
+        <div class="lv"><span class="nm">二级能效</span><span class="tr"><i style="width:33%"></i></span><span class="pc">33%</span></div>
+        <div class="lv"><span class="nm">三级能效</span><span class="tr"><i style="width:16%"></i></span><span class="pc">16%</span></div>
+        <div class="lv"><span class="nm">限值以下</span><span class="tr"><i style="width:5%;background:#DC2626"></i></span><span class="pc">5%</span></div>
+        <div class="lv"><span class="nm">节能装备应用占比</span><span class="tr"><i style="width:79%"></i></span><span class="pc">79%</span></div>
+      </div>
+      <div class="card">
+        <h3><i></i>改进建议清单（自评估输出）</h3>
+        <ol class="sug">
+          <li>3# 主变更换为 SH15 型非晶合金变压器，预计降低配电损耗 18.4%。</li>
+          <li>北区蒸汽 2# 支线实施管道保温改造，预计回收热量折标 12.6 tce/年。</li>
+          <li>空压站 3# 机组加装变频与余热回收，负荷率超过 120% 场景压降至 95%。</li>
+          <li>2# 车间无功补偿装置扩容，功率因数由 0.87 提升至 0.95 以上。</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

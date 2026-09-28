@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>第二章 功能模块描述完整性审查报告</title>
+<style>
+@page{size:A4;margin:16mm 14mm 14mm 14mm}
+*{box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC","Source Han Sans SC",sans-serif;font-size:10.5pt;line-height:1.7;color:#1a1a1a;margin:0;padding:0;background:#fff}
+.wrap{max-width:840px;margin:0 auto;padding:24px 20px 40px}
+h1{font-size:19pt;font-weight:700;margin:0 0 6px;letter-spacing:.5px;color:#12263f;line-height:1.35}
+h2{font-size:13pt;font-weight:700;margin:26px 0 10px;padding-left:10px;border-left:4px solid #185fa5;color:#0c447c}
+h3{font-size:11.5pt;font-weight:700;margin:18px 0 8px;color:#12263f}
+p{margin:6px 0}
+.meta{font-size:9.5pt;color:#5f5e5a;border-bottom:2px solid #12263f;padding-bottom:10px;margin-bottom:4px}
+.meta span{display:inline-block;margin-right:18px}
+table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:9pt}
+th{background:#f1efe8;border:0.5px solid #b4b2a9;padding:6px 7px;text-align:left;font-weight:700;color:#2c2c2a;vertical-align:middle}
+td{border:0.5px solid #d3d1c7;padding:5px 7px;vertical-align:top}
+tbody tr:nth-child(even){background:#fafaf8}
+.c{text-align:center}
+.ok{color:#3b6d11;font-weight:700}
+.no{color:#a32d2d;font-weight:700}
+.warn{color:#854f0b;font-weight:700}
+.tag{display:inline-block;font-size:8.5pt;font-weight:700;padding:1px 6px;border-radius:3px;line-height:1.5;white-space:nowrap}
+.p1{background:#fcebeb;color:#a32d2d;border:0.5px solid #f09595}
+.p2{background:#faeeda;color:#854f0b;border:0.5px solid #ef9f27}
+.p3{background:#e6f1fb;color:#185fa5;border:0.5px solid #85b7eb}
+.pass{background:#eaf3de;color:#3b6d11;border:0.5px solid #97c459}
+.fail{background:#fcebeb;color:#a32d2d;border:0.5px solid #f09595}
+.warnb{background:#faeeda;color:#854f0b;border:0.5px solid #ef9f27}
+.verdict{background:#f1efe8;border:1px solid #b4b2a9;border-radius:6px;padding:14px 18px;margin:14px 0}
+.verdict .big{font-size:15pt;font-weight:700;color:#12263f;margin:0 0 4px}
+.verdict .sub{font-size:10pt;color:#444441;margin:0}
+.grid{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.card{flex:1 1 128px;background:#f7f7f5;border:0.5px solid #d3d1c7;border-radius:6px;padding:9px 11px}
+.card .k{font-size:8.5pt;color:#5f5e5a;margin:0 0 4px}
+.card .v{font-size:13pt;font-weight:700;color:#12263f;margin:0;line-height:1.3}
+.card .v small{font-size:8.5pt;font-weight:400;color:#5f5e5a}
+ul{margin:6px 0;padding-left:20px}
+li{margin:3px 0}
+code{font-family:Consolas,"Courier New",monospace;font-size:8.5pt;background:#f1efe8;padding:1px 4px;border-radius:3px;color:#712b13}
+.note{font-size:9pt;color:#5f5e5a;margin:4px 0 0}
+.quote{font-family:Consolas,monospace;font-size:8.5pt;background:#fcebeb;border-left:3px solid #e24b4a;padding:6px 10px;margin:6px 0;color:#501313}
+.fix{background:#eaf3de;border-left:3px solid #639922;padding:6px 10px;margin:6px 0;font-size:9.5pt;color:#173404}
+.pb{page-break-before:always}
+.avoid{page-break-inside:avoid}
+.sig{margin-top:34px;border-top:0.5px solid #b4b2a9;padding-top:10px;font-size:9pt;color:#5f5e5a;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>第二章《零碳园区集控中心功能需求规格》<br>功能模块描述信息完整性审查报告</h1>
+<div class="meta">
+  <span><b>审查对象：</b>特变电工能碳数字化双中心_产品需求规格说明书_PRD_v16.docx</span>
+  <span><b>受控号/版本：</b>TBEA-PRD-MASTER / V1.6.0</span><br>
+  <span><b>审查范围：</b>第二章 6 大板块 · 22 个功能模块 · 176 个模板段落</span>
+  <span><b>审查日期：</b>2026-09-27</span>
+</div>
+
+<h2>一、总体结论</h2>
+<div class="verdict">
+  <p class="big">综合评级：B —— 主体已成体系，尚有 1 处占位模块与 5 类局部缺口须闭环</p>
+  <p class="sub">第二章 22 个模块中 <b>21 个模块八段齐备、内容可用</b>，段落有效率 <b>170/176（96.6%）</b>（其中内容充足 162 段），字段字典属性填充率 <b>660/684（96.5%）</b>，是全文档完成度最高的章节之一。但存在 <b>1 个模块（集中监管 › 自定义指标监测）整体为占位骨架</b>——八段标题在位、内容盒全空、字段字典 8 行 40 格全空；另有 <b>8 个模块 ⑦⑧ 段完全未引用标准错误码</b>、<b>8 处段落内容偏薄</b>、<b>2 处 Gherkin 体例瑕疵</b>、<b>章首导言 2 处交叉引用章节号错误</b>。<b>合计 2 项 P1 级缺陷、4 项 P2 级缺陷。</b></p>
+</div>
+
+<div class="grid">
+  <div class="card"><p class="k">有效模板段落</p><p class="v">170 / 176 <small>96.6%</small></p></div>
+  <div class="card"><p class="k">内容充足段落</p><p class="v">162 / 176 <small>92.0%</small></p></div>
+  <div class="card"><p class="k">八段齐备模块</p><p class="v">21 / 22 <small>95%</small></p></div>
+  <div class="card"><p class="k">字段字典规模</p><p class="v">228 <small>个字段</small></p></div>
+  <div class="card"><p class="k">字段属性填充率</p><p class="v">660 / 684 <small>96.5%</small></p></div>
+  <div class="card"><p class="k">Gherkin 场景</p><p class="v">61 <small>条</small></p></div>
+  <div class="card"><p class="k">错误码引用</p><p class="v">12 <small>种</small></p></div>
+</div>
+
+<h3>三维评价</h3>
+<table>
+  <thead><tr><th style="width:20%">评价维度</th><th style="width:11%" class="c">评级</th><th>判定依据</th></tr></thead>
+  <tbody>
+    <tr><td><b>结构完备度</b></td><td class="c"><span class="tag pass">A-</span></td><td>22 个模块全部具备完整 8 个 H4 段标题（8 × 22 = 176 段齐位），无缺标题、无层级断裂；⑥段"展示、对标与判定口径"全章 21/22 已落位——该段在第四、五章补强前普遍缺失，第二章是唯一已天然补齐的章节。</td></tr>
+    <tr><td><b>内容深度</b></td><td class="c"><span class="tag warnb">B-</span></td><td>170/176 段有实质内容，但 <b>错误码引用密度偏低</b>：全章仅引用 12 种错误码、30 次，其中 <b>8 个模块 ⑦⑧ 段零引用</b>；<b>8 处段落不足 120 字</b>（最薄 87 字），与第三章补强后同类段 300～600 字存在落差；1 个模块整体留白。</td></tr>
+    <tr><td><b>体例一致性</b></td><td class="c"><span class="tag warnb">C+</span></td><td>① Gherkin 块<code>Feature:</code> 关键字缺失 2 处（自定义指标监测、零碳工厂信息）；② 章首导言交叉引用章节号错误 2 处（"第五章"应为"第六章"、"第十一章"应为"第十二章"）。<span class="note">（说明：部分模块单个 Scenario 内含多个 When，属 BDD 合法写法，不计为缺陷。）</span></td></tr>
+  </tbody>
+</table>
+
+<div class="pb"></div>
+<h2>二、模块段落完备度总览矩阵</h2>
+<p><span class="tag pass">齐</span> 有实质内容 ｜ <span class="tag warnb">薄</span> 内容不足 120 字 ｜ <span class="tag fail">空</span> 缺失或占位。第④列附字段数与该模块未填格数。</p>
+<table><thead><tr><th style="width:26%">板块 / 模块</th>
+<th class="c" style="width:5%">①</th>
+<th class="c" style="width:5%">②</th>
+<th class="c" style="width:5%">③</th>
+<th class="c" style="width:5%">④</th>
+<th class="c" style="width:5%">⑤</th>
+<th class="c" style="width:5%">⑥</th>
+<th class="c" style="width:5%">⑦</th>
+<th class="c" style="width:5%">⑧</th>
+<th class="c" style="width:13%">④字段/未填</th><th class="c" style="width:7%">错误码</th></tr></thead><tbody>
+<tr><td colspan="11" style="background:#eceae3;font-weight:700;font-size:9pt">集控中心大屏</td></tr>
+<tr><td>全景环幕大屏 46:9</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">9 / 0</td><td class="c">4</td></tr>
+<tr><td>综合集控大屏 16:9</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">10 / 0</td><td class="c"><b class="no">0</b></td></tr>
+<tr><td colspan="11" style="background:#eceae3;font-weight:700;font-size:9pt">集中监管</td></tr>
+<tr><td>指标管控</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">14 / 0</td><td class="c">5</td></tr>
+<tr><td>数据变化详情</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag warnb">薄</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">14 / 0</td><td class="c">2</td></tr>
+<tr><td>用能监测</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">10 / 0</td><td class="c">2</td></tr>
+<tr><td>重点用能设备</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">16 / 0</td><td class="c"><b class="no">0</b></td></tr>
+<tr><td>工业微电网监测</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag warnb">薄</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">12 / 0</td><td class="c">1</td></tr>
+<tr><td>能源碳排放监测</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">10 / 0</td><td class="c">1</td></tr>
+<tr><td>自定义指标监测</td>
+<td class="c"><span class="tag fail">空</span></td>
+<td class="c"><span class="tag fail">空</span></td>
+<td class="c"><span class="tag warnb">薄</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag fail">空</span></td>
+<td class="c"><span class="tag fail">空</span></td>
+<td class="c"><span class="tag fail">空</span></td>
+<td class="c"><span class="tag fail">空</span></td>
+<td class="c"><b class="no">8 / 24</b></td><td class="c"><b class="no">0</b></td></tr>
+<tr><td colspan="11" style="background:#eceae3;font-weight:700;font-size:9pt">能耗能效分析</td></tr>
+<tr><td>用能结构分析</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">7 / 0</td><td class="c">1</td></tr>
+<tr><td>单位产品能耗</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">8 / 0</td><td class="c">4</td></tr>
+<tr><td>单位产值能耗</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">8 / 0</td><td class="c"><b class="no">0</b></td></tr>
+<tr><td>对标管理</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">10 / 0</td><td class="c"><b class="no">0</b></td></tr>
+<tr><td colspan="11" style="background:#eceae3;font-weight:700;font-size:9pt">零碳项目评估</td></tr>
+<tr><td>项目档案管理</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag warnb">薄</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">10 / 0</td><td class="c">1</td></tr>
+<tr><td>实时监控</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag warnb">薄</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">7 / 0</td><td class="c"><b class="no">0</b></td></tr>
+<tr><td>项目运行评估</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">10 / 0</td><td class="c">1</td></tr>
+<tr><td>零碳工厂自评估</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag warnb">薄</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">10 / 0</td><td class="c"><b class="no">0</b></td></tr>
+<tr><td colspan="11" style="background:#eceae3;font-weight:700;font-size:9pt">统计报表</td></tr>
+<tr><td>用能报表</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">9 / 0</td><td class="c">1</td></tr>
+<tr><td>成本报表</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag warnb">薄</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">10 / 0</td><td class="c">1</td></tr>
+<tr><td>单耗报表</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag warnb">薄</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">10 / 0</td><td class="c"><b class="no">0</b></td></tr>
+<tr><td colspan="11" style="background:#eceae3;font-weight:700;font-size:9pt">企业基础信息</td></tr>
+<tr><td>企业基础信息</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">16 / 0</td><td class="c">4</td></tr>
+<tr><td>零碳工厂信息</td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c"><span class="tag pass">齐</span></td>
+<td class="c">10 / 0</td><td class="c">2</td></tr>
+</tbody></table>
+<div class="pb"></div>
+<h2>三、问题清单</h2>
+<h3>P1 级（影响验收与评审，须闭环）</h3>
+<table><thead><tr><th style="width:8%">编号</th><th style="width:24%">问题</th><th>事实与影响</th><th style="width:14%">处置</th></tr></thead><tbody>
+<tr>
+<td class="c"><code>P1-1</code></td>
+<td><b>「自定义指标监测」整模块为占位骨架</b></td>
+<td>集中监管板块第 7 个模块，8 个 H4 段标题齐全，但 ①②⑤⑥⑦⑧ 六段内容盒<b>全空</b>；③段仅残留 <code>数据概览：</code> / <code>数据台账明细：</code> 两个空标签；④段字段字典表 9 行 × 5 列<b>仅表头，8 行 40 格全空</b>（连字段中文名称列都未填）。该模块是"用户自定义指标"能力的唯一承载页面，属第二章核心业务能力，留白将直接导致该功能无需求可依、无法开发与验收。</td>
+<td>按八段式模板整段重写，对齐同章「指标管控」的颗粒度与字段字典体例</td>
+</tr>
+<tr>
+<td class="c"><code>P1-2</code></td>
+<td><b>章首导言交叉引用章节号错误</b></td>
+<td>第二章导言原文：<div class="quote">验收用例放在第十一章，相关错误码可查阅第五章"标准化错误码字典"。</div>经核对文档实际编号：「标准化错误码字典与异常分级」位于<b>第六章《工程治理、状态机与合规保障体系》</b>「测试与验收基线」为<b>第十二章</b>。第三章同类表述已于上一轮修正为"第六章"，第二章未同步，形成章间引用不一致，评审时将被认定为编制质量缺陷。</td>
+<td>改为"验收用例放在第十二章；相关错误码可查阅第六章《工程治理、状态机与合规保障体系》之「标准化错误码字典与异常分级」"</td>
+</tr>
+</tbody></table>
+<h3>P2 级（体例与深度，建议同步整改）</h3>
+<table><thead><tr><th style="width:8%">编号</th><th style="width:24%">问题</th><th>事实与影响</th><th style="width:14%">处置</th></tr></thead><tbody>
+<tr><td class="c"><code>P2-1</code></td><td><b>8 个模块 ⑦⑧ 段零错误码引用</b></td>
+<td>共 8 个模块的边界条件与 Gherkin 用例中<b>未出现任何 <code>E_*</code> 标准错误码</b>，仅以自然语言描述异常，违背"标准化错误码字典"可追溯要求：
+<ul><li>集控中心大屏 › 综合集控大屏 16:9</li><li>集中监管 › 重点用能设备</li><li>集中监管 › 自定义指标监测</li><li>能耗能效分析 › 单位产值能耗</li><li>能耗能效分析 › 对标管理</li><li>零碳项目评估 › 实时监控</li><li>零碳项目评估 › 零碳工厂自评估</li><li>统计报表 › 单耗报表</li></ul></td>
+<td>为每个模块的异常分支补齐标准错误码引用（新增码同步登记入第六章字典）</td></tr>
+<tr><td class="c"><code>P2-2</code></td><td><b>8 处段落内容偏薄（&lt;120 字）</b></td>
+<td>多为 ⑥"展示、对标与判定口径"，缺口径定义与阈值说明：
+<ul><li>集中监管 › 数据变化详情 · ⑥展示、对标与判定口径（118 字）</li><li>集中监管 › 工业微电网监测 · ⑥展示、对标与判定口径（114 字）</li><li>集中监管 › 自定义指标监测 · ③功能规格与交互契约（15 字）</li><li>零碳项目评估 › 项目档案管理 · ⑥展示、对标与判定口径（87 字）</li><li>零碳项目评估 › 实时监控 · ⑥展示、对标与判定口径（111 字）</li><li>零碳项目评估 › 零碳工厂自评估 · ⑦边界条件、异常处理与防错规则（116 字）</li><li>统计报表 › 成本报表 · ⑦边界条件、异常处理与防错规则（113 字）</li><li>统计报表 › 单耗报表 · ⑥展示、对标与判定口径（117 字）</li></ul></td>
+<td>按"口径定义 + 阈值 + 展示规则"三要素扩写到 250 字以上</td></tr>
+<tr><td class="c"><code>P2-3</code></td><td><b>Gherkin 块缺 Feature 声明 2 处</b></td>
+<td><ul><li>集中监管 › 自定义指标监测：缺 Feature: 关键字；无 Scenario</li><li>企业基础信息 › 零碳工厂信息：缺 Feature: 关键字</li></ul>缺少 <code>Feature:</code> 关键字将导致用例无法被 BDD 工具（Cucumber / Behave）解析为 <code>Feature</code> 块，只能作为无归属的 Scenario 文本存在，影响自动化验收落地。<span class="note">核对说明：其余模块的"单个 Scenario 含多个 When"属 BDD 合法写法（同一场景多段操作链），不计为缺陷。</span></td>
+<td>在首行补齐 <code>Feature: &lt;模块名&gt;</code> 声明</td></tr>
+<tr><td class="c"><code>P2-4</code></td><td><b>字段字典 24 格属性留白</b></td>
+<td>24 格未填全部集中在「自定义指标监测」④段（8 字段 × 3 属性列），其余 21 个模块填充率 100%。</td>
+<td>随 P1-1 一并补齐</td></tr>
+</tbody></table>
+<h2>四、补强要点与验收口径</h2>
+<table>
+<thead><tr><th style="width:16%">补强项</th><th style="width:34%">目标</th><th>具体要求</th></tr></thead>
+<tbody>
+<tr><td>① 占位模块补全</td><td>自定义指标监测 6 段补齐</td><td>①五要素（功能定位/承载角色/页面路由/上游依赖/下游输出）；②业务场景 + As a / I want / So that 用户故事；⑤自定义指标聚合与计算模型；⑥对标口径；⑦异常与防错；⑧不少于 3 条 Gherkin 场景。</td></tr>
+<tr><td>② 字段字典补全</td><td>24 格 → 0 格</td><td>补齐 8 个字段的序号、中文名称、数据类型、工程单位、校验与约束规则。</td></tr>
+<tr><td>③ 错误码覆盖</td><td>8 个模块 0 → ≥2 种</td><td>按 <code>E_SYS_&lt;MODULE&gt;_&lt;REASON&gt;</code> 规范补齐引用；新增错误码同步登记入第六章「标准化错误码字典与异常分级」。</td></tr>
+<tr><td>④ 偏薄段扩写</td><td>8 处 &lt;120 字 → ≥250 字</td><td>统一补"口径定义 / 阈值与分级 / 展示与对标规则"三要素。</td></tr>
+<tr><td>⑤ Gherkin 体例</td><td>2 处 → 0</td><td>在 ⑧ 段首行补齐 <code>Feature: &lt;模块名&gt;</code> 声明，使 Scenario 归入可解析的 Feature 块。</td></tr>
+<tr><td>⑥ 章首交叉引用</td><td>2 处章节号纠错</td><td>第十一章 → 第十二章；第五章 → 第六章。</td></tr>
+</tbody></table>
+<h3>补强后目标基线</h3>
+<table>
+<thead><tr><th style="width:34%">指标</th><th class="c" style="width:22%">现状（v16）</th><th class="c" style="width:22%">补强后目标</th><th class="c">判定</th></tr></thead>
+<tbody>
+<tr><td>八段齐备模块</td><td class="c">21 / 22</td><td class="c">22 / 22</td><td class="c"><span class="tag pass">100%</span></td></tr>
+<tr><td>有效模板段落</td><td class="c">170 / 176（96.6%）</td><td class="c">176 / 176</td><td class="c"><span class="tag pass">100%</span></td></tr>
+<tr><td>字段字典属性填充率</td><td class="c">660 / 684（96.5%）</td><td class="c">690 / 690</td><td class="c"><span class="tag pass">100%</span></td></tr>
+<tr><td>零错误码模块</td><td class="c">8 个</td><td class="c">0 个</td><td class="c"><span class="tag pass">0</span></td></tr>
+<tr><td>偏薄段落（&lt;120 字）</td><td class="c">8 处</td><td class="c">0 处</td><td class="c"><span class="tag pass">0</span></td></tr>
+<tr><td>Gherkin 体例瑕疵</td><td class="c">2 处</td><td class="c">0 处</td><td class="c"><span class="tag pass">0</span></td></tr>
+</tbody></table>
+<h2>五、审查结论</h2>
+<p>第二章《零碳园区集控中心功能需求规格》<b>结构骨架完整、主体内容可用</b>，是全文八段式体例执行最彻底的章节（⑥⑦⑧三段天然在位，均优于第三章、第四章补强前的状态）。本次审查发现的问题<b>集中在 1 个占位模块与 5 类局部缺口</b>，不涉及章节重构，整改风险低、工作量可控。</p>
+<p>建议按本报告"补强要点"逐项闭环后，将第二章段落有效率提升至 100%、字段填充率提升至 100%、消除全部零错误码模块，使第二章与已完成补强的第三章、第四章达到同一交付水准，可直接支撑项目验收评审。</p>
+
+<div class="sig"><span>编制：WorkBuddy 文档审查</span><span>审查日期：2026-09-27</span><span>版本：v16 基线</span></div>
+</div>
+</body>
+</html>

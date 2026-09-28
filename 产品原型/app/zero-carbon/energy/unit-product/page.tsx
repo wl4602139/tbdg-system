@@ -706,7 +706,7 @@ interface ProductModelRecord {
   // 6. 单位产品水耗
   unitWaterTon?: string
   diffYoy: string
-  quotaStatus: '先进标杆' | '达标受控' | '良好'
+  quotaStatus: '先进标杆' | '达标受控'
 }
 
 // 丰富的产品型号单耗数据库 (模拟上千条产品型号库中的核心代表型号，归属 11 大变压器主要产品与 4 大线缆主要产品)
@@ -2450,7 +2450,7 @@ export default function UnitProductPage() {
                 ) : (
                   <tr className="h-[44px]">
                     <td colSpan={currentTableMode === 'all' ? 13 : 11} className="py-8 text-center text-muted-foreground font-sans">
-                      未检索到符合条件的产品型号单耗数据
+                      暂无相关产品！
                     </td>
                   </tr>
                 )}

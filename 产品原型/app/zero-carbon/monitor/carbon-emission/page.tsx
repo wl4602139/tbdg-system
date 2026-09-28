@@ -493,7 +493,7 @@ export default function CarbonEmissionMonitoringPage() {
   const unitNetCarbonDonutData = useMemo(() => {
     const remElecCarbon = Math.max(0, unitCalculations.elecGrossCarbon - unitCalculations.totalOffset)
     return [
-      { name: '电力剩余净排放', value: Number(remElecCarbon.toFixed(1)), color: '#1677ff' },
+      { name: '电力剩余净排放', value: Number(remElecCarbon.toFixed(1)), color: '#2C7CFF' },
       { name: '外购蒸汽排放', value: unitCalculations.steamGrossCarbon, color: '#a855f7' },
       { name: '燃气直接排放', value: unitCalculations.gasGrossCarbon, color: '#fa8c16' },
     ]
@@ -502,7 +502,7 @@ export default function CarbonEmissionMonitoringPage() {
   // 集团总览净碳排放结构饼图数据
   const groupNetCarbonDonutData = useMemo(() => {
     return [
-      { name: '外购电力净排放', value: Number((28520 * carbonScaleFactor).toFixed(0)), color: '#1677ff' },
+      { name: '外购电力净排放', value: Number((28520 * carbonScaleFactor).toFixed(0)), color: '#2C7CFF' },
       { name: '外购蒸汽碳排放', value: Number((8210 * carbonScaleFactor).toFixed(0)), color: '#a855f7' },
       { name: '燃气及化石能源', value: Number((4520 * carbonScaleFactor).toFixed(0)), color: '#fa8c16' },
     ]
@@ -702,12 +702,9 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-primary" />
                   <h3 className="text-xs font-bold text-foreground">
-                    集团净碳排放结构与 3 大绿色抵消构成全景
+                    净碳排放结构与绿色抵消全景
                   </h3>
                 </div>
-                <span className="text-xs text-muted-foreground font-mono">
-                  公式：净碳排放量 ({groupNetCarbon.toLocaleString()} tCO₂) = 初始碳排放量 ({groupInitialCarbon.toLocaleString()} tCO₂) - 碳抵消量 ({groupTotalOffset.toLocaleString()} tCO₂)
-                </span>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
@@ -803,7 +800,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-emerald-400" />
                   <h3 className="text-xs font-bold text-foreground">
-                    集团 6 大直属制造单位碳排放与绿电/绿证抵消对标明细表
+                    碳排放与绿电/绿证抵消对标明细表
                   </h3>
                 </div>
 
@@ -871,7 +868,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-primary" />
                   <h3 className="text-xs font-bold text-foreground">
-                    集团能源碳排放总量与万元产值碳强度中长期变化趋势
+                    能源碳排放总量中长期变化趋势
                   </h3>
                 </div>
 
@@ -1018,12 +1015,9 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-primary" />
                   <h3 className="text-xs font-bold text-foreground">
-                    净碳排放结构与 3 大绿色抵消构成全景
+                    净碳排放结构与绿色抵消全景
                   </h3>
                 </div>
-                <span className="text-xs text-muted-foreground font-mono">
-                  公式：净碳排放量 ({unitCalculations.netCarbon.toLocaleString()} tCO₂) = 初始碳排放量 ({unitCalculations.initialCarbon.toLocaleString()} tCO₂) - 碳抵消量 ({unitCalculations.totalOffset.toLocaleString()} tCO₂)
-                </span>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
@@ -1189,7 +1183,7 @@ export default function CarbonEmissionMonitoringPage() {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-emerald-400" />
                   <h3 className="text-xs font-bold text-foreground">
-                    月度能源消耗与碳排放核算明细台账
+                    明细台账
                   </h3>
                 </div>
 

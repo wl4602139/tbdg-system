@@ -156,3 +156,10 @@
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* 更多项目浮层面板强制不透明与深度阴影 (彻底避免透光与被遮挡) */
+.tbea-popover-panel {
+  background-color: #0c1826 !important;
+  border-color: #1e3b56 !important;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(30, 59, 86, 0.7) !important;
+}

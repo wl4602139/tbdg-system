@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1912px;height:1076px;overflow:hidden}
+  body{font-family:"Microsoft YaHei","Segoe UI",sans-serif;background:#040F22;color:#DCE9FF}
+  .wrap{width:1912px;height:1076px;position:relative;padding:14px 18px 16px;
+        background:
+         radial-gradient(1200px 600px at 50% -10%,rgba(26,86,160,.55),transparent 70%),
+         linear-gradient(180deg,#061530 0%,#040F22 55%,#030B19 100%)}
+  .grid-lines{position:absolute;inset:0;opacity:.16;
+     background-image:linear-gradient(rgba(94,160,255,.35) 1px,transparent 1px),
+                      linear-gradient(90deg,rgba(94,160,255,.35) 1px,transparent 1px);
+     background-size:64px 64px;pointer-events:none}
+  header{position:relative;height:74px;display:flex;align-items:center;justify-content:space-between;
+     border-bottom:1px solid rgba(88,150,240,.42)}
+  header:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:-1px;width:720px;height:2px;
+     background:linear-gradient(90deg,transparent,#39D0FF,transparent)}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:46px;height:46px;border:1px solid #39D0FF;border-radius:6px;display:flex;align-items:center;
+     justify-content:center;font-weight:700;font-size:15px;color:#39D0FF;letter-spacing:.5px;
+     box-shadow:0 0 16px rgba(57,208,255,.35) inset}
+  .brand .t1{font-size:19px;font-weight:700;letter-spacing:2px;color:#EAF4FF}
+  .brand .t2{font-size:11px;color:#7FA8DA;letter-spacing:3px;margin-top:3px}
+  h1{position:absolute;left:50%;transform:translateX(-50%);font-size:31px;font-weight:700;letter-spacing:7px;
+     background:linear-gradient(180deg,#FFFFFF 20%,#7FD4FF 95%);-webkit-background-clip:text;color:transparent}
+  .hmeta{text-align:right;font-size:12px;color:#8CB4E4;line-height:1.75}
+  .hmeta b{color:#39D0FF;font-weight:600}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22D3A0;margin-right:5px;
+     box-shadow:0 0 8px #22D3A0}
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:12px;height:104px}
+  .kpi{position:relative;background:linear-gradient(180deg,rgba(20,60,116,.62),rgba(9,30,64,.62));
+     border:1px solid rgba(74,133,214,.5);border-radius:6px;padding:11px 14px;overflow:hidden}
+  .kpi:before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:#39D0FF}
+  .kpi .k{font-size:12.5px;color:#93BCE8;letter-spacing:1px}
+  .kpi .v{font-size:29px;font-weight:700;margin-top:5px;letter-spacing:1px;
+     font-variant-numeric:tabular-nums;color:#EAF6FF;text-shadow:0 0 18px rgba(57,208,255,.45)}
+  .kpi .v small{font-size:12px;color:#8CB4E4;font-weight:400;margin-left:4px;letter-spacing:0}
+  .kpi .d{font-size:11.5px;margin-top:3px;color:#7F9DC4}
+  .up{color:#FF6B6B}.down{color:#2ED8A7}
+  main{display:grid;grid-template-columns:430px 1fr 430px;grid-template-rows:576px 208px;gap:12px;margin-top:12px}
+  .panel{background:linear-gradient(180deg,rgba(14,46,92,.55),rgba(7,24,52,.55));
+     border:1px solid rgba(74,133,214,.42);border-radius:6px;padding:10px 12px;position:relative;overflow:hidden}
+  .panel h3{font-size:13.5px;font-weight:600;color:#9FD8FF;letter-spacing:1.5px;display:flex;align-items:center;gap:7px}
+  .panel h3:before{content:"";width:4px;height:13px;background:#39D0FF;border-radius:1px;box-shadow:0 0 8px #39D0FF}
+  .chart{height:196px;margin-top:10px;display:flex;align-items:flex-end;gap:9px;
+     border-bottom:1px solid rgba(88,150,240,.35);padding-bottom:2px}
+  .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:1px}
+  .col i{display:block;border-radius:1px}
+  .s1{background:linear-gradient(180deg,#FF7A6B,#C3382B)}
+  .s2{background:linear-gradient(180deg,#FFC24B,#B57C10)}
+  .s3{background:linear-gradient(180deg,#4FC3F7,#1B6FB0)}
+  .s4{background:linear-gradient(180deg,#41D6A8,#177E5C)}
+  .axis{display:flex;gap:9px;margin-top:5px}
+  .axis span{flex:1;text-align:center;font-size:9px;color:#6E8DB6}
+  .legend{display:flex;gap:14px;margin-top:8px;font-size:11px;color:#9DBBE0}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+  .ring{width:152px;height:152px;border-radius:50%;margin:8px auto 0;
+     background:conic-gradient(#41D6A8 0 46%,#4FC3F7 46% 74%,#FFC24B 74% 90%,#FF7A6B 90% 100%);
+     position:relative;box-shadow:0 0 26px rgba(65,214,168,.3)}
+  .ring:after{content:"";position:absolute;inset:21px;border-radius:50%;background:#071A38;
+     border:1px solid rgba(74,133,214,.5)}
+  .ring b{position:absolute;left:0;right:0;top:52px;text-align:center;font-size:25px;color:#EAF6FF;z-index:2}
+  .ring b em{display:block;font-size:11px;color:#93BCE8;font-style:normal;margin-top:4px;letter-spacing:1px}
+  .storlist{margin-top:10px;font-size:11.5px;color:#B9D3F0;line-height:2.05}
+  .storlist span{float:right;color:#39D0FF;font-variant-numeric:tabular-nums}
+  .flow{height:466px;margin-top:8px;position:relative}
+  .node{position:absolute;background:linear-gradient(180deg,rgba(24,70,132,.85),rgba(10,34,70,.85));
+     border:1px solid rgba(88,160,240,.6);border-radius:5px;padding:8px 10px;text-align:center;min-width:118px}
+  .node b{display:block;font-size:12.5px;color:#EAF4FF;letter-spacing:.5px}
+  .node em{display:block;font-size:10.5px;color:#8CB4E4;font-style:normal;margin-top:3px}
+  .node .mv{color:#39D0FF}
+  .bars{margin-top:12px;font-size:11.5px;color:#B9D3F0;line-height:1}
+  .bars .row{margin-bottom:11px}
+  .bars .row .nm{display:flex;justify-content:space-between;margin-bottom:4px}
+  .bars .row .tr{height:9px;background:rgba(88,150,240,.22);border-radius:5px;overflow:hidden}
+  .bars .row .tr i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#1E7FD0,#39D0FF)}
+  .alarms{margin-top:10px;font-size:11.5px}
+  .alarms div{display:flex;gap:8px;padding:6px 8px;border-radius:4px;margin-bottom:6px;
+     background:rgba(255,107,107,.09);border-left:2px solid #FF6B6B;color:#EFC7C7}
+  .alarms div.w{border-left-color:#FFC24B;background:rgba(255,194,75,.09);color:#EEDDB8}
+  .alarms span{margin-left:auto;color:#7F9DC4;font-size:10.5px}
+  .rank{grid-column:1 / span 3;display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  .rcard{background:linear-gradient(180deg,rgba(14,46,92,.55),rgba(7,24,52,.55));
+     border:1px solid rgba(74,133,214,.42);border-radius:6px;padding:9px 12px}
+  .rcard .n{font-size:12px;color:#9DBBE0;display:flex;justify-content:space-between}
+  .rcard .n b{color:#EAF4FF;font-weight:600}
+  .rcard .v{font-size:21px;color:#39D0FF;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums}
+  .rcard .v small{font-size:11px;color:#8CB4E4;font-weight:400}
+  .rcard .tr{height:6px;border-radius:4px;background:rgba(88,150,240,.22);margin-top:7px;overflow:hidden}
+  .rcard .tr i{display:block;height:100%;background:linear-gradient(90deg,#177E5C,#41D6A8)}
+  .note{position:absolute;right:18px;bottom:4px;font-size:9.5px;color:#5C7BA6;letter-spacing:.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="grid-lines"></div>
+  <header>
+    <div class="brand">
+      <div class="logo">TBEA</div>
+      <div><div class="t1">特变电工</div><div class="t2">ZERO-CARBON PARK · IC</div></div>
+    </div>
+    <h1>零碳园区集控中心 · 综合集控大屏</h1>
+    <div class="hmeta">
+      <div><span class="dot"></span>边缘网关 <b>128</b> / 128 在线 · 遥测时延 <b>0.8s</b></div>
+      <div>2026-09-16 星期三 <b>22:16:24</b> · 十六进制园区</div>
+    </div>
+  </header>
+
+  <section class="kpis">
+    <div class="kpi"><div class="k">当期总用电量</div><div class="v">1 284.6<small>万kWh</small></div><div class="d">环比 <span class="down">-3.25%</span></div></div>
+    <div class="kpi"><div class="k">尖峰时段电量占比</div><div class="v">18.4<small>%</small></div><div class="d">环比 <span class="up">+0.86pp</span></div></div>
+    <div class="kpi"><div class="k">低谷时段电量占比</div><div class="v">31.7<small>%</small></div><div class="d">环比 <span class="down">+2.14pp</span></div></div>
+    <div class="kpi"><div class="k">储能当日循环</div><div class="v">2.6<small>次</small></div><div class="d">充放效率 <span class="down">91.2%</span></div></div>
+    <div class="kpi"><div class="k">综合能效比</div><div class="v">87.5<small>%</small></div><div class="d">对标基准 <span class="down">+1.8pp</span></div></div>
+    <div class="kpi"><div class="k">单位产值碳排放</div><div class="v">0.412<small>tCO₂e/万元</small></div><div class="d">环比 <span class="down">-2.71%</span></div></div>
+  </section>
+
+  <main>
+    <div class="panel">
+      <h3>全域分时负荷结构与储能充放</h3>
+      <div class="chart">
+        <div class="col"><i class="s1" style="height:74px"></i><i class="s2" style="height:26px"></i><i class="s3" style="height:46px"></i><i class="s4" style="height:24px"></i></div>
+        <div class="col"><i class="s1" style="height:62px"></i><i class="s2" style="height:30px"></i><i class="s3" style="height:50px"></i><i class="s4" style="height:28px"></i></div>
+        <div class="col"><i class="s1" style="height:88px"></i><i class="s2" style="height:34px"></i><i class="s3" style="height:44px"></i><i class="s4" style="height:22px"></i></div>
+        <div class="col"><i class="s1" style="height:96px"></i><i class="s2" style="height:38px"></i><i class="s3" style="height:40px"></i><i class="s4" style="height:20px"></i></div>
+        <div class="col"><i class="s1" style="height:70px"></i><i class="s2" style="height:42px"></i><i class="s3" style="height:48px"></i><i class="s4" style="height:26px"></i></div>
+        <div class="col"><i class="s1" style="height:58px"></i><i class="s2" style="height:30px"></i><i class="s3" style="height:56px"></i><i class="s4" style="height:34px"></i></div>
+        <div class="col"><i class="s1" style="height:46px"></i><i class="s2" style="height:26px"></i><i class="s3" style="height:60px"></i><i class="s4" style="height:38px"></i></div>
+        <div class="col"><i class="s1" style="height:104px"></i><i class="s2" style="height:44px"></i><i class="s3" style="height:38px"></i><i class="s4" style="height:18px"></i></div>
+        <div class="col"><i class="s1" style="height:92px"></i><i class="s2" style="height:40px"></i><i class="s3" style="height:42px"></i><i class="s4" style="height:22px"></i></div>
+        <div class="col"><i class="s1" style="height:112px"></i><i class="s2" style="height:36px"></i><i class="s3" style="height:40px"></i><i class="s4" style="height:16px"></i></div>
+        <div class="col"><i class="s1" style="height:60px"></i><i class="s2" style="height:52px"></i><i class="s3" style="height:54px"></i><i class="s4" style="height:30px"></i></div>
+        <div class="col"><i class="s1" style="height:34px"></i><i class="s2" style="height:20px"></i><i class="s3" style="height:66px"></i><i class="s4" style="height:44px"></i></div>
+      </div>
+      <div class="axis"><span>00</span><span>02</span><span>04</span><span>06</span><span>08</span><span>10</span><span>12</span><span>14</span><span>16</span><span>18</span><span>20</span><span>22</span></div>
+      <div class="legend"><span><i class="s1"></i>尖峰</span><span><i class="s2"></i>高峰</span><span><i class="s3"></i>平段</span><span><i class="s4"></i>低谷</span></div>
+      <div class="ring"><b>91.2%<em>储能充放效率</em></b></div>
+      <div class="storlist">
+        <div>充电量（谷段） <span>18 420 kWh</span></div>
+        <div>放电量（峰段） <span>16 798 kWh</span></div>
+        <div>削峰贡献 <span>1 126 kW</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>园区一次系统能流拓扑（实时功率流）</h3>
+      <div class="flow">
+        <svg width="100%" height="466" viewBox="0 0 940 466" style="position:absolute;left:0;top:0">
+          <defs>
+            <linearGradient id="ln" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#39D0FF" stop-opacity=".85"/><stop offset="1" stop-color="#1E7FD0" stop-opacity=".25"/>
+            </linearGradient>
+            <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+              <path d="M0,0 L9,4.5 L0,9 z" fill="#39D0FF"/></marker>
+          </defs>
+          <g stroke="url(#ln)" stroke-width="3" fill="none" marker-end="url(#ar)">
+            <path d="M150 233 H 296"/>
+            <path d="M296 233 H 424"/>
+            <path d="M424 233 H 566"/>
+            <path d="M566 233 H 700"/>
+            <path d="M470 100 H 566" transform="translate(0,0)"/>
+            <path d="M424 233 C 470 233 470 340 566 340"/>
+          </g>
+          <g stroke="rgba(88,150,240,.45)" stroke-width="1.2" stroke-dasharray="4 4" fill="none">
+            <path d="M296 233 V 96"/><path d="M566 233 V 96"/><path d="M700 233 V 96"/>
+          </g>
+          <circle r="5" fill="#39D0FF"><animateMotion dur="3.2s" repeatCount="indefinite" path="M150 233 H 700"/></circle>
+          <circle r="4" fill="#41D6A8"><animateMotion dur="2.4s" repeatCount="indefinite" path="M470 100 H 566"/></circle>
+          <rect x="0" y="0" width="940" height="466" fill="none"/>
+        </svg>
+        <div class="node" style="left:6px;top:206px"><b>110kV 进线</b><em>有功 <span class="mv">4 862 kW</span></em></div>
+        <div class="node" style="left:300px;top:206px"><b>主变 1#/2#</b><em>负载率 <span class="mv">63.4%</span></em></div>
+        <div class="node" style="left:428px;top:206px"><b>10kV 母线</b><em>线损 <span class="mv">1.8%</span></em></div>
+        <div class="node" style="left:570px;top:206px"><b>制造车间</b><em>负荷 <span class="mv">3 914 kW</span></em></div>
+        <div class="node" style="left:704px;top:206px"><b>公用工程</b><em>负荷 <span class="mv">948 kW</span></em></div>
+        <div class="node" style="left:474px;top:60px"><b>分布式光伏</b><em>出力 <span class="mv">1 240 kW</span></em></div>
+        <div class="node" style="left:570px;top:313px"><b>储能电站</b><em>充放 <span class="mv">-420 kW</span></em></div>
+        <div class="node" style="left:300px;top:52px;min-width:150px"><b>主变温度</b><em>上层油温 <span class="mv">62.4 ℃</span></em></div>
+        <div class="node" style="left:560px;top:52px;min-width:150px"><b>母线电压偏差</b><em>+1.6%</em></div>
+        <div class="node" style="left:712px;top:52px;min-width:150px"><b>功率因数</b><em class="mv">0.94</em></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>能效平衡与越限告警</h3>
+      <div class="bars">
+        <div class="row"><div class="nm"><span>购入侧折标总量</span><span>1 512.4 tce</span></div><div class="tr"><i style="width:96%"></i></div></div>
+        <div class="row"><div class="nm"><span>转换环节损失</span><span>46.2 tce</span></div><div class="tr"><i style="width:24%"></i></div></div>
+        <div class="row"><div class="nm"><span>输送环节损失</span><span>27.6 tce</span></div><div class="tr"><i style="width:15%"></i></div></div>
+        <div class="row"><div class="nm"><span>终端消费</span><span>1 438.6 tce</span></div><div class="tr"><i style="width:90%"></i></div></div>
+      </div>
+      <div style="margin-top:4px;font-size:12.5px;color:#2ED8A7;letter-spacing:.5px">
+        能量平衡偏差 <b style="font-size:15px">+1.2%</b>（阈值 ±2% · 判定平衡）
+      </div>
+      <h3 style="margin-top:14px">实时越限告警</h3>
+      <div class="alarms">
+        <div>空压站 3# 机组负荷率 126%<span>22:14</span></div>
+        <div class="w">蒸汽管网瞬时流量偏高 8.4%<span>22:11</span></div>
+        <div class="w">1# 主变油温逼近上限 62.4 ℃<span>22:07</span></div>
+        <div>2# 车间功率因数 0.87（&lt;0.90）<span>21:58</span></div>
+      </div>
+    </div>
+
+    <div class="rank">
+      <div class="rcard"><div class="n"><span>沈阳变压器园区</span><b>No.1</b></div><div class="v">286.4 <small>万kWh</small></div><div class="tr"><i style="width:100%"></i></div></div>
+      <div class="rcard"><div class="n"><span>衡阳变压器园区</span><b>No.2</b></div><div class="v">241.8 <small>万kWh</small></div><div class="tr"><i style="width:84%"></i></div></div>
+      <div class="rcard"><div class="n"><span>新疆变压器园区</span><b>No.3</b></div><div class="v">208.2 <small>万kWh</small></div><div class="tr"><i style="width:73%"></i></div></div>
+      <div class="rcard"><div class="n"><span>天津新能源园区</span><b>No.4</b></div><div class="v">176.9 <small>万kWh</small></div><div class="tr"><i style="width:62%"></i></div></div>
+      <div class="rcard"><div class="n"><span>德阳线缆园区</span><b>No.5</b></div><div class="v">152.3 <small>万kWh</small></div><div class="tr"><i style="width:53%"></i></div></div>
+      <div class="rcard"><div class="n"><span>新特开关园区</span><b>No.6</b></div><div class="v">118.0 <small>万kWh</small></div><div class="tr"><i style="width:41%"></i></div></div>
+    </div>
+  </main>
+  <div class="note">原型稿 · /monitor/screen/integrated · 适配 1920×1080 / 2560×1440 / 3840×2160 · 底图审图号常驻展示</div>
+</div>
+</body>
+</html>

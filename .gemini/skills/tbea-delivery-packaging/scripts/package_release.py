@@ -4,7 +4,11 @@ import zipfile
 import shutil
 import time
 
-sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
 
 root_proj = r'D:\Project\TJ-nengtan'
 light_proj = r'D:\Project\TJ-nengtan\产品原型-旧\产品原型'
@@ -36,8 +40,7 @@ dev_guide_content = """# 特变电工能碳数字化双中心 · 前端开发交
 
 ## 二、 技术栈清单与环境配置要求
 
-### 1. 核心技术栈
-- **核心框架**：Next.js 16 (App Router 架构，77个全量预渲染页面路由)
+- **核心框架**：Next.js 16 (App Router 架构，78个全量预渲染页面路由，包含 /design-system 标准组件库)
 - **UI 视图库**：React 19 (Server & Client Components)
 - **样式引擎**：Tailwind CSS v4 + tw-animate-css + Lucide React 工业图标库
 - **工业图表引擎**：
@@ -262,6 +265,13 @@ def package_all():
             if os.path.exists(src_path):
                 zf.write(src_path, arcname=os.path.join('tbea-nengtan-light-project', target_rel))
 
+        dev_manuals_dir = os.path.join(root_proj, '开发手册')
+        if os.path.exists(dev_manuals_dir):
+            for f in os.listdir(dev_manuals_dir):
+                full_f = os.path.join(dev_manuals_dir, f)
+                if os.path.isfile(full_f):
+                    zf.write(full_f, arcname=os.path.join('tbea-nengtan-light-project', 'PRD_需求文档与权威规范/开发手册', f))
+
     s0 = os.path.getsize(light_pkg_path) / (1024 * 1024)
     print(f"  [OK] 浅色商务版生成成功: {s0:.2f} MB ({time.time() - t0:.1f}s)")
 
@@ -291,6 +301,12 @@ def package_all():
         for src_path, target_rel in docs_to_include:
             if os.path.exists(src_path):
                 zf.write(src_path, arcname=os.path.join('tbea-nengtan-dark-project', target_rel))
+
+        if os.path.exists(dev_manuals_dir):
+            for f in os.listdir(dev_manuals_dir):
+                full_f = os.path.join(dev_manuals_dir, f)
+                if os.path.isfile(full_f):
+                    zf.write(full_f, arcname=os.path.join('tbea-nengtan-dark-project', 'PRD_需求文档与权威规范/开发手册', f))
 
     s1 = os.path.getsize(dark_pkg_path) / (1024 * 1024)
     print(f"  [OK] 暗黑科技蓝版生成成功: {s1:.2f} MB ({time.time() - t1:.1f}s)")
@@ -329,12 +345,11 @@ def package_all():
             if os.path.exists(src_path):
                 zf.write(src_path, arcname=os.path.join('00_PRD需求规格说明书与业务字典', os.path.basename(src_path)))
 
-        dev_manuals_dir = os.path.join(root_proj, '开发手册')
         if os.path.exists(dev_manuals_dir):
             for f in os.listdir(dev_manuals_dir):
                 full_f = os.path.join(dev_manuals_dir, f)
                 if os.path.isfile(full_f):
-                    zf.write(full_f, arcname=os.path.join('00_PRD需求规格说明书与业务字典/开发手册(35篇)', f))
+                    zf.write(full_f, arcname=os.path.join('00_PRD需求规格说明书与业务字典/开发手册', f))
 
     s2 = os.path.getsize(master_pkg_path) / (1024 * 1024)
     print(f"  [OK] 全套交付总包生成成功: {s2:.2f} MB ({time.time() - t2:.1f}s)")

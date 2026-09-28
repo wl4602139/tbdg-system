@@ -7,6 +7,7 @@ import { Modal } from '@/components/shared/modal'
 import { Select } from '@/components/shared/select'
 import { accounts, sysRoles } from '@/lib/mock-data'
 import { Field, inputCls, ActionBtn } from '@/components/system/ui'
+import { OrgTreeSelect } from '@/components/shared/org-tree-select'
 
 export function UserSection() {
   const [kw, setKw] = useState('')
@@ -15,18 +16,51 @@ export function UserSection() {
   const [applied, setApplied] = useState({ kw: '', role: 'all', status: 'all' })
 
   const [addOpen, setAddOpen] = useState(false)
-  const [role, setRole] = useState(sysRoles[1].name)
+  const [userList, setUserList] = useState(accounts)
+
+  // 新增用户表单受控状态
+  const [formName, setFormName] = useState('')
+  const [formAccount, setFormAccount] = useState('')
+  const [formPhone, setFormPhone] = useState('')
+  const [formOrg, setFormOrg] = useState('')
+  const [formRole, setFormRole] = useState(sysRoles[1].name)
+  const [formScope, setFormScope] = useState('')
 
   const rows = useMemo(
     () =>
-      accounts.filter((a) => {
+      userList.filter((a) => {
         if (applied.kw && !`${a.name}${a.account}${a.org}`.toLowerCase().includes(applied.kw.toLowerCase())) return false
         if (applied.role !== 'all' && a.role !== applied.role) return false
         if (applied.status !== 'all' && a.status !== applied.status) return false
         return true
       }),
-    [applied],
+    [applied, userList],
   )
+
+  const handleCreateUser = () => {
+    if (!formName.trim() || !formAccount.trim() || !formOrg.trim()) {
+      alert('请完整填写姓名、登录账号并选择所属机构！')
+      return
+    }
+    const newAccount = {
+      id: `U${String(userList.length + 1).padStart(3, '0')}`,
+      name: formName.trim(),
+      account: formAccount.trim(),
+      role: formRole,
+      org: formOrg,
+      scope: formScope.trim() || formOrg,
+      phone: formPhone.trim() || '138****0000',
+      status: '启用' as const,
+    }
+    setUserList((prev) => [newAccount, ...prev])
+    setFormName('')
+    setFormAccount('')
+    setFormPhone('')
+    setFormOrg('')
+    setFormScope('')
+    setFormRole(sysRoles[1].name)
+    setAddOpen(false)
+  }
 
   return (
     <Panel
@@ -87,7 +121,18 @@ export function UserSection() {
               <div className="flex gap-3 text-xs">
                 <button className="text-primary hover:underline">编辑</button>
                 <button className="text-muted-foreground hover:text-foreground">重置密码</button>
-                <button className="text-[var(--destructive)] hover:underline">{r.status === '启用' ? '停用' : '启用'}</button>
+                <button
+                  onClick={() =>
+                    setUserList((prev) =>
+                      prev.map((u) =>
+                        u.id === r.id ? { ...u, status: u.status === '启用' ? '停用' : '启用' } : u,
+                      ),
+                    )
+                  }
+                  className="text-[var(--destructive)] hover:underline"
+                >
+                  {r.status === '启用' ? '停用' : '启用'}
+                </button>
               </div>
             ),
           },
@@ -104,24 +149,63 @@ export function UserSection() {
         footer={
           <>
             <ActionBtn onClick={() => setAddOpen(false)}>取消</ActionBtn>
-            <ActionBtn variant="primary" onClick={() => setAddOpen(false)}>确认创建</ActionBtn>
+            <ActionBtn variant="primary" onClick={handleCreateUser}>确认创建</ActionBtn>
           </>
         }
       >
-        <div className="grid gap-4">
+        <div className="grid gap-4 min-h-[360px]">
           <div className="grid grid-cols-2 gap-4">
-            <Field label="姓名" required><input className={inputCls} placeholder="请输入姓名" /></Field>
-            <Field label="登录账号" required><input className={inputCls} placeholder="请输入账号" /></Field>
+            <Field label="姓名" required>
+              <input
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+                className={inputCls}
+                placeholder="请输入姓名"
+              />
+            </Field>
+            <Field label="登录账号" required>
+              <input
+                value={formAccount}
+                onChange={(e) => setFormAccount(e.target.value)}
+                className={inputCls}
+                placeholder="请输入账号"
+              />
+            </Field>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="手机号"><input className={inputCls} placeholder="请输入手机号" /></Field>
-            <Field label="所属机构" required><input className={inputCls} placeholder="如：衡变本部" /></Field>
+            <Field label="手机号">
+              <input
+                value={formPhone}
+                onChange={(e) => setFormPhone(e.target.value)}
+                className={inputCls}
+                placeholder="请输入手机号"
+              />
+            </Field>
+            <Field label="所属机构" required hint="在企业结构树中选择">
+              <OrgTreeSelect
+                value={formOrg}
+                onChange={(orgName, node) => {
+                  setFormOrg(orgName)
+                  if (!formScope) {
+                    if (node?.level === 'group') setFormScope('全集团')
+                    else if (node?.level === 'company') setFormScope(`${orgName}及下属单位`)
+                    else setFormScope(orgName)
+                  }
+                }}
+                placeholder="请选择所属机构"
+              />
+            </Field>
           </div>
           <Field label="角色" required>
-            <Select className="w-full [&>div]:w-full" value={role} onChange={setRole} options={sysRoles.map((r) => ({ label: r.name, value: r.name }))} />
+            <Select className="w-full [&>div]:w-full" value={formRole} onChange={setFormRole} options={sysRoles.map((r) => ({ label: r.name, value: r.name }))} />
           </Field>
           <Field label="数据范围" hint="控制该用户可见的组织/园区数据范围">
-            <input className={inputCls} placeholder="如：天津园区 / 衡阳电缆厂" />
+            <input
+              value={formScope}
+              onChange={(e) => setFormScope(e.target.value)}
+              className={inputCls}
+              placeholder="如：天津园区 / 衡阳电缆厂"
+            />
           </Field>
         </div>
       </Modal>

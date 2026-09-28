@@ -49,13 +49,13 @@ export function Select({
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      {label && <span className="whitespace-nowrap text-sm text-muted-foreground font-medium">{label}</span>}
-      <div className="relative" ref={ref}>
+      {label && <span className="whitespace-nowrap text-sm text-muted-foreground font-medium shrink-0">{label}</span>}
+      <div className="relative flex-1 min-w-0" ref={ref}>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           className={cn(
-            'flex h-9 min-w-[200px] items-center justify-between gap-3 rounded-lg border border-border bg-panel px-3 text-sm text-foreground transition-colors',
+            'flex h-9 w-full min-w-[160px] items-center justify-between gap-2 rounded-lg border border-border bg-panel px-3 text-sm text-foreground transition-colors',
             'hover:border-primary/60 focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer',
           )}
           aria-haspopup="listbox"

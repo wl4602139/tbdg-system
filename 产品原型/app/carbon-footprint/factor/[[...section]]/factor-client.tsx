@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Panel, Toolbar, DataTable, Badge } from '@/components/shared/primitives'
+import { Panel, Toolbar, DataTable, Badge, SearchInput } from '@/components/shared/primitives'
 import { Select } from '@/components/shared/select'
 import { Modal } from '@/components/shared/modal'
 import {
@@ -382,8 +382,8 @@ function FactorModule({ tabKey }: { tabKey: keyof typeof CONFIGS }) {
         )}
         {/* 原材料：产业标签直接查询；其他模块沿用下拉筛选 */}
         {cfg.filterKey === 'industry' ? (
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">{cfg.filterLabel}（点击标签筛选）</span>
+          <div className="flex items-center gap-2">
+            <span className="whitespace-nowrap text-sm font-medium text-muted-foreground">{cfg.filterLabel}</span>
             <div className="flex flex-wrap items-center gap-1.5">
               {[{ v: 'all', l: '全部' }, ...(cfg.filterOptions ?? []).map((o) => ({ v: o, l: o }))].map((t) => {
                 const on = filter === t.v
@@ -392,8 +392,8 @@ function FactorModule({ tabKey }: { tabKey: keyof typeof CONFIGS }) {
                     key={t.v}
                     type="button"
                     onClick={() => setFilter(t.v)}
-                    className={`inline-flex h-9 items-center gap-1 rounded-full border px-3 text-sm transition-colors ${
-                      on ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-secondary/60 text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                    className={`inline-flex h-9 items-center gap-1 rounded-lg border px-3 text-sm transition-colors cursor-pointer ${
+                      on ? 'border-primary bg-primary text-primary-foreground font-semibold' : 'border-border bg-panel text-muted-foreground hover:border-primary/50 hover:text-foreground'
                     }`}
                   >
                     <Tag className="size-3.5" /> {t.l}
@@ -412,23 +412,17 @@ function FactorModule({ tabKey }: { tabKey: keyof typeof CONFIGS }) {
             />
           )
         )}
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">名称检索</span>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="输入关键字…"
-              className="h-9 w-52 rounded-md border border-border bg-secondary pl-8 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
-            />
-          </div>
-        </div>
+        <SearchInput
+          label="名称检索"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="输入关键字…"
+        />
         {editable && (
           <button
             type="button"
             onClick={openAdd}
-            className="ml-auto inline-flex h-9 items-center gap-1.5 self-end rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            className="ml-auto inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 cursor-pointer shadow-xs"
           >
             <Plus className="size-4" /> 新增因子
           </button>
@@ -455,58 +449,84 @@ function FactorModule({ tabKey }: { tabKey: keyof typeof CONFIGS }) {
 
       {/* 新增 / 编辑（仅原材料） */}
       {editable && (
-        <Modal open={formOpen} onClose={() => setFormOpen(false)} title={editing ? `编辑因子 · ${editing.id}` : `新增${cfg.title}`}>
+        <Modal open={formOpen} onClose={() => setFormOpen(false)} size="lg" title={editing ? `编辑因子 · ${editing.id}` : `新增${cfg.title}`}>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              {cfg.fields.map((f) => (
-                <div key={f.key} className={f.type === 'select' ? 'col-span-2' : ''}>
-                  {f.type === 'select' ? (
-                    <Select
-                      label={f.label}
-                      value={draft[f.key] ?? ''}
-                      onChange={(v) => setDraft((d) => ({ ...d, [f.key]: v }))}
-                      options={(f.options ?? []).map((o) => ({ value: o, label: o }))}
-                    />
-                  ) : (
-                    <div>
-                      <label className="mb-1.5 block text-xs text-muted-foreground">{f.label}</label>
-                      <input
-                        type={f.type === 'number' ? 'number' : 'text'}
-                        step="any"
-                        value={draft[f.key] ?? ''}
-                        placeholder={f.placeholder}
-                        onChange={(e) => setDraft((d) => ({ ...d, [f.key]: e.target.value }))}
-                        className={`h-9 w-full rounded-md border border-border bg-secondary px-3 text-sm text-foreground outline-none focus:border-primary ${f.mono ? 'font-mono' : ''}`}
-                      />
-                    </div>
-                  )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-20 shrink-0 text-sm font-medium text-muted-foreground">原材料名称</span>
+                <input
+                  type="text"
+                  value={draft.name ?? ''}
+                  placeholder="如：取向硅钢片"
+                  onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
+                  className="h-9 flex-1 rounded-lg border border-border bg-panel px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="w-20 shrink-0 text-sm font-medium text-muted-foreground">适用产业</span>
+                <div className="flex-1">
+                  <Select
+                    value={draft.industry ?? rawMaterialIndustries[0]}
+                    onChange={(v) => setDraft((d) => ({ ...d, industry: v }))}
+                    options={rawMaterialIndustries.map((o) => ({ value: o, label: o }))}
+                  />
                 </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Select
-                label="数据来源"
-                value={draft.source ?? factorSourceOptions[0]}
-                onChange={(v) => setDraft((d) => ({ ...d, source: v }))}
-                options={factorSourceOptions.map((o) => ({ value: o, label: o }))}
-              />
-              <div>
-                <label className="mb-1.5 block text-xs text-muted-foreground">版本标签</label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="w-20 shrink-0 text-sm font-medium text-muted-foreground">因子值</span>
+                <input
+                  type="number"
+                  step="any"
+                  value={draft.value ?? ''}
+                  placeholder="如：2.15"
+                  onChange={(e) => setDraft((d) => ({ ...d, value: e.target.value }))}
+                  className="h-9 flex-1 rounded-lg border border-border bg-panel px-3 font-mono text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="w-20 shrink-0 text-sm font-medium text-muted-foreground">单位</span>
+                <input
+                  type="text"
+                  value={draft.unit ?? ''}
+                  placeholder="kgCO2e/kg"
+                  onChange={(e) => setDraft((d) => ({ ...d, unit: e.target.value }))}
+                  className="h-9 flex-1 rounded-lg border border-border bg-panel px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="w-20 shrink-0 text-sm font-medium text-muted-foreground">数据来源</span>
+                <div className="flex-1">
+                  <Select
+                    value={draft.source ?? factorSourceOptions[0]}
+                    onChange={(v) => setDraft((d) => ({ ...d, source: v }))}
+                    options={factorSourceOptions.map((o) => ({ value: o, label: o }))}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="w-20 shrink-0 text-sm font-medium text-muted-foreground">版本标签</span>
                 <input
                   value={draft.version ?? ''}
+                  placeholder="如：1.0"
                   onChange={(e) => setDraft((d) => ({ ...d, version: e.target.value }))}
-                  className="h-9 w-full rounded-md border border-border bg-secondary px-3 font-mono text-sm text-foreground outline-none focus:border-primary"
+                  className="h-9 flex-1 rounded-lg border border-border bg-panel px-3 font-mono text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
             </div>
-            <p className="rounded-md border border-border bg-secondary/40 px-3 py-2 text-xs text-muted-foreground">
+
+            <p className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs text-muted-foreground">
               因子变更将记录版本历史与审计日志，历史记录不可删除；更新后原当前值将作为默认值保留以供对比。
             </p>
             <div className="flex justify-end gap-2 pt-1">
-              <button type="button" onClick={() => setFormOpen(false)} className="h-9 rounded-md border border-border px-4 text-sm text-muted-foreground hover:text-foreground">
+              <button type="button" onClick={() => setFormOpen(false)} className="h-9 rounded-lg border border-border px-4 text-sm text-muted-foreground hover:text-foreground cursor-pointer">
                 取消
               </button>
-              <button type="button" onClick={saveForm} className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">
+              <button type="button" onClick={saveForm} className="h-9 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 cursor-pointer">
                 保存
               </button>
             </div>
@@ -573,7 +593,7 @@ function VersionModal({
   const [note, setNote] = useState('')
 
   return (
-    <Modal open onClose={onClose} title={`版本记录 · ${row.name ?? `${row.region} / ${row.powerSource}`}`}>
+    <Modal open onClose={onClose} size="lg" title={`版本记录 · ${row.name ?? `${row.region} / ${row.powerSource}`}`}>
       <div className="space-y-4">
         {/* 当前值 / 默认值 同时对比 */}
         <div className="grid grid-cols-3 gap-3">

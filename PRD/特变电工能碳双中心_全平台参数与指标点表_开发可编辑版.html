@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>特变电工能碳数字化双中心 · 全平台参数与指标点表 (Point Table / Tag List)</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: #131d33;
+      --border: #1e293b;
+      --border-subtle: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-secondary: #cbd5e1;
+      --primary: #2c7cff;
+      --primary-hover: #1b66e5;
+      --primary-subtle: rgba(44, 124, 255, 0.12);
+      --accent-green: #00d492;
+      --accent-orange: #ff6536;
+      --accent-yellow: #ffba00;
+      --accent-cyan: #10c4ce;
+      --accent-purple: #8e73ed;
+      --danger: #ef4444;
+      --header-bg: #17233d;
+      --row-hover: rgba(44, 124, 255, 0.08);
+      --input-bg: #0f172a;
+      --input-border: #334155;
+      --badge-bg: rgba(255, 255, 255, 0.06);
+      --edited-cell: rgba(255, 186, 0, 0.15);
+      --edited-border: #ffba00;
+    }
+
+    body.light-theme {
+      --bg: #f3f7fb;
+      --panel: #ffffff;
+      --border: #dbe6ee;
+      --border-subtle: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-secondary: #334155;
+      --primary: #2c7cff;
+      --primary-hover: #1b66e5;
+      --primary-subtle: rgba(44, 124, 255, 0.08);
+      --accent-green: #059669;
+      --accent-orange: #ea580c;
+      --accent-yellow: #d97706;
+      --accent-cyan: #0891b2;
+      --accent-purple: #7c3aed;
+      --danger: #dc2626;
+      --header-bg: #f8fafc;
+      --row-hover: #ebf3ff;
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --badge-bg: #f1f5f9;
+      --edited-cell: #fffbeb;
+      --edited-border: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      font-size: 12.5px;
+      padding: 16px 20px 60px;
+      transition: background-color 0.15s, color 0.15s;
+    }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    /* 顶部导航与控制栏：简单、直接 */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .title-h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tag-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .tag-edited-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(255, 186, 0, 0.15);
+      color: var(--accent-yellow);
+      border: 1px solid var(--accent-yellow);
+      display: none;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      height: 32px;
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid transparent;
+      user-select: none;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-secondary {
+      background: var(--panel);
+      color: var(--text);
+      border-color: var(--border-subtle);
+    }
+    .btn-secondary:hover {
+      background: var(--primary-subtle);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-success {
+      background: var(--accent-green);
+      color: #fff;
+      border-color: var(--accent-green);
+    }
+    .btn-success:hover { opacity: 0.9; }
+
+    .btn-danger-outline {
+      background: transparent;
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+    .btn-danger-outline:hover { background: rgba(239, 68, 68, 0.1); }
+
+    /* 快捷工具栏：搜索、过滤与快速统计 */
+    .toolbar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .toolbar-filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .form-control {
+      height: 32px;
+      background: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      padding: 0 10px;
+      font-size: 12px;
+      outline: none;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-subtle);
+    }
+
+    .search-input { width: 260px; }
+
+    .stat-pill {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stat-pill strong { color: var(--text); font-weight: 700; }
+
+    /* 点表主体表格：数据清晰、直接可编辑 */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    .point-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .point-table thead th {
+      height: 40px;
+      background: var(--header-bg);
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 0 10px;
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      user-select: none;
+    }
+
+    .point-table tbody tr {
+      height: 38px;
+      border-bottom: 1px solid var(--border);
+      transition: background-color 0.1s ease;
+    }
+    .point-table tbody tr:hover {
+      background-color: var(--row-hover);
+    }
+
+    .point-table td {
+      padding: 0 10px;
+      vertical-align: middle;
+      color: var(--text);
+    }
+
+    /* 可编辑单元格样式 */
+    .editable-cell {
+      cursor: pointer;
+      position: relative;
+      border-radius: 3px;
+      transition: background 0.12s;
+    }
+    .editable-cell:hover {
+      background: rgba(44, 124, 255, 0.1);
+      outline: 1px dashed var(--primary);
+    }
+    .editable-cell.is-edited {
+      background: var(--edited-cell) !important;
+      color: var(--edited-border) !important;
+      font-weight: 600;
+    }
+
+    
+    
+    
+    /* 表格前分类类型快捷切换选项卡 */
+    .category-tabs-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .cat-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .cat-tab:hover {
+      border-color: var(--primary);
+      color: var(--text);
+    }
+
+    .cat-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(44, 124, 255, 0.35);
+    }
+
+    .cat-tab-icon {
+      font-size: 13px;
+    }
+
+    .cat-tab-count {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+
+    .cat-tab.active .cat-tab-count {
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    body.light-theme .cat-tab {
+      background: #ffffff;
+      border-color: #dbe6ee;
+      color: #475569;
+    }
+
+    body.light-theme .cat-tab:hover {
+      border-color: #2c7cff;
+      color: #1e293b;
+    }
+
+    body.light-theme .cat-tab.active {
+      background: #2c7cff;
+      border-color: #2c7cff;
+      color: #ffffff;
+    }
+
+    body.light-theme .cat-tab-count {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    body.light-theme .cat-tab.active .cat-tab-count {
+      background: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+    }
+
+    /* 分类徽章样式 (暗黑科技蓝) */
+    .badge-type-energy {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.32);
+    }
+    .badge-type-product {
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.32);
+    }
+    .badge-type-factor {
+      color: #c084fc;
+      background: rgba(192, 132, 252, 0.12);
+      border: 1px solid rgba(192, 132, 252, 0.32);
+    }
+    .badge-type-device {
+      color: #fb923c;
+      background: rgba(251, 146, 60, 0.12);
+      border: 1px solid rgba(251, 146, 60, 0.32);
+    }
+    .badge-type-biz {
+      color: #fbbf24;
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.32);
+    }
+    .badge-type-metric {
+      color: #22d3ee;
+      background: rgba(34, 211, 238, 0.12);
+      border: 1px solid rgba(34, 211, 238, 0.32);
+    }
+
+    /* 分类徽章样式 (浅色商务办公) */
+    body.light-theme .badge-type-energy {
+      color: #0284c7;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+    }
+    body.light-theme .badge-type-product {
+      color: #059669;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+    }
+    body.light-theme .badge-type-factor {
+      color: #7e22ce;
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+    }
+    body.light-theme .badge-type-device {
+      color: #c2410c;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+    }
+    body.light-theme .badge-type-biz {
+      color: #b45309;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+    }
+    body.light-theme .badge-type-metric {
+      color: #0e7490;
+      background: #ecfeff;
+      border: 1px solid #a5f3fc;
+    }
+
+    /* 采集方式徽章样式 */
+    .badge-method-auto { background: rgba(44, 124, 255, 0.15); color: var(--primary); border: 1px solid rgba(44, 124, 255, 0.35); }
+    .badge-method-manual { background: rgba(255, 101, 54, 0.15); color: var(--accent-orange); border: 1px solid rgba(255, 101, 54, 0.35); }
+
+    /* 采样范围徽章样式 */
+    .badge-scope-park { background: rgba(0, 212, 146, 0.15); color: var(--accent-green); border: 1px solid rgba(0, 212, 146, 0.35); }
+    .badge-scope-company { background: rgba(44, 124, 255, 0.15); color: var(--primary); border: 1px solid rgba(44, 124, 255, 0.35); }
+    .badge-scope-factory { background: rgba(255, 186, 0, 0.15); color: var(--accent-yellow); border: 1px solid rgba(255, 186, 0, 0.35); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* 操作按钮列 */
+    .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      color: var(--text-muted);
+      transition: color 0.15s;
+    }
+    .action-btn:hover { color: var(--primary); background: var(--primary-subtle); }
+    .action-btn.btn-del:hover { color: var(--danger); background: rgba(239, 68, 68, 0.15); }
+
+    /* 浮动操作提示与模态框 */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1e293b;
+      color: #ffffff;
+      padding: 9px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      border: 1px solid var(--primary);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 9999;
+    }
+
+    /* 简易新增/编辑弹窗 */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 680px;
+      max-width: 95vw;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      padding: 18px 22px;
+    }
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .modal-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 14px;
+      margin-bottom: 16px;
+    }
+    .form-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-item label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部标题与功能按钮 -->
+  <header class="top-header">
+    <div class="header-left">
+      <h1 class="title-h1">
+        📑 特变电工能碳数字化双中心 · 全平台参数与指标点表 (Point Table / Tag List)
+      </h1>
+      <span class="tag-badge">独立开发单页 · 可编辑</span>
+      <span class="tag-edited-badge" id="tagEditedAlert">⚠️ 有未保存修改</span>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-primary" onclick="openAddPointModal()">＋ 新增点位</button>
+      <button class="btn btn-success" onclick="saveToLocal(true)">💾 保存到本地</button>
+      <button class="btn btn-secondary" onclick="exportCSV()">📥 导出 CSV/Excel</button>
+      <button class="btn btn-secondary" onclick="exportJSON()">💻 导出 JSON</button>
+      <label class="btn btn-secondary" style="cursor: pointer;">
+        📤 导入点表
+        <input type="file" id="importFileInput" accept=".json,.csv" style="display: none;" onchange="importPointTable(event)">
+      </label>
+      <button class="btn btn-danger-outline" onclick="resetToDefault()">↺ 恢复出厂基线</button>
+      <a href="特变电工能碳双中心_全平台基础数据字典.html" target="_blank" class="btn btn-secondary" title="在新标签页中打开拥有 108 项基础底数的数据字典">📚 基础数据字典</a>
+      <a href="特变电工能碳双中心_全量指标分子分母与静态数据开发核对单页.html" target="_blank" class="btn btn-secondary" title="在新标签页中打开 56 项指标核对单页">📐 指标分子分母</a>
+      <button class="btn btn-secondary" onclick="toggleTheme()" id="themeBtn">🌓 主题</button>
+    </div>
+  </header>
+
+  <!-- 搜索与筛选工具条 -->
+  <div class="toolbar">
+    <div class="toolbar-filters">
+      <input type="text" class="form-control search-input" id="searchKeyword" placeholder="模糊搜索：点位Tag、名称、字段Key、公式..." oninput="filterPoints()">
+      
+      <select class="form-control" id="filterType" onchange="onTypeDropdownChange(this.value)">
+        <option value="ALL">全部数据分类 (能源/产品/因子等)</option>
+        <option value="能源">⚡ 能源类 (Energy)</option>
+        <option value="产品">📦 产品类 (Product)</option>
+        <option value="因子">🧬 因子类 (24项)</option>
+        <option value="设备">⚙️ 设备类 (Equipment)</option>
+        <option value="经营">💼 经营类 (Finance & Ops)</option>
+        <option value="指标">📐 指标类 (Calculation Metric)</option>
+      </select>
+      
+      <select class="form-control" id="filterDomain" onchange="filterPoints()">
+        <option value="ALL">全部业务领域 (全量 175 项)</option>
+        <option value="能源物联">能源计量与实时物联 (20项)</option>
+        <option value="微电网">微电网与储能遥测 (15项)</option>
+        <option value="装备工况">重点装备工况遥测 (10项)</option>
+        <option value="节能装备台账">节能装备与全厂台账 (4项)</option>
+        <option value="生产制造">生产制造与工单产出 (15项)</option>
+        <option value="财务经营">财务经营与能源费用 (10项)</option>
+        <option value="碳足迹供应链">碳足迹与供应链 (10项)</option>
+        <option value="CBAM申报">CBAM 欧盟碳关税 (10项)</option>
+        <option value="节能零碳">节能项目与零碳评估 (6项)</option>
+        <option value="静态标准因子">标准基准与排放因子 (19项)</option>
+        <option value="综合核算指标">平台综合核算指标 (M01~M23)</option>
+        <option value="工序单耗指标">工序与产品单耗指标 (M24~M56)</option>
+      </select>
+
+      <select class="form-control" id="filterMethod" onchange="filterPoints()">
+        <option value="ALL">全部采集方式 (系统对接/人工填报)</option>
+        <option value="系统对接">🔌 系统对接 (Auto Integration)</option>
+        <option value="人工填报">📝 人工填报 (Manual Entry)</option>
+      </select>
+
+      <select class="form-control" id="filterScope" onchange="filterPoints()">
+        <option value="ALL">全部采样范围 (园区/经营单位/工厂)</option>
+        <option value="园区">🏢 园区 (Park)</option>
+        <option value="经营单位">💼 经营单位 (Business Unit)</option>
+        <option value="工厂">🏭 工厂 (Factory / Plant)</option>
+      </select>
+
+
+    </div>
+
+    <div class="stat-pill">
+      <span>当前显示：<strong id="statShown">175</strong> / <strong id="statTotal">175</strong> 项点位</span>
+      <span>💡 <strong>提示</strong>：直接点击表格中黄色可编辑单元格即可原地修改</span>
+    </div>
+  </div>
+
+    <!-- 表格前分类类型快捷选项卡 (显示 能源、产品、因子、设备、经营、指标 等类型) -->
+  <div class="category-tabs-bar" id="categoryTabsBar">
+    <button class="cat-tab active" data-cat="ALL" onclick="selectTypeTab('ALL')">
+      <span class="cat-tab-icon">🌐</span> 全部点位 <span class="cat-tab-count" id="countAll">175</span>
+    </button>
+    <button class="cat-tab" data-cat="能源" onclick="selectTypeTab('能源')">
+      <span class="cat-tab-icon">⚡</span> 能源类 <span class="cat-tab-count" id="countEnergy">37</span>
+    </button>
+    <button class="cat-tab" data-cat="产品" onclick="selectTypeTab('产品')">
+      <span class="cat-tab-icon">📦</span> 产品类 <span class="cat-tab-count" id="countProduct">24</span>
+    </button>
+    <button class="cat-tab" data-cat="因子" onclick="selectTypeTab('因子')">
+      <span class="cat-tab-icon">🧬</span> 因子类 <span class="cat-tab-count" id="countFactor">24</span>
+    </button>
+    <button class="cat-tab" data-cat="设备" onclick="selectTypeTab('设备')">
+      <span class="cat-tab-icon">⚙️</span> 设备类 <span class="cat-tab-count" id="countDevice">14</span>
+    </button>
+    <button class="cat-tab" data-cat="经营" onclick="selectTypeTab('经营')">
+      <span class="cat-tab-icon">💼</span> 经营类 <span class="cat-tab-count" id="countBiz">18</span>
+    </button>
+    <button class="cat-tab" data-cat="指标" onclick="selectTypeTab('指标')">
+      <span class="cat-tab-icon">📐</span> 指标类 <span class="cat-tab-count" id="countMetric">58</span>
+    </button>
+  </div>
+
+  <!-- 点表主体容器 -->
+  <div class="table-container">
+    <table class="point-table" id="pointTable">
+      <thead>
+        <tr>
+          <th style="width: 40px; text-align: center;">#</th>
+          <th style="width: 80px; text-align: center;">分类</th>
+          <th style="width: 150px;">点位标识 Tag</th>
+          <th style="min-width: 170px;">参数/指标中文名称</th>
+          <th style="width: 180px;">英文标识 Key</th>
+          <th style="width: 110px;">业务领域</th>
+                    <th style="width: 70px;">单位</th>
+          <th style="width: 100px; text-align: center;">采集方式</th>
+          <th style="width: 110px; text-align: center;">采样范围</th>
+          <th style="width: 100px;">采集/计算时效</th>
+          <th style="width: 130px;">权威数据源</th>
+                    <th style="min-width: 220px;">计算公式 / 采集口径</th>
+          <th style="min-width: 180px;">平台消费模块</th>
+          <th style="width: 70px; text-align: center;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="pointTableBody">
+        <!-- 动态渲染点表行 -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 提示 Toast -->
+  <div class="toast" id="toast">操作已完成</div>
+
+  <!-- 新增/编辑点位模态弹窗 -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-box">
+      <div class="modal-title">
+        <span id="modalTitleText">新增参数/指标点位</span>
+        <span style="cursor: pointer; font-size: 16px;" onclick="closeModal()">✕</span>
+      </div>
+      <div class="modal-form-grid">
+        <div class="form-item">
+          <label>点位标识 Tag (如 AI_SB_DRY01_TEMP):</label>
+          <input type="text" class="form-control" id="inpTag">
+        </div>
+        <div class="form-item">
+          <label>中文名称 (如 1#干燥罐相变温度):</label>
+          <input type="text" class="form-control" id="inpName">
+        </div>
+        <div class="form-item">
+          <label>英文字段 Key (如 vac_dryer_temp_degc):</label>
+          <input type="text" class="form-control" id="inpKey">
+        </div>
+        <div class="form-item">
+          <label>数据分类 (能源/产品/因子等):</label>
+          <select class="form-control" id="inpType">
+            <option value="能源">⚡ 能源 (水电气汽油微电网)</option>
+            <option value="产品">📦 产品 (产量/工单/物料BOM/半成品)</option>
+            <option value="因子">🧬 因子 (折标煤/碳排放因子/定额)</option>
+            <option value="设备">⚙️ 设备 (重点用能装备工况)</option>
+            <option value="经营">💼 经营 (产值/增加值/电费/财务/CBAM)</option>
+            <option value="指标">📐 指标 (综合能碳指标/工序产品单耗)</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label>业务领域细分:</label>
+          <select class="form-control" id="inpCategory">
+            <option value="能源物联">能源物联</option>
+            <option value="微电网">微电网</option>
+            <option value="装备工况">装备工况</option>
+            <option value="生产制造">生产制造</option>
+            <option value="财务经营">财务经营</option>
+            <option value="碳足迹供应链">碳足迹供应链</option>
+            <option value="CBAM申报">CBAM申报</option>
+            <option value="节能零碳">节能零碳</option>
+            <option value="静态标准因子">静态标准因子</option>
+            <option value="综合核算指标">综合核算指标</option>
+            <option value="工序单耗指标">工序单耗指标</option>
+          </select>
+        </div>
+
+        <div class="form-item">
+          <label>工程单位 (如 kWh, t, ℃, kW):</label>
+          <input type="text" class="form-control" id="inpUnit">
+        </div>
+        <div class="form-item">
+          <label>采集方式 (系统对接 / 人工填报):</label>
+          <select class="form-control" id="inpMethod">
+            <option value="系统对接">系统对接 (自动物联网/接口/计算引擎)</option>
+            <option value="人工填报">人工填报 (手工单据/月度报表/台账)</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label>采样范围 (园区 / 经营单位 / 工厂):</label>
+          <select class="form-control" id="inpScope">
+            <option value="园区">园区 (全厂/微电网/厂界关口)</option>
+            <option value="经营单位">经营单位 (子公司/财务/供应链/CBAM)</option>
+            <option value="工厂">工厂 (单体工厂/车间/重点装备/工单产线)</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label>采集/计算频次 (如 1s, 15min, 逐日, 逐月):</label>
+          <input type="text" class="form-control" id="inpFreq" value="15分钟采样">
+        </div>
+        <div class="form-item">
+          <label>权威数据源系统 (如 SCADA, MES, ERP):</label>
+          <input type="text" class="form-control" id="inpSource" value="SCADA系统">
+        </div>
+
+        <div class="form-item" style="grid-column: span 2;">
+          <label>计算公式 / 采集口径说明:</label>
+          <input type="text" class="form-control" id="inpFormula" placeholder="直接采集点说明位置，计算指标输入分子分母公式">
+        </div>
+        <div class="form-item" style="grid-column: span 2;">
+          <label>平台消费模块 (如 用能在线监测, 指标管控):</label>
+          <input type="text" class="form-control" id="inpUsage" value="用能在线监测">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="submitModalPoint()">确定保存点位</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 特变电工能碳数字化双中心 · 全量出厂官方标准点表基线 (164 项点位)
+    // =========================================================================
+    const DEFAULT_POINT_TABLE = [
+      { type: "能源", tag: "PI_TOTAL_ACTIVE_ENG", name: "全厂总用电量 (有功总电度)", key: "total_active_energy_kwh", category: "能源物联", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min采样/逐日结算", source: "SCADA / 变电所进线关口表", formula: "双向多功能电表累计底数差值 × 综合倍率 K", usage: "用能监测, 指标看板(M01分母/M14分子)" },
+      { type: "能源", tag: "PI_GRID_PURCHASED", name: "市电输入电量 (外购网电)", key: "grid_purchased_energy_kwh", category: "能源物联", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min采样/逐日结算", source: "国网计量关口表 / SCADA", formula: "公用电网进线总有功累计量，剔除自发绿电", usage: "用能在线监测, M03分子, 碳核算Scope 2" },
+      { type: "能源", tag: "PI_GREEN_CONSUMED", name: "直供绿电消纳量", key: "green_power_consumed_kwh", category: "能源物联", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min采样/逐日结算", source: "EMS微电网 / 逆变器专表", formula: "屋顶光伏自发自用与直供绿电厂内实耗量", usage: "用能在线监测, M02分子, M11分子, M49分子" },
+      { type: "能源", tag: "PI_FRESH_WATER_VOL", name: "工业新鲜水消耗量", key: "fresh_water_volume_t", category: "能源物联", unit: "t", method: "系统对接", scope: "园区", freq: "逐时连续采样/逐日累计", source: "SCADA给排水 / 电磁流量计", formula: "厂界供水管网电磁流量计实测水量累积值", usage: "用能监测水介质, M19分子, 万元产值水耗" },
+      { type: "能源", tag: "PI_NATURAL_GAS_VOL", name: "管道天然气消耗量", key: "natural_gas_volume_m3", category: "能源物联", unit: "m³", method: "系统对接", scope: "园区", freq: "逐日累计/月度结算", source: "燃气调压站 / 气体涡轮表", formula: "燃气锅炉与相变干燥温压补偿标况体积", usage: "用能监测天然气, M56分子" },
+      { type: "能源", tag: "PI_STEAM_VOLUME", name: "工业外购蒸汽消耗量", key: "purchased_steam_volume_t", category: "能源物联", unit: "t", method: "系统对接", scope: "园区", freq: "逐时采样/逐日结算", source: "动力管网 / 蒸汽涡街流量计", formula: "进入真空相变干燥房饱和/过热蒸汽质量流量", usage: "用能监测蒸汽, M10/M18/M30/M36分子" },
+      { type: "能源", tag: "PI_DIESEL_CONSUMPTION", name: "工业柴油实物消耗量", key: "diesel_fuel_consumption_kg", category: "能源物联", unit: "kg", method: "人工填报", scope: "园区", freq: "出入库批次/月度汇总", source: "ERP固定资产与仓储油料", formula: "叉车、运输重卡与备用柴发领用实耗量", usage: "用能监测柴油, Scope 1 直接排放核算" },
+      { type: "能源", tag: "PI_LIQUID_NITROGEN", name: "工业液氮消耗量", key: "liquid_nitrogen_volume_m3", category: "能源物联", unit: "m³", method: "系统对接", scope: "工厂", freq: "逐日累计/月度对账", source: "深冷气体监控 / 电子地磅", formula: "变压器油箱检漏与充氮绝缘气态体积量", usage: "变压器产业用能监测" },
+      { type: "能源", tag: "PI_TOU_SHARP_ENG", name: "分时尖峰用电量 (Sharp)", key: "tou_sharp_energy_kwh", category: "能源物联", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min冻结时段/逐日结算", source: "多功能分时电表 / EMS", formula: "电网法定尖峰时段 (11:00-13:00, 20:00-22:00) 受电量", usage: "用能监测峰平谷, M04分子" },
+      { type: "能源", tag: "PI_TOU_PEAK_ENG", name: "分时高峰用电量 (Peak)", key: "tou_peak_energy_kwh", category: "能源物联", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min冻结时段/逐日结算", source: "多功能分时电表 / EMS", formula: "电网法定高峰时段 (08:30-11:00, 14:00-19:00) 受电量", usage: "用能监测峰平谷, M05分子" },
+      { type: "能源", tag: "PI_TOU_FLAT_ENG", name: "分时平时用电量 (Flat)", key: "tou_flat_energy_kwh", category: "能源物联", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min冻结时段/逐日结算", source: "多功能分时电表 / EMS", formula: "电网法定平时段 (07:00-08:30, 13:00-14:00, 22:00-23:00) 受电量", usage: "用能监测峰平谷, M06分子" },
+      { type: "能源", tag: "PI_TOU_VALLEY_ENG", name: "分时低谷用电量 (Valley)", key: "tou_valley_energy_kwh", category: "能源物联", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min冻结时段/逐日结算", source: "多功能分时电表 / EMS", formula: "电网法定低谷时段 (23:00-07:00) 受电量 (储能/相变主时段)", usage: "用能监测峰平谷, M07分子" },
+      { type: "能源", tag: "AI_BUS_ACTIVE_PWR", name: "总配电母线实时有功功率", key: "bus_active_power_kw", category: "能源物联", unit: "kW", method: "系统对接", scope: "园区", freq: "1秒~3秒实时遥测", source: "微机保护测控装置 / SCADA", formula: "总配电进线柜三相有功矢量和 P = √3 * U * I * cosφ", usage: "用能监测负荷曲线, M08分子" },
+      { type: "能源", tag: "AI_BUS_REACTIVE_PWR", name: "总配电母线实时无功功率", key: "bus_reactive_power_kvar", category: "能源物联", unit: "kvar", method: "系统对接", scope: "园区", freq: "1秒~3秒实时遥测", source: "微机保护 / SVG 无功补偿", formula: "总进线感性与容性无功交换瞬时值", usage: "用能监测, 无功补偿自动调节" },
+      { type: "能源", tag: "AI_BUS_POWER_FACTOR", name: "实时母线总功率因数 (cosφ)", key: "bus_power_factor", category: "能源物联", unit: "-", method: "系统对接", scope: "园区", freq: "1秒实时刷新", source: "多功能数字电表 / SCADA", formula: "cosφ = P / S，视在负荷比值", usage: "用能监测, 考核力调电费是否达标" },
+      { type: "能源", tag: "AI_BUS_PHASE_VOLT_A", name: "母线 A 相电压 (Ua)", key: "bus_phase_voltage_ua", category: "能源物联", unit: "V", method: "系统对接", scope: "园区", freq: "1秒实时遥测", source: "数字电表 / SCADA", formula: "配电变压器二次侧相电压真有效值 True RMS", usage: "用能监测, 三相电压不平衡监测" },
+      { type: "能源", tag: "AI_BUS_LINE_CURR_A", name: "进线 A 相电流 (Ia 一次侧)", key: "line_phase_current_ia", category: "能源物联", unit: "A", method: "系统对接", scope: "园区", freq: "1秒实时遥测", source: "电流互感器 CT / SCADA", formula: "互感器二次侧实测电流 × CT 变比", usage: "用能监测, 越限负荷告警" },
+      { type: "能源", tag: "AI_GRID_FREQUENCY", name: "电网工作频率 (Freq)", key: "grid_frequency_hz", category: "能源物联", unit: "Hz", method: "系统对接", scope: "园区", freq: "1秒实时遥测", source: "测控装置 / SCADA", formula: "受电母线基波交流电压瞬时实际频率", usage: "微电网并网同步, 保护测控" },
+      { type: "能源", tag: "AI_VOLTAGE_THD", name: "总电压谐波畸变率 (THDu)", key: "voltage_thd_percent", category: "能源物联", unit: "%", method: "系统对接", scope: "园区", freq: "10秒滑动平均", source: "A级电能质量监测仪", formula: "母线谐波总有效值与基波有效值百分比 (限值4%)", usage: "用能监测电能质量" },
+      { type: "能源", tag: "AI_CURRENT_THD", name: "总电流谐波畸变率 (THDi)", key: "current_thd_percent", category: "能源物联", unit: "%", method: "系统对接", scope: "园区", freq: "10秒滑动平均", source: "A级电能质量监测仪", formula: "变频器与大电机整流回馈电网谐波污染监测", usage: "设备监测谐波滤波" },
+      { type: "能源", tag: "AI_PV_REALTIME_PWR", name: "屋顶光伏实时输出有功功率", key: "pv_realtime_power_kw", category: "微电网", unit: "kW", method: "系统对接", scope: "园区", freq: "5秒轮询采集", source: "EMS微电网 / 逆变器集控", formula: "厂区所有组串式逆变器交流输出功率代数和", usage: "微电网监测, M40分子/分母" },
+      { type: "能源", tag: "PI_PV_TOTAL_GEN", name: "光伏电站累计发电量", key: "pv_total_generation_kwh", category: "微电网", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min采样/逐日结算", source: "光伏交流双向关口电表", formula: "光伏逆变器交流输出电能自投运历史累积值", usage: "微电网监测, M11分母, M16/M17分子" },
+      { type: "能源", tag: "PI_PV_FEED_IN_GRID", name: "光伏反送上网电量", key: "pv_feed_in_grid_kwh", category: "微电网", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min采样/逐日结算", source: "电网双向关口表反向有功底数", formula: "厂内负荷小于发电时反向逆流至主电网电量", usage: "微电网监测防逆流判定" },
+      { type: "能源", tag: "AI_SOLAR_IRRADIANCE", name: "水平面总日照辐射强度", key: "solar_irradiance_wm2", category: "微电网", unit: "W/m²", method: "系统对接", scope: "园区", freq: "1分钟连续采集", source: "微型环境气象站", formula: "热电堆总辐射表采集的瞬时太阳光照辐照度", usage: "微电网光伏理论发电预测" },
+      { type: "能源", tag: "AI_PV_BACK_TEMP", name: "光伏电池组件背板工作温度", key: "pv_module_back_temp_degc", category: "微电网", unit: "℃", method: "系统对接", scope: "园区", freq: "1分钟连续采集", source: "气象站 PT100 贴片传感器", formula: "贴附于标杆光伏组件背面的实测物理温度", usage: "光伏电池温度降额补偿模型" },
+      { type: "能源", tag: "AI_ESS_REALTIME_PWR", name: "储能电站实时充放电功率", key: "ess_realtime_power_kw", category: "微电网", unit: "kW", method: "系统对接", scope: "园区", freq: "1秒实时遥测", source: "储能协调控制器 / PCS网关", formula: "双向变流器 PCS 交流侧瞬时值 (充电为负/放电为正)", usage: "微电网监测, 削峰填谷控制" },
+      { type: "能源", tag: "AI_ESS_BATTERY_SOC", name: "储能系统荷电状态 (SOC)", key: "ess_battery_soc_percent", category: "微电网", unit: "%", method: "系统对接", scope: "园区", freq: "1秒实时遥测", source: "BMS 电池管理系统", formula: "电池组剩余可用电量与标称额定可用容量百分比", usage: "微电网监测电池保护" },
+      { type: "能源", tag: "AI_ESS_BATTERY_SOH", name: "储能电池健康状态 (SOH)", key: "ess_battery_soh_percent", category: "微电网", unit: "%", method: "系统对接", scope: "园区", freq: "逐日诊断更新", source: "BMS 大数据寿命算法", formula: "当前最大可释放容量与出厂初始标称容量比值", usage: "微电网储能电池资产寿命评估" },
+      { type: "能源", tag: "AI_ESS_CELL_MAX_TEMP", name: "储能电池单体最高温度", key: "ess_cell_max_temp_degc", category: "微电网", unit: "℃", method: "系统对接", scope: "园区", freq: "1秒实时采集", source: "BMS 从控温度探头", formula: "电池舱内所有电芯热敏电阻检测出的最高单体温度", usage: "储能电站消防热失控预警" },
+      { type: "能源", tag: "PI_ESS_TOTAL_CHARGE", name: "储能电站累计充电量", key: "ess_total_charge_kwh", category: "微电网", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min采样/逐日结算", source: "储能交流侧计量表计", formula: "PCS 交流侧充电工况下消耗的总有功电量历史累积", usage: "微电网监测, M12分母 (充放电效率)" },
+      { type: "能源", tag: "PI_ESS_TOTAL_DISCHARGE", name: "储能电站累计放电量", key: "ess_total_discharge_kwh", category: "微电网", unit: "kWh", method: "系统对接", scope: "园区", freq: "15min采样/逐日结算", source: "储能交流侧计量表计", formula: "PCS 交流侧放电工况下释放的总有功电量历史累积", usage: "微电网监测, M12分子 (充放电效率)" },
+      { type: "能源", tag: "DI_GRID_ANTI_REVERSE", name: "微电网防逆流倒送保护状态", key: "grid_anti_reverse_status", category: "微电网", unit: "状态", method: "系统对接", scope: "园区", freq: "100ms中断上报", source: "微网调控一体机", formula: "并网点倒送功率 ≥ 10kW 持续 100ms 触发压降保护", usage: "微网自动化安全控制" },
+      { type: "能源", tag: "AI_EV_CHARGING_POWER", name: "园区充电桩集群总输出功率", key: "ev_charging_power_kw", category: "微电网", unit: "kW", method: "系统对接", scope: "园区", freq: "5秒采集", source: "充电桩运营子系统", formula: "园区 24 台直流快充桩瞬时充电输出功率代数和", usage: "微电网负荷消纳构成" },
+      { type: "能源", tag: "PI_EV_CHARGING_ENERGY", name: "园区充电桩累计充电量", key: "ev_charging_energy_kwh", category: "微电网", unit: "kWh", method: "系统对接", scope: "园区", freq: "逐日结算", source: "充电桩智能结算表", formula: "内部公车与员工车辆充电计量电量", usage: "绿电消纳分析, 园区内部交通减排" },
+      { type: "因子", tag: "BASE_FEED_IN_TARIFF", name: "各省标杆脱硫煤脱硝上网电价", key: "grid_feed_in_tariff_yuan_kwh", category: "微电网", unit: "元/kWh", method: "系统对接", scope: "园区", freq: "发改委文件发布时固化", source: "省发改委价格司批文", formula: "当地燃煤发电基准价 (辽/湘/新/鲁对应批文)", usage: "微电网光伏上网收益核算" },
+      { type: "设备", tag: "AI_VAC_DRYER_PRESSURE", name: "1#气相干燥罐真空度 (绝对压力)", key: "vac_dryer_chamber_pressure_pa", category: "装备工况", unit: "Pa", method: "系统对接", scope: "工厂", freq: "5秒连续采集", source: "干燥罐自动化 PLC 控制系统", formula: "电容薄膜真空规实测压强，判定排潮脱水终点", usage: "设备在线监测, 高压干燥工序质量判定" },
+      { type: "设备", tag: "AI_VAC_DRYER_TEMP", name: "1#干燥罐相变温度 (罐内绝缘件平均)", key: "vac_dryer_core_temp_degc", category: "装备工况", unit: "℃", method: "系统对接", scope: "工厂", freq: "10秒连续采集", source: "干燥罐 PLC 温控模块", formula: "铁心与绕组绝缘多点铠装 PT100 探头平均值", usage: "设备在线监测, 气相加热升温曲线" },
+      { type: "设备", tag: "AI_VAC_DRYER_STEAM_FLOW", name: "相变干燥罐蒸汽瞬时流量", key: "vac_dryer_steam_flow_kg_h", category: "装备工况", unit: "kg/h", method: "系统对接", scope: "工厂", freq: "10秒连续采集", source: "PLC 涡街流量计", formula: "蒸汽加热蒸发器入口质量流量计实测值", usage: "设备在线监测, 蒸汽工序消耗" },
+      { type: "设备", tag: "AI_TEST_LAB_VOLT", name: "特高压试验大厅施加工频电压", key: "test_lab_applied_voltage_kv", category: "装备工况", unit: "kV", method: "系统对接", scope: "工厂", freq: "试验批次秒级采样", source: "试验站集中测控系统 (CTS)", formula: "工频无局放试验变压器分压器二次测量值", usage: "设备在线监测, 变压器耐压工况" },
+      { type: "设备", tag: "AI_TEST_LAB_NO_LOAD_LOSS", name: "变压器出厂空载损耗测量有功值", key: "test_lab_no_load_loss_kw", category: "装备工况", unit: "kW", method: "系统对接", scope: "工厂", freq: "出厂稳态试验批次记录", source: "横河精密宽频功率分析仪", formula: "额定电压正弦波下开路测得的有功功率", usage: "产品碳足迹出厂能效定额判定" },
+      { type: "设备", tag: "AI_DRAWING_RPM", name: "线缆高速大拉机主电机转速", key: "cable_wire_drawing_rpm", category: "装备工况", unit: "rpm", method: "系统对接", scope: "工厂", freq: "1秒实时轮询", source: "变频器编码器反馈 / PLC", formula: "铜大拉机主电机编码器转速", usage: "设备在线监测, 设备开机率与负荷" },
+      { type: "设备", tag: "AI_DRAWING_LINE_SPEED", name: "线缆拉丝出线线速度", key: "cable_wire_drawing_speed_m_min", category: "装备工况", unit: "m/min", method: "系统对接", scope: "工厂", freq: "1秒实时轮询", source: "定速引取轮测速传感器", formula: "金属单线表面实际出线线速度", usage: "工序单耗每千米铜丝耗电计算" },
+      { type: "设备", tag: "AI_CCV_PRESSURE", name: "超高压立塔交联管蒸汽饱和绝对压力", key: "ccv_vulcanizing_tube_pressure_mpa", category: "装备工况", unit: "MPa", method: "系统对接", scope: "工厂", freq: "5秒实时采集", source: "Maillefer CCV 生产线主控", formula: "悬链立塔交联硫化管充氮/加热饱和蒸汽压力", usage: "设备在线监测, 超高压立塔能效" },
+      { type: "设备", tag: "CALC_EQUIPMENT_LOAD_RATE", name: "重点用能设备实时负荷率", key: "equipment_load_rate_percent", category: "装备工况", unit: "%", method: "系统对接", scope: "工厂", freq: "15min计算/逐日平均", source: "平台算法衍生", formula: "实际有功功率 / 铭牌标称额定工作功率 × 100%", usage: "设备在线监测, M08/M09指标" },
+      { type: "设备", tag: "DI_EQUIPMENT_STATUS", name: "设备运行状态 (运行/待机/检修)", key: "equipment_running_status", category: "装备工况", unit: "枚举", method: "系统对接", scope: "工厂", freq: "实时状态变化", source: "PLC 开关量或 SCADA", formula: "断路器闭合、电流大于空载阈值判定为运行", usage: "设备在线监测开机率统计" },
+      { type: "设备", tag: "MANUAL_ENERGY_SAVING_EQUIP_POWER", name: "节能装备累计额定总功率 (Res)", key: "energy_saving_equip_power_kw", category: "节能装备台账", unit: "kW", method: "人工填报", scope: "工厂", freq: "月度核查填报", source: "特变基层填报工作台 / 节能台账", formula: "统计范围内达到或优于国标2级及先进水平的节能装备额定总功率累计值", usage: "基础数据填报, 核心指标 #9 节能装备应用占比分子" },
+      { type: "设备", tag: "MANUAL_TOTAL_IN_SCOPE_EQUIP_POWER", name: "纳入统计范围装备累计额定总功率 (Ets)", key: "total_in_scope_equip_power_kw", category: "节能装备台账", unit: "kW", method: "人工填报", scope: "工厂", freq: "月度核查填报", source: "特变基层填报工作台 / 设备台账", formula: "统计范围内剔除备用/应急及生活类装备后的在册生产装备额定总功率总和", usage: "基础数据填报, 核心指标 #9 节能装备应用占比分母" },
+      { type: "设备", tag: "MANUAL_ENERGY_SAVING_EQUIP_DETAIL", name: "节能装备明细台账", key: "energy_saving_equip_detail_table", category: "节能装备台账", unit: "明细表", method: "人工填报", scope: "工厂", freq: "动态维护/月度提报", source: "特变基层填报工作台 / 节能台账", formula: "重点节能装备资产编码、名称、型号、额定功率、能效国标等级、节能认证凭证与投产年份明细", usage: "基础数据填报, 节能效益核算与工信部绿色工厂申报" },
+      { type: "设备", tag: "MANUAL_EQUIPMENT_INVENTORY_DETAIL", name: "全厂在册装备台账明细", key: "equipment_inventory_detail_table", category: "节能装备台账", unit: "明细表", method: "人工填报", scope: "工厂", freq: "动态维护/月度提报", source: "特变基层填报工作台 / 设备台账", formula: "全厂在册主要用能装备资产编码、工艺类别、额定功率、工况状态及是否纳入统计范围明细", usage: "基础数据填报, 全厂能耗审计与节能装备覆盖率核查" },
+      { type: "产品", tag: "MANUAL_TRANSFORMER_CAPACITY", name: "变压器完工合格总容量", key: "transformer_finished_capacity_mva", category: "生产制造", unit: "万kVA", method: "系统对接", scope: "工厂", freq: "工单入库批次/月度汇总", source: "MES 制造系统 / ERP 入库台账", formula: "通过全部出厂型式试验合格入库的额定容量总和", usage: "指标管控, M10/M24/M31/M37 分母" },
+      { type: "产品", tag: "MANUAL_TRANSFORMER_UNITS", name: "变压器完工合格台数", key: "transformer_finished_units", category: "生产制造", unit: "台", method: "系统对接", scope: "工厂", freq: "工单入库汇总", source: "MES 工单完工确认单", formula: "统计期内完成包装终检验收入库的变压器台数", usage: "单台产品平均单耗与碳足迹分摊" },
+      { type: "产品", tag: "MANUAL_CABLE_LENGTH_KM", name: "电线电缆完工合格产出长度", key: "cable_finished_length_km", category: "生产制造", unit: "km", method: "系统对接", scope: "工厂", freq: "盘具完工扫码/月度汇总", source: "MES 工单计米器与条码系统", formula: "成缆、护套、耐压全部检验合格打盘入库物理长度", usage: "指标管控, M32/M33/M34/M35/M36 分母" },
+      { type: "产品", tag: "CALC_CABLE_CONVERTED_LENGTH", name: "电线电缆截面折算长度 (综合产出)", key: "cable_converted_length_km_mm2", category: "生产制造", unit: "万km·mm²", method: "系统对接", scope: "工厂", freq: "工单月度结算归集", source: "MES 系统 / 能耗分析引擎", formula: "∑(各型号电缆实际合格物理长度 km × 标称导体截面 mm²)", usage: "指标管控, M25/M38 分母 (线缆综合单耗)" },
+      { type: "产品", tag: "MANUAL_PROCESS_NET_WEIGHT", name: "工序合格产出品净重", key: "process_finished_net_weight_kg", category: "生产制造", unit: "kg", method: "系统对接", scope: "工厂", freq: "工序流转批次过磅", source: "MES 工序流转卡 / 电子秤", formula: "剪切硅钢片、拉丝单线交接至下道工序合格毛坯重", usage: "工序单耗分母 (铜丝产量等)" },
+      { type: "产品", tag: "MANUAL_SCRAP_WEIGHT", name: "工序工艺废料及边角料报废重量", key: "process_scrap_weight_kg", category: "生产制造", unit: "kg", method: "系统对接", scope: "工厂", freq: "批次清料称重", source: "MES 废料报废审核流程", formula: "冲剪硅钢边角料、铜屑与挤塑洗车废料称重", usage: "材料利用率与碳足迹损耗核算" },
+      { type: "产品", tag: "MANUAL_ACTUAL_MAN_HOURS", name: "工单制造实际耗用工时", key: "work_order_actual_man_hours_h", category: "生产制造", unit: "h", method: "系统对接", scope: "工厂", freq: "工单关结时结算", source: "MES 考勤人机派工系统", formula: "生产工单各班组各工位工时打卡累计总和", usage: "单位工时电耗能效分析" },
+      { type: "产品", tag: "MANUAL_CORE_SHEAR_LENGTH", name: "铁心硅钢数控剪切线进料长度", key: "core_shear_feed_length_m", category: "生产制造", unit: "m", method: "系统对接", scope: "工厂", freq: "数控伺服编码器连续计米", source: "乔格/国产剪切线 PLC", formula: "伺服送进编码器测量的硅钢卷料展开实际米数", usage: "指标管控, M28分母 (剪切每米耗电)" },
+      { type: "产品", tag: "MANUAL_WORK_ORDER_NO", name: "生产制造工单编号 (Work Order ID)", key: "production_work_order_no", category: "生产制造", unit: "-", method: "系统对接", scope: "工厂", freq: "工单下达生成", source: "ERP 生产订单模块", formula: "ERP与MES间唯一制造批次追溯编码主键", usage: "订单级碳足迹追溯与单台成本" },
+      { type: "产品", tag: "MANUAL_PRODUCT_MODEL", name: "制造产品代表型号规格", key: "production_product_model", category: "生产制造", unit: "-", method: "人工填报", scope: "工厂", freq: "工单创建确立", source: "ERP 物料主数据", formula: "产品技术规格参数名，关联标准单耗定额", usage: "产品碳足迹实景库, 对标分析" },
+      { type: "产品", tag: "MANUAL_COPPER_INPUT_WEIGHT", name: "高纯电解无氧铜杆领用投料净重", key: "copper_raw_material_input_kg", category: "生产制造", unit: "kg", method: "系统对接", scope: "工厂", freq: "工单领料出库", source: "WMS 智能立体库发料单", formula: "电磁线或线缆拉丝领用的含铜量≥99.99%实物重", usage: "M42/M43分子, M48分子分母, 碳足迹原材料" },
+      { type: "产品", tag: "MANUAL_SILICON_STEEL_WEIGHT", name: "取向高导磁硅钢片采购领用净重", key: "silicon_steel_raw_material_input_kg", category: "生产制造", unit: "kg", method: "系统对接", scope: "工厂", freq: "工单领料出库", source: "WMS 原料库条码出库单", formula: "铁心叠积工单领用的取向冷轧电工钢卷净重", usage: "变压器铁心工序单耗与碳足迹实景" },
+      { type: "产品", tag: "MANUAL_INSULATING_OIL_WEIGHT", name: "变压器矿物绝缘油总装注入净重", key: "transformer_insulating_oil_net_kg", category: "生产制造", unit: "kg", method: "系统对接", scope: "工厂", freq: "注油工单流量计实测", source: "真空注油机高精质量流量计", formula: "油浸式变压器总装真空注油工序实充绝缘油质量", usage: "变压器碳足迹关键物料清单 BOM" },
+      { type: "产品", tag: "MANUAL_ALUMINUM_ROD_WEIGHT", name: "电工级纯铝杆/铝排领用净重", key: "aluminum_rod_input_weight_kg", category: "生产制造", unit: "kg", method: "系统对接", scope: "工厂", freq: "工单领料出库", source: "WMS 原料库发料单", formula: "钢芯铝绞线、铝拉丝工单领用的电工纯铝净重", usage: "线缆铝拉丝单耗分母, 碳足迹实景" },
+      { type: "产品", tag: "MANUAL_XLPE_GRANULES_WEIGHT", name: "交联聚乙烯 (XLPE) 绝缘料投料重", key: "xlpe_granules_input_weight_kg", category: "生产制造", unit: "kg", method: "系统对接", scope: "工厂", freq: "上料称重称实时累计", source: "挤出机失重式自动配料秤", formula: "超高压立塔交联挤出机投入的超净聚乙烯实测重", usage: "立塔交联单耗材料产出比, 碳足迹" },
+      { type: "经营", tag: "MANUAL_GROSS_OUTPUT_VALUE", name: "全口径工业总产值 (现价)", key: "gross_industrial_output_value_wan_yuan", category: "财务经营", unit: "万元", method: "人工填报", scope: "经营单位", freq: "月度财务关账核算", source: "ERP 财务总账 / 经营分析", formula: "报告期内以货币形式表现的工业最终产品总价值量(不含税)", usage: "指标看板, M26/M41 分母 (万元产值综合单耗)" },
+      { type: "经营", tag: "MANUAL_INDUSTRIAL_ADDED_VALUE", name: "工业增加值", key: "industrial_added_value_wan_yuan", category: "财务经营", unit: "万元", method: "人工填报", scope: "经营单位", freq: "月度/季度统计口径", source: "ERP 成本总账 / 统计上报", formula: "工业总产值 - 工业中间投入 + 本期应交增值税", usage: "指标管控, M27 分母 (万元增加值单耗)" },
+      { type: "经营", tag: "MANUAL_TOTAL_ELEC_TARIFF", name: "市电外购电费结算总金额", key: "electricity_tariff_total_wan_yuan", category: "财务经营", unit: "万元", method: "人工填报", scope: "经营单位", freq: "月度电费单对账", source: "国家电网发票账单 / ERP", formula: "供电局发票总额 (电度电费 + 容量基本电费 + 力调增减款)", usage: "能源成本分析, 度电综合用能成本" },
+      { type: "经营", tag: "MANUAL_SHARP_ELEC_COST", name: "分时尖峰电费结算额", key: "electricity_cost_sharp_wan_yuan", category: "财务经营", unit: "万元", method: "人工填报", scope: "经营单位", freq: "月度供电局对账单", source: "供电局分时电价清单", formula: "尖峰时段用电量 × 尖峰电价标准", usage: "能源成本对账, M15分母" },
+      { type: "经营", tag: "MANUAL_VALLEY_ELEC_COST", name: "分时低谷电费结算额", key: "electricity_cost_valley_wan_yuan", category: "财务经营", unit: "万元", method: "人工填报", scope: "经营单位", freq: "月度供电局对账单", source: "供电局分时电价清单", formula: "低谷时段用电量 × 低谷优惠电价标准", usage: "能源成本对账, M15分子" },
+      { type: "经营", tag: "MANUAL_GREEN_POWER_COST", name: "直供绿电交易环境溢价结算费", key: "green_power_trading_cost_wan_yuan", category: "财务经营", unit: "万元", method: "人工填报", scope: "经营单位", freq: "月度电力交易结算单", source: "北京/广州电力交易中心账单", formula: "市场化绿电中长期交易支付的绿色环境溢价", usage: "绿电溢价与减碳经济性评估" },
+      { type: "经营", tag: "MANUAL_WATER_TARIFF", name: "工业水费结算支出", key: "water_tariff_wan_yuan", category: "财务经营", unit: "万元", method: "人工填报", scope: "经营单位", freq: "月度自来水公司发票", source: "自来水发票 / 财务对账", formula: "自来水费票据金额 (含自来水费 + 污水排污附加费)", usage: "综合公辅能源成本支出" },
+      { type: "经营", tag: "MANUAL_GAS_TARIFF", name: "天然气采购结算总费用", key: "natural_gas_tariff_wan_yuan", category: "财务经营", unit: "万元", method: "人工填报", scope: "经营单位", freq: "月度燃气结算单", source: "燃气发票 / 财务应付凭证", formula: "燃气公司抄表发票账单金额 (含季节调价浮动)", usage: "燃气能耗成本与蒸汽替代经济性" },
+      { type: "经营", tag: "MANUAL_STEAM_TARIFF", name: "外购工业蒸汽结算总费用", key: "steam_tariff_wan_yuan", category: "财务经营", unit: "万元", method: "人工填报", scope: "经营单位", freq: "月度热电厂发票", source: "热电厂供热发票 / ERP", formula: "集中供热单位根据累计供汽吨数开具的结算总金额", usage: "相变干燥蒸汽用能财务成本" },
+      { type: "经营", tag: "BASE_INDUSTRIAL_ELEC_PRICE", name: "企业平均工业综合电价", key: "avg_industrial_elec_price_yuan_kwh", category: "财务经营", unit: "元/kWh", method: "人工填报", scope: "经营单位", freq: "月度关账后核算", source: "ERP 能耗成本引擎", formula: "市电外购总电费 / 市电总用电量", usage: "节电技改节费模拟, 度电成本核算" },
+      { type: "产品", tag: "MANUAL_SUPPLIER_USCI", name: "原材料供应商统一社会信用代码", key: "supplier_usci_code", category: "碳足迹供应链", unit: "-", method: "人工填报", scope: "经营单位", freq: "SRM准入建档/采购订单", source: "SRM 供应链系统", formula: "原材料供应商在国家工商部门注册的 18 位法定信用代码", usage: "碳足迹供应链溯源, 一级供应商识别" },
+      { type: "产品", tag: "MANUAL_TRANSPORT_ORIGIN", name: "原材料上游运输发货起点地址", key: "raw_material_transport_origin", category: "碳足迹供应链", unit: "-", method: "人工填报", scope: "经营单位", freq: "采购运单录入", source: "SRM 物流追踪 / 货运提单", formula: "铜杆、绝缘料提货仓库发货地址", usage: "Scope 3 上游运输碳足迹测算" },
+      { type: "产品", tag: "MANUAL_TRANSPORT_DISTANCE", name: "原材料上游运输物理距离", key: "raw_material_transport_distance_km", category: "碳足迹供应链", unit: "km", method: "人工填报", scope: "经营单位", freq: "货运运单批次测算", source: "高德企业地图 API / 运单", formula: "发货地仓库至特变电工制造基地的实际行驶里程", usage: "M44 分子, Scope 3 吨公里周转量" },
+      { type: "产品", tag: "MANUAL_TRANSPORT_MODE", name: "原材料主要运输方式", key: "raw_material_transport_mode", category: "碳足迹供应链", unit: "枚举", method: "人工填报", scope: "经营单位", freq: "运单登记", source: "SRM 物流模块", formula: "公路重型货车、电气化铁路或内河集装箱船舶", usage: "运输排放因子匹配与减排路径分析" },
+      { type: "产品", tag: "MANUAL_PACKAGING_WOOD", name: "整机出厂木托盘包装木材实测净重", key: "packaging_wood_net_weight_kg", category: "碳足迹供应链", unit: "kg", method: "人工填报", scope: "经营单位", freq: "成品包装扫码出库", source: "MES 包装发料单 / WMS", formula: "变压器或线缆盘具出厂耗用的免熏蒸实木包装重", usage: "M47 分子, 产品碳足迹下游分摊" },
+      { type: "经营", tag: "MANUAL_CCER_OFFSET", name: "国家核证自愿减排量 (CCER) 核销量", key: "ccer_offset_volume_tco2e", category: "碳足迹供应链", unit: "tCO2e", method: "人工填报", scope: "经营单位", freq: "年度/批次注销批复", source: "全国温室气体自愿减排注册系统", formula: "国家注册登记系统注销用于抵消自身碳排放的配额", usage: "组织碳中和认证, 净排放量核减" },
+      { type: "经营", tag: "MANUAL_GEC_CERT_COUNT", name: "中国绿色电力证书 (GEC) 认购持有量", key: "gec_certificates_count", category: "碳足迹供应链", unit: "个", method: "人工填报", scope: "经营单位", freq: "月度交易划转", source: "国家绿证核发与认购平台", formula: "认购持有的官方绿证数量 (1 个绿证 = 1000 kWh 绿电)", usage: "绿电消费凭证核算, ESG报告披露" },
+      { type: "因子", tag: "BASE_FACTOR_PCF_COPPER", name: "高纯电解无氧铜杆实景碳排放因子", key: "factor_pcf_copper_tco2e_t", category: "碳足迹供应链", unit: "kgCO2e/kg", method: "人工填报", scope: "经营单位", freq: "第三方 EPD 报告更新", source: "国际铜业协会 / 宝武江铜EPD", formula: "摇篮到大门 (Cradle-to-Gate) 纯铜精炼出厂碳强度", usage: "产品碳足迹原材料主项核算" },
+      { type: "因子", tag: "BASE_FACTOR_SILICON_STEEL", name: "高导磁取向硅钢片实景碳排放因子", key: "factor_pcf_silicon_steel_tco2e_t", category: "碳足迹供应链", unit: "kgCO2e/kg", method: "人工填报", scope: "经营单位", freq: "钢厂 PCR/EPD 声明", source: "宝武钢铁取向硅钢 EPD 报告", formula: "冷轧高磁感取向电工钢每千克生命周期碳排放量", usage: "变压器铁心全生命周期碳核算" },
+      { type: "因子", tag: "BASE_FACTOR_TRANSFORMER_OIL", name: "变压器环烷基绝缘矿物油碳排放因子", key: "factor_pcf_transformer_oil_tco2e_t", category: "碳足迹供应链", unit: "kgCO2e/kg", method: "人工填报", scope: "经营单位", freq: "炼化厂检测报告更新", source: "中石油克拉玛依石化 EPD", formula: "环烷基原油精制加工至专用绝缘油碳排放强度", usage: "变压器碳足迹关键化工原料" },
+      { type: "产品", tag: "MANUAL_CBAM_SAD_NO", name: "欧盟海关单一行政报关单号 (SAD)", key: "cbam_customs_declaration_sad_no", category: "CBAM申报", unit: "-", method: "人工填报", scope: "经营单位", freq: "出口报关批次生成", source: "进出口关务系统 / 欧盟报关行", formula: "出口货物在欧盟成员国海关口岸的官方报关序列号", usage: "CBAM 碳边境调节机制季度申报" },
+      { type: "产品", tag: "BASE_CBAM_CN_CODE", name: "欧盟海关 8 位商品税则代码 (CN Code)", key: "cbam_customs_cn_code", category: "CBAM申报", unit: "-", method: "人工填报", scope: "经营单位", freq: "产品报关归类确定", source: "欧盟海关税则 Combined Nomenclature", formula: "如 85042100 (液体介质变压器,容量≤650kVA)", usage: "CBAM 申报产品类别归属与默认值匹配" },
+      { type: "产品", tag: "MANUAL_CBAM_EXPORT_NET_MASS", name: "海关报关出口物理净重量 (Net Mass)", key: "cbam_export_net_mass_t", category: "CBAM申报", unit: "t", method: "人工填报", scope: "经营单位", freq: "出口过磅提单批次", source: "海关提单 B/L / 装箱单 Packing List", formula: "除去全部包装后的变压器或电缆物理纯净重", usage: "M50分母, M51分子 (CBAM 碳税核算基础)" },
+      { type: "经营", tag: "MANUAL_CBAM_FOB_VALUE", name: "出口货物离岸申报总货值 (FOB Value)", key: "cbam_fob_export_value_eur", category: "CBAM申报", unit: "EUR", method: "人工填报", scope: "经营单位", freq: "出口商业发票确立", source: "关务结汇系统 / ERP 销售订单", formula: "离岸价 (Free on Board) 欧元申报总金额", usage: "M54 分母 (碳关税货值暴露比率)" },
+      { type: "产品", tag: "MANUAL_CBAM_PRECURSORS_MASS", name: "欧盟指定前驱物消耗量 (Precursors)", key: "cbam_precursor_steel_aluminum_mass_t", category: "CBAM申报", unit: "t", method: "人工填报", scope: "经营单位", freq: "产品 LCA 实景 BOM 展开", source: "产品实景 BOM / 碳核算模型", formula: "制造出口货物消耗的属于 CBAM 监管的钢铁与铝材净重", usage: "CBAM 复杂商品嵌入碳排放核算" },
+      { type: "经营", tag: "MANUAL_CBAM_CARBON_PRICE_PAID", name: "国内已缴纳碳成本折算总额 (Carbon Price Paid)", key: "cbam_carbon_price_paid_abroad_eur", category: "CBAM申报", unit: "EUR", method: "人工填报", scope: "经营单位", freq: "申报批次汇率换算", source: "全国碳市场 CEA 交易凭证 / 财务", formula: "在中国境内因履约或绿电交易已实际支付并折欧元的碳成本", usage: "M52分子, M53分母 (CBAM 碳关税准予抵扣项)" },
+      { type: "因子", tag: "BASE_EU_ETS_PRICE", name: "欧盟碳配额 (EU ETS) 官方拍卖均价", key: "eu_ets_allowance_price_eur_tco2e", category: "CBAM申报", unit: "EUR/tCO2e", method: "人工填报", scope: "经营单位", freq: "每周三欧洲能源交易所公开发布", source: "欧洲能源交易所 (EEX) 官方数据", formula: "欧盟委员会公开发布的上一历周拍卖加权结算均价", usage: "M51分母, M53分子, M54分子 (CBAM税额测算)" },
+      { type: "经营", tag: "BASE_EUR_CNY_EXCHANGE_RATE", name: "中欧基准外汇汇率 (EUR/CNY 中间价)", key: "eur_cny_central_parity_rate", category: "CBAM申报", unit: "-", method: "人工填报", scope: "经营单位", freq: "每日外汇交易中心发布", source: "中国外汇交易中心 (CFETS)", formula: "中国人民银行授权公布的人民币对欧元中间价", usage: "M52分母, 国内碳税抵扣额折算" },
+      { type: "指标", tag: "CALC_CBAM_DIRECT_EMISSIONS", name: "出口产品直接内嵌碳排放量 (Direct)", key: "cbam_direct_embedded_emissions_tco2e", category: "CBAM申报", unit: "tCO2e", method: "人工填报", scope: "经营单位", freq: "批次工单核算", source: "碳核算引擎", formula: "生产过程化石燃料燃烧产生的直接温室气体排放", usage: "CBAM 申报通信模板直接排放栏" },
+      { type: "指标", tag: "CALC_CBAM_INDIRECT_EMISSIONS", name: "出口产品间接内嵌碳排放量 (Indirect)", key: "cbam_indirect_embedded_emissions_tco2e", category: "CBAM申报", unit: "tCO2e", method: "人工填报", scope: "经营单位", freq: "批次工单核算", source: "碳核算引擎", formula: "生产过程耗用电力对应的间接排放量", usage: "CBAM 申报通信模板间接排放栏" },
+      { type: "经营", tag: "MANUAL_PROJECT_CAPEX", name: "节能技改项目工程投资总额 (CAPEX)", key: "energy_project_capex_wan_yuan", category: "节能零碳", unit: "万元", method: "人工填报", scope: "园区", freq: "立项决算审计确定", source: "ERP 项目管理模块 (PS)", formula: "设备采购、施工安装及工程监理固定资产支出总和", usage: "M22分子 (投资回收期), 节能效益评估" },
+      { type: "经营", tag: "MANUAL_PROJECT_OPEX", name: "节能项目年化运营维护支出 (OPEX)", key: "energy_project_opex_wan_yuan", category: "节能零碳", unit: "万元/年", method: "人工填报", scope: "园区", freq: "年度决算统计", source: "财务维保台账", formula: "维保人工、备件耗材更换及定期点检年化运维支出", usage: "M22分母, 净节能量现值净现值 NPV" },
+      { type: "能源", tag: "BASE_IPMVP_BASELINE_ENERGY", name: "IPMVP 基准期核定实测日均用能", key: "ipmvp_baseline_daily_energy_kwh", category: "节能零碳", unit: "kWh/d", method: "人工填报", scope: "园区", freq: "基准期确定后固化", source: "历史 SCADA 归档数据库 / 专家核验", formula: "国际节能量验证规程约定的改造前连续1年日均基准", usage: "M21分子 (年化节能量测定)" },
+      { type: "能源", tag: "AI_IPMVP_REPORTING_ENERGY", name: "IPMVP 报告期核定实测日均用能", key: "ipmvp_reporting_daily_energy_kwh", category: "节能零碳", unit: "kWh/d", method: "人工填报", scope: "园区", freq: "报告期在线计量", source: "当前在线电表实采底数", formula: "改造后统计期经产量与气象校正后的实际日均用能", usage: "M21分母 (年化节能量测定)" },
+      { type: "能源", tag: "AI_WEATHER_CDD_HDD", name: "室外制冷度日数 (CDD) / 采暖度日数 (HDD)", key: "outdoor_cdd_hdd_degree_days", category: "节能零碳", unit: "℃·d", method: "人工填报", scope: "园区", freq: "气象站每日核算累加", source: "园区气象站 / 地方气象局", formula: "室外日均气温偏离基准温度 (18℃/26℃) 绝对温差积分", usage: "冷水机组与中央空调节能量气象归一化校正" },
+      { type: "经营", tag: "MANUAL_ZERO_CARBON_AUDIT_SCORE", name: "零碳工厂自评估指标得分项原始打分", key: "zero_carbon_factory_audit_score", category: "节能零碳", unit: "分", method: "人工填报", scope: "园区", freq: "半年度自评更新", source: "零碳工厂自评估工作台", formula: "依据标准对能源利用、减碳管理等32细项的量化评分", usage: "M23分子分母, 零碳工厂星级判定" },
+      { type: "因子", tag: "BASE_FACTOR_ELEC_EQUIVALENT", name: "电力折标准煤系数（当量值）", key: "factor_elec_equivalent_kgce_kwh", category: "静态标准因子", unit: "kgce/kWh", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护 / GB/T 2589-2020", formula: "电力按当量值折算标准煤的系数，用于综合能源消费量计算 (0.1229 kgce/kWh)", usage: "M16分母, M55分母, 全厂综合能耗折标" },
+      { type: "因子", tag: "BASE_FACTOR_ELEC_EQUAL_VALUE", name: "电力折标准煤系数（等价值）", key: "factor_elec_equal_value_kgce_kwh", category: "静态标准因子", unit: "kgce/kWh", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护 / 国家能源局", formula: "电力按等价值折算标准煤的系数；优先使用所在省平均发电煤耗，无法获取时取 0.2856 kgce/kWh", usage: "等价能耗分析, 节能降碳贡献率" },
+      { type: "因子", tag: "BASE_FACTOR_FRESH_WATER", name: "工业新鲜水折标煤系数", key: "factor_fresh_water_kgce_t", category: "静态标准因子", unit: "kgce/t", method: "人工填报", scope: "经营单位", freq: "国标固化", source: "GB/T 2589-2020 附录表", formula: "工业新鲜水取水、净化与提水综合能耗分摊折算", usage: "水资源折标煤综合统计" },
+      { type: "因子", tag: "BASE_FACTOR_NATURAL_GAS", name: "天然气折标准煤系数", key: "factor_natural_gas_kgce_m3", category: "静态标准因子", unit: "kgce/m³", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护 / GB/T 2589-2020", formula: "天然气折算标准煤系数 (1.2143 kgce/m³)", usage: "燃气消耗量折标准煤核算" },
+      { type: "因子", tag: "BASE_FACTOR_STEAM", name: "蒸汽折标准煤系数", key: "factor_steam_kgce_kg", category: "静态标准因子", unit: "kgce/t", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护 / GB/T 2589-2020", formula: "蒸汽按热焓折算标准煤的系数（随蒸汽压力 / 温度变化，如饱和蒸汽 94.1 kgce/t，过热蒸汽 104.1 kgce/t）", usage: "蒸汽消耗折标煤计算" },
+      { type: "因子", tag: "BASE_FACTOR_DIESEL", name: "柴油折标准煤系数", key: "factor_diesel_kgce_kg", category: "静态标准因子", unit: "kgce/kg", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护 / GB/T 2589-2020", formula: "柴油折算标准煤系数 (1.4571 kgce/kg)", usage: "燃油实物折标准煤" },
+      { type: "因子", tag: "BASE_FACTOR_LIQUID_NITROGEN", name: "工业液氮折标煤系数", key: "factor_liquid_nitrogen_kgce_m3", category: "静态标准因子", unit: "kgce/m³", method: "人工填报", scope: "经营单位", freq: "深冷行业标准", source: "工业气体能耗限额标准", formula: "深冷空分制氮电耗折标准煤系数", usage: "变压器气态氮气折标" },
+      { type: "因子", tag: "BASE_FACTOR_GRID_EMISSION_NAT", name: "电力二氧化碳排放因子", key: "factor_grid_emission_nat_tco2e_mwh", category: "静态标准因子", unit: "tCO2e/MWh", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护 / 生态环境部", formula: "省级电网平均二氧化碳排放因子，用于购入电力碳排放核算 (全国基准 0.5703 tCO2/MWh，各省按生态环境部年度公告)", usage: "M17分母, M39分子, M56分母, Scope 2 核算" },
+      { type: "因子", tag: "BASE_FACTOR_GRID_EMISSION_NW", name: "西北区域电网碳排放因子 (新疆基地专属)", key: "factor_grid_emission_nw_tco2e_mwh", category: "静态标准因子", unit: "tCO2e/MWh", method: "人工填报", scope: "经营单位", freq: "生态环境部发布", source: "国家气候战略中心", formula: "特变电工新变厂、新缆厂等新疆基地外购电碳排", usage: "新疆基地专项碳足迹核算" },
+      { type: "因子", tag: "BASE_FACTOR_GAS_EMISSION", name: "天然气二氧化碳排放因子", key: "factor_gas_emission_tco2e_wan_m3", category: "静态标准因子", unit: "tCO2e/万m³", method: "人工填报", scope: "经营单位", freq: "企业温室气体指南", source: "国家发展改革委编制指南", formula: "天然气燃烧产生二氧化碳活动水平排放因子", usage: "Scope 1 直接化石燃烧碳排" },
+      { type: "因子", tag: "BASE_BENCHMARK_TRANSFORMER", name: "变压器行业先进领跑综合单耗定额", key: "benchmark_transformer_kwh_mva", category: "静态标准因子", unit: "kWh/万kVA", method: "人工填报", scope: "经营单位", freq: "行业评定发布", source: "中国电器工业协会标准", formula: "特高压与高压变压器制造国际领跑单耗定额基准", usage: "指标看板变压器对标基准线" },
+      { type: "因子", tag: "BASE_BENCHMARK_CABLE", name: "电线电缆行业先进领跑综合单耗定额", key: "benchmark_cable_kwh_km_mm2", category: "静态标准因子", unit: "kWh/万km·mm²", method: "人工填报", scope: "经营单位", freq: "行业评定发布", source: "上海电缆研究所行业基准", formula: "超高压与中低压电缆连续挤出先进单耗定额基准", usage: "指标看板电缆对标基准线" },
+      { type: "因子", tag: "BASE_FACTOR_HEAT_COAL", name: "热力折标准煤系数", key: "factor_heat_standard_coal_kgce_gj", category: "静态标准因子", unit: "kgce/GJ", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护", formula: "热力折算标准煤系数 (34.12 kgce/GJ，基于当量热值折算)", usage: "外购热力折标准煤核算, 综合能源消费量" },
+      { type: "因子", tag: "BASE_FACTOR_GASOLINE_COAL", name: "汽油折标准煤系数", key: "factor_gasoline_standard_coal_kgce_kg", category: "静态标准因子", unit: "kgce/kg", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护", formula: "汽油折算标准煤系数 (GB/T 2589 规定基准 1.4714 kgce/kg)", usage: "厂区通勤与作业车辆汽油消耗折标" },
+      { type: "因子", tag: "BASE_FACTOR_KEROSENE_COAL", name: "煤油折标准煤系数", key: "factor_kerosene_standard_coal_kgce_kg", category: "静态标准因子", unit: "kgce/kg", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护", formula: "煤油折算标准煤系数 (GB/T 2589 规定基准 1.4714 kgce/kg，相变干燥工艺溶剂耗损)", usage: "变压器气相相变干燥工艺煤油耗损折标" },
+      { type: "因子", tag: "BASE_FACTOR_FOSSIL_CARBON_CONTENT", name: "化石燃料单位热值含碳量", key: "factor_fossil_carbon_content_tc_gj", category: "静态标准因子", unit: "tC/GJ", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护", formula: "各化石燃料的单位热值含碳量，用于燃烧排放核算 (天然气 0.01532 tC/GJ, 柴油 0.02020 tC/GJ)", usage: "Scope 1 化石燃料燃烧直接碳排放核算" },
+      { type: "因子", tag: "BASE_FACTOR_FOSSIL_NCV", name: "化石燃料低位发热量", key: "factor_fossil_net_calorific_val", category: "静态标准因子", unit: "GJ/t 或 GJ/万m³", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护", formula: "各化石燃料的低位发热量 (天然气 389.31 GJ/万m³, 柴油 42.65 GJ/t, 原煤 20.91 GJ/t)", usage: "Scope 1 直接碳排计算, 能源活动水平分析" },
+      { type: "因子", tag: "BASE_FACTOR_FOSSIL_OXIDATION_RATE", name: "化石燃料碳氧化率", key: "factor_fossil_carbon_oxidation_rate_percent", category: "静态标准因子", unit: "%", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护", formula: "各化石燃料燃烧的碳氧化率 (天然气炉窑 99.0%, 燃油/燃煤 98.0%)", usage: "Scope 1 炉窑与锅炉直接燃烧碳排计算" },
+      { type: "因子", tag: "BASE_FACTOR_PURCHASED_HEAT_EMISSION", name: "热力二氧化碳排放因子", key: "factor_purchased_heat_emission_tco2_gj", category: "静态标准因子", unit: "tCO2/GJ", method: "系统对接", scope: "经营单位", freq: "年度复核", source: "电装统一维护", formula: "购入热力对应的二氧化碳排放因子 (生态环境部推荐缺省值 0.1100 tCO2/GJ)", usage: "Scope 2 外购热力与蒸汽间接排放核算" },
+      { type: "指标", tag: "M01", name: "全厂总用电量指标 (综合电能消费)", key: "metric_m01_total_power", category: "综合核算指标", unit: "kWh", method: "系统对接", scope: "园区", freq: "15分钟计算/逐日汇总", source: "计算指标", formula: "M01 = total_active_energy_kwh", usage: "集中监管看板, 能耗大屏" },
+      { type: "指标", tag: "M02", name: "直供绿电消纳率", key: "metric_m02_green_power_ratio", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "逐日计算", source: "计算指标", formula: "M02 = (直供绿电消纳量 / 全厂总用电量) × 100%", usage: "微电网监测, 零碳园区示范" },
+      { type: "指标", tag: "M03", name: "外购网电依赖度", key: "metric_m03_grid_power_ratio", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "逐日计算", source: "计算指标", formula: "M03 = (市电输入电量 / 全厂总用电量) × 100%", usage: "用能结构分析, 电网冲击评估" },
+      { type: "指标", tag: "M04", name: "尖峰用电占比", key: "metric_m04_sharp_ratio", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "逐日计算", source: "计算指标", formula: "M04 = (分时尖峰用电量 / 全厂总用电量) × 100%", usage: "分时用电结构, 错峰用电考核" },
+      { type: "指标", tag: "M05", name: "高峰用电占比", key: "metric_m05_peak_ratio", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "逐日计算", source: "计算指标", formula: "M05 = (分时高峰用电量 / 全厂总用电量) × 100%", usage: "分时用电结构, 需量电费控制" },
+      { type: "指标", tag: "M06", name: "平时用电占比", key: "metric_m06_flat_ratio", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "逐日计算", source: "计算指标", formula: "M06 = (分时平时用电量 / 全厂总用电量) × 100%", usage: "正常生产时段基准用能" },
+      { type: "指标", tag: "M07", name: "低谷用电占比", key: "metric_m07_valley_ratio", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "逐日计算", source: "计算指标", formula: "M07 = (分时低谷用电量 / 全厂总用电量) × 100%", usage: "储能与相变谷电利用效率考核" },
+      { type: "指标", tag: "M08", name: "重点用电设备平均负荷率", key: "metric_m08_equipment_load_rate", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "15min滑动计算", source: "计算指标", formula: "M08 = ∑(设备实测有功功率) / ∑(设备额定铭牌功率) × 100%", usage: "设备在线监测, 产线大机效率" },
+      { type: "指标", tag: "M09", name: "高能耗关键装备开机稼动率", key: "metric_m09_equipment_utilization", category: "综合核算指标", unit: "%", method: "系统对接", scope: "经营单位", freq: "逐日统计", source: "计算指标", formula: "M09 = (实际运行工时 / 日历制度工时) × 100%", usage: "产线稼动率与能耗闲置诊断" },
+      { type: "指标", tag: "M10", name: "变压器完工容量综合单耗", key: "metric_m10_transformer_unit_energy", category: "综合核算指标", unit: "tce/万kVA", method: "系统对接", scope: "经营单位", freq: "月度核算", source: "计算指标", formula: "M10 = 变压器产业全介质折标煤总能耗 / 完工总容量万kVA", usage: "指标管控看板(变压器产业核心指标)" },
+      { type: "指标", tag: "M11", name: "光伏发电就地自用率", key: "metric_m11_pv_self_consumption_ratio", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "逐日计算", source: "计算指标", formula: "M11 = (直供绿电消纳量 / 光伏电站总发电量) × 100%", usage: "微电网监测, 防倒送自用率评价" },
+      { type: "指标", tag: "M12", name: "储能电站充放电综合循环效率 (RTE)", key: "metric_m12_ess_rte_efficiency", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "月度核算", source: "计算指标", formula: "M12 = (储能累计放电量 / 储能累计充电量) × 100%", usage: "储能系统健康与经济性对标" },
+      { type: "指标", tag: "M13", name: "可再生能源消纳权重占比", key: "metric_m13_renewable_weight_ratio", category: "综合核算指标", unit: "%", method: "系统对接", scope: "经营单位", freq: "逐月核算", source: "计算指标", formula: "M13 = (直供绿电量 + 认购绿证折算量) / 全厂总用电量 × 100%", usage: "政府可再生能源责任考核" },
+      { type: "指标", tag: "M14", name: "全厂电气化综合水平", key: "metric_m14_electrification_rate", category: "综合核算指标", unit: "%", method: "系统对接", scope: "经营单位", freq: "月度核算", source: "计算指标", formula: "M14 = 电力消费折标量 / 全厂多介质综合总能耗折标量 × 100%", usage: "以电代煤、以电代气推进成效" },
+      { type: "指标", tag: "M15", name: "分时电费峰谷比", key: "metric_m15_tou_cost_ratio", category: "综合核算指标", unit: "-", method: "系统对接", scope: "经营单位", freq: "月度财务核算", source: "计算指标", formula: "M15 = 分时尖峰电费总额 / 分时低谷电费总额", usage: "电费成本优化, 移峰填谷" },
+      { type: "指标", tag: "M16", name: "自发绿电折标煤替代量", key: "metric_m16_green_coal_equivalent", category: "综合核算指标", unit: "tce", method: "系统对接", scope: "经营单位", freq: "月度核算", source: "计算指标", formula: "M16 = 光伏发电量 × 0.1229 kgce/kWh / 1000", usage: "节能减碳台账, 绿色效益分析" },
+      { type: "指标", tag: "M17", name: "分布式绿电二氧化碳减排量", key: "metric_m17_green_co2_reduction", category: "综合核算指标", unit: "tCO2e", method: "系统对接", scope: "经营单位", freq: "月度核算", source: "计算指标", formula: "M17 = 光伏发电量 MWh × 全国电网平均碳因子 0.5703", usage: "碳资产减排, CCER 项目效益" },
+      { type: "指标", tag: "M18", name: "外购工业蒸汽折标煤量", key: "metric_m18_steam_coal_equivalent", category: "综合核算指标", unit: "tce", method: "系统对接", scope: "园区", freq: "月度核算", source: "计算指标", formula: "M18 = 外购蒸汽实物吨数 × 1000 × 0.1286 kgce/kg / 1000", usage: "综合能耗核算体系" },
+      { type: "指标", tag: "M19", name: "万元产值工业新鲜水耗", key: "metric_m19_water_per_output_value", category: "综合核算指标", unit: "t/万元", method: "系统对接", scope: "经营单位", freq: "月度核算", source: "计算指标", formula: "M19 = 全厂工业新鲜水耗量 t / 工业总产值万元", usage: "ESG 资源消耗报告, 水效对标" },
+      { type: "指标", tag: "M20", name: "在网表计数据自动化采集率", key: "metric_m20_auto_meter_reading_rate", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "逐日计算", source: "计算指标", formula: "M20 = 在线自动采集电表数 / 全网已建档电表总数 × 100%", usage: "系统基础运维, 物联网质量看板" },
+      { type: "指标", tag: "M21", name: "节能技改项目 IPMVP 实测节能量", key: "metric_m21_ipmvp_verified_savings", category: "综合核算指标", unit: "kWh/年", method: "系统对接", scope: "园区", freq: "年度决算统计", source: "计算指标", formula: "M21 = (基准期日均用能 - 报告期校正日均用能) × 365", usage: "节能效益评估, 合同能源管理分成" },
+      { type: "指标", tag: "M22", name: "节能工程投资动态回收期", key: "metric_m22_payback_period_years", category: "综合核算指标", unit: "年", method: "系统对接", scope: "园区", freq: "项目周期更新", source: "计算指标", formula: "M22 = CAPEX 工程总投资 / (年化节电节费额 - OPEX 运维费)", usage: "节能项目投资决策看板" },
+      { type: "指标", tag: "M23", name: "零碳工厂建设综合达标得分率", key: "metric_m23_zero_carbon_factory_score", category: "综合核算指标", unit: "%", method: "系统对接", scope: "园区", freq: "半年度复评", source: "计算指标", formula: "M23 = 零碳工厂各项细则实际核定得分 / 标准总分(100) × 100%", usage: "零碳工厂自评估工作台" },
+      { type: "指标", tag: "M24", name: "变压器铁心剪切工序单位容量电耗", key: "metric_m24_core_shear_unit_elec", category: "工序单耗指标", unit: "kWh/万kVA", method: "系统对接", scope: "工厂", freq: "月度结算", source: "计算指标", formula: "M24 = 硅钢剪切机组用电量 / 完工合格变压器总容量", usage: "工序能耗对标 (剪切工序)" },
+      { type: "指标", tag: "M25", name: "电线电缆综合折算截面单耗", key: "metric_m25_cable_converted_unit_energy", category: "工序单耗指标", unit: "tce/万km·mm²", method: "系统对接", scope: "工厂", freq: "月度结算", source: "计算指标", formula: "M25 = 线缆全厂多介质折标能耗 / 截面折算产出长度", usage: "指标管控看板 (线缆产业核心单耗)" },
+      { type: "指标", tag: "M26", name: "全厂万元产值综合能耗", key: "metric_m26_energy_per_gross_output", category: "工序单耗指标", unit: "tce/万元", method: "系统对接", scope: "工厂", freq: "月度结算", source: "计算指标", formula: "M26 = 全厂多介质折标煤总能耗 / 现价工业总产值", usage: "指标管控大盘, 集团考核每年-5%" },
+      { type: "指标", tag: "M27", name: "全厂万元工业增加值能耗", key: "metric_m27_energy_per_added_value", category: "工序单耗指标", unit: "tce/万元", method: "系统对接", scope: "工厂", freq: "月度/季度结算", source: "计算指标", formula: "M27 = 全厂多介质折标煤总能耗 / 工业增加值", usage: "统计局口径对标与政府能耗双控" },
+      { type: "指标", tag: "M28", name: "数控硅钢剪切线进料单位米耗电量", key: "metric_m28_core_shear_per_meter", category: "工序单耗指标", unit: "kWh/km", method: "系统对接", scope: "工厂", freq: "工单批次核算", source: "计算指标", formula: "M28 = 剪切线电机实测用电量 / 硅钢卷料剪切展开进给米数", usage: "剪切产线工况对标" },
+      { type: "指标", tag: "M29", name: "变压器线圈绕制工序单耗", key: "metric_m29_winding_unit_elec", category: "工序单耗指标", unit: "kWh/万kVA", method: "系统对接", scope: "工厂", freq: "月度核算", source: "计算指标", formula: "M29 = 卧式/立式绕线机群总耗电 / 下线总容量", usage: "工序能耗对标 (绕线工序)" },
+      { type: "指标", tag: "M30", name: "变压器相变气相干燥蒸汽单耗", key: "metric_m30_dryer_steam_unit_consumption", category: "工序单耗指标", unit: "t/万kVA", method: "系统对接", scope: "工厂", freq: "月度核算", source: "计算指标", formula: "M30 = 气相干燥罐蒸汽消耗量 / 干燥完成变压器总容量", usage: "工序能耗对标 (气相干燥蒸汽)" },
+      { type: "指标", tag: "M31", name: "变压器相变干燥罐用电单耗", key: "metric_m31_dryer_elec_unit_consumption", category: "工序单耗指标", unit: "kWh/万kVA", method: "系统对接", scope: "工厂", freq: "月度核算", source: "计算指标", formula: "M31 = 真空泵与电加热总用电量 / 干燥变压器总容量", usage: "工序能耗对标 (气相干燥电耗)" },
+      { type: "指标", tag: "M32", name: "线缆高速铜拉丝工序单位产量电耗", key: "metric_m32_copper_drawing_unit_elec", category: "工序单耗指标", unit: "kWh/t", method: "系统对接", scope: "工厂", freq: "工单批次核算", source: "计算指标", formula: "M32 = 大拉机组与退火总用电量 / 铜单线合格产量净重", usage: "工序能耗对标 (线缆拉丝工序)" },
+      { type: "指标", tag: "M33", name: "中低压交联电缆工序单位产出电耗", key: "metric_m33_mv_crosslink_unit_elec", category: "工序单耗指标", unit: "kWh/万km·mm²", method: "系统对接", scope: "工厂", freq: "月度结算", source: "计算指标", formula: "M33 = 中低压交联生产线用电 / 对应交联截面产出", usage: "工序能耗对标 (中低压交联)" },
+      { type: "指标", tag: "M34", name: "超高压 500kV 悬链立塔交联单耗", key: "metric_m34_ehv_ccv_unit_elec", category: "工序单耗指标", unit: "kWh/万km·mm²", method: "系统对接", scope: "工厂", freq: "月度结算", source: "计算指标", formula: "M34 = 500kV 立塔主线电量 / 超高压交联产品规格产量", usage: "工序能耗对标 (超高压立塔交联)" },
+      { type: "指标", tag: "M35", name: "特种橡套电缆连续硫化工序单耗", key: "metric_m35_rubber_vulcanize_unit_elec", category: "工序单耗指标", unit: "kWh/km", method: "系统对接", scope: "工厂", freq: "工单批次核算", source: "计算指标", formula: "M35 = 连续硫化连打线电量 / 橡套电缆产出物理长度", usage: "工序能耗对标 (橡套硫化)" },
+      { type: "指标", tag: "M36", name: "连续硫化管道蒸汽单耗", key: "metric_m36_rubber_vulcanize_steam_unit", category: "工序单耗指标", unit: "t/km", method: "系统对接", scope: "工厂", freq: "月度核算", source: "计算指标", formula: "M36 = 硫化管饱和蒸汽耗量 / 硫化合格线缆总长度", usage: "工序能耗对标 (橡套蒸汽)" },
+      { type: "指标", tag: "M37", name: "特高压试验大厅单台试验耗电量", key: "metric_m37_lab_test_per_unit", category: "工序单耗指标", unit: "kWh/台", method: "系统对接", scope: "工厂", freq: "批次试验结算", source: "计算指标", formula: "M37 = 试验大厅测试总耗电量 / 试验完成合格变压器台数", usage: "试验站单台试验电耗成本" },
+      { type: "指标", tag: "M38", name: "线缆拉丝工序每吨铝电耗", key: "metric_m38_aluminum_drawing_unit_elec", category: "工序单耗指标", unit: "kWh/t", method: "系统对接", scope: "工厂", freq: "工单批次核算", source: "计算指标", formula: "M38 = 铝拉丝机组实测电量 / 铝线产出合格重", usage: "铝线拉丝工序对标" },
+      { type: "指标", tag: "M39", name: "外购网电碳排放总量 (Scope 2)", key: "metric_m39_scope2_co2_emissions", category: "工序单耗指标", unit: "tCO2e", method: "系统对接", scope: "园区", freq: "逐月核算", source: "计算指标", formula: "M39 = 市电输入量 MWh × 全国电网平均排放因子 0.5703", usage: "碳盘查报告, ISO 14064 组织级盘查" },
+      { type: "指标", tag: "M40", name: "光伏微电网发电利用小时数", key: "metric_m40_pv_utilization_hours", category: "工序单耗指标", unit: "h", method: "系统对接", scope: "园区", freq: "月度核算", source: "计算指标", formula: "M40 = 光伏月度累计发电量 kWh / 光伏装机容量 kWp", usage: "光伏电站发电能效评估" },
+      { type: "指标", tag: "M41", name: "万元产值碳排放强度", key: "metric_m41_carbon_intensity_output_value", category: "工序单耗指标", unit: "tCO2e/万元", method: "系统对接", scope: "经营单位", freq: "月度核算", source: "计算指标", formula: "M41 = 全厂温室气体总净排放量 (Scope 1+2) / 工业总产值", usage: "集团 8 大制造基地碳强度考核红黑榜" },
+      { type: "指标", tag: "M42", name: "变压器绕组每吨铜材加工能耗", key: "metric_m42_copper_processing_unit_energy", category: "工序单耗指标", unit: "tce/t", method: "系统对接", scope: "工厂", freq: "月度结算", source: "计算指标", formula: "M42 = 绕线工序折标综合能耗 / 铜材实际投料净重", usage: "关键物料加工能效指标" },
+      { type: "指标", tag: "M43", name: "电磁线单吨拉制综合电耗", key: "metric_m43_magnet_wire_unit_elec", category: "工序单耗指标", unit: "kWh/t", method: "系统对接", scope: "工厂", freq: "工单批次核算", source: "计算指标", formula: "M43 = 电磁线拉拔与漆包总电量 / 漆包铜线成品净重", usage: "电磁线工序能耗对标" },
+      { type: "指标", tag: "M44", name: "大宗原材料公路运输吨公里单耗", key: "metric_m44_transport_ton_km_intensity", category: "工序单耗指标", unit: "tCO2e/万t·km", method: "系统对接", scope: "经营单位", freq: "批次运单核算", source: "计算指标", formula: "M44 = 运输燃油排放量 / (原材料重量 t × 运输距离 km)", usage: "Scope 3 供应链绿色物流评估" },
+      { type: "指标", tag: "M45", name: "变压器铁心叠积工序单耗", key: "metric_m45_core_stacking_unit_elec", category: "工序单耗指标", unit: "kWh/万kVA", method: "系统对接", scope: "工厂", freq: "月度核算", source: "计算指标", formula: "M45 = 铁心叠积翻转台及吊装电耗 / 变压器下线总容量", usage: "变压器总装前道工序对标" },
+      { type: "指标", tag: "M46", name: "变压器总装配真空注油工序单耗", key: "metric_m46_assembly_oil_filling_unit_elec", category: "工序单耗指标", unit: "kWh/万kVA", method: "系统对接", scope: "工厂", freq: "月度核算", source: "计算指标", formula: "M46 = 真空注油机与脱气滤油机用电 / 总装容量", usage: "变压器总装工序对标" },
+      { type: "指标", tag: "M47", name: "成品包装与厂内物流单台电耗", key: "metric_m47_packaging_logistics_unit_elec", category: "工序单耗指标", unit: "kWh/台", method: "系统对接", scope: "工厂", freq: "月度核算", source: "计算指标", formula: "M47 = 包装辅房及重型移运平板车电耗 / 入库总台数", usage: "出厂辅助工段能耗对标" },
+      { type: "指标", tag: "M48", name: "高纯无氧铜材综合加工利用率", key: "metric_m48_copper_material_utilization", category: "工序单耗指标", unit: "%", method: "系统对接", scope: "工厂", freq: "月度盘点", source: "计算指标", formula: "M48 = 合格产出铜线净重 / 领用投入高纯铜杆净重 × 100%", usage: "物料损耗与绿色制造指标" },
+      { type: "指标", tag: "M49", name: "单位产品绿电消纳占比 (单台绿电度)", key: "metric_m49_product_green_power_share", category: "工序单耗指标", unit: "%", method: "系统对接", scope: "工厂", freq: "批次工单核算", source: "计算指标", formula: "M49 = 该产品生产消耗绿电量 / 该产品总耗电量 × 100%", usage: "产品碳足迹绿电抵减证书" },
+      { type: "指标", tag: "M50", name: "产品全生命周期碳足迹强度 (PCF)", key: "metric_m50_product_carbon_footprint", category: "工序单耗指标", unit: "tCO2e/t", method: "系统对接", scope: "经营单位", freq: "订单核算发布", source: "计算指标", formula: "M50 = 摇篮到大门生命周期温室气体总排放 / 产品物理净重", usage: "产品碳足迹证书, 国际客户交付" },
+      { type: "指标", tag: "M51", name: "欧盟 CBAM 应纳碳关税理论预估税额", key: "metric_m51_cbam_theoretical_tariff", category: "工序单耗指标", unit: "EUR", method: "系统对接", scope: "经营单位", freq: "报关批次核算", source: "计算指标", formula: "M51 = 出口净重 × 碳强度 × 欧盟碳价 - 抵扣额", usage: "CBAM 欧盟碳关税合规申报" },
+      { type: "指标", tag: "M52", name: "国内已付碳成本抵扣折算额 (EUR)", key: "metric_m52_carbon_price_deduction", category: "工序单耗指标", unit: "EUR", method: "系统对接", scope: "经营单位", freq: "报关批次核算", source: "计算指标", formula: "M52 = 国内实际缴纳碳成本 RMB / EUR中间汇率", usage: "CBAM 抵扣凭证" },
+      { type: "指标", tag: "M53", name: "CBAM 碳成本在欧盟碳配额中对冲比率", key: "metric_m53_cbam_offset_ratio", category: "工序单耗指标", unit: "%", method: "系统对接", scope: "经营单位", freq: "批次核算", source: "计算指标", formula: "M53 = 国内抵扣碳成本 / (内嵌碳排量 × 欧盟碳价) × 100%", usage: "碳关税对冲管理" },
+      { type: "指标", tag: "M54", name: "CBAM 碳关税占出口货值比重", key: "metric_m54_cbam_tariff_to_fob_ratio", category: "工序单耗指标", unit: "%", method: "系统对接", scope: "经营单位", freq: "批次报关核算", source: "计算指标", formula: "M54 = CBAM 应纳税额 EUR / FOB 出口货值 EUR × 100%", usage: "出口海外商务定价决策" },
+      { type: "指标", tag: "M55", name: "全厂节能量折标当量年化累计", key: "metric_m55_annual_energy_savings_tce", category: "工序单耗指标", unit: "tce/年", method: "系统对接", scope: "园区", freq: "逐月累计更新", source: "计算指标", formula: "M55 = ∑(各技改项目年化节电量 kWh × 0.1229 / 1000)", usage: "集团碳中和战略推进考核" },
+      { type: "指标", tag: "M56", name: "燃气锅炉与热风烘房天然气单耗", key: "metric_m56_natural_gas_unit_consumption", category: "工序单耗指标", unit: "m³/万kVA", method: "系统对接", scope: "工厂", freq: "月度核算", source: "计算指标", formula: "M56 = 管道天然气实测体积 m³ / 变压器下线容量万kVA", usage: "非电清洁燃烧能耗对标" }
+    ];
+
+    const STORAGE_KEY = 'TBEA_POINT_TABLE_V10_STORAGE';
+    let pointData = [];
+    let currentFiltered = [];
+    let selectedType = "ALL";
+    let editingIndex = -1; // 模态编辑的索引，-1 表示新增
+
+    function initData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            parsed.forEach(p => {
+              if (!p.type) {
+                const def = DEFAULT_POINT_TABLE.find(d => d.tag === p.tag);
+                p.type = def ? def.type : '能源';
+              }
+            });
+            pointData = parsed;
+          } else {
+            pointData = JSON.parse(JSON.stringify(DEFAULT_POINT_TABLE));
+          }
+          showToast("已加载本地持久化点表 (V10)");
+        } catch (e) {
+          pointData = JSON.parse(JSON.stringify(DEFAULT_POINT_TABLE));
+        }
+      } else {
+        // 尝试从老版本迁移，同时自动补齐 DEFAULT_POINT_TABLE 中新增的节能设备等点位
+        const oldSaved = localStorage.getItem('TBEA_POINT_TABLE_V9_STORAGE') || localStorage.getItem('TBEA_POINT_TABLE_V8_STORAGE');
+        if (oldSaved) {
+          try {
+            const parsed = JSON.parse(oldSaved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const existingTags = new Set(parsed.map(p => p.tag));
+              DEFAULT_POINT_TABLE.forEach(def => {
+                if (!existingTags.has(def.tag)) {
+                  parsed.push(JSON.parse(JSON.stringify(def)));
+                }
+              });
+              pointData = parsed;
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(pointData));
+              showToast("已成功迁移并补齐最新点表至 V10！");
+            } else {
+              pointData = JSON.parse(JSON.stringify(DEFAULT_POINT_TABLE));
+            }
+          } catch(e) {
+            pointData = JSON.parse(JSON.stringify(DEFAULT_POINT_TABLE));
+          }
+        } else {
+          pointData = JSON.parse(JSON.stringify(DEFAULT_POINT_TABLE));
+        }
+      }
+      updateCategoryCounts();
+      renderTable();
+    }
+
+    function saveToLocal(manual = false) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pointData));
+      document.getElementById('tagEditedAlert').style.display = 'none';
+      if (manual) showToast("已成功保存至本地缓存！");
+    }
+
+    function markEdited() {
+      document.getElementById('tagEditedAlert').style.display = 'inline-block';
+    }
+
+    function resetToDefault() {
+      if (confirm("确定要恢复特变电工官方出厂标准点表吗？当前自定义修改将被覆盖！")) {
+        pointData = JSON.parse(JSON.stringify(DEFAULT_POINT_TABLE));
+        localStorage.removeItem(STORAGE_KEY);
+        document.getElementById('tagEditedAlert').style.display = 'none';
+        renderTable();
+        showToast("已恢复官方出厂标准点表！");
+      }
+    }
+
+    // =========================================================================
+    // 表格渲染与快速行内编辑
+    // =========================================================================
+    
+    // =========================================================================
+    // 分类切换与徽章配色辅助
+    // =========================================================================
+    function getTypeBadgeClass(type) {
+      switch(type) {
+        case '能源': return 'badge-type-energy';
+        case '产品': return 'badge-type-product';
+        case '因子': return 'badge-type-factor';
+        case '设备': return 'badge-type-device';
+        case '经营': return 'badge-type-biz';
+        case '指标': return 'badge-type-metric';
+        default: return 'badge-type-energy';
+      }
+    }
+
+    function selectTypeTab(type) {
+      selectedType = type;
+      document.querySelectorAll('.cat-tab').forEach(tab => {
+        if (tab.dataset.cat === type) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+      const sel = document.getElementById('filterType');
+      if (sel) sel.value = type;
+      renderTable();
+    }
+
+    function onTypeDropdownChange(val) {
+      selectedType = val;
+      document.querySelectorAll('.cat-tab').forEach(tab => {
+        if (tab.dataset.cat === val) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+      renderTable();
+    }
+
+    function updateCategoryCounts() {
+      const counts = { ALL: pointData.length, '能源': 0, '产品': 0, '因子': 0, '设备': 0, '经营': 0, '指标': 0 };
+      pointData.forEach(p => {
+        if (counts[p.type] !== undefined) {
+          counts[p.type]++;
+        }
+      });
+      if (document.getElementById('countAll')) document.getElementById('countAll').innerText = counts.ALL;
+      if (document.getElementById('countEnergy')) document.getElementById('countEnergy').innerText = counts['能源'];
+      if (document.getElementById('countProduct')) document.getElementById('countProduct').innerText = counts['产品'];
+      if (document.getElementById('countFactor')) document.getElementById('countFactor').innerText = counts['因子'];
+      if (document.getElementById('countDevice')) document.getElementById('countDevice').innerText = counts['设备'];
+      if (document.getElementById('countBiz')) document.getElementById('countBiz').innerText = counts['经营'];
+      if (document.getElementById('countMetric')) document.getElementById('countMetric').innerText = counts['指标'];
+    }
+
+    function renderTable() {
+      const kw = document.getElementById('searchKeyword').value.trim().toLowerCase();
+      const domain = document.getElementById('filterDomain').value;
+      
+      const method = document.getElementById('filterMethod') ? document.getElementById('filterMethod').value : 'ALL';
+      const scope = document.getElementById('filterScope') ? document.getElementById('filterScope').value : 'ALL';
+
+      currentFiltered = pointData.filter((item, idx) => {
+        item._originalIndex = idx; // 保持原始数组索引绑定
+        if (selectedType !== 'ALL' && item.type !== selectedType) return false;
+        if (domain !== 'ALL' && item.category !== domain) return false;
+        if (method !== 'ALL' && item.method !== method) return false;
+        if (scope !== 'ALL' && item.scope !== scope) return false;
+        if (kw) {
+          const text = ((item.type || '') + item.tag + item.name + item.key + item.category + item.unit + item.source + item.formula + item.usage).toLowerCase();
+          if (!text.includes(kw)) return false;
+        }
+        return true;
+      });
+
+      const tbody = document.getElementById('pointTableBody');
+      tbody.innerHTML = '';
+
+      document.getElementById('statTotal').innerText = pointData.length;
+      document.getElementById('statShown').innerText = currentFiltered.length;
+
+      if (currentFiltered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="14" style="text-align: center; color: var(--text-muted); height: 80px;">未检索到匹配的点位数据！</td></tr>`;
+        return;
+      }
+
+      currentFiltered.forEach((p, displayIdx) => {
+        const tr = document.createElement('tr');
+        const origIdx = p._originalIndex;
+
+
+        tr.innerHTML = `
+          <td style="color: var(--text-muted); text-align: center;">${displayIdx + 1}</td>
+          <td style="text-align: center;" class="editable-cell" title="点击切换数据分类 (能源/产品/因子/设备/经营/指标)" onclick="makeCellInlineEdit(this, ${origIdx}, 'type')">
+            <span class="badge ${getTypeBadgeClass(p.type)}">${p.type || '能源'}</span>
+          </td>
+          <td class="mono editable-cell" title="点击编辑点位Tag" onclick="makeCellInlineEdit(this, ${origIdx}, 'tag')">${p.tag}</td>
+          <td class="editable-cell" title="点击编辑名称" onclick="makeCellInlineEdit(this, ${origIdx}, 'name')"><strong>${p.name}</strong></td>
+          <td class="mono editable-cell" style="color: var(--primary);" title="点击编辑Key" onclick="makeCellInlineEdit(this, ${origIdx}, 'key')">${p.key}</td>
+          <td><span class="badge" style="background: var(--badge-bg);">${p.category}</span></td>
+          <td class="mono editable-cell" title="点击编辑单位" onclick="makeCellInlineEdit(this, ${origIdx}, 'unit')">${p.unit}</td>
+          <td style="text-align: center;" class="editable-cell" title="点击切换采集方式 (系统对接/人工填报)" onclick="makeCellInlineEdit(this, ${origIdx}, 'method')">
+            <span class="badge ${p.method === '系统对接' ? 'badge-method-auto' : 'badge-method-manual'}">${p.method || '系统对接'}</span>
+          </td>
+          <td style="text-align: center;" class="editable-cell" title="点击切换采样范围 (园区/经营单位/工厂)" onclick="makeCellInlineEdit(this, ${origIdx}, 'scope')">
+            <span class="badge ${p.scope === '园区' ? 'badge-scope-park' : (p.scope === '经营单位' ? 'badge-scope-company' : 'badge-scope-factory')}">${p.scope || '园区'}</span>
+          </td>
+          <td style="color: var(--text-muted);">${p.freq}</td>
+          <td class="editable-cell" title="点击编辑数据源" onclick="makeCellInlineEdit(this, ${origIdx}, 'source')">${p.source}</td>
+          <td class="editable-cell" style="max-width: 320px; overflow: hidden; text-overflow: ellipsis;" title="${p.formula} (点击编辑公式)" onclick="makeCellInlineEdit(this, ${origIdx}, 'formula')">${p.formula}</td>
+          <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted);" title="${p.usage}">${p.usage}</td>
+          <td style="text-align: center;">
+            <button class="action-btn" title="编辑完整点位" onclick="openEditModal(${origIdx})">✏️</button>
+            <button class="action-btn btn-del" title="删除点位" onclick="deletePoint(${origIdx})">🗑️</button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 行内单元格直接修改
+    function makeCellInlineEdit(tdElement, origIndex, field) {
+      if (tdElement.querySelector('input') || tdElement.querySelector('select')) return;
+
+      const currentVal = pointData[origIndex][field] || '';
+
+            // 数据分类快速下拉切换
+      if (field === 'type') {
+        tdElement.innerHTML = `<select class="form-control" style="height: 26px; font-size: 11px; padding: 0 4px; width: 80px; background: var(--panel);">
+          <option value="能源" ${currentVal === '能源' ? 'selected' : ''}>⚡ 能源</option>
+          <option value="产品" ${currentVal === '产品' ? 'selected' : ''}>📦 产品</option>
+          <option value="因子" ${currentVal === '因子' ? 'selected' : ''}>🧬 因子</option>
+          <option value="设备" ${currentVal === '设备' ? 'selected' : ''}>⚙️ 设备</option>
+          <option value="经营" ${currentVal === '经营' ? 'selected' : ''}>💼 经营</option>
+          <option value="指标" ${currentVal === '指标' ? 'selected' : ''}>📐 指标</option>
+        </select>`;
+        const select = tdElement.querySelector('select');
+        select.focus();
+
+        const finishSelect = () => {
+          const newVal = select.value;
+          if (newVal !== currentVal) {
+            pointData[origIndex][field] = newVal;
+            tdElement.classList.add('is-edited');
+            markEdited();
+            saveToLocal();
+            updateCategoryCounts();
+          }
+          renderTable();
+        };
+
+        select.addEventListener('change', finishSelect);
+        select.addEventListener('blur', finishSelect);
+        return;
+      }
+
+      // 采集方式快速下拉切换
+      if (field === 'method') {
+        tdElement.innerHTML = `<select class="form-control" style="height: 26px; font-size: 11px; padding: 0 4px; width: 90px; background: var(--panel);">
+          <option value="系统对接" ${currentVal === '系统对接' ? 'selected' : ''}>系统对接</option>
+          <option value="人工填报" ${currentVal === '人工填报' ? 'selected' : ''}>人工填报</option>
+        </select>`;
+        const select = tdElement.querySelector('select');
+        select.focus();
+
+        const finishSelect = () => {
+          const newVal = select.value;
+          if (newVal !== currentVal) {
+            pointData[origIndex][field] = newVal;
+            tdElement.classList.add('is-edited');
+            markEdited();
+            saveToLocal();
+          }
+          renderTable();
+        };
+
+        select.addEventListener('change', finishSelect);
+        select.addEventListener('blur', finishSelect);
+        return;
+      }
+
+      // 采样范围快速下拉切换
+      if (field === 'scope') {
+        tdElement.innerHTML = `<select class="form-control" style="height: 26px; font-size: 11px; padding: 0 4px; width: 95px; background: var(--panel);">
+          <option value="园区" ${currentVal === '园区' ? 'selected' : ''}>园区</option>
+          <option value="经营单位" ${currentVal === '经营单位' ? 'selected' : ''}>经营单位</option>
+          <option value="工厂" ${currentVal === '工厂' ? 'selected' : ''}>工厂</option>
+        </select>`;
+        const select = tdElement.querySelector('select');
+        select.focus();
+
+        const finishSelect = () => {
+          const newVal = select.value;
+          if (newVal !== currentVal) {
+            pointData[origIndex][field] = newVal;
+            tdElement.classList.add('is-edited');
+            markEdited();
+            saveToLocal();
+          }
+          renderTable();
+        };
+
+        select.addEventListener('change', finishSelect);
+        select.addEventListener('blur', finishSelect);
+        return;
+      }
+
+      // 普通文本/数值输入
+      tdElement.innerHTML = `<input type="text" class="form-control" style="height: 26px; font-size: 12px; width: 100%; min-width: 80px;" value="${currentVal}">`;
+      const input = tdElement.querySelector('input');
+      input.focus();
+      input.select();
+
+      const finishEdit = () => {
+        const newVal = input.value.trim();
+        if (newVal !== currentVal && newVal !== '') {
+          pointData[origIndex][field] = newVal;
+          tdElement.classList.add('is-edited');
+          markEdited();
+          saveToLocal();
+        }
+        renderTable();
+      };
+
+      input.addEventListener('blur', finishEdit);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') finishEdit();
+        if (e.key === 'Escape') renderTable();
+      });
+    }
+
+    function filterPoints() {
+      renderTable();
+    }
+
+    // =========================================================================
+    // 点位增删改模态框
+    // =========================================================================
+    function openAddPointModal() {
+      editingIndex = -1;
+      document.getElementById('modalTitleText').innerText = "新增参数/指标点位";
+      document.getElementById('inpTag').value = `PT_CUSTOM_${Date.now().toString().slice(-4)}`;
+      document.getElementById('inpName').value = "";
+      document.getElementById('inpKey').value = "";
+      document.getElementById('inpType').value = "能源";
+      document.getElementById('inpUnit').value = "kWh";
+      document.getElementById('inpMethod').value = "系统对接";
+      document.getElementById('inpScope').value = "园区";
+            document.getElementById('inpFormula').value = "";
+      document.getElementById('modalBackdrop').style.display = 'flex';
+    }
+
+    function openEditModal(origIndex) {
+      editingIndex = origIndex;
+      const p = pointData[origIndex];
+      document.getElementById('modalTitleText').innerText = `编辑点位 · ${p.tag}`;
+      document.getElementById('inpTag').value = p.tag;
+      document.getElementById('inpName').value = p.name;
+      document.getElementById('inpKey').value = p.key;
+      document.getElementById('inpType').value = p.type || "能源";
+      document.getElementById('inpCategory').value = p.category;
+            document.getElementById('inpUnit').value = p.unit;
+      document.getElementById('inpMethod').value = p.method || "系统对接";
+      document.getElementById('inpScope').value = p.scope || "园区";
+      document.getElementById('inpFreq').value = p.freq;
+      document.getElementById('inpSource').value = p.source;
+            document.getElementById('inpFormula').value = p.formula;
+      document.getElementById('inpUsage').value = p.usage;
+      document.getElementById('modalBackdrop').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modalBackdrop').style.display = 'none';
+    }
+
+    function submitModalPoint() {
+      const tag = document.getElementById('inpTag').value.trim();
+      const name = document.getElementById('inpName').value.trim();
+      const key = document.getElementById('inpKey').value.trim();
+      if (!tag || !name || !key) {
+        alert("点位标识 Tag、中文名称和英文 Key 为必填项！");
+        return;
+      }
+
+      const point = {
+        type: document.getElementById('inpType').value,
+        tag: tag,
+        name: name,
+        key: key,
+        category: document.getElementById('inpCategory').value,
+        unit: document.getElementById('inpUnit').value.trim(),
+        method: document.getElementById('inpMethod').value,
+        scope: document.getElementById('inpScope').value,
+        freq: document.getElementById('inpFreq').value.trim(),
+        source: document.getElementById('inpSource').value.trim(),
+        formula: document.getElementById('inpFormula').value.trim(),
+        usage: document.getElementById('inpUsage').value.trim()
+      };
+
+      if (editingIndex >= 0) {
+        pointData[editingIndex] = point;
+        showToast(`已成功更新点位 ${tag}`);
+      } else {
+        pointData.unshift(point);
+        showToast(`已成功新增点位 ${tag}`);
+      }
+      updateCategoryCounts();
+
+      markEdited();
+      saveToLocal();
+      closeModal();
+      renderTable();
+    }
+
+    function deletePoint(origIndex) {
+      const p = pointData[origIndex];
+      if (confirm(`确定要从点表中删除点位 [${p.tag}] ${p.name} 吗？`)) {
+        pointData.splice(origIndex, 1);
+        markEdited();
+        saveToLocal();
+        renderTable();
+        updateCategoryCounts();
+        showToast(`已删除点位 ${p.tag}`);
+      }
+    }
+
+    // =========================================================================
+    // 导入与导出能力 (CSV / JSON)
+    // =========================================================================
+    function exportCSV() {
+      let csv = "\uFEFF序号,数据分类,点位Tag,参数/指标名称,字段Key,业务领域,工程单位,采集方式,采样范围,采集频次,数据源系统,计算公式/采集口径,平台消费模块\n";
+      pointData.forEach((p, idx) => {
+        const clean = (str) => `"${(str || '').replace(/"/g, '""')}"`;
+        csv += `${idx+1},${clean(p.type)},${clean(p.tag)},${clean(p.name)},${clean(p.key)},${clean(p.category)},${clean(p.unit)},${clean(p.method)},${clean(p.scope)},${clean(p.freq)},${clean(p.source)},${clean(p.formula)},${clean(p.usage)}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `特变电工全平台参数与指标点表_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast("已成功导出 CSV/Excel 表格文件！");
+    }
+
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pointData, null, 2));
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = `特变电工全平台参数与指标点表_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast("已成功导出标准 JSON 点表！");
+    }
+
+    function importPointTable(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const content = evt.target.result;
+          if (file.name.endsWith('.json')) {
+            const imported = JSON.parse(content);
+            if (Array.isArray(imported) && imported.length > 0) {
+              pointData = imported;
+              markEdited();
+              saveToLocal();
+              renderTable();
+              showToast(`成功导入 ${imported.length} 项点位！`);
+            } else {
+              alert("JSON 文件格式不符合点表数组规范！");
+            }
+          } else {
+            alert("目前推荐直接导入 .json 格式点表！");
+          }
+        } catch (err) {
+          alert("文件解析错误：" + err.message);
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = ''; // 重置文件输入
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2200);
+    }
+
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light-theme');
+      localStorage.setItem('tbea-point-theme', isLight ? 'light' : 'dark');
+    }
+
+    // 初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('tbea-point-theme');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+      }
+      initData();
+    });
+  </script>
+</body>
+</html>

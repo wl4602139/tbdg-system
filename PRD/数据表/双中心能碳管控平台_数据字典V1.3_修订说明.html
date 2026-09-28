@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>双中心能碳管控平台 · 数据字典 V1.3 修订说明</title>
+<style>
+  :root{
+    --ink:#1a1f2b; --sub:#5b6472; --line:#dfe3ea; --bg:#f4f6f9;
+    --navy:#1F3864; --navy-l:#2e4d80; --red:#C00000; --amber:#BF8F00;
+    --green:#375623; --blue:#1F4E79;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:38px 46px 56px; background:#fff; color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",-apple-system,sans-serif;
+    font-size:13.5px; line-height:1.72;
+  }
+  h1{font-size:23px; margin:0 0 6px; letter-spacing:.3px;}
+  h2{font-size:16.5px; margin:34px 0 12px; padding-left:11px; border-left:4px solid var(--navy); line-height:1.35;}
+  h3{font-size:14px; margin:20px 0 8px; color:var(--navy-l);}
+  p{margin:8px 0;}
+  .meta{color:var(--sub); font-size:12px; margin-bottom:22px;}
+  .rule{height:3px; background:linear-gradient(90deg,var(--navy),var(--navy-l) 45%,transparent); margin:0 0 20px;}
+  .lead{
+    background:var(--bg); border:1px solid var(--line); border-left:4px solid var(--navy);
+    padding:15px 18px; border-radius:3px; margin:0 0 22px;
+  }
+  .lead b{color:var(--navy);}
+  .kpis{display:flex; gap:10px; flex-wrap:wrap; margin:16px 0 4px;}
+  .kpi{flex:1 1 128px; border:1px solid var(--line); border-top:3px solid var(--navy); border-radius:3px; padding:10px 12px; background:#fff;}
+  .kpi .n{font-size:21px; font-weight:700; color:var(--navy); line-height:1.2;}
+  .kpi .l{font-size:11.5px; color:var(--sub); margin-top:3px;}
+  .kpi.ok{border-top-color:var(--green);} .kpi.ok .n{color:var(--green);}
+  .kpi.warn{border-top-color:var(--amber);} .kpi.warn .n{color:var(--amber);}
+  table{width:100%; border-collapse:collapse; margin:12px 0 6px; font-size:12.5px;}
+  th{background:var(--navy); color:#fff; font-weight:600; text-align:left; padding:8px 9px; border:1px solid var(--navy); font-size:12px;}
+  td{padding:8px 9px; border:1px solid var(--line); vertical-align:top;}
+  tbody tr:nth-child(even){background:#fafbfd;}
+  .c{text-align:center;}
+  code{background:#eef1f6; padding:1px 5px; border-radius:3px; font-family:Consolas,"Courier New",monospace; font-size:12px;}
+  .tag{display:inline-block; padding:1px 7px; border-radius:9px; font-size:11px; font-weight:700; line-height:1.6; white-space:nowrap;}
+  .t-ok{background:#E2EFDA; color:var(--green);}
+  .t-p0{background:#FCE4E4; color:var(--red);}
+  .t-warn{background:#FFF2CC; color:var(--amber);}
+  .t-info{background:#E8EEF7; color:var(--blue);}
+  ul,ol{margin:8px 0 8px 20px; padding:0;}
+  li{margin:5px 0;}
+  .callout{border:1px solid var(--line); border-left:4px solid var(--amber); background:#fffdf5; padding:13px 16px; border-radius:3px; margin:12px 0;}
+  .callout.blue{border-left-color:var(--blue); background:#f7fafd;}
+  .callout.green{border-left-color:var(--green); background:#f8fcf6;}
+  .filelist li{margin:7px 0;}
+  .filelist code{font-size:11.5px;}
+  .foot{margin-top:34px; padding-top:12px; border-top:1px solid var(--line); color:var(--sub); font-size:11.5px;}
+  @media print{
+    body{padding:12mm 14mm; font-size:11pt;}
+    h2{page-break-after:avoid;} table{page-break-inside:auto;} tr{page-break-inside:avoid;}
+    .kpi{break-inside:avoid;}
+  }
+  @page{size:A4; margin:12mm;}
+</style>
+</head>
+<body>
+
+<h1>数据字典 V1.3 修订说明</h1>
+<div class="meta">「双中心」能碳管控平台 · 基础参数与数据字典 &nbsp;|&nbsp; 执行范围：第 1 批 + 第 2 批（P0 阻断项） &nbsp;|&nbsp; 2026-09-18</div>
+<div class="rule"></div>
+
+<div class="lead">
+  <p><b>结论：</b>V1.3 已完成第 1、2 批全部 5 项可执行修订，V1.2 的 <b>6 项 P0 阻断问题中 5 项关闭</b>，剩余 1 项（P0-04 产品碳足迹去留）为业务决策、不在本次批次内。修订后经独立复算 <b>10 项核验全部通过</b>——编码已全局唯一、全表零悬挂引用、8 套"拉丝·铜"计量点补齐、58 项接入信息填满，字典已具备进入详设建表的条件。</p>
+  <div class="kpis">
+    <div class="kpi"><div class="n">5 / 5</div><div class="l">本批修订项完成</div></div>
+    <div class="kpi ok"><div class="n">310 / 310</div><div class="l">参数编码唯一，0 重复</div></div>
+    <div class="kpi ok"><div class="n">0</div><div class="l">全表悬挂引用</div></div>
+    <div class="kpi ok"><div class="n">59 / 59</div><div class="l">工序电力计量点覆盖</div></div>
+    <div class="kpi warn"><div class="n">3</div><div class="l">待你确认事项</div></div>
+  </div>
+</div>
+
+<h2>一、修订清单</h2>
+<table>
+  <thead>
+    <tr><th style="width:8%" class="c">编号</th><th style="width:22%">原问题</th><th style="width:34%">本次修订动作</th><th style="width:26%">涉及位置</th><th style="width:10%" class="c">规模</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="c"><span class="tag t-p0">P0-01</span></td>
+      <td>EQ-001~EQ-004 编码重复：「节能装备」组与「重点设备」组撞号</td>
+      <td>「重点设备」整组改用独立前缀 <code>ED-001~ED-010</code>；<code>EQ-001~EQ-004</code> 唯一归属「节能装备」。03、04 表经全表反查，该组此前<b>从未被任何表引用</b>，改号零外溢。</td>
+      <td>01-基础参数表 C 列 第 133–142 行</td>
+      <td class="c">10 个编码</td>
+    </tr>
+    <tr>
+      <td class="c"><span class="tag t-p0">P0-02</span></td>
+      <td><code>OUT-P01</code> 悬挂引用：IND-012~016 的分母在 01 表中不存在</td>
+      <td>采纳方案②——统一改为 <code>OUT-009</code> 订单产量（按型号）。依据：OUT-009 已明确定义为「按订单/型号汇总的产量，用于型号级单位产品能耗」，语义与 5 个产品级指标的需求逐条吻合，OUT-P01 为上一版遗留旧编码；方案①会再造一个同义参数，重蹈 P0-01 覆辙。并在 01 表补写统计维度「<b>组织 × 型号 × 统计期</b>」。</td>
+      <td>02 表 H14:H18（5 处）<br>03 表 5 处分母变量行<br>01 表 F34 补维度</td>
+      <td class="c">11 处</td>
+    </tr>
+    <tr>
+      <td class="c"><span class="tag t-p0">P0-03</span></td>
+      <td>IND-011 引用的 <code>EN-026</code> 不存在（用水量总量现行编码为 EN-021）</td>
+      <td>02 表 IND-011 引用 <code>EN-026</code> → <code>EN-021</code> 用水量（总量）。全表反查确认 EN-026 仅此 1 处残留，相关 EN-021/022/023/024 四项配套齐全。</td>
+      <td>02-指标清单 H12</td>
+      <td class="c">1 处</td>
+    </tr>
+    <tr>
+      <td class="c"><span class="tag t-p0">P0-05</span></td>
+      <td>04 表 8 条线缆产线「拉丝」只保留了铝，8 个「吨铜电耗」指标无矩阵行</td>
+      <td>拉丝工序按计量对象拆为<b>铜行在前、铝行在后</b>，补齐 16 个编码并挂接 8 个吨铜电耗指标。因该区块下方经确认为全空行，以「写入等效拆行」实现，未触发插行操作，第 42 行及以上数据零改动。</td>
+      <td>04-工序数据项矩阵 第 42–59 行<br>（8 行新增）</td>
+      <td class="c">+8 行<br>16 编码</td>
+    </tr>
+    <tr>
+      <td class="c"><span class="tag t-p0">P0-06</span></td>
+      <td>58 项参数的「数据来源 / 获取方式 / 采集频率 / 责任单位」四列全空</td>
+      <td>口径统一为 <code>ERP 系统</code> · <code>自动采集</code> · <code>日更新</code> · <code>各项目公司</code>。依据：涉及产线全部落在<b>变压器板块经营单位</b>（沈变/衡变/新变厂），与同表已填写的变压器类工序口径同板块同工序类型。另校正 MT-001/002 实际仅缺责任单位（非报告所述四列全空），已补。</td>
+      <td>01 表 第 175–188 / 203–214 / 233–234 / 238 / 267–273 / 292 / 293–311 行 + K168:K169</td>
+      <td class="c">226 格</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>二、独立核验（修订后复算）</h2>
+<p>修订完成后，对 V1.3 重新执行了 10 项机检，与 V1.2 基线逐项对照：</p>
+<table>
+  <thead>
+    <tr><th style="width:5%" class="c">#</th><th style="width:20%">核验项</th><th style="width:30%">V1.2 基线</th><th style="width:37%">V1.3 结果</th><th style="width:8%" class="c">判定</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="c">1</td><td>01 表编码全局唯一性</td><td>310 项 / 306 唯一 / 4 个重复</td><td><b>310 项 / 310 唯一 / 0 重复</b></td><td class="c"><span class="tag t-ok">通过</span></td></tr>
+    <tr><td class="c">2</td><td>全表悬挂引用（02/03/04/05）</td><td>2 处（OUT-P01、EN-026）</td><td><b>0 处</b></td><td class="c"><span class="tag t-ok">通过</span></td></tr>
+    <tr><td class="c">3</td><td>旧编码残留文本扫描</td><td>存在</td><td><b>OUT-P01 = 0 处、EN-026 = 0 处</b></td><td class="c"><span class="tag t-ok">通过</span></td></tr>
+    <tr><td class="c">4</td><td>04 表 EN-KE 覆盖度</td><td>51 / 59（缺 8 个拉丝·铜）</td><td><b>59 / 59，缺 0</b></td><td class="c"><span class="tag t-ok">通过</span></td></tr>
+    <tr><td class="c">5</td><td>04 表 OUT-KM 覆盖度</td><td>32 / 40</td><td><b>40 / 40</b></td><td class="c"><span class="tag t-ok">通过</span></td></tr>
+    <tr><td class="c">6</td><td>8 个吨铜电耗指标矩阵行</td><td>8 项全部无行</td><td><b>IND-017/019/021/024/027/029/031/033 全部有行</b></td><td class="c"><span class="tag t-ok">通过</span></td></tr>
+    <tr><td class="c">7</td><td>04 表序号连续性</td><td>1~51 连续</td><td><b>1~59 连续</b></td><td class="c"><span class="tag t-ok">通过</span></td></tr>
+    <tr><td class="c">8</td><td>01 表接入信息四列完整度</td><td>58 行空缺</td><td><b>0 行空缺</b></td><td class="c"><span class="tag t-ok">通过</span></td></tr>
+    <tr><td class="c">9</td><td>EQ / ED 前缀语义分离</td><td>EQ-001~004 归属歧义</td><td><b>EQ-001~004 = 节能装备；ED-001~010 = 重点设备</b></td><td class="c"><span class="tag t-ok">通过</span></td></tr>
+    <tr><td class="c">10</td><td>IND-009 对 EQ-001/002 的引用</td><td>指向节能装备组（正确）</td><td><b>保持不变，语义正确</b></td><td class="c"><span class="tag t-ok">通过</span></td></tr>
+  </tbody>
+</table>
+
+<div class="callout green">
+  <b>两处值得记录的发现</b>
+  <ul style="margin-bottom:0;">
+    <li><b>「重点设备」整组（含 EQ-005~EQ-010）此前从未被任何表引用</b>——因此 P0-01 的改号是纯收益、无外溢风险。这也侧面说明该组此前是"孤立录入"的，建议后续纳入指标引用或明确其归属。</li>
+    <li><b>IND-009 的 EQ-001/EQ-002 引用本就指向「节能装备」组</b>（分子/分母为节能装备累计额定总功率），语义正确。V1.2 中的"歧义"是编码撞号造成的表象，拆号后自然消解，无需改语义。</li>
+  </ul>
+</div>
+
+<h2>三、需要你确认的三件事</h2>
+<div class="callout">
+  <ol style="margin-bottom:0;">
+    <li><b>P0-04 · IND-001 产品碳足迹去留。</b>该条虽为 P0，但报告的分批表未将其列入第 1/2 批，且"剔除并改 05 表备注"与"保留并补回 IND-001"属业务决策。当前 05 表 SRC-02 备注仍写着"支撑 IND-001、IND-002"。<b>需明确：产品碳足迹系统是否纳入本期开发范围？</b></li>
+    <li><b>「二次」产线的数据来源口径。</b>SMT 贴片 / 波峰焊 / 高温老化（<code>EN-KE10~12</code>、<code>VAL-KG10~12</code>）<b>未出现在 06-企业组织结构表中</b>，无经营单位归属依据。本次按"电装离散制造、与变压器板块同类"推断为 ERP 系统口径。<b>若二次实际归属其他经营单位、或走 MES（05 表 SRC-05 载有生产工单/工序产量/工序产值），这 6 行需复核。</b></li>
+    <li><b>工序产值参数（VAL-KG01~19）的口径选择。</b>本次按"同类工序"口径填 ERP 系统 · 自动采集；但同表<b>产线级</b>产值参数 VAL-003~012 用的是「ERP / 经营日报管理系统 · <b>系统对接</b> · 日更新」。<b>若要求严格按"产值"这一数据类别统一，这 19 行需改为后者。</b></li>
+  </ol>
+</div>
+
+<h2>四、尚未执行的范围（第 3~5 批）</h2>
+<table>
+  <thead>
+    <tr><th style="width:12%" class="c">批次</th><th style="width:24%">内容</th><th>说明</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="c"><b>第 3 批</b></td><td>补字段与主数据</td><td>P1-01 补回 13 个开发必需列（数据类型/格式/小数位/取值范围/是否必填/校验规则/来源字段/所属产线·工序/关联指标编码等）→ P1-02 恢复主数据维度表（ORG/MD 共 16 项）→ P1-03 恢复枚举字典（185 条取值）。<b>这三项决定开发能不能建表。</b></td></tr>
+    <tr><td class="c"><b>第 4 批</b></td><td>补关联与公式</td><td>P1-05 打通 01↔05 数据源编码（当前 EMS 系统已是 70+ 项参数来源，但 05 表仍未登记、SRC-06 仍缺号）→ P1-06 补 93 条规范计算公式 → P1-07/08 统一枚举与表格规范 → P1-09 拆分多单位参数。</td></tr>
+    <tr><td class="c"><b>第 5 批</b></td><td>收尾优化</td><td>P2-01 序号连续（01 表缺 21~25）→ P2-02 删除 04 表 Q/R 空列 → P2-03 确认 IND-069/070 范围 → P2-04 补实施字段与反向索引 → P2-05 完善数据源清单。</td></tr>
+  </tbody>
+</table>
+<p style="color:var(--sub);font-size:12px;">注：02 表第 2/13/19 行章节名混入「指标编码」列（P1-07）、02 表「规范计算公式」整列空（P1-06）等，均属第 4 批范围，本次按约束未动。</p>
+
+<h2>五、交付文件</h2>
+<ul class="filelist">
+  <li><code>双中心能碳管控平台_基础参数与数据字典_V1.3.xlsx</code> —— <b>修订成果</b>。7 张表，累计写入约 500 个单元格，覆盖 01/02/03/04 四张表。</li>
+  <li><code>双中心能碳管控平台_数据字典V1.3_修订与核验台账.xlsx</code> —— <b>过程台账</b>。含「问题清单」（20 条，新增 V1.3 处理说明列与状态色标）、「V1.3 独立核验」（10 项）、「校验结果台账」。</li>
+  <li><code>双中心能碳管控平台_数据字典V1.2_开发就绪度审阅报告.html</code> —— 上轮审阅报告（批次划分与问题定位的依据）。</li>
+</ul>
+
+<div class="foot">
+  数据来源：V1.2 数据字典全表机检（13 项交叉校验）+ V1.3 修订后独立复算（10 项核验）。<br>
+  说明：编码唯一性与引用完整性均由脚本对工作簿原始值复算，未依赖人工目视。
+</div>
+
+</body>
+</html>

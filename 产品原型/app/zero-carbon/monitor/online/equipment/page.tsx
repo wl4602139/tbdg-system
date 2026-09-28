@@ -1399,7 +1399,12 @@ export default function EquipmentPage() {
           </div>
 
           {/* 数据统计卡片 (根据设备上传的数据类型显示对应指标：区分 电 或者 蒸汽) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 font-mono">
+          <div className={cn(
+            'grid gap-6 font-mono',
+            energyType === 'steam'
+              ? 'grid-cols-1 sm:grid-cols-3 lg:grid-cols-3'
+              : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+          )}>
             {/* 🌟 模式 A：查看【电力数据】（大部分设备仅使用电力，聚焦电力与功率） */}
             {energyType === 'elec' ? (
               <>
@@ -1410,7 +1415,6 @@ export default function EquipmentPage() {
                       <Zap className="size-4 text-primary" />
                       实时有功功率
                     </span>
-                    <span className="text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded font-mono">电力</span>
                   </div>
                   <div className="text-2xl font-bold font-mono text-primary">
                     {selectedEq.powerKW?.toLocaleString()} <span className="text-sm font-normal text-muted-foreground font-sans">kW</span>
@@ -1430,7 +1434,6 @@ export default function EquipmentPage() {
                       <Zap className="size-4 text-emerald-400" />
                       当月累计用电量
                     </span>
-                    <span className="text-xs text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-mono">用电</span>
                   </div>
                   <div className="text-2xl font-bold font-mono text-emerald-400">
                     {selectedEq.energyKWh?.toLocaleString()} <span className="text-sm font-normal text-muted-foreground font-sans">kWh</span>
@@ -1450,7 +1453,6 @@ export default function EquipmentPage() {
                       <Activity className="size-4 text-cyan-400" />
                       当日累计用电量
                     </span>
-                    <span className="text-xs text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded font-mono">今日</span>
                   </div>
                   <div className="text-2xl font-bold font-mono text-cyan-400">
                     {(selectedEq.todayEnergyKWh || Math.round(selectedEq.energyKWh / 28 * 0.95)).toLocaleString()}{' '}
@@ -1462,18 +1464,16 @@ export default function EquipmentPage() {
                   </div>
                 </div>
 
-                {/* 4. 运行功率因数 / 负荷率 */}
+                {/* 4. 设备负荷率 (不监测功率因数，仅监测负荷率) */}
                 <div className="p-4 bg-panel rounded-lg border border-border space-y-2">
                   <div className="text-sm text-foreground/80 font-sans flex items-center justify-between">
                     <span className="flex items-center gap-1.5 font-medium">
                       <Layers className="size-4 text-amber-400" />
-                      功率因数 / 负荷率
+                      设备负荷率
                     </span>
-                    <span className="text-xs text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded font-mono">工况</span>
                   </div>
                   <div className="text-2xl font-bold font-mono text-amber-400">
-                    cosφ {selectedEq.powerFactor || 0.96}{' '}
-                    <span className="text-sm font-normal text-muted-foreground font-sans">/ {selectedEq.loadRate || 82.5}%</span>
+                    {selectedEq.loadRate || 82.5}%
                   </div>
                   <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
                     <span className="text-muted-foreground">环比</span>
@@ -1485,7 +1485,7 @@ export default function EquipmentPage() {
               </>
             ) : (
               <>
-                {/* 🌟 模式 B：查看【蒸汽数据】（管道工作压力已按要求改为蒸汽消耗量） */}
+                {/* 🌟 模式 B：查看【蒸汽数据】（3项蒸汽指标，移除压力温度卡片） */}
                 {/* 1. 瞬时蒸汽流量 */}
                 <div className="p-4 bg-panel rounded-lg border border-border space-y-2">
                   <div className="text-sm text-foreground/80 font-sans flex items-center justify-between">
@@ -1493,7 +1493,6 @@ export default function EquipmentPage() {
                       <Wind className="size-4 text-purple-400" />
                       瞬时蒸汽流量
                     </span>
-                    <span className="text-xs text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded font-mono">流量</span>
                   </div>
                   <div className="text-2xl font-bold font-mono text-purple-400">
                     {selectedEq.steamFlowT || 1.85} <span className="text-sm font-normal text-muted-foreground font-sans">t/h</span>
@@ -1506,14 +1505,13 @@ export default function EquipmentPage() {
                   </div>
                 </div>
 
-                {/* 2. 蒸汽消耗量 (原：管道工作压力 改为 蒸汽消耗量) */}
+                {/* 2. 蒸汽消耗量 */}
                 <div className="p-4 bg-panel rounded-lg border border-purple-500/30 bg-purple-500/5 space-y-2">
                   <div className="text-sm text-foreground/80 font-sans flex items-center justify-between">
                     <span className="flex items-center gap-1.5 font-medium">
                       <Wind className="size-4 text-purple-400" />
                       蒸汽消耗量
                     </span>
-                    <span className="text-xs text-purple-300 bg-purple-500/20 px-1.5 py-0.5 rounded font-mono">当月累计</span>
                   </div>
                   <div className="text-2xl font-bold font-mono text-purple-400">
                     {(selectedEq.steamUsageT || Math.round((selectedEq.steamFlowT || 1.85) * 24 * 28 * 0.72)).toLocaleString()}{' '}
@@ -1532,7 +1530,6 @@ export default function EquipmentPage() {
                       <Activity className="size-4 text-cyan-400" />
                       当日蒸汽消耗量
                     </span>
-                    <span className="text-xs text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded font-mono">今日</span>
                   </div>
                   <div className="text-2xl font-bold font-mono text-cyan-400">
                     {(selectedEq.todaySteamT || Number(((selectedEq.steamFlowT || 1.85) * 18.2).toFixed(1))).toLocaleString()}{' '}
@@ -1541,24 +1538,6 @@ export default function EquipmentPage() {
                   <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
                     <span className="text-muted-foreground">环比</span>
                     <span className="font-bold text-emerald-400 font-mono">-1.2% ↓</span>
-                  </div>
-                </div>
-
-                {/* 4. 供汽管道压力与温度 */}
-                <div className="p-4 bg-panel rounded-lg border border-border space-y-2">
-                  <div className="text-sm text-foreground/80 font-sans flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <Flame className="size-4 text-amber-400" />
-                      供汽管道压力与温度
-                    </span>
-                    <span className="text-xs text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded font-mono">管网</span>
-                  </div>
-                  <div className="text-2xl font-bold font-mono text-amber-400">
-                    {selectedEq.pressureMpa ?? '0.005'} <span className="text-sm font-normal text-muted-foreground font-sans">MPa</span>
-                  </div>
-                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
-                    <span className="text-muted-foreground">蒸汽温度</span>
-                    <span className="font-bold text-foreground font-mono">{selectedEq.temperatureC ?? 135.2}°C</span>
                   </div>
                 </div>
               </>

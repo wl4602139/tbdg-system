@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Panel, StatusBadge, DataTable, KpiCard, Badge, Tabs } from '@/components/shared/primitives'
+import { Panel, StatusBadge, DataTable, KpiCard, Badge, Tabs, SearchInput } from '@/components/shared/primitives'
 import { Modal } from '@/components/shared/modal'
 import {
   cbamProducts,
@@ -196,15 +196,11 @@ function ComplianceModule() {
             title="管控范围判定"
             actions={
               <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    value={kw}
-                    onChange={(e) => setKw(e.target.value)}
-                    placeholder="输入产品名称 / HS 码"
-                    className="h-9 w-52 rounded-md border border-border bg-secondary pl-8 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
-                  />
-                </div>
+                <SearchInput
+                  value={kw}
+                  onChange={(e) => setKw(e.target.value)}
+                  placeholder="输入产品名称 / HS 码"
+                />
                 <button
                   type="button"
                   onClick={() =>
@@ -1009,15 +1005,11 @@ function KnowledgeModule() {
           title="CBAM 知识库"
           actions={
             <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  value={kw}
-                  onChange={(e) => setKw(e.target.value)}
-                  placeholder="关键词检索"
-                  className="h-9 w-44 rounded-md border border-border bg-secondary pl-8 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
-                />
-              </div>
+              <SearchInput
+                value={kw}
+                onChange={(e) => setKw(e.target.value)}
+                placeholder="关键词检索"
+              />
               <button type="button" onClick={openNew} className="inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
                 <Plus className="size-4" /> 新增
               </button>

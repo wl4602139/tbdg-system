@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from 'lucide-react'
 import * as React from 'react'
-import { ArrowDownRight, ArrowUpRight, ChevronUp, ChevronDown, Download } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, ChevronUp, ChevronDown, Download, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 /* 面板：既可作为纯容器，也可传 title/desc/actions 自带标题栏 (圆角 8px, 标题 16px 加粗) */
@@ -195,10 +195,59 @@ export function Badge({
   )
 }
 
-/* 工具条（筛选/操作区容器） */
+/* 工具条（筛选/操作区容器，默认水平居中对齐） */
 export function Toolbar({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('mb-4 flex flex-wrap items-end gap-3', className)}>{children}</div>
+  return <div className={cn('mb-4 flex flex-wrap items-center gap-3', className)}>{children}</div>
 }
+
+/**
+ * 标准工业搜索输入框 (SearchInput)
+ * 依据特变电工 UI 规范：宽 200px、高 36px、纯白底色、#E2E8F0 边框、8px 圆角
+ * 支持 label 属性：自动以“标题在左，输入框在右”规范呈现
+ */
+export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string
+  onSearch?: (val: string) => void
+  containerClassName?: string
+}
+
+export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
+  ({ className, containerClassName, placeholder = '请输入搜索关键词', label, onSearch, ...props }, ref) => {
+    const inputElement = (
+      <div className={cn('relative inline-flex items-center w-[200px] h-9 shrink-0', containerClassName)}>
+        <Search className="absolute left-2.5 size-4 text-muted-foreground pointer-events-none" />
+        <input
+          ref={ref}
+          type="text"
+          placeholder={placeholder}
+          className={cn(
+            'w-full h-9 pl-8 pr-3 text-sm rounded-lg border border-[#E2E8F0] dark:border-border bg-white dark:bg-panel text-foreground placeholder:text-muted-foreground/60 transition-colors focus:outline-none focus:border-[#2C7CFF] focus:ring-1 focus:ring-[#2C7CFF]',
+            className
+          )}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && onSearch) {
+              onSearch((e.target as HTMLInputElement).value)
+            }
+            props.onKeyDown?.(e)
+          }}
+          {...props}
+        />
+      </div>
+    )
+
+    if (label) {
+      return (
+        <div className="inline-flex items-center gap-2">
+          <span className="whitespace-nowrap text-sm font-medium text-muted-foreground">{label}</span>
+          {inputElement}
+        </div>
+      )
+    }
+
+    return inputElement
+  }
+)
+SearchInput.displayName = 'SearchInput'
 
 /* 页签：实心科技蓝胶囊 Tab 切换 (规范标准: 激活态实心胶囊 + 8px 圆角, 未激活纯文本) */
 export function Tabs({

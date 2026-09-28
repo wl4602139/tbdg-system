@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>第四章 功能模块描述完整性审查报告</title>
+<style>
+@page{size:A4;margin:16mm 14mm 14mm 14mm}
+*{box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC","Source Han Sans SC",sans-serif;font-size:10.5pt;line-height:1.7;color:#1a1a1a;margin:0;padding:0;background:#fff}
+.wrap{max-width:820px;margin:0 auto;padding:24px 20px 40px}
+h1{font-size:19pt;font-weight:700;margin:0 0 6px;letter-spacing:.5px;color:#12263f;line-height:1.35}
+h2{font-size:13pt;font-weight:700;margin:26px 0 10px;padding-left:10px;border-left:4px solid #185fa5;color:#0c447c}
+h3{font-size:11.5pt;font-weight:700;margin:18px 0 8px;color:#12263f}
+p{margin:6px 0}
+.meta{font-size:9.5pt;color:#5f5e5a;border-bottom:2px solid #12263f;padding-bottom:10px;margin-bottom:4px}
+.meta span{display:inline-block;margin-right:18px}
+table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:9.5pt}
+th{background:#f1efe8;border:0.5px solid #b4b2a9;padding:6px 8px;text-align:left;font-weight:700;color:#2c2c2a;vertical-align:middle}
+td{border:0.5px solid #d3d1c7;padding:6px 8px;vertical-align:top}
+tbody tr:nth-child(even){background:#fafaf8}
+.c{text-align:center}
+.ok{color:#3b6d11;font-weight:700}
+.no{color:#a32d2d;font-weight:700}
+.warn{color:#854f0b;font-weight:700}
+.tag{display:inline-block;font-size:8.5pt;font-weight:700;padding:1px 6px;border-radius:3px;line-height:1.5;white-space:nowrap}
+.p1{background:#fcebeb;color:#a32d2d;border:0.5px solid #f09595}
+.p2{background:#faeeda;color:#854f0b;border:0.5px solid #ef9f27}
+.p3{background:#e6f1fb;color:#185fa5;border:0.5px solid #85b7eb}
+.pass{background:#eaf3de;color:#3b6d11;border:0.5px solid #97c459}
+.fail{background:#fcebeb;color:#a32d2d;border:0.5px solid #f09595}
+.verdict{background:#f1efe8;border:1px solid #b4b2a9;border-radius:6px;padding:14px 18px;margin:14px 0}
+.verdict .big{font-size:15pt;font-weight:700;color:#12263f;margin:0 0 4px}
+.verdict .sub{font-size:10pt;color:#444441;margin:0}
+.grid{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.card{flex:1 1 150px;background:#f7f7f5;border:0.5px solid #d3d1c7;border-radius:6px;padding:10px 12px}
+.card .k{font-size:9pt;color:#5f5e5a;margin:0 0 4px}
+.card .v{font-size:14pt;font-weight:700;color:#12263f;margin:0;line-height:1.3}
+.card .v small{font-size:9pt;font-weight:400;color:#5f5e5a}
+ul{margin:6px 0 6px 0;padding-left:20px}
+li{margin:3px 0}
+code{font-family:Consolas,"Courier New",monospace;font-size:9pt;background:#f1efe8;padding:1px 4px;border-radius:3px;color:#712b13}
+.note{font-size:9pt;color:#5f5e5a;margin:4px 0 0}
+.quote{font-family:Consolas,monospace;font-size:8.5pt;background:#fcebeb;border-left:3px solid #e24b4a;padding:6px 10px;margin:6px 0;color:#501313;word-break:break-all}
+.fix{background:#eaf3de;border-left:3px solid #639922;padding:6px 10px;margin:6px 0;font-size:9.5pt;color:#173404}
+.pb{page-break-before:always}
+.avoid{page-break-inside:avoid}
+.sig{margin-top:34px;border-top:0.5px solid #b4b2a9;padding-top:10px;font-size:9pt;color:#5f5e5a;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>第四章《系统管理、基础参数设置》<br>功能模块描述信息完整性审查报告</h1>
+<div class="meta">
+  <span><b>审查对象：</b>特变电工能碳数字化双中心_产品需求规格说明书_PRD_v15.docx</span>
+  <span><b>受控号/版本：</b>TBEA-PRD-MASTER / V1.5.0</span><br>
+  <span><b>审查范围：</b>第四章 6 大板块 · 15 个功能模块 · 120 个模板段落</span>
+  <span><b>审查日期：</b>2026-09-27</span>
+</div>
+
+<h2>一、总体结论</h2>
+
+<div class="verdict">
+  <p class="big">综合评级：C —— 骨架在位、内容半空，须闭环 P1 后方可提交评审</p>
+  <p class="sub">第四章 15 个模块 <b>①定位、②业务场景、③功能规格、④字段字典 四段在位</b>，但 <b>④字段字典 103 字段 / 309 单元格 100% 未填</b>，<b>⑤⑥⑦⑧ 四段全章 15/15 为空</b>（⑤统一写"无"，⑥⑦⑧为空白段）。实际有效段落 <b>60/120（50%）</b>，与第三章补强前水平相当，明显低于第三章补强后的 128/128。<b>存在 5 项 P1 级缺陷、7 项 P2 级缺陷。</b></p>
+</div>
+
+<div class="grid">
+  <div class="card"><p class="k">有效模板段落</p><p class="v">60 / 120 <small>50%</small></p></div>
+  <div class="card"><p class="k">定位五要素齐备模块</p><p class="v">0 / 15 <small>0%</small></p></div>
+  <div class="card"><p class="k">业务场景四要素齐备</p><p class="v">15 / 15 <small>100%</small></p></div>
+  <div class="card"><p class="k">字段字典规模</p><p class="v">103 <small>个字段</small></p></div>
+  <div class="card"><p class="k">字段属性填充率</p><p class="v">0 / 309 <small>0%</small></p></div>
+  <div class="card"><p class="k">Gherkin 场景 / 错误码</p><p class="v">0 / 0 <small>条</small></p></div>
+</div>
+
+<h3>三维评价</h3>
+<table>
+  <thead><tr><th style="width:22%">评价维度</th><th style="width:12%" class="c">评级</th><th>判定依据</th></tr></thead>
+  <tbody>
+    <tr><td><b>结构完备度</b></td><td class="c"><span class="tag fail">C</span></td><td>八段式模板中，④字段字典表结构在位但属性列全空；⑤⑥⑦⑧四段全章 15/15 空置。按"有实质内容才计有效段"口径，120 段中仅 60 段有效，结构完备度 50%。</td></tr>
+    <tr><td><b>内容深度</b></td><td class="c"><span class="tag fail">D</span></td><td>全章 <b>零条数学模型公式、零条边界与异常规则、零条 Gherkin 验收用例、零个业务错误码</b>。⑤段 15 个模块统一写"无"，是八段式中唯一"明知必填却整段留白"的段落。</td></tr>
+    <tr><td><b>体例一致性</b></td><td class="c"><span class="tag fail">C</span></td><td>①目录层级断裂：费价模型、日志管理两个单元为 H2 直挂、缺 H3 模块层，与同章其余 13 个 H3 模块并列时 TOC 三级层级不齐。②③段错位 1 处（菜单与功能③段误写为②段内容）。③错别字 1 处（生产工序管理"计星单位"）。④4 个板块标记缺板块导言。</td></tr>
+  </tbody>
+</table>
+
+<h2>二、模块段落完备度总览矩阵</h2>
+<p>下表逐模块核对八段式模板落位情况。<span class="tag pass">齐</span> 表示该段有实质内容，<span class="tag fail">空</span> 表示该段缺失或仅写占位符。第④段附字段数（属性列填充率）。</p>
+<table>
+  <thead><tr>
+    <th style="width:22%">板块 / 模块</th>
+    <th class="c" style="width:6%">①</th><th class="c" style="width:6%">②</th><th class="c" style="width:6%">③</th>
+    <th class="c" style="width:12%">④字段</th>
+    <th class="c" style="width:6%">⑤</th><th class="c" style="width:6%">⑥</th><th class="c" style="width:6%">⑦</th><th class="c" style="width:6%">⑧</th>
+    <th class="c" style="width:8%">定位要素</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>权限管控 / <b>组织管理</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">6 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>权限管控 / <b>用户管理</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">7 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>权限管控 / <b>角色与权限</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">3 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>权限管控 / <b>菜单与功能</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag p1">错位</span></td><td class="c">5 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>能碳基础因子 / <b>电力碳排因子</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">7 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>能碳基础因子 / <b>能源活动碳排因子</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">6 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>能碳基础因子 / <b>折标煤系数库</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">6 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>费价模型 / <b>费价模型</b> <span class="tag p1">H2直挂</span></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">23 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>生产设备维护 / <b>重点用能设备</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">6 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>生产设备维护 / <b>光伏设备管理</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">5 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>生产数据维护 / <b>产品类型管理</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">6 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>生产数据维护 / <b>产品型号管理</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">6 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>生产数据维护 / <b>基础数据管理</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">7 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>生产数据维护 / <b>生产工序管理</b></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">5 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr><td>日志管理 / <b>日志管理</b> <span class="tag p1">H2直挂</span></td><td class="c"><span class="tag p1">残</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c"><span class="tag pass">齐</span></td><td class="c">5 <span class="no">(0%)</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c"><span class="tag fail">空</span></td><td class="c">2/5</td></tr>
+    <tr style="background:#f7f7f5;font-weight:700"><td>合计 / 达标率</td><td class="c">0/15</td><td class="c ok">15/15</td><td class="c ok">14/15</td><td class="c">103 字段<br><span class="no">0/309</span></td><td class="c no">0/15</td><td class="c no">0/15</td><td class="c no">0/15</td><td class="c no">0/15</td><td class="c no">0/15</td></tr>
+  </tbody>
+</table>
+<p class="note">注：④「属性列填充率」统计范围为字段字典中"数据类型 / 工程单位 / 校验与约束规则"三列，全章 309 个属性单元格无一填写。③段"14/15"因「菜单与功能」③段错位（内容为②段业务场景与用户故事，非交互契约）。</p>
+
+<h2 class="pb">三、P1 级问题（评审通过前必须闭环）</h2>
+
+<h3><span class="tag p1">P1-1</span> ⑤⑥⑦⑧ 四段全章 15/15 空置，八段式模板实质只落实四段</h3>
+<p>第四章 15 个模块的「⑤核心数学模型与算法框架」「⑥展示、对标与判定口径」「⑦边界条件、异常处理与防错规则」「⑧QA 自动化验收准则（Gherkin BDD）」四段<b>全部为空</b>。其中 ⑤ 段 15 个模块统一填写为"无"字；⑥⑦⑧ 段在 XML 中虽保留标题节点，但正文段为空段落。</p>
+<div class="quote">模块「组织管理」⑤段正文：无<br>模块「费价模型」⑤段正文：无<br>模块「日志管理」⑥段正文：（空）</div>
+<p>后果：本章所有模块均<b>不可直接用于开发与测试</b>——无公式则核算逻辑无从实现，无边界规则则防错无从设计，无 Gherkin 则验收无从自动化。尤其本章承载碳排放因子、折标煤系数、费价模型三类"计算基准参数"，⑤段缺失意味着第三章核算结果失去可追溯的算法源头。</p>
+<div class="fix"><b>建议：</b>按第三章补强稿同等颗粒度，逐模块补齐 ⑤⑥⑦⑧。需优先补 ⑤ 段者：<b>电力碳排因子</b>（加权因子计算、版本生效时点）、<b>折标煤系数库</b>（GB/T 2589-2020 常量锁定、除零兜底）、<b>费价模型</b>（分时电价时段加权、两部制基本电费分摊、力调电费 COSφ 修正）。</div>
+
+<h3><span class="tag p1">P1-2</span> ④段字段字典 103 字段 / 309 属性单元格 100% 未填</h3>
+<p>全章 15 个模块的字段字典表结构均为规范的 5 列（序号 / 字段中文名称 / 数据类型 / 工程单位 / 校验与约束规则），字段名称列已填，但<b>后三列 309 个单元格全部为空</b>。字段名已在位，说明表结构设计完整，仅缺属性值回填。</p>
+<table>
+  <thead><tr><th style="width:26%">字段规模最大的模块</th><th class="c" style="width:16%">字段数</th><th>属性列现状</th></tr></thead>
+  <tbody>
+    <tr><td><b>费价模型</b></td><td class="c">23</td><td>深谷/低谷/平时/高峰/尖峰五时段电价、阶梯档位、月度用气量区间、结算单价、介质名称、版本号、生效周期等 23 字段，<b>数据类型与单位全空</b>——无法判断电价单位为 元/kWh 还是 元/MWh。</td></tr>
+    <tr><td>用户管理 / 电力碳排因子 / 基础数据管理</td><td class="c">各 7</td><td>手机号、数据范围、因子值、计量单位、集成方式等字段缺校验规则，隐私字段（手机号）无脱敏与格式约束。</td></tr>
+    <tr><td>组织管理 / 能源活动碳排因子 / 折标煤系数库 / 重点用能设备 / 产品类型管理 / 产品型号管理</td><td class="c">各 6</td><td>机构编码、因子值、折标煤系数、额定功率、类型编码、大类/中类编码等编码类字段缺唯一性与格式规则。</td></tr>
+  </tbody>
+</table>
+<div class="fix"><b>建议：</b>按字段字典逐字段回填三列。数值型字段须给出精度与量纲（如「因子值」<code>DECIMAL(12,4)</code> + 单位「kgCO2e/kWh」）；编码型字段须给出格式正则与唯一性约束（如「机构编码」<code>^ORG-[A-Z0-9]{4}$</code> 唯一）；隐私字段须给出脱敏规则（手机号 <code>138****1120</code>）。</div>
+
+<h3><span class="tag p1">P1-3</span> ①段「定位与架构角色」五要素 0/15 达标，全章仅落 2 个要素</h3>
+<p>八段式①段要求"功能定位 / 承载角色 / 页面路由 / 上游依赖 / 下游输出"五要素。第四章 15 个模块<b>全部只写了"功能定位 + 承载角色"2 个要素</b>，<b>无一个模块给出页面路由、上游依赖、下游输出</b>。而第三章补强稿中同一①段已扩展为五要素齐备的 structured block。</p>
+<div class="quote">模块「重点用能设备」①段原文（节选）：<br>・功能定位：作为生产设备维护模块下重点用能设备的基础台账管理单元……<br>・承载角色：PM 系统管理员……<br>（无「页面路由」「上游依赖」「下游输出」三要素）</div>
+<div class="fix"><b>建议：</b>为 15 个模块逐一补全。其中"页面路由"可直接取自平台前端实测路由（如 <code>/system/org</code>、<code>/system/user</code>、<code>/system/factor/electricity</code>、<code>/system/price-model</code>、<code>/system/log</code>）；"上游依赖"与"下游输出"须体现本章"基础参数 → 第三章核算结果"的数据流向（如折标煤系数库 → 能耗折标统计；电力碳排因子 → 外购电力排放核算）。</div>
+
+<h3><span class="tag p1">P1-4</span> ①目录层级断裂：费价模型、日志管理两个单元缺 H3 模块层</h3>
+<p>第四章六个板块中，「权限管控」「能碳基础因子管理」「生产设备维护」「生产数据维护」四个板块采用规范的<br><code>H2 板块标题 → 板块导言 → H3 模块标题（×N）→ 八段</code> 三级结构；但<b>「费价模型」与「日志管理」两个板块的内容单元直接挂在 H2 之下</b>，<b>缺少 H3 模块层</b>，形成<br><code>H2 平台级标题（费价模型）→ 八段</code> 的越级结构。</p>
+<p>后果：一级板块与功能模块混用同一 Heading 级别，导致 Word 自动目录（TOC）中"费价模型""日志管理"与"权限管控""生产设备维护"等板块并列显示为同级条目，三级目录树断层；亦使"15 个模块"这一口径在目录层面无法自证（目录只数得出 13 个三级条目）。</p>
+<div class="fix"><b>建议：</b>将「费价模型」下挂为板块"费价模型"的 H3 模块（建议标题 <code>费价模型</code>），「日志管理」下挂为板块"日志管理"的 H3 模块（建议标题 <code>日志管理</code>，或统一改为"操作日志管理"），使全章统一为 <b>6 板块 / 15 模块</b> 的三级结构，并同步刷新 TOC 书签。</div>
+
+<h3><span class="tag p1">P1-5</span> 「菜单与功能」③段严重错位：功能规格段被写成了业务场景段</h3>
+<p>「菜单与功能」模块第③段（应为"功能规格与交互契约"）实际内容为：</p>
+<div class="quote">・业务场景：面向系统管理员进行平台功能资源底层维护场景，统一管理系统菜单结构与按钮级功能点，为上层角色授权提供最小权限颗粒。<br>・用户故事：<br>As a 系统管理员 (Persona PM)，<br>I want 维护系统菜单层级、页面功能按钮与功能编码资源，统一平台功能底座，<br>So that 我能支撑细粒度权限管控，为全平台权限配置提供标准化功能资源基础。</div>
+<p>该段是 ② 段"业务场景与用户故事"的<b>重复粘贴</b>，而非 ③ 段应有的"页面布局 / 操作按钮 / 交互反馈"描述。同一板块的「组织管理」「用户管理」「角色与权限」三个模块的③段均为正确的"点击【新增】打开弹窗"式交互契约，唯「菜单与功能」错位，导致该模块<b>实质缺失功能规格段</b>。</p>
+<div class="fix"><b>建议：</b>以原型截图 #40（菜单与功能页面）为据重写③段，明确：左侧菜单树布局、右侧功能点列表、新增子页面/编辑/启停状态按钮的点击行为与弹窗字段。</div>
+
+<h2 class="pb">四、P2 级问题（建议本轮修订一并闭环）</h2>
+
+<h3><span class="tag p2">P2-6</span> 板块级导言缺失（4 个板块）</h3>
+<p>「权限管控」「能碳基础因子管理」「生产设备维护」「生产数据维护」四个板块的 H2 标题下均无板块导言，直接进入 H3 模块正文。「费价模型」「日志管理」两个单模块板块虽有简短说明，但未成板块导言体例。</p>
+<div class="fix"><b>建议：</b>为 6 个板块各补 3~5 行板块导言（板块定位 / 覆盖模块 / 与相邻板块边界），优先补「能碳基础因子管理」与「生产数据维护」，二者模块数最多、职责边界最易混。</div>
+
+<h3><span class="tag p2">P2-7</span> 数据权限（RLS）条款整体缺位</h3>
+<p>本章是权限体系的本体章节，但 15 个模块<b>无一条数据权限条款</b>。「用户管理」「角色与权限」的字段字典虽含"数据范围"字段，却未说明该字段如何驱动行级数据隔离；「生产设备维护」「生产数据维护」等业务数据维护模块也未声明"按组织子树可见"的读写边界。</p>
+<div class="fix"><b>建议：</b>在章首导言补"数据权限总则"，各模块补 RLS 条款：数据范围以组织树节点为单位授予，<b>「（只读）」后缀表示该节点仅可查看不可写</b>；系统管理员默认全量可写，其余角色按账号绑定数据范围截取组织子树，越权返回 HTTP 403 并记审计日志。</div>
+
+<h3><span class="tag p2">P2-8</span> 业务错误码体系缺位（全章 0 个）</h3>
+<p>第四章 15 个模块未定义任何业务错误码，⑦段（边界条件与异常处理）亦全空。作为参数基准章节，错误码缺失将导致前端无法给出明确失败提示、后端无法统一异常处理。对比第三章已定义 27 个业务错误码。</p>
+<div class="fix"><b>建议：</b>新增 <code>E_SYS_*</code> 系列错误码并登记入第六章错误码字典，覆盖组织/用户/角色/菜单/因子/费价/设备/光伏/产品类型/型号/基础数据/工序/日志 13 类，重点包括：编码重复、层级越界、国标常量误改（<code>E_SYS_GB_STD_IMMUTABLE</code>）、因子/系数除零（<code>E_CALC_*</code> 复用）、日志写操作拒绝（<code>E_SYS_LOG_IMMUTABLE</code>）。</div>
+
+<h3><span class="tag p2">P2-9</span> 「生产工序管理」字段名错别字：「计星单位」应为「计量单位」</h3>
+<p>「生产工序管理」④段第 5 个字段名为 <code>计星单位</code>，字形疑似输入法误录。</p>
+<div class="quote">字段名原文：计星单位</div>
+<div class="fix"><b>建议：</b>改为「计量单位」，与「产品类型管理」「基础数据管理」同名字段保持跨模块一致。</div>
+
+<h3><span class="tag p2">P2-10</span> 「日志管理」字段字典与正文口径不一致（缺"操作类型""操作"两列）</h3>
+<p>「日志管理」①段正文明确日志"留存操作时间、操作人、<b>操作类型</b>、操作对象、IP 地址与执行结果"，但④段字段字典仅列 5 个字段（时间 / 操作人 / 操作对象 / IP地址 / 结果），<b>缺少"操作类型"字段</b>；而③段查询条件又要求"按关键字、日志类型、操作结果检索"，说明"日志类型"字段客观存在却未入字典。</p>
+<div class="fix"><b>建议：</b>字段字典补"日志类型"与"操作"两列，与正文及查询条件对齐。</div>
+
+<h3><span class="tag p2">P2-11</span> 与第三章重复定义（电力碳排因子、能源活动碳排因子）</h3>
+<p>「电力碳排因子」「能源活动碳排因子」两模块与第三章相关核算模块存在职责交叉：本章负责<b>因子的维护与版本发布</b>，第三章负责<b>引用因子完成核算</b>。当前两章均未声明边界，评审时易产生"某因子究竟在哪一章维护"的歧义。</p>
+<div class="fix"><b>建议：</b>在本章导言与两模块①段补边界声明——本章仅负责因子版本发布与维护，不产生核算结果；任一因子版本在本章发布，即触发第三章核算视图同步刷新；跨章数值（天然气 2.1622、电力 0.1229、GB/T 2589-2020）须逐位一致。</div>
+
+<h3><span class="tag p2">P2-12</span> 状态机未成表（费价模型、日志管理相关状态流转）</h3>
+<p>「费价模型」涉及草稿 → 启用 → 生效 → 版本历史的多态流转，「日志管理」涉及五类日志（登录 / 数据操作 / 因子变更 / 权限变更 / 报表导出）的分类流转，均以文字散述，未成状态转移表。</p>
+<div class="fix"><b>建议：</b>参照第三章「碳足迹核算」的六态状态转移表格式，为上述单元各补 1 张状态机表。</div>
+
+<h2>五、可对齐的标杆与正面结论</h2>
+<p>审查中确认第四章存在若干已达标或接近达标的做法，建议作为修订时的对齐基准：</p>
+<table>
+  <thead><tr><th style="width:24%">标杆项</th><th>值得对齐的做法</th></tr></thead>
+  <tbody>
+    <tr><td><b>②业务场景与用户故事</b></td><td>全章 <b>15/15 模块 100% 达标</b>，均完整包含"业务场景"描述 + <code>As a / I want / So that</code> 三要素用户故事，且 Persona 统一为"系统管理员 (Persona PM)"。这是本章唯一全量达标的段落，可作为其他章节②段的体例模板。</td></tr>
+    <tr><td><b>④字段字典表结构</b></td><td>15 个模块的字段字典均为规范 5 列表结构（序号 / 字段中文名称 / 数据类型 / 工程单位 / 校验与约束规则），表头统一、字段名齐备（103 字段），仅待回填属性值——结构与第三章补强后完全一致，可直接复用回填脚本。</td></tr>
+    <tr><td><b>③③③ 交互契约体例（13 模块）</b></td><td>「组织管理」「用户管理」「角色与权限」「电力碳排因子」等 13 个模块③段均为"点击【按钮】→ 打开某弹窗 → 取消/确定后行为"的可执行描述，颗粒度贴合成测试，值得「菜单与功能」对齐（见 P1-5）。</td></tr>
+    <tr><td><b>「日志管理」合规设计</b></td><td>①段明确"日志存储周期不少于 3 年且不可删除"，直接对接合规留痕要求，工程可落地性强，建议其"不可篡改 + 至少保留 3 年"约束横向推广到各参数变更模块的审计要求。</td></tr>
+  </tbody>
+</table>
+
+<h3>结论回顾</h3>
+<ul>
+  <li><b>是否完整？</b>—— <b>不完整</b>。结构上八段式框架在位，但仅四段有实质内容（且其中④段属性列全空、①段仅 2/5 要素），实际有效段落 60/120 = 50%。</li>
+  <li><b>能否通过评审？</b>—— <b>不可直接通过，须带条件</b>：P1-1 ~ P1-5 五项须在评审前闭环。其中 P1-4（补 H3 层）、P1-5（③段错位）、P2-9（错别字）为文档内结构性修正，工作量小；P1-1（补 ⑤⑥⑦⑧ 四段）与 P1-2（回填 309 单元格）为主要工作量，需按模块逐个补齐。</li>
+  <li><b>优先级排序</b>：P1-4 / P1-5 / P2-9（结构修正，改动最小）→ P1-2（字段字典回填，机械可批处理）→ P1-3（补定位三要素）→ P1-1（补 ⑤⑥⑦⑧，工作量最大）→ P2-6 ~ P2-12（体例与合规条款统一）。</li>
+</ul>
+
+<div class="sig">
+  <span>审查方法：结构层（Heading 树解析，396 节点 / H1×1 / H2×6 / H3×13 / H4×120）+ 内容层（全章逐段通读，743 行）+ 量化层（脚本统计段落字数 / 字段数 / 单元格填充率 / 错误码 / LaTeX 残留）+ 事实层（原型截图 #37–#51 逐模块比对）</span>
+  <span>报告生成：2026-09-27</span>
+</div>
+
+</div>
+</body>
+</html>

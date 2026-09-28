@@ -6,6 +6,7 @@ import {
   ChevronDown,
   Building2,
   Factory,
+  Network,
   Search,
   Maximize2,
   Minimize2,
@@ -598,7 +599,7 @@ export function StandardOrgTree({
             {node.level === 'group' && <Building2 className="size-3.5 text-primary shrink-0" />}
             {node.level === 'park' && <Trees className="size-3.5 text-emerald-400 shrink-0" />}
             {node.level === 'company' && <Building2 className="size-3.5 text-amber-400 shrink-0" />}
-            {node.level === 'workshop' && <Factory className={cn('size-3.5 shrink-0', isUnconnected ? 'opacity-35 text-slate-400 dark:text-slate-500' : 'text-muted-foreground')} />}
+            {node.level === 'workshop' && <Network className={cn('size-3.5 shrink-0', isUnconnected ? 'opacity-35 text-slate-400 dark:text-slate-500' : 'text-muted-foreground')} />}
 
             {/* 节点名称 */}
             <span className={cn('truncate flex-1', isUnconnected ? 'text-slate-400 dark:text-slate-500 font-normal' : '')} title={node.fullName || node.name}>
@@ -650,7 +651,7 @@ export function StandardOrgTree({
             type="text"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder={treeType === 'park' ? '搜索产业园 / 厂区 / 微电网...' : '搜索单位 / 车间 / 工序...'}
+            placeholder="请输入搜索关键词"
             className="w-full pl-8 pr-2.5 h-9 text-xs bg-panel border border-border rounded-lg text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground transition-all"
           />
         </div>

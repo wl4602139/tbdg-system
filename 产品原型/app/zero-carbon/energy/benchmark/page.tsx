@@ -1464,7 +1464,7 @@ const BENCHMARK_STANDARDS_DATA: BenchmarkStandardItem[] = [
     effectiveDate: '2026-01-01',
     status: 'active',
     maintainer: '集团科技质量部',
-    notes: '优于 320 kWh/t 评定为行业领跑水平',
+    notes: '优于 320 kWh/t 为行业先进基准',
   },
   {
     id: 'std-proc-02',
@@ -2162,7 +2162,6 @@ export default function BenchmarkManagementPage() {
               <div className="flex items-center justify-between text-xs font-mono text-muted-foreground pb-1.5">
                 <span className="font-bold flex items-center gap-2">
                   <span>当前展示: <strong className="text-foreground">{currentMetricMeta.name}</strong></span>
-                  <span className="text-muted-foreground font-normal font-sans">(共 19 家主要项目公司)</span>
                 </span>
 
                 {/* 标线图例说明 */}
@@ -2235,11 +2234,11 @@ export default function BenchmarkManagementPage() {
                     {/* 电装集团平均值线 */}
                     <ReferenceLine
                       y={currentMetricMeta.groupAvg}
-                      stroke="#1677ff"
+                      stroke="#2C7CFF"
                       strokeWidth={1.5}
                       label={{
                         value: currentMetricMeta.groupAvgLabel,
-                        fill: '#1677ff',
+                        fill: '#2C7CFF',
                         fontSize: 10,
                         position: 'top',
                       }}
@@ -2449,7 +2448,7 @@ export default function BenchmarkManagementPage() {
                     <span className="size-2 rounded-full bg-primary" /> 综合产品单耗 (tce/{activeSelectedProduct.unit})
                   </span>
                   <span className="flex items-center gap-1 text-emerald-400 font-bold">
-                    <span className="size-2 rounded-full bg-emerald-500" /> 集团最优标杆
+                    <span className="size-2 rounded-full bg-emerald-500" /> 集团先进基准
                   </span>
                 </div>
               </div>
@@ -2472,14 +2471,14 @@ export default function BenchmarkManagementPage() {
                     <Tooltip
                       cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }}
                       formatter={(value: any, name: any, item: any) => [
-                        `${value} tce/${activeSelectedProduct.unit} (${item?.payload?.isOptimal ? '🏆 集团最优' : item?.payload?.diff})`,
+                        `${value} tce/${activeSelectedProduct.unit} (${item?.payload?.isOptimal ? '集团先进基准' : item?.payload?.diff})`,
                         '综合单耗'
                       ]}
                       contentStyle={{ backgroundColor: '#0f172a', borderRadius: '8px', border: '1px solid #1e293b', fontSize: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.4)', color: '#f8fafc' }}
                     />
-                    <Bar dataKey="tce" name="综合单耗 (tce)" fill="#1677ff" radius={[3, 3, 0, 0]} maxBarSize={28}>
+                    <Bar dataKey="tce" name="综合单耗 (tce)" fill="#2C7CFF" radius={[3, 3, 0, 0]} maxBarSize={28}>
                       {activeSelectedProduct.companies.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.isOptimal ? '#10b981' : '#1677ff'} />
+                        <Cell key={`cell-${index}`} fill={entry.isOptimal ? '#10b981' : '#2C7CFF'} />
                       ))}
                     </Bar>
                   </BarChart>
@@ -2525,7 +2524,7 @@ export default function BenchmarkManagementPage() {
                         <tr
                           key={`${productGroup.id}-${company.companyId}`}
                           className={cn(
-                            'hover:bg-accent/30 transition-colors',
+                            'hover:bg-accent/30 transition-colors h-[44px]',
                             isSelectedProduct && 'bg-primary/10'
                           )}
                         >
@@ -3112,7 +3111,7 @@ export default function BenchmarkManagementPage() {
                       verticalMetricKey === 'tce'
                         ? '#10b981'
                         : verticalMetricKey === 'elec'
-                        ? '#1677ff'
+                        ? '#2C7CFF'
                         : verticalMetricKey === 'steam'
                         ? '#8b5cf6'
                         : verticalMetricKey === 'gas'
@@ -3333,7 +3332,7 @@ export default function BenchmarkManagementPage() {
                   <span className="size-2 rounded-full bg-primary" /> 实测工序单耗
                 </span>
                 <span className="flex items-center gap-1 text-emerald-400 font-bold">
-                  <span className="size-2 rounded-full bg-emerald-500" /> 集团最优单位
+                  <span className="size-2 rounded-full bg-emerald-500" /> 领先基准单位
                 </span>
                 {/* 集团平均线 (所有工序都画) */}
                 <span className="flex items-center gap-1 text-primary font-bold">
@@ -3424,12 +3423,12 @@ export default function BenchmarkManagementPage() {
                   <Bar
                     dataKey="value"
                     name="实测单耗"
-                    fill="#1677ff"
+                    fill="#2C7CFF"
                     radius={[4, 4, 0, 0]}
                     maxBarSize={48}
                   >
                     {currentSelectedProcess.companies.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.isOptimal ? '#10b981' : '#1677ff'} />
+                      <Cell key={`cell-${index}`} fill={entry.isOptimal ? '#10b981' : '#2C7CFF'} />
                     ))}
                   </Bar>
                 </BarChart>

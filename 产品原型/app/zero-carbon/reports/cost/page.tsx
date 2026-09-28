@@ -7,6 +7,7 @@ import {
   Coins,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ExportButton } from '@/components/shared/primitives'
 import { SearchableUnitSelect } from '@/components/shared/searchable-unit-select'
 import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 
@@ -22,7 +23,8 @@ interface CostRow {
   gasCost: number
   waterCost: number
   steamCost: number
-  greenDeduct: number
+  selfUseDeduct: number
+  gridRevenue: number
   netCost: number
   avgPrice: string
 }
@@ -41,14 +43,15 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 238.4,
     waterCost: 12.8,
     steamCost: 84.0,
-    greenDeduct: -320.0,
+    selfUseDeduct: -260.0,
+    gridRevenue: -60.0,
     netCost: 3305.7,
     avgPrice: '0.560 元',
   },
   {
     id: 'SB-02',
     unitId: 'ws_sb_luna',
-    unitName: '露娜公司',
+    unitName: '露娜公司 (特变电工露娜智能)',
     company: '沈变公司',
     tipElec: 160.0,
     peakElec: 310.0,
@@ -57,9 +60,27 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 51.0,
     waterCost: 2.8,
     steamCost: 18.0,
-    greenDeduct: -75.0,
+    selfUseDeduct: -60.0,
+    gridRevenue: -15.0,
     netCost: 806.8,
     avgPrice: '0.562 元',
+  },
+  {
+    id: 'SB-03',
+    unitId: 'ws_sb_zh',
+    unitName: '智慧能源',
+    company: '沈变公司',
+    tipElec: 85.0,
+    peakElec: 160.0,
+    flatElec: 110.0,
+    valleyElec: 60.0,
+    gasCost: 25.0,
+    waterCost: 1.4,
+    steamCost: 9.5,
+    selfUseDeduct: -35.0,
+    gridRevenue: -7.0,
+    netCost: 408.9,
+    avgPrice: '0.558 元',
   },
   {
     id: 'SB-04',
@@ -73,7 +94,8 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 18.0,
     waterCost: 0.8,
     steamCost: 8.0,
-    greenDeduct: -26.0,
+    selfUseDeduct: -21.0,
+    gridRevenue: -5.0,
     netCost: 340.8,
     avgPrice: '0.564 元',
   },
@@ -89,9 +111,27 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 14.5,
     waterCost: 0.6,
     steamCost: 5.0,
-    greenDeduct: -19.0,
+    selfUseDeduct: -15.0,
+    gridRevenue: -4.0,
     netCost: 276.1,
     avgPrice: '0.561 元',
+  },
+  {
+    id: 'SB-06',
+    unitId: 'ws_sb_yn',
+    unitName: '印能公司',
+    company: '沈变公司',
+    tipElec: 42.0,
+    peakElec: 80.0,
+    flatElec: 55.0,
+    valleyElec: 30.0,
+    gasCost: 10.5,
+    waterCost: 0.5,
+    steamCost: 3.5,
+    selfUseDeduct: -12.0,
+    gridRevenue: -3.0,
+    netCost: 206.5,
+    avgPrice: '0.559 元',
   },
 
   // --- 衡变公司 ---
@@ -107,7 +147,8 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 196.7,
     waterCost: 11.2,
     steamCost: 68.0,
-    greenDeduct: -290.0,
+    selfUseDeduct: -235.0,
+    gridRevenue: -55.0,
     netCost: 3015.9,
     avgPrice: '0.552 元',
   },
@@ -123,7 +164,8 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 77.7,
     waterCost: 4.8,
     steamCost: 18.0,
-    greenDeduct: -90.0,
+    selfUseDeduct: -72.0,
+    gridRevenue: -18.0,
     netCost: 1049.5,
     avgPrice: '0.577 元',
   },
@@ -139,7 +181,8 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 45.0,
     waterCost: 2.5,
     steamCost: 12.0,
-    greenDeduct: -55.0,
+    selfUseDeduct: -45.0,
+    gridRevenue: -10.0,
     netCost: 604.5,
     avgPrice: '0.556 元',
   },
@@ -157,7 +200,8 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 148.8,
     waterCost: 8.0,
     steamCost: 57.0,
-    greenDeduct: -210.0,
+    selfUseDeduct: -170.0,
+    gridRevenue: -40.0,
     netCost: 2503.8,
     avgPrice: '0.551 元',
   },
@@ -173,7 +217,8 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 112.0,
     waterCost: 6.8,
     steamCost: 28.0,
-    greenDeduct: -150.0,
+    selfUseDeduct: -120.0,
+    gridRevenue: -30.0,
     netCost: 1606.8,
     avgPrice: '0.564 元',
   },
@@ -184,16 +229,51 @@ const ALL_COST_ROWS: CostRow[] = [
     unitId: 'ws_ll_main',
     unitName: '鲁缆本部',
     company: '鲁缆公司',
-    tipElec: 480.0,
-    peakElec: 920.0,
+    tipElec: 450.0,
+    peakElec: 820.0,
     flatElec: 580.0,
     valleyElec: 320.0,
     gasCost: 147.0,
     waterCost: 8.5,
     steamCost: 42.0,
-    greenDeduct: -200.0,
+    selfUseDeduct: -160.0,
+    gridRevenue: -40.0,
     netCost: 2167.5,
     avgPrice: '0.562 元',
+  },
+  {
+    id: 'LL-02',
+    unitId: 'ws_ll_zl',
+    unitName: '智缆公司',
+    company: '鲁缆公司',
+    tipElec: 140.0,
+    peakElec: 260.0,
+    flatElec: 180.0,
+    valleyElec: 100.0,
+    gasCost: 42.0,
+    waterCost: 2.2,
+    steamCost: 11.0,
+    selfUseDeduct: -48.0,
+    gridRevenue: -12.0,
+    netCost: 675.2,
+    avgPrice: '0.560 元',
+  },
+  {
+    id: 'LL-03',
+    unitId: 'ws_ll_sg',
+    unitName: '曙光公司',
+    company: '鲁缆公司',
+    tipElec: 110.0,
+    peakElec: 210.0,
+    flatElec: 150.0,
+    valleyElec: 80.0,
+    gasCost: 35.0,
+    waterCost: 1.8,
+    steamCost: 9.0,
+    selfUseDeduct: -38.0,
+    gridRevenue: -10.0,
+    netCost: 547.8,
+    avgPrice: '0.561 元',
   },
 
   // --- 新缆厂 ---
@@ -209,7 +289,8 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 122.5,
     waterCost: 6.8,
     steamCost: 31.0,
-    greenDeduct: -155.0,
+    selfUseDeduct: -125.0,
+    gridRevenue: -30.0,
     netCost: 1685.3,
     avgPrice: '0.563 元',
   },
@@ -225,7 +306,8 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 66.5,
     waterCost: 3.7,
     steamCost: 17.0,
-    greenDeduct: -85.0,
+    selfUseDeduct: -68.0,
+    gridRevenue: -17.0,
     netCost: 922.2,
     avgPrice: '0.565 元',
   },
@@ -243,7 +325,8 @@ const ALL_COST_ROWS: CostRow[] = [
     gasCost: 162.8,
     waterCost: 9.2,
     steamCost: 39.0,
-    greenDeduct: -210.0,
+    selfUseDeduct: -170.0,
+    gridRevenue: -40.0,
     netCost: 2321.0,
     avgPrice: '0.563 元',
   },
@@ -304,7 +387,8 @@ export default function CostReportPage() {
       gasCost: Number((r.gasCost * periodScale).toFixed(1)),
       waterCost: Number((r.waterCost * periodScale).toFixed(1)),
       steamCost: Number((r.steamCost * periodScale).toFixed(1)),
-      greenDeduct: Number((r.greenDeduct * periodScale).toFixed(1)),
+      selfUseDeduct: Number((r.selfUseDeduct * periodScale).toFixed(1)),
+      gridRevenue: Number((r.gridRevenue * periodScale).toFixed(1)),
       netCost: Number((r.netCost * periodScale).toFixed(1)),
     }))
   }, [companyFilter, unitFilter, timeDim, selectedMonthRange, selectedQuarter, selectedYear])
@@ -337,7 +421,8 @@ export default function CostReportPage() {
         acc.gasCost += r.gasCost
         acc.waterCost += r.waterCost
         acc.steamCost += r.steamCost
-        acc.greenDeduct += r.greenDeduct
+        acc.selfUseDeduct += r.selfUseDeduct
+        acc.gridRevenue += r.gridRevenue
         acc.netCost += r.netCost
         return acc
       },
@@ -349,7 +434,8 @@ export default function CostReportPage() {
         gasCost: 0,
         waterCost: 0,
         steamCost: 0,
-        greenDeduct: 0,
+        selfUseDeduct: 0,
+        gridRevenue: 0,
         netCost: 0,
       },
     )
@@ -458,13 +544,7 @@ export default function CostReportPage() {
             </div>
           )}
 
-          <button
-            onClick={() => alert('正在导出能源成本财务对账单 (Excel/PDF)...')}
-            className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 hover:bg-primary/90 shadow-xs transition-colors cursor-pointer"
-          >
-            <Download className="size-3.5" />
-            <span>导出</span>
-          </button>
+          <ExportButton onClick={() => alert('正在导出能源成本财务对账单 (Excel/PDF)...')} />
         </div>
       </div>
 
@@ -525,7 +605,8 @@ export default function CostReportPage() {
                   <th className="py-2.5 px-3 text-right">天然气费 (万元)</th>
                   <th className="py-2.5 px-3 text-right">水费 (万元)</th>
                   <th className="py-2.5 px-3 text-right">蒸汽热力费 (万元)</th>
-                  <th className="py-2.5 px-3 text-right text-emerald-400 font-bold">绿电省电扣减 (万元)</th>
+                  <th className="py-2.5 px-3 text-right text-emerald-400 font-bold">自用抵扣 (万元)</th>
+                  <th className="py-2.5 px-3 text-right text-emerald-400 font-bold">上网收益 (万元)</th>
                   <th className="py-2.5 px-3 text-right text-primary font-bold bg-accent/20">净能源成本 (万元)</th>
                   <th className="py-2.5 px-3 text-right">综合电价</th>
                 </tr>
@@ -570,7 +651,10 @@ export default function CostReportPage() {
                       {r.steamCost.toFixed(1)}
                     </td>
                     <td className="py-2.5 px-3 text-right text-emerald-400 font-bold tabular-nums">
-                      {r.greenDeduct.toFixed(1)}
+                      {r.selfUseDeduct.toFixed(1)}
+                    </td>
+                    <td className="py-2.5 px-3 text-right text-emerald-400 font-bold tabular-nums">
+                      {r.gridRevenue.toFixed(1)}
                     </td>
                     <td className="py-2.5 px-3 text-right font-bold text-primary bg-accent/20 tabular-nums">
                       {r.netCost.toFixed(1)}
@@ -608,7 +692,10 @@ export default function CostReportPage() {
                     {totals.steamCost.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                   </td>
                   <td className="py-2.5 px-3 text-right font-mono text-emerald-400 tabular-nums">
-                    {totals.greenDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                    {totals.selfUseDeduct.toLocaleString('en-US', { minimumFractionDigits: 1 })}
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-mono text-emerald-400 tabular-nums">
+                    {totals.gridRevenue.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                   </td>
                   <td className="py-2.5 px-3 text-right font-mono text-primary bg-primary/20 tabular-nums text-sm">
                     {totals.netCost.toLocaleString('en-US', { minimumFractionDigits: 1 })}

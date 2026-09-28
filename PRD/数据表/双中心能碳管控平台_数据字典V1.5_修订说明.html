@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>双中心能碳管控平台 · 数据字典 V1.5 修订说明（IND-001 产品碳足迹补回）</title>
+<style>
+  @page { size: A4; margin: 14mm 12mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 0; background: #EDEFF3;
+         font-family: "Microsoft YaHei", "微软雅黑", -apple-system, "Segoe UI", sans-serif;
+         color: #1F2937; font-size: 10.5pt; line-height: 1.62; }
+  .page { width: 210mm; min-height: 297mm; margin: 0 auto 10mm; background: #fff;
+          padding: 14mm 12mm; box-shadow: 0 2px 14px rgba(0,0,0,.10); }
+  h1 { font-size: 17pt; margin: 0 0 3px; color: #1F3864; letter-spacing: .3px; }
+  .sub { font-size: 9pt; color: #6B7280; margin-bottom: 14px;
+         border-bottom: 2.5px solid #1F3864; padding-bottom: 9px; }
+  .sub b { color: #1F3864; }
+  h2 { font-size: 12pt; margin: 20px 0 8px; color: #1F3864;
+       border-left: 4px solid #1F3864; padding-left: 8px; }
+  h3 { font-size: 10.5pt; margin: 13px 0 5px; color: #2F5597; }
+  p { margin: 5px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 9pt; }
+  th { background: #1F3864; color: #fff; font-weight: 600; padding: 5.5px 6px;
+       border: 1px solid #B8C2D0; text-align: left; vertical-align: middle; }
+  td { padding: 5px 6px; border: 1px solid #D2D9E2; vertical-align: top; }
+  tr:nth-child(even) td { background: #F7F9FC; }
+  td.c, th.c { text-align: center; }
+  .ok { background: #E2EFDA !important; color: #375623; font-weight: 700; text-align: center; }
+  .p0 { background: #FCE4E4 !important; color: #C00000; font-weight: 700; text-align: center; }
+  .p1 { background: #FFF2CC !important; color: #BF8F00; font-weight: 700; text-align: center; }
+  .p2 { background: #E8EEF7 !important; color: #1F4E79; font-weight: 700; text-align: center; }
+  code { font-family: Consolas, "Courier New", monospace; background: #F2F5F9;
+         padding: 1px 4px; border-radius: 3px; border: 1px solid #DCE3EC;
+         font-size: 8.8pt; color: #1F3864; white-space: nowrap; }
+  .kpi { display: flex; gap: 8px; margin: 10px 0 4px; flex-wrap: wrap; }
+  .kpi div { flex: 1 1 0; min-width: 96px; border: 1px solid #D2D9E2; border-top: 3px solid #1F3864;
+             border-radius: 4px; padding: 7px 8px; background: #FAFBFD; }
+  .kpi .n { font-size: 15pt; font-weight: 700; color: #1F3864; line-height: 1.15; }
+  .kpi .t { font-size: 8pt; color: #6B7280; margin-top: 1px; }
+  .box { border: 1px solid #D2D9E2; border-left: 4px solid #1F3864; background: #F7F9FC;
+         padding: 8px 11px; margin: 9px 0; border-radius: 0 4px 4px 0; }
+  .box.warn { border-left-color: #BF8F00; background: #FFFBF0; }
+  .box.bad { border-left-color: #C00000; background: #FFF6F6; }
+  .box.good { border-left-color: #548235; background: #F5FAF2; }
+  .box .h { font-weight: 700; color: #1F3864; margin-bottom: 3px; font-size: 9.5pt; }
+  .box.warn .h { color: #BF8F00; }
+  .box.bad .h { color: #C00000; }
+  .box.good .h { color: #375623; }
+  ul { margin: 4px 0 4px 18px; padding: 0; }
+  li { margin: 2.5px 0; }
+  .chain { display: flex; align-items: stretch; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
+  .chain .node { flex: 1 1 0; min-width: 130px; border: 1px solid #C6D0DE; border-radius: 5px;
+                 padding: 7px 9px; background: #FAFBFD; }
+  .chain .node .t1 { font-size: 8pt; color: #6B7280; }
+  .chain .node .t2 { font-weight: 700; color: #1F3864; font-size: 9.5pt; margin: 1px 0 2px; }
+  .chain .node .t3 { font-size: 8pt; color: #4B5563; line-height: 1.4; }
+  .chain .arw { align-self: center; color: #9AA7B8; font-weight: 700; font-size: 12pt; }
+  .foot { margin-top: 16px; padding-top: 8px; border-top: 1px solid #D2D9E2;
+          font-size: 8pt; color: #9AA7B8; text-align: center; }
+  .tag { display: inline-block; font-size: 7.6pt; padding: 0 5px; border-radius: 8px;
+         background: #E8EEF7; color: #1F4E79; margin-right: 4px; }
+  @media print { body { background: #fff; } .page { box-shadow: none; margin: 0; width: auto; padding: 0; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>数据字典 V1.5 修订说明</h1>
+  <div class="sub">
+    双中心能碳管控平台 · 基础参数与数据字典 &nbsp;|&nbsp; 修订内容：<b>IND-001「产品碳足迹」补回</b>
+    &nbsp;|&nbsp; 基线：V1.4 &nbsp;|&nbsp; 日期：2026-09-18 &nbsp;|&nbsp; 文件：<code>..._基础参数与数据字典_V1.5.xlsx</code>
+  </div>
+
+  <div class="box good">
+    <div class="h">结论</div>
+    <b>已按决策「产品碳足迹先保留」完成补回，且不是补一行标题——而是接入真实参数链。</b>
+    01-基础参数表中原本就存在完整的碳足迹参数（<code>CAR-009 产品碳足迹值</code>、<code>OD-002 订单物料明细（BOM）</code>、<code>OD-003 订单能耗</code>、<code>FAC-009~013 排放因子</code>），
+    其数据说明已分别写明「摇篮到大门阶段的产品碳足迹值」「是产品碳足迹核算的物料输入」「是订单级碳足迹与产品碳足迹核算的输入」，
+    但「关联指标编码」列全部为空——即这些参数一直处于<b>无指标承接的孤立状态</b>。本次把 IND-001 与它们正式挂接，
+    并在 02/03/09 三张表中同步建立定义、变量映射与构成链路。指标总数由 <b>93 → 94</b>，全表零悬挂引用。
+  </div>
+
+  <div class="kpi">
+    <div><div class="n">94</div><div class="t">指标总数（+1）</div></div>
+    <div><div class="n">= 4</div><div class="t">IND-001 接入参数数</div></div>
+    <div><div class="n">257</div><div class="t">09 表构成行（+4）</div></div>
+    <div><div class="n">16/16</div><div class="t">独立核验通过</div></div>
+    <div><div class="n">0</div><div class="t">悬挂引用</div></div>
+  </div>
+
+  <h2>一、为什么说「不只是补回一行」</h2>
+
+  <p>上一版（V2.2）对 IND-001 的结论是「<i>源表未给出可计算的输入参数，须按 GB/T 24067 / ISO 14067 方法另建核算模型，建议单独出具碳足迹核算附表</i>」。
+  这个判断在当时是成立的——那时 01 表里还没有碳数据参数。但经过 V1.0→V1.4 的迭代，碳足迹相关的参数已经补齐，
+  <b>旧结论已经过时</b>。本次按现有参数重建链路：</p>
+
+  <div class="chain">
+    <div class="node">
+      <div class="t1">① 输入项 · 单位指标值</div>
+      <div class="t2">CAR-009 产品碳足迹值</div>
+      <div class="t3">tCO2/台套、tCO2/km 等<br>来源：产品碳足迹系统（SRC-02）<br>系统对接 · 月度</div>
+    </div>
+    <div class="arw">＋</div>
+    <div class="node">
+      <div class="t1">② 核算支撑 · 物料</div>
+      <div class="t2">OD-002 订单物料明细（BOM）</div>
+      <div class="t3">文本 · 订单级<br>来源：ERP / 经营日报管理系统<br>自动采集 · 日更新</div>
+    </div>
+    <div class="arw">＋</div>
+    <div class="node">
+      <div class="t1">② 核算支撑 · 能源</div>
+      <div class="t2">OD-003 订单能耗</div>
+      <div class="t3">文本 · 订单级<br>来源：ERP / 经营日报管理系统<br>自动采集 · 日更新</div>
+    </div>
+    <div class="arw">＋</div>
+    <div class="node">
+      <div class="t1">③ 核算口径 · 因子</div>
+      <div class="t2">FAC-009 电力排放因子</div>
+      <div class="t3">tCO2/MWh · 计算系数<br>来源：基础因子管理（SRC-08）<br>系统维护 · 年度复核</div>
+    </div>
+  </div>
+
+  <p><b>链路性质说明（须向开发讲清）：</b>IND-001 属于「<b>外部核算结果回传型</b>」指标——碳足迹值由产品碳足迹系统按 GB/T 24067 / ISO 14067「摇篮到大门」方法核算后回传，
+  本平台 <b>汇聚并展示</b>该结果，<b>不重复建设核算模型</b>。BOM 与订单能耗是核算的输入来源，排放因子是核算口径，三者用于口径追溯与数据比对，不参与本平台内的公式计算。
+  因此 02 表的公式写作 <code>＝ CAR-009</code>（单参数直接取值），而非一个本平台可展开计算的多参数表达式。</p>
+
+  <h2>二、改了什么（7 项）</h2>
+  <table>
+    <tr>
+      <th class="c" style="width:24px">#</th><th style="width:96px">修订项</th><th class="c" style="width:52px">类型</th>
+      <th style="width:110px">所在表 / 定位</th><th>改动内容</th><th class="c" style="width:76px">规模</th>
+    </tr>
+    <tr>
+      <td class="c">1</td><td>IND-001 补回</td><td class="c">新增行</td>
+      <td>02-指标清单<br>第 2 行</td>
+      <td>补回「产品碳足迹」：行类型「指标｜整体指标」/ 单位「tCO2/台套、tCO2/km 等」/ <b>层级「产品级」</b>（已按三值口径统一，非 V2.2 的「产品」）/ 定义引用 GB/T 24067、ISO 14067 / 公式 <code>＝ CAR-009</code> / 备注含指标来源（应对 CBAM 及绿色招采）、用途、覆盖范围、开发实现要点。</td>
+      <td class="c">+1 行<br>11 格</td>
+    </tr>
+    <tr>
+      <td class="c">2</td><td>变量映射</td><td class="c">新增行</td>
+      <td>03-公式变量映射<br>第 2、3 行</td>
+      <td>变量① <code>CFP</code>（单位指标值，指向 IND-001）；变量② <code>CF</code>（直接输入项，指向 CAR-009）。</td>
+      <td class="c">+2 行<br>24 格</td>
+    </tr>
+    <tr>
+      <td class="c">3</td><td>参数构成明细</td><td class="c">新增行</td>
+      <td>09-指标参数构成明细<br>第 2~5 行</td>
+      <td>4 行分三层：① 输入项 · CAR-009（单位指标值）；② 核算支撑 · OD-002、OD-003；③ 核算口径 · FAC-009。原 253 行正文序号 1~253 重排为 5~257，附录 11 行保持无序号。</td>
+      <td class="c">+4 行 / 76 格<br>+ 序号 257 格</td>
+    </tr>
+    <tr>
+      <td class="c">4</td><td>参数↔指标回填</td><td class="c">改格</td>
+      <td>01-基础参数表<br>CAR-009 / OD-002 / OD-003</td>
+      <td>「关联指标编码」由空填为 <code>IND-001</code>。这三个参数此前无任何指标关联。</td>
+      <td class="c">3 格</td>
+    </tr>
+    <tr>
+      <td class="c">5</td><td>颗粒度校正</td><td class="c">改格</td>
+      <td>01-基础参数表<br>CAR-009 F 列</td>
+      <td>「颗粒度层级」由「工厂级」改为「<b>产品型号</b>」。产品碳足迹值按产品型号/类别计量，标「工厂级」会误导开发按工厂汇总取值。该参数此前无指标关联，改动零外溢。</td>
+      <td class="c">1 格</td>
+    </tr>
+    <tr>
+      <td class="c">6</td><td>数据源备注</td><td class="c">改格</td>
+      <td>05-数据源清单<br>SRC-02</td>
+      <td>备注末尾追加「；支撑指标 IND-001 产品碳足迹、IND-002 开展产品碳足迹分析占比。」（原文未提及 IND-001；追加而不覆盖）。</td>
+      <td class="c">1 格</td>
+    </tr>
+    <tr>
+      <td class="c">7</td><td>空行清理</td><td class="c">删行</td>
+      <td>02-指标清单<br>原第 2 行</td>
+      <td>删除章节名清空后遗留的空行，使 IND-001 归位第 2 行（原先该行为空、IND-002 从第 3 行起）。</td>
+      <td class="c">−1 行</td>
+    </tr>
+  </table>
+
+  <h2>三、独立核验（16 项全通过）</h2>
+  <p>子代理交付后，我按「trust but verify」原则独立复算了一遍——本轮它的自述有两处与磁盘不符（称「未落盘」、「02 表第 2 行有分组标题」），但<b>实际写入结果是对的</b>，下面以磁盘实测为准。</p>
+  <table>
+    <tr><th class="c" style="width:24px">#</th><th style="width:150px">校验项</th><th style="width:250px">校验方法 / 范围</th><th>结果</th><th class="c" style="width:50px">判定</th></tr>
+    <tr><td class="c">1</td><td>01 表编码唯一性</td><td>「参数编码」列去重比对</td><td>310 项 / 310 唯一 / 0 重复</td><td class="ok">通过</td></tr>
+    <tr><td class="c">2</td><td>01 表序号连续性</td><td>校验序号列</td><td>1~310 连续</td><td class="ok">通过</td></tr>
+    <tr><td class="c">3</td><td>01 表列结构</td><td>列数与列名</td><td>27 列（A1:AA311），第 3 批新增 15 列完整</td><td class="ok">通过</td></tr>
+    <tr><td class="c">4</td><td>02 表指标数</td><td>统计 IND-xxx 编码</td><td>94 个（原 93），首 IND-001、末 IND-094</td><td class="ok">通过</td></tr>
+    <tr><td class="c">5</td><td>IND-001 落位与层级</td><td>定位并读字段</td><td>第 2 行；层级「产品级」；行类型「指标｜整体指标」</td><td class="ok">通过</td></tr>
+    <tr><td class="c">6</td><td>公式写法</td><td>检查文本开头字符</td><td><code>＝ CAR-009</code> 使用全角等号，未被识别为公式</td><td class="ok">通过</td></tr>
+    <tr><td class="c">7</td><td>03 表 IND-001 映射</td><td>统计 IND-001 行数</td><td>2 行（CFP 单位指标值 / CF 直接输入项）</td><td class="ok">通过</td></tr>
+    <tr><td class="c">8</td><td>09 表序号连续性</td><td>校验序号列</td><td>1~257 连续（原 1~253）；附录 11 行保持无序号</td><td class="ok">通过</td></tr>
+    <tr><td class="c">9</td><td>09 表指标覆盖</td><td>统计覆盖的 IND 编码</td><td>94 / 94</td><td class="ok">通过</td></tr>
+    <tr><td class="c">10</td><td>09 表 IND-001 构成</td><td>定位构成行</td><td>4 行，分「① 输入项 / ② 核算支撑 / ③ 核算口径」三层</td><td class="ok">通过</td></tr>
+    <tr><td class="c">11</td><td>碳足迹链回填</td><td>核读 CAR-009 / OD-002 / OD-003</td><td>关联指标均为 IND-001；CAR-009 颗粒度为「产品型号」</td><td class="ok">通过</td></tr>
+    <tr><td class="c">12</td><td>全表悬挂引用</td><td>提取编码并在 00/01 表反查</td><td>0（08 表 ORG-01/MD-01 等为枚举组名、10 表 EQ-005~014/EN-026 为改号对照记录，均非悬挂）</td><td class="ok">通过</td></tr>
+    <tr><td class="c">13</td><td>半角等号 / 公式污染</td><td>扫描全表文本开头与 data_type</td><td>半角「=」开头 0 格；公式单元格 0 个（无内容被 Excel 吞掉）</td><td class="ok">通过</td></tr>
+    <tr><td class="c">14</td><td>04 表列边界保护</td><td>核读 dimensions</td><td>A1:N60（14 列）。经编辑器保存后<b>未被重新扩展</b>（V1.4 曾复发一次）</td><td class="ok">通过</td></tr>
+    <tr><td class="c">15</td><td>09 表列边界</td><td>核读 dimensions</td><td>A1:S272（19 列），未新增列</td><td class="ok">通过</td></tr>
+    <tr><td class="c">16</td><td>未越界改动</td><td>对照 V1.4 抽查其余表</td><td>00/04/06/07/08/10 表均未改动</td><td class="ok">通过</td></tr>
+  </table>
+
+  <h2>四、本轮新发现（3 项格式类遗留 + 3 项沿用待确认）</h2>
+
+  <div class="box warn">
+    <div class="h">N-01 · IND-011「水资源消耗量」在 03 表无变量映射 <span class="tag">P2</span></div>
+    02 表已写 <code>＝ EN-021</code>，但 03-公式变量映射里<b>没有 IND-011 的任何行</b>，导致 03 表覆盖 93 个指标、02 表有 94 个，差 1 个。<br>
+    <b>成因</b>：源头即缺失——V2.2 源表的变量映射本身就没有 IND-011 行（原表未给该指标变量符号）。V1.2 体检曾把「03 表↔02 表一致性」判为不通过并记录此点，但第 1、2 批只改了 02 表的引用（EN-026→EN-021），未补 03 表映射行。<br>
+    <b>建议</b>：补 2 行（① 单位指标值 → IND-011；② 直接输入项 → EN-021）。唯一待定项是变量符号（原表未给），可留「—」或由项目组指定——<b>这一步需要你给个说法，我不代为杜撰。</b>
+  </div>
+
+  <div class="box">
+    <div class="h">N-02 · 02 表残留 2 个空行 <span class="tag">P2</span></div>
+    位于第 13 行、第 19 行（分组切换处）。成因：P1-07 要求把 3 个章节名做成「分组标题」行，实际只做了 B 列「指标｜&lt;分组&gt;」的逐行标注，原章节名位置被清空后留下空行。第 2 行那处本次已删除。<br>
+    <b>建议</b>：二选一——① 直接删除这 2 行（分组信息已由 B 列承载，表更紧凑）；② 改写为「分组标题｜产品管控指标」「分组标题｜关键生产工序」保留视觉分隔。
+  </div>
+
+  <div class="box">
+    <div class="h">N-03 · 02 表缺少独立分组标题行（P1-07 未完全实现） <span class="tag">P2</span></div>
+    P1-07 的设计是「章节名进独立行 + 行类型标为分组标题」；实际改为把分组名并入每个指标行的 B 列。功能上可程序化解析，但 3 个原始章节名文字（经营单位及项目公司整体指标 / 产品管控指标 / 关键生产工序）已丢失。<br>
+    <b>建议</b>：若接受 B 列承载分组（推荐，结构更规整），则只需处理 N-02；若需要独立标题行，需插入 3 行并回填原名。
+  </div>
+
+  <h3>沿用上轮的三项待确认（未变）</h3>
+  <ul>
+    <li><b>N-04 · 01 表「来源字段/表」310 条均为占位文本</b>——填的是「待确认（需 &lt;系统&gt; 表结构）」，需提供 ERP / EMS / 经营日报管理系统 / 集控中心录入界面 / 产品碳足迹系统的表结构或接口文档后回填。这是唯一没落到实处的建表字段。</li>
+    <li><b>N-05 · 09 表附录 11 项工序数据缺口</b>——IND-038/043/048/050/052/054/056/058/060/062/064 的「综合能源消费量」与「电力消费量」是两个独立变量，说明该工序还有非电能源品种源表未单列。若只有电力计量，综合能耗按电力折算会<b>系统性偏低</b>。</li>
+    <li><b>N-06 · 三项口径待业务确认</b>——①「二次」产线（SMT 贴片、波峰焊、高温老化）未出现在 06-企业组织结构表，来源按「与变压器板块同类」推断为 ERP；② 工序产值 VAL-KG01~19 填「自动采集」，而产线级产值 VAL-003~012 用「系统对接」；③ 08 表 4 处费用↔实物量映射待复核。</li>
+  </ul>
+
+  <h2>五、文件</h2>
+  <table>
+    <tr><th style="width:270px">文件</th><th>说明</th></tr>
+    <tr><td><code>双中心能碳管控平台_基础参数与数据字典_V1.5.xlsx</code></td><td>修订成果。11 张表 / 310 项参数（27 列）/ 94 个指标 / 09 表 257 行构成明细</td></tr>
+    <tr><td><code>双中心能碳管控平台_数据字典V1.5_修订与核验台账.xlsx</code></td><td>本次修订明细 7 项 + 独立核验 16 项 + 新发现遗留 6 项</td></tr>
+    <tr><td><code>双中心能碳管控平台_数据字典V1.5_修订说明.html</code></td><td>本文件（Ctrl+P → 目标另存为 PDF，A4 版式）</td></tr>
+  </table>
+
+  <div class="foot">
+    双中心能碳管控平台 · 数据字典 V1.5 &nbsp;|&nbsp; 2026-09-18 &nbsp;|&nbsp; 修订范围：IND-001 产品碳足迹补回 &nbsp;|&nbsp; 基线保留：V1.2 / V1.3 / V1.4 / V2.2 均可回溯对照
+  </div>
+
+</div>
+</body>
+</html>

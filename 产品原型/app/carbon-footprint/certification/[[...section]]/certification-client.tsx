@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { StatusBadge, Toolbar, DataTable, KpiCard, Badge } from '@/components/shared/primitives'
+import { StatusBadge, Toolbar, DataTable, KpiCard, Badge, SearchInput } from '@/components/shared/primitives'
 import { Select } from '@/components/shared/select'
 import { Modal } from '@/components/shared/modal'
 import {
@@ -568,7 +568,7 @@ export default function CertificationClient({ tab: initialTab }: { tab?: string 
               return (
                 <div
                   key={a.id}
-                  className="flex flex-col justify-between rounded-xl border border-border bg-panel p-5 transition-all hover:border-primary/50"
+                  className="flex flex-col justify-between rounded-lg border border-border bg-panel p-5 transition-all hover:border-primary/50"
                 >
                   <div>
                     {/* 机构头部 */}
@@ -671,7 +671,7 @@ export default function CertificationClient({ tab: initialTab }: { tab?: string 
       {tab === 'apply' && (
         <div className="space-y-4">
           {/* 流程与状态收敛说明条 */}
-          <div className="flex flex-col gap-2 rounded-xl border border-border bg-secondary/30 p-3 sm:flex-row sm:items-center sm:justify-between text-xs">
+          <div className="flex flex-col gap-2 rounded-lg border border-border bg-secondary/30 p-3 sm:flex-row sm:items-center sm:justify-between text-xs">
             <div className="flex items-center gap-2">
               <span className="flex size-6 items-center justify-center rounded-full bg-primary/20 text-primary">
                 <ShieldCheck className="size-3.5" />
@@ -709,19 +709,16 @@ export default function CertificationClient({ tab: initialTab }: { tab?: string 
                 { value: '证书已上传', label: '证书已上传' },
               ]}
             />
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">搜索编号 / 产品 / 机构</span>
-              <input
-                value={qKw}
-                onChange={(e) => setQKw(e.target.value)}
-                placeholder="关键字检索"
-                className="h-9 w-52 rounded-md border border-border bg-secondary px-3 text-sm text-foreground outline-none focus:border-primary"
-              />
-            </div>
+            <SearchInput
+              label="名称检索"
+              value={qKw}
+              onChange={(e) => setQKw(e.target.value)}
+              placeholder="编号 / 产品 / 机构…"
+            />
             <button
               type="button"
               onClick={() => setAppApplied({ unit: qUnit, status: qStatus, kw: qKw.trim() })}
-              className="inline-flex h-9 items-center gap-1.5 self-end rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90 cursor-pointer shadow-xs"
             >
               <Search className="size-4" /> 查询
             </button>
@@ -733,14 +730,14 @@ export default function CertificationClient({ tab: initialTab }: { tab?: string 
                 setQKw('')
                 setAppApplied({ unit: 'all', status: 'all', kw: '' })
               }}
-              className="inline-flex h-9 items-center gap-1.5 self-end rounded-md border border-border px-3 text-sm text-muted-foreground hover:text-foreground"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
             >
               <RotateCcw className="size-4" /> 重置
             </button>
             <button
               type="button"
               onClick={openWizard}
-              className="ml-auto inline-flex h-9 items-center gap-1.5 self-end rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-95"
+              className="ml-auto inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:opacity-95 cursor-pointer"
             >
               <Plus className="size-4" /> 发起认证申请（向导）
             </button>
@@ -835,7 +832,7 @@ export default function CertificationClient({ tab: initialTab }: { tab?: string 
             />
             <KpiCard label="合作机构" value={String(certAgencies.length)} unit="家" trend="" up />
           </div>
-          <div className="rounded-xl border border-border bg-panel p-4">
+          <div className="rounded-lg border border-border bg-panel p-4">
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">认证结果归档</h3>
@@ -952,7 +949,7 @@ export default function CertificationClient({ tab: initialTab }: { tab?: string 
             </div>
 
             {/* 针对所选事项所需材料清单（明确区分系统自动给出与用户线下提供，标明模板支持） */}
-            <div className="rounded-xl border border-border bg-secondary/20 p-3.5 space-y-3">
+            <div className="rounded-lg border border-border bg-secondary/20 p-3.5 space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-foreground">
                   办理【{activeMatterInModal}】所需材料清单与提供规则
@@ -1016,7 +1013,7 @@ export default function CertificationClient({ tab: initialTab }: { tab?: string 
       <Modal
         open={wizardOpen}
         onClose={() => setWizardOpen(false)}
-        size="lg"
+        size="xl"
         title="发起认证申请 · 向导填报"
         description="分步引导：填报基础数据 ➔ 补充线下自备资料 ➔ 确认系统自动生成材料并提交"
       >
@@ -1060,8 +1057,8 @@ export default function CertificationClient({ tab: initialTab }: { tab?: string 
 
           {/* ===== 步骤 1：填报基础数据 ===== */}
           {wizardStep === 1 && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Select
                   label="申报经营单位"
                   value={wizardDraft.unit}
@@ -1081,37 +1078,39 @@ export default function CertificationClient({ tab: initialTab }: { tab?: string 
                   options={certAgencies.map((a) => ({ value: a.name, label: a.name }))}
                 />
                 <Select
-                  label="办理事项类别（评价/认证）"
+                  label="办理事项类别"
                   value={wizardDraft.type}
                   onChange={(v) => setWizardDraft((d) => ({ ...d, type: v }))}
                   options={CERT_MATTERS.filter((m) => m !== '全部事项').map((t) => ({ value: t, label: t }))}
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">申请对接责任人</span>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="flex items-center gap-2">
+                  <span className="whitespace-nowrap text-sm font-medium text-muted-foreground shrink-0">申请责任人</span>
                   <input
                     value={wizardDraft.contactName}
+                    placeholder="责任人姓名"
                     onChange={(e) => setWizardDraft((d) => ({ ...d, contactName: e.target.value }))}
-                    className="h-9 rounded-md border border-border bg-panel px-3 text-xs text-foreground outline-none focus:border-primary"
+                    className="h-9 flex-1 min-w-0 rounded-lg border border-border bg-panel px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">联系电话</span>
+                <div className="flex items-center gap-2">
+                  <span className="whitespace-nowrap text-sm font-medium text-muted-foreground shrink-0">联系电话</span>
                   <input
                     value={wizardDraft.contactPhone}
+                    placeholder="手机或办公电话"
                     onChange={(e) => setWizardDraft((d) => ({ ...d, contactPhone: e.target.value }))}
-                    className="h-9 rounded-md border border-border bg-panel px-3 text-xs text-foreground outline-none focus:border-primary"
+                    className="h-9 flex-1 min-w-0 rounded-lg border border-border bg-panel px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">预计出证日期</span>
+                <div className="flex items-center gap-2">
+                  <span className="whitespace-nowrap text-sm font-medium text-muted-foreground shrink-0">预计出证日</span>
                   <input
                     type="date"
                     value={wizardDraft.expectedDate}
                     onChange={(e) => setWizardDraft((d) => ({ ...d, expectedDate: e.target.value }))}
-                    className="h-9 rounded-md border border-border bg-panel px-3 text-xs text-foreground outline-none focus:border-primary"
+                    className="h-9 flex-1 min-w-0 rounded-lg border border-border bg-panel px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
               </div>

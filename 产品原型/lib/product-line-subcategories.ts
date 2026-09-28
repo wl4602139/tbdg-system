@@ -373,6 +373,9 @@ export function getSubcategoriesForLine(lineName: string, searchKey = ''): Produ
 }
 
 export function convertSubcategoryToMetric(sub: ProductLineSubcategory, unitName = ''): any {
+  const activeMedia = getSubcategoryActiveMedia(sub)
+  const isCable = !activeMedia.hasSteam && !activeMedia.hasGas && !activeMedia.hasWater
+  const targetUnit = sub.unitSuffix || '万kVA'
   return {
     id: sub.id,
     code: `SEC-LINE-${sub.code}`,
@@ -386,13 +389,17 @@ export function convertSubcategoryToMetric(sub: ProductLineSubcategory, unitName
     status: '常规监测',
     statusType: 'green',
     badge: sub.code,
-    tipText: sub.tipText,
-    formula: sub.formula,
-    formulaDesc: sub.formulaDesc,
-    numeratorName: '产线实际消耗综合能源量',
+    tipText: sub.tipText || (isCable
+      ? `考核统计期内【${sub.name}】每单位合格产成品的综合能源消耗量（折标煤）。线缆生产以电力驱动为主。`
+      : `考核统计期内【${sub.name}】每单位合格产成品的综合能源消耗量（折标煤）。根据资料显示，变压器主要消耗电及器身干燥蒸汽。`),
+    formula: isCable ? 'e = (E_电 × k_电) / M' : 'e = (E_电 × k_电 + E_汽 × k_汽) / M',
+    formulaDesc: isCable
+      ? `月度指标。e: 综合单耗，单位为 ${sub.energyUnit}；E_电: 产线实际消耗电量（万kWh）；M: 子分类产品合格入库产量（${targetUnit}）。`
+      : `月度指标。e: 综合单耗，单位为 ${sub.energyUnit}；E_电: 消耗电量（万kWh）；E_汽: 干燥消耗蒸汽（GJ）；M: 子分类产品合格入库产量（${targetUnit}）。`,
+    numeratorName: isCable ? '产线电力消耗折标煤量' : '产线电与干燥蒸汽消耗折标煤量',
     numeratorVal: `${(parseFloat(sub.energyVal) * 1250).toFixed(1)} tce`,
     denominatorName: '子分类产品入库合格产量',
-    denominatorVal: `1,250 ${sub.unitSuffix}`,
+    denominatorVal: `1,250 ${targetUnit}`,
     dataSource: `${unitName || '生产厂区'} ERP生产批次与产线数字化能源计量系统`,
     rawMeters: [
       {
@@ -402,16 +409,16 @@ export function convertSubcategoryToMetric(sub: ProductLineSubcategory, unitName
         reading: sub.elecVal,
         unit: 'kWh',
         coeff: '0.0001229',
-        tce: (parseFloat(sub.elecVal.replace(',', '')) * 0.0001229).toFixed(3),
+        tce: (parseFloat(sub.elecVal.replace(/,/g, '')) * 0.0001229).toFixed(3),
       },
-      ...(sub.steamVal ? [{
+      ...(activeMedia.hasSteam ? [{
         medium: '蒸汽',
         meterCode: `STM-LINE-${sub.code.slice(-4)}-01`,
-        location: `${sub.lineName}干燥及热力管道分表`,
-        reading: sub.steamVal,
+        location: `${sub.lineName}器身干燥及热力管道分表`,
+        reading: sub.steamVal || '3.85',
         unit: 'GJ',
         coeff: '0.0341',
-        tce: (parseFloat(sub.steamVal) * 0.0341).toFixed(3),
+        tce: ((parseFloat(sub.steamVal || '3.85')) * 0.0341).toFixed(3),
       }] : []),
     ],
     trendHistory: sub.trendHistory,
@@ -443,6 +450,9 @@ export function getSubcategory5Metrics(
   const specEnergyNum = lineSpec?.energy?.val ? parseFloat(lineSpec.energy.val) : 0.328
   const ratio = specEnergyNum > 0 ? subEnergyNum / specEnergyNum : 1
 
+  const activeMedia = getSubcategoryActiveMedia(sub)
+  const isCable = !activeMedia.hasSteam && !activeMedia.hasGas && !activeMedia.hasWater
+
   // 1. 单位产品能耗
   const energyMetric = {
     id: `${sub.id}-energy`,
@@ -457,10 +467,14 @@ export function getSubcategory5Metrics(
     status: '常规监测' as const,
     statusType: 'green' as const,
     badge: sub.code,
-    tipText: sub.tipText || `考核统计期内【${sub.name}】每单位合格产成品的综合能源消耗量（折标煤）。`,
-    formula: sub.formula || 'e = E / M',
-    formulaDesc: sub.formulaDesc || `月度指标。e: 综合单耗，单位为 ${sub.energyUnit}；E: 产线实际消耗综合能源量（tce）；M: 子分类产品合格入库产量（${targetUnit}）。`,
-    numeratorName: '产线实际消耗综合能源量',
+    tipText: sub.tipText || (isCable
+      ? `考核统计期内【${sub.name}】每单位合格产成品的综合能源消耗量（折标煤）。线缆生产以电力驱动为主。`
+      : `考核统计期内【${sub.name}】每单位合格产成品的综合能源消耗量（折标煤）。根据资料显示，变压器主要消耗电及器身干燥蒸汽。`),
+    formula: isCable ? 'e = (E_电 × k_电) / M' : 'e = (E_电 × k_电 + E_汽 × k_汽) / M',
+    formulaDesc: isCable
+      ? `月度指标。e: 综合单耗，单位为 ${sub.energyUnit}；E_电: 产线实际消耗电量（万kWh）；M: 子分类产品合格入库产量（${targetUnit}）。`
+      : `月度指标。e: 综合单耗，单位为 ${sub.energyUnit}；E_电: 消耗电量（万kWh）；E_汽: 干燥消耗蒸汽（GJ）；M: 子分类产品合格入库产量（${targetUnit}）。`,
+    numeratorName: isCable ? '产线电力消耗折标煤量' : '产线电与干燥蒸汽消耗折标煤量',
     numeratorVal: `${(subEnergyNum * 1250).toFixed(1)} tce`,
     denominatorName: '子分类产品入库合格产量',
     denominatorVal: `1,250 ${targetUnit}`,
@@ -475,14 +489,14 @@ export function getSubcategory5Metrics(
         coeff: '0.0001229',
         tce: (parseFloat(sub.elecVal.replace(/,/g, '')) * 0.0001229).toFixed(3),
       },
-      ...(sub.steamVal ? [{
+      ...(activeMedia.hasSteam ? [{
         medium: '蒸汽',
         meterCode: `STM-LINE-${sub.code.slice(-4)}-01`,
-        location: `${sub.lineName}干燥及热力管道分表`,
-        reading: sub.steamVal,
+        location: `${sub.lineName}器身干燥及热力管道分表`,
+        reading: sub.steamVal || '3.85',
         unit: 'GJ',
         coeff: '0.0341',
-        tce: (parseFloat(sub.steamVal) * 0.0341).toFixed(3),
+        tce: ((parseFloat(sub.steamVal || '3.85')) * 0.0341).toFixed(3),
       }] : []),
     ],
     trendHistory: sub.trendHistory || [],
@@ -709,4 +723,243 @@ export function getSubcategory5Metrics(
   }
 
   return [energyMetric, elecMetric, steamMetric, gasMetric, waterMetric]
+}
+
+/**
+ * 🌟 产线子分类介质消耗判定（根据生产工艺与产品类别动态裁定 1~4 项非电介质）
+ * 遵循规则：
+ * 1. 开关柜/控制柜/端子箱/汇控柜等纯电装配产品：仅电力驱动（无蒸汽、无燃气、无水耗）
+ * 2. 裸导线/布电线：电力驱动 + 循环冷却水（无蒸汽、无燃气）
+ * 3. 干式变压器/干式电抗器：电力驱动 + 烘烤燃气/工艺水（无真空蒸汽）
+ * 4. 电力电缆：电力 + 冷却水 + 硫化/交联蒸汽（高压/中压/橡套）
+ * 5. 套管/互感器：电力 + 固化蒸汽 + 工艺冷却水
+ * 6. GIS/GIL：电力 + 烘房燃气/蒸汽 + 工艺水
+ * 7. 高压/特高压油浸变压器：电 + 汽 (气相干燥) + 气 + 水 (全量 4 项介质)
+ */
+export function getSubcategoryActiveMedia(sub: ProductLineSubcategory) {
+  const name = sub.name || ''
+  const line = sub.lineName || ''
+
+  // 1. 线缆产业（线缆、力缆、导线、布电线等）：根据权威资料显示，设备以电力驱动为主，主要消耗能源为【电】
+  if (
+    line.includes('电缆') ||
+    line.includes('力缆') ||
+    name.includes('电缆') ||
+    name.includes('导线') ||
+    name.includes('布电线') ||
+    line.includes('布电线') ||
+    line.includes('导线')
+  ) {
+    return { hasElec: true, hasSteam: false, hasGas: false, hasWater: false }
+  }
+
+  // 2. 变压器产业（高压、超高压、特高压、配电变压器、电抗器等）：根据资料显示，关键能耗为器身干燥工序，主要消耗能源为【电、蒸汽】
+  if (
+    line.includes('变压器') ||
+    line.includes('高压') ||
+    line.includes('超高压') ||
+    line.includes('特高压') ||
+    line.includes('配变') ||
+    name.includes('变压器') ||
+    name.includes('电抗器')
+  ) {
+    return { hasElec: true, hasSteam: true, hasGas: false, hasWater: false }
+  }
+
+  // 3. 开关柜、箱变、二次控制等：纯电力驱动
+  if (
+    line.includes('开关柜') ||
+    name.includes('开关柜') ||
+    name.includes('附控') ||
+    name.includes('控制柜') ||
+    name.includes('端子箱') ||
+    name.includes('汇控柜') ||
+    name.includes('箱变')
+  ) {
+    return { hasElec: true, hasSteam: false, hasGas: false, hasWater: false }
+  }
+
+  // 4. 套管/互感器：电力 + 固化蒸汽
+  if (
+    line.includes('套管') ||
+    line.includes('互感器') ||
+    name.includes('套管') ||
+    name.includes('互感器')
+  ) {
+    return { hasElec: true, hasSteam: true, hasGas: false, hasWater: false }
+  }
+
+  // 5. GIS/GIL
+  if (line.includes('GIS') || line.includes('GIL') || name.includes('GIS') || name.includes('GIL')) {
+    return { hasElec: true, hasSteam: true, hasGas: false, hasWater: false }
+  }
+
+  return { hasElec: true, hasSteam: true, hasGas: false, hasWater: false }
+}
+
+export interface EnergyCompositionSegment {
+  id: string
+  medium: 'elec' | 'steam' | 'gas' | 'water'
+  name: string
+  shortName: string
+  color: string
+  bgClass: string
+  borderClass: string
+  textClass: string
+  iconName: string
+  val: string
+  unit: string
+  tceVal: number
+  ratio: number
+  yoy: string
+  isYoyDown: boolean
+  metricObj: any
+}
+
+export interface SubcategoryEnergyComposition {
+  sub: ProductLineSubcategory
+  targetUnit: string
+  energyMetric: any
+  totalTceVal: number
+  activeCount: number // 1 to 5 (综合能耗 + 1~4个实际介质)
+  segments: EnergyCompositionSegment[]
+  activeMetrics: any[] // 1 to 5 dynamic metrics array
+}
+
+/**
+ * 🌟 计算产线子分类能耗构成色彩带及动态单项介质管控指标
+ * 严格遵循《tbea-industrial-design》8 大能源介质标准色：
+ * - 电耗: #2C7CFF
+ * - 蒸汽: #FFBA00
+ * - 天然气: #FF6536
+ * - 水耗: #10C4CE
+ */
+export function getSubcategoryEnergyComposition(
+  sub: ProductLineSubcategory,
+  lineSpec?: any,
+  unitName = ''
+): SubcategoryEnergyComposition {
+  const all5 = getSubcategory5Metrics(sub, lineSpec, unitName)
+  const [energyMetric, elecMetric, steamMetric, gasMetric, waterMetric] = all5
+  const activeMedia = getSubcategoryActiveMedia(sub)
+  const targetUnit = sub.unitSuffix || lineSpec?.unitSuffix || '万kVA'
+
+  const elecNum = parseFloat(sub.elecVal.replace(/,/g, '')) || 2400
+  const steamValNum = activeMedia.hasSteam ? (parseFloat(steamMetric.curVal) || 0) : 0
+  const gasValNum = activeMedia.hasGas ? (parseFloat(gasMetric.curVal) || 0) : 0
+  const waterValNum = activeMedia.hasWater ? (parseFloat(waterMetric.curVal) || 0) : 0
+
+  const elecTce = elecNum * 0.0001229
+  const steamTce = steamValNum * 0.0341
+  const gasTce = gasValNum * 0.001214
+  const waterTce = waterValNum * 0.0002571
+
+  const totalTce = elecTce + steamTce + gasTce + waterTce || 0.001
+
+  const rawSegments: Omit<EnergyCompositionSegment, 'ratio'>[] = []
+
+  if (activeMedia.hasElec) {
+    rawSegments.push({
+      id: `${sub.id}-elec`,
+      medium: 'elec',
+      name: '单位产品电耗',
+      shortName: '电',
+      color: '#2C7CFF',
+      bgClass: 'bg-[#2C7CFF]',
+      borderClass: 'border-[#2C7CFF]/30',
+      textClass: 'text-[#2C7CFF]',
+      iconName: 'Zap',
+      val: elecMetric.curVal,
+      unit: elecMetric.unit,
+      tceVal: elecTce,
+      yoy: elecMetric.yoy,
+      isYoyDown: elecMetric.isYoyDown,
+      metricObj: elecMetric,
+    })
+  }
+
+  if (activeMedia.hasSteam && steamValNum > 0) {
+    rawSegments.push({
+      id: `${sub.id}-steam`,
+      medium: 'steam',
+      name: '单位产品蒸汽耗',
+      shortName: '蒸汽',
+      color: '#FFBA00',
+      bgClass: 'bg-[#FFBA00]',
+      borderClass: 'border-[#FFBA00]/30',
+      textClass: 'text-[#FFBA00]',
+      iconName: 'Flame',
+      val: steamMetric.curVal,
+      unit: steamMetric.unit,
+      tceVal: steamTce,
+      yoy: steamMetric.yoy,
+      isYoyDown: steamMetric.isYoyDown,
+      metricObj: steamMetric,
+    })
+  }
+
+  if (activeMedia.hasGas && gasValNum > 0) {
+    rawSegments.push({
+      id: `${sub.id}-gas`,
+      medium: 'gas',
+      name: '单位产品天然气耗',
+      shortName: '天然气',
+      color: '#FF6536',
+      bgClass: 'bg-[#FF6536]',
+      borderClass: 'border-[#FF6536]/30',
+      textClass: 'text-[#FF6536]',
+      iconName: 'Flame',
+      val: gasMetric.curVal,
+      unit: gasMetric.unit,
+      tceVal: gasTce,
+      yoy: gasMetric.yoy,
+      isYoyDown: gasMetric.isYoyDown,
+      metricObj: gasMetric,
+    })
+  }
+
+  if (activeMedia.hasWater && waterValNum > 0) {
+    rawSegments.push({
+      id: `${sub.id}-water`,
+      medium: 'water',
+      name: '单位产品水耗',
+      shortName: '水',
+      color: '#10C4CE',
+      bgClass: 'bg-[#10C4CE]',
+      borderClass: 'border-[#10C4CE]/30',
+      textClass: 'text-[#10C4CE]',
+      iconName: 'Droplets',
+      val: waterMetric.curVal,
+      unit: waterMetric.unit,
+      tceVal: waterTce,
+      yoy: waterMetric.yoy,
+      isYoyDown: waterMetric.isYoyDown,
+      metricObj: waterMetric,
+    })
+  }
+
+  // 计算百分比并保证总和为 100.0%
+  let sumRatio = 0
+  const segments: EnergyCompositionSegment[] = rawSegments.map((seg, idx) => {
+    let r = Math.round((seg.tceVal / totalTce) * 1000) / 10
+    if (idx === rawSegments.length - 1) {
+      r = Math.max(0.1, Math.round((100 - sumRatio) * 10) / 10)
+    } else {
+      sumRatio += r
+    }
+    return { ...seg, ratio: r }
+  })
+
+  // 动态有效指标数组：[综合能耗, ...各有效介质]
+  const activeMetrics = [energyMetric, ...segments.map((s) => s.metricObj)]
+
+  return {
+    sub,
+    targetUnit,
+    energyMetric,
+    totalTceVal: parseFloat(totalTce.toFixed(4)),
+    activeCount: activeMetrics.length,
+    segments,
+    activeMetrics,
+  }
 }

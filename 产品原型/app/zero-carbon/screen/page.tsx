@@ -844,7 +844,7 @@ export default function ZeroCarbonScreenPage() {
                 <div className="overflow-x-auto flex-1 min-h-0">
                   <table className="w-full text-left text-[9.5px]">
                     <thead>
-                      <tr className="border-b border-[#0e2a5c] text-slate-400 font-medium">
+                      <tr className={cn("border-b border-[#0e2a5c] text-slate-400 font-medium", is46x9 ? "h-[26px]" : "h-[44px]")}>
                         <th className="py-1">园区名称</th>
                         <th className="py-1">所属单位</th>
                         <th className="py-1 text-right">装机(MW)</th>

@@ -1,317 +1,599 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Database, Cpu, PencilLine, Layers, Plus, Download, X, CheckCircle2, Sparkles } from 'lucide-react'
-import { Panel, PanelTitle, DataTable, StatusBadge, KpiCard, Toolbar } from '@/components/shared/primitives'
+import { Database, Cpu, Layers, Download, X, Search, Factory, FileSpreadsheet, Link2 } from 'lucide-react'
+import { Panel, DataTable, StatusBadge, KpiCard, Toolbar, SearchInput, ExportButton } from '@/components/shared/primitives'
 import { Select } from '@/components/shared/select'
-import { catalogStats, type DataItem } from '@/lib/data-catalog'
-
-/* 数据来源 → 徽章色 */
-function sourceTone(source: string): 'ok' | 'info' | 'warn' | 'muted' {
-  if (source.includes('系统接入')) return 'ok'
-  if (source.includes('大数据') || source.includes('ERP') || source.includes('碳足迹系统')) return 'info'
-  if (source.includes('录入') || source.includes('线下')) return 'warn'
-  return 'muted'
-}
+import {
+  platformBasicDataItems,
+  catalogStats,
+  type PlatformDictionaryItem,
+  type DataItem,
+} from '@/lib/data-catalog'
 
 export function DataCatalogView({
-  items: initialItems,
-  title,
-  desc,
+  items: legacyItems,
+  title = '特变电工能碳数字化双中心 · 全平台基础数据字典',
+  desc = '汇集全平台底层遥测、工况、工单产出、财务费用、供应链物料、CBAM 报关及标准因子，面向数据资产治理与开发联调，不区分分子分母',
   note,
 }: {
-  items: DataItem[]
-  title: string
-  desc: string
+  items?: (PlatformDictionaryItem | DataItem)[]
+  title?: string
+  desc?: string
   note?: string
 }) {
-  const [items, setItems] = useState<DataItem[]>(initialItems)
-  const [kind, setKind] = useState('全部')
-  const [source, setSource] = useState('全部')
-  const [usage, setUsage] = useState('全部')
+  const allItems: PlatformDictionaryItem[] = useMemo(() => {
+    return platformBasicDataItems
+  }, [])
 
-  // 弹窗状态
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [formData, setFormData] = useState<Omit<DataItem, 'id'>>({
-    name: '',
-    kind: '动态数据',
-    unit: 'kWh',
-    object: '园区及工厂',
-    source: '系统接入',
-    usage: '集中监管、能耗分析',
-    freq: '15分钟',
-  })
+  const [search, setSearch] = useState('')
+  const [currentDomain, setCurrentDomain] = useState('全部')
+  const [industryFilter, setIndustryFilter] = useState('全部')
+  const [sourceFilter, setSourceFilter] = useState('全部')
+  const [metricFilter, setMetricFilter] = useState('全部')
 
-  const sourceOptions = useMemo(
-    () => ['全部', ...Array.from(new Set(items.map((i) => i.source)))],
-    [items],
-  )
-  const usageOptions = useMemo(() => {
-    const set = new Set<string>()
-    items.forEach((i) => i.usage.split('、').forEach((u) => set.add(u.trim())))
-    return ['全部', ...Array.from(set)]
-  }, [items])
+  // 详情抽屉模态框
+  const [activeItem, setActiveItem] = useState<PlatformDictionaryItem | null>(null)
 
-  const rows = items.filter(
-    (i) =>
-      (kind === '全部' || i.kind === kind) &&
-      (source === '全部' || i.source === source) &&
-      (usage === '全部' || i.usage.includes(usage)),
-  )
+  // 10 大核心工业业务领域列表
+  const domains = useMemo(() => [
+    '全部',
+    '能源计量与实时物联',
+    '微电网与储能遥测',
+    '重点装备工况遥测',
+    '生产制造与工单产出',
+    '财务经营与能源费用',
+    '碳足迹与实景供应链',
+    'CBAM 欧盟碳关税申报',
+    '节能项目与零碳评估',
+    '计量表计与设备档案',
+    '标准基准与排放因子',
+  ], [])
 
-  const stat = catalogStats(items)
+  // 过滤数据项
+  const filteredRows = useMemo(() => {
+    const q = search.toLowerCase().trim()
+    return allItems.filter((i) => {
+      if (currentDomain !== '全部' && i.domain !== currentDomain) return false
+      if (industryFilter !== '全部' && i.industry !== industryFilter) return false
+      if (sourceFilter !== '全部' && !i.sourceSys.includes(sourceFilter)) return false
+      if (metricFilter === '已入模' && (!i.associatedMetrics || i.associatedMetrics.length === 0)) return false
+      if (metricFilter === '未入模' && (i.associatedMetrics && i.associatedMetrics.length > 0)) return false
 
-  // 提交新增数据项
-  const handleAddItem = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!formData.name.trim()) {
-      alert('请输入数据项名称！')
-      return
-    }
-
-    const newItem: DataItem = {
-      id: items.length + 1,
-      ...formData,
-    }
-
-    setItems([newItem, ...items])
-    setShowAddModal(false)
-    setFormData({
-      name: '',
-      kind: '动态数据',
-      unit: 'kWh',
-      object: '园区及工厂',
-      source: '系统接入',
-      usage: '集中监管、能耗分析',
-      freq: '15分钟',
+      if (q) {
+        const metricsStr = (i.associatedMetrics || []).map(m => m.metricId + ' ' + m.metricName + ' ' + m.role).join(' ')
+        const match =
+          i.name.toLowerCase().includes(q) ||
+          i.key.toLowerCase().includes(q) ||
+          i.definition.toLowerCase().includes(q) ||
+          i.sourceSys.toLowerCase().includes(q) ||
+          i.protocol.toLowerCase().includes(q) ||
+          i.spatialScope.toLowerCase().includes(q) ||
+          i.unit.toLowerCase().includes(q) ||
+          metricsStr.toLowerCase().includes(q)
+        if (!match) return false
+      }
+      return true
     })
-    alert(`✅ 已成功新增数据项【${newItem.name}】并归集入清单！`)
+  }, [allItems, search, currentDomain, industryFilter, sourceFilter, metricFilter])
+
+  // 统计概览
+  const stat = catalogStats(allItems)
+
+  // 导出专业 Excel 工作簿
+  const handleExportExcel = () => {
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Center"/>
+   <Borders/>
+   <Font ss:FontName="宋体" x:CharSet="134" ss:Size="11" ss:Color="#000000"/>
+  </Style>
+  <Style ss:ID="HeaderStyle">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DBE6EE"/>
+   </Borders>
+   <Font ss:FontName="微软雅黑" ss:Size="11" ss:Color="#FFFFFF" ss:Bold="1"/>
+   <Interior ss:Color="#2C7CFF" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="RowStyle">
+   <Alignment ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#F1F5F9"/>
+   </Borders>
+   <Font ss:FontName="微软雅黑" ss:Size="10"/>
+  </Style>
+  <Style ss:ID="CenterStyle">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#F1F5F9"/>
+   </Borders>
+   <Font ss:FontName="微软雅黑" ss:Size="10"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="全平台基础数据字典(108项)">
+  <Table ss:DefaultColumnWidth="90" ss:DefaultRowHeight="24">
+   <Column ss:Width="45"/>
+   <Column ss:Width="160"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="160"/>
+   <Column ss:Width="65"/>
+   <Column ss:Width="80"/>
+   <Column ss:Width="95"/>
+   <Column ss:Width="260"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="140"/>
+   <Column ss:Width="85"/>
+   <Column ss:Width="200"/>
+   <Row ss:Height="28">
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">序号</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">基础数据项中文名称</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">字段英文标识 (Key)</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">业务领域归属</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">关联核算指标</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">工程单位</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">数据类型</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">采集更新时效</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">物理量定义与业务口径</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">数据源系统</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">通信规约协议</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">安装测点/空间层级</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">产业适用性</Data></Cell>
+    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">防错校验规则</Data></Cell>
+   </Row>`
+
+    const escapeXml = (s: any) =>
+      String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;')
+
+    filteredRows.forEach((r) => {
+      const metricsStr = (r.associatedMetrics && r.associatedMetrics.length > 0)
+        ? r.associatedMetrics.map(m => `${m.metricId}(${m.role})`).join('; ')
+        : '-'
+
+      xml += `
+   <Row ss:Height="24">
+    <Cell ss:StyleID="CenterStyle"><Data ss:Type="Number">${r.id}</Data></Cell>
+    <Cell ss:StyleID="RowStyle"><Data ss:Type="String">${escapeXml(r.name)}</Data></Cell>
+    <Cell ss:StyleID="RowStyle"><Data ss:Type="String">${escapeXml(r.key)}</Data></Cell>
+    <Cell ss:StyleID="CenterStyle"><Data ss:Type="String">${escapeXml(r.domain)}</Data></Cell>
+    <Cell ss:StyleID="RowStyle"><Data ss:Type="String">${escapeXml(metricsStr)}</Data></Cell>
+    <Cell ss:StyleID="CenterStyle"><Data ss:Type="String">${escapeXml(r.unit)}</Data></Cell>
+    <Cell ss:StyleID="CenterStyle"><Data ss:Type="String">${escapeXml(r.dataType)}</Data></Cell>
+    <Cell ss:StyleID="CenterStyle"><Data ss:Type="String">${escapeXml(r.freq)}</Data></Cell>
+    <Cell ss:StyleID="RowStyle"><Data ss:Type="String">${escapeXml(r.definition)}</Data></Cell>
+    <Cell ss:StyleID="RowStyle"><Data ss:Type="String">${escapeXml(r.sourceSys)}</Data></Cell>
+    <Cell ss:StyleID="CenterStyle"><Data ss:Type="String">${escapeXml(r.protocol)}</Data></Cell>
+    <Cell ss:StyleID="RowStyle"><Data ss:Type="String">${escapeXml(r.spatialScope)}</Data></Cell>
+    <Cell ss:StyleID="CenterStyle"><Data ss:Type="String">${escapeXml(r.industry)}</Data></Cell>
+    <Cell ss:StyleID="RowStyle"><Data ss:Type="String">${escapeXml(r.validation)}</Data></Cell>
+   </Row>`
+    })
+
+    xml += `
+  </Table>
+ </Worksheet>
+</Workbook>`
+
+    const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `特变电工能碳双中心_全平台基础数据字典_${new Date().toISOString().slice(0, 10)}.xls`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   return (
-    <div className="space-y-5">
-      {/* 顶部 KPI 统计卡片 */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="数据项总数" value={String(stat.total)} unit="项" icon={Layers} />
-        <KpiCard label="动态 / 静态" value={`${stat.dynamic} / ${stat.static}`} unit="项" icon={Database} />
-        <KpiCard label="系统自动接入" value={String(stat.auto)} unit="项" icon={Cpu} />
-        <KpiCard label="录入 / 线下收集" value={String(stat.manual)} unit="项" icon={PencilLine} />
+    <div className="space-y-6">
+      {/* 顶部统计指示条 */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <KpiCard
+          label="全平台数据项总数"
+          value={String(stat.total)}
+          unit="项标准字段"
+          icon={Database}
+        />
+        <KpiCard
+          label="关联核算指标入模"
+          value={String(stat.linked)}
+          unit="项 (56指标引用)"
+          icon={Link2}
+        />
+        <KpiCard
+          label="系统/物联自动采集"
+          value={String(stat.autoAcq)}
+          unit="项 (78.7%)"
+          icon={Cpu}
+        />
+        <KpiCard
+          label="变压器产业专属"
+          value={String(stat.transformer)}
+          unit="项 (万kVA分母)"
+          icon={Factory}
+        />
+        <KpiCard
+          label="电线电缆产业专属"
+          value={String(stat.cable)}
+          unit="项 (万km·mm²分母)"
+          icon={Layers}
+        />
       </div>
 
       <Panel title={title} desc={desc}>
-        <Toolbar>
-          <Select
-            label="数据类型"
-            value={kind}
-            onChange={setKind}
-            options={['全部', '静态数据', '动态数据'].map((k) => ({ label: k, value: k }))}
-          />
-          <Select
-            label="数据来源"
-            value={source}
-            onChange={setSource}
-            options={sourceOptions.map((s) => ({ label: s, value: s }))}
-          />
-          <Select
-            label="用途"
-            value={usage}
-            onChange={setUsage}
-            options={usageOptions.map((u) => ({ label: u, value: u }))}
-          />
-          <div className="ml-auto flex gap-2">
-            <button
-              type="button"
-              onClick={() => alert(`正在导出《${title}》结构化数据清单 (Excel)...`)}
-              className="rounded-lg border border-border bg-panel px-3 py-2 text-xs font-semibold text-foreground hover:border-primary/50 flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
-            >
-              <Download className="size-3.5 text-muted-foreground" />
-              <span>导出清单</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowAddModal(true)}
-              className="rounded-lg bg-primary hover:bg-primary/90 px-3 py-2 text-xs font-semibold text-primary-foreground flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
-            >
-              <Plus className="size-3.5" />
-              <span>+ 新增数据项</span>
-            </button>
+        {/* 工具栏与筛选区 */}
+        <Toolbar className="justify-between">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <SearchInput
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="检索名称 / Key / 定义 / 测点 / 指标(M01)..."
+              className="w-[240px]"
+            />
+            <Select
+              label="适用产业"
+              value={industryFilter}
+              onChange={setIndustryFilter}
+              options={['全部', '通用综合', '变压器产业', '电线电缆产业'].map((k) => ({
+                label: k,
+                value: k,
+              }))}
+            />
+            <Select
+              label="数据源系统"
+              value={sourceFilter}
+              onChange={setSourceFilter}
+              options={['全部', 'SCADA', 'EMS', 'MES', 'ERP', 'SRM', '关口表', '国标'].map((s) => ({
+                label: s,
+                value: s,
+              }))}
+            />
+            <Select
+              label="入模状态"
+              value={metricFilter}
+              onChange={setMetricFilter}
+              options={['全部', '已入模', '未入模'].map((s) => ({
+                label: s,
+                value: s,
+              }))}
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <ExportButton onClick={handleExportExcel} title="导出" />
           </div>
         </Toolbar>
 
+        {/* 10 大业务领域胶囊切换 */}
+        <div className="mb-4 flex flex-wrap gap-1.5 border-b border-border/50 pb-3">
+          {domains.map((dom) => (
+            <button
+              key={dom}
+              type="button"
+              onClick={() => setCurrentDomain(dom)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-all cursor-pointer select-none ${
+                currentDomain === dom
+                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                  : 'bg-accent/40 text-muted-foreground hover:bg-accent hover:text-foreground'
+              }`}
+            >
+              {dom}
+              {dom === '全部' ? ` (${allItems.length})` : ''}
+            </button>
+          ))}
+        </div>
+
+        {/* 高密数据字典表格 (44px 行高) */}
         <DataTable
           columns={[
-            { key: 'id', label: '序号', className: 'font-mono text-muted-foreground' },
             {
-              key: 'kind',
+              key: 'id',
+              label: '序号',
+              className: 'font-mono text-center font-bold text-primary w-12',
+            },
+            {
+              key: 'name',
+              label: '数据项中文名称',
+              className: 'font-bold text-foreground max-w-[170px] whitespace-normal',
+            },
+            {
+              key: 'key',
+              label: '字段英文标识 (Key)',
+              render: (r: PlatformDictionaryItem) => (
+                <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary font-medium">
+                  {r.key}
+                </code>
+              ),
+            },
+            {
+              key: 'domain',
+              label: '业务领域',
+              render: (r: PlatformDictionaryItem) => (
+                <StatusBadge tone="info">{r.domain}</StatusBadge>
+              ),
+            },
+            {
+              key: 'associatedMetrics',
+              label: '关联核算指标 (M01~M56)',
+              render: (r: PlatformDictionaryItem) => {
+                if (!r.associatedMetrics || r.associatedMetrics.length === 0) {
+                  return <span className="text-xs text-muted-foreground/60">-</span>
+                }
+                return (
+                  <div className="flex flex-wrap gap-1 max-w-[200px]">
+                    {r.associatedMetrics.map((m) => (
+                      <span
+                        key={m.metricId + m.role}
+                        className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold ${
+                          m.role === '分子'
+                            ? 'bg-blue-500/15 text-blue-500 border border-blue-500/30'
+                            : 'bg-purple-500/15 text-purple-500 border border-purple-500/30'
+                        }`}
+                        title={`${m.metricId} (${m.role}): ${m.metricName}`}
+                      >
+                        {m.metricId} ({m.role})
+                      </span>
+                    ))}
+                  </div>
+                )
+              },
+            },
+            {
+              key: 'unit',
+              label: '工程单位',
+              className: 'font-mono text-center font-semibold text-[var(--success)]',
+            },
+            {
+              key: 'dataType',
               label: '数据类型',
-              render: (r) => <StatusBadge tone={r.kind === '静态数据' ? 'muted' : 'info'}>{r.kind}</StatusBadge>,
+              className: 'font-mono text-xs text-muted-foreground',
             },
-            { key: 'name', label: '数据项名称', className: 'font-medium text-foreground' },
-            { key: 'unit', label: '单位', className: 'font-mono text-muted-foreground' },
-            { key: 'object', label: '数据对象' },
             {
-              key: 'source',
-              label: '数据来源',
-              render: (r) => <StatusBadge tone={sourceTone(r.source)}>{r.source}</StatusBadge>,
+              key: 'freq',
+              label: '采集时效',
+              className: 'text-xs text-muted-foreground',
             },
-            { key: 'usage', label: '用途', className: 'text-foreground/80' },
-            { key: 'freq', label: '采集频率 / 备注', className: 'max-w-xs whitespace-normal text-xs text-muted-foreground' },
+            {
+              key: 'definition',
+              label: '物理量定义与业务口径',
+              className: 'max-w-[260px] whitespace-normal text-xs text-muted-foreground/90 leading-relaxed',
+            },
+            {
+              key: 'sourceSys',
+              label: '数据源系统',
+              className: 'font-medium text-foreground text-xs',
+            },
+            {
+              key: 'protocol',
+              label: '通信规约',
+              className: 'text-xs text-muted-foreground',
+            },
+            {
+              key: 'spatialScope',
+              label: '安装测点 / 空间层级',
+              className: 'text-xs text-muted-foreground',
+            },
+            {
+              key: 'industry',
+              label: '产业归属',
+              render: (r: PlatformDictionaryItem) => (
+                <StatusBadge
+                  tone={
+                    r.industry === '变压器产业'
+                      ? 'warn'
+                      : r.industry === '电线电缆产业'
+                      ? 'ok'
+                      : 'muted'
+                  }
+                >
+                  {r.industry}
+                </StatusBadge>
+              ),
+            },
+            {
+              key: 'validation',
+              label: '防错与约束规则',
+              className: 'font-mono text-xs text-[var(--warning)] max-w-[170px] whitespace-normal',
+            },
+            {
+              key: 'actions',
+              label: '画像',
+              render: (r: PlatformDictionaryItem) => (
+                <button
+                  type="button"
+                  onClick={() => setActiveItem(r)}
+                  className="rounded border border-border px-2 py-0.5 text-xs text-foreground/80 hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                >
+                  画像
+                </button>
+              ),
+            },
           ]}
-          rows={rows}
+          rows={filteredRows}
+          emptyText="暂无匹配的基础数据字典项"
         />
+
+        {/* 底部备注规范 */}
+        <div className="mt-4 rounded-lg bg-accent/30 p-3 text-xs text-muted-foreground flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-foreground">权威工业设计规范契约：</span>
+            <span>
+              本数据字典面向特变电工数字化平台底层统一建模，反向闭环映射 56 项指标核算分量，严格遵循 44px 高密表格规范与客观中立原则。
+            </span>
+          </div>
+          <div className="font-mono text-xs text-primary font-semibold">
+            共 {filteredRows.length} / {allItems.length} 项
+          </div>
+        </div>
       </Panel>
 
-      {note && (
-        <Panel>
-          <PanelTitle title="数据说明" icon={Database} />
-          <p className="text-sm leading-relaxed text-muted-foreground">{note}</p>
-        </Panel>
-      )}
-
-      {/* 🌟 新增数据项模态弹窗 (Modal) */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl border border-border shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            {/* 弹窗顶栏 */}
-            <div className="p-4 border-b border-border flex items-center justify-between bg-panel">
+      {/* 数据项全息画像抽屉 */}
+      {activeItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+          onClick={() => setActiveItem(null)}
+        >
+          <div
+            className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-2xl space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 顶栏 */}
+            <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2">
                 <div className="size-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
                   <Database className="size-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-extrabold text-foreground">
-                    新增数据采集项
+                  <h3 className="text-base font-bold text-foreground">
+                    【#{activeItem.id}】{activeItem.name}
                   </h3>
-                  <p className="text-[11px] text-muted-foreground font-sans">
-                    统一录入并配置特变电工园区/工厂能碳物联与静态数据测点
-                  </p>
+                  <code className="text-xs text-primary font-mono">{activeItem.key}</code>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setShowAddModal(false)}
-                className="p-1 rounded-lg hover:bg-accent/40 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                onClick={() => setActiveItem(null)}
+                className="rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer"
               >
                 <X className="size-5" />
               </button>
             </div>
 
-            {/* 弹窗表单 */}
-            <form onSubmit={handleAddItem} className="p-5 space-y-3.5 text-xs">
-              <div className="space-y-1">
-                <label className="font-bold text-foreground flex items-center gap-1">
-                  <span>数据项名称</span>
-                  <span className="text-[var(--destructive)]">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="例如：光伏逆变器实时功率 / 2号变压器油温监测"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full p-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-primary font-sans placeholder:text-muted-foreground"
-                  required
-                />
+            {/* 元数据网格 */}
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="rounded-lg border border-border/60 bg-panel p-2.5">
+                <span className="text-muted-foreground">业务领域：</span>
+                <span className="font-semibold text-foreground ml-1">{activeItem.domain}</span>
               </div>
+              <div className="rounded-lg border border-border/60 bg-panel p-2.5">
+                <span className="text-muted-foreground">工程计量单位：</span>
+                <span className="font-mono font-bold text-[var(--success)] ml-1">{activeItem.unit}</span>
+              </div>
+              <div className="rounded-lg border border-border/60 bg-panel p-2.5">
+                <span className="text-muted-foreground">数据类型与精度：</span>
+                <span className="font-mono text-foreground ml-1">{activeItem.dataType}</span>
+              </div>
+              <div className="rounded-lg border border-border/60 bg-panel p-2.5">
+                <span className="text-muted-foreground">采集频率 / 时效：</span>
+                <span className="text-foreground ml-1">{activeItem.freq}</span>
+              </div>
+              <div className="rounded-lg border border-border/60 bg-panel p-2.5">
+                <span className="text-muted-foreground">数据源系统：</span>
+                <span className="text-foreground ml-1">{activeItem.sourceSys}</span>
+              </div>
+              <div className="rounded-lg border border-border/60 bg-panel p-2.5">
+                <span className="text-muted-foreground">通信规约 / 协议：</span>
+                <span className="text-foreground ml-1">{activeItem.protocol}</span>
+              </div>
+              <div className="rounded-lg border border-border/60 bg-panel p-2.5">
+                <span className="text-muted-foreground">安装测点 / 空间：</span>
+                <span className="text-foreground ml-1">{activeItem.spatialScope}</span>
+              </div>
+              <div className="rounded-lg border border-border/60 bg-panel p-2.5">
+                <span className="text-muted-foreground">适用制造产业：</span>
+                <span className="text-foreground ml-1">{activeItem.industry}</span>
+              </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">数据类型</label>
-                  <select
-                    value={formData.kind}
-                    onChange={(e) => setFormData({ ...formData, kind: e.target.value as any })}
-                    className="w-full p-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-primary"
-                  >
-                    <option value="动态数据">动态数据 (时序物联流)</option>
-                    <option value="静态数据">静态数据 (台账/装机容量)</option>
-                  </select>
+            {/* 关联核算指标专属板块 */}
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-primary">📐 关联核算指标 (Associated Metrics)：</span>
+                <span className="text-[11px] text-muted-foreground">
+                  {activeItem.associatedMetrics && activeItem.associatedMetrics.length > 0
+                    ? `共 ${activeItem.associatedMetrics.length} 个指标引用`
+                    : '基础底数 / 未直接入模'}
+                </span>
+              </div>
+              {activeItem.associatedMetrics && activeItem.associatedMetrics.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {activeItem.associatedMetrics.map((m) => (
+                    <div
+                      key={m.metricId + m.role}
+                      className="flex items-center gap-1.5 rounded bg-panel border border-border px-2.5 py-1"
+                    >
+                      <span
+                        className={`rounded px-1 text-[10px] font-bold ${
+                          m.role === '分子'
+                            ? 'bg-blue-500/15 text-blue-500'
+                            : 'bg-purple-500/15 text-purple-500'
+                        }`}
+                      >
+                        {m.metricId} ({m.role})
+                      </span>
+                      <span className="font-medium text-foreground">{m.metricName}</span>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">工程单位</label>
-                  <input
-                    type="text"
-                    placeholder="如: kWh, kW, m³, t, ℃, %"
-                    value={formData.unit}
-                    onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                    className="w-full p-2 bg-background border border-border rounded-lg font-mono text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground"
-                    required
-                  />
+              ) : (
+                <div className="text-muted-foreground">
+                  本数据项属于工厂物联底数或静态档案，暂未作为分子或分母直接参与指标公式计算。
                 </div>
-              </div>
+              )}
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">数据对象</label>
-                  <select
-                    value={formData.object}
-                    onChange={(e) => setFormData({ ...formData, object: e.target.value })}
-                    className="w-full p-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-primary"
-                  >
-                    <option value="园区及工厂">园区及工厂</option>
-                    <option value="变压器产业工厂">变压器产业工厂</option>
-                    <option value="线缆产业工厂">线缆产业工厂</option>
-                    <option value="重点用能设备">重点用能设备</option>
-                    <option value="关键制造工序">关键制造工序</option>
-                  </select>
-                </div>
+            {/* 物理量定义 */}
+            <div className="rounded-lg border border-border/60 bg-panel p-3 text-xs space-y-1">
+              <div className="font-bold text-foreground">物理量定义与业务口径：</div>
+              <div className="text-muted-foreground leading-relaxed">{activeItem.definition}</div>
+            </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">数据来源</label>
-                  <select
-                    value={formData.source}
-                    onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-                    className="w-full p-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-primary"
-                  >
-                    <option value="系统接入">系统接入 (SCADA/IoT)</option>
-                    <option value="系统界面手工录入">系统界面手工录入</option>
-                    <option value="线下收集">线下收集 (台账Excel)</option>
-                    <option value="ERP/MES平台获取">ERP/MES平台获取</option>
-                    <option value="碳足迹系统同步">碳足迹系统同步</option>
-                  </select>
-                </div>
-              </div>
+            {/* 防错与约束规则 */}
+            <div className="rounded-lg border border-[var(--warning)]/30 bg-[var(--warning)]/5 p-3 text-xs space-y-1">
+              <div className="font-bold text-[var(--warning)]">防错与取值范围约束：</div>
+              <div className="font-mono text-foreground/90">{activeItem.validation}</div>
+            </div>
 
-              <div className="space-y-1">
-                <label className="font-bold text-foreground">主要用途</label>
-                <input
-                  type="text"
-                  placeholder="如: 大屏展示、集中监管、能耗分析、碳排核算"
-                  value={formData.usage}
-                  onChange={(e) => setFormData({ ...formData, usage: e.target.value })}
-                  className="w-full p-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-primary font-sans placeholder:text-muted-foreground"
-                  required
-                />
-              </div>
+            {/* DDL 示例 */}
+            <div className="text-xs space-y-1">
+              <div className="font-bold text-muted-foreground">时序数据库 DDL 表结构定义示例：</div>
+              <pre className="rounded-lg bg-black/50 p-3 font-mono text-[11px] text-primary border border-border/60 overflow-x-auto">
+{`CREATE TABLE telemetry_${activeItem.key} (
+  time TIMESTAMPTZ NOT NULL,
+  tag_id VARCHAR(32) NOT NULL,
+  val DOUBLE PRECISION, -- 工程单位: ${activeItem.unit}
+  quality_flag INT DEFAULT 0,
+  PRIMARY KEY (time, tag_id)
+);`}
+              </pre>
+            </div>
 
-              <div className="space-y-1">
-                <label className="font-bold text-foreground">采集频率 / 备注</label>
-                <input
-                  type="text"
-                  placeholder="如: 15分钟 / 实时采集 / 每月更新"
-                  value={formData.freq}
-                  onChange={(e) => setFormData({ ...formData, freq: e.target.value })}
-                  className="w-full p-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-primary font-sans placeholder:text-muted-foreground"
-                />
-              </div>
-
-              {/* 底部操作区 */}
-              <div className="pt-3 border-t border-border flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-lg border border-border text-foreground hover:bg-accent/40 font-bold cursor-pointer transition-colors"
-                >
-                  取消
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-bold cursor-pointer shadow-xs transition-colors flex items-center gap-1"
-                >
-                  <Plus className="size-4" />
-                  <span>确认保存并归集</span>
-                </button>
-              </div>
-            </form>
+            {/* API JSON Schema */}
+            <div className="text-xs space-y-1">
+              <div className="font-bold text-muted-foreground">API 接口字段 Schema 契约：</div>
+              <pre className="rounded-lg bg-black/50 p-3 font-mono text-[11px] text-emerald-400 border border-border/60 overflow-x-auto">
+{JSON.stringify(
+  {
+    field_key: activeItem.key,
+    name_cn: activeItem.name,
+    unit: activeItem.unit,
+    data_type: activeItem.dataType,
+    sampling_freq: activeItem.freq,
+    source_system: activeItem.sourceSys,
+    protocol: activeItem.protocol,
+    validation_rule: activeItem.validation,
+    associated_metrics: activeItem.associatedMetrics || [],
+  },
+  null,
+  2
+)}
+              </pre>
+            </div>
           </div>
         </div>
       )}

@@ -7,6 +7,7 @@ import { Modal } from '@/components/shared/modal'
 import { Select } from '@/components/shared/select'
 import { sysEntries, sysEntryTypes, type SysEntry } from '@/lib/mock-data'
 import { Field, inputCls, ActionBtn } from '@/components/system/ui'
+import { OrgTreeSelect } from '@/components/shared/org-tree-select'
 
 const STATUS_TONE: Record<SysEntry['status'], BadgeTone> = {
   草稿: 'muted',
@@ -21,6 +22,7 @@ export function DataEntrySection() {
   const [applied, setApplied] = useState({ type: 'all', status: 'all' })
   const [addOpen, setAddOpen] = useState(false)
   const [entryType, setEntryType] = useState(sysEntryTypes[0])
+  const [entryOrg, setEntryOrg] = useState('')
 
   const rows = useMemo(
     () =>
@@ -129,7 +131,13 @@ export function DataEntrySection() {
             <Field label="数据类型" required>
               <Select className="w-full [&>div]:w-full" value={entryType} onChange={setEntryType} options={sysEntryTypes.map((t) => ({ label: t, value: t }))} />
             </Field>
-            <Field label="经营单位" required><input className={inputCls} placeholder="如：衡变本部" /></Field>
+            <Field label="经营单位" required hint="在企业结构树中选择">
+              <OrgTreeSelect
+                value={entryOrg}
+                onChange={setEntryOrg}
+                placeholder="请选择经营单位"
+              />
+            </Field>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Field label="数据周期" required><input className={inputCls} placeholder="2026-07" /></Field>

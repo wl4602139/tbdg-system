@@ -41,6 +41,7 @@ import {
 } from 'lucide-react'
 import { ExportButton } from '@/components/shared/primitives'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
+import { SubcategoryCompositionTable } from '@/components/shared/subcategory-composition-table'
 import { LineTrend, SankeyFlow } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
 import { CollapsibleTagBar } from '@/components/shared/collapsible-tag-bar'
@@ -2753,6 +2754,108 @@ export function getMetricDetailTableColumns(metric: MetricDetail): {
     }
   }
 
+  // 11-A. 【产线子分类管控指标】依据工序与产品特性区分介质（变压器干燥根据资料显示：电、蒸汽；线缆：电）
+  const isSubcategory =
+    metric.id?.startsWith('sub-') ||
+    metric.categoryName?.includes('产线子分类') ||
+    metric.code?.startsWith('SEC-SUB-') ||
+    metric.code?.startsWith('SEC-LINE-')
+
+  if (isSubcategory) {
+    const isCable =
+      metric.name.includes('电缆') ||
+      metric.name.includes('力缆') ||
+      metric.name.includes('导线') ||
+      metric.name.includes('布电线') ||
+      metric.categoryName?.includes('电缆') ||
+      metric.categoryName?.includes('力缆') ||
+      metric.categoryName?.includes('导线') ||
+      metric.categoryName?.includes('布电线') ||
+      metric.categoryName?.includes('线缆') ||
+      metric.unit.includes('km')
+
+    const targetUnit = metric.unit.replace(/^tce\//, '') || (isCable ? 'km' : '万kVA')
+
+    if (isCable) {
+      // 线缆：以电力驱动为主，主要消耗能源为【电】
+      return {
+        columns: [
+          {
+            key: 'elec_consumed',
+            label: '消耗电量 Ei_电',
+            unit: '万kWh',
+            headerClass: 'text-[#2C7CFF]',
+            valClass: 'text-[#2C7CFF] font-bold',
+            renderVal: (item, idx, total) => {
+              const denVal = 850 + (idx / Math.max(total - 1, 1)) * 45
+              const totalTce = denVal * item.value
+              const elecWanKwh = totalTce / 1.229 // 1万kWh = 1.229 tce
+              return elecWanKwh >= 1000 ? Math.round(elecWanKwh).toLocaleString() : elecWanKwh.toFixed(1)
+            },
+          },
+          {
+            key: 'm_den',
+            label: '合格产量 M',
+            unit: targetUnit,
+            headerClass: 'text-purple-700',
+            valClass: 'text-purple-700 font-bold',
+            renderVal: (item, idx, total) => {
+              const denVal = 850 + (idx / Math.max(total - 1, 1)) * 45
+              return denVal >= 1000 ? Math.round(denVal).toLocaleString() : denVal.toFixed(1)
+            },
+          },
+        ],
+        resultHeader: `综合能耗 e (${metric.unit})`,
+      }
+    } else {
+      // 变压器：干燥等关键工序主要消耗【电、蒸汽】
+      return {
+        columns: [
+          {
+            key: 'elec_consumed',
+            label: '消耗电量 Ei_电',
+            unit: '万kWh',
+            headerClass: 'text-[#2C7CFF]',
+            valClass: 'text-[#2C7CFF] font-bold',
+            renderVal: (item, idx, total) => {
+              const denVal = 1250 + (idx / Math.max(total - 1, 1)) * 60
+              const totalTce = denVal * item.value
+              const elecTce = totalTce * 0.78 // 电力占 78%
+              const elecWanKwh = elecTce / 1.229
+              return elecWanKwh >= 1000 ? Math.round(elecWanKwh).toLocaleString() : elecWanKwh.toFixed(1)
+            },
+          },
+          {
+            key: 'steam_consumed',
+            label: '消耗蒸汽 Ei_汽',
+            unit: 'GJ',
+            headerClass: 'text-[#FFBA00]',
+            valClass: 'text-[#FFBA00] font-bold',
+            renderVal: (item, idx, total) => {
+              const denVal = 1250 + (idx / Math.max(total - 1, 1)) * 60
+              const totalTce = denVal * item.value
+              const steamTce = totalTce * 0.22 // 干燥蒸汽占 22%
+              const steamGj = steamTce / 0.0341 // 1 GJ 蒸汽 = 0.0341 tce
+              return steamGj >= 1000 ? Math.round(steamGj).toLocaleString() : steamGj.toFixed(1)
+            },
+          },
+          {
+            key: 'm_den',
+            label: '合格产量 M',
+            unit: targetUnit,
+            headerClass: 'text-purple-700',
+            valClass: 'text-purple-700 font-bold',
+            renderVal: (item, idx, total) => {
+              const denVal = 1250 + (idx / Math.max(total - 1, 1)) * 60
+              return denVal >= 1000 ? Math.round(denVal).toLocaleString() : denVal.toFixed(1)
+            },
+          },
+        ],
+        resultHeader: `综合能耗 e (${metric.unit})`,
+      }
+    }
+  }
+
   // 11. 【产品管控】单位产品综合能耗 e = E / M 或 g = E / M
   if (metric.name.includes('单位产品能耗') || metric.name.includes('单位产量能耗')) {
     return {
@@ -5019,120 +5122,16 @@ export default function IndicatorControlPage() {
                 </div>
 
                 {/* 四、产线子分类管控指标 */}
-                <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
-                    <div className="min-w-0 flex items-center gap-2">
-                      <span className="h-3.5 w-1 rounded-full bg-cyan-400 shrink-0" />
-                      <h2 className="text-base font-bold text-foreground shrink-0">
-                        【四、产线子分类管控指标】
-                      </h2>
-                      {currentProductLine && (
-                        <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline">
-                          所属产线: <span className="font-semibold text-foreground">{currentProductLine}</span>
-                          <span className="mx-1.5 text-border">|</span>
-                          产品种类: <span className="font-semibold text-cyan-400 font-mono">{filteredSubcategories.length} 类</span>
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="relative shrink-0">
-                      <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      <input
-                        type="text"
-                        value={lineSearchKey}
-                        onChange={(e) => setLineSearchKey(e.target.value)}
-                        placeholder="搜索产品种类 (如: 1000kV / 直流 / 电抗器)..."
-                        className="pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg focus:outline-none focus:border-cyan-400 font-sans w-64 text-foreground"
-                      />
-                    </div>
-                  </div>
-
-                  {filteredSubcategories.length === 0 ? (
-                    <div className="py-10 flex items-center justify-center text-center text-muted-foreground">
-                      <span className="text-sm font-medium">暂无相关产品种类！</span>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {displayedSubcategories.map((sub, sIdx) => {
-                        const sub5Metrics = getSubcategory5Metrics(sub, currentLineSpec, selectedNode?.name)
-                        return (
-                          <div
-                            key={sub.id}
-                            className={cn('space-y-2.5', sIdx > 0 && 'pt-3.5 border-t border-border/50')}
-                          >
-                            {/* 产品种类标签 */}
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-sans text-xs font-bold shadow-2xs">
-                                  <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                                  {sub.name}
-                                </span>
-                                <span className="text-[11px] text-muted-foreground font-mono">
-                                  ERP编码: {sub.code} · 折算单位: {sub.unitSuffix}
-                                </span>
-                              </div>
-                              <span className="text-[11px] text-muted-foreground font-sans hidden md:inline truncate max-w-md">
-                                {sub.fullDesc}
-                              </span>
-                            </div>
-
-                            {/* 5项管控指标卡片网格 */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 font-mono">
-                              {sub5Metrics.map((pm) => (
-                                <div
-                                  key={pm.id}
-                                  onClick={() => setActiveViewMetric(pm)}
-                                  className="p-3.5 bg-panel hover:bg-cyan-500/10 rounded-xl border border-border hover:border-cyan-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
-                                >
-                                  <div className="flex items-center justify-between font-sans">
-                                    <span className="text-sm font-medium text-foreground truncate" title={pm.name}>
-                                      {pm.name}
-                                    </span>
-                                  </div>
-
-                                  <div className="text-2xl font-bold font-mono text-foreground group-hover:text-cyan-400 transition-colors">
-                                    {pm.curVal}{' '}
-                                    <span className="text-sm font-normal text-muted-foreground font-sans">
-                                      {pm.unit}
-                                    </span>
-                                  </div>
-
-                                  <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
-                                    <span className="text-muted-foreground">同比</span>
-                                    <span className="font-bold text-emerald-400 font-mono">{pm.yoy} ↓</span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )
-                      })}
-
-                      {/* 产品种类超过2个时的展开/收起按钮 */}
-                      {filteredSubcategories.length > 2 && lineSearchKey.trim() === '' && (
-                        <div className="pt-2 flex items-center justify-center border-t border-border/40">
-                          <button
-                            type="button"
-                            onClick={() => setIsSubcategoriesExpanded((prev) => !prev)}
-                            className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-lg bg-panel hover:bg-cyan-500/10 border border-border hover:border-cyan-400/40 text-foreground transition-all cursor-pointer shadow-2xs group"
-                          >
-                            {isSubcategoriesExpanded ? (
-                              <>
-                                <span>收起产品种类</span>
-                                <ChevronUp className="size-3.5 text-muted-foreground group-hover:text-cyan-400 transition-colors" />
-                              </>
-                            ) : (
-                              <>
-                                <span>展开全部产品种类 (共 {filteredSubcategories.length} 类)</span>
-                                <ChevronDown className="size-3.5 text-muted-foreground group-hover:text-cyan-400 transition-colors" />
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+                <SubcategoryCompositionTable
+                  title="【四、产线子分类管控指标】"
+                  currentProductLine={currentProductLine}
+                  subcategories={subcategoriesForCurrentLine}
+                  lineSpec={currentLineSpec}
+                  unitName={selectedNode?.name}
+                  searchKey={lineSearchKey}
+                  onSearchChange={setLineSearchKey}
+                  onSelectMetric={setActiveViewMetric}
+                />
               </div>
             ) : (
               /* 单体公司/车间视角: 呈现工厂 10 大整体指标 + 产品管控指标 + 关键工序管控指标 */
@@ -5248,122 +5247,18 @@ export default function IndicatorControlPage() {
                   </div>
                 </div>
 
-                {/* 三、产线子分类管控指标 (按产品中类垂直展示5大指标) */}
+                {/* 三、产线子分类管控指标 */}
                 {!isCableUnit && (
-                  <div className="bg-card p-6 rounded-lg border border-border shadow-xs space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
-                      <div className="min-w-0 flex items-center gap-2">
-                        <span className="h-3.5 w-1 rounded-full bg-cyan-400 shrink-0" />
-                        <h2 className="text-base font-bold text-foreground shrink-0">
-                          【三、产线子分类管控指标】
-                        </h2>
-                        {currentProductLine && (
-                          <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline">
-                            所属产线: <span className="font-semibold text-foreground">{currentProductLine}</span>
-                            <span className="mx-1.5 text-border">|</span>
-                            产品种类: <span className="font-semibold text-cyan-400 font-mono">{filteredSubcategories.length} 类</span>
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="relative shrink-0">
-                        <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <input
-                          type="text"
-                          value={lineSearchKey}
-                          onChange={(e) => setLineSearchKey(e.target.value)}
-                          placeholder="搜索产品种类 (如: 1000kV / 直流 / 电抗器)..."
-                          className="pl-8 pr-2.5 py-1 text-xs bg-panel border border-border rounded-lg focus:outline-none focus:border-cyan-400 font-sans w-64 text-foreground"
-                        />
-                      </div>
-                    </div>
-
-                    {filteredSubcategories.length === 0 ? (
-                      <div className="py-10 flex items-center justify-center text-center text-muted-foreground">
-                        <span className="text-sm font-medium">暂无相关产品种类！</span>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {displayedSubcategories.map((sub, sIdx) => {
-                          const sub5Metrics = getSubcategory5Metrics(sub, currentLineSpec, selectedNode?.name)
-                          return (
-                            <div
-                              key={sub.id}
-                              className={cn('space-y-2.5', sIdx > 0 && 'pt-3.5 border-t border-border/50')}
-                            >
-                              {/* 产品种类标签 */}
-                              <div className="flex flex-wrap items-center justify-between gap-2">
-                                <div className="flex items-center gap-2">
-                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-sans text-xs font-bold shadow-2xs">
-                                    <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                                    {sub.name}
-                                  </span>
-                                  <span className="text-[11px] text-muted-foreground font-mono">
-                                    ERP编码: {sub.code} · 折算单位: {sub.unitSuffix}
-                                  </span>
-                                </div>
-                                <span className="text-[11px] text-muted-foreground font-sans hidden md:inline truncate max-w-md">
-                                  {sub.fullDesc}
-                                </span>
-                              </div>
-
-                              {/* 5项管控指标卡片网格 */}
-                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 font-mono">
-                                {sub5Metrics.map((pm) => (
-                                  <div
-                                    key={pm.id}
-                                    onClick={() => setActiveViewMetric(pm)}
-                                    className="p-3.5 bg-panel hover:bg-cyan-500/10 rounded-xl border border-border hover:border-cyan-400/40 transition-all cursor-pointer space-y-2 group shadow-2xs"
-                                  >
-                                    <div className="flex items-center justify-between font-sans">
-                                      <span className="text-sm font-medium text-foreground truncate" title={pm.name}>
-                                        {pm.name}
-                                      </span>
-                                    </div>
-
-                                    <div className="text-2xl font-bold font-mono text-foreground group-hover:text-cyan-400 transition-colors">
-                                      {pm.curVal}{' '}
-                                      <span className="text-sm font-normal text-muted-foreground font-sans">
-                                        {pm.unit}
-                                      </span>
-                                    </div>
-
-                                    <div className="pt-2 border-t border-border/60 flex items-center justify-between text-sm font-sans">
-                                      <span className="text-muted-foreground">同比</span>
-                                      <span className="font-bold text-emerald-400 font-mono">{pm.yoy} ↓</span>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )
-                        })}
-
-                        {/* 产品种类超过2个时的展开/收起按钮 */}
-                        {filteredSubcategories.length > 2 && lineSearchKey.trim() === '' && (
-                          <div className="pt-2 flex items-center justify-center border-t border-border/40">
-                            <button
-                              type="button"
-                              onClick={() => setIsSubcategoriesExpanded((prev) => !prev)}
-                              className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-lg bg-panel hover:bg-cyan-500/10 border border-border hover:border-cyan-400/40 text-foreground transition-all cursor-pointer shadow-2xs group"
-                            >
-                              {isSubcategoriesExpanded ? (
-                                <>
-                                  <span>收起产品种类</span>
-                                  <ChevronUp className="size-3.5 text-muted-foreground group-hover:text-cyan-400 transition-colors" />
-                                </>
-                              ) : (
-                                <>
-                                  <span>展开全部产品种类 (共 {filteredSubcategories.length} 类)</span>
-                                  <ChevronDown className="size-3.5 text-muted-foreground group-hover:text-cyan-400 transition-colors" />
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <SubcategoryCompositionTable
+                    title="【三、产线子分类管控指标】"
+                    currentProductLine={currentProductLine}
+                    subcategories={subcategoriesForCurrentLine}
+                    lineSpec={currentLineSpec}
+                    unitName={selectedNode?.name}
+                    searchKey={lineSearchKey}
+                    onSearchChange={setLineSearchKey}
+                    onSelectMetric={setActiveViewMetric}
+                  />
                 )}
 
                                 {/* 四、关键制造工序能效对标指标 (4卡片/行) */}

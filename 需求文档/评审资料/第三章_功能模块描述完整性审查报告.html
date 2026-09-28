@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>第三章 功能模块描述完整性审查报告</title>
+<style>
+@page{size:A4;margin:16mm 14mm 14mm 14mm}
+*{box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC","Source Han Sans SC",sans-serif;font-size:10.5pt;line-height:1.7;color:#1a1a1a;margin:0;padding:0;background:#fff}
+.wrap{max-width:820px;margin:0 auto;padding:24px 20px 40px}
+h1{font-size:19pt;font-weight:700;margin:0 0 6px;letter-spacing:.5px;color:#12263f;line-height:1.35}
+h2{font-size:13pt;font-weight:700;margin:26px 0 10px;padding-left:10px;border-left:4px solid #185fa5;color:#0c447c}
+h3{font-size:11.5pt;font-weight:700;margin:18px 0 8px;color:#12263f}
+p{margin:6px 0}
+.meta{font-size:9.5pt;color:#5f5e5a;border-bottom:2px solid #12263f;padding-bottom:10px;margin-bottom:4px}
+.meta span{display:inline-block;margin-right:18px}
+table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:9.5pt}
+th{background:#f1efe8;border:0.5px solid #b4b2a9;padding:6px 8px;text-align:left;font-weight:700;color:#2c2c2a;vertical-align:middle}
+td{border:0.5px solid #d3d1c7;padding:6px 8px;vertical-align:top}
+tbody tr:nth-child(even){background:#fafaf8}
+.c{text-align:center}
+.ok{color:#3b6d11;font-weight:700}
+.no{color:#a32d2d;font-weight:700}
+.warn{color:#854f0b;font-weight:700}
+.tag{display:inline-block;font-size:8.5pt;font-weight:700;padding:1px 6px;border-radius:3px;line-height:1.5;white-space:nowrap}
+.p1{background:#fcebeb;color:#a32d2d;border:0.5px solid #f09595}
+.p2{background:#faeeda;color:#854f0b;border:0.5px solid #ef9f27}
+.p3{background:#e6f1fb;color:#185fa5;border:0.5px solid #85b7eb}
+.pass{background:#eaf3de;color:#3b6d11;border:0.5px solid #97c459}
+.verdict{background:#f1efe8;border:1px solid #b4b2a9;border-radius:6px;padding:14px 18px;margin:14px 0}
+.verdict .big{font-size:15pt;font-weight:700;color:#12263f;margin:0 0 4px}
+.verdict .sub{font-size:10pt;color:#444441;margin:0}
+.grid{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.card{flex:1 1 150px;background:#f7f7f5;border:0.5px solid #d3d1c7;border-radius:6px;padding:10px 12px}
+.card .k{font-size:9pt;color:#5f5e5a;margin:0 0 4px}
+.card .v{font-size:14pt;font-weight:700;color:#12263f;margin:0;line-height:1.3}
+.card .v small{font-size:9pt;font-weight:400;color:#5f5e5a}
+ul{margin:6px 0 6px 0;padding-left:20px}
+li{margin:3px 0}
+code{font-family:Consolas,"Courier New",monospace;font-size:9pt;background:#f1efe8;padding:1px 4px;border-radius:3px;color:#712b13}
+.note{font-size:9pt;color:#5f5e5a;margin:4px 0 0}
+.quote{font-family:Consolas,monospace;font-size:8.5pt;background:#fcebeb;border-left:3px solid #e24b4a;padding:6px 10px;margin:6px 0;color:#501313;word-break:break-all}
+.fix{background:#eaf3de;border-left:3px solid #639922;padding:6px 10px;margin:6px 0;font-size:9.5pt;color:#173404}
+.pb{page-break-before:always}
+.avoid{page-break-inside:avoid}
+.sig{margin-top:34px;border-top:0.5px solid #b4b2a9;padding-top:10px;font-size:9pt;color:#5f5e5a;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>第三章《产品碳足迹集采中心功能需求规格》<br>功能模块描述信息完整性审查报告</h1>
+<div class="meta">
+  <span><b>审查对象：</b>特变电工能碳数字化双中心_产品需求规格说明书_PRD_v14.docx</span>
+  <span><b>受控号/版本：</b>TBEA-PRD-MASTER / V1.4.0</span><br>
+  <span><b>审查范围：</b>第三章 6 大板块 · 16 个功能模块 · 128 个模板段落</span>
+  <span><b>审查日期：</b>2026-09-27</span>
+</div>
+
+<h2>一、总体结论</h2>
+
+<div class="verdict">
+  <p class="big">综合评级：B —— 骨架完整、细节待补，可进入评审但需带条件通过</p>
+  <p class="sub">第三章 16 个模块 <b>128/128 个模板段落全部齐备，零空壳段、零占位符</b>，结构完整度在全文各章中最高；但存在 <b>4 项 P1 级要素缺失</b>（必须闭环后方可通过评审）与 <b>8 项 P2 级体例/深度不齐</b>。</p>
+</div>
+
+<div class="grid">
+  <div class="card"><p class="k">模板段落齐备度</p><p class="v">128 / 128 <small>100%</small></p></div>
+  <div class="card"><p class="k">定位五要素齐备模块</p><p class="v">12 / 16 <small>75%</small></p></div>
+  <div class="card"><p class="k">可执行用例模块</p><p class="v">13 / 16 <small>81%</small></p></div>
+  <div class="card"><p class="k">字段字典规模</p><p class="v">168 <small>个字段</small></p></div>
+  <div class="card"><p class="k">Gherkin 场景</p><p class="v">54 <small>个 Scenario</small></p></div>
+  <div class="card"><p class="k">业务错误码</p><p class="v">27 <small>个</small></p></div>
+</div>
+
+<h3>三维评价</h3>
+<table>
+  <thead><tr><th style="width:22%">评价维度</th><th style="width:12%" class="c">评级</th><th>判定依据</th></tr></thead>
+  <tbody>
+    <tr><td><b>结构完备度</b></td><td class="c"><span class="tag pass">A</span></td><td>6 板块 × 16 模块 = 128 个段落全部落位，八段式模板 100% 执行；无一段为空、无一段仅写"无"，对比第二章「自定义指标监测」八段全空的空壳情况，第三章质量明显更高。</td></tr>
+    <tr><td><b>要素完备度</b></td><td class="c"><span class="tag p2">B</span></td><td>12/16 个模块的「定位与架构角色」完整含功能定位、承载角色、页面路由、上游依赖、下游输出五要素；13/16 个模块的 Gherkin 用例带 <code>Feature:</code> 声明可被自动化框架采集。</td></tr>
+    <tr><td><b>深度与体例一致性</b></td><td class="c"><span class="tag p2">C+</span></td><td>「功能规格」段最长 1813 字、最短 213 字（相差 8.5 倍）；「展示对标口径」段平均仅 181 字为全章最薄；4 个因子库模块残留 140 处 LaTeX 源码；电力/能源活动因子与第四章重复定义。</td></tr>
+  </tbody>
+</table>
+
+<h2>二、模块段落完备度总览矩阵</h2>
+<p>16 个模块 × 八段式模板，全部 <span class="ok">✓</span>&nbsp;。下表同时给出各段实际字数与字段规模，用于横向比较内容厚度。</p>
+
+<table class="avoid">
+  <thead><tr>
+    <th style="width:5%" class="c">序</th><th style="width:19%">模块</th>
+    <th class="c">①定位</th><th class="c">②场景</th><th class="c">③功能规格</th><th class="c">④字段字典</th>
+    <th class="c">⑤数学模型</th><th class="c">⑥对标口径</th><th class="c">⑦边界防错</th><th class="c">⑧Gherkin</th>
+    <th class="c" style="width:8%">字段数</th><th class="c" style="width:7%">场景数</th>
+  </tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td>碳足迹总览驾驶舱</td><td class="c ok">✓ 240</td><td class="c ok">✓ 182</td><td class="c ok">✓ 526</td><td class="c ok">✓ 351</td><td class="c ok">✓ 367</td><td class="c warn">✓ 162</td><td class="c ok">✓ 201</td><td class="c ok">✓ 487</td><td class="c">8</td><td class="c">3</td></tr>
+    <tr><td class="c">2</td><td>横向对比</td><td class="c ok">✓ 175</td><td class="c ok">✓ 169</td><td class="c ok">✓ 444</td><td class="c ok">✓ 354</td><td class="c ok">✓ 340</td><td class="c warn">✓ 146</td><td class="c ok">✓ 154</td><td class="c ok">✓ 441</td><td class="c">10</td><td class="c">3</td></tr>
+    <tr><td class="c">3</td><td>纵向对比</td><td class="c ok">✓ 173</td><td class="c ok">✓ 154</td><td class="c ok">✓ 383</td><td class="c ok">✓ 305</td><td class="c ok">✓ 379</td><td class="c warn">✓ 149</td><td class="c ok">✓ 136</td><td class="c ok">✓ 473</td><td class="c">9</td><td class="c">3</td></tr>
+    <tr><td class="c">4</td><td>实景数据库</td><td class="c ok">✓ 231</td><td class="c ok">✓ 171</td><td class="c ok">✓ 233</td><td class="c ok">✓ 429</td><td class="c ok">✓ 358</td><td class="c ok">✓ 218</td><td class="c ok">✓ 203</td><td class="c ok">✓ 322</td><td class="c">12</td><td class="c">2</td></tr>
+    <tr><td class="c">5</td><td><b>碳足迹核算</b></td><td class="c ok">✓ 227</td><td class="c ok">✓ 177</td><td class="c ok">✓ 1813</td><td class="c ok">✓ 444</td><td class="c ok">✓ 755</td><td class="c ok">✓ 158</td><td class="c ok">✓ 354</td><td class="c ok">✓ 932</td><td class="c">12</td><td class="c">5</td></tr>
+    <tr><td class="c">6</td><td>碳足迹报告</td><td class="c ok">✓ 207</td><td class="c ok">✓ 156</td><td class="c ok">✓ 209</td><td class="c ok">✓ 331</td><td class="c ok">✓ 354</td><td class="c warn">✓ 121</td><td class="c ok">✓ 156</td><td class="c ok">✓ 457</td><td class="c">10</td><td class="c">3</td></tr>
+    <tr><td class="c">7</td><td>合规管理</td><td class="c ok">✓ 207</td><td class="c ok">✓ 167</td><td class="c ok">✓ 430</td><td class="c ok">✓ 318</td><td class="c ok">✓ 326</td><td class="c warn">✓ 128</td><td class="c ok">✓ 114</td><td class="c ok">✓ 497</td><td class="c">9</td><td class="c">3</td></tr>
+    <tr><td class="c">8</td><td>申报模拟</td><td class="c ok">✓ 232</td><td class="c ok">✓ 175</td><td class="c ok">✓ 542</td><td class="c ok">✓ 443</td><td class="c ok">✓ 558</td><td class="c ok">✓ 162</td><td class="c ok">✓ 273</td><td class="c ok">✓ 688</td><td class="c">11</td><td class="c">4</td></tr>
+    <tr><td class="c">9</td><td>知识库</td><td class="c ok">✓ 181</td><td class="c ok">✓ 149</td><td class="c ok">✓ 238</td><td class="c ok">✓ 279</td><td class="c ok">✓ 273</td><td class="c no">✓ 101</td><td class="c ok">✓ 116</td><td class="c ok">✓ 469</td><td class="c">10</td><td class="c">3</td></tr>
+    <tr><td class="c">10</td><td>认证资料维护</td><td class="c ok">✓ 298</td><td class="c ok">✓ 238</td><td class="c ok">✓ 559</td><td class="c ok">✓ 467</td><td class="c ok">✓ 456</td><td class="c ok">✓ 211</td><td class="c ok">✓ 307</td><td class="c no">✓ 无Feature</td><td class="c">11</td><td class="c">5</td></tr>
+    <tr><td class="c">11</td><td>认证申请</td><td class="c ok">✓ 264</td><td class="c ok">✓ 197</td><td class="c ok">✓ 496</td><td class="c ok">✓ 577</td><td class="c ok">✓ 388</td><td class="c ok">✓ 192</td><td class="c ok">✓ 271</td><td class="c no">✓ 无Feature</td><td class="c">13</td><td class="c">5</td></tr>
+    <tr><td class="c">12</td><td>认证结果管理</td><td class="c ok">✓ 274</td><td class="c ok">✓ 214</td><td class="c ok">✓ 492</td><td class="c ok">✓ 495</td><td class="c ok">✓ 570</td><td class="c ok">✓ 226</td><td class="c ok">✓ 284</td><td class="c no">✓ 无Feature</td><td class="c">13</td><td class="c">5</td></tr>
+    <tr><td class="c">13</td><td>原材料碳排因子</td><td class="c no">✗ 130</td><td class="c ok">✓ 305</td><td class="c ok">✓ 454</td><td class="c ok">✓ 584</td><td class="c ok">✓ 670</td><td class="c ok">✓ 322</td><td class="c ok">✓ 491</td><td class="c ok">✓ 1087</td><td class="c">12</td><td class="c">4</td></tr>
+    <tr><td class="c">14</td><td>电力碳排因子</td><td class="c no">✗ 178</td><td class="c ok">✓ 337</td><td class="c ok">✓ 465</td><td class="c ok">✓ 509</td><td class="c ok">✓ 788</td><td class="c ok">✓ 195</td><td class="c ok">✓ 311</td><td class="c ok">✓ 480</td><td class="c">10</td><td class="c">2</td></tr>
+    <tr><td class="c">15</td><td>能源活动碳排因子</td><td class="c no">✗ 179</td><td class="c ok">✓ 297</td><td class="c ok">✓ 577</td><td class="c ok">✓ 481</td><td class="c ok">✓ 756</td><td class="c ok">✓ 210</td><td class="c ok">✓ 257</td><td class="c ok">✓ 434</td><td class="c">10</td><td class="c">2</td></tr>
+    <tr><td class="c">16</td><td>折标煤系数库</td><td class="c no">✗ 195</td><td class="c ok">✓ 309</td><td class="c ok">✓ 598</td><td class="c ok">✓ 376</td><td class="c ok">✓ 580</td><td class="c ok">✓ 158</td><td class="c ok">✓ 251</td><td class="c ok">✓ 517</td><td class="c">8</td><td class="c">2</td></tr>
+  </tbody>
+</table>
+<p class="note">✓ 后数字为该段实际字数（含表格文本）。✗ 表示该段虽存在但要素残缺（详见 P1-1）。红字 101 / 无 Feature 表示低于全章质量下限或缺失必要声明。</p>
+
+<h2 class="pb">三、P1 级问题（评审通过前必须闭环）</h2>
+
+<h3><span class="tag p1">P1-1</span> 因子库管理 4 个模块「定位与架构角色」要素残缺</h3>
+<table>
+  <thead><tr><th style="width:22%">模块</th><th style="width:44%">缺失要素</th><th>实际仅有的内容</th></tr></thead>
+  <tbody>
+    <tr><td>原材料碳排因子</td><td>承载角色、页面路由、上游依赖、下游输出（<b>缺 4 项</b>）</td><td>仅一段「功能定位」</td></tr>
+    <tr><td>电力碳排因子</td><td>页面路由、上游依赖、下游输出（缺 3 项）</td><td>功能定位 + 承载角色</td></tr>
+    <tr><td>能源活动碳排因子</td><td>页面路由、上游依赖、下游输出（缺 3 项）</td><td>功能定位 + 承载角色</td></tr>
+    <tr><td>折标煤系数库</td><td>页面路由、上游依赖、下游输出（缺 3 项）</td><td>功能定位 + 承载角色</td></tr>
+  </tbody>
+</table>
+<p><b>影响：</b>① 全章其余 12 个模块均有形如 <code>/carbon-footprint/...</code> 的路由，这 4 个模块无路由，前端无法确定页面归属与菜单挂载点；②「上游依赖 / 下游输出」缺失导致架构链断裂，无法纳入第五章 API 契约与菜单树；③ 第四章同名模块（能碳基础因子管理）中同样没有路由，两处均缺口，将直接阻塞前端排期。</p>
+<div class="fix"><b>整改建议：</b>按同章体例补齐五要素，建议路由统一为 <code>/carbon-footprint/factor/material</code>、<code>/factor/power</code>、<code>/factor/energy</code>、<code>/factor/coal-standard</code>；上游依赖补「因子库版本服务 / 生态环境部年度因子公告 / 燃气化验单」等，下游输出补「LCA 核算引擎因子输入 / 折标煤能耗报表」。</div>
+
+<h3><span class="tag p1">P1-2</span> 三个认证模块的 Gherkin 用例缺 <code>Feature:</code> 声明行</h3>
+<p>全章 54 个 Scenario，但只有 13 个 <code>Feature:</code> 声明（对应 16 个模块），缺声明的是：</p>
+<ul>
+  <li><b>认证资料维护</b> &mdash; 5 个 Scenario 直接以 <code>Scenario: 必传资料缺失禁止锁定</code> 开头</li>
+  <li><b>认证申请</b> &mdash; 5 个 Scenario 直接以 <code>Scenario: 机构资质过期不可选择</code> 开头</li>
+  <li><b>认证结果管理</b> &mdash; 5 个 Scenario 直接以 <code>Scenario: 证书到期分级预警</code> 开头</li>
+</ul>
+<p><b>影响：</b>Gherkin 语法要求 Feature 为 Scenario 的必需父节点，缺声明时 Cucumber / Behave 等框架无法解析，15 个用例将变成不可执行用例；第十二章《全系统验收基线》若按"自动采集用例通过率"判定，这 3 个模块会被记为零覆盖。</p>
+<div class="fix"><b>整改建议：</b>分别补 <code>Feature: 认证资料包组装与锁定治理</code>、<code>Feature: 第三方认证申请与排期协同</code>、<code>Feature: 认证结果存证与数字碳标签授权</code>。</div>
+
+<h3><span class="tag p1">P1-3</span> 章首导言 4 处交叉引用中 3 处失效</h3>
+<p>第三章导言原文：</p>
+<div class="quote">「本章的功能权限矩阵可参见附录E（P4 LCA工程师 / P5 报关专家 / P6 外部审计机构），北极星指标（NSM）详见附录F，验收用例放在第十一章Gherkin准则部分；LCA / CBAM相关的错误码可查阅第五章"标准化错误码字典"。」</div>
+<table>
+  <thead><tr><th style="width:29%">引用</th><th style="width:13%" class="c">校验</th><th>实际情况（按本文档 12 章 + 附录 A~E 的实际编号）</th></tr></thead>
+  <tbody>
+    <tr><td>附录E（角色权限矩阵）</td><td class="c ok">✓ 正确</td><td>附录 E 确为「角色与权限矩阵」</td></tr>
+    <tr><td><b>第五章「标准化错误码字典」</b></td><td class="c no">✗ 失效</td><td>「标准化错误码字典与异常分级」实为<b>第六章《工程治理、状态机与合规保障体系》</b>下的二级条目；第五章是《系统底座、接口契约与 QA 质量验收》</td></tr>
+    <tr><td><b>附录F（北极星指标 NSM）</b></td><td class="c no">✗ 失效</td><td>本文档附录仅 A ~ E 五份（A 法规映射表 / B 反模式清单 / C 企业组织树 / D 园区组织树 / E 角色权限矩阵），<b>不存在附录 F</b>；NSM 在本章仅于「单位产值能耗」模块正文中被提及，无指标定义落点</td></tr>
+    <tr><td><b>第十一章「Gherkin 准则」</b></td><td class="c no">✗ 失效</td><td>验收基线实际位于<b>第十二章《测试与验收基线》</b>；第十一章是《外部系统集成与数据采集点表》。且 Gherkin 用例本身就在各模块八段式第 8 段，并非独立章节</td></tr>
+  </tbody>
+</table>
+<p class="note">说明：本章另 2 处引用「第十章」——申报模拟的「第十章《CBAM 数据出境安全合规前置方案》」与认证模块的「见第十章」——经核均<b>正确</b>（第 10 章《安全与合规需求》下确有该二级条目）。</p>
+<div class="fix"><b>整改建议：</b>①「第五章」改为「第六章《工程治理、状态机与合规保障体系》」；②「第十一章」改为「第十二章《测试与验收基线》」；③「附录F」二选一——补写附录 F（NSM 指标定义表）或删除该引用。全文另 1 处「附录 F」出现在第二章「用能报表」模块，建议同步排查。</div>
+
+<h3><span class="tag p1">P1-4</span> 模块数量口径与验收基线不一致</h3>
+<p>第十二章《全系统验收基线》的「模块完整率」行写：</p>
+<div class="quote">模块完整率 | 第二章 22 个 + 第三章 13 个模块 100% 覆盖 | 模块清单比对</div>
+<p>而第三章目录实际列出 <b>16 个</b>模块：对外示范窗口 1 + 多维分析 2 + 实景数据库与碳足迹核算 3 + CBAM 管理 3 + 第三方认证管理 3 + 因子库管理 4 = <b>16</b>。</p>
+<p><b>影响：</b>验收比对基准错误。按 "13 个" 建立核对清单将无法覆盖因子库管理的 4 个模块中的 3 个，或导致评审现场出现"清单对不上"的争议；反之若以 16 个为准，则 13 这个数字来源不明。</p>
+<div class="fix"><b>整改建议：</b>第十二章验收基线改为「第二章 22 个 + 第三章 16 个模块 100% 覆盖」，并在基线中附模块清单表以固定口径。</div>
+
+<h2 class="pb">四、P2 级问题（建议本轮修订一并闭环）</h2>
+
+<h3><span class="tag p2">P2-5</span> 第⑥段「展示、对标与判定口径」为全章最薄段</h3>
+<p>平均 181 字，最短仅 101 字（知识库），最长 322 字（原材料碳排因子）。16 个模块全部采用「XX口径：」三段式罗列，普遍缺少<b>判定阈值表</b>与<b>对标基准来源声明</b>。对比第二章「指标管控」模块的对标口径（含三线对标基准来源与阈值），第三章第⑥段的深度明显倒挂。</p>
+<div class="fix"><b>建议：</b>对外展示类模块（驾驶舱、横向/纵向对比）补"基准值来源与更新责任角色"；核算类模块补"容差阈值表 + 超差处置"。</div>
+
+<h3><span class="tag p2">P2-6</span> 第⑤段「核心数学模型」深度分层，7 个模块只有公式行</h3>
+<p>7 个模块（碳足迹总览驾驶舱、横向对比、纵向对比、实景数据库、碳足迹报告、合规管理、知识库）的第⑤段只有"公式行 + 一句变量说明"，无取值示例、无精度/容差声明、无示例复算；另 9 个模块（碳足迹核算 8 条公式 + 6 条 BR 规则、原材料碳排因子 4 条公式 + DQR 分级、电力碳排因子 3 条公式 + 负碳兜底、能源活动碳排因子 4 条公式带取值示例、折标煤 3 条公式带分支兜底、申报模拟、认证三模块）则明显更完整。</p>
+<div class="fix"><b>建议：</b>统一为「公式 + 变量定义 + 取值示例（带数值代入）+ 精度与容差」四件套。可直接以「碳足迹核算」模块为对齐标杆。</div>
+
+<h3><span class="tag p2">P2-7</span> 边界规则与验收用例覆盖不齐（9 条规则无用例）</h3>
+<p>全章共抛出 <b>27 个</b>业务错误码，对应 54 个 Scenario，但覆盖并不均：</p>
+<ul>
+  <li><b>有规则无错误码：</b>横向对比、纵向对比、合规管理、知识库 4 个模块的边界段只有文字规则，未挂任何错误码</li>
+  <li><b>有错误码无用例：</b>电力碳排因子的 <code>E_CALC_GREEN_OFFSET_OVERFLOW</code>、能源活动碳排因子的 <code>E_VAL_NCV_OUT_OF_PHYSICAL_RANGE</code> 与 <code>E_VAL_OF_RATE_INVALID</code>、折标煤系数库的 <code>E_VAL_ENERGY_USAGE_NEGATIVE</code>，以及原材料碳排因子的 <code>E_FACTOR_VERSION_CONFLICT</code>、<code>E_AUTH_RBAC_FORBIDDEN</code> 等</li>
+  <li><b>用例密度偏低：</b>电力碳排因子、能源活动碳排因子、折标煤系数库仅 2 个 Scenario，但三者的边界规则各有 3 条</li>
+</ul>
+<div class="fix"><b>建议：</b>按"每个业务错误码 ≥ 1 条 Gherkin Scenario"建立对应关系，并在第五章《标准化错误码字典》中回填"对应验收用例编号"列，形成可勾稽的闭环。</div>
+
+<h3><span class="tag p2">P2-8</span> 数据权限（RLS）条款整体缺位</h3>
+<p>第三章全文 0 次提及 <b>RLS</b>，仅 2 次提及"权限"；16 个模块只声明了"承载角色"（功能权限），未声明<b>数据权限（组织范围隔离）</b>。第五章已定义六级组织架构与穿透鉴权（RLS）体系，但第三章未做落地映射。</p>
+<p>涉外模块尤其需要：对外示范窗口（脱敏白名单仅声明了字段级，未声明数据域级）、申报模拟（数据出境）、认证结果管理（对外公示授权范围）。</p>
+<div class="fix"><b>建议：</b>在「功能规格与交互契约」段末尾统一增补"数据权限"要素：可查看组织范围、跨单位均值是否包含项目公司、对外访问对象的可见字段白名单。</div>
+
+<h3><span class="tag p2">P2-9</span> 与第四章重复定义（电力 / 能源活动碳排因子）</h3>
+<p>电力碳排因子、能源活动碳排因子在<b>第三章「因子库管理」</b>（详版八段式，含公式、错误码、用例）与<b>第四章「能碳基础因子管理」</b>（简版，字段字典仅列字段名、数据类型/单位/校验全空，核心数学模型写"无"，口径/边界/用例三节皆空）中各出现一次，且第三章未做职责边界声明。</p>
+<p><b>影响：</b>开发可能双写同一份主数据；两处字段口径不一致（第三章单位锁定 <code>kgCO2e/kWh</code>，第四章未定义单位）。</p>
+<div class="fix"><b>建议：</b>二选一——① 第三章声明为"因子主数据与核算口径的权威源"，第四章改为入口链接不重复建表；② 第四章保留仅作系统管理员维护页，第三章的"因子库管理"改名为"因子核算应用口径"。无论哪种，须在文档中显式写明边界。</div>
+
+<h3><span class="tag p2">P2-10</span> 状态机未成表（2 处）</h3>
+<p>碳足迹核算（6 态状态转移表 + 6 条 BR 规则表 + 接口降级表）与合规管理（CBAM 申报状态机）已成型，但：</p>
+<ul>
+  <li><b>原材料碳排因子</b>：功能规格提到"因子版本演化与一键回滚状态机"，正文只有文字流程，无状态转移表；</li>
+  <li><b>认证资料维护</b>：字段字典出现「草稿 / 待锁定校验 / 已锁定 / 已解锁留痕」四态枚举，但无"当前状态 × 可触发动作 × 触发角色 × 审计写入"表格。</li>
+</ul>
+<div class="fix"><b>建议：</b>补两张状态转移表，并纳入第六章《关键业务长流程状态机图谱》统一编号。</div>
+
+<h3><span class="tag p2">P2-11</span> LaTeX 源码残留 140 处，且<b>全部集中在第三章</b></h3>
+<p>文档级统计：全文共 140 处 LaTeX 源码片段（<code>\text{</code> 93 次、<code>\times</code> 15 次、<code>\frac{</code> 10 次、<code>\sum</code> 9 次、<code>\le</code> 7 次、<code>\Delta</code> 4 次、<code>\eta</code> 2 次），<b>100% 位于第三章</b>，集中在因子库管理 4 个模块（原材料 / 电力 / 能源活动 / 折标煤）的第⑤段。在 Word 与 PDF 中会原样显示为源码。</p>
+<div class="quote">EF_{\text{mat}} = \sum_{k=1}^{m} \left( \frac{W_k}{\sum_{j=1}^{m} W_j} \times EF_k \right) \quad (\text{多供应商混料加权综合因子})</div>
+<p>同章其余 12 个模块使用纯文本符号（<code>Σ</code>、<code>×</code>、<code>≤</code>），两套体例并存。</p>
+<div class="fix"><b>建议：</b>统一改为 Unicode 数学符号（Σ / × / ≤ / Δ / η），或统一插入 Word 公式对象（OMML）后嵌入。二者择一，不要混用。</div>
+
+<h3><span class="tag p2">P2-12</span> 板块级导言缺失，两组模块职责易混</h3>
+<p>6 个一级板块（对外示范窗口、多维分析、实景数据库与碳足迹核算、CBAM 管理、第三方认证管理、因子库管理）均无板块定位与边界说明，直接进入模块正文。其中「实景数据库与碳足迹核算」与「因子库管理」两组模块职责高度相近（前者管本土实测因子，后者管行业/公用因子），缺板块导言时，评审与开发难以判断「某物料因子究竟应在实景数据库还是因子库维护」。</p>
+<div class="fix"><b>建议：</b>为 6 个板块各补 3~5 行板块导言（板块定位 / 覆盖模块 / 与相邻板块的边界），优先补「实景数据库与碳足迹核算」与「因子库管理」两块。</div>
+
+<h2 class="pb">五、可对齐的标杆与正面结论</h2>
+<p>审查中确认第三章存在若干明显强于全文平均水平的模块，建议作为修订时的对齐基准：</p>
+<table>
+  <thead><tr><th style="width:24%">标杆模块</th><th>值得对齐的做法</th></tr></thead>
+  <tbody>
+    <tr><td><b>碳足迹核算</b></td><td>全章唯一做到"六态状态转移表 + 6 条 BR 规则表（规则/触发时机/错误码三列）+ 接口降级策略表 + 5 个 Scenario"的模块，功能规格段 1813 字。建议其他 15 个模块按其结构补齐状态机与规则表。</td></tr>
+    <tr><td><b>认证资料维护 / 认证申请 / 认证结果管理</b></td><td>字段字典最完整（11 / 13 / 13 个字段），且第⑤段公式直接对接业务准入判定（如 <code>Lock_Allowed</code>、<code>Label_Allowed</code>），口径与字段形成闭环。仅缺 <code>Feature:</code> 声明行（见 P1-2）。</td></tr>
+    <tr><td><b>原材料碳排因子</b></td><td>Gherkin 用例最厚（4 个 Scenario、1087 字），覆盖"新增初始化 / 引用防删 / 版本回滚 / 除零防御"四类主流程。建议其"引用锁定防删"与"版本回滚留痕"机制横向推广到电力、能源活动、折标煤三个因子模块。</td></tr>
+    <tr><td><b>折标煤系数库</b></td><td>国标常量只读锁定（<code>E_SYS_GB_STD_IMMUTABLE</code>）+ 除零软兜底（<code>E_CALC_UNIT_DIV_ZERO_SOFT</code>）两条防错设计，工程可落地性强。</td></tr>
+  </tbody>
+</table>
+
+<h3>结论回顾</h3>
+<ul>
+  <li><b>是否完整？</b>—— 结构上完整（128/128 段，无空壳段），但要素与体例上不完整。</li>
+  <li><b>能否通过评审？</b>—— <b>可带条件通过</b>：P1-1 ~ P1-4 四项须在评审前闭环（预计为文档内要素补齐，不涉及方案性变更）。</li>
+  <li><b>优先级排序</b>：P1-2（3 处补 Feature 行，改动最小、收益最直接）→ P1-1（4 处补要素）→ P1-4（1 处改数字）→ P1-3（3 处改引用，其中「附录 F」需先决策是补写附录还是删除引用）→ P2-11（140 处 LaTeX 体例统一，工作量最大）。</li>
+</ul>
+
+<div class="sig">
+  <span>审查方法：结构层（Heading 树解析，2457 节点）+ 内容层（全文逐段通读）+ 量化层（脚本统计段落字数 / 字段数 / 用例数 / 错误码 / LaTeX 残留）</span>
+  <span>报告生成：2026-09-27</span>
+</div>
+
+</div>
+</body>
+</html>

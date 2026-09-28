@@ -18,6 +18,8 @@ import {
   Zap,
   Flame,
   Layers,
+  DollarSign,
+  Droplets,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { OrgSection } from '@/components/system/sections/org-section'
@@ -25,6 +27,7 @@ import { UserSection } from '@/components/system/sections/user-section'
 import { RoleSection } from '@/components/system/sections/role-section'
 import { MenuSection } from '@/components/system/sections/menu-section'
 import { FactorSection } from '@/components/system/sections/factor-section'
+import { PriceSection } from '@/components/system/sections/price-section'
 import { LogSection } from '@/components/system/sections/log-section'
 
 type Leaf = { id: string; title: string; icon: LucideIcon }
@@ -53,6 +56,7 @@ const MENU: Group[] = [
       { id: 'factor-coal', title: '折标煤系数库', icon: Layers },
     ],
   },
+  { id: 'price', title: '费价模型', icon: DollarSign },
   { id: 'log', title: '日志管理', icon: ScrollText },
 ]
 
@@ -65,6 +69,11 @@ const CRUMB: Record<string, { group: string; page: string }> = {
   'factor-power': { group: '能碳基础因子管理', page: '电力碳排因子' },
   'factor-energy': { group: '能碳基础因子管理', page: '能源活动碳排因子' },
   'factor-coal': { group: '能碳基础因子管理', page: '折标煤系数库' },
+  'price-power': { group: '系统管理', page: '费价模型' },
+  'price-gas': { group: '系统管理', page: '费价模型' },
+  'price-steam': { group: '系统管理', page: '费价模型' },
+  'price-dispatch': { group: '系统管理', page: '费价模型' },
+  price: { group: '系统管理', page: '费价模型' },
   log: { group: '系统管理', page: '日志管理' },
 }
 
@@ -73,52 +82,58 @@ function resolveBack(from: string | null): { href: string; label: string } {
   const target = from && from.startsWith('/') ? from : '/'
   if (target.startsWith('/zero-carbon')) return { href: target, label: '返回零碳园区集控中心' }
   if (target.startsWith('/carbon-footprint')) return { href: target, label: '返回产品碳足迹集采中心' }
-  if (target.startsWith('/docs')) return { href: target, label: '返回需求文档' }
   return { href: target, label: '返回业务总览' }
 }
 
 export function SystemView() {
-  const [active, setActive] = useState('org')
-  const [expanded, setExpanded] = useState<string[]>(['access'])
   const searchParams = useSearchParams()
+  const sectionParam = searchParams.get('section') || searchParams.get('tab')
+  const initialActive = sectionParam ? (sectionParam.startsWith('price') || sectionParam === 'tariff' ? 'price' : sectionParam) : 'org'
+  const [active, setActive] = useState(initialActive)
+  const [expanded, setExpanded] = useState<string[]>(() => {
+    const list = ['access']
+    if (initialActive.startsWith('factor')) list.push('factor')
+    return list
+  })
   const back = resolveBack(searchParams.get('from'))
 
   function toggle(id: string) {
     setExpanded((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
   }
 
-  const crumb = CRUMB[active]
+  const crumb = CRUMB[active] || { group: '系统管理', page: '费价模型' }
 
   return (
     <div className="tech-grid flex min-h-screen bg-background">
       <div className="tech-radial pointer-events-none fixed inset-0" />
 
-      {/* 左侧功能目录树 */}
-      <aside className="sticky top-0 z-20 flex h-screen w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar backdrop-blur-md">
+      {/* 左侧功能目录树 (260px 固定宽) */}
+      <aside className="sticky top-0 z-20 flex h-screen w-[260px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar backdrop-blur-md">
         {/* 模块标识 */}
-        <div className="flex items-center gap-2.5 border-b border-sidebar-border px-4 py-4">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-primary/40 bg-primary/15 text-primary">
+        <div className="flex items-center gap-3 border-b border-sidebar-border px-4 py-4 shrink-0">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-primary/40 bg-primary/15 text-primary shadow-xs">
             <ShieldCheck className="size-5" />
           </div>
-          <div className="leading-tight">
-            <p className="text-sm font-semibold text-foreground">系统管理</p>
-            <p className="text-[11px] text-muted-foreground">两大平台共性配置</p>
+          <div className="leading-tight overflow-hidden">
+            <p className="text-[15px] font-bold text-foreground tracking-wide truncate">系统管理</p>
+            <p className="text-[11px] text-muted-foreground truncate">两大平台共性配置</p>
           </div>
         </div>
 
         {/* 返回业务系统 */}
-        <div className="px-3 py-3">
+        <div className="px-3 py-3 shrink-0">
           <Link
             href={back.href}
-            className="flex items-center justify-center gap-2 rounded-lg border border-border bg-panel px-3 py-2 text-sm text-foreground transition-colors hover:border-primary/50 hover:text-primary"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3.5 py-2 text-sm font-medium text-foreground transition-all hover:bg-white/10 active:bg-white/15 shadow-xs cursor-pointer select-none"
+            title={back.label}
           >
-            <ArrowLeft className="size-4" />
-            {back.label}
+            <ArrowLeft className="size-4 shrink-0" />
+            <span className="truncate">{back.label}</span>
           </Link>
         </div>
 
         {/* 目录树 */}
-        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+        <nav className="flex-1 overflow-y-auto px-3 pb-4 space-y-1">
           <ul className="flex flex-col gap-1">
             {MENU.map((item) => {
               if (!item.children) {
@@ -129,12 +144,14 @@ export function SystemView() {
                       type="button"
                       onClick={() => setActive(item.id)}
                       className={cn(
-                        'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors',
-                        isActive ? 'bg-primary/15 text-primary' : 'text-sidebar-foreground hover:bg-accent/50 hover:text-foreground',
+                        'flex w-full items-center gap-2.5 rounded-lg px-3 h-[36px] text-sm font-medium transition-all group my-0.5 cursor-pointer text-left',
+                        isActive
+                          ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                          : 'text-sidebar-foreground hover:bg-accent/50 hover:text-foreground',
                       )}
                     >
                       <item.icon className="size-4 shrink-0" />
-                      <span className="flex-1 text-left">{item.title}</span>
+                      <span className="flex-1 truncate">{item.title}</span>
                     </button>
                   </li>
                 )
@@ -147,16 +164,25 @@ export function SystemView() {
                     type="button"
                     onClick={() => toggle(item.id)}
                     className={cn(
-                      'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors',
-                      groupActive ? 'text-primary' : 'text-sidebar-foreground hover:bg-accent/50 hover:text-foreground',
+                      'flex w-full items-center justify-between rounded-lg px-3 h-[36px] text-sm font-medium transition-all group my-0.5 cursor-pointer text-left',
+                      groupActive
+                        ? 'bg-primary/20 text-primary font-bold'
+                        : 'text-sidebar-foreground hover:bg-accent/50 hover:text-foreground',
                     )}
                   >
-                    <item.icon className="size-4 shrink-0" />
-                    <span className="flex-1 text-left font-medium">{item.title}</span>
-                    <ChevronDown className={cn('size-4 text-muted-foreground transition-transform', !isOpen && '-rotate-90')} />
+                    <div className="flex items-center gap-2.5 overflow-hidden">
+                      <item.icon className="size-4 shrink-0" />
+                      <span className="flex-1 font-medium truncate">{item.title}</span>
+                    </div>
+                    <ChevronDown
+                      className={cn(
+                        'size-3.5 text-muted-foreground transition-transform duration-200 shrink-0',
+                        !isOpen && '-rotate-90',
+                      )}
+                    />
                   </button>
                   {isOpen && (
-                    <ul className="ml-6 mt-1 flex flex-col gap-0.5 border-l border-border pl-3">
+                    <ul className="ml-4 pl-2.5 border-l border-sidebar-border space-y-0.5 py-1">
                       {item.children.map((c) => {
                         const childActive = active === c.id
                         return (
@@ -165,12 +191,14 @@ export function SystemView() {
                               type="button"
                               onClick={() => setActive(c.id)}
                               className={cn(
-                                'flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] transition-colors',
-                                childActive ? 'bg-primary/10 font-medium text-primary' : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground',
+                                'flex w-full items-center gap-2 rounded-md px-2.5 h-[32px] text-xs transition-colors cursor-pointer text-left',
+                                childActive
+                                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                                  : 'text-muted-foreground hover:bg-accent/40 hover:text-foreground',
                               )}
                             >
-                              <c.icon className="size-3.5 shrink-0" />
-                              {c.title}
+                              <c.icon className="size-3.5 shrink-0 opacity-80" />
+                              <span className="truncate">{c.title}</span>
                             </button>
                           </li>
                         )
@@ -184,29 +212,35 @@ export function SystemView() {
         </nav>
 
         {/* 底部账户 */}
-        <div className="flex items-center gap-2 border-t border-sidebar-border px-4 py-3">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary/15 text-sm font-semibold text-primary">A</div>
-          <div className="leading-tight">
-            <p className="text-sm font-medium text-foreground">Admin</p>
-            <p className="text-[11px] text-muted-foreground">集团管理员</p>
+        <div className="flex items-center gap-2.5 border-t border-sidebar-border px-4 py-3 shrink-0">
+          <div className="flex size-8 items-center justify-center rounded-lg bg-primary/15 text-sm font-bold text-primary shadow-xs shrink-0">
+            A
+          </div>
+          <div className="leading-tight overflow-hidden">
+            <p className="text-sm font-semibold text-foreground truncate">Admin</p>
+            <p className="text-[11px] text-muted-foreground truncate">集团管理员</p>
           </div>
         </div>
       </aside>
 
       {/* 主区域 */}
-      <div className="relative flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-background/80 px-6 py-3 backdrop-blur-md">
+      <div className="relative flex min-w-0 flex-1 flex-col h-screen overflow-y-auto">
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-background/80 px-6 py-3.5 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-2 text-sm">
             <ShieldCheck className="size-4 text-primary" />
             <span className="text-muted-foreground">系统管理</span>
             <ChevronRight className="size-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">{crumb.group}</span>
-            <ChevronRight className="size-3.5 text-muted-foreground" />
-            <span className="font-medium text-foreground">{crumb.page}</span>
+            {crumb.group && crumb.group !== '系统管理' && (
+              <>
+                <span className="text-muted-foreground">{crumb.group}</span>
+                <ChevronRight className="size-3.5 text-muted-foreground" />
+              </>
+            )}
+            <span className="font-semibold text-foreground">{crumb.page}</span>
           </div>
         </header>
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 space-y-6">
           {active === 'org' && <OrgSection />}
           {active === 'user' && <UserSection />}
           {active === 'role' && <RoleSection />}
@@ -214,6 +248,7 @@ export function SystemView() {
           {active === 'factor-power' && <FactorSection sub="power" />}
           {active === 'factor-energy' && <FactorSection sub="energy" />}
           {active === 'factor-coal' && <FactorSection sub="coal" />}
+          {(active === 'price' || active.startsWith('price')) && <PriceSection defaultTab="power" />}
           {active === 'log' && <LogSection />}
         </main>
       </div>

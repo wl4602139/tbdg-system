@@ -559,7 +559,7 @@ export default function UsageMonitoringPage() {
         donutData: [
           { name: '硅钢退火炉', value: Math.round(aggregatedMetrics.gas * 0.520), color: '#fa8c16', ratio: '52.0%' },
           { name: '绝缘干燥烘房', value: Math.round(aggregatedMetrics.gas * 0.265), color: '#f5222d', ratio: '26.5%' },
-          { name: '采暖与生活锅炉', value: Math.round(aggregatedMetrics.gas * 0.142), color: '#1677ff', ratio: '14.2%' },
+          { name: '采暖与生活锅炉', value: Math.round(aggregatedMetrics.gas * 0.142), color: '#2C7CFF', ratio: '14.2%' },
           { name: '辅助公用系统', value: Math.round(aggregatedMetrics.gas * 0.073), color: '#10b981', ratio: '7.3%' },
         ],
         trendData: [
@@ -632,7 +632,7 @@ export default function UsageMonitoringPage() {
   // 综合能耗介质构成饼图数据
   const energyDonutData = useMemo(() => {
     return [
-      { name: '市网电力', value: Number(((aggregatedMetrics.gridElec * 0.1229) / 1000).toFixed(1)), color: '#1677ff' },
+      { name: '市网电力', value: Number(((aggregatedMetrics.gridElec * 0.1229) / 1000).toFixed(1)), color: '#2C7CFF' },
       { name: '直供绿电', value: Number(((aggregatedMetrics.solarElec * 0.1229) / 1000).toFixed(1)), color: '#10b981' },
       { name: '天然气', value: Number(((aggregatedMetrics.gas * 1.2143) / 1000).toFixed(1)), color: '#fa8c16' },
       { name: '外购蒸汽', value: Number((aggregatedMetrics.steam * 0.1286).toFixed(1)), color: '#a855f7' },
@@ -1269,13 +1269,13 @@ export default function UsageMonitoringPage() {
           )
         )}
 
-        {/* 7. 底部数据明细：按日更新明细台账表格 (支持导出) */}
+        {/* 7. 底部数据明细：明细台账表格 (支持导出) */}
         <div className="bg-card rounded-lg border border-border shadow-xs overflow-hidden">
           <div className="p-4 border-b border-border/60 flex flex-wrap items-center justify-between bg-panel/60 gap-3">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="size-2 rounded-full bg-[#2C7CFF]" />
               <h3 className="text-base font-bold text-foreground">
-                8 大能源介质{timeDim === 'day' ? '按日连续更新' : '月度汇总'}明细台账
+                明细台账
               </h3>
             </div>
 

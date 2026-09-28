@@ -20,7 +20,6 @@ import {
   Layers,
   BarChart3,
   Percent,
-  CheckCircle2,
   FileSpreadsheet,
   Info,
 } from 'lucide-react'
@@ -399,15 +398,15 @@ export default function EnergyStructureAnalysisPage() {
     const total = gridElecTce + greenElecTce + gasTce + steamTce + oilTce + nitrogenTce
 
     const items = [
-      { name: '市网供电', value: Number(gridElecTce.toFixed(1)), color: '#3b82f6', ratio: Number(((gridElecTce / total) * 100).toFixed(1)) },
-      { name: '直供绿电', value: Number(greenElecTce.toFixed(1)), color: '#10b981', ratio: Number(((greenElecTce / total) * 100).toFixed(1)) },
-      { name: '天然气', value: Number(gasTce.toFixed(1)), color: '#f59e0b', ratio: Number(((gasTce / total) * 100).toFixed(1)) },
-      { name: '外购蒸汽', value: Number(steamTce.toFixed(1)), color: '#8b5cf6', ratio: Number(((steamTce / total) * 100).toFixed(1)) },
-      { name: '用油消耗', value: Number(oilTce.toFixed(1)), color: '#f43f5e', ratio: Number(((oilTce / total) * 100).toFixed(1)) },
+      { name: '市网供电', value: Number(gridElecTce.toFixed(1)), color: '#41C0FF', ratio: Number(((gridElecTce / total) * 100).toFixed(1)) },
+      { name: '直供绿电', value: Number(greenElecTce.toFixed(1)), color: '#00D492', ratio: Number(((greenElecTce / total) * 100).toFixed(1)) },
+      { name: '天然气', value: Number(gasTce.toFixed(1)), color: '#FF6536', ratio: Number(((gasTce / total) * 100).toFixed(1)) },
+      { name: '外购蒸汽', value: Number(steamTce.toFixed(1)), color: '#FFBA00', ratio: Number(((steamTce / total) * 100).toFixed(1)) },
+      { name: '用油消耗', value: Number(oilTce.toFixed(1)), color: '#8E73ED', ratio: Number(((oilTce / total) * 100).toFixed(1)) },
     ]
 
     if (nitrogenTce > 0) {
-      items.push({ name: '液氮消耗', value: Number(nitrogenTce.toFixed(1)), color: '#06b6d4', ratio: Number(((nitrogenTce / total) * 100).toFixed(1)) })
+      items.push({ name: '液氮消耗', value: Number(nitrogenTce.toFixed(1)), color: '#4F39F6', ratio: Number(((nitrogenTce / total) * 100).toFixed(1)) })
     }
 
     return items
@@ -461,19 +460,7 @@ export default function EnergyStructureAnalysisPage() {
             <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <PieChartIcon className="size-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-foreground">用能结构分析</h1>
-                <span
-                  className={cn(
-                    'px-2 py-0.5 rounded text-[11px] font-bold font-sans border',
-                    isGroupLevel ? 'bg-primary/20 text-primary border-primary/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                  )}
-                >
-                  {isGroupLevel ? '集团管控视角 (全集团 6 大单位)' : `${activeData.name} 经营视角`}
-                </span>
-              </div>
-            </div>
+            <h1 className="text-base font-bold text-foreground">用能结构分析</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
@@ -579,12 +566,6 @@ export default function EnergyStructureAnalysisPage() {
               <Building2 className="size-3.5 text-primary" />
               <span>综合能源消耗与各类型能源构成</span>
             </span>
-            {isGroupLevel && (
-              <span className="text-[11px] text-primary font-sans font-medium flex items-center gap-1">
-                <CheckCircle2 className="size-3" />
-                当前选中分析项: <strong>{METRICS_META[selectedMetricKey].name}</strong>
-              </span>
-            )}
           </div>
 
           {/* 8 大能源介质卡片网格 (2行4列 + 综合能耗核心首卡) */}
@@ -828,7 +809,7 @@ export default function EnergyStructureAnalysisPage() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-foreground flex items-center gap-1.5">
                     <PieChartIcon className="size-3.5 text-primary" />
-                    6 家直属经营单位比重饼图 (份额 %)
+                    经营单位比重饼图 (份额 %)
                   </span>
                   <span className="text-[11px] text-muted-foreground font-mono">
                     总量: {metricCompanyBreakdown.totalVal.toLocaleString()} {metricCompanyBreakdown.unit}
@@ -850,7 +831,7 @@ export default function EnergyStructureAnalysisPage() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-foreground flex items-center gap-1.5">
                     <BarChart3 className="size-3.5 text-emerald-400" />
-                    6 家直属经营单位消耗数值横向对比 ({metricCompanyBreakdown.unit})
+                    经营单位消耗数值横向对比 ({metricCompanyBreakdown.unit})
                   </span>
                   <span className="text-[11px] text-muted-foreground font-mono">柱状图对比</span>
                 </div>
@@ -1076,14 +1057,14 @@ export default function EnergyStructureAnalysisPage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-400" />
               <h3 className="text-sm font-medium text-foreground">
-                01月 至 08月 各类能源占比历史变化趋势曲线 (%)
+                能源占比历史变化趋势曲线 (%)
               </h3>
             </div>
             <div className="flex items-center gap-3 text-xs font-sans text-muted-foreground">
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-primary" /> 市电占比</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-400" /> 直供绿电占比</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-amber-400" /> 天然气占比</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-purple-400" /> 外购蒸汽占比</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#41C0FF]" /> 市电占比</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#00D492]" /> 直供绿电占比</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#FF6536]" /> 天然气占比</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#FFBA00]" /> 外购蒸汽占比</span>
             </div>
           </div>
 
@@ -1094,10 +1075,10 @@ export default function EnergyStructureAnalysisPage() {
               height={260}
               yUnit="%"
               lines={[
-                { key: '市电占比', name: '市网供电占比 (%)', color: '#2C7CFF' },
-                { key: '直供绿电占比', name: '直供绿电占比 (%)', color: '#10b981' },
-                { key: '天然气占比', name: '天然气占比 (%)', color: '#f59e0b' },
-                { key: '外购蒸汽占比', name: '外购蒸汽占比 (%)', color: '#8b5cf6' },
+                { key: '市电占比', name: '市网供电占比 (%)', color: '#41C0FF' },
+                { key: '直供绿电占比', name: '直供绿电占比 (%)', color: '#00D492' },
+                { key: '天然气占比', name: '天然气占比 (%)', color: '#FF6536' },
+                { key: '外购蒸汽占比', name: '外购蒸汽占比 (%)', color: '#FFBA00' },
               ]}
             />
           </div>

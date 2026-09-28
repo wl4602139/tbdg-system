@@ -607,13 +607,13 @@ export const TBEA_ENERGY_SPEC_HIERARCHY: EnergyCategorySpec[] = [
     id: 'energy',
     name: '实物介质消耗量',
     defaultUnit: 't',
-    units: ['t', 'm³', 'kWh', 'L', 'kg', 'Nm³', '万kWh'],
+    units: ['t', 'm³', 'kWh', 'L', 'kg', 'Nm³', '万kWh', 'GJ'],
     subTypes: [
       { id: 'water', name: '水务介质（自来水/软水/中水）' },
       { id: 'gas', name: '燃气介质（天然气/液化气/沼气）' },
-      { id: 'steam', name: '蒸汽热力（集中供热管网蒸汽）' },
+      { id: 'steam', name: '蒸汽热力（集中供热管网蒸汽/外购热力）' },
       { id: 'oil', name: '动力燃油（柴油/汽油/机油）' },
-      { id: 'ind_gas', name: '工业气体（液氧/液氮/氩气/二氧化碳）' },
+      { id: 'ind_gas', name: '工业气体（液氮/氮气/液氧/二氧化碳）' },
       { id: 'outsource_power', name: '外协委外用电（喷涂/热处理分摊）' },
       { id: 'self_solar', name: '自备绿电自发自用（分布式光伏/余热）' },
     ],
@@ -629,6 +629,7 @@ export const TBEA_ENERGY_SPEC_HIERARCHY: EnergyCategorySpec[] = [
       { id: 'cost_steam', name: '外购蒸汽集中供热发票' },
       { id: 'cost_water', name: '自来水供水账单发票' },
       { id: 'cost_oil', name: '中石化加油卡与柴油发票' },
+      { id: 'cost_nitrogen', name: '工业气体与液氮发票' },
     ],
   },
   {
@@ -733,6 +734,322 @@ export const PARK_REPORTING_UNITS: ParkReportingUnit[] = [
   },
 ]
 
+// =========================================================================
+// 1.2 节能装备与装备台账明细数据模型 (全平台核心指标 #9 节能装备应用占比数据底座)
+// =========================================================================
+export interface EnergySavingEquipmentItem {
+  id: string
+  code: string                 // 装备资产编号
+  name: string                 // 装备名称
+  model: string                // 规格型号
+  ratedPower: number           // 额定功率 (kW)
+  energyGrade: string          // 能效等级 (国标1级能效 / 国标2级能效 / 先进水平 / 节能水平)
+  workshop: string             // 所属车间 / 产线
+  certificate: string          // 节能认定凭证 / 依据标准
+  commissionYear: string       // 投运年份
+  remark?: string              // 备注
+}
+
+export interface EquipmentInventoryItem {
+  id: string
+  code: string                 // 装备资产编号
+  name: string                 // 装备名称
+  processCategory: string      // 工艺类别 (变压器装配制造 / 硅钢剪切工序 / 公辅动力站 / 高压型式试验 / 线缆立塔交联等)
+  model: string                // 规格型号
+  ratedPower: number           // 铭牌额定功率 (kW)
+  runningStatus: 'running' | 'standby' | 'maintenance' // 运行状态
+  isInScope: boolean           // 是否纳入统计范围 (true: 计入 E_ts; false: 剔除)
+  isEnergySaving: boolean      // 是否属于节能装备
+  workshop: string             // 责任车间
+  remark?: string              // 备注
+}
+
+// 初始节能装备明细列表 (8 项核心重点节能装备，额定功率累计 2,985 kW)
+export const INITIAL_ENERGY_SAVING_EQUIPMENTS: EnergySavingEquipmentItem[] = [
+  {
+    id: 'es-001',
+    code: 'EQ-ES-2024-001',
+    name: '1#超高压真空相变干燥罐系统',
+    model: 'TB-VPD-4500',
+    ratedPower: 450,
+    energyGrade: '国标1级能效',
+    workshop: '特高压数字化装配车间',
+    certificate: 'GB 18613-2020 1级 / 节能认证证书',
+    commissionYear: '2024年',
+    remark: '全自动相变煤油气相干燥，绝缘件干燥能耗降低28%',
+  },
+  {
+    id: 'es-002',
+    code: 'EQ-ES-2024-002',
+    name: '全自动数控精密硅钢横剪线',
+    model: 'TB-NC-600G',
+    ratedPower: 280,
+    energyGrade: '先进水平',
+    workshop: '铁心剪切智能车间',
+    certificate: '国家工业节能技术装备推荐目录 (2024)',
+    commissionYear: '2023年',
+    remark: '德国伺服进给，高精度阶梯剪切低损耗',
+  },
+  {
+    id: 'es-003',
+    code: 'EQ-ES-2024-003',
+    name: '特高压试验站发电机组变频调速系统',
+    model: 'TF-3500/10-VF',
+    ratedPower: 680,
+    energyGrade: '国标1级能效',
+    workshop: '特高压试验站大厅',
+    certificate: 'GB 18613-2020 1级节能认证',
+    commissionYear: '2024年',
+    remark: '大容量中压变频驱动，试验空载损耗降低32%',
+  },
+  {
+    id: 'es-004',
+    code: 'EQ-ES-2024-004',
+    name: '节能型集中永磁变频双螺杆空压机组',
+    model: 'TB-PM-315A',
+    ratedPower: 315,
+    energyGrade: '国标1级能效',
+    workshop: '公辅动力能源动力站',
+    certificate: 'GB 19153-2019 1级节能认证',
+    commissionYear: '2023年',
+    remark: '集中群控恒压供气，综合能效比达6.8m³/(min·kW)',
+  },
+  {
+    id: 'es-005',
+    code: 'EQ-ES-2024-005',
+    name: '全自动立式低氧光亮铜杆退火炉',
+    model: 'TB-ANN-400T',
+    ratedPower: 400,
+    energyGrade: '国标2级能效',
+    workshop: '铜排加工成型车间',
+    certificate: 'GB 21256-2019 2级能效达标',
+    commissionYear: '2022年',
+    remark: '保护气氛连续退火，电热辐射转换效率≥92%',
+  },
+  {
+    id: 'es-006',
+    code: 'EQ-ES-2024-006',
+    name: '超高压CCV立塔节能电缆挤出硫化系统',
+    model: 'ML-CCV-500',
+    ratedPower: 520,
+    energyGrade: '先进水平',
+    workshop: '超高压立塔交联车间',
+    certificate: '国家高新技术装备节能认证证书',
+    commissionYear: '2023年',
+    remark: '干法交联悬链加热，温控PID节能优化',
+  },
+  {
+    id: 'es-007',
+    code: 'EQ-ES-2024-007',
+    name: '2#低能耗相变干燥余热冷凝回收机组',
+    model: 'TB-REC-200',
+    ratedPower: 180,
+    energyGrade: '节能水平',
+    workshop: '特高压数字化装配车间',
+    certificate: '中国节能产品认证证书 (CQC)',
+    commissionYear: '2024年',
+    remark: '煤油冷凝潜热梯级利用，回收率达85%',
+  },
+  {
+    id: 'es-008',
+    code: 'EQ-ES-2024-008',
+    name: '大容量低损耗智能循环冷却循环泵组',
+    model: 'TB-PUMP-160',
+    ratedPower: 160,
+    energyGrade: '国标1级能效',
+    workshop: '公辅动力能源动力站',
+    certificate: 'GB 19762-2020 1级水泵能效',
+    commissionYear: '2023年',
+    remark: '高效水力模型叶轮，变频闭环恒流量输送',
+  },
+]
+
+// 初始全厂在册装备台账 (14 项装备，纳入统计 13 项，累计纳入总功率 3,745 kW)
+export const INITIAL_EQUIPMENT_INVENTORY: EquipmentInventoryItem[] = [
+  {
+    id: 'inv-001',
+    code: 'EQ-AST-1001',
+    name: '1#超高压真空相变干燥罐系统',
+    processCategory: '变压器装配制造',
+    model: 'TB-VPD-4500',
+    ratedPower: 450,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: true,
+    workshop: '特高压数字化装配车间',
+    remark: '关键主工艺装备，一级能效',
+  },
+  {
+    id: 'inv-002',
+    code: 'EQ-AST-1002',
+    name: '全自动数控精密硅钢横剪线',
+    processCategory: '硅钢剪切工序',
+    model: 'TB-NC-600G',
+    ratedPower: 280,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: true,
+    workshop: '铁心剪切智能车间',
+    remark: '铁心制造核心工序装备',
+  },
+  {
+    id: 'inv-003',
+    code: 'EQ-AST-1003',
+    name: '特高压试验站发电机组变频调速系统',
+    processCategory: '高压型式试验',
+    model: 'TF-3500/10-VF',
+    ratedPower: 680,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: true,
+    workshop: '特高压试验站大厅',
+    remark: '特高压变压器出厂试验电源',
+  },
+  {
+    id: 'inv-004',
+    code: 'EQ-AST-1004',
+    name: '节能型集中永磁变频双螺杆空压机组',
+    processCategory: '公辅动力站',
+    model: 'TB-PM-315A',
+    ratedPower: 315,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: true,
+    workshop: '公辅动力能源动力站',
+    remark: '全厂压缩空气核心动力源',
+  },
+  {
+    id: 'inv-005',
+    code: 'EQ-AST-1005',
+    name: '全自动立式低氧光亮铜杆退火炉',
+    processCategory: '铜排加工成型',
+    model: 'TB-ANN-400T',
+    ratedPower: 400,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: true,
+    workshop: '铜排加工成型车间',
+    remark: '大电流绕组母线热处理退火',
+  },
+  {
+    id: 'inv-006',
+    code: 'EQ-AST-1006',
+    name: '超高压CCV立塔节能电缆挤出硫化系统',
+    processCategory: '线缆立塔交联',
+    model: 'ML-CCV-500',
+    ratedPower: 520,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: true,
+    workshop: '超高压立塔交联车间',
+    remark: '超高压电缆绝缘挤出立塔核心机组',
+  },
+  {
+    id: 'inv-007',
+    code: 'EQ-AST-1007',
+    name: '2#低能耗相变干燥余热冷凝回收机组',
+    processCategory: '变压器装配制造',
+    model: 'TB-REC-200',
+    ratedPower: 180,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: true,
+    workshop: '特高压数字化装配车间',
+    remark: '相变干燥配套余热回收机组',
+  },
+  {
+    id: 'inv-008',
+    code: 'EQ-AST-1008',
+    name: '大容量低损耗智能循环冷却循环泵组',
+    processCategory: '公辅动力站',
+    model: 'TB-PUMP-160',
+    ratedPower: 160,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: true,
+    workshop: '公辅动力能源动力站',
+    remark: '厂区循环水高能效输配泵组',
+  },
+  {
+    id: 'inv-009',
+    code: 'EQ-AST-1009',
+    name: '1#桥式重型变压器双梁起重行车 (300t)',
+    processCategory: '变压器装配制造',
+    model: 'QD-300/50t',
+    ratedPower: 180,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: false,
+    workshop: '特高压数字化装配车间',
+    remark: '总装车间重型总装起吊起重机',
+  },
+  {
+    id: 'inv-010',
+    code: 'EQ-AST-1010',
+    name: '高压绝缘件微波深度干燥恒温房',
+    processCategory: '绝缘件加工',
+    model: 'TB-MW-150',
+    ratedPower: 150,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: false,
+    workshop: '绝缘件智造分厂',
+    remark: '纸板与成型绝缘构件脱水设备',
+  },
+  {
+    id: 'inv-011',
+    code: 'EQ-AST-1011',
+    name: '大型变压器波纹油箱数控滚波成型机',
+    processCategory: '油箱结构焊装',
+    model: 'WB-2000B',
+    ratedPower: 120,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: false,
+    workshop: '结构件焊接车间',
+    remark: '配电与中压变压器波纹油箱自动化加工',
+  },
+  {
+    id: 'inv-012',
+    code: 'EQ-AST-1012',
+    name: '3#常规工频耐压试验变压器组',
+    processCategory: '高压型式试验',
+    model: 'YDTW-1000/100',
+    ratedPower: 220,
+    runningStatus: 'standby',
+    isInScope: true,
+    isEnergySaving: false,
+    workshop: '特高压试验站大厅',
+    remark: '备用工频耐压高压试验变',
+  },
+  {
+    id: 'inv-013',
+    code: 'EQ-AST-1013',
+    name: '全厂应急备用柴油发电机组 (1200kW)',
+    processCategory: '公辅动力站',
+    model: 'CUMMINS-1200',
+    ratedPower: 1200,
+    runningStatus: 'standby',
+    isInScope: false,
+    isEnergySaving: false,
+    workshop: '公辅动力能源动力站',
+    remark: '应急备用保安电源，非日常生产负荷，依规剔除能效核算范围',
+  },
+  {
+    id: 'inv-014',
+    code: 'EQ-AST-1014',
+    name: '厂界工业污水循环生化处理机组',
+    processCategory: '环保公辅设施',
+    model: 'TB-WWTP-90',
+    ratedPower: 90,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: false,
+    workshop: '给排水水处理站',
+    remark: '工业循环水达标处理回用动力机组',
+  },
+]
+
 // 园区照片记录模型（归属于当前用户所属园区）
 interface ParkPhotoRecord {
   id: string
@@ -770,23 +1087,25 @@ const generateInitialDaily = (total: number, days: number = 31) => {
   })
 }
 
-// 初始常规能源消耗指标 (17项：7项实物介质消耗 + 5项费用发票 + 4项绿电 + 1项管理审计)
+// 初始常规能源消耗指标 (19项：8项实物介质消耗 + 6项费用发票 + 4项绿电 + 1项管理审计)
 const INITIAL_METRICS: MetricItem[] = [
-  // 1. 实物介质消耗 (7项)
+  // 1. 实物介质消耗 (8项)
   { id: 'm-1', name: '用水量', category: 'energy', categoryLabel: '实物消耗量', subTypeName: '水务介质', unit: 't', value: '8900', lastMonthValue: '8650', remark: '市政自来水水表月度抄报底数', sourceLabel: '市政水表抄报' },
   { id: 'm-2', name: '天然气量', category: 'energy', categoryLabel: '实物消耗量', subTypeName: '燃气介质', unit: 'm³', value: '28400', lastMonthValue: '27200', remark: '燃气锅炉与车间烘干加热消耗', sourceLabel: '专用燃气表' },
   { id: 'm-3', name: '外购蒸汽量', category: 'energy', categoryLabel: '实物消耗量', subTypeName: '蒸汽热力', unit: 't', value: '1420', lastMonthValue: '1380', remark: '集中供热管网蒸汽抄表结算量', sourceLabel: '热网总表' },
+  { id: 'm-heat', name: '热力消费量', category: 'energy', categoryLabel: '实物消耗量', subTypeName: '蒸汽热力', unit: 'GJ', value: '3850', lastMonthValue: '3620', remark: '集中供热管网蒸汽/热水热力结算量', sourceLabel: '热焓表抄报' },
   { id: 'm-4', name: '油消耗量（柴油/汽油）', category: 'energy', categoryLabel: '实物消耗量', subTypeName: '动力用油', unit: 'L', value: '320', lastMonthValue: '350', remark: '应急发电机试车与厂区叉车领用', sourceLabel: '领用台账' },
-  { id: 'm-5', name: '液氧工业气体', category: 'energy', categoryLabel: '实物消耗量', subTypeName: '工业气体', unit: 't', value: '45.0', lastMonthValue: '42.0', remark: '钢板下料切割与绝缘件加工助燃消耗', sourceLabel: '地磅称重' },
+  { id: 'm-5', name: '液氮消费量', category: 'energy', categoryLabel: '实物消耗量', subTypeName: '工业气体', unit: 't', value: '52.0', lastMonthValue: '48.5', remark: '高压交联立塔保护气与绝缘件相变干燥消耗', sourceLabel: '地磅称重/充装台账' },
   { id: 'm-ext', name: '外协委外加工电耗分摊', category: 'energy', categoryLabel: '实物消耗量', subTypeName: '外协用电', unit: 'kWh', value: '12400', lastMonthValue: '11800', remark: '外协绝缘喷涂等结算单分摊', sourceLabel: '工单分摊' },
   { id: 'm-self', name: '自备余热自发自用电量', category: 'energy', categoryLabel: '实物消耗量', subTypeName: '光伏自用', unit: 'kWh', value: '68500', lastMonthValue: '65000', remark: '热电及余热发电机组自用抄表', sourceLabel: '逆变器采集' },
 
-  // 2. 能源费用发票 (5项)
+  // 2. 能源费用发票 (6项)
   { id: 'm-6', name: '市电费用', category: 'cost', categoryLabel: '能源费用', subTypeName: '电力费用', unit: '万元', value: '142.50', lastMonthValue: '138.20', remark: '国网电力月度电费增值税发票总额', sourceLabel: '增值税发票' },
   { id: 'm-7', name: '天然气费用', category: 'cost', categoryLabel: '能源费用', subTypeName: '燃气费用', unit: '万元', value: '8.52', lastMonthValue: '8.16', remark: '新奥燃气月度发票结算金额', sourceLabel: '燃气结算发票' },
   { id: 'm-8', name: '外购蒸汽费用', category: 'cost', categoryLabel: '能源费用', subTypeName: '蒸汽费用', unit: '万元', value: '32.66', lastMonthValue: '31.74', remark: '园区热力公司当期发票对账单', sourceLabel: '热力对账单' },
   { id: 'm-9', name: '用水费用', category: 'cost', categoryLabel: '能源费用', subTypeName: '水费账单', unit: '万元', value: '4.89', lastMonthValue: '4.76', remark: '自来水水务集团缴费凭单', sourceLabel: '水务发票' },
   { id: 'm-10', name: '油费用', category: 'cost', categoryLabel: '能源费用', subTypeName: '燃油费用', unit: '万元', value: '0.24', lastMonthValue: '0.26', remark: '中石化加油卡充值及柴油发票', sourceLabel: '中石化凭单' },
+  { id: 'm-cost-nitrogen', name: '氮气费用', category: 'cost', categoryLabel: '能源费用', subTypeName: '工业气体', unit: '万元', value: '1.85', lastMonthValue: '1.72', remark: '工业气体供应商当期液氮/高纯氮气结算发票', sourceLabel: '气体结算发票' },
 
   // 3. 购买绿电交易参数 (4项)
   { id: 'm-11', name: '购买绿电量', category: 'green', categoryLabel: '购买绿电', subTypeName: '绿电交易', unit: 'kWh', value: '1482000', lastMonthValue: '1200000', remark: '三峡能源哈密200MW光伏双边交易', sourceLabel: '交易直供合同' },
@@ -1121,6 +1440,13 @@ export interface MonthDeclarationBatch {
   status: '已入库' | '待复核'
   products: MonthBatchProductItem[]
   energy: MonthBatchEnergySummary
+  energySaving?: {
+    energySavingTotalKw: string
+    inScopeTotalKw: string
+    energySavingRatio: string
+    energySavingEquipCount: number
+    totalEquipCount: number
+  }
   photosCount: number
   eventsCount: number
   summary: string
@@ -2378,13 +2704,13 @@ const INITIAL_HISTORICAL_PRODUCTS: HistoricalProductRecord[] = [
 ]
 
 
-type EntryModuleTab = 'production' | 'energy' | 'photos' | 'events'
+type EntryModuleTab = 'production' | 'energy' | 'equipment' | 'photos' | 'events'
 
 // 本地安全回退底图
 const SAFE_FALLBACK_IMAGE = '/images/screen/nanjing-park-pv.jpg'
 
 export default function FactoryMonthlyReportingPage() {
-  // 核心模块四大 Tab: 'production' (产品产量) | 'energy' (能源消耗) | 'photos' (园区照片) | 'events' (园区大事件)
+  // 核心模块五大 Tab: 'production' (产品产量) | 'energy' (能源消耗) | 'equipment' (节能装备与台账) | 'photos' (园区照片) | 'events' (园区大事件)
   const [activeModuleTab, setActiveModuleTab] = useState<EntryModuleTab>('production')
 
   // 视图模式：'entry' (填报工作台) | 'history' (历史台账)
@@ -2842,10 +3168,10 @@ export default function FactoryMonthlyReportingPage() {
             if (m.id === 'm-2') return { ...m, value: matchedBatch.energy.gasWanM3 }
             if (m.id === 'm-3') return { ...m, value: matchedBatch.energy.steamTon.replace(/,/g, '') }
             if (m.id === 'm-4') return { ...m, value: matchedBatch.energy.dieselL.replace(/,/g, '') }
-            if (m.id === 'm-8') return { ...m, value: matchedBatch.energy.powerCostWan }
-            if (m.id === 'm-9') return { ...m, value: matchedBatch.energy.gasCostWan }
-            if (m.id === 'm-10') return { ...m, value: matchedBatch.energy.steamCostWan }
-            if (m.id === 'm-11') return { ...m, value: matchedBatch.energy.waterCostWan }
+            if (m.id === 'm-6') return { ...m, value: matchedBatch.energy.powerCostWan }
+            if (m.id === 'm-7') return { ...m, value: matchedBatch.energy.gasCostWan }
+            if (m.id === 'm-8') return { ...m, value: matchedBatch.energy.steamCostWan }
+            if (m.id === 'm-9') return { ...m, value: matchedBatch.energy.waterCostWan }
             return m
           })
         )
@@ -3330,6 +3656,343 @@ export default function FactoryMonthlyReportingPage() {
   const [steamDailyList, setSteamDailyList] = useState<number[]>(() => generateInitialDaily(1420, 31))
   const [activeDailyModal, setActiveDailyModal] = useState<'m-1' | 'm-3' | null>(null)
   const [tempDailyList, setTempDailyList] = useState<number[]>([])
+
+  // =========================================================================
+  // 2.5 节能装备与装备台账状态管理 (全平台核心指标 #9 节能装备应用占比)
+  // =========================================================================
+  const [energySavingEquipments, setEnergySavingEquipments] = useState<EnergySavingEquipmentItem[]>(INITIAL_ENERGY_SAVING_EQUIPMENTS)
+  const [equipmentInventory, setEquipmentInventory] = useState<EquipmentInventoryItem[]>(INITIAL_EQUIPMENT_INVENTORY)
+
+  // 节能装备累计额定总功率 (Res, 单位: kW) 与 纳入统计范围装备累计额定总功率 (Ets, 单位: kW)
+  const [energySavingTotalKw, setEnergySavingTotalKw] = useState<string>('2985')
+  const [inScopeTotalKw, setInScopeTotalKw] = useState<string>('3745')
+
+  // 子视图模式：'energySaving' (节能装备明细) | 'allInventory' (全厂在册装备底账)
+  const [activeEquipSubTab, setActiveEquipSubTab] = useState<'energySaving' | 'allInventory'>('energySaving')
+
+  // 检索与筛选状态
+  const [equipSearchQuery, setEquipSearchQuery] = useState('')
+  const [equipWorkshopFilter, setEquipWorkshopFilter] = useState('all')
+  const [equipGradeFilter, setEquipGradeFilter] = useState('all')
+  const [inventoryCategoryFilter, setInventoryCategoryFilter] = useState('all')
+  const [inventoryScopeFilter, setInventoryScopeFilter] = useState<'all' | 'inScope' | 'outOfScope'>('all')
+
+  // 弹窗状态
+  const [isAddEnergySavingModalOpen, setIsAddEnergySavingModalOpen] = useState(false)
+  const [isAddInventoryModalOpen, setIsAddInventoryModalOpen] = useState(false)
+  const [isEditEnergySavingModalOpen, setIsEditEnergySavingModalOpen] = useState(false)
+  const [isEditInventoryModalOpen, setIsEditInventoryModalOpen] = useState(false)
+  const [editingEnergySavingItem, setEditingEnergySavingItem] = useState<EnergySavingEquipmentItem | null>(null)
+  const [editingInventoryItem, setEditingInventoryItem] = useState<EquipmentInventoryItem | null>(null)
+
+  // 表单状态
+  const [newEnergySavingForm, setNewEnergySavingForm] = useState<Omit<EnergySavingEquipmentItem, 'id'>>({
+    code: 'EQ-ES-2026-009',
+    name: '',
+    model: '',
+    ratedPower: 120,
+    energyGrade: '国标1级能效',
+    workshop: '特高压数字化装配车间',
+    certificate: 'GB 18613-2020 1级 / 节能认证证书',
+    commissionYear: '2026年',
+    remark: '',
+  })
+
+  const [newInventoryForm, setNewInventoryForm] = useState<Omit<EquipmentInventoryItem, 'id'>>({
+    code: 'EQ-AST-1015',
+    name: '',
+    processCategory: '变压器装配制造',
+    model: '',
+    ratedPower: 120,
+    runningStatus: 'running',
+    isInScope: true,
+    isEnergySaving: false,
+    workshop: '特高压数字化装配车间',
+    remark: '',
+  })
+
+  // 自动从明细计算的功率
+  const calculatedEnergySavingKw = useMemo(() => {
+    return energySavingEquipments.reduce((sum, item) => sum + (Number(item.ratedPower) || 0), 0)
+  }, [energySavingEquipments])
+
+  const calculatedInScopeKw = useMemo(() => {
+    return equipmentInventory
+      .filter((item) => item.isInScope)
+      .reduce((sum, item) => sum + (Number(item.ratedPower) || 0), 0)
+  }, [equipmentInventory])
+
+  // 节能装备应用占比 S = Res / Ets * 100%
+  const energySavingRatio = useMemo(() => {
+    const r = Number(energySavingTotalKw) || 0
+    const e = Number(inScopeTotalKw) || 0
+    if (e <= 0) return '0.0'
+    return ((r / e) * 100).toFixed(1)
+  }, [energySavingTotalKw, inScopeTotalKw])
+
+  // 防错报警：Res 不能大于 Ets
+  const isPowerRatioWarning = useMemo(() => {
+    const r = Number(energySavingTotalKw) || 0
+    const e = Number(inScopeTotalKw) || 0
+    return r > e
+  }, [energySavingTotalKw, inScopeTotalKw])
+
+  // 统计台数
+  const inScopeCount = useMemo(() => {
+    return equipmentInventory.filter((item) => item.isInScope).length
+  }, [equipmentInventory])
+
+  const grade1Count = useMemo(() => {
+    return energySavingEquipments.filter((item) => item.energyGrade.includes('1级')).length
+  }, [energySavingEquipments])
+
+  const grade2Count = useMemo(() => {
+    return energySavingEquipments.filter((item) => item.energyGrade.includes('2级') || item.energyGrade.includes('先进')).length
+  }, [energySavingEquipments])
+
+  // 过滤后的节能装备列表
+  const filteredEnergySavingEquipments = useMemo(() => {
+    return energySavingEquipments.filter((item) => {
+      if (equipWorkshopFilter !== 'all' && item.workshop !== equipWorkshopFilter) return false
+      if (equipGradeFilter !== 'all' && item.energyGrade !== equipGradeFilter) return false
+      if (equipSearchQuery.trim()) {
+        const q = equipSearchQuery.trim().toLowerCase()
+        return (
+          item.name.toLowerCase().includes(q) ||
+          item.code.toLowerCase().includes(q) ||
+          item.model.toLowerCase().includes(q)
+        )
+      }
+      return true
+    })
+  }, [energySavingEquipments, equipWorkshopFilter, equipGradeFilter, equipSearchQuery])
+
+  // 过滤后的装备台账列表
+  const filteredEquipmentInventory = useMemo(() => {
+    return equipmentInventory.filter((item) => {
+      if (equipWorkshopFilter !== 'all' && item.workshop !== equipWorkshopFilter) return false
+      if (inventoryCategoryFilter !== 'all' && item.processCategory !== inventoryCategoryFilter) return false
+      if (inventoryScopeFilter === 'inScope' && !item.isInScope) return false
+      if (inventoryScopeFilter === 'outOfScope' && item.isInScope) return false
+      if (equipSearchQuery.trim()) {
+        const q = equipSearchQuery.trim().toLowerCase()
+        return (
+          item.name.toLowerCase().includes(q) ||
+          item.code.toLowerCase().includes(q) ||
+          item.model.toLowerCase().includes(q)
+        )
+      }
+      return true
+    })
+  }, [equipmentInventory, equipWorkshopFilter, inventoryCategoryFilter, inventoryScopeFilter, equipSearchQuery])
+
+  // 1. 从明细一键重新汇总 Res
+  const handleRecalcEnergySavingKw = () => {
+    setEnergySavingTotalKw(String(calculatedEnergySavingKw))
+    setSuccessToast({
+      show: true,
+      msg: `已按当前【${energySavingEquipments.length}台节能装备明细】重新汇总计算！节能累计额定总功率更新为 ${calculatedEnergySavingKw} kW。`,
+      batch: 'AUTO-RECALC-RES',
+    })
+    setTimeout(() => setSuccessToast({ show: false, msg: '', batch: '' }), 4000)
+  }
+
+  // 2. 从台账一键重新汇总 Ets
+  const handleRecalcInScopeKw = () => {
+    setInScopeTotalKw(String(calculatedInScopeKw))
+    setSuccessToast({
+      show: true,
+      msg: `已按当前【${inScopeCount}台纳入统计在册装备】重新汇总计算！纳入统计装备总功率更新为 ${calculatedInScopeKw} kW。`,
+      batch: 'AUTO-RECALC-ETS',
+    })
+    setTimeout(() => setSuccessToast({ show: false, msg: '', batch: '' }), 4000)
+  }
+
+  // 3. 切换台账装备是否纳入统计范围
+  const handleToggleInventoryScope = (id: string) => {
+    setEquipmentInventory((prev) => {
+      const updated = prev.map((item) => {
+        if (item.id === id) {
+          return { ...item, isInScope: !item.isInScope }
+        }
+        return item
+      })
+      const newInScopeTotal = updated
+        .filter((i) => i.isInScope)
+        .reduce((sum, i) => sum + (Number(i.ratedPower) || 0), 0)
+      setInScopeTotalKw(String(newInScopeTotal))
+      return updated
+    })
+  }
+
+  // 4. 行内修改节能装备功率
+  const handleInlineUpdateEnergySavingPower = (id: string, newPower: number) => {
+    if (isNaN(newPower) || newPower < 0) return
+    setEnergySavingEquipments((prev) => {
+      const updated = prev.map((item) => (item.id === id ? { ...item, ratedPower: newPower } : item))
+      const newTotal = updated.reduce((sum, item) => sum + (Number(item.ratedPower) || 0), 0)
+      setEnergySavingTotalKw(String(newTotal))
+      return updated
+    })
+  }
+
+  // 5. 行内修改台账装备功率
+  const handleInlineUpdateInventoryPower = (id: string, newPower: number) => {
+    if (isNaN(newPower) || newPower < 0) return
+    setEquipmentInventory((prev) => {
+      const updated = prev.map((item) => (item.id === id ? { ...item, ratedPower: newPower } : item))
+      const newInScope = updated
+        .filter((i) => i.isInScope)
+        .reduce((sum, i) => sum + (Number(i.ratedPower) || 0), 0)
+      setInScopeTotalKw(String(newInScope))
+      return updated
+    })
+  }
+
+  // 6. 保存新增节能装备
+  const handleSaveAddEnergySaving = () => {
+    if (!newEnergySavingForm.name.trim() || !newEnergySavingForm.code.trim()) {
+      alert('请填写设备资产编号与设备名称！')
+      return
+    }
+    const newItem: EnergySavingEquipmentItem = {
+      id: `es-${Date.now()}`,
+      ...newEnergySavingForm,
+      ratedPower: Number(newEnergySavingForm.ratedPower) || 0,
+    }
+    setEnergySavingEquipments((prev) => {
+      const updated = [newItem, ...prev]
+      const newTotal = updated.reduce((sum, item) => sum + (Number(item.ratedPower) || 0), 0)
+      setEnergySavingTotalKw(String(newTotal))
+      return updated
+    })
+    setIsAddEnergySavingModalOpen(false)
+    setNewEnergySavingForm({
+      code: `EQ-ES-2026-${String(energySavingEquipments.length + 2).padStart(3, '0')}`,
+      name: '',
+      model: '',
+      ratedPower: 120,
+      energyGrade: '国标1级能效',
+      workshop: '特高压数字化装配车间',
+      certificate: 'GB 18613-2020 1级 / 节能认证证书',
+      commissionYear: '2026年',
+      remark: '',
+    })
+    setSuccessToast({
+      show: true,
+      msg: `节能装备【${newItem.name}】已成功录入，额定功率 ${newItem.ratedPower} kW 已自动计入节能总功率！`,
+      batch: newItem.code,
+    })
+    setTimeout(() => setSuccessToast({ show: false, msg: '', batch: '' }), 4000)
+  }
+
+  // 7. 保存新增装备台账
+  const handleSaveAddInventory = () => {
+    if (!newInventoryForm.name.trim() || !newInventoryForm.code.trim()) {
+      alert('请填写设备资产编号与设备名称！')
+      return
+    }
+    const newItem: EquipmentInventoryItem = {
+      id: `inv-${Date.now()}`,
+      ...newInventoryForm,
+      ratedPower: Number(newInventoryForm.ratedPower) || 0,
+    }
+    setEquipmentInventory((prev) => {
+      const updated = [newItem, ...prev]
+      if (newItem.isInScope) {
+        const newInScope = updated
+          .filter((i) => i.isInScope)
+          .reduce((sum, i) => sum + (Number(i.ratedPower) || 0), 0)
+        setInScopeTotalKw(String(newInScope))
+      }
+      return updated
+    })
+    setIsAddInventoryModalOpen(false)
+    setNewInventoryForm({
+      code: `EQ-AST-${String(equipmentInventory.length + 1002)}`,
+      name: '',
+      processCategory: '变压器装配制造',
+      model: '',
+      ratedPower: 120,
+      runningStatus: 'running',
+      isInScope: true,
+      isEnergySaving: false,
+      workshop: '特高压数字化装配车间',
+      remark: '',
+    })
+    setSuccessToast({
+      show: true,
+      msg: `装备台账【${newItem.name}】已成功录入，额定功率 ${newItem.ratedPower} kW。`,
+      batch: newItem.code,
+    })
+    setTimeout(() => setSuccessToast({ show: false, msg: '', batch: '' }), 4000)
+  }
+
+  // 8. 保存编辑节能装备
+  const handleSaveEditEnergySaving = () => {
+    if (!editingEnergySavingItem) return
+    setEnergySavingEquipments((prev) => {
+      const updated = prev.map((item) => (item.id === editingEnergySavingItem.id ? editingEnergySavingItem : item))
+      const newTotal = updated.reduce((sum, item) => sum + (Number(item.ratedPower) || 0), 0)
+      setEnergySavingTotalKw(String(newTotal))
+      return updated
+    })
+    setIsEditEnergySavingModalOpen(false)
+    setEditingEnergySavingItem(null)
+    setSuccessToast({
+      show: true,
+      msg: `节能装备【${editingEnergySavingItem.name}】修改已成功保存并重新核算功率！`,
+      batch: editingEnergySavingItem.code,
+    })
+    setTimeout(() => setSuccessToast({ show: false, msg: '', batch: '' }), 4000)
+  }
+
+  // 9. 保存编辑台账装备
+  const handleSaveEditInventory = () => {
+    if (!editingInventoryItem) return
+    setEquipmentInventory((prev) => {
+      const updated = prev.map((item) => (item.id === editingInventoryItem.id ? editingInventoryItem : item))
+      const newInScope = updated
+        .filter((i) => i.isInScope)
+        .reduce((sum, i) => sum + (Number(i.ratedPower) || 0), 0)
+      setInScopeTotalKw(String(newInScope))
+      return updated
+    })
+    setIsEditInventoryModalOpen(false)
+    setEditingInventoryItem(null)
+    setSuccessToast({
+      show: true,
+      msg: `装备台账【${editingInventoryItem.name}】修改已成功保存！`,
+      batch: editingInventoryItem.code,
+    })
+    setTimeout(() => setSuccessToast({ show: false, msg: '', batch: '' }), 4000)
+  }
+
+  // 10. 删除节能装备
+  const handleDeleteEnergySaving = (id: string, name: string) => {
+    if (confirm(`确认从节能装备明细中移除【${name}】？移除后其额定功率将自动从节能总功率中扣除。`)) {
+      setEnergySavingEquipments((prev) => {
+        const updated = prev.filter((item) => item.id !== id)
+        const newTotal = updated.reduce((sum, item) => sum + (Number(item.ratedPower) || 0), 0)
+        setEnergySavingTotalKw(String(newTotal))
+        return updated
+      })
+    }
+  }
+
+  // 11. 删除台账装备
+  const handleDeleteInventory = (id: string, name: string) => {
+    if (confirm(`确认从装备台账明细中移除【${name}】？若该设备已纳入统计范围，其额定功率将自动扣除。`)) {
+      setEquipmentInventory((prev) => {
+        const updated = prev.filter((item) => item.id !== id)
+        const newInScope = updated
+          .filter((i) => i.isInScope)
+          .reduce((sum, i) => sum + (Number(i.ratedPower) || 0), 0)
+        setInScopeTotalKw(String(newInScope))
+        return updated
+      })
+    }
+  }
 
   // 3. 园区照片状态与文件上传 Ref
   const photoFileInputRef = useRef<HTMLInputElement>(null)
@@ -4280,7 +4943,8 @@ export default function FactoryMonthlyReportingPage() {
     const batchCode = `DR-${selectedYear}${selectedMonth}-${String(historyList.length + 1).padStart(2, '0')}`
 
     const prodSummary = activeProducts.map((p) => `${p.categoryName} ${p.value}${p.unit}`).join(' · ')
-    const summaryText = `水 ${metrics[0].value}t · 气 ${metrics[1].value}m³ · 绿电 ${metrics[10].value}kWh · ${prodSummary} · 照片 ${parkPhotos.length}张 · 大事记 ${milestones.length}条`
+    const equipSummary = `节能装备 ${energySavingTotalKw}kW/${inScopeTotalKw}kW (${energySavingRatio}%)`
+    const summaryText = `水 ${metrics[0].value}t · 气 ${metrics[1].value}m³ · 绿电 ${metrics[10].value}kWh · ${prodSummary} · ${equipSummary} · 照片 ${parkPhotos.length}张 · 大事记 ${milestones.length}条`
 
     const newRecord: HistoryRecord = {
       id: `REC-${Date.now()}`,
@@ -4300,7 +4964,7 @@ export default function FactoryMonthlyReportingPage() {
     }
     setSuccessToast({
       show: true,
-      msg: `${selectedYear}年${selectedMonth}月工厂数据申报已成功${status === '已入库' ? '校验入库' : '暂存待复核'}！涵盖 4 大模块数据与现场照片。`,
+      msg: `${selectedYear}年${selectedMonth}月工厂数据申报已成功${status === '已入库' ? '校验入库' : '暂存待复核'}！涵盖 5 大核心模块（含节能装备与台账）全量数据。`,
       batch: batchCode,
     })
 
@@ -4368,6 +5032,26 @@ export default function FactoryMonthlyReportingPage() {
                 activeModuleTab === 'energy' ? 'bg-black/20 text-white' : 'bg-panel text-muted-foreground'
               )}>
                 16 项
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveModuleTab('equipment')}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer select-none',
+                activeModuleTab === 'equipment'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-panel/60'
+              )}
+            >
+              <Gauge className="size-4" />
+              <span>节能装备与台账</span>
+              <span className={cn(
+                'px-1.5 py-0.2 rounded-full text-[10px] font-mono',
+                activeModuleTab === 'equipment' ? 'bg-black/20 text-white' : 'bg-panel text-muted-foreground'
+              )}>
+                {energySavingEquipments.length} 台
               </span>
             </button>
 
@@ -4767,7 +5451,7 @@ export default function FactoryMonthlyReportingPage() {
                         </tr>
                       ))
                     ) : (
-                      <tr>
+                      <tr className="h-[44px]">
                         <td colSpan={9} className="py-12 text-center text-sm text-muted-foreground font-medium">
                           暂无相关产品！
                         </td>
@@ -5123,7 +5807,7 @@ export default function FactoryMonthlyReportingPage() {
                         )
                       })
                     ) : (
-                      <tr>
+                      <tr className="h-[44px]">
                         <td colSpan={9} className="py-12 text-center text-sm text-muted-foreground font-medium">
                           暂无相关能源消耗！
                         </td>
@@ -5136,7 +5820,154 @@ export default function FactoryMonthlyReportingPage() {
           )}
 
           {/* ───────────────────────────────────────────────────────────────── */}
-          {/* 【模块 3】：园区照片 (Park Photos Gallery) */}
+          {/* 【模块 3】：重点节能装备与全厂装备台账数据录入 (指标 #9 节能装备应用占比) */}
+          {/* ───────────────────────────────────────────────────────────────── */}
+          {activeModuleTab === 'equipment' && (
+            <div className="space-y-4">
+              {/* 顶部标题与园区账期信息 */}
+              <div className="rounded-2xl border bg-card border-border p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="size-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                    <Gauge className="size-4.5" />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-sm font-bold text-foreground">重点节能装备与全厂用能台账申报</h2>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-bold font-mono">
+                      指标 #9 节能装备应用占比 (S = Res / Ets × 100%)
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground">
+                  <span className="font-bold text-foreground">申报账期:</span>
+                  <span className="font-mono font-bold text-foreground bg-panel px-2 py-1 rounded border border-border">
+                    {selectedYear}年{selectedMonth}月
+                  </span>
+                  <span className="text-border">|</span>
+                  <span>{currentReportingUnit.parkName}</span>
+                </div>
+              </div>
+
+              {/* 🌟 核心表格栏与操作 */}
+              <div className="rounded-2xl border bg-card border-border p-4 shadow-sm space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
+                  <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-primary text-primary-foreground shadow-2xs">
+                    <Zap className="size-3.5" />
+                    <span>节能装备明细 (优于/达到国标2级)</span>
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-black/20 text-white">
+                      {energySavingEquipments.length}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddEnergySavingModalOpen(true)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer transition-colors shadow-2xs"
+                    >
+                      <Plus className="size-3.5" />
+                      <span>新增节能装备</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 节能装备明细表 (44px 工业高密表格) */}
+                <div className="overflow-x-auto rounded-xl border border-border">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="h-[44px] bg-panel/80 dark:bg-[#0b1324]/80 text-muted-foreground border-b border-border font-bold select-none">
+                        <th className="px-3 py-0 w-12 text-center">#</th>
+                        <th className="px-3 py-0 min-w-[200px]">设备名称</th>
+                        <th className="px-3 py-0 w-32">规格型号</th>
+                        <th className="px-3 py-0 w-32 font-mono text-right">
+                          额定功率 <span className="text-[10px] text-emerald-400 font-normal">（可直接修改）</span>
+                        </th>
+                        <th className="px-3 py-0 w-28 text-center">能效等级</th>
+                        <th className="px-3 py-0 w-40">所属车间/产线</th>
+                        <th className="px-3 py-0 w-24 text-center font-mono">投产年份</th>
+                        <th className="px-3 py-0 text-right w-24">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y border-border/50">
+                      {energySavingEquipments.length > 0 ? (
+                        energySavingEquipments.map((row, idx) => (
+                          <tr key={row.id} className="h-[44px] hover:bg-panel/50 transition-colors">
+                            <td className="px-3 py-0 text-center font-mono text-muted-foreground text-[11px]">{idx + 1}</td>
+                            <td className="px-3 py-0 font-bold text-foreground">
+                              <span className="truncate inline-block max-w-[240px] align-middle" title={row.name}>
+                                {row.name}
+                              </span>
+                            </td>
+                            <td className="px-3 py-0 font-mono text-xs text-muted-foreground">{row.model}</td>
+                            {/* 额定功率 (行内直接修改并联动) */}
+                            <td className="px-3 py-1 font-mono text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <input
+                                  type="number"
+                                  step="any"
+                                  min="0"
+                                  defaultValue={row.ratedPower}
+                                  onBlur={(e) => handleInlineUpdateEnergySavingPower(row.id, parseFloat(e.target.value))}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      handleInlineUpdateEnergySavingPower(row.id, parseFloat((e.target as HTMLInputElement).value))
+                                      ;(e.target as HTMLInputElement).blur()
+                                    }
+                                  }}
+                                  className="w-20 h-7 px-2 rounded-md bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-emerald-400 font-mono font-bold text-xs text-right focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all shadow-2xs"
+                                  title="可在列表直接修改额定功率，失焦或回车生效并自动重算 Res"
+                                />
+                                <span className="text-xs font-mono text-muted-foreground select-none">kW</span>
+                              </div>
+                            </td>
+                            <td className="px-3 py-0 text-center">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
+                                {row.energyGrade}
+                              </span>
+                            </td>
+                            <td className="px-3 py-0 text-xs text-foreground/90">{row.workshop}</td>
+                            <td className="px-3 py-0 text-center font-mono text-muted-foreground text-xs">{row.commissionYear}</td>
+                            <td className="px-3 py-0 text-right whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingEnergySavingItem({ ...row })
+                                    setIsEditEnergySavingModalOpen(true)
+                                  }}
+                                  className="text-primary hover:text-primary/80 p-1 cursor-pointer transition-colors"
+                                  title="编辑节能装备信息"
+                                >
+                                  <Edit3 className="size-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteEnergySaving(row.id, row.name)}
+                                  className="text-muted-foreground hover:text-rose-400 p-1 cursor-pointer transition-colors"
+                                  title="删除装备"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr className="h-[44px]">
+                          <td colSpan={8} className="py-12 text-center text-sm text-muted-foreground font-medium">
+                            暂无相关节能装备数据！
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ───────────────────────────────────────────────────────────────── */}
+          {/* 【模块 4】：园区照片 (Park Photos Gallery) */}
           {/* ───────────────────────────────────────────────────────────────── */}
           {activeModuleTab === 'photos' && (
             <div className="space-y-4">
@@ -5580,7 +6411,7 @@ export default function FactoryMonthlyReportingPage() {
                       </tr>
                     ))
                   ) : (
-                    <tr>
+                    <tr className="h-[44px]">
                       <td colSpan={6} className="py-12 text-center text-sm text-muted-foreground font-medium">
                         暂无符合条件的历史申报记录！
                       </td>
@@ -5777,7 +6608,7 @@ export default function FactoryMonthlyReportingPage() {
                             </tr>
                           ))
                         ) : (
-                          <tr>
+                          <tr className="h-[44px]">
                             <td colSpan={monthModalMode === 'edit' ? 10 : 9} className="py-8 text-center text-sm text-muted-foreground font-medium">
                               本账期暂无录入产品记录！
                             </td>
@@ -5785,6 +6616,45 @@ export default function FactoryMonthlyReportingPage() {
                         )}
                       </tbody>
                     </table>
+                  </div>
+                </div>
+
+                {/* 板块 2: 重点节能装备与台账核算底数 */}
+                <div className="space-y-2.5 pt-2 border-t border-border/60">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <Gauge className="size-4 text-emerald-400" />
+                      <span>重点节能装备与统计范围台账 (指标 #9 支撑底数)</span>
+                    </h4>
+                    <span className="text-[11px] font-mono text-primary font-bold">
+                      S = Res / Ets × 100%
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div className="p-2.5 rounded-xl bg-panel/50 border border-border space-y-1">
+                      <div className="text-[11px] text-muted-foreground">节能装备累计额定总功率</div>
+                      <div className="text-sm font-mono font-bold text-emerald-400">
+                        {activeModalBatch.energySaving?.energySavingTotalKw || '2985'} <span className="text-xs font-normal text-muted-foreground">kW</span>
+                      </div>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-panel/50 border border-border space-y-1">
+                      <div className="text-[11px] text-muted-foreground">纳入统计范围装备总功率</div>
+                      <div className="text-sm font-mono font-bold text-blue-400">
+                        {activeModalBatch.energySaving?.inScopeTotalKw || '3745'} <span className="text-xs font-normal text-muted-foreground">kW</span>
+                      </div>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-panel/50 border border-border space-y-1">
+                      <div className="text-[11px] text-muted-foreground">节能装备应用占比</div>
+                      <div className="text-sm font-mono font-bold text-primary">
+                        {activeModalBatch.energySaving?.energySavingRatio || '79.7'}%
+                      </div>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-panel/50 border border-border space-y-1">
+                      <div className="text-[11px] text-muted-foreground">在册装备与节能台数</div>
+                      <div className="text-sm font-mono font-bold text-foreground">
+                        {activeModalBatch.energySaving?.energySavingEquipCount || 8} <span className="text-xs font-normal text-muted-foreground">/ 14 台</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -7492,6 +8362,656 @@ export default function FactoryMonthlyReportingPage() {
                   </span>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ───────────────────────────────────────────────────────────────── */}
+      {/* 模态框 1：新增节能装备 */}
+      {/* ───────────────────────────────────────────────────────────────── */}
+      {isAddEnergySavingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border bg-card border-border p-5 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="size-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                  <Zap className="size-4.5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">新增重点节能装备</h3>
+                  <p className="text-[11px] text-muted-foreground">录入达到或优于能效国标2级水平的重点用能设备档案</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddEnergySavingModalOpen(false)}
+                className="text-muted-foreground hover:text-foreground cursor-pointer p-1"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">设备资产编码 <span className="text-rose-500">*</span></label>
+                <input
+                  type="text"
+                  value={newEnergySavingForm.code}
+                  onChange={(e) => setNewEnergySavingForm({ ...newEnergySavingForm, code: e.target.value })}
+                  placeholder="如 EQ-ES-2026-009"
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">设备名称 <span className="text-rose-500">*</span></label>
+                <input
+                  type="text"
+                  value={newEnergySavingForm.name}
+                  onChange={(e) => setNewEnergySavingForm({ ...newEnergySavingForm, name: e.target.value })}
+                  placeholder="如 3#高能效真空相变干燥罐"
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">规格型号</label>
+                <input
+                  type="text"
+                  value={newEnergySavingForm.model}
+                  onChange={(e) => setNewEnergySavingForm({ ...newEnergySavingForm, model: e.target.value })}
+                  placeholder="如 TB-VPD-3000"
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">额定功率 (kW) <span className="text-rose-500">*</span></label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={newEnergySavingForm.ratedPower}
+                  onChange={(e) => setNewEnergySavingForm({ ...newEnergySavingForm, ratedPower: parseFloat(e.target.value) || 0 })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-emerald-400 font-mono font-bold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">能效国标等级 <span className="text-rose-500">*</span></label>
+                <select
+                  value={newEnergySavingForm.energyGrade}
+                  onChange={(e) => setNewEnergySavingForm({ ...newEnergySavingForm, energyGrade: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                >
+                  <option value="国标1级能效">国标1级能效</option>
+                  <option value="国标2级能效">国标2级能效</option>
+                  <option value="先进水平">先进水平</option>
+                  <option value="节能水平">节能水平</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">所属车间/部门</label>
+                <select
+                  value={newEnergySavingForm.workshop}
+                  onChange={(e) => setNewEnergySavingForm({ ...newEnergySavingForm, workshop: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                >
+                  <option value="特高压数字化装配车间">特高压数字化装配车间</option>
+                  <option value="铁心剪切智能车间">铁心剪切智能车间</option>
+                  <option value="特高压试验站大厅">特高压试验站大厅</option>
+                  <option value="公辅动力能源动力站">公辅动力能源动力站</option>
+                  <option value="铜排加工成型车间">铜排加工成型车间</option>
+                  <option value="超高压立塔交联车间">超高压立塔交联车间</option>
+                  <option value="绝缘件智造分厂">绝缘件智造分厂</option>
+                  <option value="结构件焊接车间">结构件焊接车间</option>
+                </select>
+              </div>
+
+              <div className="space-y-1 col-span-2">
+                <label className="text-muted-foreground font-semibold">节能认定凭证 / 依据标准</label>
+                <input
+                  type="text"
+                  value={newEnergySavingForm.certificate}
+                  onChange={(e) => setNewEnergySavingForm({ ...newEnergySavingForm, certificate: e.target.value })}
+                  placeholder="如 GB 18613-2020 1级 / 节能产品认证证书"
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">投产运行年份</label>
+                <input
+                  type="text"
+                  value={newEnergySavingForm.commissionYear}
+                  onChange={(e) => setNewEnergySavingForm({ ...newEnergySavingForm, commissionYear: e.target.value })}
+                  placeholder="如 2026年"
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">说明备注</label>
+                <input
+                  type="text"
+                  value={newEnergySavingForm.remark || ''}
+                  onChange={(e) => setNewEnergySavingForm({ ...newEnergySavingForm, remark: e.target.value })}
+                  placeholder="节能改造工程或设备特征"
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/60">
+              <button
+                type="button"
+                onClick={() => setIsAddEnergySavingModalOpen(false)}
+                className="px-3.5 py-1.5 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveAddEnergySaving}
+                className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer transition-colors shadow-sm"
+              >
+                确认录入并重新核算
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ───────────────────────────────────────────────────────────────── */}
+      {/* 模态框 2：编辑节能装备 */}
+      {/* ───────────────────────────────────────────────────────────────── */}
+      {isEditEnergySavingModalOpen && editingEnergySavingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border bg-card border-border p-5 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="size-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                  <Edit3 className="size-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">编辑节能装备档案</h3>
+                  <p className="text-[11px] text-muted-foreground">修改装备铭牌功率或认定能效等级，保存后实时重算</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditEnergySavingModalOpen(false)}
+                className="text-muted-foreground hover:text-foreground cursor-pointer p-1"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">设备资产编码</label>
+                <input
+                  type="text"
+                  value={editingEnergySavingItem.code}
+                  onChange={(e) => setEditingEnergySavingItem({ ...editingEnergySavingItem, code: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">设备名称</label>
+                <input
+                  type="text"
+                  value={editingEnergySavingItem.name}
+                  onChange={(e) => setEditingEnergySavingItem({ ...editingEnergySavingItem, name: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">规格型号</label>
+                <input
+                  type="text"
+                  value={editingEnergySavingItem.model}
+                  onChange={(e) => setEditingEnergySavingItem({ ...editingEnergySavingItem, model: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">额定功率 (kW)</label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={editingEnergySavingItem.ratedPower}
+                  onChange={(e) => setEditingEnergySavingItem({ ...editingEnergySavingItem, ratedPower: parseFloat(e.target.value) || 0 })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-emerald-400 font-mono font-bold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">能效国标等级</label>
+                <select
+                  value={editingEnergySavingItem.energyGrade}
+                  onChange={(e) => setEditingEnergySavingItem({ ...editingEnergySavingItem, energyGrade: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                >
+                  <option value="国标1级能效">国标1级能效</option>
+                  <option value="国标2级能效">国标2级能效</option>
+                  <option value="先进水平">先进水平</option>
+                  <option value="节能水平">节能水平</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">所属车间/部门</label>
+                <select
+                  value={editingEnergySavingItem.workshop}
+                  onChange={(e) => setEditingEnergySavingItem({ ...editingEnergySavingItem, workshop: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                >
+                  <option value="特高压数字化装配车间">特高压数字化装配车间</option>
+                  <option value="铁心剪切智能车间">铁心剪切智能车间</option>
+                  <option value="特高压试验站大厅">特高压试验站大厅</option>
+                  <option value="公辅动力能源动力站">公辅动力能源动力站</option>
+                  <option value="铜排加工成型车间">铜排加工成型车间</option>
+                  <option value="超高压立塔交联车间">超高压立塔交联车间</option>
+                  <option value="绝缘件智造分厂">绝缘件智造分厂</option>
+                  <option value="结构件焊接车间">结构件焊接车间</option>
+                </select>
+              </div>
+
+              <div className="space-y-1 col-span-2">
+                <label className="text-muted-foreground font-semibold">节能认定凭证 / 依据标准</label>
+                <input
+                  type="text"
+                  value={editingEnergySavingItem.certificate}
+                  onChange={(e) => setEditingEnergySavingItem({ ...editingEnergySavingItem, certificate: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">投产运行年份</label>
+                <input
+                  type="text"
+                  value={editingEnergySavingItem.commissionYear}
+                  onChange={(e) => setEditingEnergySavingItem({ ...editingEnergySavingItem, commissionYear: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">说明备注</label>
+                <input
+                  type="text"
+                  value={editingEnergySavingItem.remark || ''}
+                  onChange={(e) => setEditingEnergySavingItem({ ...editingEnergySavingItem, remark: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/60">
+              <button
+                type="button"
+                onClick={() => setIsEditEnergySavingModalOpen(false)}
+                className="px-3.5 py-1.5 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEditEnergySaving}
+                className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer transition-colors shadow-sm"
+              >
+                保存修改并重新计算
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ───────────────────────────────────────────────────────────────── */}
+      {/* 模态框 3：新增全厂装备台账 */}
+      {/* ───────────────────────────────────────────────────────────────── */}
+      {isAddInventoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border bg-card border-border p-5 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="size-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center">
+                  <Layers className="size-4.5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">新增全厂装备台账</h3>
+                  <p className="text-[11px] text-muted-foreground">维护全厂在册主要用能装备底账，核定统计范围总功率</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddInventoryModalOpen(false)}
+                className="text-muted-foreground hover:text-foreground cursor-pointer p-1"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">设备资产编号 <span className="text-rose-500">*</span></label>
+                <input
+                  type="text"
+                  value={newInventoryForm.code}
+                  onChange={(e) => setNewInventoryForm({ ...newInventoryForm, code: e.target.value })}
+                  placeholder="如 EQ-AST-1015"
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">设备名称 <span className="text-rose-500">*</span></label>
+                <input
+                  type="text"
+                  value={newInventoryForm.name}
+                  onChange={(e) => setNewInventoryForm({ ...newInventoryForm, name: e.target.value })}
+                  placeholder="如 4#数控绕线机组"
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">工艺类别</label>
+                <select
+                  value={newInventoryForm.processCategory}
+                  onChange={(e) => setNewInventoryForm({ ...newInventoryForm, processCategory: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                >
+                  <option value="变压器装配制造">变压器装配制造</option>
+                  <option value="硅钢剪切工序">硅钢剪切工序</option>
+                  <option value="高压型式试验">高压型式试验</option>
+                  <option value="公辅动力站">公辅动力站</option>
+                  <option value="铜排加工成型">铜排加工成型</option>
+                  <option value="线缆立塔交联">线缆立塔交联</option>
+                  <option value="绝缘件加工">绝缘件加工</option>
+                  <option value="油箱结构焊装">油箱结构焊装</option>
+                  <option value="环保公辅设施">环保公辅设施</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">规格型号</label>
+                <input
+                  type="text"
+                  value={newInventoryForm.model}
+                  onChange={(e) => setNewInventoryForm({ ...newInventoryForm, model: e.target.value })}
+                  placeholder="如 TB-WND-200"
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">铭牌额定功率 (kW) <span className="text-rose-500">*</span></label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={newInventoryForm.ratedPower}
+                  onChange={(e) => setNewInventoryForm({ ...newInventoryForm, ratedPower: parseFloat(e.target.value) || 0 })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-blue-400 font-mono font-bold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">当前运行工况</label>
+                <select
+                  value={newInventoryForm.runningStatus}
+                  onChange={(e) => setNewInventoryForm({ ...newInventoryForm, runningStatus: e.target.value as any })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                >
+                  <option value="running">运行中</option>
+                  <option value="standby">待机备用</option>
+                  <option value="maintenance">检修维护</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">责任车间/部门</label>
+                <select
+                  value={newInventoryForm.workshop}
+                  onChange={(e) => setNewInventoryForm({ ...newInventoryForm, workshop: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                >
+                  <option value="特高压数字化装配车间">特高压数字化装配车间</option>
+                  <option value="铁心剪切智能车间">铁心剪切智能车间</option>
+                  <option value="特高压试验站大厅">特高压试验站大厅</option>
+                  <option value="公辅动力能源动力站">公辅动力能源动力站</option>
+                  <option value="铜排加工成型车间">铜排加工成型车间</option>
+                  <option value="超高压立塔交联车间">超高压立塔交联车间</option>
+                  <option value="绝缘件智造分厂">绝缘件智造分厂</option>
+                  <option value="结构件焊接车间">结构件焊接车间</option>
+                </select>
+              </div>
+
+              <div className="space-y-1 flex items-center justify-between pt-5">
+                <label className="text-muted-foreground font-semibold">是否纳入能耗统计范围</label>
+                <input
+                  type="checkbox"
+                  checked={newInventoryForm.isInScope}
+                  onChange={(e) => setNewInventoryForm({ ...newInventoryForm, isInScope: e.target.checked })}
+                  className="size-4 accent-primary cursor-pointer"
+                />
+              </div>
+
+              <div className="space-y-1 flex items-center justify-between pt-1">
+                <label className="text-muted-foreground font-semibold">是否属于节能装备</label>
+                <input
+                  type="checkbox"
+                  checked={newInventoryForm.isEnergySaving}
+                  onChange={(e) => setNewInventoryForm({ ...newInventoryForm, isEnergySaving: e.target.checked })}
+                  className="size-4 accent-primary cursor-pointer"
+                />
+              </div>
+
+              <div className="space-y-1 col-span-2">
+                <label className="text-muted-foreground font-semibold">说明备注</label>
+                <input
+                  type="text"
+                  value={newInventoryForm.remark || ''}
+                  onChange={(e) => setNewInventoryForm({ ...newInventoryForm, remark: e.target.value })}
+                  placeholder="装备用途说明"
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/60">
+              <button
+                type="button"
+                onClick={() => setIsAddInventoryModalOpen(false)}
+                className="px-3.5 py-1.5 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveAddInventory}
+                className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold cursor-pointer transition-colors shadow-sm"
+              >
+                确认录入台账
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ───────────────────────────────────────────────────────────────── */}
+      {/* 模态框 4：编辑全厂装备台账 */}
+      {/* ───────────────────────────────────────────────────────────────── */}
+      {isEditInventoryModalOpen && editingInventoryItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border bg-card border-border p-5 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="size-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center">
+                  <Edit3 className="size-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">编辑装备台账档案</h3>
+                  <p className="text-[11px] text-muted-foreground">修改装备参数、运行状态或统计范围属性</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditInventoryModalOpen(false)}
+                className="text-muted-foreground hover:text-foreground cursor-pointer p-1"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">设备资产编号</label>
+                <input
+                  type="text"
+                  value={editingInventoryItem.code}
+                  onChange={(e) => setEditingInventoryItem({ ...editingInventoryItem, code: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">设备名称</label>
+                <input
+                  type="text"
+                  value={editingInventoryItem.name}
+                  onChange={(e) => setEditingInventoryItem({ ...editingInventoryItem, name: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">工艺类别</label>
+                <select
+                  value={editingInventoryItem.processCategory}
+                  onChange={(e) => setEditingInventoryItem({ ...editingInventoryItem, processCategory: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                >
+                  <option value="变压器装配制造">变压器装配制造</option>
+                  <option value="硅钢剪切工序">硅钢剪切工序</option>
+                  <option value="高压型式试验">高压型式试验</option>
+                  <option value="公辅动力站">公辅动力站</option>
+                  <option value="铜排加工成型">铜排加工成型</option>
+                  <option value="线缆立塔交联">线缆立塔交联</option>
+                  <option value="绝缘件加工">绝缘件加工</option>
+                  <option value="油箱结构焊装">油箱结构焊装</option>
+                  <option value="环保公辅设施">环保公辅设施</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">规格型号</label>
+                <input
+                  type="text"
+                  value={editingInventoryItem.model}
+                  onChange={(e) => setEditingInventoryItem({ ...editingInventoryItem, model: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">铭牌额定功率 (kW)</label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={editingInventoryItem.ratedPower}
+                  onChange={(e) => setEditingInventoryItem({ ...editingInventoryItem, ratedPower: parseFloat(e.target.value) || 0 })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-blue-400 font-mono font-bold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">运行工况</label>
+                <select
+                  value={editingInventoryItem.runningStatus}
+                  onChange={(e) => setEditingInventoryItem({ ...editingInventoryItem, runningStatus: e.target.value as any })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                >
+                  <option value="running">运行中</option>
+                  <option value="standby">待机备用</option>
+                  <option value="maintenance">检修维护</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-muted-foreground font-semibold">责任车间/部门</label>
+                <select
+                  value={editingInventoryItem.workshop}
+                  onChange={(e) => setEditingInventoryItem({ ...editingInventoryItem, workshop: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                >
+                  <option value="特高压数字化装配车间">特高压数字化装配车间</option>
+                  <option value="铁心剪切智能车间">铁心剪切智能车间</option>
+                  <option value="特高压试验站大厅">特高压试验站大厅</option>
+                  <option value="公辅动力能源动力站">公辅动力能源动力站</option>
+                  <option value="铜排加工成型车间">铜排加工成型车间</option>
+                  <option value="超高压立塔交联车间">超高压立塔交联车间</option>
+                  <option value="绝缘件智造分厂">绝缘件智造分厂</option>
+                  <option value="结构件焊接车间">结构件焊接车间</option>
+                </select>
+              </div>
+
+              <div className="space-y-1 flex items-center justify-between pt-5">
+                <label className="text-muted-foreground font-semibold">是否纳入能耗统计范围</label>
+                <input
+                  type="checkbox"
+                  checked={editingInventoryItem.isInScope}
+                  onChange={(e) => setEditingInventoryItem({ ...editingInventoryItem, isInScope: e.target.checked })}
+                  className="size-4 accent-primary cursor-pointer"
+                />
+              </div>
+
+              <div className="space-y-1 flex items-center justify-between pt-1">
+                <label className="text-muted-foreground font-semibold">是否属于节能装备</label>
+                <input
+                  type="checkbox"
+                  checked={editingInventoryItem.isEnergySaving}
+                  onChange={(e) => setEditingInventoryItem({ ...editingInventoryItem, isEnergySaving: e.target.checked })}
+                  className="size-4 accent-primary cursor-pointer"
+                />
+              </div>
+
+              <div className="space-y-1 col-span-2">
+                <label className="text-muted-foreground font-semibold">说明备注</label>
+                <input
+                  type="text"
+                  value={editingInventoryItem.remark || ''}
+                  onChange={(e) => setEditingInventoryItem({ ...editingInventoryItem, remark: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg bg-background dark:bg-[#0b1324] border border-border focus:border-primary text-foreground"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/60">
+              <button
+                type="button"
+                onClick={() => setIsEditInventoryModalOpen(false)}
+                className="px-3.5 py-1.5 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEditInventory}
+                className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold cursor-pointer transition-colors shadow-sm"
+              >
+                保存修改
+              </button>
             </div>
           </div>
         </div>

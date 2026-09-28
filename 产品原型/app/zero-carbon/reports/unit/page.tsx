@@ -9,6 +9,7 @@ import {
   X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ExportButton } from '@/components/shared/primitives'
 import { SearchableUnitSelect } from '@/components/shared/searchable-unit-select'
 import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 
@@ -658,13 +659,7 @@ export default function UnitReportPage() {
             </div>
           )}
 
-          <button
-            onClick={() => alert('正在导出单耗及指标管控明细台账 (Excel/PDF)...')}
-            className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 hover:bg-primary/90 shadow-xs transition-colors cursor-pointer"
-          >
-            <Download className="size-3.5" />
-            <span>导出</span>
-          </button>
+          <ExportButton onClick={() => alert('正在导出单耗及指标管控明细台账 (Excel/PDF)...')} />
         </div>
       </div>
 

@@ -1,13 +1,3 @@
-<!-- BEGIN:nextjs-agent-rules -->
-
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
-
 # 特变电工能碳数字化双中心 · Agent 开发与工程维护准则 (AGENTS.md)
 
 本项目为特变电工（TBEA）“双中心”数字化平台（零碳园区集控中心 + 产品碳足迹集采中心）。所有在本项目中运行的 AI 编程 Agent（Antigravity、Gemini、Claude、Cursor 等）在执行代码编写、页面重构、UI样式调整或功能维护时，**必须无条件遵循本文档记录的建档信息、专属技能（Skill）规范与日常维护工作守则**。
@@ -42,6 +32,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
    - 特变电工专属工业设计规范 (`tbea-industrial-design`)
    - Agent 指南与工程守则 (`AGENTS.md`)
 
+### 3. 项目 PRD 需求规格说明文档 (Product Requirement Documents)
+- **官方文档根目录路径**：`D:\Project\TJ-nengtan\PRD`
+- **文档定位与核心目标**：全量沉淀特变电工能碳数字化双中心（零碳园区集控中心 + 产品碳足迹集采中心）各业务模块的标准 PRD 需求规格说明书、业务控制流、数据字典、API 契约与验收准则。
+- **编写与维护纪律**：
+  1. **分卷分模块演进**：严格按照 PRD 全局架构规划分卷建立子文档，统一于 `D:\Project\TJ-nengtan\PRD\README.md` 形成总目录索引；
+  2. **多角色协同闭环 (PM + Dev + QA)**：各模块 PRD 必须深度融合产品业务价值/User Stories (INVEST+Gherkin 规范)、系统架构/数据结构、以及 QA 边界测试矩阵；
+  3. **工业设计与中立性约束**：文档中所有功能与原型描述必须无条件遵循 `tbea-industrial-design` 规范（如 44px 工业高密表格行高、严格杜绝主观定性评价、双端同构同步等）。
+
 ---
 
 ## 二、 本项目专属技能规范 (Project Custom Skill: tbea-industrial-design)
@@ -68,13 +66,63 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
    - 严格遵循《生产单位与涉及关键工序对应表(1).et》，沈变、衡变、新变、鲁缆下属智慧能源等 10 家无工序企业精准判空为 `暂无相关工序！`，有工序单位仅看自身工序。
 4. **设备介质自适应与命名标准**：
    - 设备以纯电力驱动为主，卡片指标根据设备真实上传类型自适应，原“管道工作压力”统一更名为“**蒸汽消耗量**”。
-5. **双端同构开发要求**：
-   - 暗黑科技蓝（端口 3000）与浅色办公商务（端口 3001）双端必须 100% 同构更新。
+5. **版本维护范围硬约束（仅维护 3001 浅色版本，深色版本暂停维护）**：
+   - **核心执行原则**：每次任务或代码修改时，**仅修改端口 3001 浅色版本**（代码目录：`d:/Project/TJ-nengtan/产品原型-旧/产品原型/`）；
+   - **深色版本状态**：端口 3000 深色版本（代码目录：`d:/Project/TJ-nengtan/产品原型/`）**暂停维护**；
+   - 未获用户明确特别指令前，所有业务功能迭代、页面重构、UI 样式微调与缺陷修复均严格收敛于 3001 浅色版本，不再同步修改深色版本。
 6. **图表悬停游标微透科技蓝规范 (No-Glare Chart Cursors)**：
    - 深色模式下所有柱状图游标严禁硬编码纯白（`#f8fafc`）或依赖未设 cursor 导致的灰白实体块（`#f5f5f5`），强制显式统一为微透科技蓝 `rgba(56, 189, 248, 0.08)`，折线/面积图游标统一为 `rgba(56, 189, 248, 0.25)`；浅色模式统一为极细微灰 `rgba(0, 0, 0, 0.04)`。
+7. **全局设计色彩与面板规范 (依据《UI页面修改 (2).pdf》权威基准)**：
+   - **页面背景**：`#F3F7FB`（浅色端全站统一页面背景色）；
+   - **面板/卡片容器**：填充色 `#FFFFFF`，描边边框 `#DBE6EE`，圆角固定 **`8px`**，面板间距统一修改为 **`24px`**（`gap-6` / `space-y-6`）；
+   - **全局字体阶梯**：正文字号 **`14px`**；面板标题字号 **`16px 加粗`**；卡片标题 **`14px`**；卡片主数值 **`24px 加粗`**（Mono 等宽）；其他辅助字号（单位、同比等）统一 **`14px`**。
+8. **8 大能源介质标准色与 4 段尖峰平谷色彩字典 (Color Tokens)**：
+   - **主题科技蓝**：`#2C7CFF`；
+   - **8 大能源介质**：总用电量 `#2C7CFF`；市电量 `#41C0FF`；直供绿电量 `#00D492`；水资源 `#10C4CE`；天然气 `#FF6536`；蒸汽 `#FFBA00`；油消耗 `#8E73ED`；液氮 `#4F39F6`（全系统所有能源图表、卡片及徽章同步执行）；
+   - **分时电量 4 段类型色 (TOU)**：尖 `#FF6536`；峰 `#FFBA00`；平 `#2C7CFF`；谷 `#10C4CE`（系统中所有分时图表与卡片同步执行）。
+9. **导航栏与拓扑树人机工程规范**：
+   - **导航栏宽度**：统一固定为 **`260px`**；
+   - **Logo 与系统名称**：Logo 替换成官方图片，Logo 下方新增两行规范文字：“**零碳园区集控中心**”（大号白字）与英文小字“**PARK CENTRALIZED CONTROL CENTER**”；
+   - **业务中心选择器收敛**：顶部导航原“选择切换业务中心”功能统一迁移至左侧导航栏中（位于 Logo 与系统标题正下方，采用半透明圆角胶囊下拉菜单呈现，支持零碳园区集控中心与产品碳足迹集采中心一键切换）；
+   - **导航与树文字间距**：导航文字间距统一增大到 **`30px`**；组织架构拓扑树文字间距/行高统一调整为 **`30px`**，树节点选中高亮为浅蓝圆角底色 `#EBF3FF`。
+10. **交互控制组件标准规格 (TAB / 导出按钮 / 输入框 / 下拉框)**：
+    - **TAB 样式**：激活态为实心科技蓝胶囊 **`#2C7CFF`** + 白色加粗文字 + 8px 圆角；未激活态为纯文本无背景；
+    - **导出按钮**：宽度统一固定为 **`80px`**，高度统一固定为 **`36px`**，背景填充 **`#2C7CFF`**，圆角 **`8px`**，白字白图标；系统所有导出按钮同步规范；
+    - **输入框与下拉框**：推荐宽度 **`200px`**，高度固定 **`36px`**，背景填充纯白 **`#FFFFFF`**，边框描边 **`#E2E8F0`**，圆角 **`8px`**。
 
-### 3. Skill 持续演进机制
-- 当客户提出新的交互偏好或反模式时，Agent 必须第一时间将该规则提炼并更新沉淀至 `tbea-industrial-design` 的 `SKILL.md` 中，形成闭环。
+### 3. 本项目 PRD 编制专属技能 (Project Custom Skill: tbea-prd-standards)
+- **项目级路径**：[`.gemini/skills/tbea-prd-standards/SKILL.md`](./.gemini/skills/tbea-prd-standards/SKILL.md)
+- **全局级路径**：`C:\Users\54321\.gemini\config\skills\tbea-prd-standards\SKILL.md`
+- **调用规则**：Agent 在执行本项目 PRD 需求规格说明书撰写、功能章节细化、数据字典补充或验收矩阵设计时，**必须优先激活并全量遵循本 Skill**。
+- **核心规范要点**：
+  1. **PRD 10 大标准板块**：元数据审签、背景定位、角色画像、系统架构数据流、设计规范、详细功能需求、数据字典/公式、NFR非功能需求、接口契约、QA验收矩阵；
+  2. **主导航逐层拆解法**：功能需求严格映射真实系统的系统顶层 ➔ 一级主导航 ➔ 二级子导航 ➔ 三级页面/标签页逐层展开；
+  3. **PM/Dev/QA 三位一体闭环**：融入 INVEST 用户故事、Gherkin 验收准则、44px 行高约束、白名单精准判空（10家无工序单位单行输出 `暂无相关工序！`）及破坏性边界防刷测试；
+  4. **Word (.docx) 工业级排版导出**：统一通过 `D:\Project\TJ-nengtan\PRD\build_prd_docx.py` 自动化引擎构建，保持深蓝封面、高密表格与 Callout 业务约束样式。
+
+### 4. 本项目标准化交付打包专属技能 (Project Custom Skill: tbea-delivery-packaging)
+- **项目级路径**：[`.gemini/skills/tbea-delivery-packaging/SKILL.md`](./.gemini/skills/tbea-delivery-packaging/SKILL.md)
+- **全局级路径**：`C:\Users\54321\.gemini\config\skills\tbea-delivery-packaging\SKILL.md`
+- **自动化构建脚本**：[`.gemini/skills/tbea-delivery-packaging/scripts/package_release.py`](./.gemini/skills/tbea-delivery-packaging/scripts/package_release.py)
+- **调用规则**：Agent 在执行前端代码打包、签发交付包、交接归档或部署准备时，**必须优先激活并全量遵循本 Skill**。
+- **核心规范要点**：
+  1. **三大标准化交付工程包体系**：双端同构+PRD总包（~29.3MB）、暗黑科技蓝独立包（~18.2MB）、浅色商务办公独立包（~18.2MB）；
+  2. **零门槛开箱即用**：各工程包内嵌免配置的 Windows 启动脚本（`一键安装依赖并启动.bat` 与 `启动开发调试服务.bat`），双击自适应 pnpm/npm 并在独立端口（3000/3001）快速拉起；
+  3. **PRD 文档与业务字典强闭环**：随包挂载全套 PRD v1.1 docx、工序/园区/产线白名单权威对应表、MODIFICATIONS_LOG.md 以及 35 篇详尽开发手册；
+  4. **纯净源码过滤铁律**：严密剔除 `node_modules`、`.next`、`out`、`.git`、`.turbo`、`.vscode` 等临时缓存产物。
+
+### 5. 本项目模块级 PRD 说明模板专属技能 (Project Custom Skill: tbea-module-prd-template)
+- **项目级路径**：[`.gemini/skills/tbea-module-prd-template/SKILL.md`](./.gemini/skills/tbea-module-prd-template/SKILL.md)
+- **全局级路径**：`C:\Users\54321\.gemini\config\skills\tbea-module-prd-template\SKILL.md`
+- **开箱即用模板**：[`PRD/templates/PAGE_PRD_TEMPLATE.md`](./PRD/templates/PAGE_PRD_TEMPLATE.md)
+- **调用规则**：Agent 在执行具体业务功能页面（如用能监测、微电网、碳足迹核算、CBAM 等）的 PRD 需求规格说明编写、扩展或评审时，**必须全量激活并遵循此八段式完整度模板**。
+- **核心规范要点**：
+  1. **八段式完整度标准**：【1】定位与架构角色 ➔ 【2】业务场景与用户故事 ➔ 【3】功能规格与交互契约 ➔ 【4】页面字段字典与数据契约 ➔ 【5】核心数学模型与算法公式 ➔ 【6】展示、对标与判定口径 ➔ 【7】边界条件、异常处理与防错规则 ➔ 【8】QA 自动化验收准则 (Gherkin BDD)；
+  2. **微观字段 Schema 严谨定义**：字段必须包含 `field_id`、中文名、英文名、数据类型、工程单位、必填、精度、来源系统及防错校验规则；
+  3. **工业不变量强约束**：44px 工业高密表格、客观中立无定性褒贬评价、状态自解释无冗余联动标签、10 家无工序企业单行干练输出 `暂无相关工序！`、变压器与线缆分母物理隔离、数学除零软兜底 `--`。
+
+### 6. Skill 持续演进机制
+- 当客户提出新的交互偏好、反模式、打包交付结构、模块 PRD 规范或业务核算模型变更时，Agent 必须第一时间将该规则提炼并更新沉淀至 `tbea-industrial-design`、`tbea-prd-standards`、`tbea-delivery-packaging` 或 `tbea-module-prd-template` 的 `SKILL.md` 中，形成闭环。
 
 ---
 
@@ -86,14 +134,38 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - 若修改属于已有的功能模块，**严禁在文件末尾新增重复章节，必须定位到该功能模块的历史条目下方**；
   - 原位更新该模块的“最新更新时间”；
   - 追加或合并本次具体的修改项、改动动因（用户反馈/权威工序依据）；
-  - 更新关联代码文件路径（必须同时标明暗黑端与浅色端路径）。
+  - 更新关联代码文件路径（标明浅色端更新路径 `产品原型-旧/产品原型/...`，并标注深色端暂停维护）。
 
-### 2. 线上部署与 Git 提交纪律：严格禁止自动执行，手动按需触发
-- ❌ **绝对严禁行为**：
-  - 任务完成后，**绝不允许自动向远程生产服务器（`8.215.89.194`）执行打包推送或 Nginx 重载**；
-  - 任务完成后，**绝不允许自动执行 `git commit` 与 `git push`**。
-- ✅ **指令触发制（Manual Trigger On-Demand）**：
-  - 代码修改完成后，仅在本地执行静态编译检查（`pnpm build`，确保 76/76 路由编译通过且 0 报错）；
-  - 自动维护好 `MODIFICATIONS_LOG.md`；
+### 2. 线上部署与 Git 提交纪律：严格禁止自动执行，手动按需触发（最高执行铁律）
+- ❌ **绝对严禁行为（红线）**：
+  - **每次修改完成后，绝不允许自动向远程生产服务器（`8.215.89.194`）执行打包推送或 Nginx 重载**；
+  - **每次修改完成后，绝不允许自动执行 `git commit` 与 `git push`**；
+  - **Vue 3 工程（`VUE/` 目录）严格禁止提交 Git**：`VUE/` 目录仅作为本地独立研发与验证工作区，已在根目录 `.gitignore` 中加入全局忽略，任何情况下绝不向 Git 仓库提交或推送 `VUE/` 目录下的任何代码与资产！
+- ✅ **指令触发制（Strict Manual Trigger On-Demand）**：
+  - **每次任务或代码修改完成后，仅在本地针对 3001 浅色版本执行静态编译检查与探活**（`pnpm build`，确保 3001 浅色端 76/76 路由编译通过且 0 报错）；
+  - 自动将修改内容原位维护更新至 `MODIFICATIONS_LOG.md`；
   - 向用户汇报本地自测就绪状态与修改清单，等待用户查阅；
-  - **仅当用户明确下达指令（例如“部署到线上”、“提交代码”等）时，才触发远程部署流水线与 Git 提交**。
+  - **必须严格等待用户明确发出指令（例如：“提交代码”、“部署到线上”、“推送上线”等）后，才允许执行 Git 提交或线上部署流水线**。未经用户明确要求，代码仅留存本地工作区！
+
+### 3. 工作区纯洁性与反寄生脚手架原则 (Clean Workspace & Single Source of Truth)
+- ❌ **严禁行为**：严禁在项目工作区内擅自新建或植入独立的第三方辅助管理工程、未授权的次级看板（如独立的 Kanban Web 应用）或寄生微应用，避免破坏工程依赖与上下文纯洁性；
+- ✅ **标准原则**：工作区核心资产严格收敛于：暗黑端工程（`产品原型/`）、浅色端工程（`产品原型-旧/产品原型/`）、文档中心（`PRD/`、`需求文档/`）以及本地实验区（`VUE/`）。任何辅助调试脚本统一存放于临时 scratch 目录，用完即归档或清理。
+
+### 4. 工业业务术语同音容错与领域对齐 (Domain Phonetic Tolerance)
+- 面对特变电工业务领域特定术语，Agent 必须具备自然拼音/语音同音纠偏意识，严禁因字面差异导致理解走偏：
+  - “解控” / “结控” ➔ 自动识别为 **“集控”**（零碳园区集控中心，`Centralized Control Center`）；
+  - “碳竹迹” ➔ 自动识别为 **“碳足迹”**（产品碳足迹集采中心）；
+  - “鲁蓝” ➔ 自动识别为 **“鲁缆”**（特变电工山东鲁能泰山电缆）；
+  - “新编” ➔ 自动识别为 **“新变”**（特变电工新疆变压器厂）；
+  - “恒变” ➔ 自动识别为 **“衡变”**（特变电工衡阳变压器有限公司）。
+
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

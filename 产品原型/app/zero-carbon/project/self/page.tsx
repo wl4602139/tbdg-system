@@ -1,5 +1,6 @@
 'use client'
 
+import { ExportButton } from '@/components/shared/primitives'
 import React, { useState, useMemo } from 'react'
 import {
   Award,
@@ -23,3436 +24,51 @@ import {
   ArrowRight,
   Lightbulb,
   CheckSquare,
+  Square,
   BarChart3,
   Calendar,
   Download,
+  Upload,
+  Paperclip,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line
 } from 'recharts'
-// 零碳供应链 6 大降碳措施规范选项
-export const SUPPLY_CHAIN_MEASURES_OPTIONS = [
-  { id: 'sc-1', title: '1. 健全管理制度', desc: '建立绿色低碳供应链管理制度与供应商低碳准入标准' },
-  { id: 'sc-2', title: '2. 碳数据协同', desc: '搭建供应链碳排放数据采集与核算协同机制' },
-  { id: 'sc-3', title: '3. 供应商赋能与培育', desc: '定期组织开展供应商碳减排赋能培训与现场低碳诊断' },
-  { id: 'sc-4', title: '4. 资源循环利用 (EPR)', desc: '实施原材料包装循环共用及废旧物资/余料回收闭环利用' },
-  { id: 'sc-5', title: '5. 信息化与数字化管理', desc: '部署供应链碳足迹与绿色物料全流程信息化追踪系统' },
-  { id: 'sc-6', title: '6. 绿色低碳清洁物流', desc: '厂内及主要干线采用新能源/清洁运输车辆比例 ≥ 85%' },
-]
+import {
+  SUPPLY_CHAIN_MEASURES_OPTIONS,
+  CONTROL_CENTER_FEATURE_OPTIONS,
+  DISCLOSURE_DOC_OPTIONS,
+  ALL_ZERO_CARBON_FACTORIES,
+  type FactoryEvaluationData,
+  type EvaluationAttachment,
+} from '@/lib/zero-carbon-self-evaluation'
 
-// 能碳管理中心 13 项数字化功能模块规范选项
-export const CONTROL_CENTER_FEATURE_OPTIONS = [
-  { id: 'cc-1', title: '1. 能耗实时查询与监控', desc: '各车间、重点设备电水气热实时能耗曲线监测' },
-  { id: 'cc-2', title: '2. 能耗强度与单耗核算', desc: '单位产品能耗及工业增加值能耗动态计算分析' },
-  { id: 'cc-3', title: '3. 运行策略与节能推荐', desc: '峰谷电价负荷转移、空压机群控等优化策略' },
-  { id: 'cc-4', title: '4. 能源流向与能流图动态展示', desc: '全厂桑基图与拓扑能流动态平衡可视化' },
-  { id: 'cc-5', title: '5. 负荷平衡与需量优化', desc: '变压器负荷率优化与需量申报智能预警' },
-  { id: 'cc-6', title: '6. 用能预算与超额告警', desc: '按月/年制定能耗预算指标与超限分级告警' },
-  { id: 'cc-7', title: '7. 碳排放实时核算与盘查', desc: '范围一、二、三温室气体排放实时电量折标核算' },
-  { id: 'cc-8', title: '8. 产品碳足迹生命周期建模', desc: '变压器/线缆主要产品 LCA 碳足迹在线核算' },
-  { id: 'cc-9', title: '9. 供应链碳排放协同追踪', desc: '上游重点原材料供应商碳数据报送与碳标签' },
-  { id: 'cc-10', title: '10. 碳核查报告与 MRV 归档', desc: '符合 ISO 14064 标准的温室气体清单自动生成' },
-  { id: 'cc-11', title: '11. 碳资产管理与配额模拟', desc: '全国碳市场配额盈缺预测与绿证绿电交易管理' },
-  { id: 'cc-12', title: '12. 双碳智能辅助决策支持', desc: '零碳工厂达标路径规划与节能降碳技改 ROI 评估' },
-  { id: 'cc-13', title: '13. 设备能效在线监测预警', desc: '电机、变压器、空压机实时运行效率偏离预警' },
-]
-
-// 碳排放信息披露 5 大载体文件规范选项
-export const DISCLOSURE_DOC_OPTIONS = [
-  { id: 'doc-1', title: '《企业可持续发展报告》', desc: '定期公开披露碳排放总量、能耗强度与减排行动' },
-  { id: 'doc-2', title: '《企业 ESG / 环境社会治理报告》', desc: '公开披露环境、社会与公司治理碳减排绩效与双碳目标' },
-  { id: 'doc-3', title: '《零碳工厂建设自评估报告》', desc: '公开披露工厂源头减碳、过程脱碳及零碳工厂建设成效' },
-  { id: 'doc-4', title: '《产品碳足迹 (LCA) 公开报告》', desc: '公开主要产品全生命周期碳足迹核算结果与减碳标识' },
-  { id: 'doc-5', title: '《第三方碳核查声明与碳抵销报告》', desc: '公开第三方权威机构温室气体核查声明及碳抵销情况' },
-]
-
-export interface FactoryEvaluationData {
-  id: string
-  company: string
-  factoryName: string
-  carbonClearRate: number
-  autoCollectRate: number
-  supplyChainMeasuresCount: number
-  controlCenterFeaturesCount: number
-  disclosureDocsCount: number
-  supplyChainMeasures: string[]
-  controlCenterFeatures: string[]
-  disclosureFiles: string[]
-  metrics: {
-    '1.1': { name: '非化石电力消费比例'; value: number; unit: '%'; type: 'auto' }
-    '1.2': { name: '节能与低碳改造覆盖率'; value: number; unit: '%'; type: 'auto' }
-    '1.3': { name: '屋顶及建筑光伏利用率'; value: number; unit: '%'; type: 'auto' }
-    '2.1': { name: '电机系统运行能效'; value: string; unit: ''; type: 'auto' }
-    '2.2': { name: '空压机站节能评级'; value: string; unit: ''; type: 'auto' }
-    '2.3': { name: '碳清除率 (Re)'; value: number; unit: '%'; type: 'declared' }
-    '3.1': { name: '绿色电力绿证消纳占比'; value: number; unit: '%'; type: 'auto' }
-    '3.2': { name: '零碳供应链管理措施'; value: string; unit: ''; type: 'declared' }
-    '4.1': { name: '数据自动采集率 (Ra)'; value: number; unit: '%'; type: 'declared' }
-    '4.2': { name: '能碳管理中心功能项数'; value: string; unit: ''; type: 'declared' }
-    '5.1': { name: '碳排放信息披露透明度'; value: string; unit: ''; type: 'declared' }
-  }
-  status: '已自评已申报' | '自评待审核' | '申报中'
-  evaluator: string
-  declareDate: string
-  notes?: string
+const darkTooltipStyle = {
+  backgroundColor: 'rgba(11, 21, 40, 0.95)',
+  border: '1px solid rgba(56, 189, 248, 0.3)',
+  borderRadius: '8px',
+  boxShadow: '0 8px 24px -4px rgba(0, 0, 0, 0.6)',
+  fontSize: '12px',
+  padding: '8px 12px',
+  color: '#f8fafc',
 }
 
-// 6 大经营单位原始数据拓扑
-const RAW_ZERO_CARBON_FACTORIES: FactoryEvaluationData[] = [
-  {
-    "id": "f-sb-1",
-    "company": "沈变公司",
-    "factoryName": "沈变本部",
-    "carbonClearRate": 8.5,
-    "autoCollectRate": 98.6,
-    "supplyChainMeasuresCount": 6,
-    "controlCenterFeaturesCount": 13,
-    "disclosureDocsCount": 5,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5",
-      "sc-6"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12",
-      "cc-13"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4",
-      "doc-5"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 39.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 92,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 28,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "优于国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 8.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 93,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 6/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 98.6,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 13/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 5/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "沈变能碳运营办",
-    "declareDate": "2026-08-28"
-  },
-  {
-    "id": "f-sb-2",
-    "company": "沈变公司",
-    "factoryName": "露娜公司 (特变电工露娜智能)",
-    "carbonClearRate": 7.6,
-    "autoCollectRate": 98,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 13,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12",
-      "cc-13"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 37.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 89.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 25.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "优于国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 7.6,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 91.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 98,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 13/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "露娜智能制造办",
-    "declareDate": "2026-08-26"
-  },
-  {
-    "id": "f-sb-3",
-    "company": "沈变公司",
-    "factoryName": "智慧能源",
-    "carbonClearRate": 8,
-    "autoCollectRate": 98.2,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 13,
-    "disclosureDocsCount": 5,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12",
-      "cc-13"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4",
-      "doc-5"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 38.8,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 91,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 27,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "优于国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 92.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 98.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 13/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 5/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "沈变智慧能源部",
-    "declareDate": "2026-08-25"
-  },
-  {
-    "id": "f-sb-4",
-    "company": "沈变公司",
-    "factoryName": "和新套管公司",
-    "carbonClearRate": 6.8,
-    "autoCollectRate": 97.2,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 36,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 87.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 24,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 90,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 97.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "和新安环部",
-    "declareDate": "2026-08-24"
-  },
-  {
-    "id": "f-sb-5",
-    "company": "沈变公司",
-    "factoryName": "康嘉互感器",
-    "carbonClearRate": 6.5,
-    "autoCollectRate": 96.8,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 35.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 86.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 23,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 89.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "康嘉技术部",
-    "declareDate": "2026-08-22"
-  },
-  {
-    "id": "f-sb-6",
-    "company": "沈变公司",
-    "factoryName": "印能公司",
-    "carbonClearRate": 6.2,
-    "autoCollectRate": 96,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 34,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 85,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 22,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 88,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "印能设备处",
-    "declareDate": "2026-08-20"
-  },
-  {
-    "id": "f-hb-1",
-    "company": "衡变公司",
-    "factoryName": "衡变本部",
-    "carbonClearRate": 8,
-    "autoCollectRate": 98,
-    "supplyChainMeasuresCount": 6,
-    "controlCenterFeaturesCount": 13,
-    "disclosureDocsCount": 5,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5",
-      "sc-6"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12",
-      "cc-13"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4",
-      "doc-5"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 38,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 90,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 26,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "优于国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 92,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 6/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 98,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 13/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 5/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "衡变双碳管理室",
-    "declareDate": "2026-08-27"
-  },
-  {
-    "id": "f-hb-2",
-    "company": "衡变公司",
-    "factoryName": "南京电研",
-    "carbonClearRate": 7.2,
-    "autoCollectRate": 97.5,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 13,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12",
-      "cc-13"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 37,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 89,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 25,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "优于国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 7.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 91,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 97.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 13/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "南京电研能碳办",
-    "declareDate": "2026-08-25"
-  },
-  {
-    "id": "f-hb-3",
-    "company": "衡变公司",
-    "factoryName": "云集电气",
-    "carbonClearRate": 6.8,
-    "autoCollectRate": 97,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 36.2,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 88,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 24,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 90,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 97,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "云集电气生产部",
-    "declareDate": "2026-08-24"
-  },
-  {
-    "id": "f-hb-4",
-    "company": "衡变公司",
-    "factoryName": "湖南电气",
-    "carbonClearRate": 6.5,
-    "autoCollectRate": 96.8,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 35.8,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 87,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 23.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 89.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "湖南电气制造部",
-    "declareDate": "2026-08-23"
-  },
-  {
-    "id": "f-hb-5",
-    "company": "衡变公司",
-    "factoryName": "云集高压开关",
-    "carbonClearRate": 6.2,
-    "autoCollectRate": 96.5,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 35,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 86,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 23,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 89,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "开关制造部",
-    "declareDate": "2026-08-22"
-  },
-  {
-    "id": "f-hb-6",
-    "company": "衡变公司",
-    "factoryName": "新疆自控",
-    "carbonClearRate": 6,
-    "autoCollectRate": 96.2,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 34.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 85,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 22,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 88,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "自控工程部",
-    "declareDate": "2026-08-21"
-  },
-  {
-    "id": "f-hb-7",
-    "company": "衡变公司",
-    "factoryName": "上开",
-    "carbonClearRate": 5.8,
-    "autoCollectRate": 96,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 34,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 84.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 21.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 5.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 87.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "上开制造部",
-    "declareDate": "2026-08-20"
-  },
-  {
-    "id": "f-hb-8",
-    "company": "衡变公司",
-    "factoryName": "柯贝尔",
-    "carbonClearRate": 5.6,
-    "autoCollectRate": 95.8,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 33.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 84,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 21,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 5.6,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 87,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 95.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "柯贝尔管理部",
-    "declareDate": "2026-08-19"
-  },
-  {
-    "id": "f-hb-9",
-    "company": "衡变公司",
-    "factoryName": "特能建",
-    "carbonClearRate": 5.5,
-    "autoCollectRate": 95.5,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 33,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 83.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 20.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 5.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 86.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 95.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "特能建能环处",
-    "declareDate": "2026-08-18"
-  },
-  {
-    "id": "f-hb-10",
-    "company": "衡变公司",
-    "factoryName": "合容电气",
-    "carbonClearRate": 5.4,
-    "autoCollectRate": 95.2,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 32.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 83,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 20,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 5.4,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 86,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 95.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "合容电气制造处",
-    "declareDate": "2026-08-17"
-  },
-  {
-    "id": "f-hb-11",
-    "company": "衡变公司",
-    "factoryName": "赛杰爱迪",
-    "carbonClearRate": 5.2,
-    "autoCollectRate": 95,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 32,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 82.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 19.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 5.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 85.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 95,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "赛杰爱迪安环部",
-    "declareDate": "2026-08-16"
-  },
-  {
-    "id": "f-xb-1",
-    "company": "新变厂",
-    "factoryName": "超高压公司",
-    "carbonClearRate": 7.8,
-    "autoCollectRate": 98.4,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 13,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12",
-      "cc-13"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 38,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 90,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 26.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "优于国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 7.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 92,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 98.4,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 13/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "新变智能制造办",
-    "declareDate": "2026-08-26"
-  },
-  {
-    "id": "f-xb-2",
-    "company": "新变厂",
-    "factoryName": "天变公司",
-    "carbonClearRate": 7,
-    "autoCollectRate": 97.5,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 36.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 88,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 24.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "优于国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 7,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 90.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 97.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "天变能环处",
-    "declareDate": "2026-08-25"
-  },
-  {
-    "id": "f-xb-3",
-    "company": "新变厂",
-    "factoryName": "智能电气公司",
-    "carbonClearRate": 6.8,
-    "autoCollectRate": 97,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 36,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 87,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 23.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 89.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 97,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "智能电气工程部",
-    "declareDate": "2026-08-24"
-  },
-  {
-    "id": "f-xb-4",
-    "company": "新变厂",
-    "factoryName": "京津冀公司",
-    "carbonClearRate": 6.5,
-    "autoCollectRate": 96.8,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 35.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 86.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 23,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 89,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "京津冀生产部",
-    "declareDate": "2026-08-23"
-  },
-  {
-    "id": "f-xb-5",
-    "company": "新变厂",
-    "factoryName": "珠峰硅钢",
-    "carbonClearRate": 6.2,
-    "autoCollectRate": 96.5,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 35,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 85.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 22.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 88.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "珠峰硅钢技术部",
-    "declareDate": "2026-08-22"
-  },
-  {
-    "id": "f-xb-6",
-    "company": "新变厂",
-    "factoryName": "智慧能源",
-    "carbonClearRate": 6,
-    "autoCollectRate": 96,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 34.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 85,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 22,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 88,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "新变智慧能源部",
-    "declareDate": "2026-08-21"
-  },
-  {
-    "id": "f-xb-7",
-    "company": "新变厂",
-    "factoryName": "银利电气",
-    "carbonClearRate": 5.8,
-    "autoCollectRate": 95.8,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 34,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 84,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 21,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 5.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 87.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 95.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "银利电气能环处",
-    "declareDate": "2026-08-20"
-  },
-  {
-    "id": "f-ll-1",
-    "company": "鲁缆公司",
-    "factoryName": "鲁缆本部",
-    "carbonClearRate": 6.5,
-    "autoCollectRate": 97,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 35,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 87,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 23,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "优于国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 89,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 97,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "鲁缆设备环保处",
-    "declareDate": "2026-08-24"
-  },
-  {
-    "id": "f-ll-2",
-    "company": "鲁缆公司",
-    "factoryName": "智缆公司",
-    "carbonClearRate": 6,
-    "autoCollectRate": 96.5,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 34,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 86,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 22,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 88,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "智缆生产部",
-    "declareDate": "2026-08-23"
-  },
-  {
-    "id": "f-ll-3",
-    "company": "鲁缆公司",
-    "factoryName": "昭和公司",
-    "carbonClearRate": 5.5,
-    "autoCollectRate": 95.8,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 33.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 84.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 21,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 5.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 86.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 95.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "昭和精益制造处",
-    "declareDate": "2026-08-21"
-  },
-  {
-    "id": "f-ll-4",
-    "company": "鲁缆公司",
-    "factoryName": "曙光公司",
-    "carbonClearRate": 5.2,
-    "autoCollectRate": 95.2,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 32.8,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 83.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 20.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 5.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 85.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 95.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "曙光制造部",
-    "declareDate": "2026-08-19"
-  },
-  {
-    "id": "f-xl-1",
-    "company": "新缆厂",
-    "factoryName": "特变电工新疆电缆有限公司",
-    "carbonClearRate": 6.2,
-    "autoCollectRate": 96.8,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 34.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 86.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 23,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "优于国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6.2,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 89,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "新缆安环处",
-    "declareDate": "2026-08-25"
-  },
-  {
-    "id": "f-xl-2",
-    "company": "新缆厂",
-    "factoryName": "特变电工新疆线缆厂",
-    "carbonClearRate": 5.6,
-    "autoCollectRate": 95.8,
-    "supplyChainMeasuresCount": 4,
-    "controlCenterFeaturesCount": 11,
-    "disclosureDocsCount": 3,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 33,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 84,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 21.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "达到国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "二级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 5.6,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 86.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 4/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 95.8,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 11/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 3/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "新缆生产保障部",
-    "declareDate": "2026-08-22"
-  },
-  {
-    "id": "f-dl-1",
-    "company": "德缆公司",
-    "factoryName": "特变电工（德阳）电缆股份有限公司",
-    "carbonClearRate": 6,
-    "autoCollectRate": 96.5,
-    "supplyChainMeasuresCount": 5,
-    "controlCenterFeaturesCount": 12,
-    "disclosureDocsCount": 4,
-    "supplyChainMeasures": [
-      "sc-1",
-      "sc-2",
-      "sc-3",
-      "sc-4",
-      "sc-5"
-    ],
-    "controlCenterFeatures": [
-      "cc-1",
-      "cc-2",
-      "cc-3",
-      "cc-4",
-      "cc-5",
-      "cc-6",
-      "cc-7",
-      "cc-8",
-      "cc-9",
-      "cc-10",
-      "cc-11",
-      "cc-12"
-    ],
-    "disclosureFiles": [
-      "doc-1",
-      "doc-2",
-      "doc-3",
-      "doc-4"
-    ],
-    "metrics": {
-      "1.1": {
-        "name": "非化石电力消费比例",
-        "value": 34,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.2": {
-        "name": "节能与低碳改造覆盖率",
-        "value": 86,
-        "unit": "%",
-        "type": "auto"
-      },
-      "1.3": {
-        "name": "屋顶及建筑光伏利用率",
-        "value": 22.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "2.1": {
-        "name": "电机系统运行能效",
-        "value": "优于国标二级",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.2": {
-        "name": "空压机站节能评级",
-        "value": "一级能效站房",
-        "unit": "",
-        "type": "auto"
-      },
-      "2.3": {
-        "name": "碳清除率 (Re)",
-        "value": 6,
-        "unit": "%",
-        "type": "declared"
-      },
-      "3.1": {
-        "name": "绿色电力绿证消纳占比",
-        "value": 88.5,
-        "unit": "%",
-        "type": "auto"
-      },
-      "3.2": {
-        "name": "零碳供应链管理措施",
-        "value": "已选 5/6 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "4.1": {
-        "name": "数据自动采集率 (Ra)",
-        "value": 96.5,
-        "unit": "%",
-        "type": "declared"
-      },
-      "4.2": {
-        "name": "能碳管理中心功能项数",
-        "value": "已选 12/13 项",
-        "unit": "",
-        "type": "declared"
-      },
-      "5.1": {
-        "name": "碳排放信息披露透明度",
-        "value": "已选 4/5 份",
-        "unit": "",
-        "type": "declared"
-      }
-    },
-    "status": "已自评已申报",
-    "evaluator": "德缆安环处",
-    "declareDate": "2026-08-23"
-  }
-]
+const darkTooltipLabelStyle = {
+  color: '#f8fafc',
+  fontWeight: 600,
+  fontSize: '12px',
+  marginBottom: '4px',
+}
 
-// 剔除未接入工厂，白名单锁定为全集团 21 家有效接入智能制造工厂
-export const ALL_ZERO_CARBON_FACTORIES: FactoryEvaluationData[] = RAW_ZERO_CARBON_FACTORIES
-  .filter(
-    (f) =>
-      ![
-        'f-sb-3', // 沈变智慧能源 (未接入)
-        'f-sb-6', // 沈变印能公司 (未接入)
-        'f-hb-7', // 衡变上开 (未接入)
-        'f-hb-8', // 衡变柯贝尔 (未接入)
-        'f-xb-6', // 新变智慧能源 (未接入)
-        'f-xb-7', // 新变银利电气 (未接入)
-        'f-ll-2', // 鲁缆智缆公司 (未接入)
-        'f-ll-3', // 鲁缆昭和公司 (未接入)
-        'f-ll-4', // 鲁缆曙光公司 (未接入)
-        'f-xl-2', // 新缆新疆线缆厂 (未接入/合并)
-      ].includes(f.id)
-  )
-  .map((f) =>
-    f.id === 'f-sb-2' ? { ...f, factoryName: '露娜公司' } : f
-  )
+const darkTooltipItemStyle = {
+  fontSize: '12px',
+  padding: '1px 0',
+}
 
 export default function ZeroCarbonSelfEvaluationPage() {
   const [factories, setFactories] = useState<FactoryEvaluationData[]>(ALL_ZERO_CARBON_FACTORIES)
-  // 三层视图穿透状态：'group' (第1层 集团大盘) | 'company' (第2层 公司视图) | 'factory' (第3层 工厂视图)
-  const [viewLevel, setViewLevel] = useState<'group' | 'company' | 'factory'>('group')
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('沈变公司')
-  const [selectedFactoryId, setSelectedFactoryId] = useState<FactoryEvaluationData | null>(null)
-
-  // 用户角色视图切换：'group' (集团管理层) | 'unit' (经营单位/基层填报自查)
-  const [userRole, setUserRole] = useState<'group' | 'unit'>('group')
   const [selectedCompany, setSelectedCompany] = useState<string>('全部')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('year')
@@ -3460,38 +76,35 @@ export default function ZeroCarbonSelfEvaluationPage() {
   const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
   const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
   
-  // 详情模态框 (面向查验与计算推导)
+  // 详情模态框 (面向查验自评估信息与各项证明附件)
   const [factoryDetailModal, setFactoryDetailModal] = useState<FactoryEvaluationData | null>(null)
   
-  // 填报自查工作台模态框 (面向基层自查填报与短板诊断)
+  // 填报自查工作台模态框 (面向企业自查填报与短板诊断)
   const [isDeclareModalOpen, setIsDeclareModalOpen] = useState<boolean>(false)
   const [declareFactoryTarget, setDeclareFactoryTarget] = useState<FactoryEvaluationData | null>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
-  const [declareForm, setDeclareForm] = useState({
-    carbonClearRate: 8.5,
+  const [declareForm, setDeclareForm] = useState<{
+    carbonClearRate: number
+    autoCollectRate: number
+    supplyChainMeasures: string[]
+    controlCenterFeatures: string[]
+    disclosureFiles: string[]
+    attachments: Record<string, EvaluationAttachment[]>
+    notes: string
+  }>({
+    carbonClearRate: 0,
     autoCollectRate: 98.6,
     supplyChainMeasures: ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5', 'sc-6'],
     controlCenterFeatures: [
-      'cc-1',
-      'cc-2',
-      'cc-3',
-      'cc-4',
-      'cc-5',
-      'cc-6',
-      'cc-7',
-      'cc-8',
-      'cc-9',
-      'cc-10',
-      'cc-11',
-      'cc-12',
-      'cc-13',
+      'cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12', 'cc-13'
     ],
-    disclosureFiles: ['doc-1', 'doc-2', 'doc-3', 'doc-4', 'doc-5'],
+    disclosureFiles: ['doc-1', 'doc-2', 'doc-3'],
+    attachments: {},
     notes: '',
   })
 
-  // 6 大单位及工厂数量统计 (严格依据组织架构树: 沈变6、衡变11、新变7、鲁缆4、新缆2、德缆1)
+  // 6 大二级单位及工厂数量统计
   const companiesList = useMemo(() => {
     return [
       { name: '全部', count: factories.length },
@@ -3505,33 +118,31 @@ export default function ZeroCarbonSelfEvaluationPage() {
   }, [factories])
 
   const companyStats = useMemo(() => {
-    const companies = ['沈变公司', '衡变公司', '新变厂', '鲁缆公司', '新缆厂', '德缆公司'];
-    return companies.map(comp => {
-      const compFactories = factories.filter(f => f.company === comp);
-      const count = compFactories.length;
-      if (count === 0) return { name: comp, count: 0, avgGreenPower: 0, avgCarbonClear: 0, avgSupplyChain: 0, avgAutoCollect: 0, avgDisclosure: 0 };
+    const companies = ['沈变公司', '衡变公司', '新变厂', '鲁缆公司', '新缆厂', '德缆公司']
+    return companies.map((comp) => {
+      const compFactories = factories.filter((f) => f.company === comp)
+      const count = compFactories.length
+      if (count === 0) return { name: comp, count: 0, avgGreenPower: 0, avgCarbonClear: 0, avgSupplyChain: 0, avgAutoCollect: 0, avgDisclosure: 0 }
       
-      const avgGreenPower = compFactories.reduce((acc, f) => acc + f.metrics['3.1'].value, 0) / count;
-      const avgCarbonClear = compFactories.reduce((acc, f) => acc + f.carbonClearRate, 0) / count;
-      const avgSupplyChain = compFactories.reduce((acc, f) => acc + f.supplyChainMeasuresCount, 0) / count;
-      const avgAutoCollect = compFactories.reduce((acc, f) => acc + f.autoCollectRate, 0) / count;
-      const avgDisclosure = compFactories.reduce((acc, f) => acc + f.disclosureDocsCount, 0) / count;
+      const avgGreenPower = compFactories.reduce((acc, f) => acc + f.metrics['3.1'].value, 0) / count
+      const avgCarbonClear = 0 // 特变电工目前无该指标信息，设为 0
+      const avgSupplyChain = compFactories.reduce((acc, f) => acc + f.supplyChainMeasuresCount, 0) / count
+      const avgAutoCollect = compFactories.reduce((acc, f) => acc + f.autoCollectRate, 0) / count
+      const avgDisclosure = compFactories.reduce((acc, f) => acc + f.disclosureDocsCount, 0) / count
 
       return {
         name: comp,
         count,
         avgGreenPower: Number(avgGreenPower.toFixed(1)),
-        avgCarbonClear: Number(avgCarbonClear.toFixed(1)),
+        avgCarbonClear: 0,
         avgSupplyChain: Number(avgSupplyChain.toFixed(1)),
         avgAutoCollect: Number(avgAutoCollect.toFixed(1)),
         avgDisclosure: Number(avgDisclosure.toFixed(1)),
       }
-    });
-  }, [factories]);
+    })
+  }, [factories])
 
-  const PIE_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
-
-  // 过滤后的工厂清单
+  // 过滤后的工厂清单 (按二级单位及搜索框筛选)
   const filteredFactories = useMemo(() => {
     return factories.filter((f) => {
       const matchComp = selectedCompany === '全部' || f.company === selectedCompany
@@ -3547,43 +158,91 @@ export default function ZeroCarbonSelfEvaluationPage() {
   const handleOpenDeclare = (factory: FactoryEvaluationData) => {
     setDeclareFactoryTarget(factory)
     setDeclareForm({
-      carbonClearRate: factory.carbonClearRate || 8.5,
+      carbonClearRate: 0, // 置灰不可填
       autoCollectRate: factory.autoCollectRate || 98.6,
       supplyChainMeasures: factory.supplyChainMeasures || ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5', 'sc-6'],
       controlCenterFeatures:
         factory.controlCenterFeatures || [
-          'cc-1',
-          'cc-2',
-          'cc-3',
-          'cc-4',
-          'cc-5',
-          'cc-6',
-          'cc-7',
-          'cc-8',
-          'cc-9',
-          'cc-10',
-          'cc-11',
-          'cc-12',
-          'cc-13',
+          'cc-1', 'cc-2', 'cc-3', 'cc-4', 'cc-5', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12', 'cc-13'
         ],
-      disclosureFiles: factory.disclosureFiles || ['doc-1', 'doc-2', 'doc-3', 'doc-4', 'doc-5'],
+      disclosureFiles: factory.disclosureFiles || ['doc-1', 'doc-2', 'doc-3'],
+      attachments: factory.attachments ? JSON.parse(JSON.stringify(factory.attachments)) : {},
       notes: factory.notes || '',
     })
     setIsDeclareModalOpen(true)
   }
 
-  // 保存填报并更新最新核算值
+  // 上传单个指标的附件
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, metricKey: string) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    const now = new Date()
+    const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+    
+    const newAttachments: EvaluationAttachment[] = Array.from(files).map((file, idx) => {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1)
+      const sizeKb = (file.size / 1024).toFixed(0)
+      const sizeStr = file.size > 1024 * 1024 ? `${sizeMb} MB` : `${sizeKb} KB`
+      const ext = file.name.split('.').pop()?.toLowerCase() || ''
+      const type = ext === 'pdf' ? 'pdf' : (ext === 'xlsx' || ext === 'xls') ? 'xlsx' : (ext === 'docx' || ext === 'doc') ? 'docx' : 'img'
+      
+      return {
+        id: `att-upload-${Date.now()}-${idx}`,
+        name: file.name,
+        size: sizeStr,
+        uploadTime: timeStr,
+        type,
+      }
+    })
+
+    setDeclareForm((prev) => {
+      const existing = prev.attachments?.[metricKey] || []
+      return {
+        ...prev,
+        attachments: {
+          ...prev.attachments,
+          [metricKey]: [...existing, ...newAttachments],
+        },
+      }
+    })
+
+    setToastMessage(`成功为 [${metricKey}] 指标添加 ${newAttachments.length} 份审核证明材料！`)
+    setTimeout(() => setToastMessage(null), 3000)
+    e.target.value = ''
+  }
+
+  // 移除单个指标的指定附件
+  const handleRemoveAttachment = (metricKey: string, attId: string) => {
+    setDeclareForm((prev) => {
+      const existing = prev.attachments?.[metricKey] || []
+      return {
+        ...prev,
+        attachments: {
+          ...prev.attachments,
+          [metricKey]: existing.filter((item) => item.id !== attId),
+        },
+      }
+    })
+  }
+
+  // 下载证明附件
+  const handleDownloadAttachment = (fileName: string) => {
+    setToastMessage(`已启动下载证明文件：${fileName}`)
+    setTimeout(() => setToastMessage(null), 3000)
+  }
+
+  // 保存填报并更新最新核算值与附件数据
   const handleSaveDeclare = (e: React.FormEvent) => {
     e.preventDefault()
     if (!declareFactoryTarget) return
 
-    const todayStr = '2026-09-02'
+    const todayStr = '2026-09-20'
 
     const updated = factories.map((f) => {
       if (f.id === declareFactoryTarget.id) {
         return {
           ...f,
-          carbonClearRate: declareForm.carbonClearRate,
+          carbonClearRate: 0,
           autoCollectRate: declareForm.autoCollectRate,
           supplyChainMeasuresCount: declareForm.supplyChainMeasures.length,
           controlCenterFeaturesCount: declareForm.controlCenterFeatures.length,
@@ -3591,12 +250,13 @@ export default function ZeroCarbonSelfEvaluationPage() {
           supplyChainMeasures: declareForm.supplyChainMeasures,
           controlCenterFeatures: declareForm.controlCenterFeatures,
           disclosureFiles: declareForm.disclosureFiles,
+          attachments: declareForm.attachments,
           declareDate: todayStr,
           status: '已自评已申报' as const,
           notes: declareForm.notes,
           metrics: {
             ...f.metrics,
-            '2.3': { ...f.metrics['2.3'], value: declareForm.carbonClearRate },
+            '2.3': { ...f.metrics['2.3'], value: 0 },
             '3.2': {
               ...f.metrics['3.2'],
               value: `已选 ${declareForm.supplyChainMeasures.length}/6 项`,
@@ -3608,7 +268,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
             },
             '5.1': {
               ...f.metrics['5.1'],
-              value: `已选 ${declareForm.disclosureFiles.length}/5 份`,
+              value: `已选 ${declareForm.disclosureFiles.length}/3 份`,
             },
           },
         }
@@ -3618,51 +278,132 @@ export default function ZeroCarbonSelfEvaluationPage() {
 
     setFactories(updated)
     setIsDeclareModalOpen(false)
-    setToastMessage(`【${declareFactoryTarget.factoryName}】自评申报参数已更新，已取最新计算值并同步归档！`)
+    setToastMessage(`【${declareFactoryTarget.factoryName}】自评申报参数与证明材料已更新并同步归档！`)
     setTimeout(() => setToastMessage(null), 4000)
   }
 
-  // 填报自查诊断短板实时分析 (为基层提供自查自纠赋能)
-  const gapsDiagnostic = useMemo(() => {
-    if (!declareFactoryTarget) return []
-    const gaps: { dim: string; text: string; action: string }[] = []
+  // 渲染填报弹窗中每个指标专属的附件上传区
+  const renderMetricAttachmentUpload = (metricKey: string, metricLabel: string) => {
+    const metricAttachments = declareForm.attachments?.[metricKey] || []
+    return (
+      <div className="mt-2.5 pt-2 border-t border-border/60">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+            <FileText className="size-3 text-primary" />
+            {metricLabel} · 证明材料 ({metricAttachments.length} 份)
+          </span>
+          <label className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 text-[11px] font-bold transition-colors cursor-pointer shadow-2xs">
+            <Upload className="size-3" />
+            <span>上传附件</span>
+            <input
+              type="file"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFileUpload(e, metricKey)}
+            />
+          </label>
+        </div>
+        {metricAttachments.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {metricAttachments.map((att) => (
+              <div
+                key={att.id}
+                className="flex items-center gap-1.5 px-2 py-1 rounded bg-panel border border-border text-[11px] group/chip"
+              >
+                <Paperclip className="size-3 text-primary shrink-0" />
+                <span className="text-foreground max-w-[210px] truncate" title={att.name}>
+                  {att.name}
+                </span>
+                <span className="text-muted-foreground font-mono text-[10px] shrink-0">({att.size})</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveAttachment(metricKey, att.id)}
+                  className="text-muted-foreground hover:text-red-400 p-0.5 rounded cursor-pointer"
+                  title="移除此附件"
+                >
+                  <X className="size-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <span className="text-[10.5px] text-muted-foreground italic">暂未上传证明材料，点击右侧【上传附件】可挂载多份材料</span>
+        )}
+      </div>
+    )
+  }
 
-    if (declareForm.supplyChainMeasures.length < 6) {
-      const missing = SUPPLY_CHAIN_MEASURES_OPTIONS.filter((o) => !declareForm.supplyChainMeasures.includes(o.id))
-      gaps.push({
-        dim: '3 协同降碳',
-        text: `供应链管理措施缺 ${6 - declareForm.supplyChainMeasures.length} 项（如：${missing.slice(0, 2).map((m) => m.title).join('、')}）`,
-        action: '完善供应商绿色低碳准入机制与数据协同',
-      })
+  // 渲染自评详情弹窗中每个指标的证明材料列表
+  const renderDetailMetricAttachments = (metricKey: string) => {
+    if (!factoryDetailModal) return null
+    if (metricKey === '2.3') {
+      return (
+        <div className="space-y-1 py-1">
+          <div className="text-[11px] text-amber-400 font-bold bg-amber-500/10 border border-amber-500/25 px-2 py-1 rounded flex items-center gap-1">
+            <AlertCircle className="size-3 shrink-0" />
+            <span>特变电工企业目前无该指标信息（暂未投运 CCUS 等直接工程碳清除装置）</span>
+          </div>
+          {factoryDetailModal.attachments?.[metricKey]?.map((file) => (
+            <div
+              key={file.id}
+              className="flex items-center justify-between gap-2 p-1.5 rounded bg-panel/80 border border-border text-[11px]"
+            >
+              <div className="flex items-center gap-1.5 min-w-0">
+                <FileText className="size-3.5 text-primary shrink-0" />
+                <span className="text-[11px] font-medium text-foreground truncate max-w-[220px]" title={file.name}>
+                  {file.name}
+                </span>
+                <span className="text-[10px] text-muted-foreground font-mono shrink-0">({file.size})</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDownloadAttachment(file.name)}
+                className="text-primary hover:underline font-bold text-[10.5px] px-1 py-0.5 shrink-0 cursor-pointer"
+              >
+                下载
+              </button>
+            </div>
+          ))}
+        </div>
+      )
     }
 
-    if (declareForm.controlCenterFeatures.length < 13) {
-      gaps.push({
-        dim: '4 智能控碳',
-        text: `能碳管理中心功能上线 ${declareForm.controlCenterFeatures.length}/13 项`,
-        action: '补齐产品碳足迹在线核算与需量优化调度模块',
-      })
+    const attList = factoryDetailModal.attachments?.[metricKey] || []
+    if (attList.length === 0) {
+      return <span className="text-[11px] text-muted-foreground italic">暂无附件材料</span>
     }
 
-    if (declareForm.autoCollectRate < 98) {
-      gaps.push({
-        dim: '4 智能控碳',
-        text: `重点用能设备数据自动采集率 ${declareForm.autoCollectRate}%（建议提升至 ≥98%）`,
-        action: '对未联网的重点电机及空压设备加装智能电表与采集网关',
-      })
-    }
-
-    if (declareForm.disclosureFiles.length < 5) {
-      const missing = DISCLOSURE_DOC_OPTIONS.filter((o) => !declareForm.disclosureFiles.includes(o.id))
-      gaps.push({
-        dim: '5 碳抵销与披露',
-        text: `公开披露载体文件已具备 ${declareForm.disclosureFiles.length}/5 份（尚缺：${missing.slice(0, 1).map((d) => d.title).join('、')}）`,
-        action: '完成第三方碳核查声明与产品碳足迹声明发布',
-      })
-    }
-
-    return gaps
-  }, [declareFactoryTarget, declareForm])
+    return (
+      <div className="flex flex-col gap-1 py-1">
+        <div className="text-[10.5px] text-muted-foreground font-mono mb-0.5">
+          已挂载 {attList.length} 份证明材料：
+        </div>
+        <div className="space-y-1">
+          {attList.map((file) => (
+            <div
+              key={file.id}
+              className="flex items-center justify-between gap-2 p-1.5 rounded bg-panel/80 hover:bg-accent/40 border border-border transition-colors group/att"
+            >
+              <div className="flex items-center gap-1.5 min-w-0">
+                <FileText className="size-3.5 text-primary shrink-0" />
+                <span className="text-[11px] font-medium text-foreground truncate max-w-[220px]" title={file.name}>
+                  {file.name}
+                </span>
+                <span className="text-[10px] text-muted-foreground font-mono shrink-0">({file.size})</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDownloadAttachment(file.name)}
+                className="text-primary hover:underline font-bold text-[10.5px] px-1.5 py-0.5 rounded cursor-pointer shrink-0"
+              >
+                下载
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3.5 font-sans text-slate-800 pb-10">
@@ -3685,6 +426,9 @@ export default function ZeroCarbonSelfEvaluationPage() {
           </div>
           <div>
             <h1 className="text-base font-bold text-foreground">零碳工厂自评估</h1>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              依据零碳工厂评价标准体系 · 开展源头减碳、过程削碳、协同降碳、智慧控碳与抵消披露自评估
+            </p>
           </div>
         </div>
 
@@ -3696,1276 +440,487 @@ export default function ZeroCarbonSelfEvaluationPage() {
               { key: 'month', label: '月度' },
               { key: 'quarter', label: '季度' },
               { key: 'year', label: '年度' },
-            ].map((p) => (
+            ].map((tab) => (
               <button
-                key={p.key}
+                key={tab.key}
                 type="button"
-                onClick={() => setTimeDim(p.key as any)}
+                onClick={() => setTimeDim(tab.key as any)}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === p.key
-                    ? 'font-bold bg-primary/15 text-primary shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground',
+                  'px-3 py-1 rounded-md transition-colors cursor-pointer text-xs font-bold',
+                  timeDim === tab.key
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
                 )}
               >
-                {p.label}
+                {tab.label}
               </button>
             ))}
           </div>
 
-          {timeDim === 'month' && (
-            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs font-mono">
-              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
-              <input
-                type="month"
-                value={selectedMonthRange.start}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
-              />
-              <span className="text-muted-foreground">至</span>
-              <input
-                type="month"
-                value={selectedMonthRange.end}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
-              />
-            </div>
+          {/* 年份选择器 */}
+          {timeDim === 'year' && (
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="h-8 px-2.5 rounded-lg border border-border bg-panel text-xs text-foreground font-mono font-medium focus:outline-none focus:border-primary cursor-pointer"
+            >
+              <option value="2026">2026 年</option>
+              <option value="2025">2025 年</option>
+              <option value="2024">2024 年</option>
+            </select>
           )}
+
+          {/* 季度选择器 */}
           {timeDim === 'quarter' && (
-            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs font-mono">
-              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+            <div className="flex items-center gap-1.5">
               <select
                 value={selectedQuarter}
                 onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="bg-transparent border-0 text-foreground text-xs font-bold focus:outline-none cursor-pointer"
+                className="h-8 px-2.5 rounded-lg border border-border bg-panel text-xs text-foreground font-mono font-medium focus:outline-none focus:border-primary cursor-pointer"
               >
-                <option value="2026-Q1" className="bg-card text-foreground">2026年 第1季度 (Q1)</option>
-                <option value="2026-Q2" className="bg-card text-foreground">2026年 第2季度 (Q2)</option>
-                <option value="2026-Q3" className="bg-card text-foreground">2026年 第3季度 (Q3)</option>
-                <option value="2026-Q4" className="bg-card text-foreground">2026年 第4季度 (Q4)</option>
-              </select>
-            </div>
-          )}
-          {timeDim === 'year' && (
-            <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs font-mono">
-              <Calendar className="size-3.5 text-muted-foreground shrink-0" />
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-transparent border-0 text-foreground text-xs font-bold focus:outline-none cursor-pointer"
-              >
-                <option value="2026" className="bg-card text-foreground">2026 年度</option>
-                <option value="2025" className="bg-card text-foreground">2025 年度</option>
-                <option value="2024" className="bg-card text-foreground">2024 年度</option>
+                <option value="2026-Q1">2026 第 1 季度</option>
+                <option value="2026-Q2">2026 第 2 季度</option>
+                <option value="2026-Q3">2026 第 3 季度</option>
+                <option value="2026-Q4">2026 第 4 季度</option>
               </select>
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={() => alert('已导出零碳工厂评估台账与核算明细报告 (Excel / PDF)！')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-foreground bg-panel hover:bg-accent/40 text-xs font-bold transition-all shadow-xs cursor-pointer"
-          >
-            <Download className="size-3.5 text-muted-foreground" />
-            <span>导出报表</span>
-          </button>
+          {/* 月度范围选择 */}
+          {timeDim === 'month' && (
+            <div className="flex items-center gap-1 text-xs">
+              <input
+                type="month"
+                value={selectedMonthRange.start}
+                onChange={(e) => setSelectedMonthRange({ ...selectedMonthRange, start: e.target.value })}
+                className="h-8 px-2 rounded-lg border border-border bg-panel text-foreground font-mono text-xs focus:outline-none focus:border-primary cursor-pointer"
+              />
+              <span className="text-muted-foreground text-xs">至</span>
+              <input
+                type="month"
+                value={selectedMonthRange.end}
+                onChange={(e) => setSelectedMonthRange({ ...selectedMonthRange, end: e.target.value })}
+                className="h-8 px-2 rounded-lg border border-border bg-panel text-foreground font-mono text-xs focus:outline-none focus:border-primary cursor-pointer"
+              />
+            </div>
+          )}
+
+          <ExportButton moduleName="零碳工厂自评估报告" />
+        </div>
+      </div>
+
+      {/* 2. 宏观核心统计 KPI Bento 卡片 (4张) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* 卡片 1: 集团零碳工厂创建率 */}
+        <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+              <ShieldCheck className="size-4 text-emerald-400" />
+              集团自评开展率
+            </span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
+              全域覆盖
+            </span>
+          </div>
+          <div className="mt-1">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black font-mono text-foreground">100.0</span>
+              <span className="text-xs font-bold text-muted-foreground">%</span>
+            </div>
+            <span className="text-[11px] text-muted-foreground block mt-0.5">
+              已自评并归档 21 / 21 家三级制造工厂
+            </span>
+          </div>
+        </div>
+
+        {/* 卡片 2: 清洁与绿电平均消纳占比 */}
+        <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+              <Zap className="size-4 text-emerald-400" />
+              绿电绿证平均消纳率
+            </span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
+              源头减碳
+            </span>
+          </div>
+          <div className="mt-1">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black font-mono text-emerald-400">91.8</span>
+              <span className="text-xs font-bold text-emerald-400">%</span>
+            </div>
+            <span className="text-[11px] text-muted-foreground block mt-0.5">
+              屋顶分布式光伏与跨省绿电直采支撑
+            </span>
+          </div>
+        </div>
+
+        {/* 卡片 3: 碳清除装置运行概况 */}
+        <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+              <Sparkles className="size-4 text-amber-400" />
+              碳清除装置 (CCUS) 状态
+            </span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-bold border border-border">
+              不适用
+            </span>
+          </div>
+          <div className="mt-1">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black font-mono text-foreground">--</span>
+              <span className="text-xs font-bold text-muted-foreground">暂无建设</span>
+            </div>
+            <span className="text-[11px] text-amber-400/90 block mt-0.5 truncate" title="特变电工目前无该指标信息（暂未投运CCUS装置）">
+              特变电工目前无该指标信息
+            </span>
+          </div>
+        </div>
+
+        {/* 卡片 4: 重点设备数据自动采集率 Ra */}
+        <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+              <Cpu className="size-4 text-purple-400" />
+              重点设备自动采集率 Ra
+            </span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 font-bold border border-purple-500/20">
+              智能控碳
+            </span>
+          </div>
+          <div className="mt-1">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black font-mono text-purple-400">98.4</span>
+              <span className="text-xs font-bold text-purple-400">%</span>
+            </div>
+            <span className="text-[11px] text-muted-foreground block mt-0.5">
+              符合 GB 17167 工业三级计量器具标准
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. 中部对标与时序趋势图表 (横向对比柱状图 + 清洁绿电消纳时序分析) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+        {/* 左侧：6 大二级单位 5 维重点参数横向对标柱状图 */}
+        <div className="bg-card p-4 rounded-xl border border-border backdrop-blur-sm shadow-xs space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="h-4 w-1 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
+              <h3 className="text-sm font-semibold text-foreground">6 大经营单位 5 维自评达标横向对标 (%)</h3>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-[11px]">
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <span className="size-2 rounded-full bg-emerald-400 inline-block" />
+                1.源头减碳
+              </span>
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <span className="size-2 rounded-full bg-sky-400 inline-block" />
+                2.过程削碳
+              </span>
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <span className="size-2 rounded-full bg-indigo-400 inline-block" />
+                3.协同降碳
+              </span>
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <span className="size-2 rounded-full bg-purple-400 inline-block" />
+                4.智能控碳
+              </span>
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <span className="size-2 rounded-full bg-amber-400 inline-block" />
+                5.抵消与披露
+              </span>
+            </div>
+          </div>
+
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={companyStats.map((s) => ({
+                  name: s.name,
+                  greenPower: s.avgGreenPower,
+                  carbonClear: 92.5, // 过程削碳综合达标率
+                  supplyChain: Math.round((s.avgSupplyChain / 6) * 100),
+                  autoCollect: s.avgAutoCollect,
+                  disclosure: Math.round((s.avgDisclosure / 3) * 100),
+                }))}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.72 0.12 220 / 12%)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} domain={[0, 100]} />
+                <RechartsTooltip
+                  cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }}
+                  contentStyle={darkTooltipStyle}
+                  labelStyle={darkTooltipLabelStyle}
+                  itemStyle={darkTooltipItemStyle}
+                  formatter={(val: any) => `${val}%`}
+                />
+                <Bar dataKey="greenPower" name="1. 源头减碳 (绿电消纳率 %)" fill="#10b981" radius={[3, 3, 0, 0]} maxBarSize={16} />
+                <Bar dataKey="carbonClear" name="2. 过程削碳 (节能改造率 %)" fill="#0ea5e9" radius={[3, 3, 0, 0]} maxBarSize={16} />
+                <Bar dataKey="supplyChain" name="3. 协同降碳 (供应链达标率 %)" fill="#6366f1" radius={[3, 3, 0, 0]} maxBarSize={16} />
+                <Bar dataKey="autoCollect" name="4. 智能控碳 (自动采集率 %)" fill="#a855f7" radius={[3, 3, 0, 0]} maxBarSize={16} />
+                <Bar dataKey="disclosure" name="5. 抵消治理 (报告合规率 %)" fill="#f59e0b" radius={[3, 3, 0, 0]} maxBarSize={16} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* 右侧：清洁能源与绿电消纳时序趋势折线图 */}
+        <div className="bg-card p-4 rounded-xl border border-border backdrop-blur-sm shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="h-4 w-1 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
+              <h3 className="text-sm font-semibold text-foreground">清洁能源与绿电消纳时序分析 (%)</h3>
+            </div>
+            <span className="text-xs text-muted-foreground font-mono">2026 全年监测</span>
+          </div>
+
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={[
+                  { month: '1月', greenPower: 86.4, pvUtil: 21.0, nonFossil: 34.2 },
+                  { month: '2月', greenPower: 87.2, pvUtil: 22.5, nonFossil: 35.0 },
+                  { month: '3月', greenPower: 89.5, pvUtil: 24.8, nonFossil: 36.8 },
+                  { month: '4月', greenPower: 90.1, pvUtil: 26.0, nonFossil: 38.2 },
+                  { month: '5月', greenPower: 91.8, pvUtil: 28.5, nonFossil: 39.5 },
+                  { month: '6月', greenPower: 92.4, pvUtil: 29.8, nonFossil: 40.8 },
+                  { month: '7月', greenPower: 93.6, pvUtil: 31.2, nonFossil: 42.1 },
+                  { month: '8月', greenPower: 94.2, pvUtil: 30.5, nonFossil: 42.8 },
+                ]}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.72 0.12 220 / 12%)" />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} domain={[0, 100]} />
+                <RechartsTooltip
+                  cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }}
+                  contentStyle={darkTooltipStyle}
+                  labelStyle={darkTooltipLabelStyle}
+                  itemStyle={darkTooltipItemStyle}
+                  formatter={(val: any) => `${val}%`}
+                />
+                <Line type="monotone" dataKey="greenPower" name="绿电消纳率" stroke="#10b981" strokeWidth={2.5} dot={{ r: 3.5, fill: '#10b981' }} />
+                <Line type="monotone" dataKey="nonFossil" name="非化石电力消费" stroke="#0ea5e9" strokeWidth={2} dot={{ r: 3, fill: '#0ea5e9' }} />
+                <Line type="monotone" dataKey="pvUtil" name="光伏铺设利用率" stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 🔴 第一层：集团 / 管理层级 (Group Level View)                            */}
+      {/* 4. 重点重构区：下辖工厂零碳自评估指标明细列表 (强制 44px 工业高密表格)         */}
       {/* ========================================================================= */}
-      {viewLevel === 'group' && (
-        <div className="space-y-3.5 animate-in fade-in duration-200">
-          {/* 1.1 集团宏观 3 大核心评估指标卡 (标准化 KPI 卡片) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
-                <span className="text-[11px]">工厂自评覆盖进度</span>
-                <CheckSquare className="size-3.5 text-primary" />
-              </div>
-              <div className="text-base font-black font-mono text-foreground">
-                {factories.length} / {factories.length} <span className="text-xs font-normal text-emerald-400">(100%)</span>
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">全集团 6 大经营单位 {factories.length} 家工厂全覆盖</div>
-            </div>
-
-            <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
-                <span className="text-[11px]">清洁与绿电消纳均值</span>
-                <Zap className="size-3.5 text-emerald-400" />
-              </div>
-              <div className="text-base font-black font-mono text-foreground">
-                88.6% <span className="text-xs font-normal text-muted-foreground">(绿电/绿证)</span>
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">源头减碳与协同降碳综合</div>
-            </div>
-
-            <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
-                <span className="text-[11px]">制度与披露文件齐备度</span>
-                <FileCheck className="size-3.5 text-amber-400" />
-              </div>
-              <div className="text-base font-black font-mono text-foreground">
-                91.4% <span className="text-xs font-normal text-emerald-400">(已归档)</span>
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">ESG与核查报告发布透明度</div>
-            </div>
+      <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 space-y-3">
+        {/* 表格工具栏：标题、二级单位筛选 Tabs、搜索框与导出 */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border/70">
+          <div className="flex items-center gap-2">
+            <span className="h-4 w-1 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
+            <h3 className="text-sm font-bold text-foreground">各级单位零碳工厂自评估明细列表</h3>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold border border-primary/20 font-mono">
+              共 {filteredFactories.length} 家工厂/基地
+            </span>
           </div>
 
-          {/* 1.2 集团对比图表 (标准化图表面板) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-            <div className="bg-card p-4 rounded-xl border border-border backdrop-blur-sm shadow-xs">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-4 w-1 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
-                  <h3 className="text-sm font-semibold text-foreground">各经营单位达标工厂数分布</h3>
-                </div>
-                <span className="text-[11px] text-muted-foreground">已自评达标工厂</span>
-              </div>
-              <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={companyStats.filter(c => c.name !== '全部')} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.72 0.12 220 / 12%)" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} />
-                    <RechartsTooltip cursor={{ fill: 'oklch(0.32 0.06 235 / 30%)' }} contentStyle={{ background: 'oklch(0.2 0.035 252)', border: '1px solid oklch(0.72 0.12 220 / 25%)', borderRadius: '8px', color: 'oklch(0.92 0.02 240)' }} />
-                    <Bar dataKey="count" name="达标工厂数" fill="var(--chart-1)" radius={[4, 4, 0, 0]} maxBarSize={36} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="bg-card p-4 rounded-xl border border-border backdrop-blur-sm shadow-xs">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-4 w-1 rounded-full bg-emerald-400 shadow-[0_0_10px_#10b981]" />
-                  <h3 className="text-sm font-semibold text-foreground">各经营单位绿电消纳均值对比 (%)</h3>
-                </div>
-                <span className="text-[11px] text-muted-foreground">绿电与绿证消纳占比</span>
-              </div>
-              <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={companyStats.filter(c => c.name !== '全部')} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.72 0.12 220 / 12%)" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} domain={[60, 100]} />
-                    <RechartsTooltip cursor={{ fill: 'oklch(0.32 0.06 235 / 30%)' }} contentStyle={{ background: 'oklch(0.2 0.035 252)', border: '1px solid oklch(0.72 0.12 220 / 25%)', borderRadius: '8px', color: 'oklch(0.92 0.02 240)' }} />
-                    <Line type="monotone" dataKey="avgGreenPower" name="绿电消纳均值" stroke="var(--chart-2)" strokeWidth={2.5} dot={{ r: 3.5, fill: 'var(--chart-2)', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          {/* 1.3 6大分公司下钻卡片矩阵 */}
-          <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-foreground">6 大经营单位总体零碳评估大盘</h3>
-                
-              </div>
-              <span className="text-xs px-2.5 py-1 rounded-full bg-primary/15 text-primary font-bold border border-primary/30">
-                支持三层钻取
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
-              {companiesList.filter(item => item.name !== '全部').map((item) => {
-                const stats = companyStats.find(s => s.name === item.name)
-                return (
-                  <div
-                    key={item.name}
-                    onClick={() => {
-                      setSelectedCompanyId(item.name)
-                      setSelectedCompany(item.name)
-                      setViewLevel('company')
-                    }}
-                    className="p-4 rounded-xl border border-border bg-card hover:border-primary/60 hover:shadow-lg backdrop-blur-sm transition-all cursor-pointer flex flex-col justify-between gap-3 group"
-                  >
-                    {/* 卡片头部 */}
-                    <div className="flex items-center justify-between pb-2 border-b border-border/60">
-                      <div className="flex items-center gap-2.5">
-                        <div className="size-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold shadow-xs">
-                          <Building2 className="size-4.5" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-black text-foreground group-hover:text-primary transition-colors">
-                              {item.name}
-                            </h4>
-                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold border border-primary/20 font-mono">
-                              {item.count} 家工厂
-                            </span>
-                          </div>
-                          <span className="text-[10.5px] text-muted-foreground mt-0.5 block">
-                            综合达标评估 · 5 大维度考核
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 text-[11px] text-primary font-bold group-hover:translate-x-0.5 transition-all">
-                        <span>下钻分析</span>
-                        <ChevronRight className="size-3.5" />
-                      </div>
-                    </div>
-
-                    {/* 5 大维度关键指标看板 (暗黑科技蓝科技玻璃态设计) */}
-                    {stats && (
-                      <div className="space-y-1.5">
-                        {/* 上排 3 项 */}
-                        <div className="grid grid-cols-3 gap-1.5">
-                          {/* 1. 源头减碳 */}
-                          <div className="bg-panel/90 border border-emerald-500/20 hover:border-emerald-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs group/box">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-emerald-400">1.源头减碳</span>
-                              <span className="text-[9px] text-emerald-300 bg-emerald-500/15 border border-emerald-500/20 px-1 py-0.2 rounded font-medium">绿电消纳</span>
-                            </div>
-                            <div className="mt-1 flex items-baseline gap-0.5">
-                              <span className="text-base font-black font-mono text-emerald-400 group-hover/box:text-emerald-300">{stats.avgGreenPower}</span>
-                              <span className="text-[10px] font-bold text-emerald-400/80">%</span>
-                            </div>
-                          </div>
-
-                          {/* 2. 过程削碳 */}
-                          <div className="bg-panel/90 border border-sky-500/20 hover:border-sky-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs group/box">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-sky-400">2.过程削碳</span>
-                              <span className="text-[9px] text-sky-300 bg-sky-500/15 border border-sky-500/20 px-1 py-0.2 rounded font-medium">清除率 Re</span>
-                            </div>
-                            <div className="mt-1 flex items-baseline gap-0.5">
-                              <span className="text-base font-black font-mono text-sky-400 group-hover/box:text-sky-300">{stats.avgCarbonClear}</span>
-                              <span className="text-[10px] font-bold text-sky-400/80">%</span>
-                            </div>
-                          </div>
-
-                          {/* 3. 协同降碳 */}
-                          <div className="bg-panel/90 border border-indigo-500/20 hover:border-indigo-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs group/box">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-indigo-300">3.协同降碳</span>
-                              <span className="text-[9px] text-indigo-300 bg-indigo-500/15 border border-indigo-500/20 px-1 py-0.2 rounded font-medium">供应链</span>
-                            </div>
-                            <div className="mt-1 flex items-baseline gap-0.5">
-                              <span className="text-base font-black font-mono text-indigo-400 group-hover/box:text-indigo-300">{stats.avgSupplyChain}</span>
-                              <span className="text-[10px] font-bold text-muted-foreground">/ 6项</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 下排 2 项 */}
-                        <div className="grid grid-cols-2 gap-1.5">
-                          {/* 4. 智能控碳 */}
-                          <div className="bg-panel/90 border border-purple-500/20 hover:border-purple-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs group/box">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-purple-300">4.智能控碳</span>
-                              <span className="text-[9px] text-purple-300 bg-purple-500/15 border border-purple-500/20 px-1 py-0.2 rounded font-medium">自动采集 Ra</span>
-                            </div>
-                            <div className="mt-1 flex items-baseline gap-0.5">
-                              <span className="text-base font-black font-mono text-purple-400 group-hover/box:text-purple-300">{stats.avgAutoCollect}</span>
-                              <span className="text-[10px] font-bold text-purple-400/80">%</span>
-                            </div>
-                          </div>
-
-                          {/* 5. 抵消治理 */}
-                          <div className="bg-panel/90 border border-amber-500/20 hover:border-amber-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs group/box">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-amber-400">5.抵消治理</span>
-                              <span className="text-[9px] text-amber-300 bg-amber-500/15 border border-amber-500/20 px-1 py-0.2 rounded font-medium">文件报告</span>
-                            </div>
-                            <div className="mt-1 flex items-baseline gap-0.5">
-                              <span className="text-base font-black font-mono text-amber-400 group-hover/box:text-amber-300">{stats.avgDisclosure}</span>
-                              <span className="text-[10px] font-bold text-muted-foreground">/ 5份</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 🟡 第二层：公司 / 经营单位层级 (Company Level View) - 全景对标大盘          */}
-      {/* ========================================================================= */}
-      {viewLevel === 'company' && (
-        <div className="space-y-4 animate-in fade-in duration-200">
-          {/* 2.1 分公司总体 Header 与 5 大维度 Bento 看板 */}
-          {(() => {
-            const stats = companyStats.find(s => s.name === selectedCompanyId)
-            const companyFactories = factories.filter(f => f.company === selectedCompanyId)
-            return (
-              <div className="space-y-3">
-                {/* 顶部标题条 */}
-                <div className="bg-card p-4.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="size-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold shadow-xs shrink-0">
-                      <Building2 className="size-6" />
-                    </div>
-                      <div>
-                        <h2 className="text-lg font-black text-foreground">【{selectedCompanyId}】 零碳工厂评估运营中心</h2>
-                      </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setViewLevel('group')
-                        setSelectedCompany('全部')
-                      }}
-                      className="px-3.5 py-2 rounded-lg border border-border bg-panel hover:bg-accent/40 text-foreground font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
-                    >
-                      <ArrowRight className="size-3.5 rotate-180" />
-                      <span>返回</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* 3 大宏观自评综合指标卡 (展示前面提到的宏观综合指标) */}
-                {stats && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
-                      <div className="flex items-center justify-between text-muted-foreground mb-1">
-                        <span className="text-[11px]">工厂自评覆盖进度</span>
-                        <CheckSquare className="size-3.5 text-primary" />
-                      </div>
-                      <div className="text-base font-black font-mono text-foreground">
-                        {companyFactories.length} / {companyFactories.length} <span className="text-xs font-normal text-emerald-400">(100%)</span>
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">下辖 {companyFactories.length} 家智能制造工厂全覆盖</div>
-                    </div>
-
-                    <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
-                      <div className="flex items-center justify-between text-muted-foreground mb-1">
-                        <span className="text-[11px]">清洁与绿电消纳均值</span>
-                        <Zap className="size-3.5 text-emerald-400" />
-                      </div>
-                      <div className="text-base font-black font-mono text-foreground">
-                        {stats.avgGreenPower}% <span className="text-xs font-normal text-muted-foreground">(绿电/绿证)</span>
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">源头减碳与协同降碳综合</div>
-                    </div>
-
-                    <div className="bg-card p-3 rounded-xl border border-border backdrop-blur-sm shadow-xs">
-                      <div className="flex items-center justify-between text-muted-foreground mb-1">
-                        <span className="text-[11px]">制度与披露文件齐备度</span>
-                        <FileCheck className="size-3.5 text-amber-400" />
-                      </div>
-                      <div className="text-base font-black font-mono text-foreground">
-                        {((stats.avgDisclosure / 5) * 100).toFixed(1)}% <span className="text-xs font-normal text-amber-400">({stats.avgDisclosure}/5 份)</span>
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">公开披露与权威核查报告</div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 5 大维度深入核算 KPI Bento 卡片 */}
-                {stats && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                    {/* 1. 源头减碳 */}
-                    <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                          <Zap className="size-3.5 text-emerald-400" />
-                          1. 源头减碳
-                        </span>
-                        <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 rounded font-medium">
-                          绿电消纳
-                        </span>
-                      </div>
-                      <div className="mt-1">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black font-mono text-emerald-400">{stats.avgGreenPower}</span>
-                          <span className="text-xs font-bold text-emerald-400">%</span>
-                        </div>
-                        <span className="text-[10.5px] text-muted-foreground block mt-0.5">清洁与绿电消纳均值</span>
-                      </div>
-                    </div>
-
-                    {/* 2. 过程削碳 */}
-                    <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-sky-400 flex items-center gap-1">
-                          <Sparkles className="size-3.5 text-sky-400" />
-                          2. 过程削碳
-                        </span>
-                        <span className="text-[10px] text-sky-400 bg-sky-500/10 border border-sky-500/20 px-1.5 py-0.2 rounded font-medium">
-                          碳清除 Re
-                        </span>
-                      </div>
-                      <div className="mt-1">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black font-mono text-sky-400">{stats.avgCarbonClear}</span>
-                          <span className="text-xs font-bold text-sky-400">%</span>
-                        </div>
-                        <span className="text-[10.5px] text-muted-foreground block mt-0.5">设备能效优良 · 碳清除</span>
-                      </div>
-                    </div>
-
-                    {/* 3. 协同降碳 */}
-                    <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-indigo-400 flex items-center gap-1">
-                          <Layers className="size-3.5 text-indigo-400" />
-                          3. 协同降碳
-                        </span>
-                        <span className="text-[10px] text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.2 rounded font-medium">
-                          供应链
-                        </span>
-                      </div>
-                      <div className="mt-1">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black font-mono text-indigo-400">{stats.avgSupplyChain}</span>
-                          <span className="text-xs font-bold text-indigo-400">/ 6 项</span>
-                        </div>
-                        <span className="text-[10.5px] text-muted-foreground block mt-0.5">零碳供应链管理措施</span>
-                      </div>
-                    </div>
-
-                    {/* 4. 智能控碳 */}
-                    <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-purple-400 flex items-center gap-1">
-                          <Cpu className="size-3.5 text-purple-400" />
-                          4. 智能控碳
-                        </span>
-                        <span className="text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.2 rounded font-medium">
-                          自动采集
-                        </span>
-                      </div>
-                      <div className="mt-1">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black font-mono text-purple-400">{stats.avgAutoCollect}</span>
-                          <span className="text-xs font-bold text-purple-400">%</span>
-                        </div>
-                        <span className="text-[10.5px] text-muted-foreground block mt-0.5">GB 17167 重点设备采集</span>
-                      </div>
-                    </div>
-
-                    {/* 5. 抵消治理 */}
-                    <div className="bg-card p-3.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-col justify-between gap-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-amber-400 flex items-center gap-1">
-                          <FileCheck className="size-3.5 text-amber-400" />
-                          5. 抵消治理
-                        </span>
-                        <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.2 rounded font-medium">
-                          报告归档
-                        </span>
-                      </div>
-                      <div className="mt-1">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black font-mono text-amber-400">{stats.avgDisclosure}</span>
-                          <span className="text-xs font-bold text-amber-400">/ 5 份</span>
-                        </div>
-                        <span className="text-[10.5px] text-muted-foreground block mt-0.5">公开披露与核查报告</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })()}
-
-          {/* 2.2 下辖工厂 5 维重点参数横向对标对比图表 */}
-          {(() => {
-            const companyFactories = factories.filter(f => f.company === selectedCompanyId)
-            const chartData = companyFactories.map(f => ({
-              name: f.factoryName.length > 8 ? f.factoryName.slice(0, 7) + '...' : f.factoryName,
-              fullName: f.factoryName,
-              greenPower: f.metrics['3.1'].value,
-              carbonClear: f.carbonClearRate,
-              supplyChain: Math.round((f.supplyChainMeasuresCount / 6) * 100),
-              autoCollect: f.autoCollectRate,
-              disclosure: Math.round((f.disclosureDocsCount / 5) * 100),
-            }))
-
-            return (
-              <div className="bg-card p-4 rounded-xl border border-border backdrop-blur-sm shadow-xs space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="h-4 w-1 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
-                    <h3 className="text-sm font-semibold text-foreground">【{selectedCompanyId}】 下辖各工厂 5 大标准维度评估横向对标 (%)</h3>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 text-xs">
-                    <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <span className="size-2.5 rounded-full bg-emerald-400 inline-block" />
-                      1. 源头减碳
-                    </span>
-                    <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <span className="size-2.5 rounded-full bg-sky-400 inline-block" />
-                      2. 过程削碳
-                    </span>
-                    <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <span className="size-2.5 rounded-full bg-indigo-400 inline-block" />
-                      3. 协同降碳
-                    </span>
-                    <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <span className="size-2.5 rounded-full bg-purple-400 inline-block" />
-                      4. 智能控碳
-                    </span>
-                    <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <span className="size-2.5 rounded-full bg-amber-400 inline-block" />
-                      5. 抵消治理
-                    </span>
-                  </div>
-                </div>
-
-                <div className="h-60">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.72 0.12 220 / 12%)" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'oklch(0.68 0.03 235)' }} domain={[0, 100]} />
-                      <RechartsTooltip cursor={{ fill: 'oklch(0.32 0.06 235 / 30%)' }} contentStyle={{ background: 'oklch(0.2 0.035 252)', border: '1px solid oklch(0.72 0.12 220 / 25%)', borderRadius: '8px', color: 'oklch(0.92 0.02 240)' }} />
-                      <Bar dataKey="greenPower" name="1. 源头减碳 (绿电消纳率 %)" fill="#10b981" radius={[3, 3, 0, 0]} maxBarSize={18} />
-                      <Bar dataKey="carbonClear" name="2. 过程削碳 (碳消除率 %)" fill="#0ea5e9" radius={[3, 3, 0, 0]} maxBarSize={18} />
-                      <Bar dataKey="supplyChain" name="3. 协同降碳 (供应链达标率 %)" fill="#6366f1" radius={[3, 3, 0, 0]} maxBarSize={18} />
-                      <Bar dataKey="autoCollect" name="4. 智能控碳 (自动采集率 %)" fill="#a855f7" radius={[3, 3, 0, 0]} maxBarSize={18} />
-                      <Bar dataKey="disclosure" name="5. 抵消治理 (报告合规率 %)" fill="#f59e0b" radius={[3, 3, 0, 0]} maxBarSize={18} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            )
-          })()}
-
-          {/* 2.3 下辖关联工厂全景矩阵卡片 */}
-          <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Layers className="size-4 text-primary" />
-                【{selectedCompanyId}】 关联工厂评估明细卡片（点击卡片钻取查看工厂 5 维全景）
-              </h3>
-              <span className="text-xs text-muted-foreground font-mono">
-                共 {factories.filter(f => f.company === selectedCompanyId).length} 家工厂
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
-              {factories.filter(f => f.company === selectedCompanyId).map((factory) => (
-                <div
-                  key={factory.id}
-                  onClick={() => {
-                    setSelectedFactoryId(factory)
-                    setViewLevel('factory')
-                  }}
-                  className="p-4 rounded-xl border border-border/80 bg-card hover:border-primary/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-all cursor-pointer flex flex-col justify-between gap-3 group shadow-2xs"
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* 2 级单位筛选按钮组 */}
+            <div className="flex items-center gap-1 bg-panel p-0.5 rounded-lg border border-border text-xs">
+              {companiesList.map((item) => (
+                <button
+                  key={item.name}
+                  type="button"
+                  onClick={() => setSelectedCompany(item.name)}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md transition-all cursor-pointer text-xs font-bold',
+                    selectedCompany === item.name
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
+                  )}
                 >
-                  {/* 工厂头部 */}
-                  <div className="flex items-center justify-between pb-2 border-b border-border/60">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="size-9 rounded-lg bg-gradient-to-tr from-cyan-500/20 to-blue-600/30 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shrink-0 shadow-xs">
-                        <Building2 className="size-4.5" />
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate" title={factory.factoryName}>
-                          {factory.factoryName}
-                        </h4>
-                        <span className="text-[10.5px] text-muted-foreground block truncate mt-0.5">
-                          {factory.evaluator} · {factory.declareDate}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
-                      {factory.status}
-                    </span>
-                  </div>
-
-                  {/* 5 大维度关键指标看板 (高辨识度双排卡片设计) */}
-                  <div className="space-y-1.5">
-                    {/* 上排 3 项 */}
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {/* 1. 源头减碳 */}
-                      <div className="bg-panel/90 border border-emerald-500/20 hover:border-emerald-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-emerald-400">1.源头减碳</span>
-                          <span className="text-[9px] text-emerald-400/80 font-medium">绿电消纳</span>
-                        </div>
-                        <div className="mt-1 flex items-baseline gap-0.5">
-                          <span className="text-base font-black font-mono text-emerald-400">{factory.metrics['3.1'].value}</span>
-                          <span className="text-[10px] font-bold text-emerald-400">%</span>
-                        </div>
-                      </div>
-
-                      {/* 2. 过程削碳 */}
-                      <div className="bg-panel/90 border border-sky-500/20 hover:border-sky-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-sky-400">2.过程削碳</span>
-                          <span className="text-[9px] text-sky-400/80 font-medium">清除率Re</span>
-                        </div>
-                        <div className="mt-1 flex items-baseline gap-0.5">
-                          <span className="text-base font-black font-mono text-sky-400">{factory.carbonClearRate}</span>
-                          <span className="text-[10px] font-bold text-sky-400">%</span>
-                        </div>
-                      </div>
-
-                      {/* 3. 协同降碳 */}
-                      <div className="bg-panel/90 border border-indigo-500/20 hover:border-indigo-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-indigo-400">3.协同降碳</span>
-                          <span className="text-[9px] text-indigo-400/80 font-medium">供应链</span>
-                        </div>
-                        <div className="mt-1 flex items-baseline gap-0.5">
-                          <span className="text-base font-black font-mono text-indigo-400">{factory.supplyChainMeasuresCount}</span>
-                          <span className="text-[10px] font-bold text-indigo-400">/6项</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 下排 2 项 */}
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {/* 4. 智能控碳 */}
-                      <div className="bg-panel/90 border border-purple-500/20 hover:border-purple-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-purple-400">4.智能控碳</span>
-                          <span className="text-[9px] text-purple-400/80 font-medium">自动采集 Ra</span>
-                        </div>
-                        <div className="mt-1 flex items-baseline gap-0.5">
-                          <span className="text-base font-black font-mono text-purple-400">{factory.autoCollectRate}</span>
-                          <span className="text-[10px] font-bold text-purple-400">%</span>
-                        </div>
-                      </div>
-
-                      {/* 5. 碳抵销和信息披露 */}
-                      <div className="bg-panel/90 border border-amber-500/20 hover:border-amber-500/40 rounded-lg p-2 flex flex-col justify-between transition-colors shadow-2xs">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-amber-400">5.抵消与披露</span>
-                          <span className="text-[9px] text-amber-400/80 font-medium">文件报告</span>
-                        </div>
-                        <div className="mt-1 flex items-baseline gap-0.5">
-                          <span className="text-base font-black font-mono text-amber-400">{factory.disclosureDocsCount}</span>
-                          <span className="text-[10px] font-bold text-amber-400">/5份</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 底部下钻引导 */}
-                  <div className="flex items-center justify-between text-[11.5px] pt-2 border-t border-border/60">
-                    <span className="text-[10.5px] text-muted-foreground flex items-center gap-1">
-                      <ShieldCheck className="size-3 text-emerald-400" />
-                      5维达标
-                    </span>
-                    <span className="text-primary font-bold flex items-center gap-1 text-xs group-hover:translate-x-0.5 transition-transform">
-                      钻取工厂 5 维全景
-                      <ChevronRight className="size-3.5" />
-                    </span>
-                  </div>
-                </div>
+                  {item.name} ({item.count})
+                </button>
               ))}
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* ========================================================================= */}
-      {/* 🟢 第三层：工厂级视图 (Factory Level View) - 全量展开 · 直观立体大盘          */}
-      {/* ========================================================================= */}
-      {viewLevel === 'factory' && selectedFactoryId && (
-        <div className="space-y-4 animate-in fade-in duration-200">
-          {/* 3.1 工厂全景 Header 卡片 */}
-          <div className="bg-card p-4.5 rounded-xl border border-border backdrop-blur-sm shadow-xs flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="size-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold shadow-xs shrink-0">
-                <Award className="size-6" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2.5">
-                  <h2 className="text-lg font-black text-foreground">{selectedFactoryId.factoryName}</h2>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
-                    {selectedFactoryId.status}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-3">
-                  <span>申报机构：<strong className="text-foreground">{selectedFactoryId.evaluator}</strong></span>
-                  <span className="text-border">|</span>
-                  <span>申报日期：<strong className="font-mono text-foreground">{selectedFactoryId.declareDate}</strong></span>
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2.5 text-xs">
-              {/* 返回公司级大盘按钮 */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedCompanyId(selectedFactoryId.company)
-                  setSelectedCompany(selectedFactoryId.company)
-                  setViewLevel('company')
-                }}
-                className="px-3.5 py-2 rounded-lg border border-border bg-panel hover:bg-accent/40 text-foreground font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs group"
-              >
-                <ArrowRight className="size-3.5 rotate-180 text-primary group-hover:-translate-x-0.5 transition-transform" />
-                <span>返回</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleOpenDeclare(selectedFactoryId)}
-                className="px-3.5 py-2 rounded-lg bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
-              >
-                <Edit3 className="size-3.5" />
-                <span>企业填报</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setFactoryDetailModal(selectedFactoryId)}
-                className="px-3.5 py-2 rounded-lg bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
-              >
-                <FileText className="size-3.5" />
-                <span>自评报告</span>
-              </button>
-            </div>
-          </div>
-
-          {/* 3.2 5大维度全量展开直观大盘 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* 维度 1: 源头减碳 */}
-            <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between pb-2 border-b border-border/60">
-                <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs">
-                    1
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-foreground">源头减碳（清洁能源与低碳改造）</h3>
-                    <span className="text-[11px] text-muted-foreground">非化石能源与光伏应用考核</span>
-                  </div>
-                </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
-                  自动核算达标
-                </span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2.5 pt-1">
-                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground font-medium">[1.1] 非化石电力消费</span>
-                  </div>
-                  <div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black font-mono text-foreground">{selectedFactoryId.metrics['1.1'].value}</span>
-                      <span className="text-xs font-bold text-muted-foreground">%</span>
-                    </div>
-                    <div className="w-full bg-border h-1.5 rounded-full mt-2 overflow-hidden">
-                      <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${Math.min(selectedFactoryId.metrics['1.1'].value * 2.5, 100)}%` }} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground font-medium">[1.2] 节能低碳改造率</span>
-                  </div>
-                  <div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black font-mono text-foreground">{selectedFactoryId.metrics['1.2'].value}</span>
-                      <span className="text-xs font-bold text-muted-foreground">%</span>
-                    </div>
-                    <div className="w-full bg-border h-1.5 rounded-full mt-2 overflow-hidden">
-                      <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${selectedFactoryId.metrics['1.2'].value}%` }} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground font-medium">[1.3] 光伏利用率</span>
-                  </div>
-                  <div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black font-mono text-foreground">{selectedFactoryId.metrics['1.3'].value}</span>
-                      <span className="text-xs font-bold text-muted-foreground">%</span>
-                    </div>
-                    <div className="w-full bg-border h-1.5 rounded-full mt-2 overflow-hidden">
-                      <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${Math.min(selectedFactoryId.metrics['1.3'].value * 3, 100)}%` }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 维度 2: 过程脱碳 */}
-            <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between pb-2 border-b border-border/60">
-                <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-bold text-xs">
-                    2
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-foreground">过程脱碳（设备能效与碳清除）</h3>
-                    <span className="text-[11px] text-muted-foreground">重点电机空压机能效与 CCUS 清除</span>
-                  </div>
-                </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 font-bold border border-sky-500/20">
-                  能效优良
-                </span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2.5 pt-1">
-                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
-                  <span className="text-xs text-muted-foreground font-medium">[2.1] 电机系统能效</span>
-                  <div>
-                    <span className="text-sm font-bold text-foreground block">{selectedFactoryId.metrics['2.1'].value}</span>
-                    <span className="text-[10px] text-emerald-400 font-bold mt-1 inline-block">⚡ 达到国家标准</span>
-                  </div>
-                </div>
-
-                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
-                  <span className="text-xs text-muted-foreground font-medium">[2.2] 空压机节能评级</span>
-                  <div>
-                    <span className="text-sm font-bold text-foreground block">{selectedFactoryId.metrics['2.2'].value}</span>
-                    <span className="text-[10px] text-emerald-400 font-bold mt-1 inline-block">⚡ 达到国家标准</span>
-                  </div>
-                </div>
-
-                <div className="bg-panel border border-border rounded-lg p-3 flex flex-col justify-between gap-2">
-                  <span className="text-xs text-muted-foreground font-medium">[2.3] 碳清除率 (Re)</span>
-                  <div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black font-mono text-primary">{selectedFactoryId.carbonClearRate}</span>
-                      <span className="text-xs font-bold text-muted-foreground">%</span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground mt-1 block">工程技术碳清除</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 维度 3: 协同降碳 (全量展开展示 6 大措施) */}
-            <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between pb-2 border-b border-border/60">
-                <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold text-xs">
-                    3
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-foreground">协同降碳（绿电消纳与零碳供应链）</h3>
-                    <span className="text-[11px] text-muted-foreground">绿电消纳: <strong className="text-emerald-400 font-mono">{selectedFactoryId.metrics['3.1'].value}%</strong> · 措施具备: <strong className="text-indigo-400 font-mono">{selectedFactoryId.supplyChainMeasuresCount}/6 项</strong></span>
-                  </div>
-                </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-bold border border-indigo-500/20">
-                  {selectedFactoryId.supplyChainMeasuresCount === 6 ? '全部具备' : '重点覆盖'}
-                </span>
-              </div>
-
-              {/* 展开的 6 大供应链措施卡片 */}
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                {SUPPLY_CHAIN_MEASURES_OPTIONS.map((m) => {
-                  const isChecked = selectedFactoryId.supplyChainMeasures.includes(m.id)
-                  return (
-                    <div
-                      key={m.id}
-                      className={cn(
-                        "p-2.5 rounded-lg border flex items-start gap-2 transition-colors",
-                        isChecked ? "bg-emerald-500/10 border-emerald-500/30 text-foreground" : "bg-panel border-border text-muted-foreground"
-                      )}
-                    >
-                      <CheckCircle2 className={cn("size-4 shrink-0 mt-0.5", isChecked ? "text-emerald-400" : "text-muted-foreground/40")} />
-                      <div>
-                        <span className="font-bold text-xs block">{m.title}</span>
-                        <span className="text-[10.5px] text-muted-foreground block leading-tight mt-0.5">{m.desc}</span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* 维度 4: 智能控碳 (全量展开展示 13 大功能) */}
-            <div className="bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between pb-2 border-b border-border/60">
-                <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-xs">
-                    4
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-foreground">智能控碳（能碳管理中心与自动采集）</h3>
-                    <span className="text-[11px] text-muted-foreground">数字化功能: <strong className="text-purple-400 font-mono">{selectedFactoryId.controlCenterFeaturesCount}/13 项</strong></span>
-                  </div>
-                </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 font-bold border border-purple-500/20">
-                  GB 17167 达标
-                </span>
-              </div>
-
-              {/* 展开的 13 项数字化功能模块 */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-xs">
-                {CONTROL_CENTER_FEATURE_OPTIONS.map((f) => {
-                  const isChecked = selectedFactoryId.controlCenterFeatures.includes(f.id)
-                  return (
-                    <div
-                      key={f.id}
-                      className={cn(
-                        "p-2 rounded-lg border flex items-center gap-1.5 transition-colors",
-                        isChecked ? "bg-purple-500/10 border-purple-500/30 text-purple-300 font-medium" : "bg-panel border-border text-muted-foreground"
-                      )}
-                      title={f.desc}
-                    >
-                      <CheckCircle2 className={cn("size-3.5 shrink-0", isChecked ? "text-purple-400" : "text-muted-foreground/40")} />
-                      <span className="text-[11px] truncate">{f.title}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* 维度 5: 碳抵销和信息披露 (全幅展开展示 5 大披露报告载体) */}
-            <div className="lg:col-span-2 bg-card rounded-xl border border-border backdrop-blur-sm shadow-xs p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between pb-2 border-b border-border/60">
-                <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-xs">
-                    5
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-foreground">碳抵销与信息披露（权威报告公开与归档）</h3>
-                    <span className="text-[11px] text-muted-foreground">已归档公开披露报告: <strong className="text-amber-400 font-mono">{selectedFactoryId.disclosureDocsCount} / 5 份</strong></span>
-                  </div>
-                </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">
-                  {selectedFactoryId.disclosureDocsCount >= 4 ? '合规完备' : '建议补充'}
-                </span>
-              </div>
-
-              {/* 展开的 5 大披露文档卡片 */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 text-xs">
-                {DISCLOSURE_DOC_OPTIONS.map((d) => {
-                  const isChecked = selectedFactoryId.disclosureFiles.includes(d.id)
-                  return (
-                    <div
-                      key={d.id}
-                      className={cn(
-                        "p-3 rounded-lg border flex flex-col justify-between gap-2 transition-colors",
-                        isChecked ? "bg-amber-500/10 border-amber-500/30" : "bg-panel border-border opacity-60"
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <FileText className={cn("size-4", isChecked ? "text-amber-400" : "text-muted-foreground")} />
-                        <span className={cn(
-                          "text-[9.5px] px-1.5 py-0.2 rounded font-bold",
-                          isChecked ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-panel text-muted-foreground"
-                        )}>
-                          {isChecked ? "已公开披露" : "待归档"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className={cn("font-bold text-xs block", isChecked ? "text-foreground" : "text-muted-foreground")}>
-                          {d.title}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground block mt-1 leading-tight">
-                          {d.desc}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 4. 📝 填报与自查一体化工作台 (面向基层：自查打勾 + 实时短板诊断) */}
-      {isDeclareModalOpen && declareFactoryTarget && (() => {
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-5 animate-in fade-in duration-150">
-            <div className="bg-popover rounded-2xl shadow-2xl border border-border max-w-5xl w-full p-5 sm:p-6 flex flex-col gap-4 font-sans max-h-[94vh] overflow-hidden">
-              {/* 弹窗头部 */}
-              <div className="flex items-center justify-between border-b border-border pb-3 shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-                    <Edit3 className="size-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-foreground">
-                        【{declareFactoryTarget.factoryName.split('(')[0].trim()}】自评估填报与短板自查工作台
-                      </h3>
-                      <span className="text-[11px] px-2 py-0.5 rounded bg-panel border border-border text-muted-foreground font-medium">
-                        所属：{declareFactoryTarget.company}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                      填报动作与自查评估实时联动 · 边勾选自填边掌握整体情况，降低填报门槛
-                    </p>
-                  </div>
-                </div>
-
+            {/* 搜索框 */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="搜索工厂名称..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-8 w-44 pl-7 pr-3 rounded-lg border border-border bg-panel text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+              />
+              <Search className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => setIsDeclareModalOpen(false)}
-                  className="size-8 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  <X className="size-5" />
+                  <X className="size-3" />
                 </button>
-              </div>
-
-              {/* 工作台主体：全宽填报与自查表单 */}
-              <div className="overflow-y-auto max-h-[calc(94vh-140px)] pr-1 custom-scrollbar">
-                <form id="declare-form" onSubmit={handleSaveDeclare} className="flex flex-col gap-4 text-xs">
-                  {/* 提示条 */}
-                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 flex items-start gap-2.5 text-foreground text-xs">
-                    <Info className="size-4 text-primary shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-bold text-primary">自评填报说明：</span>
-                      <span>
-                        当前系统采用“自动采集核算 + 定性指标手动打勾/自填”的务实方案。请核实并更新以下 5 大维度参数，保存后系统将实时刷新最新核算值。
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 1. 源头减碳 & 2. 过程脱碳 */}
-                  <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
-                    <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5 pb-2 border-b border-border">
-                      <Zap className="size-4 text-emerald-400" />
-                      1 源头减碳 与 2 过程脱碳
-                    </h4>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11.5px]">
-                      <div className="bg-card p-3 rounded-lg border border-border">
-                        <span className="text-muted-foreground block text-[11px]">[1.1] 非化石电力消费比例</span>
-                        <div className="flex items-center justify-between mt-1">
-                          <span className="font-mono font-bold text-primary text-sm">
-                            {declareFactoryTarget.metrics['1.1'].value}%
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
-                            ⚡ 系统实时自动核算
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="bg-card p-3 rounded-lg border border-border">
-                        <span className="text-muted-foreground block text-[11px]">[1.2] 节能与低碳改造覆盖率</span>
-                        <div className="flex items-center justify-between mt-1">
-                          <span className="font-mono font-bold text-primary text-sm">
-                            {declareFactoryTarget.metrics['1.2'].value}%
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
-                            ⚡ 系统实时自动核算
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* [2.3] 碳清除率 (预留扩展字段) */}
-                    <div className="bg-card p-3.5 rounded-lg border border-border space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-primary text-xs">[2.3]</span>
-                          <span className="font-bold text-foreground">碳清除率 (Re)</span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">
-                            ✍️ 预留扩展字段
-                          </span>
-                        </div>
-                        <span className="text-[10.5px] text-muted-foreground">CCUS / 工程技术碳清除</span>
-                      </div>
-
-                      <div className="flex items-center gap-2.5 pt-1">
-                        <div className="relative">
-                          <input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            max="100"
-                            value={declareForm.carbonClearRate}
-                            onChange={(e) =>
-                              setDeclareForm({ ...declareForm, carbonClearRate: parseFloat(e.target.value) || 0 })
-                            }
-                            className="h-8 w-28 pl-3 pr-7 rounded-lg border border-border bg-panel text-xs font-mono font-bold text-foreground focus:outline-none focus:border-primary"
-                          />
-                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-xs font-bold">
-                            %
-                          </span>
-                        </div>
-                        <span className="text-[11px] text-muted-foreground">
-                          公式：Re = [Rc / (Cd + Rc)] × 100%（当前阶段作为前瞻性扩展预留，支持企业自填）
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3. 协同降碳 -> 零碳供应链管理措施 (6项打勾自评) */}
-                  <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-border">
-                      <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                        <Layers className="size-4 text-indigo-400" />
-                        3 协同降碳 · 零碳供应链管理措施 (6 项自评打勾)
-                      </h4>
-                      <span className="text-[11px] text-indigo-400 font-mono font-bold">
-                        已选 {declareForm.supplyChainMeasures.length} / 6 项
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                      {SUPPLY_CHAIN_MEASURES_OPTIONS.map((opt) => {
-                        const checked = declareForm.supplyChainMeasures.includes(opt.id)
-                        return (
-                          <div
-                            key={opt.id}
-                            onClick={() => {
-                              const next = checked
-                                ? declareForm.supplyChainMeasures.filter((x) => x !== opt.id)
-                                : [...declareForm.supplyChainMeasures, opt.id]
-                              setDeclareForm({ ...declareForm, supplyChainMeasures: next })
-                            }}
-                            className={cn(
-                              'p-3 rounded-lg border flex items-start gap-2.5 cursor-pointer transition-colors select-none',
-                              checked
-                                ? 'bg-primary/15 border-primary/40 text-foreground'
-                                : 'bg-card border-border text-muted-foreground hover:bg-accent/40',
-                            )}
-                          >
-                            <div className="mt-0.5 shrink-0">
-                              {checked ? (
-                                <CheckSquare className="size-4 text-primary" />
-                              ) : (
-                                <Square className="size-4 text-muted-foreground/50" />
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <span className="font-bold text-xs block">{opt.title}</span>
-                              <span className="text-[10.5px] text-muted-foreground block mt-0.5">{opt.desc}</span>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* 4. 智能控碳 -> 能源管理中心系统数字化功能 */}
-                  <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-border">
-                      <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                        <Cpu className="size-4 text-purple-400" />
-                        4 智能控碳 · 能碳管理中心数字化功能 (13 项打勾自评)
-                      </h4>
-                      <span className="text-[11px] text-purple-400 font-mono font-bold">
-                        已选 {declareForm.controlCenterFeatures.length} / 13 项
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                      {CONTROL_CENTER_FEATURE_OPTIONS.map((opt) => {
-                        const checked = declareForm.controlCenterFeatures.includes(opt.id)
-                        return (
-                          <div
-                            key={opt.id}
-                            onClick={() => {
-                              const next = checked
-                                ? declareForm.controlCenterFeatures.filter((x) => x !== opt.id)
-                                : [...declareForm.controlCenterFeatures, opt.id]
-                              setDeclareForm({ ...declareForm, controlCenterFeatures: next })
-                            }}
-                            className={cn(
-                              'p-2.5 rounded-lg border flex items-center gap-2 cursor-pointer transition-colors select-none',
-                              checked
-                                ? 'bg-purple-500/15 border-purple-500/40 text-purple-300 font-medium'
-                                : 'bg-card border-border text-muted-foreground hover:bg-accent/40',
-                            )}
-                          >
-                            {checked ? (
-                              <CheckSquare className="size-3.5 text-purple-400 shrink-0" />
-                            ) : (
-                              <Square className="size-3.5 text-muted-foreground/50 shrink-0" />
-                            )}
-                            <span className="text-[11px] truncate">{opt.title}</span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* 5. 碳抵销与信息披露 -> 5大权威文件齐备归档 */}
-                  <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-border">
-                      <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                        <FileCheck className="size-4 text-amber-400" />
-                        5 碳抵销与信息披露 · 权威核查与声明报告归档 (5 份自评归档)
-                      </h4>
-                      <span className="text-[11px] text-amber-400 font-mono font-bold">
-                        已归档 {declareForm.disclosureFiles.length} / 5 份
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
-                      {DISCLOSURE_DOC_OPTIONS.map((opt) => {
-                        const checked = declareForm.disclosureFiles.includes(opt.id)
-                        return (
-                          <div
-                            key={opt.id}
-                            onClick={() => {
-                              const next = checked
-                                ? declareForm.disclosureFiles.filter((x) => x !== opt.id)
-                                : [...declareForm.disclosureFiles, opt.id]
-                              setDeclareForm({ ...declareForm, disclosureFiles: next })
-                            }}
-                            className={cn(
-                              'p-3 rounded-lg border flex flex-col justify-between gap-2 cursor-pointer transition-colors select-none',
-                              checked
-                                ? 'bg-amber-500/15 border-amber-500/40 text-foreground'
-                                : 'bg-card border-border text-muted-foreground hover:bg-accent/40',
-                            )}
-                          >
-                            <div className="flex items-center justify-between">
-                              <FileText className={cn('size-4', checked ? 'text-amber-400' : 'text-muted-foreground')} />
-                              {checked ? (
-                                <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
-                                  已归档公开
-                                </span>
-                              ) : (
-                                <span className="text-[10px] px-1.5 py-0.2 rounded bg-panel border border-border text-muted-foreground">
-                                  待归档
-                                </span>
-                              )}
-                            </div>
-                            <div>
-                              <span className="font-bold text-xs block text-foreground">{opt.title}</span>
-                              <span className="text-[10.5px] text-muted-foreground block mt-0.5">{opt.desc}</span>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-              {/* 底部操作栏 */}
-              <div className="flex items-center justify-between pt-3 border-t border-border shrink-0">
-                <span className="text-[11px] text-muted-foreground">
-                  ⚡ 保存后系统将自动重新核算所有指标并更新申报时间为当前最新值
-                </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsDeclareModalOpen(false)}
-                    className="px-4 py-2 rounded-xl border border-border bg-panel hover:bg-accent/40 text-muted-foreground hover:text-foreground font-bold transition-colors cursor-pointer text-xs"
-                  >
-                    取消
-                  </button>
-                  <button
-                    type="submit"
-                    form="declare-form"
-                    className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md transition-all cursor-pointer flex items-center gap-1.5 text-xs active:scale-[0.98]"
-                  >
-                    <Save className="size-4" />
-                    <span>保存自评上报并更新最新值</span>
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
-          </div>
-        )
-      })()}
 
-      {/* 5. 🔍 工厂零碳自评估详情报告 模态框 (面向集团管理方查验与推导溯源) */}
+            <ExportButton moduleName="零碳工厂自评估列表" />
+          </div>
+        </div>
+
+        {/* 工业高密表格 (强制 44px 行高) */}
+        <div className="overflow-x-auto rounded-lg border border-border shadow-2xs">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead className="bg-panel/90 sticky top-0 z-10 border-b border-border text-[11.5px] text-muted-foreground font-semibold">
+              <tr className="h-[44px]">
+                <th className="py-2.5 px-3 text-center w-12 border-r border-border/40">序号</th>
+                <th className="py-2.5 px-3 w-28 border-r border-border/40">二级单位</th>
+                <th className="py-2.5 px-3 min-w-[170px] border-r border-border/40">三级单位 (工厂/基地)</th>
+                <th className="py-2.5 px-3 min-w-[135px] border-r border-border/40">1. 源头减碳</th>
+                <th className="py-2.5 px-3 min-w-[135px] border-r border-border/40">2. 过程削碳</th>
+                <th className="py-2.5 px-3 min-w-[120px] border-r border-border/40">3. 协同降碳</th>
+                <th className="py-2.5 px-3 min-w-[130px] border-r border-border/40">4. 智慧控碳</th>
+                <th className="py-2.5 px-3 min-w-[120px] border-r border-border/40">5. 抵消与披露</th>
+                <th className="py-2.5 px-3 text-center w-28 border-r border-border/40">自评状态</th>
+                <th className="py-2.5 px-3 text-center w-36">操作</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/60 text-foreground text-[11.5px]">
+              {filteredFactories.length === 0 ? (
+                <tr className="h-[44px]">
+                  <td colSpan={10} className="py-6 text-center text-muted-foreground">
+                    未检索到符合条件的工厂记录
+                  </td>
+                </tr>
+              ) : (
+                filteredFactories.map((factory, idx) => (
+                  <tr
+                    key={factory.id}
+                    className="h-[44px] hover:bg-accent/30 transition-colors"
+                  >
+                    {/* 序号 */}
+                    <td className="py-1 px-3 text-center font-mono text-muted-foreground border-r border-border/40">
+                      {idx + 1}
+                    </td>
+
+                    {/* 二级单位 */}
+                    <td className="py-1 px-3 font-semibold text-foreground border-r border-border/40 whitespace-nowrap">
+                      {factory.company}
+                    </td>
+
+                    {/* 三级单位 (工厂/基地名称) */}
+                    <td className="py-1 px-3 font-bold text-foreground border-r border-border/40 min-w-[170px]">
+                      <div className="flex items-center gap-1.5 truncate" title={factory.factoryName}>
+                        <Building2 className="size-3.5 text-primary shrink-0" />
+                        <span className="truncate">{factory.factoryName}</span>
+                      </div>
+                    </td>
+
+                    {/* 1. 源头减碳 */}
+                    <td className="py-1 px-3 border-r border-border/40 min-w-[135px]">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="font-mono font-bold text-emerald-400">
+                          {factory.metrics['1.1'].value}%
+                        </span>
+                        <div className="w-16 bg-muted/40 h-1.5 rounded-full overflow-hidden shrink-0">
+                          <div
+                            className="bg-emerald-400 h-full rounded-full"
+                            style={{ width: `${Math.min(factory.metrics['1.1'].value * 2.5, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* 2. 过程削碳 */}
+                    <td className="py-1 px-3 border-r border-border/40 min-w-[135px]">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="font-mono font-bold text-sky-400">
+                          {factory.metrics['1.2'].value}%
+                        </span>
+                        <div className="w-16 bg-muted/40 h-1.5 rounded-full overflow-hidden shrink-0">
+                          <div
+                            className="bg-sky-400 h-full rounded-full"
+                            style={{ width: `${factory.metrics['1.2'].value}%` }}
+                          />
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* 3. 协同降碳 */}
+                    <td className="py-1 px-3 border-r border-border/40 min-w-[120px]">
+                      <span className="px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-400 font-mono font-bold border border-indigo-500/25">
+                        {factory.supplyChainMeasuresCount} / 6 项
+                      </span>
+                    </td>
+
+                    {/* 4. 智慧控碳 */}
+                    <td className="py-1 px-3 border-r border-border/40 min-w-[130px]">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="font-mono font-bold text-purple-400">
+                          {factory.autoCollectRate}%
+                        </span>
+                        <div className="w-16 bg-muted/40 h-1.5 rounded-full overflow-hidden shrink-0">
+                          <div
+                            className="bg-purple-400 h-full rounded-full"
+                            style={{ width: `${factory.autoCollectRate}%` }}
+                          />
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* 5. 抵消与披露 */}
+                    <td className="py-1 px-3 border-r border-border/40 min-w-[120px]">
+                      <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 font-mono font-bold border border-amber-500/25">
+                        {factory.disclosureDocsCount} / 3 份
+                      </span>
+                    </td>
+
+                    {/* 自评状态 */}
+                    <td className="py-1 px-3 text-center border-r border-border/40 whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        {factory.status}
+                      </span>
+                    </td>
+
+                    {/* 操作列：详情 + 填报 */}
+                    <td className="py-1 px-3 text-center whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setFactoryDetailModal(factory)}
+                          className="px-2.5 py-1 rounded-md bg-primary/15 hover:bg-primary/25 text-primary border border-primary/30 font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer"
+                          title="查看该工厂自评估详细核验报告与各项证明附件"
+                        >
+                          <FileText className="size-3.5" />
+                          <span>详情</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenDeclare(factory)}
+                          className="px-2 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer"
+                          title="企业自查填报与附件上传"
+                        >
+                          <Edit3 className="size-3" />
+                          <span>填报</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 5. 详情弹窗 (面向查验自评估信息与多附件展示)                                */}
+      {/* ========================================================================= */}
       {factoryDetailModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-5 animate-in fade-in duration-150">
           <div className="bg-popover rounded-2xl shadow-2xl border border-border max-w-6xl w-full p-5 sm:p-6 flex flex-col gap-3 font-sans max-h-[92vh] overflow-hidden">
+            {/* 弹窗头部 */}
             <div className="flex items-center justify-between border-b border-border pb-3 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="size-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
@@ -4995,28 +950,34 @@ export default function ZeroCarbonSelfEvaluationPage() {
               </button>
             </div>
 
+            {/* 自评估详情与附件表格 (强制 44px 行高标准) */}
             <div className="border border-border rounded-xl overflow-y-auto max-h-[calc(92vh-130px)] shadow-xs custom-scrollbar">
               <table className="w-full text-left border-collapse text-xs">
                 <thead className="sticky top-0 z-10 bg-panel/95 backdrop-blur-sm">
                   <tr className="text-muted-foreground font-bold border-b border-border text-[11px] h-[44px]">
-                    <th className="py-2.5 px-3 w-[110px] min-w-[110px] text-center border-r border-border whitespace-nowrap">
+                    <th className="py-2.5 px-3 w-[100px] min-w-[95px] text-center border-r border-border whitespace-nowrap">
                       维度类别
                     </th>
-                    <th className="py-2.5 px-3.5 w-[180px] min-w-[170px] border-r border-border/60 whitespace-nowrap">
+                    <th className="py-2.5 px-3.5 w-[170px] min-w-[160px] border-r border-border/60 whitespace-nowrap">
                       指标代码与名称
                     </th>
-                    <th className="py-2.5 px-3 w-[100px] min-w-[90px] text-center border-r border-border/60 whitespace-nowrap">
+                    <th className="py-2.5 px-3 w-[90px] min-w-[85px] text-center border-r border-border/60 whitespace-nowrap">
                       取值方式
                     </th>
-                    <th className="py-2.5 px-3.5 min-w-[360px] border-r border-border/60">
+                    <th className="py-2.5 px-3.5 min-w-[280px] border-r border-border/60">
                       自评取值 / 实际核验状态
                     </th>
-                    <th className="py-2.5 px-3.5 min-w-[240px]">核算公式与数学模型</th>
+                    <th className="py-2.5 px-3.5 min-w-[200px] border-r border-border/60">
+                      核算公式与数学模型
+                    </th>
+                    <th className="py-2.5 px-3.5 min-w-[280px]">
+                      证明材料与附件内容 (支持多附件)
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60 text-foreground text-[11.5px]">
                   {/* 1 源头减碳 (3项) */}
-                  <tr className="h-[44px]">
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td
                       rowSpan={3}
                       className="py-3 px-3 text-center font-bold text-foreground bg-panel/50 border-r border-border align-middle whitespace-nowrap"
@@ -5046,11 +1007,15 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
                       Re = (Ee / Et) × 100% (屋顶分布式光伏+采购绿电)
                     </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('1.1')}
+                    </td>
                   </tr>
-                  <tr className="h-[44px]">
+
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60">[1.2] 节能与低碳改造覆盖率</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
@@ -5074,11 +1039,15 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
                       Rr = (Ar / At) × 100% (主要生产工序及重点设备节能改造)
                     </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('1.2')}
+                    </td>
                   </tr>
-                  <tr className="h-[44px]">
+
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[1.3] 屋顶及建筑光伏利用率</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
@@ -5102,13 +1071,16 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
                       Rp = (Ap / Ab) × 100% (厂区适宜屋顶光伏铺设比例)
+                    </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('1.3')}
                     </td>
                   </tr>
 
                   {/* 2 过程削碳 (3项) */}
-                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td
                       rowSpan={3}
                       className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap"
@@ -5137,11 +1109,15 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
                       依据 GB 18613—2020 电动机能效标准评定
                     </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('2.1')}
+                    </td>
                   </tr>
-                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
+
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[2.2] 空压机站节能评级</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-emerald-400 font-semibold">
                       ⚡ 系统自动
@@ -5164,41 +1140,40 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
                       依据 GB 19153—2019 容积式空气压缩机能效限定值
                     </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('2.2')}
+                    </td>
                   </tr>
-                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
+
+                  {/* 2.3 碳清除率 (置灰不适用) */}
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[2.3] 碳清除率 (Re)</td>
-                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
-                      ✍️ 企业申报
+                    <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-muted-foreground font-semibold">
+                      置灰锁定
                     </td>
                     <td className="py-2.5 px-3.5 border-r border-border/60">
                       <div className="flex flex-col gap-1">
-                        <span className="font-mono font-bold text-primary text-xs">
-                          {factoryDetailModal.carbonClearRate}%
+                        <span className="font-mono font-bold text-muted-foreground text-xs">
+                          -- (不适用)
                         </span>
-                        <div className="text-[10.5px] text-muted-foreground bg-panel p-1.5 rounded-lg border border-border leading-relaxed font-sans">
-                          <div>
-                            <span className="text-muted-foreground/60 font-medium">计算参数：</span>
-                            <span className="font-mono text-foreground">Rc(工程清除量) = {(factoryDetailModal.carbonClearRate * 120).toFixed(0)} tCO₂e</span>，
-                            <span className="font-mono text-foreground">Cd(直接排放量) = {(12000 - factoryDetailModal.carbonClearRate * 120).toFixed(0)} tCO₂e</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground/60 font-medium">计算过程：</span>
-                            <span className="font-mono text-foreground">[{(factoryDetailModal.carbonClearRate * 120).toFixed(0)} ÷ ({(12000 - factoryDetailModal.carbonClearRate * 120).toFixed(0)} + {(factoryDetailModal.carbonClearRate * 120).toFixed(0)})] × 100% = </span>
-                            <span className="font-mono font-bold text-primary">{factoryDetailModal.carbonClearRate}%</span>
-                          </div>
+                        <div className="text-[10.5px] text-amber-400 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20 leading-relaxed font-sans">
+                          特变电工企业目前无该指标信息（暂未投运 CCUS 等直接工程碳清除装置）
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
                       Re = [Rc / (Cd + Rc)] × 100% (CCUS/工程清除)
+                    </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('2.3')}
                     </td>
                   </tr>
 
                   {/* 3 协同降碳 (2项) */}
-                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td
                       rowSpan={2}
                       className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap"
@@ -5230,9 +1205,15 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">Rg = (Eg / Etotal) × 100%</td>
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
+                      Rg = (Eg / Etotal) × 100%
+                    </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('3.1')}
+                    </td>
                   </tr>
-                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
+
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[3.2] 零碳供应链管理措施</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
                       ✍️ 企业申报
@@ -5253,13 +1234,16 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         })}
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
                       依据 6 大供应链降碳制度核验符合项数 (已选 {factoryDetailModal.supplyChainMeasures.length}/6 项)
+                    </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('3.2')}
                     </td>
                   </tr>
 
                   {/* 4 智能控碳 (2项) */}
-                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td
                       rowSpan={2}
                       className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap"
@@ -5289,11 +1273,15 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
                       Ra = (Da / Dt) × 100% (GB 17167—2025 重点设备采集)
                     </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('4.1')}
+                    </td>
                   </tr>
-                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
+
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td className="py-2.5 px-3.5 font-medium border-r border-border/60 text-foreground">[4.2] 能碳管理中心功能项数</td>
                     <td className="py-2.5 px-3 text-center border-r border-border/60 whitespace-nowrap text-amber-400 font-semibold">
                       ✍️ 企业申报
@@ -5314,13 +1302,16 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         })}
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
-                      对照数字化能碳平台 13 项功能核查 (已选 {factoryDetailModal.controlCenterFeatures.length}/13 项)
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
+                      对照数字化能碳平台权威 13 项功能核查 (已选 {factoryDetailModal.controlCenterFeatures.length}/13 项)
+                    </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('4.2')}
                     </td>
                   </tr>
 
-                  {/* 5 抵消治理 (1项) */}
-                  <tr className="hover:bg-accent/30 transition-colors h-[44px]">
+                  {/* 5 抵消与披露 (1项) */}
+                  <tr className="hover:bg-accent/20 transition-colors">
                     <td className="py-3 px-3 text-center font-bold text-foreground bg-panel border-r border-border align-middle whitespace-nowrap">
                       5 抵消治理
                     </td>
@@ -5329,7 +1320,7 @@ export default function ZeroCarbonSelfEvaluationPage() {
                       ✍️ 企业申报
                     </td>
                     <td className="py-2.5 px-3.5 border-r border-border/60">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10.5px]">
+                      <div className="grid grid-cols-1 gap-1 text-[10.5px]">
                         {factoryDetailModal.disclosureFiles.map((id) => {
                           const item = DISCLOSURE_DOC_OPTIONS.find((o) => o.id === id)
                           return item ? (
@@ -5344,14 +1335,18 @@ export default function ZeroCarbonSelfEvaluationPage() {
                         })}
                       </div>
                     </td>
-                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground">
-                      公开披露载体文件勾选数 (已选 {factoryDetailModal.disclosureFiles.length}/5 份)
+                    <td className="py-2.5 px-3.5 text-[11px] text-muted-foreground border-r border-border/60">
+                      权威 3 大公开披露报告载体 (已选 {factoryDetailModal.disclosureFiles.length}/3 份)
+                    </td>
+                    <td className="py-2.5 px-3.5">
+                      {renderDetailMetricAttachments('5.1')}
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
+            {/* 弹窗底部操作 */}
             <div className="flex justify-end pt-2 border-t border-border shrink-0">
               <button
                 type="button"
@@ -5360,6 +1355,302 @@ export default function ZeroCarbonSelfEvaluationPage() {
               >
                 关闭
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 6. 企业自评估填报工作台 (支持各项上传附件、碳清除率置灰锁定)                 */}
+      {/* ========================================================================= */}
+      {isDeclareModalOpen && declareFactoryTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-5 animate-in fade-in duration-150">
+          <div className="bg-popover rounded-2xl shadow-2xl border border-border max-w-5xl w-full p-5 sm:p-6 flex flex-col gap-4 font-sans max-h-[94vh] overflow-hidden">
+            {/* 弹窗头部 */}
+            <div className="flex items-center justify-between border-b border-border pb-3 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                  <Edit3 className="size-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-foreground">
+                      【{declareFactoryTarget.factoryName.split('(')[0].trim()}】自评估填报与项目审核材料管理
+                    </h3>
+                    <span className="text-[11px] px-2 py-0.5 rounded bg-panel border border-border text-muted-foreground font-medium">
+                      所属：{declareFactoryTarget.company}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    支持各项指标审核材料上传与多附件管理 · 碳清除率置灰保护
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsDeclareModalOpen(false)}
+                className="size-8 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            {/* 工作台主体表单 */}
+            <div className="overflow-y-auto max-h-[calc(94vh-140px)] pr-1 custom-scrollbar">
+              <form id="declare-form" onSubmit={handleSaveDeclare} className="flex flex-col gap-4 text-xs">
+                {/* 填报说明条 */}
+                <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 flex items-start gap-2.5 text-foreground text-xs">
+                  <Info className="size-4 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold text-primary">自评填报与附件上传说明：</span>
+                    <span className="text-muted-foreground ml-1">
+                      系统采用“自动采集核算 + 定性指标打勾自填 + 真实审核材料证明”模式。每项指标右侧均支持上传项目审核证明文件，支持多附件上传与管理。
+                    </span>
+                  </div>
+                </div>
+
+                {/* 1. 源头减碳 & 2. 过程脱碳 */}
+                <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
+                  <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5 pb-2 border-b border-border">
+                    <Zap className="size-4 text-emerald-400" />
+                    1 源头减碳 与 2 过程脱碳
+                  </h4>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11.5px]">
+                    <div className="bg-card p-3 rounded-lg border border-border space-y-2">
+                      <span className="text-muted-foreground block text-[11px]">[1.1] 非化石电力消费比例</span>
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono font-bold text-primary text-sm">
+                          {declareFactoryTarget.metrics['1.1'].value}%
+                        </span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
+                          ⚡ 系统自动核算
+                        </span>
+                      </div>
+                      {renderMetricAttachmentUpload('1.1', '[1.1] 非化石电力')}
+                    </div>
+
+                    <div className="bg-card p-3 rounded-lg border border-border space-y-2">
+                      <span className="text-muted-foreground block text-[11px]">[1.2] 节能与低碳改造覆盖率</span>
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono font-bold text-primary text-sm">
+                          {declareFactoryTarget.metrics['1.2'].value}%
+                        </span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
+                          ⚡ 系统自动核算
+                        </span>
+                      </div>
+                      {renderMetricAttachmentUpload('1.2', '[1.2] 节能低碳改造')}
+                    </div>
+                  </div>
+
+                  {/* [2.3] 碳清除率 (强制置灰锁定，右侧提示特变电工企业目前无该指标信息) */}
+                  <div className="bg-card p-3.5 rounded-lg border border-border space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-bold text-primary text-xs">[2.3]</span>
+                        <span className="font-bold text-foreground">碳清除率 (Re)</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border font-medium">
+                          🔒 置灰锁定
+                        </span>
+                      </div>
+                      <span className="text-[10.5px] text-muted-foreground">CCUS / 直接工程碳清除技术</span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          disabled
+                          value="-- (不适用)"
+                          className="h-8 w-28 pl-3 pr-2 rounded-lg border border-dashed border-border bg-muted/30 text-xs font-mono font-bold text-muted-foreground cursor-not-allowed select-none"
+                        />
+                      </div>
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold shadow-2xs">
+                        <AlertCircle className="size-4 shrink-0" />
+                        <span>特变电工企业目前无该指标信息（暂未投运 CCUS 等直接工程碳清除装置）</span>
+                      </div>
+                    </div>
+
+                    {renderMetricAttachmentUpload('2.3', '[2.3] 碳清除率说明')}
+                  </div>
+                </div>
+
+                {/* 3. 协同降碳 -> 零碳供应链管理措施 (6项自评打勾) */}
+                <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-border">
+                    <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <Layers className="size-4 text-indigo-400" />
+                      3 协同降碳 · 零碳供应链管理措施 (6 项自评打勾)
+                    </h4>
+                    <span className="text-[11px] text-indigo-400 font-mono font-bold">
+                      已选 {declareForm.supplyChainMeasures.length} / 6 项
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                    {SUPPLY_CHAIN_MEASURES_OPTIONS.map((opt) => {
+                      const checked = declareForm.supplyChainMeasures.includes(opt.id)
+                      return (
+                        <div
+                          key={opt.id}
+                          onClick={() => {
+                            const next = checked
+                              ? declareForm.supplyChainMeasures.filter((x) => x !== opt.id)
+                              : [...declareForm.supplyChainMeasures, opt.id]
+                            setDeclareForm({ ...declareForm, supplyChainMeasures: next })
+                          }}
+                          className={cn(
+                            'p-3 rounded-lg border flex items-start gap-2.5 cursor-pointer transition-colors select-none',
+                            checked
+                              ? 'bg-primary/15 border-primary/40 text-foreground'
+                              : 'bg-card border-border text-muted-foreground hover:bg-accent/40'
+                          )}
+                        >
+                          <div className="mt-0.5 shrink-0">
+                            {checked ? (
+                              <CheckSquare className="size-4 text-primary" />
+                            ) : (
+                              <Square className="size-4 text-muted-foreground/50" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <span className="font-bold text-xs block">{opt.title}</span>
+                            <span className="text-[10.5px] text-muted-foreground block mt-0.5">{opt.desc}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {renderMetricAttachmentUpload('3.2', '[3.2] 零碳供应链措施')}
+                </div>
+
+                {/* 4. 智能控碳 -> 能碳管理中心功能 13 项权威检查项目 */}
+                <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-border">
+                    <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <Cpu className="size-4 text-purple-400" />
+                      4 智能控碳 · 能碳管理中心功能指标检查项目 (权威 13 项)
+                    </h4>
+                    <span className="text-[11px] text-purple-400 font-mono font-bold">
+                      已核验 {declareForm.controlCenterFeatures.length} / 13 项
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                    {CONTROL_CENTER_FEATURE_OPTIONS.map((opt) => {
+                      const checked = declareForm.controlCenterFeatures.includes(opt.id)
+                      return (
+                        <div
+                          key={opt.id}
+                          onClick={() => {
+                            const next = checked
+                              ? declareForm.controlCenterFeatures.filter((x) => x !== opt.id)
+                              : [...declareForm.controlCenterFeatures, opt.id]
+                            setDeclareForm({ ...declareForm, controlCenterFeatures: next })
+                          }}
+                          className={cn(
+                            'p-2.5 rounded-lg border flex items-center gap-2 cursor-pointer transition-colors select-none',
+                            checked
+                              ? 'bg-purple-500/15 border-purple-500/40 text-purple-300 font-medium'
+                              : 'bg-card border-border text-muted-foreground hover:bg-accent/40'
+                          )}
+                        >
+                          {checked ? (
+                            <CheckSquare className="size-3.5 text-purple-400 shrink-0" />
+                          ) : (
+                            <Square className="size-3.5 text-muted-foreground/50 shrink-0" />
+                          )}
+                          <span className="text-[11px] truncate font-medium">{opt.title}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {renderMetricAttachmentUpload('4.2', '[4.2] 能碳管理中心13项功能')}
+                </div>
+
+                {/* 5. 碳抵销与信息披露 -> 3 大报告披露载体 */}
+                <div className="border border-border rounded-xl p-4 bg-panel/50 space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-border">
+                    <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <FileCheck className="size-4 text-amber-400" />
+                      5 碳抵销与信息披露 · 报告披露载体 (权威 3 大报告)
+                    </h4>
+                    <span className="text-[11px] text-amber-400 font-mono font-bold">
+                      已归档 {declareForm.disclosureFiles.length} / 3 份
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                    {DISCLOSURE_DOC_OPTIONS.map((opt) => {
+                      const checked = declareForm.disclosureFiles.includes(opt.id)
+                      return (
+                        <div
+                          key={opt.id}
+                          onClick={() => {
+                            const next = checked
+                              ? declareForm.disclosureFiles.filter((x) => x !== opt.id)
+                              : [...declareForm.disclosureFiles, opt.id]
+                            setDeclareForm({ ...declareForm, disclosureFiles: next })
+                          }}
+                          className={cn(
+                            'p-3 rounded-lg border flex flex-col justify-between gap-2 cursor-pointer transition-colors select-none',
+                            checked
+                              ? 'bg-amber-500/15 border-amber-500/40 text-foreground'
+                              : 'bg-card border-border text-muted-foreground hover:bg-accent/40'
+                          )}
+                        >
+                          <div className="flex items-center justify-between">
+                            <FileText className={cn('size-4', checked ? 'text-amber-400' : 'text-muted-foreground')} />
+                            {checked ? (
+                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                                已归档
+                              </span>
+                            ) : (
+                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-panel border border-border text-muted-foreground">
+                                待归档
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <span className="font-bold text-xs block text-foreground">{opt.title}</span>
+                            <span className="text-[10.5px] text-muted-foreground block mt-0.5">{opt.desc}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {renderMetricAttachmentUpload('5.1', '[5.1] 披露报告材料')}
+                </div>
+              </form>
+            </div>
+
+            {/* 弹窗底部操作 */}
+            <div className="flex items-center justify-between pt-3 border-t border-border shrink-0">
+              <span className="text-[11px] text-muted-foreground">
+                ⚡ 保存后系统将自动重新核算指标并更新附件证明台账
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsDeclareModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-border bg-panel hover:bg-accent/40 text-muted-foreground hover:text-foreground font-bold transition-colors cursor-pointer text-xs"
+                >
+                  取消
+                </button>
+                <button
+                  type="submit"
+                  form="declare-form"
+                  className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-xs transition-colors cursor-pointer flex items-center gap-1.5 text-xs"
+                >
+                  <Save className="size-3.5" />
+                  <span>保存自评与附件</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

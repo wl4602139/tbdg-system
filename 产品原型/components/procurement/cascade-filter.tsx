@@ -108,21 +108,21 @@ export function TimeFilter({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="whitespace-nowrap text-xs text-muted-foreground">时间</span>
+      <span className="whitespace-nowrap text-sm text-muted-foreground font-medium">时间</span>
       <input
         type="month"
         value={from}
         max={to}
         onChange={(e) => onFrom(e.target.value)}
-        className="h-9 rounded-md border border-border bg-panel px-3 text-sm text-foreground outline-none [color-scheme:dark] focus:ring-2 focus:ring-ring"
+        className="h-9 rounded-lg border border-border bg-panel px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
       />
-      <span className="text-xs text-muted-foreground">至</span>
+      <span className="text-sm text-muted-foreground">至</span>
       <input
         type="month"
         value={to}
         min={from}
         onChange={(e) => onTo(e.target.value)}
-        className="h-9 rounded-md border border-border bg-panel px-3 text-sm text-foreground outline-none [color-scheme:dark] focus:ring-2 focus:ring-ring"
+        className="h-9 rounded-lg border border-border bg-panel px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
       />
     </div>
   )

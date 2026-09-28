@@ -17,7 +17,8 @@ import {
   X,
   FileCheck,
 } from 'lucide-react'
-import { OrgTreeSidebar, type OrgNodeItem } from '@/components/shared/org-tree-sidebar'
+import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
+import { ExportButton } from '@/components/shared/primitives'
 import { cn } from '@/lib/utils'
 
 interface CarbonReportItem {
@@ -97,7 +98,7 @@ const REPORT_LIST: CarbonReportItem[] = [
 ]
 
 export default function CarbonReportPage() {
-  const [selectedOrg, setSelectedOrg] = useState<OrgNodeItem>({
+  const [selectedOrg, setSelectedOrg] = useState<{ id: string; name: string; fullName?: string; level?: string }>({
     id: 'group_all',
     name: '电装集团',
     fullName: '特变电工集团（电装板块全景）',
@@ -119,18 +120,22 @@ export default function CarbonReportPage() {
 
   return (
     <div className="flex w-full items-start gap-4">
-      {/* 🌟 左侧 270px 经典工业级导线拓扑树 */}
-      <OrgTreeSidebar
-        title="工厂与用能拓扑 (3级)"
-        subtitle="全层级穿透"
+      {/* 🌟 左侧 260px 经典工业级标准拓扑树 */}
+      <StandardOrgTree
+        treeType="factory"
         selectedId={selectedOrg.id}
-        onSelect={(node) => setSelectedOrg(node)}
+        onSelect={(node) => setSelectedOrg({
+          id: node.id,
+          name: node.name,
+          fullName: node.fullName || node.name,
+          level: node.level,
+        })}
       />
 
       {/* 🌟 右侧主面板 */}
-      <div className="flex-1 min-w-0 space-y-3.5">
+      <div className="flex-1 min-w-0 space-y-6">
         {/* 顶部 Header 与 操作按钮 */}
-        <div className="bg-card rounded-xl border border-border p-3.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="bg-card rounded-lg border border-border p-3.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <FileText className="size-5" />
@@ -141,24 +146,21 @@ export default function CarbonReportPage() {
           <div className="flex items-center gap-2 self-end md:self-center">
             <button
               onClick={() => setShowGenerateModal(true)}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs shadow-xs transition-colors cursor-pointer h-9"
             >
               <Plus className="size-3.5" />
               <span>生成新核算报告</span>
             </button>
-            <button
-              onClick={() => alert('正在打包全基地 2026-08 原始活动水平数据与表底凭单佐证包 (ZIP)...')}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
-            >
-              <Download className="size-3.5" />
-              <span>打包佐证资料</span>
-            </button>
+            <ExportButton
+              label="导出佐证"
+              onExport={() => alert('正在打包全基地 2026-08 原始活动水平数据与表底凭单佐证包 (ZIP)...')}
+            />
           </div>
         </div>
 
         {/* 4 栏报告归档大盘统计 */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+          <div className="p-3.5 bg-card rounded-lg border border-border shadow-xs">
             <div className="text-xs text-muted-foreground mb-1 font-bold">已签发权威 ISO 14064 报告</div>
             <div className="flex items-baseline gap-1.5 my-1">
               <span className="text-2xl font-extrabold font-mono text-primary">8</span>
@@ -170,7 +172,7 @@ export default function CarbonReportPage() {
             </div>
           </div>
 
-          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+          <div className="p-3.5 bg-card rounded-lg border border-border shadow-xs">
             <div className="text-xs text-muted-foreground mb-1 font-bold">国家零碳工厂认证申报</div>
             <div className="flex items-baseline gap-1.5 my-1">
               <span className="text-2xl font-extrabold font-mono text-emerald-400">3</span>
@@ -182,7 +184,7 @@ export default function CarbonReportPage() {
             </div>
           </div>
 
-          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+          <div className="p-3.5 bg-card rounded-lg border border-border shadow-xs">
             <div className="text-xs text-muted-foreground mb-1 font-bold">ESG 披露核查达标率</div>
             <div className="flex items-baseline gap-1.5 my-1">
               <span className="text-2xl font-extrabold font-mono text-foreground">100.0%</span>
@@ -193,7 +195,7 @@ export default function CarbonReportPage() {
             </div>
           </div>
 
-          <div className="p-3.5 bg-card rounded-xl border border-border shadow-xs">
+          <div className="p-3.5 bg-card rounded-lg border border-border shadow-xs">
             <div className="text-xs text-muted-foreground mb-1 font-bold">自动核算凭单归档总数</div>
             <div className="flex items-baseline gap-1.5 my-1">
               <span className="text-2xl font-extrabold font-mono text-indigo-400">1,248</span>
@@ -207,7 +209,7 @@ export default function CarbonReportPage() {
         </div>
 
         {/* 报告归档列表 */}
-        <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
+        <div className="bg-card rounded-lg border border-border p-4 shadow-xs space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-2.5">
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-primary" />
@@ -299,7 +301,7 @@ export default function CarbonReportPage() {
         </div>
 
         {/* 报告标准模板库卡片 */}
-        <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
+        <div className="bg-card rounded-lg border border-border p-4 shadow-xs space-y-3">
           <div className="flex items-center justify-between border-b border-border/60 pb-2">
             <h3 className="text-xs font-bold text-foreground">碳核算与披露标准报告模板库</h3>
             <span className="text-[11px] text-muted-foreground">支持一键套用模板导出</span>
@@ -368,7 +370,7 @@ export default function CarbonReportPage() {
       {/* 生成报告弹窗 Modal */}
       {showGenerateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-lg rounded-xl bg-card p-5 shadow-2xl border border-border space-y-4">
+          <div className="w-full max-w-lg rounded-lg bg-card p-5 shadow-2xl border border-border space-y-4">
             <div className="flex items-center justify-between border-b border-border/60 pb-3">
               <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <FileText className="size-4 text-primary" />

@@ -70,11 +70,11 @@ interface EnergyTypeData {
 }
 
 const GROUP_ENERGY_TYPES: EnergyTypeData[] = [
-  { type: '工业电力', rawVal: '58,420万kWh', tce: 7.18, ratio: 56.1, color: '#00f0ff' },
-  { type: '天然气', rawVal: '2,338万m³', tce: 2.84, ratio: 22.2, color: '#10b981' },
-  { type: '蒸汽消耗量', rawVal: '19.72万t', tce: 1.86, ratio: 14.5, color: '#38bdf8' },
-  { type: '原煤/燃油', rawVal: '426t', tce: 0.62, ratio: 4.8, color: '#f59e0b' },
-  { type: '工业自来水', rawVal: '350万t', tce: 0.30, ratio: 2.4, color: '#a855f7' },
+  { type: '工业电力', rawVal: '58,420万kWh', tce: 7.18, ratio: 56.1, color: '#2C7CFF' },
+  { type: '天然气', rawVal: '2,338万m³', tce: 2.84, ratio: 22.2, color: '#FF6536' },
+  { type: '蒸汽消耗量', rawVal: '19.72万t', tce: 1.86, ratio: 14.5, color: '#FFBA00' },
+  { type: '原煤/燃油', rawVal: '426t', tce: 0.62, ratio: 4.8, color: '#8E73ED' },
+  { type: '工业自来水', rawVal: '350万t', tce: 0.30, ratio: 2.4, color: '#10C4CE' },
 ]
 
 // 1.3 集团市电与绿电对比
@@ -86,10 +86,10 @@ interface GridPowerData {
 }
 
 const POWER_SOURCE_DATA: GridPowerData[] = [
-  { name: '传统市网电量', value: 33533, ratio: 57.4, color: '#2563eb' },
-  { name: '自发光伏消纳', value: 11200, ratio: 19.2, color: '#00f0ff' },
-  { name: '市场化绿电直购', value: 8687, ratio: 14.9, color: '#10b981' },
-  { name: '绿色电力证书(GEC)', value: 5000, ratio: 8.5, color: '#06b6d4' },
+  { name: '传统市网电量', value: 33533, ratio: 57.4, color: '#41C0FF' },
+  { name: '自发光伏消纳', value: 11200, ratio: 19.2, color: '#00D492' },
+  { name: '市场化绿电直购', value: 8687, ratio: 14.9, color: '#2C7CFF' },
+  { name: '绿色电力证书(GEC)', value: 5000, ratio: 8.5, color: '#8E73ED' },
 ]
 
 // 1.4 15个园区光伏装机容量对比 (MWp)

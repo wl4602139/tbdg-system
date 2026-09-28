@@ -242,7 +242,7 @@ export function LineTrend({
               x={mp.x}
               y={mp.y}
               r={5}
-              fill={mp.color || '#1677ff'}
+              fill={mp.color || '#2C7CFF'}
               stroke="#ffffff"
               strokeWidth={2}
               label={
@@ -250,7 +250,7 @@ export function LineTrend({
                   ? {
                       value: mp.label,
                       position: mp.position || 'top',
-                      fill: mp.color || '#1677ff',
+                      fill: mp.color || '#2C7CFF',
                       fontSize: 11,
                       fontWeight: 'bold',
                     }
@@ -856,7 +856,7 @@ export function BarBenchmark({
           height={48}
         />
         <YAxis tick={axisStyle} tickLine={false} axisLine={false} />
-        <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} formatter={(v: number) => `${v}${unit}`} cursor={{ fill: 'oklch(0.72 0.12 220 / 8%)' }} />
+        <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} formatter={(v: number) => `${v}${unit}`} cursor={{ fill: 'rgba(56, 189, 248, 0.08)' }} />
         <ReferenceLine
           y={benchmark}
           stroke="var(--chart-4)"

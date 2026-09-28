@@ -1,5 +1,6 @@
 'use client'
 
+import { ExportButton } from '@/components/shared/primitives'
 import React, { useState, useMemo, useRef } from 'react'
 import {
   FolderKanban,
@@ -641,14 +642,7 @@ export default function ProjectArchivePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => alert(`已成功导出【${selectedNode.name}】零碳项目库台账清单 (Excel)...`)}
-              className="px-3 py-1.5 rounded-lg border border-border text-foreground bg-panel hover:bg-accent/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-            >
-              <Download className="size-3.5 text-muted-foreground" />
-              导出
-            </button>
+            <ExportButton onClick={() => alert(`已成功导出【${selectedNode.name}】零碳项目库台账清单 (Excel)...`)} />
             <button
               type="button"
               onClick={handleOpenCreateModal}
@@ -795,7 +789,7 @@ export default function ProjectArchivePage() {
                   <tr
                     key={item.id}
                     onClick={() => setDetailProject(item)}
-                    className="hover:bg-accent/30 transition-colors cursor-pointer group"
+                    className="hover:bg-accent/30 transition-colors cursor-pointer group h-[44px]"
                   >
                     <td className="py-2.5 px-3 font-sans font-bold text-foreground group-hover:text-primary transition-colors">
                       <div>{item.name}</div>

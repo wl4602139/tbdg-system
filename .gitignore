@@ -36,3 +36,6 @@ scratch/
 # Temporary Office & Build Cache
 ~$*
 *.tsbuildinfo
+.agents/
+.agentsauditor*
+

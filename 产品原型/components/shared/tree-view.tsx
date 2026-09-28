@@ -378,7 +378,7 @@ export function OrgTopologyTree({
 
       let iconNode: ReactNode = '🏭'
       if (isGroup) {
-        iconNode = <Building2 className="size-3.5 text-[#1677ff]" />
+        iconNode = <Building2 className="size-3.5 text-[#2C7CFF]" />
       } else if (isIndustry) {
         iconNode = <Layers className={cn('size-3.5', node.industry === 'cable' ? 'text-emerald-600' : 'text-blue-500')} />
       } else if (isCompany) {

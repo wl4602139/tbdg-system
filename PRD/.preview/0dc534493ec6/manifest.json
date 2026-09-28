@@ -1,0 +1,32 @@
+{
+  "schema_version": "1",
+  "source_path": "D:\\Project\\TJ-nengtan\\PRD\\特变电工能碳数字化双中心_产品需求规格说明书_PRD_v1.4.docx",
+  "source_filename": "特变电工能碳数字化双中心_产品需求规格说明书_PRD_v1.4.docx",
+  "source_hash": "0dc534493ec6",
+  "source_size_bytes": 14471353,
+  "kind": "docx",
+  "rendered_at_utc": "2026-09-16T07:13:35+00:00",
+  "output_dir": "D:\\Project\\TJ-nengtan\\PRD\\.preview\\0dc534493ec6",
+  "page_count": 0,
+  "rendered_page_count": 0,
+  "collage_count": 0,
+  "extracted_text_chars": 61603,
+  "text_relpath": "text.md",
+  "thumbnail_relpath": null,
+  "pages": [],
+  "collages": [],
+  "warnings": [],
+  "options": {
+    "max_pages": 12,
+    "collage": true,
+    "page_range": null,
+    "thumbnail": true,
+    "text_only": true,
+    "jpeg_quality": 85,
+    "out_max_dim": 2048
+  },
+  "summary": {
+    "paragraph_count": 607,
+    "table_count": 59
+  }
+}

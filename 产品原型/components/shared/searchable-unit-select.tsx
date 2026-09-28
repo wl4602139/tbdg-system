@@ -91,7 +91,7 @@ export function SearchableUnitSelect({
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          'h-8 px-2.5 rounded-lg border border-border bg-panel text-xs font-medium text-foreground shadow-2xs',
+          'h-9 px-3 rounded-lg border border-border bg-panel text-xs font-medium text-foreground shadow-2xs',
           'flex items-center justify-between gap-2 min-w-[200px] max-w-[260px] text-left transition-colors cursor-pointer select-none',
           'hover:border-primary/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-ring',
           open && 'border-primary ring-1 ring-ring',
@@ -108,7 +108,7 @@ export function SearchableUnitSelect({
 
       {/* 下拉面板 */}
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 min-w-[280px] max-w-[340px] rounded-xl border border-border bg-card shadow-2xl overflow-hidden animate-in fade-in-50 zoom-in-95 duration-100 flex flex-col backdrop-blur-md">
+        <div className="absolute left-0 top-full mt-1 z-50 min-w-[280px] max-w-[340px] rounded-lg border border-border bg-card shadow-2xl overflow-hidden animate-in fade-in-50 zoom-in-95 duration-100 flex flex-col backdrop-blur-md">
           {/* 🌟 顶部模糊匹配搜索框 */}
           <div className="p-2 border-b border-border bg-panel/80 sticky top-0 z-10">
             <div className="relative flex items-center">

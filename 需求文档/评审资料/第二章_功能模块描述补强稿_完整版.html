@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>第二章《零碳园区集控中心功能需求规格》功能模块描述补强稿</title>
+<style>
+  :root{
+    --ink:#1a1d21; --ink2:#3c4148; --ink3:#6b7280; --line:#e3e6ea;
+    --bg:#fff; --soft:#f7f8fa; --soft2:#eef1f5;
+    --accent:#1f4e79; --accent2:#2b6cb0;
+    --red:#c0392b; --redbg:#fdf1ef; --amber:#b7791f; --amberbg:#fdf8ec;
+    --green:#1f7a4d; --greenbg:#eef8f2; --blue:#1f4e79; --bluebg:#eef4fa;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC",sans-serif;
+    font-size:10.5pt; line-height:1.72; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px; margin:0 auto; padding:34px 40px 80px}
+  h1{font-size:20pt; line-height:1.4; margin:0 0 6px; color:var(--accent); letter-spacing:.5px}
+  h2{font-size:14.5pt; margin:34px 0 12px; padding:9px 14px; color:#fff;
+     background:linear-gradient(90deg,var(--accent) 0%,var(--accent2) 100%);
+     border-radius:4px; letter-spacing:.4px}
+  h3{font-size:12.5pt; margin:26px 0 10px; padding-left:11px; color:var(--accent);
+     border-left:4px solid var(--accent2)}
+  h4{font-size:11pt; margin:18px 0 8px; color:var(--ink); }
+  h4::before{content:"▍"; color:var(--accent2); margin-right:4px}
+  p{margin:7px 0}
+  .sub{color:var(--ink3); font-size:9.5pt; margin:0 0 22px}
+  .meta{display:flex; flex-wrap:wrap; gap:8px 26px; padding:13px 16px; background:var(--soft);
+        border:1px solid var(--line); border-radius:5px; font-size:9.5pt; margin:16px 0 8px}
+  .meta b{color:var(--ink2); font-weight:600}
+  table{border-collapse:collapse; width:100%; margin:11px 0 15px; font-size:9.5pt}
+  th,td{border:1px solid var(--line); padding:6px 9px; vertical-align:top; text-align:left}
+  th{background:var(--soft2); font-weight:600; color:var(--ink2)}
+  td.c,th.c{text-align:center}
+  tbody tr:nth-child(even){background:#fbfcfd}
+  code,.mono{font-family:Consolas,"Courier New",monospace; font-size:9pt; background:var(--soft2);
+       padding:1px 5px; border-radius:3px; color:#2d3748; white-space:nowrap}
+  .tag{display:inline-block; padding:1px 7px; border-radius:10px; font-size:8.5pt;
+       font-weight:600; margin-right:6px; vertical-align:2px}
+  .rep{background:var(--redbg); color:var(--red); border:1px solid #f2c9c2}
+  .new{background:var(--greenbg); color:var(--green); border:1px solid #c3e3d2}
+  .keep{background:var(--soft2); color:var(--ink3); border:1px solid var(--line)}
+  .add{background:var(--bluebg); color:var(--blue); border:1px solid #cddef0}
+  .art{border:1px solid var(--line); border-left:4px solid var(--accent2); border-radius:4px;
+       padding:11px 15px; margin:10px 0; background:var(--soft); white-space:pre-wrap;
+       font-family:Consolas,"Microsoft YaHei",monospace; font-size:9pt; line-height:1.68; color:var(--ink2)}
+  .art.g{border-left-color:var(--green)}
+  .art.r{border-left-color:var(--red)}
+  .art.b{border-left-color:var(--accent)}
+  .quote{background:var(--amberbg); border-left:4px solid var(--amber); padding:10px 15px;
+         margin:10px 0; font-size:9.5pt; color:#6b4c12; border-radius:0 4px 4px 0}
+  .note{background:var(--bluebg); border-left:4px solid var(--accent); padding:10px 15px;
+        margin:10px 0; font-size:9.5pt; color:#173a5e; border-radius:0 4px 4px 0}
+  ul,ol{margin:7px 0 7px 20px; padding:0}
+  li{margin:3px 0}
+  .ok{color:var(--green); font-weight:600}
+  .no{color:var(--red); font-weight:600}
+  .kpi{display:flex; flex-wrap:wrap; gap:10px; margin:14px 0}
+  .kpi div{flex:1 1 150px; border:1px solid var(--line); border-radius:5px; padding:10px 12px; background:var(--soft)}
+  .kpi span{display:block; font-size:8.5pt; color:var(--ink3); margin-bottom:3px}
+  .kpi b{font-size:13pt; color:var(--accent)}
+  .sep{height:1px; background:var(--line); margin:26px 0}
+  .small{font-size:9pt; color:var(--ink3)}
+  @media print{
+    @page{size:A4; margin:16mm 14mm}
+    body{font-size:10pt}
+    .wrap{max-width:none; padding:0}
+    h2{break-after:avoid} h3,h4{break-after:avoid}
+    table,.art,.quote,.note{break-inside:avoid}
+    .kpi div{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>第二章《零碳园区集控中心功能需求规格》<br>功能模块描述补强稿</h1>
+<p class="sub">TBEA-PRD-MASTER / V1.6.0 → 建议升版 V1.7.0　|　补强范围：1 个占位模块整段补齐 ＋ 8 个模块错误码补引 ＋ 7 处偏薄段扩写 ＋ 章首交叉引用纠错 ＋ 新增 31 条标准错误码</p>
+
+<div class="meta">
+  <div><b>源文件：</b>特变电工能碳数字化双中心_产品需求规格说明书_PRD_v16.docx</div>
+  <div><b>审查基线：</b>《第二章 功能模块描述完整性审查报告》（综合评级 B）</div>
+  <div><b>编制：</b>王亮　|　<b>修订日期：</b>2026-09-27</div>
+</div>
+
+<div class="note">
+<b>本稿性质：</b>这不是"修改建议清单"，而是<b>可直接粘贴替换的成品文本</b>。每一段都给出了完整的落地文字（含表格、算法、错误码、Gherkin），粘贴进 docx 后无需二次加工。<br>
+<b>与第三章、第四章补强稿的差别：</b>第二章主体已成体系（段落有效率 96.6%），本稿属<b>定点补缺</b>，不含全章重写；已在原稿达标的段落一律标注 <span class="tag keep">沿用原文</span>，不重复抄录。
+</div>
+
+<div class="quote">
+<b>本章核心问题（一句话）：</b>第二章 22 个模块中 21 个八段齐备、内容可用，唯独<b>「自定义指标监测」整模块为空壳</b>（8 段标题在位、6 段内容盒全空、④段字段字典 40 格全空）；此外 <b>8 个模块 ⑦⑧ 段零错误码引用</b>，<b>7 处段落不足 120 字</b>，<b>Gherkin 块缺 Feature 声明 2 处</b>，<b>章首导言 4 处事实性错误</b>（板块名错 2 处 + 章节号错 2 处）。本质是<b>"主体已成、边角未收"</b>。
+</div>
+
+<h2>0　使用说明</h2>
+
+<h3>0.1　段落处置标记</h3>
+<table>
+  <thead><tr><th style="width:14%" class="c">标记</th><th style="width:16%">含义</th><th>编辑动作</th></tr></thead>
+  <tbody>
+    <tr><td class="c"><span class="tag rep">替换</span></td><td>原文有实质缺陷或整段为空</td><td>用本稿「成品文本」整段覆盖原段落，不留旧文</td></tr>
+    <tr><td class="c"><span class="tag new">新增</span></td><td>原文该段为空盒，需填入</td><td>把本稿文本填入该段原为空的内容盒</td></tr>
+    <tr><td class="c"><span class="tag add">补句</span></td><td>原文主体可用，仅需插入条目</td><td>在指定锚点之后插入本稿给出的条目，不改动其余文字</td></tr>
+    <tr><td class="c"><span class="tag keep">沿用</span></td><td>原文已达标</td><td>不改动</td></tr>
+  </tbody>
+</table>
+
+<h3>0.2　八段式段落编号约定与本章现状</h3>
+<p>本稿以 ①~⑧ 指代八段式模板的八段，与 PRD 原文标题一一对应。第二章 22 个模块共 176 段，其中 <b>170 段已有实质内容</b>：</p>
+<table>
+  <thead><tr><th class="c" style="width:8%">编号</th><th style="width:26%">PRD 原文段标题</th><th style="width:14%" class="c">原稿状态</th><th>本稿处置要点</th></tr></thead>
+  <tbody>
+    <tr><td class="c">①</td><td>定位与架构角色</td><td class="c ok">21/22 达标</td><td>全部具备「功能定位 / 承载角色 / 页面路由 / 上游依赖 / 下游输出」五要素；仅自定义指标监测需整段新写</td></tr>
+    <tr><td class="c">②</td><td>业务场景与用户故事</td><td class="c ok">21/22 达标</td><td>全部具备「业务场景 + As a / I want / So that」；仅自定义指标监测需整段新写</td></tr>
+    <tr><td class="c">③</td><td>功能规格与交互契约</td><td class="c ok">21/22 达标</td><td>仅自定义指标监测为空壳（残留"数据概览：""数据台账明细："两个空标签），需整段新写</td></tr>
+    <tr><td class="c">④</td><td>页面字段字典与数据契约</td><td class="c">96.5% 填充</td><td>228 字段 / 684 属性格已填 660 格；<b>24 格未填全部集中在自定义指标监测</b>，随该模块一并补齐</td></tr>
+    <tr><td class="c">⑤</td><td>核心数学模型与算法框架</td><td class="c ok">21/22 达标</td><td>仅自定义指标监测为空</td></tr>
+    <tr><td class="c">⑥</td><td>展示、对标与判定口径</td><td class="c">14/22 达标</td><td>7 处内容偏薄（87~118 字），补齐"口径定义 / 阈值与分级 / 展示与对标规则"三要素，扩写至 250 字以上</td></tr>
+    <tr><td class="c">⑦</td><td>边界条件、异常处理与防错规则</td><td class="c warn">15/22 达标</td><td>7 处偏薄 + 8 个模块零错误码引用，补引标准错误码</td></tr>
+    <tr><td class="c">⑧</td><td>QA 自动化验收准则（Gherkin BDD）</td><td class="c warn">15/22 达标</td><td>自定义指标监测整段新写；7 个模块追加错误码验证场景；2 处补 <code>Feature:</code> 声明</td></tr>
+  </tbody>
+</table>
+
+<h3>0.3　本稿涉及的结构性与事实性修正</h3>
+<table>
+  <thead><tr><th class="c" style="width:7%">编号</th><th style="width:20%">位置</th><th style="width:30%">原文</th><th>修正为</th></tr></thead>
+  <tbody>
+    <tr><td class="c">C2-1</td><td>章首导言</td><td>「全面覆盖<b>集中监控大屏</b>、集中监管、能耗能效分析、零碳项目评估、统计报表与基础管理六大业务板块」</td><td>「全面覆盖<b>集控中心大屏</b>、集中监管、能耗能效分析、零碳项目评估、统计报表与<b>企业基础信息</b>六大业务板块」（板块名与 H2 标题一致）</td></tr>
+    <tr><td class="c">C2-2</td><td>章首导言</td><td>「验收用例放在<b>第十一章</b>」</td><td>「验收用例即为各模块第八段「QA 自动化验收准则（Gherkin BDD）」，验收基线与通过判据集中收录于<b>第十二章《测试与验收基线》</b>」</td></tr>
+    <tr><td class="c">C2-3</td><td>章首导言</td><td>「相关错误码可查阅<b>第五章</b>"标准化错误码字典"」</td><td>「标准错误码统一收录于<b>第六章《工程治理、状态机与合规保障体系》</b>之「标准化错误码字典与异常分级」，格式规范为 <code>E_&lt;域&gt;_&lt;MODULE&gt;_&lt;REASON&gt;</code>」（对齐第三、四章表述）</td></tr>
+    <tr><td class="c">C2-4</td><td>集中监管 › 自定义指标监测</td><td>整模块为空壳：8 段标题在位，①②⑤⑥⑦⑧ 六段内容盒全空，③段仅残留两个空标签，④段字段字典 9 行 × 5 列仅表头</td><td>按八段式模板整段补齐（含 10 字段 × 5 列字段字典、4 条 Gherkin 场景），颗粒度对齐「指标管控」</td></tr>
+    <tr><td class="c">C2-5</td><td>企业基础信息 › 零碳工厂信息 ⑧</td><td>4 个 Scenario 直接起头，<b>缺 <code>Feature:</code> 声明</b></td><td>首行补 <code>Feature: 零碳工厂参数版本治理与跨期口径</code></td></tr>
+    <tr><td class="c">C2-6</td><td>8 个模块 ⑦⑧</td><td>零错误码引用（综合集控大屏 16:9、重点用能设备、自定义指标监测、单位产值能耗、对标管理、实时监控、零碳工厂自评估、单耗报表）</td><td>按模块异常分支补引标准错误码；新增码一并登记第六章字典</td></tr>
+    <tr><td class="c">C2-7</td><td>7 处偏薄段</td><td>⑥段 87~118 字（数据变化详情 / 工业微电网监测 / 项目档案管理 / 实时监控 / 单耗报表）、⑦段 113~116 字（零碳工厂自评估 / 成本报表）</td><td>按三要素扩写至 250 字以上</td></tr>
+    <tr><td class="c">C2-8</td><td>第六章字典</td><td>错误码字典现有 103 条</td><td>追加 <b>31 条</b>本章新增标准错误码，字典合计 <b>134 条</b></td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+<b>不计为缺陷的说明（审查口径澄清）：</b>重点用能设备、工业微电网监测、企业基础信息等模块的 ⑧ 段中，单个 <code>Scenario</code> 内含多个 <code>When</code>（用于表达同一场景的多段操作链），属 <b>Gherkin BDD 合法写法</b>，本次审查不计为缺陷。
+</div>
+
+<div class="sep"></div>
+
+<h2>1　章首导言（替换）</h2>
+<span class="tag rep">替换</span>
+<div class="art">本章严格匹配系统切换至【零碳园区集控中心】后的 6 大一级主导航分层展开，全面覆盖集控中心大屏、集中监管、能耗能效分析、零碳项目评估、统计报表与企业基础信息六大业务板块，功能权限矩阵收录于附录 E，验收用例放于各模块第八段，相关错误码可查阅第六章"标准化错误码字典"。
+
+本章共 6 大板块、22 个三级功能模块，依次为：集控中心大屏（全景环幕大屏 46:9 / 综合集控大屏 16:9）、集中监管（指标管控 / 数据变化详情 / 用能监测 / 重点用能设备 / 工业微电网监测 / 能源碳排放监测 / 自定义指标监测）、能耗能效分析（用能结构分析 / 单位产品能耗 / 单位产值能耗 / 对标管理）、零碳项目评估（项目档案管理 / 实时监控 / 项目运行评估 / 零碳工厂自评估）、统计报表（用能报表 / 成本报表 / 单耗报表）、企业基础信息（企业基础信息 / 零碳工厂信息）。各模块统一采用八段式描述范式。
+
+【本章定位】零碳园区集控中心是双中心体系的「运行侧中枢」，承担园区级能源与碳排放的实时采集、集中监视、能效分析与零碳成效评估，回答"园区当前用能多少、能效处在什么水平、降碳做到哪一步"三个运行态问题。
+
+【与第三章的职责边界】本章负责园区、工厂、产线、工序级的能耗 / 能效 / 碳排放监测分析，不对产品单体做生命周期核算；产品级 LCA 建模、ISO 14067 认证、碳标签与 CBAM 申报统一由第三章《产品碳足迹集采中心》承载。两章共用同一套折标煤系数与碳排因子基准（详见第四章《系统管理、基础参数设置》→「能碳基础因子管理」），同一介质在同期同口径下的数值必须逐位一致。
+
+【与第四章的职责边界】本章全部组织维度筛选、设备台账、产品类型 / 型号 / 工序、折标煤系数与分时电价版本均取自第四章的基础主数据；本章只读引用，不得在监测、分析、报表页面就地修改主数据。参数版本变更引发的历史口径问题，按第四章「生效时间切片锁定」策略处理，本章不追溯重算已锁账月度。
+
+【数据权限总则】本章全量页面遵循组织维度的行级数据权限（RLS）：数据范围以组织树节点为单位授予，「（只读）」后缀表示该节点仅可查看不可写；集团决策层（P1）默认全集团只读，园区能碳专员（P2）限其所属数据范围子树。集控中心大屏为对外示范窗口，全局默认只读，不提供任何数据写入口，越权写请求由服务网关切断并记审计日志。
+
+本章节的功能权限矩阵参见附录 E《角色与权限矩阵》；验收用例即为各模块第八段「QA 自动化验收准则（Gherkin BDD）」；验收基线与通过判据集中收录于第十二章《测试与验收基线》；标准错误码统一收录于第六章《工程治理、状态机与合规保障体系》之「标准化错误码字典与异常分级」，格式规范为 E_&lt;域&gt;_&lt;MODULE&gt;_&lt;REASON&gt;。</div>
+
+<div class="note">
+<b>改动说明：</b>① 板块名纠错——「集中监控大屏」→「集控中心大屏」、「基础管理」→「企业基础信息」（与 H2 标题一致，C2-1）；② 交叉引用纠错——「验收用例放在第十一章」→「第十二章《测试与验收基线》」（C2-2）；③ 交叉引用纠错与体例对齐——「错误码可查阅第五章」→「第六章《工程治理、状态机与合规保障体系》之「标准化错误码字典与异常分级」」（C2-3）；④ 新增「本章定位」与「与第三、四章职责边界」两段，体例对齐第三章、第四章；⑤ 新增「数据权限总则」，补 RLS 口径与「（只读）」语义。
+</div>
+
+<div class="sep"></div>
+
+<h2>2　集中监管 › 自定义指标监测（整模块补齐）</h2>
+<p class="small">板块导言 | 集中监管 ｜ 模块序号：集中监管板块第 7 个模块（全章第 13 个模块）</p>
+<div class="note">
+<b>处置总览：</b>该模块 8 个 H4 段标题已在位，但 ①②⑤⑥⑦⑧ 六段内容盒<b>全空</b>，③段仅残留「数据概览：」「数据台账明细：」两个空标签，④段字段字典 9 行 × 5 列<b>仅表头</b>。本稿按八段式模板整段补齐，④段由 8 行占位表扩为 10 字段 × 5 列的完整字段字典。<br>
+<b>承载口径：</b>写回 docx 时，①②③⑥ 四段按本章既有体例以<b>正文段落</b>承载（原占位 1×1 空盒移除），⑤⑦⑧ 三段沿用 1×1 内容盒，使本模块与全章其余 21 个模块的排版形态完全一致。
+</div>
+
+<h3>2.1　定位与架构角色 <span class="tag rep">替换</span></h3>
+<div class="art">功能定位：集中监管板块的可扩展指标中枢，面向园区能碳专员提供「自主定义指标口径 → 自动采集计算 → 阈值三色监视 → 台账留痕导出」的闭环能力，用于承载无法被固定 10 项核心指标覆盖的园区个性化管理口径（例如「吨线缆综合能耗」「单台变压器空载损耗」「万元增加值碳排放」等），彻底解决"管理口径变了、系统指标没跟着变"的口径漂移问题。
+
+承载角色：P2 园区能碳专员（主视角，负责指标定义、试算、发布与日常监测）；P1 集团决策层（只读查看已发布的自定义指标卡片，不参与定义与发布）。
+
+页面路由：/monitor/indicators/custom（左侧导航：集中监管 › 自定义指标监测）。
+
+上游依赖：用能在线监测的实时采集数据；用能监测的日结台账；指标管控的 10 项核心指标及其组织聚合口径；第四章《系统管理、基础参数设置》的基础数据管理（基础参数）、折标煤系数库、能碳基础因子管理；组织架构六级主数据。
+
+下游输出：集中监管指标卡片矩阵中的自定义指标卡；数据变化详情的归因输入；统计报表的自定义口径来源；自定义指标台账的导出文件。
+
+数据权限：本模块遵循组织维度 RLS。指标的定义与发布限 P2 及以上角色、且仅限其数据范围内操作；集团决策层（P1）对已发布指标只读。指标「数据范围」不得超出操作者自身数据范围，越权保存或访问返回 HTTP 403 并记数据访问审计日志。</div>
+
+<h3>2.2　业务场景与用户故事 <span class="tag rep">替换</span></h3>
+<div class="art">业务场景：各园区工艺与产品结构差异显著（变压器、线缆、开关、套管、互感器、电容器等），集团统一下发的 10 项核心指标无法覆盖园区内部管理所需的个性化口径。园区能碳专员需把本园区的管理口径（分子分母构成、数据来源、考核阈值）一次性固化到平台，实现无需开发介入的自动计算与异常预警，同时保证计算过程可追溯、口径可审计，经得起内部考核与外部核查。
+
+用户故事：
+As a 园区能碳专员 (Persona P2)，
+I want 通过图形化公式编辑器，用平台已有的基础参数与核心指标自由组合出本园区专属的能碳指标，并为其配置计量单位、小数位、数据范围、时间粒度与三色阈值，
+So that 我能把管理口径一次性固化进系统，实现每日自动计算、异常自动标色、台账一键导出，不再依赖人工 Excel 汇总，也避免因口径口头传递造成的考核争议。</div>
+
+<h3>2.3　功能规格与交互契约 <span class="tag rep">替换</span></h3>
+<div class="art">页面布局：上方「数据概览」区（自定义指标卡片矩阵：指标名称 + 大号数值 + 计量单位 + 同比箭头 + 三色状态点）；下方「数据台账明细」区（表格台账：时间、指标值、同比、环比、状态、数据来源、采集时间戳）。顶部为组织树 + 时间维度（日 / 月 / 年）+ 时间范围筛选。
+
+（1）新增指标【新增自定义指标】：打开指标定义弹窗，五步式表单——① 基本信息（指标名称、指标编码、展示形态）；② 计算口径（公式编辑器）；③ 计量与精度（计量单位、小数位）；④ 数据范围与粒度（组织多选、时间粒度）；⑤ 阈值分级（优秀值 / 正常值上限 / 异常值下限）。
+
+（2）公式编辑器：左侧为可选变量面板（基础参数 / 核心指标 / 常量三类，支持按名称模糊检索）；中间为表达式编辑区，支持 + − × ÷、括号、单目负号与聚合函数 SUM / AVG / MAX / MIN；右侧为实时校验提示区，语法错误即时标红并在表达式内定位。
+
+（3）试算【试算】：在弹窗内选定任意时间窗口执行试算，返回试算值与试算期历史曲线；试算不落库、不影响已发布指标，可反复调整公式直至结果符合预期。
+
+（4）发布【发布】：仅当公式校验通过且试算返回有效结果时可点击；发布后指标进入「数据概览」与「数据台账明细」，按配置的时间粒度自动计算。
+
+（5）停用【停用】：停用后卡片置灰并移出台账自动计算，历史指标值保留可查；再次启用时按当前生效口径续算。
+
+（6）删除【删除】：前置校验该指标是否被指标卡片矩阵、数据变化详情或统计报表引用；被引用则阻断删除并列出引用方清单，提示改为停用。
+
+（7）台账明细：支持按时间粒度切换、按三色状态筛选、按指标名称 / 编码检索；单行可展开查看分子分母构成与逐笔数据来源；支持导出 CSV / XLSX。
+
+（8）组织与时间筛选：左侧组织树驱动数据范围，顶部粒度与范围驱动时间轴；筛选条件在数据概览区与台账明细区之间共享，任一区变更即时联动另一区。</div>
+<table>
+  <thead><tr><th style="width:17%">控件</th><th style="width:19%">触发动作</th><th style="width:21%">前置校验</th><th style="width:21%">成功反馈</th><th>失败反馈</th></tr></thead>
+  <tbody>
+    <tr><td>【新增自定义指标】</td><td>打开指标定义弹窗</td><td>当前数据范围内指标数 ＜ 配额上限（默认 100）</td><td>弹窗打开，进入五步式表单</td><td>提示「自定义指标数量已达上限」并返回 <code>E_SYS_KPI_CUSTOM_LIMIT_EXCEEDED</code></td></tr>
+    <tr><td>公式编辑区</td><td>输入 / 修改表达式</td><td>引用的变量须存在于基础参数或核心指标</td><td>右侧校验区实时显示「语法正确」</td><td>表达式内高亮未识别变量并返回 <code>E_SYS_KPI_CUSTOM_EXPR_INVALID</code></td></tr>
+    <tr><td>【试算】</td><td>按选定时间窗口试算</td><td>公式语法校验通过</td><td>返回试算值与试算期历史曲线（不落库）</td><td>提示试算期无数据，建议扩大时间范围</td></tr>
+    <tr><td>【发布】</td><td>发布指标</td><td>公式校验通过 且 试算返回有效结果 且 阈值分级合法</td><td>指标进入数据概览与台账，开始自动计算</td><td>校验未通过时按钮置灰，提示具体未通过项</td></tr>
+    <tr><td>【停用】</td><td>停用指标</td><td>—</td><td>卡片置灰并移出台账计算，历史值保留</td><td>—</td></tr>
+    <tr><td>【删除】</td><td>删除指标</td><td>未被卡片矩阵 / 数据变化详情 / 报表引用</td><td>删除成功并移出台账</td><td>阻断并列出引用方清单，返回 <code>E_SYS_KPI_CUSTOM_IN_USE_DELETE_DENIED</code></td></tr>
+    <tr><td>组织树 / 时间筛选</td><td>切换数据范围与粒度</td><td>所选组织节点在操作者数据范围内</td><td>数据概览与台账同步刷新</td><td>越权节点置灰不可选，越权接口返回 <code>E_AUTH_RLS_SCOPE_DENIED</code></td></tr>
+    <tr><td>【导出台账】</td><td>导出当前筛选结果</td><td>导出记录数 ≤ 50,000 行</td><td>生成 CSV / XLSX 并触发下载</td><td>拒绝导出，返回 <code>E_SYS_EXPORT_LIMIT_EXCEEDED</code></td></tr>
+  </tbody>
+</table>
+
+<h3>2.4　页面字段字典与数据契约 <span class="tag rep">替换</span></h3>
+<table>
+  <thead><tr><th class="c" style="width:6%">序号</th><th style="width:16%">字段中文名称</th><th style="width:12%">数据类型</th><th style="width:11%">工程单位</th><th>校验与约束规则</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td>指标名称</td><td>文本</td><td>—</td><td>必填；≤30 字符；同一数据范围内不可重名，重名阻断保存</td></tr>
+    <tr><td class="c">2</td><td>指标编码</td><td>文本</td><td>—</td><td>业务主键；全局唯一；格式 <code>CUS-</code> + 3~6 位大写字母数字（如 CUS-TXLC）；创建后不可修改</td></tr>
+    <tr><td class="c">3</td><td>计算口径（公式）</td><td>文本（表达式）</td><td>—</td><td>必填；由基础参数 / 核心指标 / 常量与运算符（+ − × ÷、括号、单目负号）及聚合函数 SUM / AVG / MAX / MIN 组成；长度 ≤500 字符</td></tr>
+    <tr><td class="c">4</td><td>计量单位</td><td>文本</td><td>—</td><td>数值型指标必填；建议引用所引用基础参数的法定计量单位；≤15 字符；不得与其他已发布指标的同类口径单位冲突</td></tr>
+    <tr><td class="c">5</td><td>小数位</td><td>整数</td><td>位</td><td>取值范围 0 ~ 6；默认 2；仅对数值型指标生效</td></tr>
+    <tr><td class="c">6</td><td>数据范围</td><td>组织树多选</td><td>—</td><td>必填；可多选组织节点；不得超出操作者自身数据范围，越权即阻断并返回 403</td></tr>
+    <tr><td class="c">7</td><td>时间粒度</td><td>枚举单选</td><td>—</td><td>取值｛日 / 月 / 年｝；默认月；同一指标粒度一经发布不可变更（变更须新建指标）</td></tr>
+    <tr><td class="c">8</td><td>阈值分级</td><td>数值组（3 值）</td><td>同指标单位</td><td>必填；须满足 优秀值 ≤ 正常值上限 ＜ 异常值下限；越界阻断保存</td></tr>
+    <tr><td class="c">9</td><td>展示形态</td><td>枚举单选</td><td>—</td><td>取值｛卡片 / 折线 / 柱状｝；默认卡片；影响数据概览区的呈现方式</td></tr>
+    <tr><td class="c">10</td><td>状态</td><td>枚举单选</td><td>—</td><td>取值｛草稿 / 已发布 / 已停用｝；仅「已发布」参与数据概览与台账自动计算；由系统流转，不可手工指定</td></tr>
+  </tbody>
+</table>
+
+<h3>2.5　核心数学模型与算法框架 <span class="tag new">新增</span></h3>
+<div class="art">（1）指标值计算（公式求值）
+V = f( P₁, P₂, …, Pₙ ; K₁, K₂, …, Kₘ )
+Pᵢ 为引用自平台的基础参数或核心指标的时序取值（按指标配置的数据范围与时间粒度取数）；Kⱼ 为用户在公式中直接写入的常量。表达式先按中缀转后缀（逆波兰式）再求值，支持 + − × ÷、括号、单目负号与聚合函数 SUM / AVG / MAX / MIN。
+
+（2）折标能耗类指标
+E = Σ ( Qᵢ × kᵢ )
+Qᵢ 为第 i 种能源介质实物消耗量；kᵢ 为第 i 种介质折标准煤系数，引用 GB/T 2589-2020 当量值，取自第四章折标煤系数库。
+
+（3）单耗类指标（自定义口径示例）
+U = E / O
+E 为综合能耗（tce）；O 为分母口径量（产量 / 产值 / 增加值对应单位）。分母为 0 时按除零兜底显示  -- ，严禁 NaN 或白屏。
+
+（4）同比 / 环比
+Δ_yoy = ( V_t − V_(t−12) ) / V_(t−12) × 100%
+Δ_mom = ( V_t − V_(t−1) ) / V_(t−1) × 100%
+t 为当前周期序号；时间粒度为月时，t−12 指上年同月、t−1 指上月。分母为 0 或同期数据缺失时，同比 / 环比显示  -- 。
+
+（5）三色状态判定（能耗类 / 单耗类指标，越低越优）
+· 优秀：V ≤ V_excellent
+· 正常：V_excellent ＜ V ≤ V_normal_max
+· 异常：V ＞ V_normal_max
+
+（6）精度与容差
+指标值小数位按指标配置（0~6 位，默认 2 位）；同比 / 环比固定保留 1 位小数；占比类指标各项四舍五入至 100.0%，偏差超过 0.1% 触发配平自检。
+
+取值示例（可作开发自测基准）：某线缆园区自定义指标「吨线缆综合能耗」= ( 电力折标量 + 天然气折标量 ) ÷ 线缆产量，分母口径单位为 km·mm²，指标单位 tce/万km·mm²，阈值分级配置为 优秀值 0.82 / 正常值上限 0.95 / 异常值下限 0.95 以上。</div>
+
+<h3>2.6　展示、对标与判定口径 <span class="tag new">新增</span></h3>
+<div class="art">（1）卡片展示口径：卡片固定呈现「指标名称 + 大号数值 + 计量单位 + 同比箭头 + 三色状态点」；数值按指标配置的小数位展示；缺失期保留  --  并附"数据待上报"微标注，严禁以 NaN 或 0 值冒充。
+
+（2）三色口径（能耗类 / 单耗类越低越优）：绿＝优于或等于优秀值；灰＝介于优秀值与正常值上限之间；红＝高于正常值上限。三色仅表达客观数值区间，页面严禁出现"表现优异""落后单位"等定性评语，统一以客观数值与环比自解释。
+
+（3）对标口径：自定义指标默认仅在本数据范围内与历史同期做纵向对比，不参与集团横向排名与达标统计；如需纳入集团横向对标，须在指标定义中勾选「纳入集团对标」并经 P1 审批，审批通过后卡片与台账须标注"自定义口径"字样，与集团统一下发的核心指标明确区分。
+
+（4）台账口径与粒度：时间粒度分日 / 月 / 年三档，跨粒度不混算、不折算；粒度切换后台账整体重算并标注当前粒度；月度值不做逐日累加校验，年度值由年度分子分母直接计算。
+
+（5）排序与筛选口径：数据概览区默认按指标编码升序，可切换为按状态排序（异常优先）；台账明细区支持按三色状态、时间范围、指标名称 / 编码筛选。
+
+（6）版本口径：指标口径（公式、单位、阈值）变更须先停用旧版再发布新版，历史台账保留当期生效口径快照；口径变更不追溯重算已发布周期，避免历史考核结论被推翻。
+
+（7）基准来源口径：折标煤系数取自 GB/T 2589-2020 与第四章折标煤系数库；碳排因子取自第四章能碳基础因子管理；任一因子版本超出有效期时，指标值照常计算但在台账中标注"因子待升级"。</div>
+
+<h3>2.7　边界条件、异常处理与防错规则 <span class="tag new">新增</span></h3>
+<div class="art">（1）公式引用不存在的基础参数或核心指标：阻断保存，返回 E_SYS_KPI_CUSTOM_EXPR_INVALID，并在公式编辑器中高亮未识别的变量名。
+
+（2）指标编码重复：阻断保存，返回 E_SYS_KPI_CUSTOM_CODE_DUP，高亮指标编码字段。
+
+（3）阈值分级非法（不满足 优秀值 ≤ 正常值上限 ＜ 异常值下限）：阻断保存，返回 E_SYS_KPI_CUSTOM_THRESHOLD_INVALID，并指出越界的阈值项。
+
+（4）删除被引用指标：阻断删除，返回 E_SYS_KPI_CUSTOM_IN_USE_DELETE_DENIED，列出引用方清单（指标卡片矩阵 / 数据变化详情 / 统计报表）。
+
+（5）自定义指标数量超配额：同一数据范围内自定义指标数量超过配额上限（默认 100 个）时阻断新增，返回 E_SYS_KPI_CUSTOM_LIMIT_EXCEEDED。
+
+（6）分母为 0：按除零安全兜底显示  -- ，返回 E_VAL_KPI_CUSTOM_DIV_ZERO；不抛技术错误码、不白屏、不用 0 值冒充。
+
+（7）未发布指标：状态为「草稿」的指标不进入数据概览与台账，不参与任何计算、排名与导出。
+
+（8）数据范围越权：指标「数据范围」超出操作者自身数据范围时阻断保存，返回 E_AUTH_RLS_SCOPE_DENIED；越权读取返回 HTTP 403 并记数据访问审计日志。
+
+（9）公式引用因子过期：所引用的折标煤系数或碳排因子版本已超出有效期时，指标值照常计算并在台账标注"因子待升级"，返回 E_VAL_FACTOR_EXPIRED。
+
+（10）并发编辑冲突：同一指标被两名用户同时编辑时按行版本号比对，后提交方提示"该指标已被他人修改，请刷新后重试"，返回 E_SYS_CONCURRENCY_LOCK。
+
+（11）越权写拦截：非授权角色（非 P2 及以上，或数据范围外）调用本模块写接口时返回 HTTP 403，触发 E_AUTH_RBAC_FORBIDDEN。
+
+（12）导出台账超限：单次导出记录数超过 50,000 行时拒绝导出，返回 E_SYS_EXPORT_LIMIT_EXCEEDED，提示缩小筛选范围或分批导出。
+
+（13）聚合函数空集：对空集使用 SUM / AVG 时按  --  兜底（AVG 不返回 NaN，MAX / MIN 不返回 0）。</div>
+
+<h3>2.8　QA 自动化验收准则（Gherkin BDD） <span class="tag new">新增</span></h3>
+<div class="art g">Feature: 集中监管 · 自定义指标监测
+
+  Scenario: 定义并发布园区自定义单耗指标
+    Given 园区能碳专员已进入 集中监管 › 自定义指标监测，且其数据范围为「新疆线缆园区」
+    When  点击【新增自定义指标】，填写指标名称＝「吨线缆综合能耗」、指标编码＝「CUS-TXLC」、计量单位＝「tce/万km·mm²」、小数位＝2
+    And   在公式编辑器中输入「(电力折标量 + 天然气折标量) ÷ 线缆产量」
+    And   配置阈值分级为 优秀值 0.82 / 正常值上限 0.95
+    And   点击【试算】并在试算返回有效结果后点击【发布】
+    Then  该指标出现在数据概览卡片矩阵中，数值按 2 位小数展示
+    And   数据台账明细区新增一行，含指标值、同比、环比与三色状态
+    And   指标状态为「已发布」
+
+  Scenario: 公式引用不存在的基础参数被阻断
+    Given 公式编辑器中输入了平台不存在的基础参数「蒸汽折标系数X」
+    When  用户点击【保存】
+    Then  保存被阻断并返回 E_SYS_KPI_CUSTOM_EXPR_INVALID
+    And   公式编辑器高亮未识别的变量名「蒸汽折标系数X」
+    And   该指标未落库，数据概览区不出现新卡片
+
+  Scenario: 阈值三色判定与除零兜底
+    Given 某已发布自定义指标的分母（线缆产量）当月为 0
+    When  系统完成一次月度计算
+    Then  该指标卡片显示为「--」并返回 E_VAL_KPI_CUSTOM_DIV_ZERO
+    And   页面不出现 NaN、白屏或 0 值冒充
+    When  次月分母恢复为非 0 且指标值 ≤ 优秀值（0.82）
+    Then  卡片数值正常显示且状态点转为绿色
+
+  Scenario: 删除被引用指标被阻断
+    Given 某自定义指标已被「数据变化详情」页面引用
+    When  用户对该指标执行【删除】
+    Then  删除被阻断并返回 E_SYS_KPI_CUSTOM_IN_USE_DELETE_DENIED
+    And   页面列出引用方清单并提示改为【停用】
+    And   该指标仍保留在数据概览卡片矩阵中
+
+  Scenario: 数据范围越权被拦截
+    Given 某园区能碳专员的数据范围为「新疆线缆园区」
+    When  其尝试把某自定义指标的「数据范围」设置为「沈变公司」并保存
+    Then  保存被阻断并返回 E_AUTH_RLS_SCOPE_DENIED
+    And   服务端记录一条数据访问审计日志</div>
+
+<div class="sep"></div>
+
+<h2>3　Gherkin 块补 Feature 声明（2 处）</h2>
+<p class="small">问题：⑧ 段直接以 <code>Scenario:</code> 起头，缺少 <code>Feature:</code> 声明行。BDD 工具（Cucumber / Behave）无法把无归属的 Scenario 解析为 Feature 块，自动化用例无法挂载执行。</p>
+
+<h3>3.1　企业基础信息 › 零碳工厂信息 ⑧</h3>
+<span class="tag add">补句</span>
+<p class="small">在 ⑧ 段首行（第一个 <code>Scenario:</code> 之前）插入以下一行：</p>
+<div class="art g">Feature: 零碳工厂参数版本治理与跨期口径</div>
+<p class="small">插入后 ⑧ 段结构：<code>Feature:</code> → 4 个 <code>Scenario:</code>（生效区间不可重叠 / 已锁账月份不被新参数追溯重算 / 变更影响策略必选 / 追溯性退补电费在当期调账），原有 Scenario 文本一律不改。</p>
+
+<h3>3.2　集中监管 › 自定义指标监测 ⑧</h3>
+<span class="tag new">新增</span>
+<p class="small">该段原为空盒，按本稿 <b>2.8 节</b>整段填入，首行已含 <code>Feature: 集中监管 · 自定义指标监测</code>，无需单独处理。</p>
+
+<div class="sep"></div>
+
+<h2>4　⑦/⑧ 段错误码补引（7 个模块）</h2>
+<p class="small">问题：以下模块的 ⑦ 段与 ⑧ 段<b>全文不出现任何 <code>E_*</code> 标准错误码</b>，异常分支仅以自然语言描述，无法被《标准化错误码字典与异常分级》追溯，也无法在自动化用例中断言。处置方式为<b>在 ⑦ 段末尾追加条目、在 ⑧ 段末尾追加 Scenario</b>，不改动原有文字。</p>
+<table>
+  <thead><tr><th class="c" style="width:6%">序</th><th style="width:22%">板块 / 模块</th><th class="c" style="width:12%">⑦段原错误码</th><th class="c" style="width:14%">补引后</th><th>新增码（本稿第 6 节登记）</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td>集控中心大屏 › 综合集控大屏 16:9</td><td class="c no">0</td><td class="c ok">3</td><td><code>E_VAL_TOU_SEGMENT_MISMATCH</code>、<code>E_VAL_TIER_PRICE_MISSING</code>、<code>E_IO_STORAGE_PCS_OFFLINE</code></td></tr>
+    <tr><td class="c">2</td><td>集中监管 › 重点用能设备</td><td class="c no">0</td><td class="c ok">3</td><td><code>E_SYS_DEV_METER_UNBOUND</code>、<code>E_IO_DEV_METER_TIMEOUT</code>、<code>E_VAL_DEV_LIMIT_MISSING</code></td></tr>
+    <tr><td class="c">3</td><td>集中监管 › 自定义指标监测</td><td class="c no">整段空</td><td class="c ok">7</td><td>见本稿 2.7 节（整模块补齐，含 7 个错误码）</td></tr>
+    <tr><td class="c">4</td><td>能耗能效分析 › 单位产值能耗</td><td class="c no">0</td><td class="c ok">3</td><td><code>E_VAL_OUTPUT_VALUE_MISSING</code>、<code>E_VAL_PRICE_BASE_YEAR_MISSING</code>、<code>E_VAL_QUOTA_LIMIT_MISSING</code></td></tr>
+    <tr><td class="c">5</td><td>能耗能效分析 › 对标管理</td><td class="c no">0</td><td class="c ok">3</td><td><code>E_VAL_BENCHMARK_VALUE_MISSING</code>、<code>E_VAL_BENCHMARK_SCOPE_MISMATCH</code>、<code>E_VAL_BENCHMARK_VERSION_STALE</code></td></tr>
+    <tr><td class="c">6</td><td>零碳项目评估 › 实时监控</td><td class="c no">0</td><td class="c ok">3</td><td><code>E_IO_PRJ_DEVICE_OFFLINE</code>、<code>E_VAL_PRJ_MONITOR_POINT_UNBOUND</code>、<code>E_VAL_PRJ_BASELINE_MISSING</code></td></tr>
+    <tr><td class="c">7</td><td>零碳项目评估 › 零碳工厂自评估</td><td class="c no">0</td><td class="c ok">4</td><td><code>E_VAL_EVAL_MATERIAL_MISSING</code>、<code>E_VAL_EVAL_SCORE_OUT_OF_RANGE</code>、<code>E_SYS_EVAL_ARCHIVED_LOCKED</code>、<code>E_SYS_EVAL_REVIEW_PREREQ</code></td></tr>
+    <tr><td class="c">8</td><td>统计报表 › 单耗报表</td><td class="c no">0</td><td class="c ok">4</td><td><code>E_CALC_RPT_UNIT_DENOM_ZERO</code>、<code>E_SYS_RPT_INDUSTRY_MIX_DENIED</code>、<code>E_VAL_RPT_BASE_VALUE_MISSING</code>、<code>E_SYS_RPT_PERIOD_GAP</code></td></tr>
+  </tbody>
+</table>
+
+<h3>4.1　集控中心大屏 › 综合集控大屏 16:9</h3>
+<span class="tag add">补句</span>
+<p class="small">⑦ 段：在末条「除零兜底：谷段占比、消纳比等分母为 0 时统一显示  -- 。」之后追加：</p>
+<div class="art">- 分时四段电量之和与当日累计电量偏差超过 0.5%：象限 A 标注"分时数据待核对"，返回 E_VAL_TOU_SEGMENT_MISMATCH（软提示，不阻断大屏渲染）。
+- 当期尖峰平谷电价版本未配置：移峰填谷理论节约金额不测算，象限 C 显示"待配置当期电价"，返回 E_VAL_TIER_PRICE_MISSING。
+- 储能 PCS 通讯中断：保留末次 SOC 快照并打"数据延迟"徽标，返回 E_IO_STORAGE_PCS_OFFLINE（不阻断象限 A / B / D 渲染）。</div>
+<p class="small">⑧ 段：在末条 Scenario「移峰填谷效益测算」之后追加：</p>
+<div class="art g">  Scenario: 储能通讯中断时的降级渲染
+    Given 园区储能 PCS 与采集网关通讯中断
+    When 大屏完成一次 15 分钟刷新
+    Then 象限 C 保留末次 SOC 快照并显示"数据延迟"徽标
+    And 返回 E_IO_STORAGE_PCS_OFFLINE
+    And 象限 A、B、D 正常渲染且页面不出现空白占位卡片
+
+  Scenario: 分时电价版本缺失时的软提示
+    Given 当期尖峰平谷电价版本尚未在费价模型中配置
+    When 大屏测算象限 C 的移峰填谷理论节约金额
+    Then 该金额不展示数值，象限 C 显示"待配置当期电价"
+    And 返回 E_VAL_TIER_PRICE_MISSING
+    And 象限 A 的分时电量结构图仍正常渲染</div>
+
+<h3>4.2　集中监管 › 重点用能设备</h3>
+<span class="tag add">补句</span>
+<p class="small">⑦ 段：在末条「设备离线：卡片显示"设备离线"状态徽章并保留最后一次有效读数，不阻断页面其余设备渲染。」之后追加：</p>
+<div class="art">- 设备未挂接监测点位（表计）：阻断能效核算，卡片标注"待挂接监测点位"，返回 E_SYS_DEV_METER_UNBOUND。
+- 设备表计遥测超时：保留末次有效读数并打"数据延迟"徽标，返回 E_IO_DEV_METER_TIMEOUT。
+- 设备能效限额（对标基准值）未配置：越限判定不执行，卡片标注"待配置限额"，返回 E_VAL_DEV_LIMIT_MISSING（严禁以 0 代替基准线）。</div>
+<p class="small">⑧ 段：在末条 Scenario「设备越限告警联动」之后追加：</p>
+<div class="art g">  Scenario: 设备未挂接监测点位时阻断能效核算
+    Given 某重点用能设备已在设备树中建档但尚未挂接任何监测点位
+    When 用户选中该设备查看能效指标
+    Then 能效核算区显示"待挂接监测点位"并返回 E_SYS_DEV_METER_UNBOUND
+    And 页面不以 0 值或空白卡片冒充指标值
+
+  Scenario: 设备表计遥测超时的降级展示
+    Given 某电力设备的表计遥测已超过 5 秒未响应
+    When 页面完成一次轮询刷新
+    Then 该设备卡片保留末次有效读数并显示"数据延迟"徽标
+    And 返回 E_IO_DEV_METER_TIMEOUT
+    And 其余设备卡片正常渲染</div>
+
+<h3>4.3　能耗能效分析 › 单位产值能耗</h3>
+<span class="tag add">补句</span>
+<p class="small">⑦ 段：在末条「除零兜底：任意分母为 0 的场景统一安全显示  -- 。」之后追加：</p>
+<div class="art">- 当期工业总产值未上报：单耗显示  --  并标注"产值数据待上报"，返回 E_VAL_OUTPUT_VALUE_MISSING。
+- 可比价基准年未配置：可比价口径不可计算，页面强制先选定产值口径后方可渲染，返回 E_VAL_PRICE_BASE_YEAR_MISSING。
+- 国家限额先进值 / 准入值缺失：基准线不绘制，返回 E_VAL_QUOTA_LIMIT_MISSING（严禁以 0 代替基准线）。</div>
+<p class="small">⑧ 段：在末条 Scenario「基准线绘制」之后追加：</p>
+<div class="art g">  Scenario: 产值未上报与口径未选定时的软兜底
+    Given 某经营单位当期工业总产值尚未上报，且页面可比价基准年未配置
+    When 页面渲染该单位的万元产值能耗卡片
+    Then 指标值显示为 "--" 并返回 E_VAL_OUTPUT_VALUE_MISSING
+    And 页面强制要求先选定产值口径，未选定前不渲染推移折线图
+    And 未配置国家限额值时基准线不绘制且返回 E_VAL_QUOTA_LIMIT_MISSING
+    And 页面不出现 NaN 或 0 值冒充</div>
+
+<h3>4.4　能耗能效分析 › 对标管理</h3>
+<span class="tag add">补句</span>
+<p class="small">⑦ 段：在末条「除零兜底：所有比值类字段分母为 0 时统一  -- 。」之后追加：</p>
+<div class="art">- 标杆值（三线体系基准值）未配置：达标系数与差距率显示  -- ，返回 E_VAL_BENCHMARK_VALUE_MISSING，该实体不参与排名与平均分计算。
+- 对标对象层级不一致：跨层级混算被阻断，返回 E_VAL_BENCHMARK_SCOPE_MISMATCH，提示按同层级实体重新生成排名。
+- 引用的对标基准版本已过期：数值照常计算并标注版本时间戳，返回 E_VAL_BENCHMARK_VERSION_STALE（软提示升级最新基准）。</div>
+<p class="small">⑧ 段：在末条 Scenario「维度切换即时刷新」之后追加：</p>
+<div class="art g">  Scenario: 标杆值缺失时的降权与排除
+    Given 某实体所属维度的标杆值尚未配置
+    When 系统生成对标红黑榜排名
+    Then 该实体达标系数与差距率显示为 "--" 并返回 E_VAL_BENCHMARK_VALUE_MISSING
+    And 该实体不计入排名序号与平均得分
+
+  Scenario: 跨层级混算被阻断
+    Given 对标维度中同时选中集团级实体与工厂级实体
+    When 用户尝试生成同一张榜单
+    Then 系统阻断并返回 E_VAL_BENCHMARK_SCOPE_MISMATCH
+    And 页面提示按同层级实体重新生成排名</div>
+
+<h3>4.5　零碳项目评估 › 实时监控</h3>
+<span class="tag add">补句</span>
+<p class="small">⑦ 段：在末条「未投运项目：不出现在监控选择器内，无解释性文案。」之后追加：</p>
+<div class="art">- 项目未绑定监测点位：该项目不出现在监控选择器中，返回 E_VAL_PRJ_MONITOR_POINT_UNBOUND（无解释性文案）。
+- 项目现场设备离线：卡片保留末次有效读数并显示"设备离线"徽标，返回 E_IO_PRJ_DEVICE_OFFLINE（不阻断其他项目渲染）。
+- 设计功率基线为 0 或缺失：偏差显示  -- ，返回 E_VAL_PRJ_BASELINE_MISSING（严禁以 0 代替偏差值）。</div>
+<p class="small">⑧ 段：在末条 Scenario「未投运项目不可监控」之后追加：</p>
+<div class="art g">  Scenario: 项目离线时的降级渲染
+    Given 某分布式光伏项目现场采集设备离线，且该项目已配置设计功率基线
+    When 页面以 5 分钟采样周期完成一次刷新
+    Then 该项目卡片显示"设备离线"徽标并保留末次有效读数
+    And 返回 E_IO_PRJ_DEVICE_OFFLINE
+    And 其余项目卡片正常渲染且页面不中断
+
+  Scenario: 设计基线缺失时的偏差兜底
+    Given 某项目设计功率基线为 0 且页面正在渲染实时曲线
+    When 系统计算实测功率与设计基线的偏差
+    Then 偏差显示为 "--" 并返回 E_VAL_PRJ_BASELINE_MISSING
+    And 实测功率曲线仍正常绘制</div>
+
+<h3>4.6　零碳项目评估 › 零碳工厂自评估</h3>
+<span class="tag add">补句</span>
+<p class="small">⑦ 段：<b>由本稿第 5.5 节整段替换</b>（替换稿已把原 4 条补齐错误码并扩为 8 条），此处不重复追加，避免同一段出现两条内容。</p>
+<p class="small">⑧ 段：在末条 Scenario「复核前置校验」之后追加：</p>
+<div class="art g">  Scenario: 佐证材料缺失的标准错误码
+    Given 某工厂"温室气体"维度尚未上传 ISO 14064 碳盘查报告
+    When 用户尝试提交自评估
+    Then 系统阻断提交并返回 E_VAL_EVAL_MATERIAL_MISSING
+    And 该维度得分置为 0 且页面列出缺失材料清单
+
+  Scenario: 已认定年度评估结果只读锁定
+    Given 某工厂 2025 年度零碳工厂自评估已完成认定归档
+    When 用户尝试修改该年度的评估得分
+    Then 控件只读锁定并返回 E_SYS_EVAL_ARCHIVED_LOCKED
+    And 页面提示修改须走特批变更流程</div>
+
+<h3>4.7　统计报表 › 单耗报表</h3>
+<span class="tag add">补句</span>
+<p class="small">⑦ 段：<b>整段替换</b>——原 4 条补齐错误码、并新增「缺月断档」一条，去重后共 5 条（原末条「无工序单位」对应 <code>E_QM_WHITE_LIST_MISS</code>，改由本条承载，不再另起重复条目）：</p>
+<div class="art">- 月产量为 0：该行单耗显示  -- ，返回 E_CALC_RPT_UNIT_DENOM_ZERO，严禁 NaN 或白屏。
+- 无工序单位：单耗工序区块输出"暂无相关工序！"，返回 E_QM_WHITE_LIST_MISS。
+- 跨产业分母混算（变压器 kVA 与线缆 km·mm² 同列合计）：数据库与导出层双重强约束，阻断生成并返回 E_SYS_RPT_INDUSTRY_MIX_DENIED。
+- 准入基准值缺失：偏差列留空并标注"基准待配置"，返回 E_VAL_RPT_BASE_VALUE_MISSING，不以 0 代替。
+- 统计周期存在断档（缺月）：导出阻断并列出缺失周期清单，返回 E_SYS_RPT_PERIOD_GAP。</div>
+<p class="small">⑧ 段：在末条 Scenario「型号级下钻」之后追加：</p>
+<div class="art g">  Scenario: 跨产业混算被双重拦截
+    Given 报表请求同时包含变压器与线缆两类产业的单耗数据
+    When 用户尝试在同一统计列内合计两类产业单耗
+    Then 数据库与导出层双重阻断并返回 E_SYS_RPT_INDUSTRY_MIX_DENIED
+    And 两类产业分别独立成区块且不共用统计列
+
+  Scenario: 缺月断档阻断导出
+    Given 报表所请求的时间区间内存在 1 个缺失月份
+    When 用户点击【导出】
+    Then 导出被阻断并返回 E_SYS_RPT_PERIOD_GAP
+    And 返回信息中列出缺失周期清单供核对</div>
+
+<div class="sep"></div>
+
+<h2>5　偏薄段扩写（7 处；另 1 处随第 2 节整模块补齐）</h2>
+<p class="small">审查共发现 <b>8</b> 处 ＜120 字偏薄段，其中「集中监管 › 自定义指标监测 · ③功能规格与交互契约」（15 字）已在<b>第 2 节整模块补齐</b>中一并解决，本节处理其余 <b>7</b> 处。</p>
+<p class="small">问题：以下段落虽有内容但不足 120 字，缺"口径定义 / 阈值与分级 / 展示与对标规则"三要素，与同章达标段（250~600 字）落差明显。处置方式为<b>整段替换</b>，扩写至 250 字以上。</p>
+<table>
+  <thead><tr><th class="c" style="width:6%">序</th><th style="width:26%">板块 / 模块</th><th class="c" style="width:8%">段</th><th class="c" style="width:10%">原字数</th><th class="c" style="width:10%">补强后</th><th>缺口口径</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td>集中监管 › 数据变化详情</td><td class="c">⑥</td><td class="c no">118</td><td class="c ok">≈400</td><td>缺归因口径、精度口径、缺失口径</td></tr>
+    <tr><td class="c">2</td><td>集中监管 › 工业微电网监测</td><td class="c">⑥</td><td class="c no">114</td><td class="c ok">≈370</td><td>缺效率口径、储能符号口径、基准来源口径</td></tr>
+    <tr><td class="c">3</td><td>零碳项目评估 › 项目档案管理</td><td class="c">⑥</td><td class="c no">87</td><td class="c ok">≈340</td><td>缺金额口径、统计口径、缺失口径</td></tr>
+    <tr><td class="c">4</td><td>零碳项目评估 › 实时监控</td><td class="c">⑥</td><td class="c no">111</td><td class="c ok">≈340</td><td>缺时序口径、状态口径、基准口径</td></tr>
+    <tr><td class="c">5</td><td>零碳项目评估 › 零碳工厂自评估</td><td class="c">⑦</td><td class="c no">116</td><td class="c ok">≈360</td><td>缺错误码、版本口径、越权口径、配平自检</td></tr>
+    <tr><td class="c">6</td><td>统计报表 › 成本报表</td><td class="c">⑦</td><td class="c no">113</td><td class="c ok">≈360</td><td>缺错误码、跨期口径、配平自检、币种精度</td></tr>
+    <tr><td class="c">7</td><td>统计报表 › 单耗报表</td><td class="c">⑥</td><td class="c no">117</td><td class="c ok">≈370</td><td>缺粒度口径、精度口径、分母缺失口径</td></tr>
+  </tbody>
+</table>
+
+<h3>5.1　集中监管 › 数据变化详情 ⑥ <span class="tag rep">替换</span></h3>
+<p class="small">原文（118 字）：</p>
+<div class="quote">趋势图数值轴起点固定为 0，禁止截断纵轴放大波动。<br>明细表支持按组织（集团/产业/二级公司/车间）与时间维度自由切换，切换后榜单与趋势同步刷新。<br>导出字段顺序固定为：组织、统计周期、分子、分母、指标值、环比、同比、数据来源、采集时间戳。</div>
+<p class="small">替换为：</p>
+<div class="art">趋势图口径：数值轴起点固定为 0，禁止截断纵轴放大波动；同一时刻多序列对比时统一使用同一纵轴量纲，不启用双 Y 轴，避免视觉误导。
+
+明细表口径：支持按组织（集团 / 产业 / 二级公司 / 工厂 / 车间）与时间维度（月 / 年）自由切换，切换后榜单与趋势同步刷新；当前筛选上下文在穿透进入单指标详情内页后仍完整保留，返回时恢复原视图。
+
+归因口径：桑基图各层节点宽度按分子 / 分母绝对量等比映射，同一层级节点之和恒等于上一层流入量；未归因差额单列"其他"并标注其占比，严禁隐去差额造成流量不配平。
+
+导出字段顺序固定为：组织、统计周期、分子、分母、指标值、环比、同比、数据来源、采集时间戳；导出件与页面数值必须同源同版本，禁止导出时二次取数。
+
+精度口径：指标值与比率保留 2 位小数；分子、分母保留原始精度不做展示层舍入，避免出现"分子分母算不出指标值"的核对争议。
+
+缺失口径：缺失月份保留真实断层，严禁插值、补 0 或跨期挪用；断层在趋势图上以断线表达，明细表对应行置灰并标注"无数据"。</div>
+
+<h3>5.2　集中监管 › 工业微电网监测 ⑥ <span class="tag rep">替换</span></h3>
+<p class="small">原文（114 字）：</p>
+<div class="quote">对比口径：统一使用环比（MoM），不使用同比，避免季节性光照差异干扰判断。<br>绿电消纳口径：绿电消纳率仅统计物理可溯源的自发自用量，不含绿证核销的等效量。<br>时段口径：谷充峰放执行时段严格对齐能源价格管理模块最新生效的分时电价版本。</div>
+<p class="small">替换为：</p>
+<div class="art">对比口径：统一使用环比（MoM），不使用同比，避免季节性光照差异干扰判断；跨月比较须在图表标题标注"环比（不消除季节性）"。
+
+绿电消纳口径：绿电消纳率仅统计物理可溯源的自发自用量，不含绿证核销的等效量；自发自用量以并网点双向电度表的正反向差值核算，核算过程与台账留痕可追溯。
+
+时段口径：谷充峰放执行时段严格对齐能源价格管理模块最新生效的分时电价版本；跨版本切换时页面提示时段变更，并对已锁账月度按当时生效版本保留原值。
+
+效率口径：光伏系统效率 PR ＝ 实际发电量 ÷（装机容量 × 等效利用小时），按月计算；PR 低于 0.75 时仅在卡片以客观数值区间色标注，不出具任何定性评价。
+
+储能口径：储能充放电功率符号语义固定（正值＝充电、负值＝放电）；SOC 荷电状态按 0.0 ~ 100.0 展示；"谷充峰放"判定以时段归属与功率符号联合确定，不以单一条件认定。
+
+基准与来源口径：等效利用小时、PR 设计值取自项目设计文件或《光伏发电系统效能规范》给定值；基准缺失时卡片标注"待配置基准"，严禁以 0 代替参与任何计算。</div>
+
+<h3>5.3　零碳项目评估 › 项目档案管理 ⑥ <span class="tag rep">替换</span></h3>
+<p class="small">原文（87 字）：</p>
+<div class="quote">状态口径：四态互斥，同一项目任一时刻仅有一个状态。<br>节能量口径：设计节能量为立项承诺值，实际节能量以项目运行评估结论为准，二者分列不混用。<br>筛选口径：投资额区间为闭区间筛选。</div>
+<p class="small">替换为：</p>
+<div class="art">状态口径：四态（储备 / 在建 / 已投运 / 已验收）互斥，同一项目任一时刻仅有一个状态；状态流转须留痕（操作人、时间、变更前后状态），禁止跨状态跳跃变更。
+
+节能量口径：设计节能量为立项承诺值，实际节能量以项目运行评估结论为准，二者分列不混用、不相加；页面展示时须以列名明确区分"设计节能量"与"实际节能量"。
+
+筛选口径：投资额区间为闭区间筛选（含端点）；时间筛选按项目立项日期而非投运日期；多类条件之间为「与」关系，同类条件之间为「或」关系。
+
+金额口径：投资额统一以万元（人民币）为展示单位并保留 2 位小数；外币项目按立项当期央行中间价折算并标注汇率与时点，后续不做汇兑重估。
+
+统计口径：顶部汇总卡片（项目数、总投资额、设计总节能量）基于当前筛选结果实时计算，未施加筛选时为全量；被停用或作废的项目不计入任何汇总。
+
+缺失口径：未填写投资额或节能量的项目在明细表中留空并标注"待补充"，不以 0 代替参与汇总，避免拉低均值造成口径失真。</div>
+
+<h3>5.4　零碳项目评估 › 实时监控 ⑥ <span class="tag rep">替换</span></h3>
+<p class="small">原文（111 字）：</p>
+<div class="quote">对比口径：实测功率必须与设计功率基线同图对比，偏差以百分比呈现。<br>采样口径：实时监控采样周期固定 5 分钟；秒级刷新仅用于设备关键点位。<br>节能口径：当日累计节能电量为实测值，实测功率低于设计基线的时段按 0 计而不计负值。</div>
+<p class="small">替换为：</p>
+<div class="art">对比口径：实测功率必须与设计功率基线同图对比，偏差以百分比呈现（偏差 ＝（实测 − 设计）÷ 设计 × 100%）；两条曲线使用同一纵轴量纲，不启用双 Y 轴。
+
+采样口径：实时监控采样周期固定 5 分钟；秒级刷新仅用于设备关键点位（温度、压力、开关状态），不用于功率与发电量的趋势渲染。
+
+节能口径：当日累计节能电量为实测值，实测功率低于设计基线的时段按 0 计而不计负值（防止"负节能"污染累计值）；夜间无出力时段不参与节能时长统计。
+
+时序口径：时间轴固定展示当日 00:00 ~ 24:00，跨日不拼接；历史日期查询走日结库，与实时通道口径一致，允许不超过 0.5% 的采样容差。
+
+状态口径：项目状态分为「运行中 / 离线 / 待投运」，仅「运行中」项目参与实时曲线与告警；离线项目保留末次有效读数并加"数据延迟"徽标，待投运项目不出现在选择器中。
+
+基准口径：设计功率基线取自项目设计文件的承诺功率；基线缺失或为 0 时偏差显示  -- ，严禁以 0 代替偏差参与任何计算。</div>
+
+<h3>5.5　零碳项目评估 › 零碳工厂自评估 ⑦ <span class="tag rep">替换</span></h3>
+<p class="small">原文（116 字，4 条）：</p>
+<div class="quote">- 佐证材料缺失：该维度得分置为 0 且不可提交评估，页面明确列出缺失材料清单。<br>- 自评得分超出标准分值：前端即时拦截并阻断保存。<br>- 已认定年度的评估结果：只读锁定，修改须走特批变更流程。<br>- 二级公司未复核：集团审批按钮置灰。</div>
+<p class="small">替换为：</p>
+<div class="art">- 佐证材料缺失：该维度得分置为 0 且不可提交评估，页面明确列出缺失材料清单，返回 E_VAL_EVAL_MATERIAL_MISSING。
+- 自评得分超出标准分值：前端即时拦截并阻断保存，返回 E_VAL_EVAL_SCORE_OUT_OF_RANGE，高亮越界的维度得分项。
+- 已认定年度的评估结果：只读锁定，修改须走特批变更流程，返回 E_SYS_EVAL_ARCHIVED_LOCKED，变更记录全量留痕。
+- 二级公司未复核：集团审批按钮置灰，返回 E_SYS_EVAL_REVIEW_PREREQ，并提示须先完成二级公司复核。
+- 六维度得分合计超过 100 分：按维度权重配平自检，偏差超过 0.1% 时阻断提交并给出配平明细。
+- 评价标准版本失效：所引用的评价标准版本超出有效期时，阻断新评估发起并标注"标准待升级"，返回 E_VAL_FACTOR_EXPIRED；历史已认定结果保留原版本口径，不追溯重算。
+- 佐证材料与维度不匹配（如将碳盘查报告挂到"能源管理"维度）：保存阻断并提示维度归属规则。
+- 越权审批：非集团审批人调用审批接口时返回 HTTP 403，触发 E_AUTH_RBAC_FORBIDDEN；审批范围超出自身数据范围时返回 E_AUTH_RLS_SCOPE_DENIED。</div>
+
+<h3>5.6　统计报表 › 成本报表 ⑦ <span class="tag rep">替换</span></h3>
+<p class="small">原文（113 字，4 条）：</p>
+<div class="quote">- 当期能源价格未配置：报表禁止生成，提示"待配置当期能源价格"。<br>- 单价版本缺失：导出时阻断并标注缺失行。<br>- 除零兜底：总用能实物量为 0 时综合度电单价显示  -- 。<br>- 已锁账月度：成本报表冻结，修改须走特批反冲。</div>
+<p class="small">替换为：</p>
+<div class="art">- 当期能源价格未配置：报表禁止生成，提示"待配置当期能源价格"，返回 E_VAL_ENERGY_PRICE_MISSING。
+- 单价版本缺失：导出时阻断并标注缺失行（列名 + 缺失介质），返回 E_VAL_PRICE_VERSION_MISSING。
+- 除零兜底：总用能实物量为 0 时综合度电单价显示  -- ，返回 E_CALC_UNIT_DIV_ZERO_SOFT，不抛技术错误码、不白屏。
+- 已锁账月度：成本报表冻结，修改须走特批反冲，返回 E_SYS_ENTRY_ALREADY_LOCKED。
+- 跨期价差调整：电网追溯性退补电费涉及已锁账月份时，在调整当期新增"电费跨期调整项"，历史报表数值保持不变，并按业务发生时间匹配当时生效价格版本，严禁以当前版本倒推历史。
+- 价格版本区间重叠或断档：同一工厂同一介质的生效周期与在效版本重叠时阻断启用，返回 E_SYS_PRICE_PERIOD_OVERLAP；区间出现断档时标注无价时段并禁止该时段计入成本合计。
+- 币种与精度口径：金额统一以万元（人民币）展示并保留 2 位小数；单价按介质法定计量单位展示（元/kWh、元/m³、元/GJ 等），不做二次换算。
+- 分项合计配平：各能源介质成本之和与综合成本总额偏差超过 0.1% 时标注"配平自检未通过"并阻断导出。</div>
+
+<h3>5.7　统计报表 › 单耗报表 ⑥ <span class="tag rep">替换</span></h3>
+<p class="small">原文（117 字，4 条）：</p>
+<div class="quote">分母孔径铁律：变压器以 kVA/万 kVA 汇算，线缆以 km·mm² 汇算，严禁跨产业混算。<br>对比口径：同比为同型号去年同期，环比为同型号上月。<br>偏差口径：与准入基准偏差基于国家准入先进值计算。<br>状态口径：按标杆值/基准值三色判定。</div>
+<p class="small">替换为：</p>
+<div class="art">分母孔径铁律：变压器以 kVA / 万 kVA 汇算，线缆以 km·mm² 汇算，严禁跨产业混算；同一报表内不同产业必须独立成区块并各自合计，不共用统计列。
+
+对比口径：同比为同型号去年同期，环比为同型号上月（非上月全量）；分子或分母任一缺失时，该行同比 / 环比留空，不以 0 代替。
+
+偏差口径：与准入基准偏差基于国家准入先进值计算（偏差 ＝（实测 − 准入值）÷ 准入值 × 100%），正值表示劣于准入值、负值表示优于；准入值缺失时偏差列留空并标注"基准待配置"。
+
+状态口径：按标杆值 / 基准值三色判定，能耗与单耗类指标越低越优——绿＝优于或等于标杆值、灰＝介于标杆值与基准值之间、红＝高于基准值。
+
+粒度口径：时间粒度分月 / 年两档，月度单耗不做累加；年度单耗由年度分子分母直接计算，而非逐月平均，避免月产量波动带来的平均偏差。
+
+精度口径：单耗值保留 2 位小数（线缆类保留 4 位）；分子分母保留原始精度不做展示层舍入，确保与台账可逐位核对。</div>
+
+<div class="sep"></div>
+
+<h2>6　新增标准错误码清单（31 条 → 登记入第六章字典）</h2>
+<p class="small">以下 31 条为本次补强新引入的标准错误码，须<b>追加登记</b>至第六章《工程治理、状态机与合规保障体系》之「标准化错误码字典与异常分级」表末。命名沿用文档既有规范 <code>E_&lt;域&gt;_&lt;MODULE&gt;_&lt;REASON&gt;</code>，域含 <code>VAL</code>（校验）/ <code>CALC</code>（计算）/ <code>IO</code>（采集）/ <code>SYS</code>（系统与治理）。已与字典现有 103 条逐条比对，<b>无重名冲突</b>。</p>
+<table>
+  <thead><tr><th class="c" style="width:5%">序</th><th style="width:27%">标准错误码</th><th class="c" style="width:7%">HTTP</th><th style="width:26%">触发业务场景</th><th>前端交互与后端处理建议</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td><code>E_VAL_TOU_SEGMENT_MISMATCH</code></td><td class="c">422</td><td>综合集控大屏 16:9｜尖 / 峰 / 平 / 谷四段电量之和与当日累计电量偏差超过 0.5%</td><td>软提示：象限 A 标注"分时数据待核对"，不阻断大屏渲染，不弹出技术错误码</td></tr>
+    <tr><td class="c">2</td><td><code>E_VAL_TIER_PRICE_MISSING</code></td><td class="c">422</td><td>综合集控大屏 16:9｜当期尖峰平谷电价版本未在费价模型中配置</td><td>移峰填谷理论节约金额不测算，象限 C 显示"待配置当期电价"，象限 A 正常渲染</td></tr>
+    <tr><td class="c">3</td><td><code>E_IO_STORAGE_PCS_OFFLINE</code></td><td class="c">503</td><td>综合集控大屏 16:9｜储能 PCS 与采集网关通讯中断</td><td>保留末次 SOC 快照并打"数据延迟"徽标，不阻断象限 A / B / D 渲染</td></tr>
+    <tr><td class="c">4</td><td><code>E_SYS_DEV_METER_UNBOUND</code></td><td class="c">422</td><td>重点用能设备｜设备已建档但未挂接任何监测点位（表计）</td><td>阻断能效核算，卡片标注"待挂接监测点位"，引导跳转设备台账补充点位</td></tr>
+    <tr><td class="c">5</td><td><code>E_IO_DEV_METER_TIMEOUT</code></td><td class="c">504</td><td>重点用能设备｜设备表计遥测超过 5 秒未响应</td><td>保留末次有效读数并打"数据延迟"徽标，其余设备正常渲染</td></tr>
+    <tr><td class="c">6</td><td><code>E_VAL_DEV_LIMIT_MISSING</code></td><td class="c">422</td><td>重点用能设备｜设备能效限额（对标基准值）未配置</td><td>越限判定不执行，卡片标注"待配置限额"，严禁以 0 代替基准线</td></tr>
+    <tr><td class="c">7</td><td><code>E_SYS_KPI_CUSTOM_CODE_DUP</code></td><td class="c">409</td><td>自定义指标监测｜新增自定义指标时指标编码重复</td><td>阻断保存并高亮指标编码字段，提示"指标编码已存在"</td></tr>
+    <tr><td class="c">8</td><td><code>E_SYS_KPI_CUSTOM_EXPR_INVALID</code></td><td class="c">422</td><td>自定义指标监测｜公式语法非法，或引用了不存在的基础参数 / 核心指标</td><td>阻断保存，公式编辑器高亮未识别变量名并给出定位</td></tr>
+    <tr><td class="c">9</td><td><code>E_SYS_KPI_CUSTOM_IN_USE_DELETE_DENIED</code></td><td class="c">409</td><td>自定义指标监测｜删除已被卡片矩阵 / 数据变化详情 / 报表引用的指标</td><td>阻断删除，列出引用方清单，提示改为停用</td></tr>
+    <tr><td class="c">10</td><td><code>E_SYS_KPI_CUSTOM_LIMIT_EXCEEDED</code></td><td class="c">400</td><td>自定义指标监测｜单数据范围内自定义指标数量超过配额上限（默认 100 个）</td><td>阻断新增，提示"自定义指标数量已达上限"，建议停用不再使用的指标</td></tr>
+    <tr><td class="c">11</td><td><code>E_SYS_KPI_CUSTOM_THRESHOLD_INVALID</code></td><td class="c">422</td><td>自定义指标监测｜阈值分级不满足 优秀值 ≤ 正常值上限 ＜ 异常值下限</td><td>阻断保存并指出越界的阈值项，给出合法区间提示</td></tr>
+    <tr><td class="c">12</td><td><code>E_VAL_KPI_CUSTOM_DIV_ZERO</code></td><td class="c">200</td><td>自定义指标监测｜自定义指标分母（产量 / 产值）为 0</td><td>核心安全兜底：指标值显示  -- ，不抛技术错误码、不白屏、不用 0 值冒充</td></tr>
+    <tr><td class="c">13</td><td><code>E_VAL_OUTPUT_VALUE_MISSING</code></td><td class="c">422</td><td>单位产值能耗｜当期工业总产值尚未上报</td><td>单耗显示  --  并标注"产值数据待上报"，页面不出现 NaN 或 0 值冒充</td></tr>
+    <tr><td class="c">14</td><td><code>E_VAL_PRICE_BASE_YEAR_MISSING</code></td><td class="c">422</td><td>单位产值能耗｜可比价口径所需的基准年未配置</td><td>可比价口径不可计算，页面强制先选定产值口径后方可渲染折线图</td></tr>
+    <tr><td class="c">15</td><td><code>E_VAL_QUOTA_LIMIT_MISSING</code></td><td class="c">200</td><td>单位产值能耗｜国家限额先进值 / 准入值缺失</td><td>基准线不绘制并标注"限额值待配置"，严禁以 0 代替基准线</td></tr>
+    <tr><td class="c">16</td><td><code>E_VAL_BENCHMARK_VALUE_MISSING</code></td><td class="c">422</td><td>对标管理｜三线体系标杆值未配置</td><td>达标系数与差距率显示  -- ，该实体不参与排名与平均分计算</td></tr>
+    <tr><td class="c">17</td><td><code>E_VAL_BENCHMARK_SCOPE_MISMATCH</code></td><td class="c">422</td><td>对标管理｜对标对象层级不一致（集团级与工厂级混算）</td><td>阻断生成榜单，提示按同层级实体重新生成排名</td></tr>
+    <tr><td class="c">18</td><td><code>E_VAL_BENCHMARK_VERSION_STALE</code></td><td class="c">200</td><td>对标管理｜所引用的对标基准版本已超出有效期</td><td>数值照常计算并标注版本时间戳，软提示升级最新基准</td></tr>
+    <tr><td class="c">19</td><td><code>E_IO_PRJ_DEVICE_OFFLINE</code></td><td class="c">503</td><td>实时监控｜零碳项目现场采集设备离线</td><td>项目卡片保留末次有效读数并显示"设备离线"徽标，不阻断其他项目渲染</td></tr>
+    <tr><td class="c">20</td><td><code>E_VAL_PRJ_MONITOR_POINT_UNBOUND</code></td><td class="c">422</td><td>实时监控｜项目未绑定任何监测点位</td><td>该项目不出现在监控选择器中，页面不弹出解释性文案</td></tr>
+    <tr><td class="c">21</td><td><code>E_VAL_PRJ_BASELINE_MISSING</code></td><td class="c">200</td><td>实时监控｜项目设计功率基线为 0 或缺失</td><td>偏差显示  --  并标注"基线待配置"，严禁以 0 代替偏差值</td></tr>
+    <tr><td class="c">22</td><td><code>E_VAL_EVAL_MATERIAL_MISSING</code></td><td class="c">400</td><td>零碳工厂自评估｜佐证材料缺失（如未上传 ISO 14064 碳盘查报告）</td><td>阻断提交，该维度得分置为 0，页面列出缺失材料清单</td></tr>
+    <tr><td class="c">23</td><td><code>E_VAL_EVAL_SCORE_OUT_OF_RANGE</code></td><td class="c">422</td><td>零碳工厂自评估｜自评得分超出该维度标准分值</td><td>前端即时拦截并阻断保存，高亮越界的维度得分项</td></tr>
+    <tr><td class="c">24</td><td><code>E_SYS_EVAL_ARCHIVED_LOCKED</code></td><td class="c">423</td><td>零碳工厂自评估｜修改已认定归档年度的评估结果</td><td>控件只读锁定，提示须走特批变更流程，变更记录全量留痕</td></tr>
+    <tr><td class="c">25</td><td><code>E_SYS_EVAL_REVIEW_PREREQ</code></td><td class="c">409</td><td>零碳工厂自评估｜二级公司尚未复核即发起集团审批</td><td>审批按钮置灰不可点击，提示须先完成二级公司复核</td></tr>
+    <tr><td class="c">26</td><td><code>E_CALC_RPT_UNIT_DENOM_ZERO</code></td><td class="c">200</td><td>单耗报表｜分母（产量 / 产值）为 0</td><td>该行单耗显示  -- ，严禁 NaN 或白屏</td></tr>
+    <tr><td class="c">27</td><td><code>E_SYS_RPT_INDUSTRY_MIX_DENIED</code></td><td class="c">422</td><td>单耗报表｜跨产业分母混算（变压器 kVA 与线缆 km·mm² 同列合计）</td><td>数据库与导出层双重强约束，阻断生成并提示按产业独立成区块</td></tr>
+    <tr><td class="c">28</td><td><code>E_VAL_RPT_BASE_VALUE_MISSING</code></td><td class="c">200</td><td>单耗报表｜国家准入先进值（基准值）缺失</td><td>偏差列留空并标注"基准待配置"，不以 0 代替</td></tr>
+    <tr><td class="c">29</td><td><code>E_SYS_RPT_PERIOD_GAP</code></td><td class="c">422</td><td>单耗报表｜统计周期存在断档（缺月）</td><td>导出阻断并随返回信息列出缺失周期清单供核对</td></tr>
+    <tr><td class="c">30</td><td><code>E_VAL_ENERGY_PRICE_MISSING</code></td><td class="c">422</td><td>成本报表｜当期能源价格未在费价模型中配置</td><td>报表禁止生成，提示"待配置当期能源价格"</td></tr>
+    <tr><td class="c">31</td><td><code>E_VAL_PRICE_VERSION_MISSING</code></td><td class="c">422</td><td>成本报表｜核算所需的当期能源单价版本缺失</td><td>导出时阻断并标注缺失行（列名 + 缺失介质）</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+<b>登记后字典规模：</b>第六章「标准化错误码字典与异常分级」现有 103 条 + 本次新增 31 条 ＝ <b>134 条</b>。<br>
+<b>另需同步的引用位置：</b>第十二章《测试与验收基线》的验收基线中，模块覆盖数维持「第二章 22 个 + 第三章 16 个 + 第四章 15 个」，标准错误码总数由原值更新为 <b>134</b>。
+</div>
+
+<div class="sep"></div>
+
+<h2>7　补强后目标基线</h2>
+<table>
+  <thead><tr><th style="width:32%">指标</th><th class="c" style="width:20%">现状（v16）</th><th class="c" style="width:20%">补强后目标</th><th class="c">判定</th></tr></thead>
+  <tbody>
+    <tr><td>八段齐备模块</td><td class="c">21 / 22</td><td class="c">22 / 22</td><td class="c"><span class="tag new">100%</span></td></tr>
+    <tr><td>有效模板段落</td><td class="c">170 / 176</td><td class="c">176 / 176</td><td class="c"><span class="tag new">100%</span></td></tr>
+    <tr><td>字段字典属性填充率</td><td class="c">660 / 684（96.5%）</td><td class="c">690 / 690</td><td class="c"><span class="tag new">100%</span></td></tr>
+    <tr><td>字段字典字段数</td><td class="c">228</td><td class="c">230（+2）</td><td class="c"><span class="tag new">补齐</span></td></tr>
+    <tr><td>偏薄段落（＜120 字）</td><td class="c">8 处</td><td class="c">0 处</td><td class="c"><span class="tag new">0</span></td></tr>
+    <tr><td>零错误码模块</td><td class="c">8 个</td><td class="c">0 个</td><td class="c"><span class="tag new">0</span></td></tr>
+    <tr><td>Gherkin 缺 Feature 声明</td><td class="c">2 处</td><td class="c">0 处</td><td class="c"><span class="tag new">0</span></td></tr>
+    <tr><td>Gherkin 场景总数</td><td class="c">61 条</td><td class="c">79 条（+18）</td><td class="c"><span class="tag new">增量</span></td></tr>
+    <tr><td>章首导言事实性错误</td><td class="c">4 处</td><td class="c">0 处</td><td class="c"><span class="tag new">0</span></td></tr>
+    <tr><td>第六章错误码字典</td><td class="c">103 条</td><td class="c">134 条（+31）</td><td class="c"><span class="tag new">增量</span></td></tr>
+  </tbody>
+</table>
+
+<h3>段落级处置索引（粘贴对照表）</h3>
+<table>
+  <thead><tr><th class="c" style="width:8%">稿节</th><th style="width:24%">定位</th><th class="c" style="width:10%">动作</th><th>对应 docx 位置</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td>章首导言</td><td class="c"><span class="tag rep">替换</span></td><td>第二章 H1 后第一段正文（原「本章严格匹配系统切换至…」整段）</td></tr>
+    <tr><td class="c">2.1</td><td>自定义指标监测 ①</td><td class="c"><span class="tag rep">替换</span></td><td>该模块「定位与架构角色」段（原为空盒）→ 改为 6 个正文段落（定位 / 角色 / 路由 / 上游 / 下游 / 数据权限）</td></tr>
+    <tr><td class="c">2.2</td><td>自定义指标监测 ②</td><td class="c"><span class="tag rep">替换</span></td><td>该模块「业务场景与用户故事」段（原为空盒）→ 改为 5 个正文段落（场景 / 用户故事 / As a / I want / So that）</td></tr>
+    <tr><td class="c">2.3</td><td>自定义指标监测 ③</td><td class="c"><span class="tag rep">替换</span></td><td>该模块「功能规格与交互契约」段 → 9 个正文段落 + 新增 8 行 × 5 列交互契约表</td></tr>
+    <tr><td class="c">2.4</td><td>自定义指标监测 ④</td><td class="c"><span class="tag rep">替换</span></td><td>该模块字段字典表：由 9×5 占位表替换为 11×5（表头 + 10 字段）</td></tr>
+    <tr><td class="c">2.5</td><td>自定义指标监测 ⑤</td><td class="c"><span class="tag new">新增</span></td><td>该模块「核心数学模型与算法框架」内容盒（原为空盒）填写；紧随其后正文段落承载「取值示例」</td></tr>
+    <tr><td class="c">2.6</td><td>自定义指标监测 ⑥</td><td class="c"><span class="tag new">新增</span></td><td>该模块「展示、对标与判定口径」段（原为空盒）→ 改为 7 个正文段落</td></tr>
+    <tr><td class="c">2.7</td><td>自定义指标监测 ⑦</td><td class="c"><span class="tag new">新增</span></td><td>该模块「边界条件、异常处理与防错规则」内容盒（原为空盒）</td></tr>
+    <tr><td class="c">2.8</td><td>自定义指标监测 ⑧</td><td class="c"><span class="tag new">新增</span></td><td>该模块「QA 自动化验收准则（Gherkin BDD）」内容盒（原为空盒）</td></tr>
+    <tr><td class="c">3.1</td><td>零碳工厂信息 ⑧ 首行</td><td class="c"><span class="tag add">补句</span></td><td>在该段 ⑧ 内容盒首行插入 <code>Feature:</code> 声明一行</td></tr>
+    <tr><td class="c">4.1</td><td>综合集控大屏 16:9 ⑦⑧</td><td class="c"><span class="tag add">补句</span></td><td>⑦ 段末追加 3 条；⑧ 段末追加 2 个 Scenario</td></tr>
+    <tr><td class="c">4.2</td><td>重点用能设备 ⑦⑧</td><td class="c"><span class="tag add">补句</span></td><td>⑦ 段末追加 3 条；⑧ 段末追加 2 个 Scenario</td></tr>
+    <tr><td class="c">4.3</td><td>单位产值能耗 ⑦⑧</td><td class="c"><span class="tag add">补句</span></td><td>⑦ 段末追加 3 条；⑧ 段末追加 1 个 Scenario</td></tr>
+    <tr><td class="c">4.4</td><td>对标管理 ⑦⑧</td><td class="c"><span class="tag add">补句</span></td><td>⑦ 段末追加 3 条；⑧ 段末追加 2 个 Scenario</td></tr>
+    <tr><td class="c">4.5</td><td>实时监控 ⑦⑧</td><td class="c"><span class="tag add">补句</span></td><td>⑦ 段末追加 3 条；⑧ 段末追加 2 个 Scenario</td></tr>
+    <tr><td class="c">4.6</td><td>零碳工厂自评估 ⑦⑧</td><td class="c"><span class="tag add">补句</span></td><td>⑦ 段由第 5.5 节整段替换（不在此重复追加）；⑧ 段末追加 2 个 Scenario</td></tr>
+    <tr><td class="c">4.7</td><td>单耗报表 ⑦⑧</td><td class="c"><span class="tag add">补句</span></td><td>⑦ 段整段替换为 5 条（原 4 条补齐错误码 + 新增缺月断档）；⑧ 段末追加 2 个 Scenario</td></tr>
+    <tr><td class="c">5.1</td><td>数据变化详情 ⑥</td><td class="c"><span class="tag rep">替换</span></td><td>整段替换为补强文本</td></tr>
+    <tr><td class="c">5.2</td><td>工业微电网监测 ⑥</td><td class="c"><span class="tag rep">替换</span></td><td>整段替换为补强文本</td></tr>
+    <tr><td class="c">5.3</td><td>项目档案管理 ⑥</td><td class="c"><span class="tag rep">替换</span></td><td>整段替换为补强文本</td></tr>
+    <tr><td class="c">5.4</td><td>实时监控 ⑥</td><td class="c"><span class="tag rep">替换</span></td><td>整段替换为补强文本（与 4.5 同模块，分段处理）</td></tr>
+    <tr><td class="c">5.5</td><td>零碳工厂自评估 ⑦</td><td class="c"><span class="tag rep">替换</span></td><td>整段替换为补强文本（含 4.6 的 ⑦ 段追加内容）</td></tr>
+    <tr><td class="c">5.6</td><td>成本报表 ⑦</td><td class="c"><span class="tag rep">替换</span></td><td>整段替换为补强文本</td></tr>
+    <tr><td class="c">5.7</td><td>单耗报表 ⑥</td><td class="c"><span class="tag rep">替换</span></td><td>整段替换为补强文本（与 4.7 同模块，分段处理）</td></tr>
+    <tr><td class="c">6</td><td>第六章错误码字典</td><td class="c"><span class="tag new">新增</span></td><td>字典表末追加 31 行</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+<b>业务口径确认（2026-09-27）：</b>
+<ul>
+  <li><b>已确认</b>——自定义指标「单数据范围配额上限」定为 <b>100 个</b>（<code>E_SYS_KPI_CUSTOM_LIMIT_EXCEEDED</code> 的触发阈值），<b>不做角色分级</b>，P2 与 P1 同口径受同一上限约束。</li>
+  <li><b>暂定</b>——自定义指标纳入集团横向对标的审批路径为「P2 定义 → P1 审批」；审批是否为强制前置、是否留痕归档，待业务方最终确认。</li>
+  <li><b>暂定</b>——自定义指标的时间粒度一经发布不可变更（须新建指标）；此约束是否与园区实际操作习惯相符，待业务方最终确认。</li>
+</ul>
+</div>
+
+<div class="note">
+<b>落地状态：</b>本稿已全量并入 <b>PRD v17</b>（受控号 TBEA-PRD-MASTER，版本 <b>V1.7.0</b>，2026-09-27）：第二章定点补缺写回正文；第六章「标准化错误码字典与异常分级」追加 31 行（103 → <b>134 条</b>）；第十二章「全系统验收基线」错误码覆盖数同步更新为 <b>134 项</b>。
+</div>
+
+<div class="sep"></div>
+<p class="small">编制：王亮　|　编制日期：2026-09-27　|　依据文档：特变电工能碳数字化双中心_产品需求规格说明书_PRD_v16.docx（受控号 TBEA-PRD-MASTER，版本 V1.6.0）</p>
+
+</div>
+</body>
+</html>

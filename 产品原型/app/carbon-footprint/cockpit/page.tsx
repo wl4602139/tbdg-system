@@ -12,10 +12,6 @@ import {
   Cpu,
   Layers2,
   Sparkles,
-  Package,
-  Factory,
-  Truck,
-  Recycle,
   Scale,
   Calendar,
   Tag,
@@ -27,7 +23,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from 'lucide-react'
-import { Panel, PanelTitle } from '@/components/shared/primitives'
+import { Panel } from '@/components/shared/primitives'
 
 /* 11 种权威工业装备产品数据模型（含丰富细分类别及型号对比数据） */
 export interface SubProductItem {
@@ -812,206 +808,56 @@ export default function CockpitPage() {
         </div>
       </div>
 
-      {/* ② 总体生命周期阶段构成对比（平台标准 4 列栅格 + 全周期分布能量流 + 4 大阶段指标卡） */}
+      {/* ③ 装备产品碳足迹分类构成 —— 支持【卡片模式】与【列表模式】切换 + 11 种权威产品分类 */}
       <Panel className="p-4" bodyClassName="flex flex-col gap-4">
-        {/* 头部：标题栏与 4 阶段标准图例 */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-3">
-          <div className="flex items-center gap-2.5">
-            <span className="h-4 w-1 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
-            <h2 className="text-sm font-semibold text-foreground tracking-wide">
-              全产品生命周期阶段总体构成对比
-            </h2>
+        {/* 头部控制工具栏：产品分类选择栏 + 4 阶段图例与显示模式切换器 (原标题已按指令彻底移除) */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
+          {/* 左侧：11 种权威产品分类选择栏 */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setActiveCategory('all')}
+              className={`inline-flex items-center gap-1.5 h-7 rounded-md px-2.5 text-xs font-semibold transition-all ${
+                activeCategory === 'all'
+                  ? 'bg-primary text-primary-foreground shadow-xs'
+                  : 'bg-secondary/60 border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground hover:bg-secondary'
+              }`}
+            >
+              <span>全部分类</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
+                  activeCategory === 'all'
+                    ? 'bg-primary-foreground/20 text-primary-foreground'
+                    : 'bg-panel text-muted-foreground'
+                }`}
+              >
+                11
+              </span>
+            </button>
+
+            {PRODUCTS_11.map((p) => {
+              const isActive = activeCategory === p.id
+              const IconComponent = p.icon
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setActiveCategory(p.id)}
+                  className={`inline-flex items-center gap-1.5 h-7 rounded-md px-2.5 text-xs font-medium transition-all ${
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-secondary/60 border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground hover:bg-secondary'
+                  }`}
+                >
+                  <IconComponent className="size-3.5" />
+                  <span>{p.name}</span>
+                </button>
+              )
+            })}
           </div>
 
-          {/* 四阶段标准图例 */}
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-              <span className="size-2 rounded-full bg-[#00b4d8]" /> 原材料获取
-            </span>
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-              <span className="size-2 rounded-full bg-[#f59e0b]" /> 生产制造
-            </span>
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-              <span className="size-2 rounded-full bg-[#10b981]" /> 原材料运输
-            </span>
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-              <span className="size-2 rounded-full bg-[#8b5cf6]" /> 废弃物处理
-            </span>
-          </div>
-        </div>
-
-        {/* 全生命周期 4 大阶段加权构成贯穿分段流 (100% 全周期宏观分布) */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>全周期加权阶段构成分布 (100%)</span>
-            <span className="font-mono">加权综合单耗基准: <strong className="text-foreground">128.5 kgCO₂e</strong></span>
-          </div>
-          <div className="flex h-3 w-full overflow-hidden rounded-full bg-secondary/80 shadow-inner">
-            <div style={{ width: '66%', backgroundColor: '#00b4d8' }} title="原材料获取: 66.0%" />
-            <div style={{ width: '20%', backgroundColor: '#f59e0b' }} title="生产制造: 20.0%" />
-            <div style={{ width: '8%', backgroundColor: '#10b981' }} title="原材料运输: 8.0%" />
-            <div style={{ width: '6%', backgroundColor: '#8b5cf6' }} title="废弃物处理: 6.0%" />
-          </div>
-        </div>
-
-        {/* 4 大阶段标准工业指标卡 —— 4 列标准栅格 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {/* 阶段 1：原材料获取 */}
-          <div className="rounded-lg border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between text-xs pb-1 border-b border-border/60">
-                <div className="flex items-center gap-2 font-bold text-foreground">
-                  <div className="flex size-7 items-center justify-center rounded-lg bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20">
-                    <Package className="size-4" />
-                  </div>
-                  <span>原材料获取</span>
-                </div>
-                <span className="rounded bg-primary/10 border border-primary/20 px-1.5 py-0.5 text-[10px] font-mono text-primary font-semibold">
-                  主导 66.0%
-                </span>
-              </div>
-
-              <div className="flex items-baseline justify-between">
-                <div className="flex items-baseline gap-1">
-                  <span className="font-mono text-2xl font-black tracking-tight text-foreground">66.0%</span>
-                  <span className="text-xs font-normal text-muted-foreground font-sans">加权占比</span>
-                </div>
-                <div className="text-right font-mono text-xs text-muted-foreground">
-                  <span className="font-bold text-foreground">84.8</span> kgCO₂e
-                </div>
-              </div>
-
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary/80">
-                <div className="h-full rounded-full bg-[#00b4d8]" style={{ width: '66%' }} />
-              </div>
-            </div>
-
-            <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground font-sans">
-              <span>跨装备波动区间</span>
-              <span className="font-mono font-bold text-foreground">55.0% ~ 78.0%</span>
-            </div>
-          </div>
-
-          {/* 阶段 2：生产制造 */}
-          <div className="rounded-lg border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 font-bold text-foreground">
-                  <div className="flex size-7 items-center justify-center rounded-lg bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20">
-                    <Factory className="size-4" />
-                  </div>
-                  <span>生产制造</span>
-                </div>
-                <span className="rounded bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 text-[10px] font-mono text-amber-500 font-semibold">
-                  过程 20.0%
-                </span>
-              </div>
-
-              <div className="flex items-baseline justify-between">
-                <div className="flex items-baseline gap-1">
-                  <span className="font-mono text-2xl font-black tracking-tight text-foreground">20.0%</span>
-                  <span className="text-xs font-normal text-muted-foreground font-sans">加权占比</span>
-                </div>
-                <div className="text-right font-mono text-xs text-muted-foreground">
-                  <span className="font-bold text-foreground">25.7</span> kgCO₂e
-                </div>
-              </div>
-
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary/80">
-                <div className="h-full rounded-full bg-[#f59e0b]" style={{ width: '20%' }} />
-              </div>
-            </div>
-
-            <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground font-sans">
-              <span>跨装备波动区间</span>
-              <span className="font-mono font-bold text-foreground">14.0% ~ 27.0%</span>
-            </div>
-          </div>
-
-          {/* 阶段 3：原材料运输 */}
-          <div className="rounded-lg border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 font-bold text-foreground">
-                  <div className="flex size-7 items-center justify-center rounded-lg bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/20">
-                    <Truck className="size-4" />
-                  </div>
-                  <span>原材料运输</span>
-                </div>
-                <span className="rounded bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 text-[10px] font-mono text-emerald-500 font-semibold">
-                  物流 8.0%
-                </span>
-              </div>
-
-              <div className="flex items-baseline justify-between">
-                <div className="flex items-baseline gap-1">
-                  <span className="font-mono text-2xl font-black tracking-tight text-foreground">8.0%</span>
-                  <span className="text-xs font-normal text-muted-foreground font-sans">加权占比</span>
-                </div>
-                <div className="text-right font-mono text-xs text-muted-foreground">
-                  <span className="font-bold text-foreground">10.3</span> kgCO₂e
-                </div>
-              </div>
-
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary/80">
-                <div className="h-full rounded-full bg-[#10b981]" style={{ width: '8%' }} />
-              </div>
-            </div>
-
-            <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground font-sans">
-              <span>跨装备波动区间</span>
-              <span className="font-mono font-bold text-foreground">5.0% ~ 11.0%</span>
-            </div>
-          </div>
-
-          {/* 阶段 4：废弃物处理 */}
-          <div className="rounded-lg border border-border/80 bg-card p-4 shadow-xs flex flex-col justify-between transition-all hover:border-primary/60 hover:shadow-sm">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 font-bold text-foreground">
-                  <div className="flex size-7 items-center justify-center rounded-lg bg-[#8b5cf6]/10 text-[#8b5cf6] border border-[#8b5cf6]/20">
-                    <Recycle className="size-4" />
-                  </div>
-                  <span>废弃物处理</span>
-                </div>
-                <span className="rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[10px] font-mono text-purple-500 font-semibold">
-                  处置 6.0%
-                </span>
-              </div>
-
-              <div className="flex items-baseline justify-between">
-                <div className="flex items-baseline gap-1">
-                  <span className="font-mono text-2xl font-black tracking-tight text-foreground">6.0%</span>
-                  <span className="text-xs font-normal text-muted-foreground font-sans">加权占比</span>
-                </div>
-                <div className="text-right font-mono text-xs text-muted-foreground">
-                  <span className="font-bold text-foreground">7.7</span> kgCO₂e
-                </div>
-              </div>
-
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary/80">
-                <div className="h-full rounded-full bg-[#8b5cf6]" style={{ width: '6%' }} />
-              </div>
-            </div>
-
-            <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground font-sans">
-              <span>跨装备波动区间</span>
-              <span className="font-mono font-bold text-foreground">3.0% ~ 7.0%</span>
-            </div>
-          </div>
-        </div>
-      </Panel>
-
-      {/* ③ 装备产品碳足迹细分类别构成 —— 支持【卡片模式】与【列表模式】切换 + 11 种权威产品分类 */}
-      <Panel className="p-4" bodyClassName="flex flex-col gap-4">
-        {/* 头部：标题、4 阶段图例与显示模式切换器 */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <PanelTitle
-            title="装备产品碳足迹细分类别构成"
-            subtitle="覆盖 11 种核心电工装备分类 · 全生命周期碳足迹核算与实测型号矩阵"
-          />
-
-          <div className="flex flex-wrap items-center gap-4">
+          {/* 右侧：四阶段图例与显示模式切换器 */}
+          <div className="flex items-center gap-4 shrink-0">
             {/* 四阶段图例 */}
             <div className="hidden lg:flex items-center gap-3 text-xs">
               <span className="flex items-center gap-1.5 text-muted-foreground">
@@ -1058,54 +904,6 @@ export default function CockpitPage() {
               </button>
             </div>
           </div>
-        </div>
-
-        {/* 11 种权威产品分类选择栏 */}
-        <div className="flex flex-wrap items-center gap-1.5 border-b border-border/60 pb-3">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setActiveCategory('all')}
-              className={`inline-flex items-center gap-1.5 h-7 rounded-md px-2.5 text-xs font-semibold transition-all ${
-                activeCategory === 'all'
-                  ? 'bg-primary text-primary-foreground shadow-xs'
-                  : 'bg-secondary/60 border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground hover:bg-secondary'
-              }`}
-            >
-              <span>全部分类</span>
-              <span
-                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
-                  activeCategory === 'all'
-                    ? 'bg-primary-foreground/20 text-primary-foreground'
-                    : 'bg-panel text-muted-foreground'
-                }`}
-              >
-                11
-              </span>
-            </button>
-
-            {PRODUCTS_11.map((p) => {
-              const isActive = activeCategory === p.id
-              const IconComponent = p.icon
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setActiveCategory(p.id)}
-                  className={`inline-flex items-center gap-1.5 h-7 rounded-md px-2.5 text-xs font-medium transition-all ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-xs'
-                      : 'bg-secondary/60 border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground hover:bg-secondary'
-                  }`}
-                >
-                  <IconComponent className="size-3.5" />
-                  <span>{p.name}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          
         </div>
 
         {/* 视图展现：卡片模式 (Card View) */}
@@ -1233,7 +1031,7 @@ export default function CockpitPage() {
           <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-left text-xs border-collapse">
               <thead className="bg-muted/40 text-muted-foreground border-b border-border text-[11px] font-semibold select-none">
-                <tr className="h-10">
+                <tr className="h-[44px]">
                   <th className="px-3 text-center w-12">序号</th>
                   <th className="px-4 min-w-[150px]">产品分类 / 代号</th>
                   <th className="px-3 text-center min-w-[90px]">在录型号</th>
@@ -1357,7 +1155,7 @@ export default function CockpitPage() {
                               <div className="overflow-x-auto rounded border border-border/60">
                                 <table className="w-full text-left text-xs border-collapse">
                                   <thead className="bg-muted/30 text-[11px] text-muted-foreground border-b border-border/60">
-                                    <tr className="h-8">
+                                    <tr className="h-[44px]">
                                       <th className="px-3 min-w-[140px]">典型型号名称</th>
                                       <th className="px-3 min-w-[120px]">细分品类</th>
                                       <th className="px-3 min-w-[180px]">技术规格参数</th>

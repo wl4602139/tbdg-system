@@ -23,6 +23,7 @@ import {
   AlertTriangle,
   Check,
   Lightbulb,
+  LogOut,
 } from 'lucide-react'
 import { platformMeta, type PlatformKey } from '@/lib/nav-config'
 import { cn } from '@/lib/utils'
@@ -43,15 +44,23 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // 用户中心下拉框状态与监听（退出登录放置在用户信息下方）
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+  const userDropdownRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false)
       }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
+        setUserDropdownOpen(false)
+      }
     }
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setDropdownOpen(false)
+        setUserDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -91,11 +100,11 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
       desc: '微电网全景看板 · 47项关键制造工序能效 · 碳核算',
       href: '/zero-carbon/monitor/indicator',
       icon: Globe2,
-      activeColor: 'text-[#1677ff]',
+      activeColor: 'text-[#2C7CFF]',
       activeBg: 'bg-blue-50/90',
       activeBorder: 'border-blue-200',
-      badgeBg: 'bg-blue-100/70 text-[#1677ff]',
-      iconBg: 'bg-blue-100 text-[#1677ff]',
+      badgeBg: 'bg-blue-100/70 text-[#2C7CFF]',
+      iconBg: 'bg-blue-100 text-[#2C7CFF]',
     },
     {
       key: 'carbon-footprint' as const,
@@ -182,13 +191,13 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
         reply = '【AI 诊断分析】沈变本部 8 月份真空干燥车间万元产值能耗达到 0.89 tce/万 (标杆 0.60)，超标 +48.3%。经传感器微漏监测诊断：2号真空干燥罐温控疏水阀存在微漏，伴随保温层局部热散失，导致当月额外损耗蒸汽 180 吨 (超标费用约 12.8 万元)。建议：本周末排期更换疏水阀密封组件。'
         tag = '工序异动预警'
       } else if (q.includes('单耗') || q.includes('工厂') || q.includes('最高')) {
-        reply = '【工厂 PK 分析】全集团 21 家制造工厂中，新变超高压公司 8 月份综合单耗最高 (1.58 tce/万kVA)，高于行业标杆 +31.6%，总能耗 1,520 tce，为重点监管单位；衡变本部表现最优 (1.18 tce/万kVA)，为集团低碳制造标杆工厂。'
-        tag = '指标横向PK'
+        reply = '【能耗时序分析】全集团 21 家制造工厂中，新变超高压公司 8 月份综合单耗为 1.58 tce/万kVA，距基准偏差 +31.6%，总能耗 1,520 tce；衡变本部当前为 1.18 tce/万kVA，距基准偏差 -1.8%。'
+        tag = '时序指标分析'
       } else if (q.includes('CBAM') || q.includes('出口') || q.includes('关税')) {
-        reply = '【CBAM 合规评估】针对出口欧盟的 ODFS-334MVA/500kV 变压器 (HS: 8504.23.11)，衡变本部生产批次实测隐含碳强度为 1.18 tCO2/台，低于欧盟基准线 1.35 tCO2/台，预估碳关税为 €0 (享低碳免征优势)，并已支持一键导出标准 XML 申报包。'
+        reply = '【CBAM 合规评估】针对出口欧盟的 ODFS-334MVA/500kV 变压器 (HS: 8504.23.11)，衡变本部生产批次实测隐含碳强度为 1.18 tCO2/台，低于欧盟基准线 1.35 tCO2/台，预估碳关税为 €0，并已支持一键导出标准 XML 申报包。'
         tag = '出海贸易合规'
       } else {
-        reply = `已为您查询关于“${q}”的指标数据：当前全集团 15 园区综合绿电占比为 38.6%，总折标能耗同比下降 4.1%，整体达标态势良好。`
+        reply = `已为您查询关于“${q}”的指标数据：当前全集团 15 园区综合绿电占比为 38.6%，总折标能耗同比下降 4.1%，各单元稳定运行。`
         tag = '数据检索'
       }
 
@@ -237,7 +246,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                 </span>
                 {/* 系统英文小字 (缩小字号，强制单行显示) */}
                 <span className="text-[8px] font-medium text-white/75 block tracking-[0.1em] uppercase text-center mt-1.5 leading-none whitespace-nowrap">
-                  {resolvedPlatformKey === 'carbon-footprint' ? 'PRODUCT CARBON FOOTPRINT CENTER' : 'PARK CENTRALIZED CONTROL CENTER'}
+                  {resolvedPlatformKey === 'carbon-footprint' ? 'CARBON FOOTPRINT PROCUREMENT CENTER' : 'PARK CENTRALIZED CONTROL CENTER'}
                 </span>
               </div>
 
@@ -419,8 +428,8 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
 
       {/* 2. 主区域 */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* 顶栏 */}
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border bg-background/80 px-6 py-3 backdrop-blur-md">
+        {/* 顶栏 (z-40 确保顶部浮层天然凌驾于页面内部所有模块之上) */}
+        <header className="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-border bg-background/80 px-6 py-3 backdrop-blur-md">
           <div className="flex items-center gap-2 text-sm">
             <button
               type="button"
@@ -461,14 +470,78 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
               <Settings className="size-3.5 text-primary" />
               系统管理
             </Link>
-            <div className="flex items-center gap-2 border-l border-border pl-3">
-              <div className="flex size-7 items-center justify-center rounded-md bg-primary/15 text-xs font-semibold text-primary">
-                管
-              </div>
-              <div className="hidden leading-tight sm:block">
-                <p className="text-xs font-medium text-foreground">管理员 (倪总)</p>
-                <p className="text-[10px] text-muted-foreground">特变电工电装集团</p>
-              </div>
+            {/* 用户个人信息及下拉操作菜单（退出登录放置在用户信息下方） */}
+            <div className="relative" ref={userDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className={cn(
+                  'flex items-center gap-2 pl-2.5 pr-2 py-1 border-l border-border rounded-lg transition-colors cursor-pointer text-left group',
+                  userDropdownOpen ? 'bg-accent/60' : 'hover:bg-accent/40'
+                )}
+                aria-label="用户中心与退出登录"
+              >
+                <div className="flex size-7 items-center justify-center rounded-md bg-primary/15 text-xs font-semibold text-primary">
+                  管
+                </div>
+                <div className="hidden leading-tight sm:block">
+                  <p className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">管理员 (倪总)</p>
+                  <p className="text-[10px] text-muted-foreground">特变电工电装集团</p>
+                </div>
+                <ChevronDown className={cn('size-3.5 text-muted-foreground transition-transform duration-200', userDropdownOpen && 'rotate-180')} />
+              </button>
+
+              {/* 下拉浮层卡片：明确放置在用户信息正下方 */}
+              {userDropdownOpen && (
+                <div className="absolute right-0 top-full z-50 mt-1.5 w-60 rounded-xl border border-border bg-popover p-2 shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95 text-foreground">
+                  {/* 用户信息卡片头部 */}
+                  <div className="flex items-center gap-2.5 p-2 rounded-lg bg-accent/40 border border-border/50 mb-2">
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-primary/20 text-sm font-bold text-primary shrink-0">
+                      管
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-foreground truncate">倪总</span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-medium">管理员</span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">特变电工电装集团</p>
+                      <p className="text-[10px] font-mono text-muted-foreground/80 truncate">tbea_admin</p>
+                    </div>
+                  </div>
+
+                  {/* 快捷操作项 */}
+                  <div className="space-y-0.5">
+                    <Link
+                      href="/"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-foreground transition-colors hover:bg-accent"
+                    >
+                      <Globe className="size-3.5 text-primary" />
+                      <span>返回总览门户</span>
+                    </Link>
+                    <Link
+                      href={`/system?from=${encodeURIComponent(pathname)}`}
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-foreground transition-colors hover:bg-accent"
+                    >
+                      <Settings className="size-3.5 text-primary" />
+                      <span>系统后台管理</span>
+                    </Link>
+                  </div>
+
+                  <div className="my-1.5 border-t border-border/60" />
+
+                  {/* 🌟 退出登录按钮（明确放置在用户信息下方） */}
+                  <Link
+                    href="/login"
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    <LogOut className="size-3.5" />
+                    <span>退出登录</span>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </header>

@@ -26,6 +26,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
+import { ExportButton } from '@/components/shared/primitives'
 import { LineTrend, Donut, BarChartGroup } from '@/components/shared/charts'
 import { getPeriodScaleFactor, getTimeDimensionLabel } from '@/components/shared/time-dimension-engine'
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
@@ -65,7 +66,7 @@ const COST_METRICS_META: Record<CostMetricKey, CostMetricMeta> = {
     name: '市电',
     shortName: '市电',
     unit: '万元',
-    color: '#1677ff',
+    color: '#41C0FF',
     description: '从公共电网外购结算的电力总费用',
   },
   gasCost: {
@@ -73,7 +74,7 @@ const COST_METRICS_META: Record<CostMetricKey, CostMetricMeta> = {
     name: '天然气',
     shortName: '天然气',
     unit: '万元',
-    color: '#f59e0b',
+    color: '#FF6536',
     description: '管道天然气用气采购与燃料支出',
   },
   steamCost: {
@@ -81,7 +82,7 @@ const COST_METRICS_META: Record<CostMetricKey, CostMetricMeta> = {
     name: '外购蒸汽',
     shortName: '外购蒸汽',
     unit: '万元',
-    color: '#8b5cf6',
+    color: '#FFBA00',
     description: '工业园区集中供热与工艺外购蒸汽费用',
   },
   oilCost: {
@@ -89,7 +90,7 @@ const COST_METRICS_META: Record<CostMetricKey, CostMetricMeta> = {
     name: '油',
     shortName: '油',
     unit: '万元',
-    color: '#f43f5e',
+    color: '#8E73ED',
     description: '厂区物流运输车辆及发电机柴汽油消费',
   },
   nitrogenCost: {
@@ -97,7 +98,7 @@ const COST_METRICS_META: Record<CostMetricKey, CostMetricMeta> = {
     name: '氮气',
     shortName: '氮气',
     unit: '万元',
-    color: '#06b6d4',
+    color: '#4F39F6',
     description: '特种绝缘干燥与工艺惰化液氮采购支出',
   },
   waterCost: {
@@ -105,7 +106,7 @@ const COST_METRICS_META: Record<CostMetricKey, CostMetricMeta> = {
     name: '水',
     shortName: '水',
     unit: '万元',
-    color: '#0284c7',
+    color: '#10C4CE',
     description: '生产循环水与生活辅助用水费用',
   },
   unitOutputCost: {
@@ -447,7 +448,7 @@ export default function EnergyCostPage() {
       const val = c[selectedMetricKey] as number
       const ratio = totalVal > 0 ? Number(((val / totalVal) * 100).toFixed(1)) : 0
       const colors = [
-        '#1677ff', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899',
+        '#2C7CFF', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899',
         '#3b82f6', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
       ]
       return {
@@ -531,27 +532,7 @@ export default function EnergyCostPage() {
             <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <DollarSign className="size-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-foreground">能源成本分析</h1>
-                <span
-                  className={cn(
-                    'px-2 py-0.5 rounded text-[11px] font-bold font-sans border',
-                    isGroupLevel
-                      ? 'bg-primary/20 text-primary border-primary/30'
-                      : isWorkshopLevel
-                      ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
-                      : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                  )}
-                >
-                  {isGroupLevel
-                    ? '集团管控视角 (全集团 6 大经营单位)'
-                    : isWorkshopLevel
-                    ? `${activeData.name} 项目公司/工厂视角`
-                    : `${activeData.name} 经营单位视角`}
-                </span>
-              </div>
-            </div>
+            <h1 className="text-base font-bold text-foreground">能源成本分析</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
@@ -643,14 +624,7 @@ export default function EnergyCostPage() {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={() => alert(`正在导出【${activeData.name}】能源成本多维分析报表 (Excel)...`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-            >
-              <Download className="size-3.5" />
-              <span>导出</span>
-            </button>
+            <ExportButton onClick={() => alert(`正在导出【${activeData.name}】能源成本多维分析报表 (Excel)...`)} />
           </div>
         </div>
 
@@ -897,8 +871,8 @@ export default function EnergyCostPage() {
             <div className="flex flex-wrap items-center justify-between border-b border-border/60 pb-3 gap-2">
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-primary" />
-                <h3 className="text-xs font-bold text-foreground">
-                  【{COST_METRICS_META[selectedMetricKey].name}】6 家直属经营单位占电装总能源费用的比重结构分析
+                <h3 className="text-sm font-medium text-foreground">
+                  {COST_METRICS_META[selectedMetricKey].name}
                 </h3>
               </div>
               
@@ -910,7 +884,7 @@ export default function EnergyCostPage() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-foreground flex items-center gap-1.5">
                     <PieChartIcon className="size-3.5 text-primary" />
-                    6 家直属经营单位费用比重玫瑰图 (份额与金额)
+                    经营单位费用比重玫瑰图 (份额与金额)
                   </span>
                   <span className="text-[11px] text-muted-foreground font-mono">
                     总量: ¥{metricCompanyBreakdown.totalVal.toFixed(1)} {metricCompanyBreakdown.unit}
@@ -1081,7 +1055,7 @@ export default function EnergyCostPage() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-foreground flex items-center gap-1.5">
                     <BarChart3 className="size-3.5 text-emerald-400" />
-                    6 家直属经营单位费用横向对比 ({metricCompanyBreakdown.unit})
+                    经营单位费用横向对比 ({metricCompanyBreakdown.unit})
                   </span>
                   <span className="text-[11px] text-muted-foreground font-mono">柱状图对比</span>
                 </div>
@@ -1358,14 +1332,14 @@ export default function EnergyCostPage() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-400" />
               <h3 className="text-xs font-bold text-foreground">
-                01月 至 08月 各类能源成本占比历史变化趋势曲线 (%)
+                能源成本占比历史变化趋势曲线 (%)
               </h3>
             </div>
             <div className="flex items-center gap-3 text-xs font-sans text-muted-foreground">
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-primary" /> 市电成本占比</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-amber-400" /> 天然气成本占比</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-purple-400" /> 蒸汽成本占比</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-slate-400" /> 用油与其他</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#41C0FF]" /> 市电成本占比</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#FF6536]" /> 天然气成本占比</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#FFBA00]" /> 蒸汽成本占比</span>
+              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-[#8E73ED]" /> 用油与其他</span>
             </div>
           </div>
 
@@ -1376,10 +1350,10 @@ export default function EnergyCostPage() {
               height={260}
               yUnit="%"
               lines={[
-                { key: '市电成本占比', name: '市电成本占比 (%)', color: '#1677ff' },
-                { key: '天然气成本占比', name: '天然气成本占比 (%)', color: '#f59e0b' },
-                { key: '蒸汽成本占比', name: '蒸汽热力成本占比 (%)', color: '#8b5cf6' },
-                { key: '用油与其他', name: '用油与其他成本占比 (%)', color: '#64748b' },
+                { key: '市电成本占比', name: '市电成本占比 (%)', color: '#41C0FF' },
+                { key: '天然气成本占比', name: '天然气成本占比 (%)', color: '#FF6536' },
+                { key: '蒸汽成本占比', name: '蒸汽热力成本占比 (%)', color: '#FFBA00' },
+                { key: '用油与其他', name: '用油与其他成本占比 (%)', color: '#8E73ED' },
               ]}
             />
           </div>
@@ -1409,13 +1383,10 @@ export default function EnergyCostPage() {
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4 text-xs">
               <div className="flex items-center justify-between pb-2 border-b border-border/60">
                 <span className="font-bold text-foreground">车间/工序级能源成本与 ESG 水耗拆解</span>
-                <button
-                  type="button"
+                <ExportButton
                   onClick={() => alert(`正在导出【${activeData.name}】车间成本明细 Excel...`)}
-                  className="px-3 py-1 bg-emerald-600 text-white rounded font-bold hover:bg-emerald-700 cursor-pointer"
-                >
-                  导出 Excel 报表
-                </button>
+                  title="导出报表"
+                />
               </div>
 
               <table className="w-full text-left text-xs border-collapse">

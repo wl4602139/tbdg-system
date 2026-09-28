@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>第三章 功能模块描述补强稿</title>
+<style>
+@page{size:A4;margin:15mm 14mm 14mm 14mm}
+*{box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;font-size:10pt;line-height:1.62;color:#1a1a1a;margin:0;background:#fff}
+.wrap{max-width:860px;margin:0 auto;padding:22px 18px 40px}
+h1{font-size:18pt;font-weight:700;margin:0 0 4px;color:#12263f;line-height:1.32}
+h2{font-size:12.5pt;font-weight:700;margin:24px 0 8px;padding:5px 0 5px 10px;border-left:4px solid #185fa5;background:#f4f8fd;color:#0c447c}
+h3{font-size:11pt;font-weight:700;margin:16px 0 6px;color:#12263f}
+h4{font-size:10pt;font-weight:700;margin:12px 0 4px;color:#185fa5}
+p{margin:5px 0}
+.meta{font-size:9pt;color:#5f5e5a;border-bottom:2px solid #12263f;padding-bottom:8px;margin-bottom:6px}
+.meta span{display:inline-block;margin-right:16px}
+table{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:8.8pt}
+th{background:#f1efe8;border:0.5px solid #b4b2a9;padding:5px 7px;text-align:left;font-weight:700;color:#2c2c2a}
+td{border:0.5px solid #d3d1c7;padding:5px 7px;vertical-align:top}
+tbody tr:nth-child(even){background:#fafaf8}
+.c{text-align:center}
+.tgt{background:#f0f4fa;border:0.5px solid #b5d4f4;border-left:3px solid #185fa5;padding:6px 10px;margin:8px 0 4px;font-size:9pt;color:#0c447c}
+.tgt b{color:#12263f}
+.ins{background:#eef8f2;border:0.5px solid #9fe1cb;border-left:3px solid #1d9e75;padding:0;margin:0 0 10px;border-radius:0 4px 4px 0}
+.ins .hdr{background:#e1f5ee;padding:4px 10px;font-size:8.8pt;font-weight:700;color:#085041;border-radius:0 4px 0 0}
+.ins pre{margin:0;padding:9px 11px;font-family:"Microsoft YaHei","PingFang SC",sans-serif;font-size:9.2pt;line-height:1.7;white-space:pre-wrap;word-wrap:break-word;color:#1a1a1a}
+.ins pre.mono{font-family:Consolas,"Courier New",monospace;font-size:8.8pt}
+.old{background:#fdf3f3;border:0.5px solid #f7c1c1;border-left:3px solid #e24b4a;padding:7px 10px;margin:6px 0;border-radius:0 4px 4px 0}
+.old .hdr{font-size:8.8pt;font-weight:700;color:#a32d2d;margin-bottom:3px}
+.old pre{margin:0;font-family:Consolas,"Courier New",monospace;font-size:8.6pt;line-height:1.6;white-space:pre-wrap;word-wrap:break-word;color:#501313}
+.old pre.cn{font-family:"Microsoft YaHei",sans-serif;font-size:9pt;color:#3c3c3c}
+.tag{display:inline-block;font-size:8pt;font-weight:700;padding:1px 6px;border-radius:3px;line-height:1.5;white-space:nowrap;vertical-align:1px}
+.p1{background:#fcebeb;color:#a32d2d;border:0.5px solid #f09595}
+.p2{background:#faeeda;color:#854f0b;border:0.5px solid #ef9f27}
+.new{background:#eaf3de;color:#3b6d11;border:0.5px solid #97c459}
+.rep{background:#e6f1fb;color:#185fa5;border:0.5px solid #85b7eb}
+ul{margin:5px 0;padding-left:19px}
+li{margin:2px 0}
+code{font-family:Consolas,"Courier New",monospace;font-size:8.8pt;background:#f1efe8;padding:0 3px;border-radius:2px;color:#712b13}
+.note{font-size:8.8pt;color:#5f5e5a;margin:3px 0 8px}
+.gr{background:#f7f7f5;border:0.5px solid #d3d1c7;border-radius:4px;padding:8px 11px;margin:6px 0 10px;font-family:Consolas,"Courier New",monospace;font-size:8.5pt;line-height:1.7;white-space:pre-wrap;word-wrap:break-word;color:#2c2c2a}
+.pb{page-break-before:always}
+.avoid{page-break-inside:avoid}
+.toc{background:#f7f7f5;border:0.5px solid #d3d1c7;border-radius:4px;padding:10px 16px;font-size:9pt;columns:2;column-gap:26px}
+.toc div{margin:2px 0;break-inside:avoid}
+.sig{margin-top:30px;border-top:0.5px solid #b4b2a9;padding-top:9px;font-size:8.8pt;color:#5f5e5a}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>第三章《产品碳足迹集采中心功能需求规格》<br>功能模块描述补强稿</h1>
+<div class="meta">
+  <span><b>目标文档：</b>特变电工能碳数字化双中心_产品需求规格说明书 PRD v14（TBEA-PRD-MASTER / V1.4.0）</span><br>
+  <span><b>补强范围：</b>第三章 6 板块 · 16 模块 · 8 段模板</span>
+  <span><b>版本：</b>补强稿 V1.0</span>
+  <span><b>日期：</b>2026-09-27</span>
+</div>
+
+<div class="toc">
+<div><b>A 组｜结构性补强（P1，评审通过前必须完成）</b></div>
+<div>A1 章首导言替换 + 职责边界声明</div>
+<div>A2 数据权限要素（16 模块）</div>
+<div>A3 因子库 4 模块「定位与架构角色」补齐</div>
+<div>A4 认证 3 模块 Gherkin 补 Feature 行</div>
+<div>A5 第十二章验收基线模块数修正</div>
+<div>A6 第⑤段 LaTeX → Unicode 全量转换</div>
+<div><b>B 组｜深度补强（P2，建议同步完成）</b></div>
+<div>B1 六个板块导言（新增）</div>
+<div>B2 第⑥段统一追加判定阈值与基准来源（16 模块）</div>
+<div>B3 第⑤段补齐取值示例与精度容差（7 模块）</div>
+<div>B4 两张状态机转移表（新增）</div>
+<div>B5 错误码与 Gherkin 用例双向补齐（17+4 项）</div>
+</div>
+
+<div class="tgt">
+<b>使用说明：</b>本稿按「A 组 → P1 必修」「B 组 → P2 建议」两级编排。每个条目给出【定位】→【操作类型】→【原文】（如需替换）→【补强后文本】。绿底区块内为可直接复制粘贴进 PRD 的最终文本，已按 PRD 原有句式与编号体例撰写，无需二次改写。灰底等宽区块为 Gherkin 代码，须保持缩进。
+</div>
+
+<h2 class="pb">A 组｜结构性补强（P1）</h2>
+
+<h3>A1 章首导言替换 + 职责边界声明 <span class="tag p1">P1-3</span> <span class="tag p2">P2-9</span></h3>
+<div class="tgt"><b>定位：</b>第三章正文首段（“产品碳足迹集采中心功能需求规格”标题之下、第一个板块“对外示范窗口”之前）　<b>操作类型：</b>整段替换</div>
+
+<div class="old"><div class="hdr">原文</div><pre class="cn">本章严格按照系统切换到【产品碳足迹集采中心】后的6大一级主导航分层展开，全面覆盖产品全生命周期LCA建模、ISO 14067认证、二维码数字碳标签以及欧盟CBAM关税申报的相关需求。本章的功能权限矩阵可参见附录E（P4 LCA工程师 / P5 报关专家 / P6 外部审计机构），北极星指标（NSM）详见附录F，验收用例放在第十一章Gherkin准则部分；LCA / CBAM相关的错误码可查阅第五章“标准化错误码字典”。</pre></div>
+
+<p class="note">原文 4 处引用中 3 处失效：「第五章标准化错误码字典」（实为第六章）、「第十一章」（实为第十二章）、「附录F」（附录仅至 E）。下方替换文本已全部改用有效落点，并同时补入与第四章的职责边界声明（P2-9）。</p>
+
+<div class="ins"><div class="hdr">补强后文本 · 直接替换</div><pre>本章严格按照系统切换到【产品碳足迹集采中心】后的 6 大一级主导航分层展开，全面覆盖产品全生命周期 LCA 建模、ISO 14067 认证、二维码数字碳标签以及欧盟 CBAM 关税申报的相关需求。本章的功能权限矩阵可参见附录 E（P4 碳核算与认证工程师 / P5 报关与关税专家 / P6 外部独立审计机构）；北极星指标（NSM）为「单位产品碳足迹同比下降率」与「CBAM 应缴关税凭证节省率」两项，逐模块的定义、阈值与判定口径见各模块第⑥段「展示、对标与判定口径」；验收用例见各模块第⑧段「QA 自动化验收准则（Gherkin BDD）」，全系统汇总验收基线见第十二章《测试与验收基线》；LCA / CBAM 相关错误码可查阅第六章《工程治理、状态机与合规保障体系》下的「标准化错误码字典与异常分级」。
+
+【职责边界声明】本章「因子库管理」板块为电力、能源活动、折标煤等核算因子的主数据与核算口径权威源，包含字段级定义、版本规则、匹配优先级与错误码全集；第四章《系统管理、基础参数设置》下「能碳基础因子管理」仅承担系统管理员的维护入口与菜单挂载职责，字段与口径一律引用本章，两处不得重复建表、不得各自定义单位与校验规则。本章「实景数据库」负责单个具体物料的本土实测因子档案（一事一档，须附检测报告与第三方认证声明编号），「因子库管理」负责物料类别的行业级与公用级缺省因子（一类一档），二者取用优先级为：实景数据库实测因子 → 因子库行业 / 公用因子 → 国家折标兜底。</pre></div>
+
+<h3>A2 数据权限要素补齐（16 个模块） <span class="tag p2">P2-8</span></h3>
+<div class="tgt"><b>定位：</b>每个模块「功能规格与交互契约」段的最末一行　<b>操作类型：</b>新增一段（统一句式，逐模块填值）</div>
+<p>第三章全文 0 次提及 RLS，16 个模块均只声明功能权限（承载角色），缺数据权限（组织范围隔离）。下方为 16 段可直接追加的文本，统一采用「可查看组织范围 / 跨单位聚合口径 / 对外可见性 / 越权处置」四要素句式。</p>
+
+<table>
+  <thead><tr><th style="width:19%">模块</th><th>追加文本</th></tr></thead>
+  <tbody>
+    <tr><td>碳足迹总览驾驶舱</td><td>数据权限：可查看组织范围为纳入对外展示白名单的产品型号与状态为「已认证 / 已发布」的 LCA 报告；对外可见性为公开（仅限脱敏字段白名单：碳足迹结果值、绿电消纳占比、认证状态），未授权对象查询一律返回「未授权公示」占位；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>，全程写入审计日志。</td></tr>
+    <tr><td>横向对比</td><td>数据权限：可查看组织范围为当前用户数据域内的六级组织节点（集团 / 板块 / 经营单位三级可下钻）；跨单位聚合一律排除项目公司，项目公司行置灰且不计入排名序号与均值计算；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>纵向对比</td><td>数据权限：可查看组织范围同「横向对比」，且历史批次数据仅限同一数据域内，不得跨单位拼接批次序列；跨单位均值口径为算术平均且排除项目公司；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>实景数据库</td><td>数据权限：P4 碳核算工程师具备全量读写权限；P3 基层填报员仅可上传与本人相关的供应商凭证；P6 外部独立审计机构为只读，且默认屏蔽 <code>SENSITIVE</code> 级字段（含供应商来源的 Ecoinvent 跨境因子），仅可见 <code>INTERNAL</code> 级；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>碳足迹核算</td><td>数据权限：可查看组织范围为当前用户数据域内的经营单位与产品型号，跨数据域不可见；报告导出走认证报告通道，核算过程中的工序明细、工时与成本数据不对外；P6 仅可查看已认证报告的只读快照；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>碳足迹报告</td><td>数据权限：报告与数字碳标签仅向已授权客户与欧盟审查专员开放；扫码验真不要求登录，但仅返回脱敏摘要（EPC 编码、防伪签名哈希、溯源链摘要、证书有效期），不返回工艺配方、采购单价与人员信息；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>合规管理</td><td>数据权限：P5 报关与关税专家具备全量处理权限，P1 集团决策层具备终审与只读查验权限，其余角色不可见；税号白名单变更须经 PM 审批并留痕；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>申报模拟</td><td>数据权限：P5 具备全量测算权限，P1 只读审阅；全部出境数据须经信息安全合规前置网关并执行字段白名单，跨境传输路径未获审批前导出功能保持关闭；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>知识库</td><td>数据权限：全员具备只读检索权限，仅 P4 / P5 可维护条目与版本；法规原文附件不对外分发，仅限登录用户在内网下载；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>认证资料维护</td><td>数据权限：P4 具备资料包全量组装与锁定权限，P3 仅可上传本人提交的原始凭证，P6 为只读核验；L2 以上商密凭证（采购单价、工艺配方）对 P6 不可见；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>认证申请</td><td>数据权限：P4 可发起申请与答复补正，PM 具备商务审批与解锁权限，P6 仅可见本机构相关的申请条目；跨机构申请数据互不可见；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>认证结果管理</td><td>数据权限：P4 具备证书登记与续期权限，PM 具备对外公示授权审批权限，P6 为只读验真；对外按「不公示 / 内部可见 / 客户可见 / 公开」四档白名单授权，白名单外对象一律返回「未授权公示」占位；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>原材料碳排因子</td><td>数据权限：P1 集团决策层与 P2 园区能碳专员为只读，P4 具备新增、编辑与版本回滚权限，PM 具备版本发布审批权限；跨产业（变压器 / 线缆）因子互不越权；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>电力碳排因子</td><td>数据权限：P1 只读查看全网平均因子，P2 仅可维护本属地园区因子，P4 具备绿电消纳核准权限；跨园区数据按属地电网隔离，集团岗可按数据域跨域查看；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>能源活动碳排因子</td><td>数据权限：P2 仅可维护本园区燃料与能源活动因子，P4 具备因子基线核准权限，P1 只读；跨园区数据互相隔离；对外不可见；越权访问返回 HTTP 403 并触发 <code>E_AUTH_RBAC_FORBIDDEN</code>。</td></tr>
+    <tr><td>折标煤系数库</td><td>数据权限：全员具备只读权限；国标常量字段（电力当量值 0.1229 kgce/kWh、天然气 1.2143 kgce/kWh 等）对包括超级管理员在内的所有角色一律只读，任何在线修改请求一律阻断并触发 <code>E_SYS_GB_STD_IMMUTABLE</code>；对外不可见。</td></tr>
+  </tbody>
+</table>
+
+<h3>A3 因子库 4 模块「定位与架构角色」要素补齐 <span class="tag p1">P1-1</span></h3>
+<div class="tgt"><b>定位：</b>各模块「定位与架构角色」段内，紧接现有「功能定位 / 承载角色」之后　<b>操作类型：</b>新增缺失要素</div>
+<p class="note">现状：原材料碳排因子仅 1 项（功能定位）；电力 / 能源活动 / 折标煤各缺 3 项。全章其余 12 模块均有完整五要素，补齐后体例一致。</p>
+
+<h4>原材料碳排因子 · 追加 4 项</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>承载角色：P4 碳核算与认证工程师（因子新增、编辑与版本回滚）、P1 集团决策层（只读查验集团主材碳强度）、PM 业务总监（版本发布审批）。
+页面路由： /carbon-footprint/factor/material 。
+上游依赖：ERP / PLM 物料主数据与采购重量、供应商一级实测报告、第三方核证证书、Ecoinvent 3.10 与 CLCD 公用数据库、IPCC 缺省值库、因子版本审批流水。
+下游输出：LCA 核算引擎原材料阶段因子输入、CBAM 隐含碳核算底数、集团主材碳强度分析报表。</pre></div>
+
+<h4>电力碳排因子 · 追加 3 项</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>页面路由： /carbon-footprint/factor/power 。
+上游依赖：生态环境部年度电网排放因子公告、国家可再生能源信息管理中心绿证核销数据、各园区用电计量与自备电厂 CEMS 在线监测数据、市场化绿电交易结算凭证。
+下游输出：Scope 2 外购电力间接排放核算输入、能碳集控中心电力碳排放监测指标、绿电综合消纳占比指标、产品碳足迹 LCA 制造端电力因子。</pre></div>
+
+<h4>能源活动碳排因子 · 追加 3 项</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>页面路由： /carbon-footprint/factor/energy 。
+上游依赖：天然气月度化验单（低位发热量 NCV 与单位热值含碳量 CC）、IAPWS-IF97 国际水蒸气热焓表、国家发改委核算指南缺省值库、IPCC 第五次评估报告（AR5）GWP 值。
+下游输出：Scope 1 化石燃料直接燃烧排放核算输入、外购工业蒸汽排放核算输入、制冷剂逸散排放核算输入、产品碳足迹 LCA 制造端热力因子。</pre></div>
+
+<h4>折标煤系数库 · 追加 3 项</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>页面路由： /carbon-footprint/factor/coal-standard 。
+上游依赖：GB/T 2589-2020《综合能耗计算通则》、国家统计局年度供电煤耗公告、各能源品种实物计量数据、能碳集控中心工序能耗数据。
+下游输出：全集团综合能耗（tce）核算、万元产值综合能耗、单位产品单耗、政府能效报送数据、零碳工厂自评估能效指标。</pre></div>
+
+<h3>A4 认证 3 模块 Gherkin 补 <code>Feature:</code> 声明行 <span class="tag p1">P1-2</span></h3>
+<div class="tgt"><b>定位：</b>各模块第⑧段「QA 自动化验收准则（Gherkin BDD）」表格的首行之前　<b>操作类型：</b>新增 1 行</div>
+<p class="note">现状：全章 54 个 Scenario 但仅 13 个 Feature 声明，以下 3 个模块的用例直接以 <code>Scenario:</code> 开头，Cucumber / Behave 无法解析，共 15 个用例不可执行。</p>
+<table>
+  <thead><tr><th style="width:19%">模块</th><th style="width:36%">新增 Feature 行</th><th>覆盖的 5 个 Scenario</th></tr></thead>
+  <tbody>
+    <tr><td>认证资料维护</td><td><b>Feature: 认证资料包组装、锁定与凭证哈希治理</b></td><td>必传资料缺失禁止锁定 / BOM 物料凭证覆盖率不足禁止锁定 / 凭证替换触发哈希变更回退 / 已锁定资料包禁止修改 / 绿电发票核验不通过冻结锁定</td></tr>
+    <tr><td>认证申请</td><td><b>Feature: 第三方认证申请、排期协同与补正闭环</b></td><td>机构资质过期不可选择 / 报价偏差超限强制复核 / 未锁定资料包禁止发起申请 / 补正意见必须指派责任人才可退回 / 补正超期自动升级</td></tr>
+    <tr><td>认证结果管理</td><td><b>Feature: 认证结果存证、分级预警与数字碳标签授权</b></td><td>证书到期分级预警 / 证书失效自动熔断下架碳标签 / 证书哈希校验失败锁定单据 / 证书吊销即时熔断全部授权渠道 / 同一型号多张有效证书以最近签发生效者为准</td></tr>
+  </tbody>
+</table>
+
+<h3>A5 第十二章验收基线模块数修正 <span class="tag p1">P1-4</span></h3>
+<div class="tgt"><b>定位：</b>第十二章《测试与验收基线》→「全系统验收基线」表格 →「模块完整率」行　<b>操作类型：</b>替换 + 追加模块清单</div>
+<div class="old"><div class="hdr">原文</div><pre>| 模块完整率 | 第二章 22 个 + 第三章 13 个模块 100% 覆盖 | 模块清单比对 |</pre></div>
+<div class="ins"><div class="hdr">补强后文本 · 替换</div><pre>| 模块完整率 | 第二章 22 个 + 第三章 16 个模块 100% 覆盖 | 模块清单比对（清单见下方「第三章模块清单」） |
+
+第三章模块清单（6 板块 / 16 模块）：
+对外示范窗口（1）：碳足迹总览驾驶舱
+多维分析（2）：横向对比、纵向对比
+实景数据库与碳足迹核算（3）：实景数据库、碳足迹核算、碳足迹报告
+CBAM 管理（3）：合规管理、申报模拟、知识库
+第三方认证管理（3）：认证资料维护、认证申请、认证结果管理
+因子库管理（4）：原材料碳排因子、电力碳排因子、能源活动碳排因子、折标煤系数库</pre></div>
+
+<h3 class="pb">A6 第⑤段 LaTeX → Unicode 全量转换 <span class="tag p2">P2-11</span></h3>
+<div class="tgt"><b>定位：</b>因子库管理 4 个模块的「核心数学模型与算法框架」段（含公式块与变量定义块）　<b>操作类型：</b>整段替换</div>
+<p class="note">全文 140 处 LaTeX 源码片段（<code>\text{}</code> 93、<code>\times</code> 15、<code>\frac{}</code> 10、<code>\sum</code> 9、<code>\le</code> 7、<code>\Delta</code> 4、<code>\eta</code> 2）<b>100% 集中在第三章</b>这 4 个模块，在 Word / PDF 中会原样显示为源码。下方为转换后的完整替换文本，已改用 Unicode 数学符号，与本章其余 12 个模块体例统一。</p>
+
+<h4>原材料碳排因子 · 第⑤段替换</h4>
+<div class="ins"><div class="hdr">补强后文本</div><pre>EF_mat = Σ ( k = 1 → m ) [ W_k ÷ Σ ( j = 1 → m ) W_j × EF_k ]　　　　　（多供应商混料加权综合因子）
+ΔEF_pct = ( EF_current − EF_default ) ÷ EF_default × 100%　　　　（因子版本变动偏离率）
+DQR = ( TeR + GeR + TiR + ReR ) ÷ 4　　　　　　　　　　　　　　　　（数据质量四维综合评级）
+C_material = Σ ( i = 1 → n ) ( M_i × EF_mat,i )　　　　　　　　　　（产品原材料阶段总碳足迹）
+
+变量定义与取值约定：
+W_k 为向第 k 家供应商采购该物料的实际重量（kg 或 t）；EF_k 为对应供应商核证因子；
+TeR（技术代表性）、GeR（地理代表性）、TiR（时间代表性）、ReR（可靠性）分别按 1 ~ 5 档评分；
+DQR 分级标准：DQR ≤ 1.6 判定为高质量（一级数据）；1.6 < DQR ≤ 3.0 判定为中质量；DQR > 3.0 判定为低质量并触发合规预警；
+ΔEF_pct 为负值代表物料绿色低碳化升级，正值代表碳排放强度上升；
+EF_mat 保留 4 位小数；C_material 保留 2 位小数（kgCO2e）。</pre></div>
+
+<h4>电力碳排因子 · 第⑤段替换</h4>
+<div class="ins"><div class="hdr">补强后文本</div><pre>EF_grid_composite = Σ ( i = 1 → p ) ( Q_purchased,i × EF_grid,i ) ÷ Σ ( i = 1 → p ) Q_purchased,i　　（全集团购网电力综合加权因子）
+C_Scope2,elec = ( Q_grid_total − Q_green_verified ) × EF_grid + Q_green_verified × 0　　　　　（电力间接排放净额）
+R_green_power = ( Q_pv_self + Q_green_market ) ÷ ( Q_grid_total + Q_pv_self ) × 100%　　　　（绿电综合消纳占比）
+
+变量定义与取值约定：
+Q_purchased,i：第 i 个园区购入市电量（kWh）；
+EF_grid,i：第 i 个园区所在地电网排放因子（kgCO2e/kWh）；
+Q_grid_total：报告期外购市电总量（kWh）；Q_green_verified：取得官方核销绿证对应的结算电量（kWh）；
+Q_pv_self：厂房屋顶光伏自发自用电量（kWh）；Q_green_market：市场化直购绿电结算电量（kWh）；
+严禁出现负碳计算：当 Q_green_verified > Q_grid_total 时，C_Scope2,elec 兜底锁定为 0.00，不得产生“负碳抵消外部化石燃料”；
+C_Scope2,elec 保留 2 位小数（kgCO2e 或 tCO2e）；R_green_power 保留 2 位小数（%）。</pre></div>
+
+<h4>能源活动碳排因子 · 第⑤段替换</h4>
+<div class="ins"><div class="hdr">补强后文本</div><pre>EF_fossil = NCV × CC × OF × 44 ÷ 12 × 10⁻³　　　　　　　　　　　　　　（化石燃料直接燃烧排放因子）
+EF_steam = ( h_steam − h_water ) ÷ η_boiler × EF_fuel　　　　　　　　（外购工业蒸汽折算因子）
+C_Scope1,total = Σ ( j = 1 → k ) ( Q_fuel,j × EF_fossil,j ) + Σ ( m = 1 → r ) ( L_refrig,m × GWP_m )　（范围一直接排放量）
+
+变量定义与取值约定：
+NCV：平均低位发热量（固体与液体为 kJ/kg，气体为 kJ/m³）；
+CC：单位热值含碳量（tC/TJ）；
+OF：碳氧化率（%）；
+44 ÷ 12：二氧化碳与碳的分子量比率（约等于 3.6667）；
+h_steam：蒸汽供汽比焓（kJ/kg）；h_water：锅炉给水温度比焓（kJ/kg）；η_boiler：供热锅炉综合热效率（系统缺省取 80.0%）；
+EF_fossil 保留 4 位小数；C_Scope1,total 保留 2 位小数（tCO2e）。</pre></div>
+
+<h4>折标煤系数库 · 第⑤段替换</h4>
+<div class="ins"><div class="hdr">补强后文本</div><pre>E_tce = Σ ( i = 1 → n ) ( E_i × k_i ) ÷ 1000　　　　　　　　　　（全厂综合能耗折标煤总量，单位：tce）
+k_i = NCV_i ÷ 29307.6 kJ/kgce　　　　　　　　　　　　　　　　（理论低位发热量换算折标系数公式）
+e_output_val = E_tce ÷ ( G_output ÷ 10000 )，当 G_output > 0；当 G_output = 0 时兜底输出 “--”　（万元产值综合能耗，单位：tce/万元）
+
+变量定义与取值约定：
+E_i：第 i 种能源实物消费量（如 kWh、m³、kg、t）；
+k_i：第 i 种能源对应的国家标准折标煤系数（kgce/实物单位）；
+1000：千克标准煤与吨标准煤进位制（1 tce = 1000 kgce）；
+G_output：工业产值（元），分母为 0 时安全兜底显示 “--”；
+E_tce 保留 4 位小数；k_i 保留 4 位小数；e_output_val 保留 4 位小数。</pre></div>
+
+<p class="note">同段正文中另有 5 处行内 LaTeX 需一并改为 Unicode：<code>0.0857 \text{ kgce/t}</code> → <code>0.0857 kgce/t</code>；<code>0.4857 \text{ kgce/t}</code> → <code>0.4857 kgce/t</code>；<code>0.0400 \text{ kgce/m}^3</code> → <code>0.0400 kgce/m³</code>；<code>0.6714 \text{ kgce/m}^3</code> → <code>0.6714 kgce/m³</code>；<code>29,307.6 \text{ kJ/kgce}</code> → <code>29,307.6 kJ/kgce</code>。</p>
+
+<h2 class="pb">B 组｜深度补强（P2）</h2>
+
+<h3>B1 六个板块导言（新增） <span class="tag p2">P2-12</span></h3>
+<div class="tgt"><b>定位：</b>各板块标题（如「对外示范窗口」）之下、该板块第一个模块标题之前　<b>操作类型：</b>新增板块导言段</div>
+
+<h4>对外示范窗口 · 板块导言</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>本板块面向国际客户、海外驻华使节与欧盟碳关税审查专员，承担集采中心对外可信展示的单一出口职责，覆盖 1 个模块：碳足迹总览驾驶舱。板块统一遵循三条边界：一是只读边界——不接受任何录入与修改，全部数据由核算态与认证态回捞；二是脱敏边界——所有对外字段经白名单裁剪，不呈现供应商名称、工艺配方、采购单价与人员信息；三是一致性边界——展示数值必须与已签发认证报告完全一致，禁止展示草稿态与送审态数据。本板块不产出数据，相邻的「实景数据库与碳足迹核算」板块负责产出，本板块仅负责呈现。</pre></div>
+
+<h4>多维分析 · 板块导言</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>本板块承担从产品碳足迹结果反推降碳机会的诊断职责，覆盖 2 个模块：横向对比（跨生产基地同规格产品对标）与纵向对比（同产品跨批次历史追溯与归因）。板块边界有三：一是不产生新核算结果——所有数值必须直接取自 LCA 核算引擎，板块内不得二次加工；二是同口径边界——对比必须在同一特征量口径下进行（变压器 kVA、电缆 km、开关 台/间隔），跨特征量对比由前端下拉互斥与后端 API 双重拒绝；三是项目公司边界——项目公司一律置灰并排除排名与均值统计。板块输出为基地降碳改进清单与技改立项依据，向下游「实景数据库与碳足迹核算」板块提供优化方向输入。</pre></div>
+
+<h4>实景数据库与碳足迹核算 · 板块导言</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>本板块是集采中心的数据底座与算法中枢，覆盖 3 个模块：实景数据库（本土实测因子档案与溯源证据链）、碳足迹核算（BOM 展开、五阶段滚算、状态机与审计哈希链）、碳足迹报告（双语报告与数字碳标签）。本板块与「因子库管理」的边界必须明确区分：本板块管理某一个具体物料的本土实测因子，一事一档，须附检测报告、第三方认证声明编号与供应链溯源链条；「因子库管理」管理某一类物料的行业级与公用级缺省因子，一类一档，来源为 Ecoinvent、CLCD、IPCC 与国标折标值。核算时因子取用优先级为：实景数据库实测因子 → 因子库行业 / 公用因子 → 国家折标兜底，当前匹配层级须在页面明示。本板块输出 LCA 报告、数字碳标签与 CBAM 申报底数，是整个第三章的核心资产。</pre></div>
+
+<h4>CBAM 管理 · 板块导言</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>本板块承担出口欧盟产品的碳关税合规与成本测算职责，覆盖 3 个模块：合规管理（CN 税号白名单、申报状态机与双签门禁）、申报模拟（ETS 碳价联动、多情景测算与官方 XML 申报包）、知识库（欧盟法规与默认值版本化管理）。板块边界有三：一是范围边界——合规判定唯一依据为海关 CN 税号白名单，非白名单产品申报入口不出现；二是签批边界——提交动作强制 P5 报关与关税专家与 P1 集团决策层双重电子签章，任何单签不可提交；三是出境边界——全部跨境报文须经信息安全合规前置网关并执行字段白名单，出境路径未获审批前导出功能保持关闭。板块上游依赖「实景数据库与碳足迹核算」产出的已认证 LCA 报告。</pre></div>
+
+<h4>第三方认证管理 · 板块导言</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>本板块承载从证据归集到证书生命周期管理的全链路职责，覆盖 3 个模块：认证资料维护（资料包组装、哈希绑定与锁定）、认证申请（机构选择、报价确认、排期协同与补正闭环）、认证结果管理（证书存证验真、90/30/7 天分级预警、失效熔断）。板块严格执行“一包一申请一证”的串行边界：资料包未锁定则不可发起申请；申请未签发则不可登记证书；证书失效或吊销则数字碳标签自动熔断下架，禁止出现“证书已失效但标签仍可发布”的中间态。本板块是「对外示范窗口」与「碳足迹报告」对外数据合法性的唯一授权来源。</pre></div>
+
+<h4>因子库管理 · 板块导言</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>本板块是集采中心的系数基准中枢，覆盖 4 个模块：原材料碳排因子、电力碳排因子、能源活动碳排因子、折标煤系数库，分别对应 LCA 原材料阶段、Scope 2 外购电力间接排放、Scope 1 直接燃烧排放与综合能耗折标四类计算需求。本板块与「实景数据库」的边界见该板块导言；本板块与第四章《系统管理》下「能碳基础因子管理」的边界为：本板块是因子主数据与核算口径的权威源，第四章同名条目仅承担系统管理员的维护入口与菜单挂载职责，字段级定义、版本规则、匹配优先级与错误码一律以本板块为准。板块统一遵循三条铁律：一是因子值严格大于 0；二是被已生效报告引用的因子版本强制锁定，仅允许通过发布新版本推进，禁止物理删除；三是国标常量字段（电力当量值 0.1229 kgce/kWh、天然气 1.2143 kgce/kWh 等）对包括超级管理员在内的所有角色一律只读。</pre></div>
+
+<h3 class="pb">B2 第⑥段统一追加「判定阈值与基准来源」 <span class="tag p2">P2-5</span></h3>
+<div class="tgt"><b>定位：</b>16 个模块「展示、对标与判定口径」段末尾　<b>操作类型：</b>新增四要素句（判定项 / 阈值或基准 / 基准来源 / 超限处置）</div>
+<p class="note">第⑥段为全章最薄段（平均 181 字、最短 101 字），普遍缺「判定阈值表」与「对标基准来源声明」。下方为 16 个模块可直接追加的文本。</p>
+
+<table>
+  <thead><tr><th style="width:18%">模块</th><th>追加文本</th></tr></thead>
+  <tbody>
+    <tr><td>碳足迹总览驾驶舱</td><td>判定阈值：① 一致性——对外展示值与已签发认证报告的偏差须为 0，基准来源为认证结果管理模块的证书存证值；② 时效——LCA 指标按日结刷新（T+1 日 06:00 前完成），欧盟碳价滞后超过 4 小时标注「碳价滞后」，超过 24 小时页面标黄并展示价格时间戳；③ 可见状态——仅「已认证 / 已发布」数据可上屏，草稿态与送审态一律拦截。超限处置：一致性不符时阻断上屏并告警。</td></tr>
+    <tr><td>横向对比</td><td>判定阈值：① 特征量须严格大于 0，缺失时该实体不参与排名与均值；② 达标判定 <code>CF_unit ≤ Benchmark</code>，基准值来源为基准管理配置（由 PM 维护并版本化）；③ 排名口径按单位产品碳足迹升序，第 1 名为低碳标杆；④ 项目公司行置灰且不计入排名序号。超限处置：超基准柱标红；跨特征量请求由后端 API 直接拒绝。</td></tr>
+    <tr><td>纵向对比</td><td>判定阈值：① 历史批次数量须 ≥ 2 方可绘制归因瀑布图；② 归因贡献率之和须配平至 100.00%，偏差上限 ±1.00%；③ 红黑榜取同类别内升序前 5 与后 5，型号数少于 10 时不重复上榜；④ 均值口径为跨单位算术平均，非加权，基准来源为「全部经营单位」scope。超限处置：偏差超 ±1.00% 标注「归因待补充」并列出未归因残差。</td></tr>
+    <tr><td>实景数据库</td><td>判定阈值：① 因子有效期判定 <code>today ∈ [effective_from, effective_to]</code>，超期拦截选用；② 本土实测因子发布前置条件为「检测报告附件 + 第三方认证声明编号」二者齐备，缺一不可发布；③ 匹配层级固定为 Ecoinvent v3.8 精确 → CLCD 0.2 本土近似 → 国家发改委折标兜底，层级 3 时页面标注「兜底因子」。超限处置：证据不全时发布按钮置灰，仅可存草稿。</td></tr>
+    <tr><td>碳足迹核算</td><td>判定阈值：① 五阶段加总容差上限 0.01 kgCO2e，超差阻断证书签发与对外发布；② 总碳足迹须 ≥ 0；③ 制造加工阶段工时 T_m 须 &gt; 0；④ 工序四元组（设备 / 工时 / 介质 / 数量）须齐备；⑤ 审计哈希链尾节点 prev 须等于前一节点哈希。超限处置：任一项不满足即触发对应错误码并阻断保存或签发。</td></tr>
+    <tr><td>碳足迹报告</td><td>判定阈值：① 仅「已认证 / 已发布」状态报告可导出，草稿与送审态禁止导出；② 任何导出行为强制注入操作员工号与时间戳水印，无豁免通道；③ 证书剩余有效天数须 &gt; 0 方可生成标签，到期前 90 / 30 / 7 天分级预警；④ 报告哈希须与文件内容绑定，支持事后完整性校验。超限处置：证书过期时标签生成按钮置灰，存量标签自动标注「已过期」。</td></tr>
+    <tr><td>合规管理</td><td>判定阈值：① 申报范围判定 <code>CN_Code ∈ Whitelist</code>，白名单由 PM 维护并版本化；② 关联 LCA 报告状态必须为「已认证」；③ 提交门禁须同时满足 P5 与 P1 双签；④ 已归档申报单只读锁定。超限处置：非白名单产品入口拦截；双签不完整时提交按钮不可用并标注缺失签章方。</td></tr>
+    <tr><td>申报模拟</td><td>判定阈值：① 应缴关税 <code>= MAX( 0, 凭证数 ×（ ETS 碳价 − 国内已付碳价 ）)</code>，不允许出现负值退税；② ETS 碳价以 EEX 官方接口最新周结算均价为准，滞后超 24 小时须标注时间戳；③ 申报 XML 须通过欧盟 XSD 校验；④ 情景系数为乐观 0.85、基准 1.00、悲观 1.15，系数须在页面明示。超限处置：Schema 违规时阻断申报包导出出境。</td></tr>
+    <tr><td>知识库</td><td>判定阈值：① 版本生效区间须有序且不可重叠，重叠即阻断保存；② 核算引擎默认引用 <code>today ∈ [effective_from, effective_to]</code> 的当前生效版本；③ 历史版本仅供追溯，不参与核算；④ 被引用条目须记录引用日志。超限处置：无当前生效版本时提示「适用法规版本缺失」并阻断使用默认值；已废止版本被引用时标注「已废止法规」。</td></tr>
+    <tr><td>认证资料维护</td><td>判定阈值：① 必传资料齐备率须达 100.00%；② BOM 物料凭证覆盖率须达 100.00%（按金额加权）；③ 绿电发票凭证核验状态须为「已核验」。三项须同时满足方可锁定。超限处置：任一不满足则锁定按钮置灰并列出缺失清单（含责任角色与来源模块）。</td></tr>
+    <tr><td>认证申请</td><td>判定阈值：① 报价偏差率上限 ±10.00%，超出须填写偏差说明并经 PM 复核；② 预计发证周期修正系数取值区间 [ −0.20, +0.20 ]，超区间拒绝保存；③ 补正剩余期限 ≤ 3 天触发提醒，超期自动升级至 PM 待办；④ 进度百分比按里程碑数量等权计算。超限处置：未完成 PM 复核不得向机构报送。</td></tr>
+    <tr><td>认证结果管理</td><td>判定阈值：① 预警阈值固定为 90 / 30 / 7 天三档，为业务铁律不可配置；② 证书存续状态判定顺序为「吊销 → 失效（剩余天数 ≤ 0）→ 临期（≤ 90 天）→ 有效」；③ 碳标签发布准入须同时满足证书状态 ∈ { 有效, 临期 }、PDF 哈希校验通过、机构签名校验通过。超限处置：任一条件不满足即熔断，下架动作与状态变更在同一事务内完成。</td></tr>
+    <tr><td>原材料碳排因子</td><td>判定阈值：① 当前生效因子值须严格 &gt; 0；② 偏离率分级 <code>ΔEF_pct &lt; −5.00%</code> 标绿优化、<code>−5.00% ≤ ΔEF_pct ≤ +5.00%</code> 标灰持平、<code>ΔEF_pct &gt; +5.00%</code> 标黄提示；③ DQR 分级 ≤ 1.6 高质量 / 1.6 ~ 3.0 中质量 / &gt; 3.0 低质量触发预警；④ 版本号严格单调递增。超限处置：被 <code>LCA_CERTIFIED</code> 或 <code>CBAM_DECLARED</code> 引用的版本强制锁定，仅允许发布新版本推进。</td></tr>
+    <tr><td>电力碳排因子</td><td>判定阈值：① 经权威核销的绿电因子固定为 0.0000 kgCO2e/kWh；② 常规电网因子取值区间 [ 0.3000, 1.2000 ] kgCO2e/kWh；③ 各园区因子与全国平均电网因子 0.5703 kgCO2e/kWh 横向对齐，基准来源为生态环境部年度公告；④ 已完成财务锁账的历史月份，其引用因子版本自动固化。超限处置：历史月份禁止自动刷新并触发 <code>E_SYS_FACTOR_LOCKED_HISTORIC</code>。</td></tr>
+    <tr><td>能源活动碳排因子</td><td>判定阈值：① 低位发热量 NCV 须 &gt; 0 且不超热力学物理极限（天然气上限 50 MJ/m³）；② 单位热值含碳量 CC 须 &gt; 0；③ 碳氧化率 OF 取值区间 [ 90.0%, 100.0% ]；④ 制冷剂 GWP 强制锚定 IPCC AR5（R134a 锁定为 1430）；⑤ 蒸汽比焓按 IAPWS-IF97 插值。超限处置：越界输入阻断保存；蒸汽参数落在饱和区外时改用经验线性插值并弹出黄色非标提示。</td></tr>
+    <tr><td>折标煤系数库</td><td>判定阈值：① 折标系数严格依 GB/T 2589-2020，电力当量值 0.1229 kgce/kWh、天然气 1.2143 kgce/kWh 为受控常量；② 精度口径为 tce 保留 4 位小数、kgce 保留 2 位小数；③ 全景图表默认采用当量热值折标，报表导出提供当量与等价双列；④ 仪表断网未上报须显示「--」，严禁视为 0 能耗。超限处置：国标常量字段任何在线修改请求一律阻断并触发 <code>E_SYS_GB_STD_IMMUTABLE</code>。</td></tr>
+  </tbody>
+</table>
+
+<h3 class="pb">B3 第⑤段补齐「取值示例 + 精度与容差」（7 个模块） <span class="tag p2">P2-6</span></h3>
+<div class="tgt"><b>定位：</b>以下 7 个模块「核心数学模型与算法框架」段的变量定义之后　<b>操作类型：</b>新增两小节</div>
+<p class="note">这 7 个模块第⑤段目前只有「公式行 + 一句变量说明」，无取值示例、无精度容差、无示例复算；同章另有 9 个模块（碳足迹核算、电力 / 能源活动 / 折标煤因子、申报模拟、认证三模块、原材料因子）已是四件套结构，补齐后全章体例一致。</p>
+
+<h4>碳足迹总览驾驶舱</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>取值示例：某 220kV 油浸式变压器 E_raw = 118,420.00、E_trans = 3,150.00、E_manuf = 21,600.00、E_test = 1,240.00、E_pack = 890.00 kgCO2e，则 E_PCF = 145,300.00 kgCO2e，其中 R_原材料 = 81.50%、R_制造 = 14.87%。若 Price_EU_ETS = 82.00 €/tCO2e、Price_Domestic = 62.00 €/tCO2e、Export_Qty = 200 台、Embedded_Carbon = 145.30 tCO2e/台，则 Save_CBAM = 200 × 145.30 × ( 82.00 − 62.00 ) = 581,200.00 €。
+
+精度与容差：E_PCF 保留 2 位小数（kgCO2e）；R_stage 保留 2 位小数（%），四舍五入后各阶段占比之和应为 100.00% ± 0.05%；Save_CBAM 保留 2 位小数（€）；Hash_sign 固定为 64 位十六进制字符串。</pre></div>
+
+<h4>横向对比</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>取值示例：A 厂 CF_unit = 145.30、B 厂 = 138.60、C 厂 = 151.20 kgCO2e/kVA，则 Mean_unit = ( 145.30 + 138.60 + 151.20 ) ÷ 3 = 145.03 kgCO2e/kVA。若基准值 Benchmark = 140.00，则 B 厂达标且排名第 1，A 厂与 C 厂超基准标红。
+
+精度与容差：CF_unit 与 Mean_unit 均保留 2 位小数（kgCO2e/特征量）；达标判定采用「小于等于」闭区间，CF_unit 与 Benchmark 相等时判为达标；均值计算采用算术平均且强制排除项目公司与特征量为空的实体；分母为 0 时统一输出 “--”。</pre></div>
+
+<h4>纵向对比</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>取值示例：某型号变压器 CF_base = 152.40、CF_t = 145.30 kgCO2e/特征量，则 ΔCF = −7.10。归因分解为原材料替代 ΔCF_1 = −4.90（Con = 69.01%）、绿电接入 ΔCF_2 = −1.80（Con = 25.35%）、工艺优化 ΔCF_3 = −0.40（Con = 5.63%），合计 −7.10、贡献率 99.99%（尾差 0.01% 允许）。
+
+精度与容差：ΔCF、Con_i、CF_scope_all 均保留 2 位小数；Con_i 之和须配平至 100.00% ± 1.00%，超出即标注「归因待补充」并列出未归因残差；除零兜底——总变动量 ΔCF 为 0 时贡献率显示 “--”。</pre></div>
+
+<h4>实景数据库</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>取值示例：某高磁感取向硅钢片 Q_bom = 32.500 t、R_loss = 3.5%，则 Q_mat_actual = 32.500 × ( 1 + 3.5% ) = 33.638 t；若实测因子 EF_mat = 1.9500 kgCO2e/kg，则 E_raw = 33.638 × 1,000 × 1.9500 = 65,594.10 kgCO2e。
+
+精度与容差：EF_match 保留 4 位小数（kgCO2e/kg）；Q_mat_actual 保留 3 位小数（t）；E_raw 保留 2 位小数（kgCO2e）；匹配层级 EF_match_level 为 1 / 2 / 3 整数枚举，层级 3 时页面标注「兜底因子」；权重分母为 0 时自动兜底采用国家折标缺省值并记录 <code>E_CALC_FACTOR_WEIGHT_ZERO_FALLBACK</code>，不得输出 NaN 或白屏。</pre></div>
+
+<h4>碳足迹报告</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>取值示例：某批次 BatchNo = B20260915-03，经认证机构私钥签名后 Hash_sign = 7f3a…（64 位十六进制）；QR_payload 由 EPC 编码、Hash_sign、CertNo 与 ValidUntil 四段拼接编码，扫码后弹窗呈现该四项。若 ValidUntil = 2027-09-14、今日为 2026-09-27，则 Label_status = 有效；若今日为 2027-09-15，则自动标注「已过期」。
+
+精度与容差：Hash_sign 与报告哈希均为固定 64 位十六进制（SHA-256）；二维码分辨率 ≥ 300 dpi 且支持矢量导出；报告完整性校验结果为布尔值，比对失败即判为「篡改」并触发 <code>E_AUDIT_HASH_BROKEN</code>。</pre></div>
+
+<h4>合规管理</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>取值示例：某产品 CN 税号 = 85042100，落在白名单内则 In_Scope = true，排放边界 Boundary 映射为「直接排放 + 前驱物隐含间接排放」；若 P5 已完成电子签章而 P1 未签，则 Gate_Submit = false，提交动作不可执行且页面标注缺失签章方为「P1 集团决策层」。
+
+精度与容差：In_Scope 与 Gate_Submit 均为布尔值，无中间态；状态流转须严格遵循既定转移表，非法转移一律拒绝并返回状态机校验错误；已归档状态（CBAM_DECL_ARCHIVED）为只读终态，不接受任何流转动作。</pre></div>
+
+<h4>知识库</h4>
+<div class="ins"><div class="hdr">新增文本</div><pre>取值示例：某欧盟行业填报指引存在 v2026.1（生效区间 2026-01-01 ~ 2026-12-31）与 v2026.2（生效区间 2027-01-01 至今）；今日为 2026-09-27 时，Version_active 仅命中 v2026.1。若录入人员新增 v2026.3（生效开始日期 2026-06-01）与 v2026.1 区间重叠，则前端即时拦截并阻断保存。
+
+精度与容差：生效区间为闭区间判定（含起止日）；版本号按生效日期递增且唯一，不允许重叠；Version_active 集合允许为空但不允许为多值（同一适用范围同一时点仅一个生效版本）；Diff 版本差异对照须逐段高亮并标注各自生效日期。</pre></div>
+
+<h3 class="pb">B4 两张状态机转移表（新增） <span class="tag p2">P2-10</span></h3>
+<div class="tgt"><b>定位：</b>① 因子库管理 4 模块「功能规格与交互契约」段的「因子版本演化与一键回滚」之后；② 认证资料维护「功能规格与交互契约」段的「资料包锁定与解锁」之后　<b>操作类型：</b>新增状态转移表</div>
+
+<h4>B4-1 因子版本状态机（原材料 / 电力 / 能源活动 / 折标煤 四模块通用）</h4>
+<table class="avoid">
+  <thead><tr><th style="width:22%">当前状态</th><th style="width:26%">可触发动作</th><th style="width:20%">触发角色</th><th class="c" style="width:12%">审计写入</th><th>约束说明</th></tr></thead>
+  <tbody>
+    <tr><td>DRAFT 草稿</td><td>提交审批 / 废弃</td><td>P4（原材料）/ P2（电力、能源活动、折标煤）</td><td class="c">是</td><td>草稿态不可被核算引擎引用</td></tr>
+    <tr><td>PENDING_REVIEW 待审</td><td>核准启用 / 驳回退回草稿</td><td>PM 业务总监</td><td class="c">是</td><td>驳回须填写驳回原因</td></tr>
+    <tr><td>ACTIVE 生效中</td><td>发布新版本 / 停用</td><td>P4 / P2</td><td class="c">是</td><td>发布新版本时原版本自动转为 SUPERSEDED，原当前值沉淀为新默认值</td></tr>
+    <tr><td>SUPERSEDED 历史版本</td><td>回滚至此版本 / 只读查阅</td><td>P4</td><td class="c">是</td><td>回滚生成新版本快照并注明回滚来源，版本号单调递增，不得物理抹除历史</td></tr>
+    <tr><td>RETIRED 已废止</td><td>只读，不可引用</td><td>—</td><td class="c">—</td><td>被引用时标注「已废止法规 / 已废止因子」</td></tr>
+  </tbody>
+</table>
+<p class="note"><b>硬约束：</b>① 版本号严格单调递增，低于当前版本或重复即阻断保存并触发 <code>E_FACTOR_VERSION_CONFLICT</code>；② 被 <code>LCA_CERTIFIED</code> 或 <code>CBAM_DECLARED</code> 报告引用的版本强制锁定，禁止物理删除（<code>E_FACTOR_IN_USE_DELETE_DENIED</code>），仅允许通过发布新版本推进；③ 回滚必须填写不少于 10 个字符的业务原因说明，空理由禁止提交；④ 仅 P4 具备新增、编辑与回滚权限，非授权角色操作返回 HTTP 403（<code>E_AUTH_RBAC_FORBIDDEN</code>）。</p>
+
+<h4>B4-2 认证资料包状态机</h4>
+<table class="avoid">
+  <thead><tr><th style="width:22%">当前状态</th><th style="width:26%">可触发动作</th><th style="width:20%">触发角色</th><th class="c" style="width:12%">审计写入</th><th>约束说明</th></tr></thead>
+  <tbody>
+    <tr><td>DRAFT 草稿</td><td>组装资料包 / 上传凭证 / 提交锁定校验</td><td>P4 + P3</td><td class="c">是</td><td>凭证上传即计算 SHA-256 并写入凭证清单</td></tr>
+    <tr><td>PENDING_LOCK 待锁定校验</td><td>锁定 / 退回草稿</td><td>P4</td><td class="c">是</td><td>齐备率与覆盖率任一未达 100.00% 时锁定按钮置灰</td></tr>
+    <tr><td>LOCKED 已锁定</td><td>引用至认证申请 / 申请解锁</td><td>P4</td><td class="c">是</td><td>锁定后内容禁止修改，写入请求返回 <code>E_CERT_PACKAGE_LOCKED</code></td></tr>
+    <tr><td>UNLOCK_APPROVING 解锁审批中</td><td>批准解锁 / 驳回并恢复已锁定</td><td>PM 业务总监</td><td class="c">是</td><td>生成解锁审批流水号，关联统一工作流引擎实例号</td></tr>
+    <tr><td>UNLOCKED 已解锁留痕</td><td>仅存档留痕</td><td>—</td><td class="c">是</td><td>历史解锁版本不得被认证申请引用，仅可追溯</td></tr>
+  </tbody>
+</table>
+<p class="note"><b>硬约束：</b>① 凭证被替换导致哈希变更时，系统自动将资料包由「待锁定校验」回退至「草稿」并锁定待复核（<code>E_CERT_HASH_MISMATCH</code>）；② 同一凭证号重复上传触发 <code>E_CERT_DUP_VOUCHER</code>，保留最新版本并标注重复记录；③ 绿电发票核验状态为「核验不通过」时冻结锁定入口；④ 已锁定资料包是认证申请的唯一输入版本。</p>
+
+<h3 class="pb">B5 错误码与 Gherkin 用例双向补齐 <span class="tag p2">P2-7</span></h3>
+<div class="tgt"><b>定位：</b>各模块第⑦段补错误码、第⑧段补 Scenario　<b>操作类型：</b>新增</div>
+<p><b>核验结果：</b>全章 27 个业务错误码中，<b>17 个有定义但无对应验收用例</b>（分布在 8 个模块）；另有 4 个模块第⑦段为纯文字规则、未挂任何错误码。下方逐项补齐。</p>
+
+<h4>B5-1 补 Gherkin 用例（17 项，按模块归组）</h4>
+
+<p><b>① 实景数据库</b>　新增 2 个 Scenario：</p>
+<div class="gr">Scenario: 因子超出有效期拦截选用
+  Given 某物料本土实测因子的有效期为 2024-01-01 至 2025-12-31
+  And 当前日期为 2026-09-27
+  When 用户尝试在 LCA 核算中选用该因子
+  Then 系统拦截选用并触发 E_VAL_FACTOR_EXPIRED
+  And 该因子行标注“因子待升级”且选用入口置灰
+
+Scenario: Ecoinvent 授权到期自动降级
+  Given Ecoinvent v3.8 授权许可已于昨日到期
+  When 系统为某物料匹配碳因子
+  Then 触发 E_EXT_ECOINVENT_LICENSE 并记录告警
+  And 自动降级使用 CLCD 0.2 本土近似因子兜底
+  And 页面标注当前匹配层级为“本土近似”</div>
+
+<p><b>② 碳足迹核算</b>　新增 2 个 Scenario：</p>
+<div class="gr">Scenario: 总碳足迹为负阻断保存
+  Given 某产品五阶段滚算结果的总碳足迹为 -12.40 kgCO2e
+  When P4 尝试保存该核算结果
+  Then 系统阻断保存并返回 E_VAL_LCA_TOTAL_NEGATIVE
+  And 页面提示“总碳足迹不可为负值”
+  And 数据库不写入该条核算记录
+
+Scenario: 工序四元组不齐备阻断保存
+  Given 某产品制造加工阶段缺少“介质”字段的录入
+  When P4 尝试保存该阶段核算数据
+  Then 系统阻断保存并返回 E_VAL_LCA_STAGE_INCOMPLETE
+  And 页面逐条列出缺失的四元组要素（设备编号 / 工时 / 介质 / 数量）</div>
+
+<p><b>③ 碳足迹报告</b>　新增 1 个 Scenario：</p>
+<div class="gr">Scenario: 报告哈希比对失败阻断导出
+  Given 某已认证 LCA 报告的 PDF 内容被非法修改
+  When P4 尝试导出该报告
+  Then 报告哈希比对失败并触发 E_AUDIT_HASH_BROKEN
+  And 强制阻断导出且单据被锁定
+  And 页面标记“报告已被非法篡改”</div>
+
+<p><b>④ 认证资料维护</b>　新增 2 个 Scenario：</p>
+<div class="gr">Scenario: 同一凭证重复上传去重标注
+  Given 某资料包已绑定凭证号“PZ-2026-0087”的物料平衡单
+  When P4 再次上传凭证号相同的物料平衡单
+  Then 系统触发 E_CERT_DUP_VOUCHER
+  And 保留最新版本并将原记录标注为“重复记录”
+  And 凭证清单中同一凭证号仅保留一条有效条目
+
+Scenario: 凭证哈希变更自动回退待复核
+  Given 某资料包内已锁定校验通过的凭证绑定 SHA-256 值
+  When 该凭证的存储文件发生非授权变更
+  Then 系统检测到哈希不一致并触发 E_CERT_HASH_MISMATCH
+  And 资料包状态自动回退至“草稿”并锁定待复核
+  And 通知 P4 重新提交该凭证</div>
+
+<p><b>⑤ 原材料碳排因子</b>　新增 4 个 Scenario：</p>
+<div class="gr">Scenario: 因子数值非正数强阻断
+  Given P4 在新建原材料碳因子时将因子值输入为 0 或 -1.25
+  When P4 点击确认提交
+  Then 系统阻断提交并返回 E_VAL_FACTOR_NON_POSITIVE
+  And 输入框标红提示“因子数值必须严格大于0”
+
+Scenario: 版本号冲突阻断保存
+  Given 某原材料因子当前发布版本号为 v3.2
+  When P4 手动录入版本号 v3.0 或重复的 v3.2
+  Then 系统阻断保存并返回 E_FACTOR_VERSION_CONFLICT
+  And 页面提示版本号须严格单调递增
+
+Scenario: 多供应商加权采购总重为零兜底
+  Given 某物料挂载 3 家供应商但本月采购总重量合计为 0
+  When 系统执行多供应商混料加权因子核算
+  Then 自动兜底采用国家标准缺省因子
+  And 记录 E_CALC_FACTOR_WEIGHT_ZERO_FALLBACK
+  And 页面不出现 NaN 或白屏
+
+Scenario: RBAC 越权操作拦截
+  Given 当前登录用户为 P2 园区能碳专员（仅只读权限）
+  When 该用户尝试新增或回滚原材料碳排因子
+  Then 系统返回 HTTP 403 并触发 E_AUTH_RBAC_FORBIDDEN
+  And 前端按钮保持置灰且服务端拒绝写入</div>
+
+<p><b>⑥ 电力碳排因子</b>　新增 3 个 Scenario：</p>
+<div class="gr">Scenario: 绿电超量抵扣自动截断
+  Given 某车间当月总用电量为 100,000 kWh
+  And 录入的绿电核销申报量为 120,000 kWh
+  When 系统执行绿电抵扣核算
+  Then 抵扣量自动截断至 100,000 kWh
+  And 溢出 20,000 kWh 自动流转至下一统计周期
+  And 记录告警 E_CALC_GREEN_OFFSET_OVERFLOW
+
+Scenario: 历史关账月份因子冻结
+  Given 某园区 2026-03 月已完成财务锁账
+  When 生态环境部发布新版电网因子补丁修正
+  Then 该历史月份引用的电力因子版本保持固化不刷新
+  And 触发 E_SYS_FACTOR_LOCKED_HISTORIC 并记录留痕
+
+Scenario: 自备电厂 CEMS 脱失降级
+  Given 某燃煤自备电厂当月未上传连续在线监测（CEMS）烟气实测值
+  When 该实体提交“超低排放因子”申报
+  Then 系统阻断提交并返回 E_VAL_CEMS_OFFLINE_PENALTY
+  And 强制采用燃煤发电机组上限值 0.8320 kgCO2e/kWh</div>
+
+<p><b>⑦ 能源活动碳排因子</b>　新增 2 个 Scenario：</p>
+<div class="gr">Scenario: 低位发热量超物理极限阻断
+  Given 用户在录入天然气因子时将低位发热量输入为 62 MJ/m³
+  When 用户点击确认提交
+  Then 系统强阻断保存并返回 E_VAL_NCV_OUT_OF_PHYSICAL_RANGE
+  And 页面提示该值超出热力学物理极限（天然气上限 50 MJ/m³）
+
+Scenario: 碳氧化率越界阻断（补错误码断言）
+  Given 用户在录入柴油因子时将碳氧化率输入为 105.0%
+  When 用户点击确认提交保存
+  Then 表单标红提示“碳氧化率不得超过100.0%”
+  And 底层安全校验直接拦截并返回 E_VAL_OF_RATE_INVALID
+  And 数据库不写入任何脏数据</div>
+
+<p><b>⑧ 折标煤系数库</b>　新增 2 个 Scenario：</p>
+<div class="gr">Scenario: 国标受控常量不可在线编辑
+  Given 当前登录用户为系统管理员 PM
+  When 尝试在线编辑电力当量折标系数 0.1229 kgce/kWh
+  Then 系统弹出阻断提示“GB/T 2589-2020 强制国标受控字段不可在线直接编辑”
+  And 返回 E_SYS_GB_STD_IMMUTABLE 并保持原值不变
+
+Scenario: 能耗实物量负数拦截
+  Given 用户在录入车间能耗时将用电量输入为 -1,000 kWh
+  When 用户点击保存
+  Then 系统拦截保存并返回 E_VAL_ENERGY_USAGE_NEGATIVE
+  And 数据库不写入该条记录</div>
+
+<h4 class="pb">B5-2 补错误码定义 + 用例（4 个模块原本无错误码）</h4>
+<p class="note">以下 4 个模块第⑦段为纯文字规则、未挂任何错误码，导致第⑧段无法断言错误码，自动化测试无校验锚点。建议按下表在第⑦段逐条挂码，并在第⑧段补 1 条对应用例。</p>
+<table>
+  <thead><tr><th style="width:16%">模块</th><th style="width:30%">建议新增错误码</th><th style="width:26%">对应边界规则</th><th>建议 Gherkin 断言</th></tr></thead>
+  <tbody>
+    <tr><td>横向对比</td><td><code>E_VAL_FEATURE_ZERO</code><br><code>E_VAL_CROSS_FEATURE_FORBIDDEN</code><br><code>E_DATA_NO_COMPARABLE_DATA</code></td><td>特征量为 0 或缺失 / 跨特征量对比 / 筛选组合无数据</td><td>Then 该值显示为 “--” 并返回 E_VAL_FEATURE_ZERO<br>Then 后端 API 拒绝混合特征量请求并返回 E_VAL_CROSS_FEATURE_FORBIDDEN<br>Then 输出客观空态并返回 E_DATA_NO_COMPARABLE_DATA</td></tr>
+    <tr><td>纵向对比</td><td><code>E_DATA_HISTORY_INSUFFICIENT</code><br><code>E_CALC_ATTRIBUTION_UNBALANCED</code></td><td>历史批次少于 2 个 / 贡献率之和不为 100%</td><td>Then 不绘制瀑布图并返回 E_DATA_HISTORY_INSUFFICIENT<br>Then 标注“归因待补充”并返回 E_CALC_ATTRIBUTION_UNBALANCED，列出未归因残差</td></tr>
+    <tr><td>合规管理</td><td><code>E_VAL_CN_CODE_NOT_IN_WHITELIST</code><br><code>E_AUTH_SIGNATURE_INCOMPLETE</code><br><code>E_STATE_ARCHIVED_READONLY</code></td><td>非白名单税号 / 双签不完整 / 已归档只读</td><td>Then 申报入口被拦截并返回 E_VAL_CN_CODE_NOT_IN_WHITELIST<br>Then 提交不可执行并返回 E_AUTH_SIGNATURE_INCOMPLETE，标注缺失签章方<br>Then 流转动作被拒绝并返回 E_STATE_ARCHIVED_READONLY</td></tr>
+    <tr><td>知识库</td><td><code>E_VAL_VERSION_RANGE_OVERLAP</code><br><code>E_VAL_NO_ACTIVE_VERSION</code><br><code>E_VAL_ATTACHMENT_INVALID</code></td><td>版本生效区间重叠 / 无当前生效版本 / 附件超限或格式不符</td><td>Then 前端即时拦截并返回 E_VAL_VERSION_RANGE_OVERLAP<br>Then 核算引擎阻断使用默认值并返回 E_VAL_NO_ACTIVE_VERSION<br>Then 上传即时拒绝并返回 E_VAL_ATTACHMENT_INVALID</td></tr>
+  </tbody>
+</table>
+<p class="note">补码后全章业务错误码由 27 个增至 38 个，第⑧段 Scenario 由 54 个增至约 75 个，实现「每个业务错误码 ≥ 1 条验收用例」的双向勾稽。建议同步在第六章《标准化错误码字典与异常分级》中回填「对应验收用例编号」列。</p>
+
+<h2>附：补强后自检清单</h2>
+<table class="avoid">
+  <thead><tr><th style="width:6%" class="c">序</th><th style="width:38%">自检项</th><th style="width:14%" class="c">补强前</th><th style="width:14%" class="c">补强后</th><th>验收方式</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td>模板段落齐备度</td><td class="c">128 / 128</td><td class="c">128 / 128</td><td>目录结构比对</td></tr>
+    <tr><td class="c">2</td><td>「定位与架构角色」五要素齐备模块数</td><td class="c">12 / 16</td><td class="c">16 / 16</td><td>逐模块查 5 要素关键字</td></tr>
+    <tr><td class="c">3</td><td>含 <code>Feature:</code> 声明的模块数</td><td class="c">13 / 16</td><td class="c">16 / 16</td><td>Cucumber 试运行采集用例数</td></tr>
+    <tr><td class="c">4</td><td>失效交叉引用数</td><td class="c">3</td><td class="c">0</td><td>全文检索「附录 F」「第五章」「第十一章」</td></tr>
+    <tr><td class="c">5</td><td>模块数口径一致性</td><td class="c">13 ≠ 16</td><td class="c">16 = 16</td><td>第十二章基线与目录清单比对</td></tr>
+    <tr><td class="c">6</td><td>LaTeX 源码残留处数</td><td class="c">140</td><td class="c">0</td><td>全文检索 <code>\text{</code> / <code>\frac{</code> / <code>\sum</code> 等</td></tr>
+    <tr><td class="c">7</td><td>含数据权限条款的模块数</td><td class="c">0 / 16</td><td class="c">16 / 16</td><td>逐模块检索「数据权限」关键字</td></tr>
+    <tr><td class="c">8</td><td>第⑥段含阈值与基准来源的模块数</td><td class="c">0 / 16</td><td class="c">16 / 16</td><td>逐模块检索「判定阈值」「基准来源」</td></tr>
+    <tr><td class="c">9</td><td>第⑤段四件套（公式 + 变量 + 示例 + 精度）模块数</td><td class="c">9 / 16</td><td class="c">16 / 16</td><td>逐模块检索「取值示例」「精度与容差」</td></tr>
+    <tr><td class="c">10</td><td>业务错误码总数</td><td class="c">27</td><td class="c">38</td><td>全文去重统计（排除公式变量 E_PCF）</td></tr>
+    <tr><td class="c">11</td><td>Gherkin Scenario 总数</td><td class="c">54</td><td class="c">≈ 75</td><td>Cucumber 采集计数</td></tr>
+    <tr><td class="c">12</td><td>有定义无用例的错误码数</td><td class="c">17</td><td class="c">0</td><td>错误码集合与用例断言集合求差</td></tr>
+    <tr><td class="c">13</td><td>板块级导言数量</td><td class="c">0 / 6</td><td class="c">6 / 6</td><td>逐板块检查标题下导言段</td></tr>
+    <tr><td class="c">14</td><td>成表状态机数量</td><td class="c">2</td><td class="c">4</td><td>检索「当前状态 × 可触发动作 × 触发角色 × 审计写入」表</td></tr>
+  </tbody>
+</table>
+
+<div class="sig">
+<b>补强条目统计：</b>A 组 6 条（对应 P1-1 ~ P1-4、P2-9、P2-11）· B 组 5 条（对应 P2-5 ~ P2-8、P2-10、P2-12）· 新增可直贴文本 16 段数据权限 + 16 段判定阈值 + 7 段取值示例 + 6 段板块导言 + 2 张状态机表 + 19 个 Gherkin Scenario + 12 个错误码定义　｜　<b>生成日期：</b>2026-09-27
+</div>
+
+</div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -9,6 +9,8 @@ import {
   Globe2,
   Leaf,
   Award,
+  LogOut,
+  ChevronDown,
 } from 'lucide-react'
 import { honors } from '@/lib/mock-data'
 
@@ -49,10 +51,29 @@ const entrances = [
 
 export function PortalView() {
   const [honorIndex, setHonorIndex] = useState(0)
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+  const userDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const t = setInterval(() => setHonorIndex((i) => (i + 1) % honors.length), 3000)
     return () => clearInterval(t)
+  }, [])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target as Node)) {
+        setUserDropdownOpen(false)
+      }
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setUserDropdownOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [])
 
   return (
@@ -77,14 +98,65 @@ export function PortalView() {
             <Settings className="size-4 text-primary" />
             系统管理
           </Link>
-          <div className="flex items-center gap-2 border-l border-border pl-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/15 text-sm font-semibold text-primary">
-              A
-            </div>
-            <div className="hidden leading-tight sm:block">
-              <p className="text-sm font-medium text-foreground">Admin</p>
-              <p className="text-[11px] text-muted-foreground">集团管理员</p>
-            </div>
+          {/* 用户个人信息及下拉操作菜单（退出登录放置在用户信息下方） */}
+          <div className="relative" ref={userDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              className="flex items-center gap-2.5 pl-3 pr-2 py-1.5 border-l border-border rounded-lg transition-colors cursor-pointer text-left hover:bg-panel group"
+              aria-label="用户中心与退出登录"
+            >
+              <div className="flex size-8 items-center justify-center rounded-lg bg-primary/15 text-xs font-semibold text-primary">
+                管
+              </div>
+              <div className="hidden leading-tight sm:block">
+                <p className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">管理员 (倪总)</p>
+                <p className="text-[10px] text-muted-foreground">特变电工电装集团</p>
+              </div>
+              <ChevronDown className={`size-3.5 text-muted-foreground transition-transform duration-200 ${userDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* 下拉浮层卡片：明确放置在用户信息正下方 */}
+            {userDropdownOpen && (
+              <div className="absolute right-0 top-full z-50 mt-1.5 w-60 rounded-xl border border-border bg-popover p-2 shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95 text-foreground">
+                <div className="flex items-center gap-2.5 p-2 rounded-lg bg-accent/40 border border-border/50 mb-2">
+                  <div className="flex size-9 items-center justify-center rounded-lg bg-primary/20 text-sm font-bold text-primary shrink-0">
+                    管
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-foreground truncate">倪总</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-medium">管理员</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">特变电工电装集团</p>
+                    <p className="text-[10px] font-mono text-muted-foreground/80 truncate">tbea_admin</p>
+                  </div>
+                </div>
+
+                <div className="space-y-0.5">
+                  <Link
+                    href="/system?from=/"
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-foreground transition-colors hover:bg-accent"
+                  >
+                    <Settings className="size-3.5 text-primary" />
+                    <span>系统后台管理</span>
+                  </Link>
+                </div>
+
+                <div className="my-1.5 border-t border-border/60" />
+
+                {/* 🌟 退出登录按钮（明确放置在用户信息下方） */}
+                <Link
+                  href="/login"
+                  onClick={() => setUserDropdownOpen(false)}
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <LogOut className="size-3.5" />
+                  <span>退出登录</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </header>

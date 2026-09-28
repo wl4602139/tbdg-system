@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { Target, ChevronRight, TriangleAlert, Search, RotateCcw } from 'lucide-react'
 import { Panel, StatusBadge } from '@/components/shared/primitives'
+import { cn } from '@/lib/utils'
 import { Select } from '@/components/shared/select'
 import { Modal } from '@/components/shared/modal'
 import { BarBenchmark, BarGroup } from '@/components/shared/charts'
@@ -113,13 +114,13 @@ export function BenchmarkView() {
                 <th className="px-3 py-2.5 text-right font-medium">单台碳足迹</th>
                 <th className="px-3 py-2.5 text-right font-medium">主材碳排/占比</th>
                 <th className="px-3 py-2.5 text-right font-medium">生产环节/占比</th>
-                <th className="px-3 py-2.5 text-center font-medium">对标状态</th>
+                <th className="px-3 py-2.5 text-center font-medium">基准偏差量</th>
                 <th className="px-3 py-2.5 text-center font-medium"></th>
               </tr>
             </thead>
             <tbody>
               {lines.map((l) => {
-                const tone = benchTone(l.perUnit, bench.perUnit)
+                const diff = Number((l.perUnit - bench.perUnit).toFixed(2))
                 return (
                   <tr
                     key={l.name}
@@ -134,10 +135,10 @@ export function BenchmarkView() {
                     <td className="px-3 py-2.5 text-right font-mono text-muted-foreground">
                       {l.produce} · {Math.round((l.produce / l.perUnit) * 100)}%
                     </td>
-                    <td className="px-3 py-2.5 text-center">
-                      <StatusBadge tone={tone}>
-                        {tone === 'ok' ? '达标' : tone === 'warn' ? '临界' : '超基准'}
-                      </StatusBadge>
+                    <td className="px-3 py-2.5 text-center font-mono text-xs">
+                      <span className={cn('px-2 py-0.5 rounded text-xs font-mono font-medium', diff > 0 ? 'text-slate-300 bg-slate-800' : 'text-primary bg-primary/10')}>
+                        {diff > 0 ? `+${diff}` : `${diff}`} tCO2
+                      </span>
                     </td>
                     <td className="px-3 py-2.5 text-center">
                       <ChevronRight className="mx-auto size-4 text-muted-foreground" />
@@ -150,8 +151,8 @@ export function BenchmarkView() {
         </div>
       </Panel>
 
-      {/* 高碳排热点 */}
-      <Panel title="高碳排热点 · 建议与分析" desc="点击热点卡片查看详情与改进建议" className="border-l-2 border-l-[var(--destructive)]">
+      {/* 重点工序与主材碳排分布 */}
+      <Panel title="重点工序与主材碳排分布" desc="各车间工艺环节实测碳足迹分布特征">
         <div className="grid gap-6 lg:grid-cols-3">
           {carbonHotspots.map((h) => (
             <button

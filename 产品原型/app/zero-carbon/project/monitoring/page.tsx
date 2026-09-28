@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   Sun,
   BatteryCharging,
@@ -8,7 +8,6 @@ import {
   Activity,
   Calendar,
   Download,
-  Search,
   CheckCircle2,
   TrendingUp,
   Zap,
@@ -26,6 +25,7 @@ import {
 } from 'lucide-react'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend } from '@/components/shared/charts'
+import { CollapsibleProjectBar } from '@/components/shared/collapsible-project-bar'
 import { cn } from '@/lib/utils'
 
 // =========================================================================
@@ -37,12 +37,14 @@ export interface PvMonitoringItem {
   park: string
   company: string
   projectName: string
+  stationGroup?: string // 所属光伏电站/项目组 (如 '沈变厂区分布式光伏')
+  phase?: string // 期次 (如 '一期', '二期')
   capacity: string // 如 12.8 MWp
   powerKw: number // 实时发电功率 (kW)
   dailyGenKwh: number // 日发电量 (kWh)
   selfUseKwh: number // 消纳电量 (kWh)
   gridKwh: number // 上网电量 (kWh)
-  selfRevenueYuan: number // 消纳收益 (元)
+  selfRevenueYuan: number // 自消纳收益 (元)
   gridRevenueYuan: number // 上网收益 (元)
   totalRevenueYuan: number // 综合日收益 (元)
   selfUseRatio: number // 消纳比例 (%)
@@ -95,128 +97,231 @@ export interface HeatPumpMonitoringItem {
   savingsYuan: number // 收益 (元, 替代天然气节费)
   status: '正常供热' | '变频稳压' | '低负荷保温'
 }
+// =========================================================================
+// 4. 空调实时监测数据模型
+// =========================================================================
+export interface HvacMonitoringItem {
+  id: string
+  time: string // 时间 (如 2026-08-28)
+  park: string
+  company: string
+  projectName: string
+  capacity: string // 如 4,200 kW (1,200 RT)
+  cop: number // COP (能效比)
+  supplyTemp: number // 供水温度 (℃)
+  returnTemp: number // 回水温度 (℃)
+  coolingOutputGj: number // 制冷量 (GJ)
+  powerConsumptionKwh: number // 耗电量 (kWh)
+  powerKw: number // 功率 (kW)
+  pressureMpa: number // 压力 (MPa)
+  greenPowerRatio: number // 绿电占比 (%)
+  peakRatio: number // 尖/峰占比 (%)
+  savingsYuan: number // 收益 (元, 高效节费)
+  status: '正常供冷' | '变频稳压' | '低负荷保温'
+}
+
 
 // =========================================================================
 // Mock 数据集：光伏监测数据
 // =========================================================================
 const MOCK_PV_DATA: PvMonitoringItem[] = [
+  // --- 1. 沈变本部 12.8MWp 屋顶分布式光伏一期 ---
   {
     id: 'pv-01',
     time: '2026-08-28',
     park: '特变电工东北输变电产业园',
     company: '沈变本部',
-    projectName: '沈变厂区 12.8MWp 屋顶分布式光伏一期',
+    projectName: '沈变本部 12.8MWp 屋顶分布式光伏一期',
+    phase: '一期',
     capacity: '12.8 MWp',
     powerKw: 8640.5,
     dailyGenKwh: 48520.0,
-    selfUseKwh: 42697.6,
-    gridKwh: 5822.4,
-    selfRevenueYuan: 34158.0,
-    gridRevenueYuan: 2212.5,
-    totalRevenueYuan: 36370.5,
-    selfUseRatio: 88.0,
+    selfUseKwh: 44832.5,
+    gridKwh: 3687.5,
+    selfRevenueYuan: 32503.6,
+    gridRevenueYuan: 1401.3,
+    totalRevenueYuan: 33904.9,
+    selfUseRatio: 92.4,
     status: '正常发电',
   },
+  // --- 2. 和新套管 3.2MWp 厂区连跨屋顶分布式光伏二期 ---
+  {
+    id: 'pv-08',
+    time: '2026-08-28',
+    park: '特变电工东北输变电产业园',
+    company: '和新套管',
+    projectName: '和新套管 3.2MWp 厂区连跨屋顶分布式光伏二期',
+    phase: '二期',
+    capacity: '3.2 MWp',
+    powerKw: 2160.0,
+    dailyGenKwh: 12150.0,
+    selfUseKwh: 11190.2,
+    gridKwh: 959.8,
+    selfRevenueYuan: 8112.9,
+    gridRevenueYuan: 364.7,
+    totalRevenueYuan: 8477.6,
+    selfUseRatio: 92.1,
+    status: '正常发电',
+  },
+  // --- 3. 衡变本部 10.5MWp 厂房屋顶及车棚分布式光伏项目 ---
   {
     id: 'pv-02',
     time: '2026-08-28',
-    park: '特变电工新疆产业园',
-    company: '新变厂',
-    projectName: '新疆变压器厂区 20MWp 分布式光伏三期',
-    capacity: '20.0 MWp',
-    powerKw: 14250.0,
-    dailyGenKwh: 86200.0,
-    selfUseKwh: 73270.0,
-    gridKwh: 12930.0,
-    selfRevenueYuan: 54952.5,
-    gridRevenueYuan: 4266.9,
-    totalRevenueYuan: 59219.4,
-    selfUseRatio: 85.0,
-    status: '正常发电',
-  },
-  {
-    id: 'pv-03',
-    time: '2026-08-28',
-    park: '特变电工新疆电缆产业园',
-    company: '特变电工新疆线缆厂',
-    projectName: '新缆厂 4.5MWp 屋顶分布式光伏二期',
-    capacity: '4.5 MWp',
-    powerKw: 3120.0,
-    dailyGenKwh: 18850.0,
-    selfUseKwh: 17342.0,
-    gridKwh: 1508.0,
-    selfRevenueYuan: 13006.5,
-    gridRevenueYuan: 497.6,
-    totalRevenueYuan: 13504.1,
+    park: '特变电工南方输变电产业园',
+    company: '衡变本部',
+    projectName: '衡变本部 10.5MWp 厂房屋顶及车棚分布式光伏项目',
+    capacity: '10.5 MWp',
+    powerKw: 7250.0,
+    dailyGenKwh: 41200.0,
+    selfUseKwh: 37904.0,
+    gridKwh: 3296.0,
+    selfRevenueYuan: 28049.0,
+    gridRevenueYuan: 1252.5,
+    totalRevenueYuan: 29301.5,
     selfUseRatio: 92.0,
     status: '正常发电',
   },
+  // --- 4. 鲁缆公司 8.6MWp BAPV 连跨厂房光伏电站 ---
+  {
+    id: 'pv-03',
+    time: '2026-08-28',
+    park: '特变电工山东线缆产业园',
+    company: '鲁缆公司',
+    projectName: '鲁缆公司 8.6MWp BAPV 连跨厂房光伏电站',
+    capacity: '8.6 MWp',
+    powerKw: 5840.0,
+    dailyGenKwh: 33600.0,
+    selfUseKwh: 30408.0,
+    gridKwh: 3192.0,
+    selfRevenueYuan: 22197.8,
+    gridRevenueYuan: 1213.0,
+    totalRevenueYuan: 23410.8,
+    selfUseRatio: 90.5,
+    status: '正常发电',
+  },
+  // --- 5. 新变超高压基地 13.9MWp 智能微网分布式光伏电站 ---
   {
     id: 'pv-04',
     time: '2026-08-28',
-    park: '特变电工南方输变电产业园',
-    company: '衡变本部',
-    projectName: '衡变南方产业园 8.2MWp 柔性支架光伏电站',
-    capacity: '8.2 MWp',
-    powerKw: 5680.0,
-    dailyGenKwh: 32400.0,
-    selfUseKwh: 29160.0,
-    gridKwh: 3240.0,
-    selfRevenueYuan: 23328.0,
-    gridRevenueYuan: 1231.2,
-    totalRevenueYuan: 24559.2,
-    selfUseRatio: 90.0,
+    park: '特变电工超高压智能制造基地',
+    company: '超高压公司',
+    projectName: '新变超高压基地 13.9MWp 智能微网分布式光伏电站',
+    capacity: '13.9 MWp',
+    powerKw: 9850.0,
+    dailyGenKwh: 58600.0,
+    selfUseKwh: 54498.0,
+    gridKwh: 4102.0,
+    selfRevenueYuan: 38148.6,
+    gridRevenueYuan: 1558.8,
+    totalRevenueYuan: 39707.4,
+    selfUseRatio: 93.0,
     status: '正常发电',
   },
+  // --- 6. 德缆产业园 6.2MWp 屋顶柔性支架分布式光伏 ---
   {
     id: 'pv-05',
     time: '2026-08-28',
     park: '特变电工(德阳)电缆园区',
-    company: '特变电工（德阳）电缆股份有限公司',
-    projectName: '德缆产业园 6MWp BIPV建筑一体化光伏电站',
-    capacity: '6.0 MWp',
-    powerKw: 4120.0,
-    dailyGenKwh: 23600.0,
-    selfUseKwh: 20768.0,
-    gridKwh: 2832.0,
-    selfRevenueYuan: 16614.4,
-    gridRevenueYuan: 1076.2,
-    totalRevenueYuan: 17690.6,
-    selfUseRatio: 88.0,
+    company: '德缆公司',
+    projectName: '德缆产业园 6.2MWp 屋顶柔性支架分布式光伏',
+    capacity: '6.2 MWp',
+    powerKw: 4280.0,
+    dailyGenKwh: 24800.0,
+    selfUseKwh: 22617.6,
+    gridKwh: 2182.4,
+    selfRevenueYuan: 16850.1,
+    gridRevenueYuan: 829.3,
+    totalRevenueYuan: 17679.4,
+    selfUseRatio: 91.2,
     status: '正常发电',
   },
+  // --- 7. 西变智能装备产业园 7.5MWp 厂房连跨分布式光伏 ---
   {
     id: 'pv-06',
+    time: '2026-08-28',
+    park: '特变电工西安变压器产业园',
+    company: '西变装备',
+    projectName: '西变智能装备产业园 7.5MWp 厂房连跨分布式光伏',
+    capacity: '7.5 MWp',
+    powerKw: 5180.0,
+    dailyGenKwh: 29500.0,
+    selfUseKwh: 27081.0,
+    gridKwh: 2419.0,
+    selfRevenueYuan: 19904.5,
+    gridRevenueYuan: 919.2,
+    totalRevenueYuan: 20823.7,
+    selfUseRatio: 91.8,
+    status: '正常发电',
+  },
+  // --- 8. 天变产业园 5.0MWp BIPV 绿色建筑一体化光伏 ---
+  {
+    id: 'pv-07',
+    time: '2026-08-28',
+    park: '特变电工天变产业园',
+    company: '天变公司',
+    projectName: '天变产业园 5.0MWp BIPV 绿色建筑一体化光伏',
+    capacity: '5.0 MWp',
+    powerKw: 3450.0,
+    dailyGenKwh: 19800.0,
+    selfUseKwh: 17978.4,
+    gridKwh: 1821.6,
+    selfRevenueYuan: 13124.2,
+    gridRevenueYuan: 692.2,
+    totalRevenueYuan: 13816.4,
+    selfUseRatio: 90.8,
+    status: '正常发电',
+  },
+  // --- 历史时序对照 (2026-08-27) ---
+  {
+    id: 'pv-01-d27',
     time: '2026-08-27',
     park: '特变电工东北输变电产业园',
     company: '沈变本部',
-    projectName: '沈变厂区 12.8MWp 屋顶分布式光伏一期',
+    projectName: '沈变本部 12.8MWp 屋顶分布式光伏一期',
+    phase: '一期',
     capacity: '12.8 MWp',
     powerKw: 8420.0,
     dailyGenKwh: 47600.0,
-    selfUseKwh: 41888.0,
-    gridKwh: 5712.0,
-    selfRevenueYuan: 33510.4,
-    gridRevenueYuan: 2170.5,
-    totalRevenueYuan: 35680.9,
-    selfUseRatio: 88.0,
+    selfUseKwh: 43982.4,
+    gridKwh: 3617.6,
+    selfRevenueYuan: 31887.2,
+    gridRevenueYuan: 1374.7,
+    totalRevenueYuan: 33261.9,
+    selfUseRatio: 92.4,
     status: '正常发电',
   },
   {
-    id: 'pv-07',
+    id: 'pv-02-d27',
     time: '2026-08-27',
-    park: '特变电工新疆产业园',
-    company: '新变厂',
-    projectName: '新疆变压器厂区 20MWp 分布式光伏三期',
-    capacity: '20.0 MWp',
-    powerKw: 13980.0,
-    dailyGenKwh: 84900.0,
-    selfUseKwh: 72165.0,
-    gridKwh: 12735.0,
-    selfRevenueYuan: 54123.7,
-    gridRevenueYuan: 4202.5,
-    totalRevenueYuan: 58326.2,
-    selfUseRatio: 85.0,
+    park: '特变电工南方输变电产业园',
+    company: '衡变本部',
+    projectName: '衡变本部 10.5MWp 厂房屋顶及车棚分布式光伏项目',
+    capacity: '10.5 MWp',
+    powerKw: 7100.0,
+    dailyGenKwh: 40500.0,
+    selfUseKwh: 37260.0,
+    gridKwh: 3240.0,
+    selfRevenueYuan: 27572.4,
+    gridRevenueYuan: 1231.2,
+    totalRevenueYuan: 28803.6,
+    selfUseRatio: 92.0,
+    status: '正常发电',
+  },
+  {
+    id: 'pv-04-d27',
+    time: '2026-08-27',
+    park: '特变电工超高压智能制造基地',
+    company: '超高压公司',
+    projectName: '新变超高压基地 13.9MWp 智能微网分布式光伏电站',
+    capacity: '13.9 MWp',
+    powerKw: 9680.0,
+    dailyGenKwh: 57800.0,
+    selfUseKwh: 53754.0,
+    gridKwh: 4046.0,
+    selfRevenueYuan: 37627.8,
+    gridRevenueYuan: 1537.5,
+    totalRevenueYuan: 39165.3,
+    selfUseRatio: 93.0,
     status: '正常发电',
   },
 ]
@@ -248,8 +353,8 @@ const MOCK_STORAGE_DATA: StorageMonitoringItem[] = [
   {
     id: 'st-02',
     time: '2026-08-28',
-    park: '特变电工华东输变电科技产业园',
-    company: '鲁缆本部',
+    park: '特变电工山东线缆产业园',
+    company: '鲁缆公司',
     projectName: '鲁缆公司 3MW/6MWh 智慧储能调峰电站',
     capacity: '3MW / 6MWh',
     ratedPowerKw: 3000.0,
@@ -270,7 +375,7 @@ const MOCK_STORAGE_DATA: StorageMonitoringItem[] = [
     time: '2026-08-28',
     park: '特变电工东北输变电产业园',
     company: '沈变本部',
-    projectName: '沈变本部 5MW/10MWh 工业级微网储能系统',
+    projectName: '沈变本部 5MW/10MWh 零碳工业储能电站',
     capacity: '5MW / 10MWh',
     ratedPowerKw: 5000.0,
     chargeDischargePowerKw: -2640.0,
@@ -280,17 +385,17 @@ const MOCK_STORAGE_DATA: StorageMonitoringItem[] = [
     status: '放电',
     revenueYuan: 7120.0,
     efficiency: 87.5,
-    gridChargeRatio: 25.0,
-    greenChargeRatio: 75.0,
-    criticalPeakDischargeRatio: 65.0,
-    peakDischargeRatio: 35.0,
+    gridChargeRatio: 24.0,
+    greenChargeRatio: 76.0,
+    criticalPeakDischargeRatio: 60.0,
+    peakDischargeRatio: 40.0,
   },
   {
     id: 'st-04',
     time: '2026-08-28',
-    park: '特变电工新疆电缆产业园',
-    company: '特变电工新疆线缆厂',
-    projectName: '新疆线缆 4MW/8MWh 智慧储能削峰填谷示范站',
+    park: '特变电工超高压智能制造基地',
+    company: '超高压公司',
+    projectName: '新变厂超高压 4MW/8MWh 调频储能电站',
     capacity: '4MW / 8MWh',
     ratedPowerKw: 4000.0,
     chargeDischargePowerKw: 0.0,
@@ -300,13 +405,13 @@ const MOCK_STORAGE_DATA: StorageMonitoringItem[] = [
     status: '待机',
     revenueYuan: 5380.0,
     efficiency: 86.8,
-    gridChargeRatio: 20.0,
-    greenChargeRatio: 80.0,
-    criticalPeakDischargeRatio: 55.0,
-    peakDischargeRatio: 45.0,
+    gridChargeRatio: 19.0,
+    greenChargeRatio: 81.0,
+    criticalPeakDischargeRatio: 64.0,
+    peakDischargeRatio: 36.0,
   },
   {
-    id: 'st-05',
+    id: 'st-01-d27',
     time: '2026-08-27',
     park: '特变电工南方输变电产业园',
     company: '衡变本部',
@@ -335,9 +440,9 @@ const MOCK_HEAT_PUMP_DATA: HeatPumpMonitoringItem[] = [
     id: 'hp-01',
     time: '2026-08-28',
     park: '特变电工(德阳)电缆园区',
-    company: '特变电工（德阳）电缆股份有限公司',
+    company: '德缆公司',
     projectName: '德缆产业园 2.5MW 高温工业水源热泵系统',
-    capacity: '2.5 MWth',
+    capacity: '2.5 MW (制热量)',
     cop: 3.85,
     supplyTemp: 68.5,
     returnTemp: 52.0,
@@ -355,18 +460,18 @@ const MOCK_HEAT_PUMP_DATA: HeatPumpMonitoringItem[] = [
     time: '2026-08-28',
     park: '特变电工天变产业园',
     company: '天变公司',
-    projectName: '天变公司 1.8MW 真空干燥罐冷凝余热水源热泵',
-    capacity: '1.8 MWth',
+    projectName: '天变公司 1.8MW 真空干燥罐冷凝余热梯级利用改造',
+    capacity: '1.8 MW (制热量)',
     cop: 4.12,
     supplyTemp: 72.0,
     returnTemp: 55.5,
-    heatOutputGj: 153.8,
-    powerConsumptionKwh: 10400.0,
+    heatOutputGj: 149.7,
+    powerConsumptionKwh: 10100.0,
     powerKw: 1020.0,
     pressureMpa: 1.32,
-    greenPowerRatio: 73.1,
-    peakRatio: 22.0,
-    savingsYuan: 4300.0,
+    greenPowerRatio: 78.5,
+    peakRatio: 18.0,
+    savingsYuan: 4720.0,
     status: '正常供热',
   },
   {
@@ -374,27 +479,46 @@ const MOCK_HEAT_PUMP_DATA: HeatPumpMonitoringItem[] = [
     time: '2026-08-28',
     park: '特变电工东北输变电产业园',
     company: '沈变本部',
-    projectName: '沈变厂区 3.2MW 深层地源热泵集中供暖系统',
-    capacity: '3.2 MWth',
-    cop: 3.92,
+    projectName: '沈变本部 3.2MW 地源/工业中温热泵机组',
+    capacity: '3.2 MW (制热量)',
+    cop: 3.65,
     supplyTemp: 65.0,
     returnTemp: 48.0,
-    heatOutputGj: 268.0,
-    powerConsumptionKwh: 19000.0,
+    heatOutputGj: 266.1,
+    powerConsumptionKwh: 20250.0,
     powerKw: 1850.0,
     pressureMpa: 1.18,
-    greenPowerRatio: 70.5,
-    peakRatio: 25.8,
-    savingsYuan: 7644.0,
+    greenPowerRatio: 65.0,
+    peakRatio: 30.0,
+    savingsYuan: 7650.0,
     status: '正常供热',
   },
   {
     id: 'hp-04',
+    time: '2026-08-28',
+    park: '特变电工南方输变电产业园',
+    company: '衡变本部',
+    projectName: '衡变本部 2.0MW 空气源跨临界CO₂热泵采暖系统',
+    capacity: '2.0 MW (制热量)',
+    cop: 3.90,
+    supplyTemp: 70.0,
+    returnTemp: 50.0,
+    heatOutputGj: 166.3,
+    powerConsumptionKwh: 11850.0,
+    powerKw: 1150.0,
+    pressureMpa: 1.28,
+    greenPowerRatio: 75.0,
+    peakRatio: 21.0,
+    savingsYuan: 5120.0,
+    status: '正常供热',
+  },
+  {
+    id: 'hp-01-d27',
     time: '2026-08-27',
     park: '特变电工(德阳)电缆园区',
-    company: '特变电工（德阳）电缆股份有限公司',
+    company: '德缆公司',
     projectName: '德缆产业园 2.5MW 高温工业水源热泵系统',
-    capacity: '2.5 MWth',
+    capacity: '2.5 MW (制热量)',
     cop: 3.82,
     supplyTemp: 68.0,
     returnTemp: 51.5,
@@ -409,11 +533,131 @@ const MOCK_HEAT_PUMP_DATA: HeatPumpMonitoringItem[] = [
   },
 ]
 
+// =========================================================================
+// Mock 数据集：空调监测数据
+// =========================================================================
+const MOCK_HVAC_DATA: HvacMonitoringItem[] = [
+  {
+    id: 'hvac-01',
+    time: '2026-08-28',
+    park: '特变电工(德阳)电缆园区',
+    company: '德缆公司',
+    projectName: '德缆产业园 3.2MW 变频高效冷站系统',
+    capacity: '3,200 kW (910 RT)',
+    cop: 4.38,
+    supplyTemp: 7.0,
+    returnTemp: 12.0,
+    coolingOutputGj: 245.6,
+    powerConsumptionKwh: 15600.0,
+    powerKw: 1420.0,
+    pressureMpa: 0.46,
+    greenPowerRatio: 76.5,
+    peakRatio: 21.0,
+    savingsYuan: 5840.0,
+    status: '正常供冷',
+  },
+  {
+    id: 'hvac-02',
+    time: '2026-08-28',
+    park: '特变电工新疆产业园',
+    company: '新变厂',
+    projectName: '新疆变压器厂区 特高压干燥恒温冷站',
+    capacity: '4,500 kW (1,280 RT)',
+    cop: 4.22,
+    supplyTemp: 7.2,
+    returnTemp: 12.5,
+    coolingOutputGj: 312.0,
+    powerConsumptionKwh: 20500.0,
+    powerKw: 1150.0,
+    pressureMpa: 0.48,
+    greenPowerRatio: 82.0,
+    peakRatio: 19.5,
+    savingsYuan: 7210.0,
+    status: '正常供冷',
+  },
+  {
+    id: 'hvac-03',
+    time: '2026-08-28',
+    park: '特变电工东北输变电产业园',
+    company: '沈变本部',
+    projectName: '沈变厂区 2.0MW 磁悬浮离心冷水机组',
+    capacity: '2,000 kW (570 RT)',
+    cop: 4.52,
+    supplyTemp: 6.8,
+    returnTemp: 11.9,
+    coolingOutputGj: 182.4,
+    powerConsumptionKwh: 11200.0,
+    powerKw: 580.0,
+    pressureMpa: 0.45,
+    greenPowerRatio: 68.5,
+    peakRatio: 26.2,
+    savingsYuan: 4120.0,
+    status: '正常供冷',
+  },
+  {
+    id: 'hvac-04',
+    time: '2026-08-28',
+    park: '特变电工南方输变电产业园',
+    company: '衡变本部',
+    projectName: '衡变公司 研发大楼水冷螺杆中央空调',
+    capacity: '1,200 kW (340 RT)',
+    cop: 3.95,
+    supplyTemp: 7.5,
+    returnTemp: 12.8,
+    coolingOutputGj: 120.0,
+    powerConsumptionKwh: 8900.0,
+    powerKw: 270.0,
+    pressureMpa: 0.44,
+    greenPowerRatio: 71.0,
+    peakRatio: 24.5,
+    savingsYuan: 2450.0,
+    status: '变频稳压',
+  },
+  {
+    id: 'hvac-01-d27',
+    time: '2026-08-27',
+    park: '特变电工(德阳)电缆园区',
+    company: '德缆公司',
+    projectName: '德缆产业园 3.2MW 变频高效冷站系统',
+    capacity: '3,200 kW (910 RT)',
+    cop: 4.35,
+    supplyTemp: 7.1,
+    returnTemp: 12.1,
+    coolingOutputGj: 241.0,
+    powerConsumptionKwh: 15450.0,
+    powerKw: 1410.0,
+    pressureMpa: 0.46,
+    greenPowerRatio: 76.0,
+    peakRatio: 21.5,
+    savingsYuan: 5780.0,
+    status: '正常供冷',
+  },
+  {
+    id: 'hvac-03-d27',
+    time: '2026-08-27',
+    park: '特变电工东北输变电产业园',
+    company: '沈变本部',
+    projectName: '沈变厂区 2.0MW 磁悬浮离心冷水机组',
+    capacity: '2,000 kW (570 RT)',
+    cop: 4.50,
+    supplyTemp: 6.9,
+    returnTemp: 12.0,
+    coolingOutputGj: 180.0,
+    powerConsumptionKwh: 11100.0,
+    powerKw: 575.0,
+    pressureMpa: 0.45,
+    greenPowerRatio: 68.0,
+    peakRatio: 26.5,
+    savingsYuan: 4080.0,
+    status: '正常供冷',
+  },
+]
+
 // 园区与直属企业关联关系映射字典
 const PARK_TO_ENTERPRISES_MAP: Record<string, { id: string; name: string }[]> = {
   '特变电工东北输变电产业园': [
     { id: '沈变本部', name: '沈变本部' },
-    { id: '智慧能源', name: '智慧能源' },
+    { id: '和新套管', name: '和新套管' },
     { id: '和新套管公司', name: '和新套管公司' },
     { id: '康嘉互感器', name: '康嘉互感器' },
   ],
@@ -427,12 +671,24 @@ const PARK_TO_ENTERPRISES_MAP: Record<string, { id: string; name: string }[]> = 
     { id: '超高压公司', name: '超高压公司' },
     { id: '新疆自控', name: '新疆自控' },
   ],
+  '特变电工超高压智能制造基地': [
+    { id: '超高压公司', name: '超高压公司' },
+  ],
+  '特变电工山东线缆产业园': [
+    { id: '鲁缆公司', name: '鲁缆公司' },
+    { id: '鲁缆本部', name: '鲁缆本部' },
+    { id: '智缆公司', name: '智缆公司' },
+  ],
   '特变电工新疆电缆产业园': [
     { id: '特变电工新疆线缆厂', name: '特变电工新疆线缆厂' },
     { id: '特变电工新疆电缆有限公司', name: '特变电工新疆电缆有限公司' },
   ],
   '特变电工(德阳)电缆园区': [
+    { id: '德缆公司', name: '德缆公司' },
     { id: '特变电工（德阳）电缆股份有限公司', name: '特变电工（德阳）电缆股份有限公司' },
+  ],
+  '特变电工西安变压器产业园': [
+    { id: '西变装备', name: '西变装备' },
   ],
   '特变电工天变产业园': [
     { id: '天变公司', name: '天变公司' },
@@ -446,17 +702,61 @@ const PARK_TO_ENTERPRISES_MAP: Record<string, { id: string; name: string }[]> = 
 
 export default function RealtimeMonitoringPage() {
   // 1. 分类选择：光伏 / 储能 / 热泵 (默认光伏)
-  const [categoryFilter, setCategoryFilter] = useState<'光伏' | '储能' | '热泵'>('光伏')
+  const [categoryFilter, setCategoryFilter] = useState<'光伏' | '储能' | '热泵' | '空调'>('光伏')
 
   // 2. 园区与企业过滤
   const [parkFilter, setParkFilter] = useState<string>('all')
   const [companyFilter, setCompanyFilter] = useState<string>('all')
 
-  // 3. 时间维度与日期范围
-  const [timeDim, setTimeDim] = useState<'day' | 'month'>('day')
-  const [startDate, setStartDate] = useState('2026-08-01')
-  const [endDate, setEndDate] = useState('2026-08-28')
+  // 3. 时间维度与日期范围：'day' (日) | 'month' (月) | 'custom' (自定义) (光伏模块默认'month')
+  const [timeDim, setTimeDim] = useState<'day' | 'month' | 'custom'>('month')
+  const [selectedDate, setSelectedDate] = useState('2026-08-28')
   const [selectedMonth, setSelectedMonth] = useState('2026-08')
+  const [dateRange, setDateRange] = useState({ start: '2026-08-01', end: '2026-08-28' })
+
+  // 辅助函数：计算两日期相差天数
+  const getDaysDiff = (d1: string, d2: string) => {
+    const t1 = new Date(d1).getTime()
+    const t2 = new Date(d2).getTime()
+    return Math.round(Math.abs(t2 - t1) / (1000 * 60 * 60 * 24)) + 1
+  }
+
+  // 辅助函数：给定起始日期加 N 天生成合法日期字符串
+  const addDays = (dStr: string, days: number) => {
+    const d = new Date(dStr)
+    d.setDate(d.getDate() + days)
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  }
+
+  // 自定义区间起止日期处理 (严格限制跨度 ≤ 30 天)
+  const handleCustomStartDateChange = (newStart: string) => {
+    let newEnd = dateRange.end
+    if (newStart > newEnd) {
+      newEnd = newStart
+    } else {
+      const diff = getDaysDiff(newStart, newEnd)
+      if (diff > 30) {
+        newEnd = addDays(newStart, 29)
+      }
+    }
+    setDateRange({ start: newStart, end: newEnd })
+  }
+
+  const handleCustomEndDateChange = (newEnd: string) => {
+    let newStart = dateRange.start
+    if (newEnd < newStart) {
+      newStart = newEnd
+    } else {
+      const diff = getDaysDiff(newStart, newEnd)
+      if (diff > 30) {
+        newStart = addDays(newEnd, -29)
+      }
+    }
+    setDateRange({ start: newStart, end: newEnd })
+  }
 
   // 4. 左侧组织树选中节点
   const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
@@ -549,17 +849,115 @@ export default function RealtimeMonitoringPage() {
     return true
   }
 
+  // 6. 当前监控模块与当前组织下的有效项目列表 (展示项目名称，首项支持全部叠加，100% 对齐项目运行评估)
+  const currentProjectList = useMemo(() => {
+    const list: Array<{
+      id: string
+      name: string
+      displayName: string
+      fullName: string
+    }> = []
+
+    let sourceData: Array<{ id: string; projectName: string; park: string; company: string }> = []
+    if (categoryFilter === '光伏') sourceData = MOCK_PV_DATA
+    else if (categoryFilter === '储能') sourceData = MOCK_STORAGE_DATA
+    else if (categoryFilter === '热泵') sourceData = MOCK_HEAT_PUMP_DATA
+    else if (categoryFilter === '空调') sourceData = MOCK_HVAC_DATA
+
+    const matched = sourceData.filter((item) => matchOrg(item.park, item.company))
+    const baseList = matched.length > 0 ? matched : sourceData
+
+    // 第一项：全部 (多个项目叠加)
+    list.push({
+      id: `${categoryFilter}-all`,
+      name: '全部 (多个项目叠加)',
+      displayName: '全部 (多个项目叠加)',
+      fullName: '全部 (多个项目叠加)',
+    })
+
+    const seen = new Set<string>()
+    for (const item of baseList) {
+      if (!seen.has(item.projectName)) {
+        seen.add(item.projectName)
+        list.push({
+          id: item.id,
+          name: item.projectName,
+          displayName: item.projectName,
+          fullName: item.projectName,
+        })
+      }
+    }
+    return list
+  }, [categoryFilter, selectedNode, parkFilter, companyFilter])
+
+  // 当前选中的项目名称
+  const [selectedProjectName, setSelectedProjectName] = useState<string>('全部 (多个项目叠加)')
+
+  // 🌟 光伏专属：期次切换状态 ('ALL' | '一期' | '二期')
+  const [selectedPvPhase, setSelectedPvPhase] = useState<string>('ALL')
+
+  // 🌟 光伏专属：图表内标签切换状态 ('energy' | 'revenue')
+  const [pvChartSubTab, setPvChartSubTab] = useState<'energy' | 'revenue'>('energy')
+
+  // 当项目列表更新（如切换分类或组织节点）时，自适应校准选中的项目
+  useEffect(() => {
+    if (currentProjectList.length > 0) {
+      if (!currentProjectList.some((p) => p.name === selectedProjectName)) {
+        setSelectedProjectName(currentProjectList[0].name)
+        setSelectedPvPhase('ALL')
+      }
+    } else {
+      setSelectedProjectName('')
+      setSelectedPvPhase('ALL')
+    }
+  }, [currentProjectList, selectedProjectName])
+
+  // 🌟 可缩放交互时间轴滑动区间状态 (支持各模块双图联动缩放与平移)
+  const [pvBrushRange, setPvBrushRange] = useState<{ startIndex?: number; endIndex?: number }>({})
+  const [storageBrushRange, setStorageBrushRange] = useState<{ startIndex?: number; endIndex?: number }>({})
+  const [heatPumpBrushRange, setHeatPumpBrushRange] = useState<{ startIndex?: number; endIndex?: number }>({})
+  const [hvacBrushRange, setHvacBrushRange] = useState<{ startIndex?: number; endIndex?: number }>({})
+
+  // 切换时间维度、选定日期、模块分类、项目或期次时，重置时间轴缩放区间至全景
+  useEffect(() => {
+    setPvBrushRange({})
+    setStorageBrushRange({})
+    setHeatPumpBrushRange({})
+    setHvacBrushRange({})
+  }, [timeDim, categoryFilter, selectedProjectName, selectedPvPhase, selectedDate, selectedMonth])
+
   // 1. 过滤光伏数据
   const filteredPvData = useMemo(() => {
     return MOCK_PV_DATA.filter((item) => {
       if (categoryFilter !== '光伏') return false
+      // 组织架构匹配
+      if (!matchOrg(item.park, item.company)) return false
+
+      // 项目筛选
+      if (selectedProjectName && !selectedProjectName.includes('全部') && selectedProjectName !== 'ALL') {
+        if (item.projectName !== selectedProjectName) return false
+      }
+
+      // 时间筛选
       if (timeDim === 'day') {
-        if (startDate && item.time < startDate) return false
-        if (endDate && item.time > endDate) return false
+        if (selectedDate && item.time !== selectedDate) {
+          const hasDayData = MOCK_PV_DATA.some(
+            (d) =>
+              d.time === selectedDate &&
+              (!selectedProjectName ||
+                selectedProjectName.includes('全部') ||
+                d.projectName === selectedProjectName),
+          )
+          if (hasDayData) return false
+          if (item.time !== '2026-08-28') return false
+        }
       } else if (timeDim === 'month') {
         if (selectedMonth && !item.time.startsWith(selectedMonth)) return false
+      } else if (timeDim === 'custom') {
+        if (dateRange.start && item.time < dateRange.start) return false
+        if (dateRange.end && item.time > dateRange.end) return false
       }
-      if (!matchOrg(item.park, item.company)) return false
+
       if (searchKw.trim()) {
         const kw = searchKw.toLowerCase()
         return (
@@ -571,17 +969,26 @@ export default function RealtimeMonitoringPage() {
       }
       return true
     })
-  }, [categoryFilter, timeDim, startDate, endDate, selectedMonth, parkFilter, companyFilter, selectedNode, searchKw])
+  }, [categoryFilter, selectedProjectName, selectedPvPhase, timeDim, selectedDate, selectedMonth, dateRange, parkFilter, companyFilter, selectedNode, searchKw])
 
   // 2. 过滤储能数据
   const filteredStorageData = useMemo(() => {
     return MOCK_STORAGE_DATA.filter((item) => {
       if (categoryFilter !== '储能') return false
+      if (selectedProjectName && !selectedProjectName.includes('全部') && selectedProjectName !== 'ALL' && item.projectName !== selectedProjectName) return false
       if (timeDim === 'day') {
-        if (startDate && item.time < startDate) return false
-        if (endDate && item.time > endDate) return false
+        if (selectedDate && item.time !== selectedDate) {
+          const hasDayData = MOCK_STORAGE_DATA.some(
+            (d) => d.time === selectedDate && (!selectedProjectName || selectedProjectName.includes('全部') || d.projectName === selectedProjectName),
+          )
+          if (hasDayData) return false
+          if (item.time !== '2026-08-28') return false
+        }
       } else if (timeDim === 'month') {
         if (selectedMonth && !item.time.startsWith(selectedMonth)) return false
+      } else if (timeDim === 'custom') {
+        if (dateRange.start && item.time < dateRange.start) return false
+        if (dateRange.end && item.time > dateRange.end) return false
       }
       if (!matchOrg(item.park, item.company)) return false
       if (searchKw.trim()) {
@@ -595,17 +1002,26 @@ export default function RealtimeMonitoringPage() {
       }
       return true
     })
-  }, [categoryFilter, timeDim, startDate, endDate, selectedMonth, parkFilter, companyFilter, selectedNode, searchKw])
+  }, [categoryFilter, selectedProjectName, timeDim, selectedDate, selectedMonth, dateRange, parkFilter, companyFilter, selectedNode, searchKw])
 
   // 3. 过滤热泵数据
   const filteredHeatPumpData = useMemo(() => {
     return MOCK_HEAT_PUMP_DATA.filter((item) => {
       if (categoryFilter !== '热泵') return false
+      if (selectedProjectName && !selectedProjectName.includes('全部') && selectedProjectName !== 'ALL' && item.projectName !== selectedProjectName) return false
       if (timeDim === 'day') {
-        if (startDate && item.time < startDate) return false
-        if (endDate && item.time > endDate) return false
+        if (selectedDate && item.time !== selectedDate) {
+          const hasDayData = MOCK_HEAT_PUMP_DATA.some(
+            (d) => d.time === selectedDate && (!selectedProjectName || selectedProjectName.includes('全部') || d.projectName === selectedProjectName),
+          )
+          if (hasDayData) return false
+          if (item.time !== '2026-08-28') return false
+        }
       } else if (timeDim === 'month') {
         if (selectedMonth && !item.time.startsWith(selectedMonth)) return false
+      } else if (timeDim === 'custom') {
+        if (dateRange.start && item.time < dateRange.start) return false
+        if (dateRange.end && item.time > dateRange.end) return false
       }
       if (!matchOrg(item.park, item.company)) return false
       if (searchKw.trim()) {
@@ -619,7 +1035,41 @@ export default function RealtimeMonitoringPage() {
       }
       return true
     })
-  }, [categoryFilter, timeDim, startDate, endDate, selectedMonth, parkFilter, companyFilter, selectedNode, searchKw])
+  }, [categoryFilter, selectedProjectName, timeDim, selectedDate, selectedMonth, dateRange, parkFilter, companyFilter, selectedNode, searchKw])
+
+  // 4. 过滤空调数据
+  const filteredHvacData = useMemo(() => {
+    return MOCK_HVAC_DATA.filter((item) => {
+      if (categoryFilter !== '空调') return false
+      if (selectedProjectName && !selectedProjectName.includes('全部') && selectedProjectName !== 'ALL' && item.projectName !== selectedProjectName) return false
+      if (timeDim === 'day') {
+        if (selectedDate && item.time !== selectedDate) {
+          const hasDayData = MOCK_HVAC_DATA.some(
+            (d) => d.time === selectedDate && (!selectedProjectName || selectedProjectName.includes('全部') || d.projectName === selectedProjectName),
+          )
+          if (hasDayData) return false
+          if (item.time !== '2026-08-28') return false
+        }
+      } else if (timeDim === 'month') {
+        if (selectedMonth && !item.time.startsWith(selectedMonth)) return false
+      } else if (timeDim === 'custom') {
+        if (dateRange.start && item.time < dateRange.start) return false
+        if (dateRange.end && item.time > dateRange.end) return false
+      }
+      if (!matchOrg(item.park, item.company)) return false
+      if (searchKw.trim()) {
+        const kw = searchKw.toLowerCase()
+        return (
+          item.projectName.toLowerCase().includes(kw) ||
+          item.company.toLowerCase().includes(kw) ||
+          item.park.toLowerCase().includes(kw) ||
+          item.time.includes(kw)
+        )
+      }
+      return true
+    })
+  }, [categoryFilter, selectedProjectName, timeDim, selectedDate, selectedMonth, dateRange, parkFilter, companyFilter, selectedNode, searchKw])
+
 
   // 光伏模块统计
   const pvSummary = useMemo(() => {
@@ -664,6 +1114,7 @@ export default function RealtimeMonitoringPage() {
         avgSoc: '0.0',
         totalRevenue: 0,
         avgEfficiency: '0.0',
+        operatingStatus: '待机',
       }
     }
     const totalRatedPower = filteredStorageData.reduce((acc, i) => acc + i.ratedPowerKw, 0)
@@ -674,6 +1125,13 @@ export default function RealtimeMonitoringPage() {
     const totalRevenue = filteredStorageData.reduce((acc, i) => acc + i.revenueYuan, 0)
     const avgEfficiency = ((totalDischarge / totalCharge) * 100).toFixed(1)
 
+    // 计算当前综合充放电运行状态
+    const operatingStatus = filteredStorageData.some((i) => i.status === '放电')
+      ? '放电'
+      : filteredStorageData.some((i) => i.status === '充电')
+      ? '充电'
+      : '待机'
+
     return {
       totalRatedPower: totalRatedPower.toLocaleString(),
       totalCurrentPower: totalCurrentPower.toLocaleString(),
@@ -682,6 +1140,7 @@ export default function RealtimeMonitoringPage() {
       avgSoc,
       totalRevenue: totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 1 }),
       avgEfficiency,
+      operatingStatus,
     }
   }, [filteredStorageData])
 
@@ -722,46 +1181,333 @@ export default function RealtimeMonitoringPage() {
       totalSavings: totalSavings.toLocaleString(undefined, { maximumFractionDigits: 1 }),
     }
   }, [filteredHeatPumpData])
+// 空调模块统计
+  const hvacSummary = useMemo(() => {
+    if (filteredHvacData.length === 0) {
+      return {
+        avgCop: '0.0',
+        avgSupplyTemp: '0.0',
+        avgReturnTemp: '0.0',
+        totalCooling: 0,
+        totalPowerKwh: 0,
+        totalPowerKw: 0,
+        avgPressure: '0.0',
+        avgGreenRatio: '0.0',
+        avgPeakRatio: '0.0',
+        totalSavings: 0,
+      }
+    }
+    const avgCop = (filteredHvacData.reduce((acc, i) => acc + i.cop, 0) / filteredHvacData.length).toFixed(2)
+    const avgSupplyTemp = (filteredHvacData.reduce((acc, i) => acc + i.supplyTemp, 0) / filteredHvacData.length).toFixed(1)
+    const avgReturnTemp = (filteredHvacData.reduce((acc, i) => acc + i.returnTemp, 0) / filteredHvacData.length).toFixed(1)
+    const totalCooling = filteredHvacData.reduce((acc, i) => acc + i.coolingOutputGj, 0).toFixed(1)
+    const totalPowerKwh = filteredHvacData.reduce((acc, i) => acc + i.powerConsumptionKwh, 0)
+    const totalPowerKw = filteredHvacData.reduce((acc, i) => acc + i.powerKw, 0)
+    const avgPressure = (filteredHvacData.reduce((acc, i) => acc + i.pressureMpa, 0) / filteredHvacData.length).toFixed(2)
+    const avgGreenRatio = (filteredHvacData.reduce((acc, i) => acc + i.greenPowerRatio, 0) / filteredHvacData.length).toFixed(1)
+    const avgPeakRatio = (filteredHvacData.reduce((acc, i) => acc + i.peakRatio, 0) / filteredHvacData.length).toFixed(1)
+    const totalSavings = filteredHvacData.reduce((acc, i) => acc + i.savingsYuan, 0)
+
+    return {
+      avgCop,
+      avgSupplyTemp,
+      avgReturnTemp,
+      totalCooling,
+      totalPowerKwh: totalPowerKwh.toLocaleString(),
+      totalPowerKw: totalPowerKw.toLocaleString(),
+      avgPressure,
+      avgGreenRatio,
+      avgPeakRatio,
+      totalSavings: totalSavings.toLocaleString(undefined, { maximumFractionDigits: 1 }),
+    }
+  }, [filteredHvacData])
+
 
   // 图表数据转换
   const pvChartData = useMemo(() => {
-    return [...filteredPvData]
-      .reverse()
-      .map((item) => ({
-        time: item.time.slice(5),
-        发电量: item.dailyGenKwh,
-        消纳电量: item.selfUseKwh,
-        上网电量: item.gridKwh,
-        消纳收益: item.selfRevenueYuan,
-        上网收益: item.gridRevenueYuan,
-      }))
-  }, [filteredPvData])
+    if (filteredPvData.length === 0) return []
+    // 累加所有有效项目电量与收益总额
+    const totalGen = filteredPvData.reduce((acc, i) => acc + i.dailyGenKwh, 0)
+    const totalSelf = filteredPvData.reduce((acc, i) => acc + i.selfUseKwh, 0)
+    const totalGrid = filteredPvData.reduce((acc, i) => acc + i.gridKwh, 0)
+    const totalSelfRev = filteredPvData.reduce((acc, i) => acc + i.selfRevenueYuan, 0)
+    const totalGridRev = filteredPvData.reduce((acc, i) => acc + i.gridRevenueYuan, 0)
+    const totalRev = filteredPvData.reduce((acc, i) => acc + i.totalRevenueYuan, 0)
+
+    if (timeDim === 'day') {
+      // 🌟 用户明确要求：时间选择日 -- 则为 15 分钟趋势 (全天 96 个连续采样点: 00:00, 00:15 ... 23:45)
+      // 06:00 (index 24) 至 19:00 (index 76) 之间呈现高斯平滑正弦出力钟形曲线，正午 12:30 出力最高
+      const points = 96
+      const weights: number[] = new Array(points).fill(0)
+      let sumWeight = 0
+      for (let i = 0; i < points; i++) {
+        if (i >= 24 && i <= 76) {
+          const t = (i - 24) / (76 - 24) // 0 ~ 1
+          const w = Math.pow(Math.sin(Math.PI * t), 1.8)
+          weights[i] = w
+          sumWeight += w
+        }
+      }
+      const normRatios = weights.map((w) => (sumWeight > 0 ? w / sumWeight : 0))
+
+      return Array.from({ length: points }, (_, i) => {
+        const h = Math.floor(i / 4)
+        const m = (i % 4) * 15
+        const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+        const r = normRatios[i]
+        return {
+          time: timeStr,
+          发电量: Math.round(totalGen * r),
+          消纳电量: Math.round(totalSelf * r),
+          上网电量: Math.round(totalGrid * r),
+          自消纳收益: Math.round(totalSelfRev * r),
+          上网收益: Math.round(totalGridRev * r),
+          综合日收益: Math.round(totalRev * r),
+        }
+      })
+    }
+
+    if (timeDim === 'month') {
+      // 🌟 用户明确要求：时间选择为月则横轴为日 (08-01 至 08-28)
+      return Array.from({ length: 28 }, (_, i) => {
+        const day = i + 1
+        const dayStr = `08-${String(day).padStart(2, '0')}`
+        const factor = 0.88 + (((day * 13) % 25) / 100)
+        return {
+          time: dayStr,
+          发电量: Math.round(totalGen * factor),
+          消纳电量: Math.round(totalSelf * factor),
+          上网电量: Math.round(totalGrid * factor),
+          自消纳收益: Math.round(totalSelfRev * factor),
+          上网收益: Math.round(totalGridRev * factor),
+          综合日收益: Math.round(totalRev * factor),
+        }
+      })
+    }
+
+    // 🌟 用户明确要求：自定义为选择多日 (展示选定多日时序)
+    let daysList: string[] = []
+    if (dateRange.start && dateRange.end) {
+      const d1 = new Date(dateRange.start)
+      const d2 = new Date(dateRange.end)
+      const diffDays = Math.min(31, Math.max(1, Math.round((d2.getTime() - d1.getTime()) / (1000 * 3600 * 24)) + 1))
+      daysList = Array.from({ length: diffDays }, (_, i) => {
+        const d = new Date(d1.getTime() + i * 24 * 3600 * 1000)
+        const m = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        return `${m}-${day}`
+      })
+    } else {
+      daysList = Array.from({ length: 14 }, (_, i) => `08-${String(i + 15).padStart(2, '0')}`)
+    }
+    return daysList.map((dayStr, idx) => {
+      const factor = 0.9 + (((idx * 7 + 3) % 20) / 100)
+      return {
+        time: dayStr,
+        发电量: Math.round(totalGen * factor),
+        消纳电量: Math.round(totalSelf * factor),
+        上网电量: Math.round(totalGrid * factor),
+        自消纳收益: Math.round(totalSelfRev * factor),
+        上网收益: Math.round(totalGridRev * factor),
+        综合日收益: Math.round(totalRev * factor),
+      }
+    })
+  }, [filteredPvData, timeDim, dateRange])
 
   const storageChartData = useMemo(() => {
-    return [...filteredStorageData]
-      .reverse()
-      .map((item) => ({
-        time: item.time.slice(5),
-        日充电量: item.chargeKwh,
-        日放电量: item.dischargeKwh,
-        收益: item.revenueYuan,
-        综合效率: item.efficiency,
-        SOC: item.soc,
-      }))
-  }, [filteredStorageData])
+    if (filteredStorageData.length === 0) return []
+    const cur = filteredStorageData[0] || MOCK_STORAGE_DATA[0]
+
+    if (timeDim === 'day') {
+      // 24小时逐时储能充放电模型 (工业储能两充两放典型运行曲线)
+      // 谷充(00:00-05:00) -> 待机(06:00-07:00) -> 峰放(08:00-11:00) -> 平充(12:00-13:00) -> 待机(14:00-16:00) -> 尖峰放(17:00-21:00) -> 待机(22:00-23:00)
+      const hourlySchedule: Array<{ cRatio: number; dRatio: number; soc: number; revRatio: number }> = [
+        { cRatio: 0, dRatio: 0, soc: 22, revRatio: 0 },         // 00:00
+        { cRatio: 0.18, dRatio: 0, soc: 36, revRatio: 0 },      // 01:00
+        { cRatio: 0.26, dRatio: 0, soc: 58, revRatio: 0 },      // 02:00
+        { cRatio: 0.24, dRatio: 0, soc: 78, revRatio: 0 },      // 03:00
+        { cRatio: 0.18, dRatio: 0, soc: 90, revRatio: 0 },      // 04:00
+        { cRatio: 0.04, dRatio: 0, soc: 93, revRatio: 0 },      // 05:00
+        { cRatio: 0, dRatio: 0, soc: 93, revRatio: 0 },         // 06:00
+        { cRatio: 0, dRatio: 0, soc: 93, revRatio: 0 },         // 07:00
+        { cRatio: 0, dRatio: 0.14, soc: 80, revRatio: 0.14 },   // 08:00
+        { cRatio: 0, dRatio: 0.20, soc: 60, revRatio: 0.20 },   // 09:00
+        { cRatio: 0, dRatio: 0.12, soc: 46, revRatio: 0.12 },   // 10:00
+        { cRatio: 0, dRatio: 0.04, soc: 40, revRatio: 0.04 },   // 11:00
+        { cRatio: 0.05, dRatio: 0, soc: 52, revRatio: 0 },      // 12:00
+        { cRatio: 0.05, dRatio: 0, soc: 64, revRatio: 0 },      // 13:00
+        { cRatio: 0, dRatio: 0, soc: 64, revRatio: 0 },         // 14:00
+        { cRatio: 0, dRatio: 0, soc: 64, revRatio: 0 },         // 15:00
+        { cRatio: 0, dRatio: 0, soc: 64, revRatio: 0 },         // 16:00
+        { cRatio: 0, dRatio: 0.10, soc: 54, revRatio: 0.10 },   // 17:00
+        { cRatio: 0, dRatio: 0.16, soc: 38, revRatio: 0.16 },   // 18:00
+        { cRatio: 0, dRatio: 0.14, soc: 24, revRatio: 0.14 },   // 19:00
+        { cRatio: 0, dRatio: 0.07, soc: 20, revRatio: 0.07 },   // 20:00
+        { cRatio: 0, dRatio: 0.03, soc: 20, revRatio: 0.03 },   // 21:00
+        { cRatio: 0, dRatio: 0, soc: 20, revRatio: 0 },         // 22:00
+        { cRatio: 0, dRatio: 0, soc: 20, revRatio: 0 },         // 23:00
+      ]
+
+      return hourlySchedule.map((slot, h) => {
+        const hourStr = `${String(h).padStart(2, '0')}:00`
+        return {
+          time: hourStr,
+          日充电量: Math.round(cur.chargeKwh * slot.cRatio),
+          日放电量: Math.round(cur.dischargeKwh * slot.dRatio),
+          收益: Math.round(cur.revenueYuan * slot.revRatio),
+          综合效率: cur.efficiency,
+          SOC: slot.soc,
+        }
+      })
+    }
+
+    if (timeDim === 'month') {
+      // 月度 28 天日充放电时序
+      return Array.from({ length: 28 }, (_, i) => {
+        const day = i + 1
+        const dayStr = `08-${String(day).padStart(2, '0')}`
+        const factor = 0.9 + (((day * 11) % 20) / 100)
+        return {
+          time: dayStr,
+          日充电量: Math.round(cur.chargeKwh * factor),
+          日放电量: Math.round(cur.dischargeKwh * factor),
+          收益: Math.round(cur.revenueYuan * factor),
+          综合效率: +(cur.efficiency + (((day * 3) % 15 - 7) / 10)).toFixed(1),
+          SOC: +(cur.soc + (((day * 5) % 10 - 5) / 2)).toFixed(1),
+        }
+      })
+    }
+
+    // 自定义区间时序 (14天)
+    return Array.from({ length: 14 }, (_, i) => {
+      const day = i + 15
+      const dayStr = `08-${String(day).padStart(2, '0')}`
+      const factor = 0.92 + (((day * 9) % 18) / 100)
+      return {
+        time: dayStr,
+        日充电量: Math.round(cur.chargeKwh * factor),
+        日放电量: Math.round(cur.dischargeKwh * factor),
+        收益: Math.round(cur.revenueYuan * factor),
+        综合效率: cur.efficiency,
+        SOC: cur.soc,
+      }
+    })
+  }, [filteredStorageData, timeDim])
 
   const heatPumpChartData = useMemo(() => {
-    return [...filteredHeatPumpData]
-      .reverse()
-      .map((item) => ({
-        time: item.time.slice(5),
-        制热量: item.heatOutputGj,
-        耗电量: item.powerConsumptionKwh,
-        COP: item.cop,
-        供水温度: item.supplyTemp,
-        收益: item.savingsYuan,
-      }))
-  }, [filteredHeatPumpData])
+    if (filteredHeatPumpData.length === 0) return []
+    const cur = filteredHeatPumpData[0] || MOCK_HEAT_PUMP_DATA[0]
+
+    if (timeDim === 'day') {
+      // 24小时逐时热泵运行出力模型
+      const hourlyDistribution = [
+        0.03, 0.03, 0.03, 0.03, 0.03, 0.04, 0.05, 0.06, 0.06, 0.05, 0.05, 0.04, 0.04, 0.04, 0.05, 0.05, 0.06, 0.06, 0.05, 0.04, 0.04, 0.03, 0.03, 0.03,
+      ]
+      const totalRatio = hourlyDistribution.reduce((a, b) => a + b, 0)
+      const normRatios = hourlyDistribution.map((r) => r / totalRatio)
+
+      return Array.from({ length: 24 }, (_, h) => {
+        const hourStr = `${String(h).padStart(2, '0')}:00`
+        const ratio = normRatios[h]
+        return {
+          time: hourStr,
+          制热量: +(cur.heatOutputGj * ratio).toFixed(1),
+          耗电量: Math.round(cur.powerConsumptionKwh * ratio),
+          COP: +(cur.cop * (0.95 + (h % 3) * 0.03)).toFixed(2),
+          供水温度: +(cur.supplyTemp + ((h % 4) - 2) * 0.3).toFixed(1),
+          收益: Math.round(cur.savingsYuan * ratio),
+        }
+      })
+    }
+
+    if (timeDim === 'month') {
+      return Array.from({ length: 28 }, (_, i) => {
+        const day = i + 1
+        const dayStr = `08-${String(day).padStart(2, '0')}`
+        const factor = 0.9 + (((day * 7) % 20) / 100)
+        return {
+          time: dayStr,
+          制热量: +(cur.heatOutputGj * factor).toFixed(1),
+          耗电量: Math.round(cur.powerConsumptionKwh * factor),
+          COP: +(cur.cop * (0.96 + ((day % 5) * 0.02))).toFixed(2),
+          供水温度: +(cur.supplyTemp + ((day % 3) - 1) * 0.5).toFixed(1),
+          收益: Math.round(cur.savingsYuan * factor),
+        }
+      })
+    }
+
+    return Array.from({ length: 14 }, (_, i) => {
+      const day = i + 15
+      const dayStr = `08-${String(day).padStart(2, '0')}`
+      const factor = 0.92 + (((day * 11) % 16) / 100)
+      return {
+        time: dayStr,
+        制热量: +(cur.heatOutputGj * factor).toFixed(1),
+        耗电量: Math.round(cur.powerConsumptionKwh * factor),
+        COP: cur.cop,
+        供水温度: cur.supplyTemp,
+        收益: Math.round(cur.savingsYuan * factor),
+      }
+    })
+  }, [filteredHeatPumpData, timeDim])
+
+  const hvacChartData = useMemo(() => {
+    if (filteredHvacData.length === 0) return []
+    const cur = filteredHvacData[0] || MOCK_HVAC_DATA[0]
+
+    if (timeDim === 'day') {
+      // 24小时逐时空调负荷出力模型 (日间生产班次制冷为主)
+      const hourlyDistribution = [
+        0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.03, 0.05, 0.07, 0.08, 0.09, 0.10, 0.10, 0.10, 0.09, 0.07, 0.05, 0.04, 0.03, 0.02, 0.01, 0.01, 0.01, 0.01,
+      ]
+      const totalRatio = hourlyDistribution.reduce((a, b) => a + b, 0)
+      const normRatios = hourlyDistribution.map((r) => r / totalRatio)
+
+      return Array.from({ length: 24 }, (_, h) => {
+        const hourStr = `${String(h).padStart(2, '0')}:00`
+        const ratio = normRatios[h]
+        return {
+          time: hourStr,
+          制冷量: +(cur.coolingOutputGj * ratio).toFixed(1),
+          耗电量: Math.round(cur.powerConsumptionKwh * ratio),
+          COP: +(cur.cop * (0.96 + (h % 3) * 0.02)).toFixed(2),
+          供水温度: +(cur.supplyTemp + ((h % 3) - 1) * 0.2).toFixed(1),
+          收益: Math.round(cur.savingsYuan * ratio),
+        }
+      })
+    }
+
+    if (timeDim === 'month') {
+      return Array.from({ length: 28 }, (_, i) => {
+        const day = i + 1
+        const dayStr = `08-${String(day).padStart(2, '0')}`
+        const factor = 0.88 + (((day * 13) % 24) / 100)
+        return {
+          time: dayStr,
+          制冷量: +(cur.coolingOutputGj * factor).toFixed(1),
+          耗电量: Math.round(cur.powerConsumptionKwh * factor),
+          COP: +(cur.cop * (0.95 + ((day % 4) * 0.03))).toFixed(2),
+          供水温度: +(cur.supplyTemp + (day % 2 ? 0.2 : -0.2)).toFixed(1),
+          收益: Math.round(cur.savingsYuan * factor),
+        }
+      })
+    }
+
+    return Array.from({ length: 14 }, (_, i) => {
+      const day = i + 15
+      const dayStr = `08-${String(day).padStart(2, '0')}`
+      const factor = 0.9 + (((day * 8) % 20) / 100)
+      return {
+        time: dayStr,
+        制冷量: +(cur.coolingOutputGj * factor).toFixed(1),
+        耗电量: Math.round(cur.powerConsumptionKwh * factor),
+        COP: cur.cop,
+        供水温度: cur.supplyTemp,
+        收益: Math.round(cur.savingsYuan * factor),
+      }
+    })
+  }, [filteredHvacData, timeDim])
+
 
   return (
     <div className="flex gap-3.5 items-start font-sans pb-10">
@@ -784,79 +1530,112 @@ export default function RealtimeMonitoringPage() {
       {/* 🌟 右侧主监控工作台 */}
       <div className="flex-1 min-w-0 flex flex-col gap-3.5">
         {/* 1. 顶部 Header */}
-        <div className="bg-card p-3.5 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-white dark:bg-card p-3.5 rounded-xl border border-slate-200 dark:border-border shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
+            <div className="size-9 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-[#2C7CFF] shrink-0">
               <Activity className="size-5 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-foreground">
+              <h1 className="text-base font-bold text-slate-800 dark:text-slate-100">
                 实时监控
               </h1>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* 时间维度切换：日 / 月 */}
-            <div className="flex items-center bg-panel p-0.5 rounded-lg border border-border text-xs font-sans">
-              <button
-                type="button"
-                onClick={() => setTimeDim('day')}
-                className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'day' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
-                )}
-              >
-                日
-              </button>
+            {/* 时间维度切换：日 / 月 / 自定义 (光伏模块下隐藏"日") */}
+            <div className="flex items-center gap-1 p-0.5 rounded-lg text-sm font-sans">
+              {categoryFilter !== '光伏' && (
+                <button
+                  type="button"
+                  onClick={() => setTimeDim('day')}
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                    timeDim === 'day'
+                      ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800',
+                  )}
+                >
+                  日
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setTimeDim('month')}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground',
+                  'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                  timeDim === 'month'
+                    ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800',
                 )}
               >
                 月
               </button>
+              <button
+                type="button"
+                onClick={() => setTimeDim('custom')}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                  timeDim === 'custom'
+                    ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800',
+                )}
+              >
+                自定义
+              </button>
             </div>
 
-            {/* 日期选择器 */}
+            {/* 1. 日维度：单一日期选择器 (选择具体某一天) */}
             {timeDim === 'day' && (
-              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+              <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 h-9 rounded-lg border border-[#E2E8F0] dark:border-slate-700 text-sm shadow-xs font-mono">
+                <Calendar className="size-4 text-slate-400 shrink-0" />
                 <input
                   type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
-                  title="起始日期"
-                />
-                <span className="text-muted-foreground font-sans">至</span>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer"
-                  title="结束日期"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 dark:text-slate-200 text-sm focus:outline-none cursor-pointer"
+                  title="选择具体监测日期"
                 />
               </div>
             )}
 
+            {/* 2. 月维度：单一月份选择器 (选择具体某个月) */}
             {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-panel px-2.5 py-1 rounded-lg border border-border text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-muted-foreground shrink-0" />
+              <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 h-9 rounded-lg border border-[#E2E8F0] dark:border-slate-700 text-sm shadow-xs font-mono">
+                <Calendar className="size-4 text-slate-400 shrink-0" />
                 <input
                   type="month"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="bg-transparent border-0 text-foreground text-xs focus:outline-none cursor-pointer font-bold"
-                  title="选择指定月份"
+                  className="bg-transparent border-0 text-slate-700 dark:text-slate-200 text-sm focus:outline-none cursor-pointer font-bold"
+                  title="选择具体监测月份"
                 />
               </div>
             )}
 
-            {/* 导出按钮 */}
+            {/* 3. 自定义维度：起始日期 至 结束日期 (严格限制 ≤ 30 天) */}
+            {timeDim === 'custom' && (
+              <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 h-9 rounded-lg border border-[#E2E8F0] dark:border-slate-700 text-sm shadow-xs font-mono">
+                <Calendar className="size-4 text-slate-400 shrink-0" />
+                <input
+                  type="date"
+                  value={dateRange.start}
+                  onChange={(e) => handleCustomStartDateChange(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 dark:text-slate-200 text-sm focus:outline-none cursor-pointer"
+                  title="自定义起始日期 (最多可选30天)"
+                />
+                <span className="text-slate-400 font-sans text-xs">至</span>
+                <input
+                  type="date"
+                  value={dateRange.end}
+                  onChange={(e) => handleCustomEndDateChange(e.target.value)}
+                  className="bg-transparent border-0 text-slate-700 dark:text-slate-200 text-sm focus:outline-none cursor-pointer"
+                  title="自定义结束日期 (最多可选30天)"
+                />
+              </div>
+            )}
+
+            {/* 统一规范导出按钮 (80px * 36px, 8px 圆角, #2C7CFF 蓝底白字) */}
             <button
               type="button"
               onClick={() =>
@@ -864,116 +1643,69 @@ export default function RealtimeMonitoringPage() {
                   `已成功导出【${selectedNode.name}】${categoryFilter}模块实时监测数据报表！`,
                 )
               }
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-panel hover:bg-accent/40 text-foreground text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              className="w-[80px] h-[36px] bg-[#2C7CFF] hover:bg-[#1E6BFF] text-white rounded-lg flex items-center justify-center gap-1.5 text-sm font-medium shadow-xs transition-colors shrink-0 cursor-pointer"
+              title="导出当前监测数据报表"
             >
-              <Download className="size-3.5 text-muted-foreground" />
-              <span>导出报表</span>
+              <Download className="size-4 text-white" />
+              <span>导出</span>
             </button>
           </div>
         </div>
 
-        {/* 🌟 2. 核心分类与园区/企业筛选工具栏 */}
-        <div className="bg-card p-3 rounded-xl border border-border shadow-xs flex flex-wrap items-center justify-between gap-3 font-sans">
-          <div className="flex flex-wrap items-center gap-3">
-            {/* 分类切换按钮组：光伏 / 储能 / 热泵 */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-foreground whitespace-nowrap">监控模块：</span>
-              <div className="flex items-center gap-1 bg-panel p-0.5 rounded-lg border border-border text-xs font-sans">
-                {[
-                  { key: '光伏', label: '☀️ 光伏' },
-                  { key: '储能', label: '🔋 储能' },
-                  { key: '热泵', label: '♨️ 热泵' },
-                ].map((tab) => (
+        {/* 🌟 2. 核心监控模块分类切换 与 切换项目 Tab 栏 (relative z-10 保证浮于卡片之上，同时不遮挡顶栏 z-40 浮层) */}
+        <div className="relative z-10 bg-white dark:bg-card p-3 rounded-xl border border-slate-200 dark:border-border shadow-xs flex flex-wrap items-center justify-between gap-3 font-sans">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap">监控模块：</span>
+            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#0d1b29] p-0.5 dark:p-[3px] rounded-lg border border-slate-200 dark:border-[#133748] text-xs font-sans">
+              {[
+                { key: '光伏', label: '光伏', icon: '☀️' },
+                { key: '储能', label: '储能', icon: '🔋' },
+                { key: '热泵', label: '热泵', icon: '♨️' },
+                { key: '空调', label: '空调', icon: '❄️' },
+              ].map((tab) => {
+                const isActive = categoryFilter === tab.key
+                return (
                   <button
                     key={tab.key}
                     type="button"
-                    onClick={() => setCategoryFilter(tab.key as any)}
+                    onClick={() => {
+                      const nextCat = tab.key as any
+                      setCategoryFilter(nextCat)
+                      if (nextCat === '光伏' && timeDim === 'day') {
+                        setTimeDim('month')
+                      }
+                    }}
                     className={cn(
-                      'px-3.5 py-1.5 rounded-md transition-all cursor-pointer font-bold text-xs flex items-center gap-1.5 select-none',
-                      categoryFilter === tab.key
-                        ? 'bg-primary text-primary-foreground shadow-xs'
-                        : 'text-muted-foreground hover:text-foreground',
+                      'h-7 px-3.5 rounded-md transition-all cursor-pointer font-bold text-xs flex items-center gap-1.5 select-none',
+                      isActive
+                        ? 'tbea-tab-cyan-active shadow-xs dark:shadow-none'
+                        : 'text-slate-600 hover:text-slate-900 dark:text-[#879ca8] dark:hover:text-white bg-transparent dark:bg-transparent',
                     )}
                   >
+                    <span>{tab.icon}</span>
                     <span>{tab.label}</span>
                   </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 园区下拉选择框 */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-foreground whitespace-nowrap">所属园区：</span>
-              <select
-                value={parkFilter}
-                onChange={(e) => handleParkChange(e.target.value)}
-                className="h-8 px-2.5 rounded-lg border border-border bg-panel text-xs text-foreground font-medium focus:outline-none focus:border-primary shadow-2xs cursor-pointer"
-              >
-                <option value="all" className="bg-card text-foreground">全部园区 (全集团 15 园区)</option>
-                <option value="特变电工东北输变电产业园" className="bg-card text-foreground">特变电工东北输变电产业园 (沈阳)</option>
-                <option value="特变电工南方输变电产业园" className="bg-card text-foreground">特变电工南方输变电产业园 (衡阳)</option>
-                <option value="特变电工新疆产业园" className="bg-card text-foreground">特变电工新疆产业园 (乌鲁木齐)</option>
-                <option value="特变电工新疆电缆产业园" className="bg-card text-foreground">特变电工新疆电缆产业园 (昌吉)</option>
-                <option value="特变电工(德阳)电缆园区" className="bg-card text-foreground">特变电工(德阳)电缆园区 (德阳)</option>
-                <option value="特变电工天变产业园" className="bg-card text-foreground">特变电工天变产业园 (天津)</option>
-                <option value="特变电工华东输变电科技产业园" className="bg-card text-foreground">特变电工华东输变电科技产业园 (新泰)</option>
-              </select>
-            </div>
-
-            {/* 企业下拉选择框 */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-foreground whitespace-nowrap">所属企业：</span>
-              <select
-                value={companyFilter}
-                onChange={(e) => handleCompanyChange(e.target.value)}
-                className="h-8 px-2.5 rounded-lg border border-border bg-panel text-xs text-foreground font-medium focus:outline-none focus:border-primary shadow-2xs max-w-[220px] cursor-pointer"
-              >
-                <option value="all" className="bg-card text-foreground">全部所属企业</option>
-                {availableCompanies ? (
-                  availableCompanies.map((c) => (
-                    <option key={c.id} value={c.name} className="bg-card text-foreground">
-                      {c.name}
-                    </option>
-                  ))
-                ) : (
-                  <>
-                    <option value="沈变本部" className="bg-card text-foreground">沈变本部</option>
-                    <option value="衡变本部" className="bg-card text-foreground">衡变本部</option>
-                    <option value="新变厂" className="bg-card text-foreground">新变厂</option>
-                    <option value="特变电工新疆线缆厂" className="bg-card text-foreground">特变电工新疆线缆厂</option>
-                    <option value="特变电工（德阳）电缆股份有限公司" className="bg-card text-foreground">特变电工（德阳）电缆股份有限公司</option>
-                    <option value="天变公司" className="bg-card text-foreground">天变公司</option>
-                    <option value="鲁缆本部" className="bg-card text-foreground">鲁缆本部</option>
-                  </>
-                )}
-              </select>
+                )
+              })}
             </div>
           </div>
 
-          {/* 右侧搜索 */}
-          <div className="flex items-center gap-2">
-            <div className="relative w-52">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="搜索项目/日期/基地..."
-                value={searchKw}
-                onChange={(e) => setSearchKw(e.target.value)}
-                className="w-full h-8 pl-8 pr-2.5 text-xs rounded-lg border border-border bg-panel text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-              />
-            </div>
-            {(parkFilter !== 'all' || companyFilter !== 'all' || searchKw) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setParkFilter('all')
-                  setCompanyFilter('all')
-                  setSearchKw('')
+          {/* 右侧：切换项目 Tab 页 与 更多浮层 */}
+          <div className="flex items-center gap-1.5 min-w-0 flex-1 justify-end">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap shrink-0">
+              切换项目：
+            </span>
+            {currentProjectList.length > 0 ? (
+              <CollapsibleProjectBar
+                items={currentProjectList}
+                activeItem={selectedProjectName}
+                onSelect={(proj) => {
+                  setSelectedProjectName(proj.name)
+                  setSelectedPvPhase('ALL')
                 }}
-                className="text-[11px] text-muted-foreground hover:text-rose-400 font-bold px-1.5 py-1 rounded transition-colors cursor-pointer"
-              >
-                重置
-              </button>
+              />
+            ) : (
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-sans">当前组织暂无相关项目</span>
             )}
           </div>
         </div>
@@ -983,194 +1715,220 @@ export default function RealtimeMonitoringPage() {
         {/* ══════════════════════════════════════════════════════════════════ */}
         {categoryFilter === '光伏' && (
           <div className="space-y-3.5">
-            {/* 光伏 6 大核心 KPI 指标卡片 */}
+            {/* 光伏 6 大核心 KPI 指标卡片 (用户指定指标全面覆盖) */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <div className="flex items-center justify-between text-slate-400 mb-1">
                   <span className="text-[11px]">发电功率</span>
-                  <Zap className="size-3.5 text-amber-400" />
+                  <Zap className="size-3.5 text-amber-500" />
                 </div>
-                <div className="text-base font-bold font-mono text-foreground">
-                  {pvSummary.totalPower} <span className="text-xs font-normal text-muted-foreground">kW</span>
+                <div className="text-base font-bold font-mono text-slate-800">
+                  {pvSummary.totalPower} <span className="text-xs font-normal">kW</span>
                 </div>
-                <div className="text-[10px] text-amber-400 font-mono mt-0.5">实时逆变输出</div>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <div className="flex items-center justify-between text-slate-400 mb-1">
                   <span className="text-[11px]">发电量</span>
-                  <Sun className="size-3.5 text-amber-400" />
+                  <Sun className="size-3.5 text-amber-600" />
                 </div>
-                <div className="text-base font-bold font-mono text-amber-400">
-                  {pvSummary.totalGen} <span className="text-xs font-normal text-muted-foreground">kWh</span>
+                <div className="text-base font-bold font-mono text-amber-600">
+                  {pvSummary.totalGen} <span className="text-xs font-normal">kWh</span>
                 </div>
-                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">当期累计发电</div>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <div className="flex items-center justify-between text-slate-400 mb-1">
                   <span className="text-[11px]">消纳电量</span>
-                  <Activity className="size-3.5 text-emerald-400" />
+                  <Activity className="size-3.5 text-emerald-500" />
                 </div>
-                <div className="text-base font-bold font-mono text-emerald-400">
-                  {pvSummary.totalSelf} <span className="text-xs font-normal text-muted-foreground">kWh</span>
-                </div>
-                <div className="text-[10px] text-emerald-400 font-mono mt-0.5">
-                  就地消纳率 {pvSummary.avgSelfRatio}%
+                <div className="text-base font-bold font-mono text-emerald-600">
+                  {pvSummary.totalSelf} <span className="text-xs font-normal">kWh</span>
                 </div>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <div className="flex items-center justify-between text-slate-400 mb-1">
                   <span className="text-[11px]">上网电量</span>
-                  <ArrowUpRight className="size-3.5 text-primary" />
+                  <ArrowUpRight className="size-3.5 text-blue-500" />
                 </div>
-                <div className="text-base font-bold font-mono text-primary">
-                  {pvSummary.totalGrid} <span className="text-xs font-normal text-muted-foreground">kWh</span>
+                <div className="text-base font-bold font-mono text-blue-600">
+                  {pvSummary.totalGrid} <span className="text-xs font-normal">kWh</span>
                 </div>
-                <div className="text-[10px] text-primary font-mono mt-0.5">反送公用电网</div>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
-                  <span className="text-[11px]">消纳收益</span>
-                  <Coins className="size-3.5 text-emerald-400" />
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <div className="flex items-center justify-between text-slate-400 mb-1">
+                  <span className="text-[11px]">自消纳收益</span>
+                  <Coins className="size-3.5 text-emerald-600" />
                 </div>
-                <div className="text-base font-bold font-mono text-emerald-400">
+                <div className="text-base font-bold font-mono text-emerald-600">
                   ¥{pvSummary.totalSelfRev}
                 </div>
-                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">自发自用节电费</div>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <div className="flex items-center justify-between text-slate-400 mb-1">
                   <span className="text-[11px]">上网收益</span>
-                  <Coins className="size-3.5 text-primary" />
+                  <Coins className="size-3.5 text-blue-600" />
                 </div>
-                <div className="text-base font-bold font-mono text-primary">
+                <div className="text-base font-bold font-mono text-blue-600">
                   ¥{pvSummary.totalGridRev}
                 </div>
-                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">燃煤标杆售电</div>
               </div>
             </div>
 
-            {/* 光伏图表时序展示 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
-                <div className="flex items-center justify-between">
+            {/* 🌟 用户指定：两个平衡趋势合并为一个图，用标签切换 (电量平衡趋势 / 收益对比趋势) */}
+            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3 font-sans">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-amber-400" />
-                    <h3 className="text-xs font-bold text-foreground">
-                      光伏发电量与消纳/上网时序平衡趋势
+                    <span className="size-2 rounded-full bg-amber-500" />
+                    <h3 className="text-xs font-bold text-slate-800">
+                      能效分析
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-muted-foreground">电量 (kWh)</span>
+
+                  {/* 🌟 核心标签切换 */}
+                  <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setPvChartSubTab('energy')}
+                      className={cn(
+                        'px-3 py-1 rounded-md transition-all cursor-pointer font-bold text-xs flex items-center gap-1.5 select-none',
+                        pvChartSubTab === 'energy'
+                          ? 'bg-white text-[#2C7CFF] shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900',
+                      )}
+                    >
+                      <Zap className="size-3 text-amber-500" />
+                      <span>电量平衡趋势</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPvChartSubTab('revenue')}
+                      className={cn(
+                        'px-3 py-1 rounded-md transition-all cursor-pointer font-bold text-xs flex items-center gap-1.5 select-none',
+                        pvChartSubTab === 'revenue'
+                          ? 'bg-white text-[#2C7CFF] shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900',
+                      )}
+                    >
+                      <Coins className="size-3 text-emerald-500" />
+                      <span>收益对比趋势</span>
+                    </button>
+                  </div>
                 </div>
-                <div className="h-[240px]">
+
+                <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+                  <span>单位：{pvChartSubTab === 'energy' ? 'kWh' : '元'}</span>
+                </div>
+              </div>
+
+              <div className="h-[280px]">
+                {pvChartSubTab === 'energy' ? (
                   <LineTrend
                     data={pvChartData}
                     xKey="time"
-                    height={240}
+                    height={280}
+                    xInterval={timeDim === 'day' ? 7 : timeDim === 'month' ? 2 : 1}
+                    showBrush={true}
+                    brushStartIndex={pvBrushRange.startIndex}
+                    brushEndIndex={pvBrushRange.endIndex}
+                    onBrushChange={setPvBrushRange}
                     lines={[
                       { key: '发电量', name: '日发电量 (kWh)', color: '#fa8c16' },
-                      { key: '消纳电量', name: '消纳电量 (kWh)', color: '#10b981' },
-                      { key: '上网电量', name: '上网电量 (kWh)', color: '#3b82f6' },
+                      { key: '消纳电量', name: '消纳电量 (kWh)', color: '#52c41a' },
+                      { key: '上网电量', name: '上网电量 (kWh)', color: '#2C7CFF' },
                     ]}
                   />
-                </div>
-              </div>
-
-              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-emerald-400" />
-                    <h3 className="text-xs font-bold text-foreground">
-                      光伏自用消纳节费与上网售电收益对比
-                    </h3>
-                  </div>
-                  <span className="text-[10px] font-mono text-muted-foreground">收益 (元)</span>
-                </div>
-                <div className="h-[240px]">
+                ) : (
                   <LineTrend
                     data={pvChartData}
                     xKey="time"
-                    height={240}
+                    height={280}
+                    xInterval={timeDim === 'day' ? 7 : timeDim === 'month' ? 2 : 1}
+                    showBrush={true}
+                    brushStartIndex={pvBrushRange.startIndex}
+                    brushEndIndex={pvBrushRange.endIndex}
+                    onBrushChange={setPvBrushRange}
                     lines={[
-                      { key: '消纳收益', name: '消纳节费收益 (元)', color: '#10b981' },
+                      { key: '自消纳收益', name: '自消纳收益 (元)', color: '#10b981' },
                       { key: '上网收益', name: '余电上网收益 (元)', color: '#3b82f6' },
+                      { key: '综合日收益', name: '综合日总收益 (元)', color: '#f59e0b' },
                     ]}
                   />
-                </div>
+                )}
               </div>
             </div>
 
-            {/* 光伏监测数据表格 */}
-            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-border/60 flex items-center justify-between bg-panel">
+            {/* 光伏监测数据表格 (严格包含用户指定的全部 6 大字段) */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-amber-400" />
-                  <h3 className="text-xs font-bold text-foreground">光伏项目实时发电与消纳台账表</h3>
-                  <span className="text-[10px] text-muted-foreground font-mono">共 {filteredPvData.length} 个项目</span>
+                  <span className="size-2 rounded-full bg-amber-500" />
+                  <h3 className="text-xs font-bold text-slate-800">项目台账</h3>
                 </div>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border h-[44px]">
+                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 h-[44px]">
+                      <th className="py-2.5 px-3 whitespace-nowrap">时间</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap">所属园区/企业</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap">建设单位</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">装机容量</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap text-right">发电功率 (kW)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">发电量 (kWh)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">消纳电量 (kWh)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">上网电量 (kWh)</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap text-right">消纳收益 (元)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">自消纳收益 (元)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">上网收益 (元)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">综合日收益 (元)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">消纳比例</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap text-center">运行状态</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/60 font-mono text-foreground">
+                  <tbody className="divide-y divide-slate-100 font-mono">
                     {filteredPvData.map((item) => (
-                      <tr key={item.id} className="hover:bg-accent/30 transition-colors h-[44px]">
-                        <td className="py-2.5 px-3 font-sans font-bold text-foreground">
-                          {item.projectName}
+                      <tr key={item.id} className="hover:bg-amber-50/40 transition-colors h-[44px]">
+                        <td className="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
+                          {item.time}
                         </td>
-                        <td className="py-2.5 px-3 font-sans text-muted-foreground">
+                        <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
+                          <div className="flex items-center gap-1.5">
+                            <span>{item.projectName}</span>
+                            {item.phase && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+                                {item.phase}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-3 font-sans text-slate-600">
                           <div>{item.company}</div>
-                          <div className="text-[10px] text-muted-foreground/70">{item.park}</div>
+                          <div className="text-[10px] text-slate-400">{item.park}</div>
                         </td>
-                        <td className="py-2.5 px-3 font-bold text-amber-400">{item.capacity}</td>
-                        <td className="py-2.5 px-3 text-right font-bold text-amber-400">
-                          {item.powerKw.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                        <td className="py-2.5 px-3 font-bold text-amber-700 whitespace-nowrap">{item.capacity}</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                           {item.dailyGenKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                           {item.selfUseKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-primary">
+                        <td className="py-2.5 px-3 text-right font-bold text-blue-600">
                           {item.gridKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                           ¥{item.selfRevenueYuan.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-primary">
+                        <td className="py-2.5 px-3 text-right font-bold text-blue-600">
                           ¥{item.gridRevenueYuan.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-700">
                           ¥{item.totalRevenueYuan.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
                           {item.selfUseRatio}%
-                        </td>
-                        <td className="py-2.5 px-3 text-center">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-sans font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                            {item.status}
-                          </span>
                         </td>
                       </tr>
                     ))}
@@ -1186,226 +1944,203 @@ export default function RealtimeMonitoringPage() {
         {/* ══════════════════════════════════════════════════════════════════ */}
         {categoryFilter === '储能' && (
           <div className="space-y-3.5">
-            {/* 储能 8 大核心 KPI 指标卡片 (2行展示，每行4张) */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
-                  <span className="text-[11px]">额定功率</span>
-                  <Gauge className="size-3.5 text-primary" />
-                </div>
-                <div className="text-base font-bold font-mono text-foreground">
-                  {storageSummary.totalRatedPower}
-                </div>
-                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">kW (装机总容量)</div>
-              </div>
-
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
-                  <span className="text-[11px]">充放电功率</span>
-                  <Zap className="size-3.5 text-emerald-400" />
-                </div>
-                <div className="text-base font-bold font-mono text-emerald-400">
-                  {storageSummary.totalCurrentPower}
-                </div>
-                <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">kW (实时负荷)</div>
-              </div>
-
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
-                  <span className="text-[11px]">充电量</span>
-                  <BatteryCharging className="size-3.5 text-primary" />
-                </div>
-                <div className="text-base font-bold font-mono text-primary">
-                  {storageSummary.totalCharge}
-                </div>
-                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">kWh (当期累计)</div>
-              </div>
-
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
-                  <span className="text-[11px]">放电量</span>
-                  <TrendingUp className="size-3.5 text-emerald-400" />
-                </div>
-                <div className="text-base font-bold font-mono text-emerald-400">
-                  {storageSummary.totalDischarge}
-                </div>
-                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">kWh (削峰释放)</div>
-              </div>
-
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
-                  <span className="text-[11px]">当前 SOC</span>
-                  <BatteryCharging className="size-3.5 text-purple-400" />
-                </div>
-                <div className="text-base font-bold font-mono text-purple-400">
-                  {storageSummary.avgSoc}%
-                </div>
-                <div className="text-[10px] text-purple-400 font-mono mt-0.5">荷电状态均值</div>
-              </div>
-
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
-                  <span className="text-[11px]">实时状态</span>
-                  <Radio className="size-3.5 text-emerald-400 animate-pulse" />
-                </div>
-                <div className="text-base font-bold font-sans text-emerald-400">
-                  放电消纳中
-                </div>
-                <div className="text-[10px] text-muted-foreground font-mono mt-0.5">晚高峰顶峰调度</div>
-              </div>
-
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
-                  <span className="text-[11px]">收益 (按日)</span>
-                  <Coins className="size-3.5 text-emerald-400" />
-                </div>
-                <div className="text-base font-bold font-mono text-emerald-400">
-                  ¥{storageSummary.totalRevenue}
-                </div>
-                <div className="text-[10px] text-emerald-400/80 font-mono mt-0.5">峰谷套利净额</div>
-              </div>
-
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground mb-1">
-                  <span className="text-[11px]">综合效率 (日)</span>
-                  <Gauge className="size-3.5 text-primary" />
-                </div>
-                <div className="text-base font-bold font-mono text-primary">
-                  {storageSummary.avgEfficiency}%
-                </div>
-                <div className="text-[10px] text-primary font-mono mt-0.5">全系统转换比</div>
-              </div>
-            </div>
-
-            {/* 储能图表双栏展示 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-primary" />
-                    <h3 className="text-xs font-bold text-foreground">
-                      储能充放电量时序与套利收益趋势
-                    </h3>
+            {/* 储能 6 大核心 KPI 指标卡片 (单行6列展示) */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
+              {/* 1. 充放电功率 */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px]">充放电功率</span>
+                      <span
+                        className={cn(
+                          'px-1.5 py-0.2 rounded text-[10px] font-sans font-bold border',
+                          storageSummary.operatingStatus === '放电'
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200/60'
+                            : storageSummary.operatingStatus === '充电'
+                            ? 'bg-blue-50 text-blue-600 border-blue-200/60'
+                            : 'bg-slate-50 text-slate-600 border-slate-200/60',
+                        )}
+                      >
+                        {storageSummary.operatingStatus}
+                      </span>
+                    </div>
+                    <Zap
+                      className={cn(
+                        'size-3.5',
+                        storageSummary.operatingStatus === '放电' ? 'text-emerald-500' : 'text-blue-500',
+                      )}
+                    />
                   </div>
-                  <span className="text-[10px] font-mono text-muted-foreground">电量 (kWh) / 收益 (元)</span>
+                  <div
+                    className={cn(
+                      'text-base font-bold font-mono',
+                      storageSummary.operatingStatus === '放电' ? 'text-emerald-600' : 'text-blue-600',
+                    )}
+                  >
+                    {storageSummary.totalCurrentPower} <span className="text-xs font-normal">kW</span>
+                  </div>
                 </div>
-                <div className="h-[240px]">
-                  <LineTrend
-                    data={storageChartData}
-                    xKey="time"
-                    height={240}
-                    lines={[
-                      { key: '日充电量', name: '日充电量 (kWh)', color: '#1677ff' },
-                      { key: '日放电量', name: '日放电量 (kWh)', color: '#10b981' },
-                      { key: '收益', name: '套利收益 (元)', color: '#fa8c16' },
-                    ]}
-                  />
+                <div className="text-[10px] text-slate-400 font-mono mt-1">15:30:00</div>
+              </div>
+
+              {/* 2. 充电量 */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="text-[11px]">充电量</span>
+                    <BatteryCharging className="size-3.5 text-blue-500" />
+                  </div>
+                  <div className="text-base font-bold font-mono text-blue-600">
+                    {storageSummary.totalCharge} <span className="text-xs font-normal">kWh</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-purple-400" />
-                    <h3 className="text-xs font-bold text-foreground">
-                      储能综合充放效率与 SOC 荷电状态跟踪
-                    </h3>
+              {/* 3. 放电量 */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="text-[11px]">放电量</span>
+                    <TrendingUp className="size-3.5 text-emerald-500" />
                   </div>
-                  <span className="text-[10px] font-mono text-muted-foreground">百分比 (%)</span>
+                  <div className="text-base font-bold font-mono text-emerald-600">
+                    {storageSummary.totalDischarge} <span className="text-xs font-normal">kWh</span>
+                  </div>
                 </div>
-                <div className="h-[240px]">
-                  <LineTrend
-                    data={storageChartData}
-                    xKey="time"
-                    height={240}
-                    lines={[
-                      { key: '综合效率', name: '综合效率 (%)', color: '#722ed1' },
-                      { key: 'SOC', name: 'SOC 荷电 (%)', color: '#13c2c2' },
-                    ]}
-                  />
+              </div>
+
+              {/* 4. 当前 SOC */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="text-[11px]">当前 SOC</span>
+                    <BatteryCharging className="size-3.5 text-purple-500" />
+                  </div>
+                  <div className="text-base font-bold font-mono text-purple-600">
+                    {storageSummary.avgSoc}%
+                  </div>
+                </div>
+                <div className="text-[10px] text-slate-400 font-mono mt-1">15:30:00</div>
+              </div>
+
+              {/* 5. 收益 (按日) */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="text-[11px]">收益 (按日)</span>
+                    <Coins className="size-3.5 text-emerald-600" />
+                  </div>
+                  <div className="text-base font-bold font-mono text-emerald-600">
+                    ¥{storageSummary.totalRevenue}
+                  </div>
+                </div>
+              </div>
+
+              {/* 6. 综合效率 (日) */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="text-[11px]">综合效率 (日)</span>
+                    <Gauge className="size-3.5 text-[#2C7CFF]" />
+                  </div>
+                  <div className="text-base font-bold font-mono text-[#2C7CFF]">
+                    {storageSummary.avgEfficiency}%
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* 储能监测数据表格 */}
-            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-border/60 flex items-center justify-between bg-panel">
+            {/* 储能图表时序展示 (合并为一个表：充放电量、套利收益、综合效率、SOC) */}
+            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-primary" />
-                  <h3 className="text-xs font-bold text-foreground">储能电站实时运行监测台账表</h3>
-                  <span className="text-[10px] text-muted-foreground font-mono">共 {filteredStorageData.length} 个电站</span>
+                  <span className="size-2 rounded-full bg-blue-500" />
+                  <h3 className="text-xs font-bold text-slate-800">
+                    能效分析
+                  </h3>
+                </div>
+                <div className="flex items-center gap-3 text-[10px] font-mono text-slate-400">
+                  <span>左轴：电量 (kWh) / 收益 (元)</span>
+                  <span>右轴：百分比 (%)</span>
+                </div>
+              </div>
+              <div className="h-[270px]">
+                <LineTrend
+                  data={storageChartData}
+                  xKey="time"
+                  height={270}
+                  xInterval={timeDim === 'day' ? 2 : 2}
+                  showBrush={true}
+                  brushStartIndex={storageBrushRange.startIndex}
+                  brushEndIndex={storageBrushRange.endIndex}
+                  onBrushChange={setStorageBrushRange}
+                  secondaryYUnit="%"
+                  secondaryDomain={[0, 100]}
+                  lines={[
+                    { key: '日充电量', name: '日充电量 (kWh)', color: '#2C7CFF', yAxisId: 'left' },
+                    { key: '日放电量', name: '日放电量 (kWh)', color: '#52c41a', yAxisId: 'left' },
+                    { key: '收益', name: '套利收益 (元)', color: '#fa8c16', yAxisId: 'left' },
+                    { key: '综合效率', name: '综合效率 (%)', color: '#722ed1', yAxisId: 'right' },
+                    { key: 'SOC', name: 'SOC 荷电 (%)', color: '#13c2c2', yAxisId: 'right' },
+                  ]}
+                />
+              </div>
+            </div>
+
+            {/* 储能监测数据表格 (严格包含用户指定的全部 8 大字段) */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-blue-600" />
+                  <h3 className="text-xs font-bold text-slate-800">项目台账</h3>
                 </div>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border h-[44px]">
+                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 h-[44px]">
+                      <th className="py-2.5 px-3 whitespace-nowrap">时间</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap">所属园区/企业</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap text-right">功率 (kW)</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap text-right">充放电功率 (kW)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap">建设单位</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">充电量 (kWh)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">放电量 (kWh)</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap text-center">SOC</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap text-center">状态 (充/放)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">收益(按日) (元)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">综合效率(日)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">绿充占比</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">尖放占比</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/60 font-mono text-foreground">
+                  <tbody className="divide-y divide-slate-100 font-mono">
                     {filteredStorageData.map((item) => (
-                      <tr key={item.id} className="hover:bg-accent/30 transition-colors h-[44px]">
-                        <td className="py-2.5 px-3 font-sans font-bold text-foreground">
+                      <tr key={item.id} className="hover:bg-blue-50/40 transition-colors h-[44px]">
+                        <td className="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
+                          {item.time}
+                        </td>
+                        <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
                           {item.projectName}
                         </td>
-                        <td className="py-2.5 px-3 font-sans text-muted-foreground">
+                        <td className="py-2.5 px-3 font-sans text-slate-600">
                           <div>{item.company}</div>
-                          <div className="text-[10px] text-muted-foreground/70">{item.park}</div>
+                          <div className="text-[10px] text-slate-400">{item.park}</div>
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-primary">
-                          {item.ratedPowerKw.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-right font-bold">
-                          <span className={item.chargeDischargePowerKw >= 0 ? 'text-primary' : 'text-emerald-400'}>
-                            {item.chargeDischargePowerKw >= 0 ? `+${item.chargeDischargePowerKw}` : item.chargeDischargePowerKw}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                           {item.chargeKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                           {item.dischargeKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-purple-400">
-                          {item.soc}%
-                        </td>
-                        <td className="py-2.5 px-3 text-center">
-                          <span
-                            className={cn(
-                              'px-2 py-0.5 rounded text-[10px] font-sans font-bold border',
-                              item.status === '充电'
-                                ? 'bg-primary/20 text-primary border-primary/30'
-                                : item.status === '放电'
-                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                                : 'bg-panel text-muted-foreground border-border',
-                            )}
-                          >
-                            {item.status}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                           ¥{item.revenueYuan.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-primary">
+                        <td className="py-2.5 px-3 text-center font-bold text-[#2C7CFF]">
                           {item.efficiency}%
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
                           {item.greenChargeRatio}%
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-purple-400">
+                        <td className="py-2.5 px-3 text-center font-bold text-purple-600">
                           {item.criticalPeakDischargeRatio}%
                         </td>
                       </tr>
@@ -1422,157 +2157,111 @@ export default function RealtimeMonitoringPage() {
         {/* ══════════════════════════════════════════════════════════════════ */}
         {categoryFilter === '热泵' && (
           <div className="space-y-3.5">
-            {/* 热泵 10 大核心 KPI 指标卡片 (2行展示，每行5张) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-2.5">
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <span className="text-[11px] text-muted-foreground block mb-0.5">COP 能效</span>
-                <div className="text-base font-bold font-mono text-emerald-400">
+            {/* 热泵 8 大核心 KPI 指标卡片 (2行展示，每行4张) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">COP 能效</span>
+                <div className="text-base font-bold font-mono text-emerald-600">
                   {heatPumpSummary.avgCop}
                 </div>
-                <span className="text-[10px] text-muted-foreground">实时制热COP</span>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <span className="text-[11px] text-muted-foreground block mb-0.5">供水温度</span>
-                <div className="text-base font-bold font-mono text-rose-400">
-                  {heatPumpSummary.avgSupplyTemp} <span className="text-xs font-normal text-muted-foreground">℃</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">供水温度</span>
+                <div className="text-base font-bold font-mono text-rose-600">
+                  {heatPumpSummary.avgSupplyTemp} <span className="text-xs font-normal">℃</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">出水恒温控制</span>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <span className="text-[11px] text-muted-foreground block mb-0.5">回水温度</span>
-                <div className="text-base font-bold font-mono text-primary">
-                  {heatPumpSummary.avgReturnTemp} <span className="text-xs font-normal text-muted-foreground">℃</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">回水温度</span>
+                <div className="text-base font-bold font-mono text-blue-600">
+                  {heatPumpSummary.avgReturnTemp} <span className="text-xs font-normal">℃</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">回水温差正常</span>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <span className="text-[11px] text-muted-foreground block mb-0.5">制热量</span>
-                <div className="text-base font-bold font-mono text-amber-400">
-                  {heatPumpSummary.totalHeat} <span className="text-xs font-normal text-muted-foreground">GJ</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">制热量</span>
+                <div className="text-base font-bold font-mono text-orange-600">
+                  {heatPumpSummary.totalHeat} <span className="text-xs font-normal">GJ</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">当期累计产热</span>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <span className="text-[11px] text-muted-foreground block mb-0.5">耗电量</span>
-                <div className="text-base font-bold font-mono text-foreground">
-                  {heatPumpSummary.totalPowerKwh} <span className="text-xs font-normal text-muted-foreground">kWh</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">耗电量</span>
+                <div className="text-base font-bold font-mono text-slate-800">
+                  {heatPumpSummary.totalPowerKwh} <span className="text-xs font-normal">kWh</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">热泵运行电耗</span>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <span className="text-[11px] text-muted-foreground block mb-0.5">功率</span>
-                <div className="text-base font-bold font-mono text-foreground">
-                  {heatPumpSummary.totalPowerKw} <span className="text-xs font-normal text-muted-foreground">kW</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">功率</span>
+                <div className="text-base font-bold font-mono text-slate-800">
+                  {heatPumpSummary.totalPowerKw} <span className="text-xs font-normal">kW</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">实时电功率</span>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <span className="text-[11px] text-muted-foreground block mb-0.5">压力</span>
-                <div className="text-base font-bold font-mono text-purple-400">
-                  1.25 <span className="text-xs font-normal text-muted-foreground">MPa</span>
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">压力</span>
+                <div className="text-base font-bold font-mono text-purple-600">
+                  1.25 <span className="text-xs font-normal">MPa</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">冷凝管网压力</span>
               </div>
 
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <span className="text-[11px] text-muted-foreground block mb-0.5">绿电占比</span>
-                <div className="text-base font-bold font-mono text-emerald-400">
-                  {heatPumpSummary.avgGreenRatio}%
-                </div>
-                <span className="text-[10px] text-emerald-400">光伏绿电直驱</span>
-              </div>
-
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <span className="text-[11px] text-muted-foreground block mb-0.5">尖/峰占比</span>
-                <div className="text-base font-bold font-mono text-amber-400">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">尖/峰占比</span>
+                <div className="text-base font-bold font-mono text-amber-600">
                   {heatPumpSummary.avgPeakRatio}%
                 </div>
-                <span className="text-[10px] text-muted-foreground">高电价时段负荷</span>
-              </div>
-
-              <div className="bg-card p-3 rounded-xl border border-border shadow-xs">
-                <span className="text-[11px] text-muted-foreground block mb-0.5">收益 (节费)</span>
-                <div className="text-base font-bold font-mono text-emerald-400">
-                  ¥{heatPumpSummary.totalSavings}
-                </div>
-                <span className="text-[10px] text-emerald-400">替代燃气节费</span>
               </div>
             </div>
 
-            {/* 热泵图表时序展示 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-amber-400" />
-                    <h3 className="text-xs font-bold text-foreground">
-                      热泵制热量 (GJ) 与耗电量 (kWh) 时序能效分析
-                    </h3>
-                  </div>
-                  <span className="text-[10px] font-mono text-muted-foreground">制热与耗电</span>
-                </div>
-                <div className="h-[240px]">
-                  <LineTrend
-                    data={heatPumpChartData}
-                    xKey="time"
-                    height={240}
-                    lines={[
-                      { key: '制热量', name: '日制热量 (GJ)', color: '#fa8c16' },
-                      { key: '耗电量', name: '日耗电量 (kWh)', color: '#1677ff' },
-                      { key: '收益', name: '替代节费 (元)', color: '#10b981' },
-                    ]}
-                  />
-                </div>
-              </div>
-
-              <div className="bg-card rounded-xl border border-border p-4 shadow-xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-emerald-400" />
-                    <h3 className="text-xs font-bold text-foreground">
-                      热泵供水温度 (℃) 与 COP 能效比跟踪曲线
-                    </h3>
-                  </div>
-                  <span className="text-[10px] font-mono text-muted-foreground">温度与能效</span>
-                </div>
-                <div className="h-[240px]">
-                  <LineTrend
-                    data={heatPumpChartData}
-                    xKey="time"
-                    height={240}
-                    lines={[
-                      { key: '供水温度', name: '供水温度 (℃)', color: '#f43f5e' },
-                      { key: 'COP', name: 'COP 能效比', color: '#10b981' },
-                    ]}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 热泵监测数据表格 */}
-            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-              <div className="p-3.5 border-b border-border/60 flex items-center justify-between bg-panel">
+            {/* 热泵图表时序展示 (合并为一个表：供热量、耗电量、COP) */}
+            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-amber-400" />
-                  <h3 className="text-xs font-bold text-foreground">
-                    工业热泵机组实时运行工况与节费台账表
+                  <span className="size-2 rounded-full bg-orange-500" />
+                  <h3 className="text-xs font-bold text-slate-800">
+                    能效分析
                   </h3>
-                  <span className="text-[10px] text-muted-foreground font-mono">共 {filteredHeatPumpData.length} 台套</span>
+                </div>
+                <span className="text-[10px] font-mono text-slate-400">供热量、耗电量、COP</span>
+              </div>
+              <div className="h-[270px]">
+                <LineTrend
+                  data={heatPumpChartData}
+                  xKey="time"
+                  height={270}
+                  xInterval={timeDim === 'day' ? 2 : 2}
+                  showBrush={true}
+                  brushStartIndex={heatPumpBrushRange.startIndex}
+                  brushEndIndex={heatPumpBrushRange.endIndex}
+                  onBrushChange={setHeatPumpBrushRange}
+                  lines={[
+                    { key: '制热量', name: '日供热量 (GJ)', color: '#FF6536' },
+                    { key: '耗电量', name: '日耗电量 (kWh)', color: '#2C7CFF' },
+                    { key: 'COP', name: 'COP 能效比', color: '#10b981' },
+                  ]}
+                />
+              </div>
+            </div>
+
+            {/* 热泵监测数据表格 (严格包含用户指定的全部 10 大字段) */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-orange-600" />
+                  <h3 className="text-xs font-bold text-slate-800">项目台账</h3>
                 </div>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-panel text-muted-foreground font-bold border-b border-border h-[44px]">
+                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 h-[44px]">
+                      <th className="py-2.5 px-3 whitespace-nowrap">时间</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap">所属园区/企业</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap">建设单位</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">COP</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">供水温度 (℃)</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">回水温度 (℃)</th>
@@ -1583,53 +2272,50 @@ export default function RealtimeMonitoringPage() {
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">绿电占比</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-center">尖/峰占比</th>
                       <th className="py-2.5 px-3 whitespace-nowrap text-right">收益 (元)</th>
-                      <th className="py-2.5 px-3 whitespace-nowrap text-center">工况状态</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/60 font-mono text-foreground">
+                  <tbody className="divide-y divide-slate-100 font-mono">
                     {filteredHeatPumpData.map((item) => (
-                      <tr key={item.id} className="hover:bg-accent/30 transition-colors h-[44px]">
-                        <td className="py-2.5 px-3 font-sans font-bold text-foreground">
+                      <tr key={item.id} className="hover:bg-orange-50/40 transition-colors h-[44px]">
+                        <td className="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
+                          {item.time}
+                        </td>
+                        <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
                           {item.projectName}
                         </td>
-                        <td className="py-2.5 px-3 font-sans text-muted-foreground">
+                        <td className="py-2.5 px-3 font-sans text-slate-600">
                           <div>{item.company}</div>
-                          <div className="text-[10px] text-muted-foreground/70">{item.park}</div>
+                          <div className="text-[10px] text-slate-400">{item.park}</div>
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
                           {item.cop}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-rose-400">
+                        <td className="py-2.5 px-3 text-right font-bold text-rose-600">
                           {item.supplyTemp} ℃
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-primary">
+                        <td className="py-2.5 px-3 text-right font-bold text-blue-600">
                           {item.returnTemp} ℃
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-amber-400">
+                        <td className="py-2.5 px-3 text-right font-bold text-orange-600">
                           {item.heatOutputGj}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                           {item.powerConsumptionKwh.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-foreground">
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
                           {item.powerKw.toLocaleString()}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-purple-400">
+                        <td className="py-2.5 px-3 text-right font-bold text-purple-600">
                           {item.pressureMpa}
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
                           {item.greenPowerRatio}%
                         </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-amber-400">
+                        <td className="py-2.5 px-3 text-center font-bold text-amber-600">
                           {item.peakRatio}%
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
                           ¥{item.savingsYuan.toLocaleString()}
-                        </td>
-                        <td className="py-2.5 px-3 text-center">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-sans font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                            {item.status}
-                          </span>
                         </td>
                       </tr>
                     ))}
@@ -1639,6 +2325,180 @@ export default function RealtimeMonitoringPage() {
             </div>
           </div>
         )}
+{/* ══════════════════════════════════════════════════════════════════ */}
+        {/* 🌟 4. 空调实时监测模块 (HVAC / Chiller Plant Monitoring) */}
+        {/* ══════════════════════════════════════════════════════════════════ */}
+        {categoryFilter === '空调' && (
+          <div className="space-y-3.5">
+            {/* 空调 8 大核心 KPI 指标卡片 (2行展示，每行4张) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 gap-2.5">
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">COP 能效</span>
+                <div className="text-base font-bold font-mono text-emerald-600">
+                  {hvacSummary.avgCop}
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">供水温度</span>
+                <div className="text-base font-bold font-mono text-cyan-600">
+                  {hvacSummary.avgSupplyTemp} <span className="text-xs font-normal">℃</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">回水温度</span>
+                <div className="text-base font-bold font-mono text-blue-600">
+                  {hvacSummary.avgReturnTemp} <span className="text-xs font-normal">℃</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">制冷量</span>
+                <div className="text-base font-bold font-mono text-cyan-600">
+                  {hvacSummary.totalCooling} <span className="text-xs font-normal">GJ</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">耗电量</span>
+                <div className="text-base font-bold font-mono text-slate-800">
+                  {hvacSummary.totalPowerKwh} <span className="text-xs font-normal">kWh</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">功率</span>
+                <div className="text-base font-bold font-mono text-slate-800">
+                  {hvacSummary.totalPowerKw} <span className="text-xs font-normal">kW</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">压力</span>
+                <div className="text-base font-bold font-mono text-purple-600">
+                  {hvacSummary.avgPressure} <span className="text-xs font-normal">MPa</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span className="text-[11px] text-slate-400 block mb-0.5">尖/峰占比</span>
+                <div className="text-base font-bold font-mono text-amber-600">
+                  {hvacSummary.avgPeakRatio}%
+                </div>
+              </div>
+            </div>
+
+            {/* 空调图表时序展示 (合并为一个表：制冷量、耗电量、COP) */}
+            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-cyan-500" />
+                  <h3 className="text-xs font-bold text-slate-800">
+                    能效分析
+                  </h3>
+                </div>
+                <span className="text-[10px] font-mono text-slate-400">制冷量、耗电量、COP</span>
+              </div>
+              <div className="h-[270px]">
+                <LineTrend
+                  data={hvacChartData}
+                  xKey="time"
+                  height={270}
+                  xInterval={timeDim === 'day' ? 2 : 2}
+                  showBrush={true}
+                  brushStartIndex={hvacBrushRange.startIndex}
+                  brushEndIndex={hvacBrushRange.endIndex}
+                  onBrushChange={setHvacBrushRange}
+                  lines={[
+                    { key: '制冷量', name: '日制冷量 (GJ)', color: '#10C4CE' },
+                    { key: '耗电量', name: '日耗电量 (kWh)', color: '#2C7CFF' },
+                    { key: 'COP', name: 'COP 能效比', color: '#10b981' },
+                  ]}
+                />
+              </div>
+            </div>
+
+            {/* 空调监测数据表格 */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-[#fafbfc]">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-cyan-500" />
+                  <h3 className="text-xs font-bold text-slate-800">项目台账</h3>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 h-[44px]">
+                      <th className="py-2.5 px-3 whitespace-nowrap">时间</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap">项目名称</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap">建设单位</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">COP</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">供水温度 (℃)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">回水温度 (℃)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">制冷量 (GJ)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">耗电量 (kWh)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">功率 (kW)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">压力 (MPa)</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">绿电占比</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-center">尖/峰占比</th>
+                      <th className="py-2.5 px-3 whitespace-nowrap text-right">收益 (元)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-mono">
+                    {filteredHvacData.map((item) => (
+                      <tr key={item.id} className="hover:bg-cyan-50/40 transition-colors h-[44px]">
+                        <td className="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
+                          {item.time}
+                        </td>
+                        <td className="py-2.5 px-3 font-sans font-bold text-slate-900">
+                          {item.projectName}
+                        </td>
+                        <td className="py-2.5 px-3 font-sans text-slate-600">
+                          <div>{item.company}</div>
+                          <div className="text-[10px] text-slate-400">{item.park}</div>
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
+                          {item.cop}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-cyan-600">
+                          {item.supplyTemp} ℃
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-blue-600">
+                          {item.returnTemp} ℃
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-cyan-600">
+                          {item.coolingOutputGj}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
+                          {item.powerConsumptionKwh.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-slate-800">
+                          {item.powerKw.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-purple-600">
+                          {item.pressureMpa}
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-600">
+                          {item.greenPowerRatio}%
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-amber-600">
+                          {item.peakRatio}%
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-emerald-600">
+                          ¥{item.savingsYuan.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )
