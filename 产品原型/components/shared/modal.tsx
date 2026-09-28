@@ -12,6 +12,7 @@ export function Modal({
   children,
   footer,
   size = 'md',
+  className,
 }: {
   open: boolean
   onClose: () => void
@@ -19,7 +20,8 @@ export function Modal({
   description?: string
   children: React.ReactNode
   footer?: React.ReactNode
-  size?: 'md' | 'lg' | 'xl'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'
+  className?: string
 }) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -37,7 +39,14 @@ export function Modal({
 
   if (!open) return null
 
-  const sizeClass = { md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }[size]
+  const sizeClass = {
+    sm: 'max-w-md',
+    md: 'max-w-xl',
+    lg: 'max-w-3xl',
+    xl: 'max-w-4xl',
+    '2xl': 'max-w-5xl',
+    '3xl': 'max-w-6xl',
+  }[size] || 'max-w-xl'
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -51,8 +60,9 @@ export function Modal({
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'relative w-full rounded-xl border border-border bg-popover shadow-2xl shadow-black/50 animate-in fade-in zoom-in-95',
+          'relative w-full rounded-lg border border-border bg-popover shadow-2xl shadow-black/50 animate-in fade-in zoom-in-95',
           sizeClass,
+          className,
         )}
       >
         <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
@@ -69,7 +79,7 @@ export function Modal({
             <X className="size-5" />
           </button>
         </div>
-        <div className="max-h-[70vh] overflow-auto px-5 py-4">{children}</div>
+        <div className="max-h-[75vh] overflow-y-auto px-5 pt-4 pb-6">{children}</div>
         {footer && (
           <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-3">
             {footer}

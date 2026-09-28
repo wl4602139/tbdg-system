@@ -44,13 +44,12 @@ export function EnterpriseCompare({
 
   return (
     <Panel>
-      <PanelTitle title={title} subtitle={subtitle ?? '各企业指标对比（绿=最优 ★，橙=最差 ⚠）'} icon={BarChart3} />
+      <PanelTitle title={title} subtitle={subtitle ?? '各企业指标对比（按客观时序与基准呈现）'} icon={BarChart3} />
       {selected && selectedRank && (
         <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm">
           <span className="font-medium text-primary">{selected}</span>
           <span className="text-muted-foreground">
             综合评分排名第 <span className="font-mono text-primary">{selectedRank}</span> / {rows.length} 家，优于 {rows.length - selectedRank} 家企业
-            {selectedRank === 1 ? '（领跑）' : selectedRank >= rows.length - 1 ? '（需重点关注）' : ''}
           </span>
         </div>
       )}
@@ -62,7 +61,6 @@ export function EnterpriseCompare({
             render: (r) => (
               <span className={cn('font-medium', selected === r.name ? 'text-primary' : 'text-foreground')}>
                 {r.name}
-                {rankMap[r.name] === 1 ? ' 🏆' : ''}
               </span>
             ),
           },

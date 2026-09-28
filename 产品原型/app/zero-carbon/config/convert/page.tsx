@@ -252,14 +252,11 @@ export default function ConvertPage() {
       {/* 顶部 Header */}
       <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2C7CFF] shrink-0">
             <ArrowRightLeft className="size-5" />
           </div>
           <div>
             <h1 className="text-base font-bold text-slate-800">折标煤系数与能源转换工具</h1>
-            <p className="text-xs text-slate-500 font-sans">
-              维护 GB/T 2589-2020 现行国家标准及各能源介质折标煤系数（当量/等价值），提供多物理单位与碳排放实时换算工具
-            </p>
           </div>
         </div>
       </div>
@@ -273,7 +270,7 @@ export default function ConvertPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-              <Layers className="size-3.5 text-[#1677ff]" />
+              <Layers className="size-3.5 text-[#2C7CFF]" />
               <span>选择待转换能源介质：</span>
             </label>
             <span className="text-[11px] text-slate-400 font-mono">
@@ -292,7 +289,7 @@ export default function ConvertPage() {
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer',
                     isSelected
-                      ? 'border-[#1677ff] bg-blue-50/80 text-[#1677ff] font-bold shadow-2xs'
+                      ? 'border-[#2C7CFF] bg-blue-50/80 text-[#2C7CFF] font-bold shadow-2xs'
                       : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
                   )}
                 >
@@ -312,7 +309,7 @@ export default function ConvertPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <ArrowRightLeft className="size-4 text-[#1677ff]" />
+                  <ArrowRightLeft className="size-4 text-[#2C7CFF]" />
                   <span>输入实物用能量</span>
                 </span>
                 <span className="text-[11px] px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-mono font-semibold">
@@ -328,7 +325,7 @@ export default function ConvertPage() {
                     type="number"
                     value={inputVal}
                     onChange={(e) => setInputVal(Number(e.target.value))}
-                    className="w-full pl-3 pr-16 py-2 bg-white border border-slate-300 rounded-lg text-lg font-bold font-mono text-slate-900 focus:outline-none focus:border-[#1677ff]"
+                    className="w-full pl-3 pr-16 py-2 bg-white border border-slate-300 rounded-lg text-lg font-bold font-mono text-slate-900 focus:outline-none focus:border-[#2C7CFF]"
                     placeholder="请输入实物量..."
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold font-mono text-slate-400">
@@ -420,7 +417,7 @@ export default function ConvertPage() {
               </div>
               <button
                 onClick={handleCopyResult}
-                className="flex items-center gap-1 text-xs text-[#1677ff] hover:text-blue-700 font-semibold cursor-pointer transition-colors"
+                className="flex items-center gap-1 text-xs text-[#2C7CFF] hover:text-blue-700 font-semibold cursor-pointer transition-colors"
               >
                 {copied ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
                 <span>{copied ? '已复制换算结果' : '一键复制结果'}</span>
@@ -476,7 +473,7 @@ export default function ConvertPage() {
             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs text-slate-700 space-y-1.5">
               <div className="font-sans font-bold text-slate-800 text-[11.5px] flex items-center justify-between">
                 <div className="flex items-center gap-1">
-                  <Info className="size-3.5 text-[#1677ff]" />
+                  <Info className="size-3.5 text-[#2C7CFF]" />
                   <span>数学推导过程与标准溯源：</span>
                 </div>
                 <span className="text-[10.5px] font-sans font-normal text-slate-400">

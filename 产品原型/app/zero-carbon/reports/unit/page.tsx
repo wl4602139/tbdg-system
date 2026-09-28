@@ -9,7 +9,9 @@ import {
   X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ExportButton } from '@/components/shared/primitives'
 import { SearchableUnitSelect } from '@/components/shared/searchable-unit-select'
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 
 // 🌟 指标管控 10 大核心参数元数据定义（对齐国家级零碳工厂与集团管理要求）
 export interface IndicatorMeta {
@@ -87,7 +89,7 @@ export const INDICATOR_METAS: IndicatorMeta[] = [
   {
     key: 'energyPerOutput',
     name: '单位产值能耗',
-    shortName: '产值单耗',
+    shortName: '万元产值能耗',
     unit: 'tce/万元',
     tag: '公司管理要求',
     formula: 'g = E / G（综合能源消费量 / 产品总产值）',
@@ -144,8 +146,8 @@ export interface UnitIndicatorRow {
   energySavingEquipRatio: number       // 9. 节能装备应用占比 (%)
   carbonFootprintAnalysisRatio: number // 10. 开展产品碳足迹分析占比 (%)
   // 变动趋势
-  tceYoy: number                       // 综合能耗同比变动 (%)
-  carbonYoy: number                    // 碳排同比变动 (%)
+  tceYoy: number                       // 综合能耗同比 (%)
+  carbonYoy: number                    // 碳排同比 (%)
 }
 
 // 🏭 特变电工 6 大重点制造企业 17 个单位/车间 单耗与指标管控全量台账
@@ -187,24 +189,7 @@ const ALL_UNIT_ROWS: UnitIndicatorRow[] = [
     tceYoy: -5.2,
     carbonYoy: -6.1,
   },
-  {
-    id: 'SB-03',
-    unitId: 'ws_sb_zh',
-    unitName: '智慧能源',
-    company: '沈变公司',
-    totalTce: 185.0,
-    totalCarbon: 398.6,
-    carbonPerTce: 2.155,
-    nonFossilRatio: 45.8,
-    physicalGreenRatio: 35.0,
-    energyPerNva: 0.1150,
-    energyPerOutput: 0.0420,
-    waterM3: 1950,
-    energySavingEquipRatio: 96.5,
-    carbonFootprintAnalysisRatio: 80.0,
-    tceYoy: -6.0,
-    carbonYoy: -7.2,
-  },
+
   {
     id: 'SB-04',
     unitId: 'ws_sb_hx',
@@ -470,11 +455,63 @@ const ALL_UNIT_ROWS: UnitIndicatorRow[] = [
 ]
 
 export default function UnitReportPage() {
-  // 时间维度与范围
-  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
-  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+  // 时间维度: 'month' | 'quarter' | 'year' | 'custom' (默认月度)
+  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year' | 'custom'>('month')
+  // 指定单月选择 (默认 2026-08)
+  const [selectedMonth, setSelectedMonth] = useState('2026-08')
+  // 指定季度选择 (默认 2026-Q3)
   const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  // 指定年度选择 (默认 2026)
   const [selectedYear, setSelectedYear] = useState('2026')
+  // 自定义月度区间 (最多选择12个月)
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+
+  // 计算月份间隔数（包含起止月）
+  const getMonthsCount = (start: string, end: string): number => {
+    if (!start || !end) return 1
+    const [sy, sm] = start.split('-').map(Number)
+    const [ey, em] = end.split('-').map(Number)
+    return (ey - sy) * 12 + (em - sm) + 1
+  }
+
+  // 基于年月增减月数，返回 YYYY-MM
+  const addMonthsToYm = (ym: string, delta: number): string => {
+    const [y, m] = ym.split('-').map(Number)
+    const totalMonths = y * 12 + (m - 1) + delta
+    const newY = Math.floor(totalMonths / 12)
+    const newM = (totalMonths % 12) + 1
+    return `${newY}-${newM < 10 ? '0' + newM : newM}`
+  }
+
+  const handleCustomStartMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newStart = e.target.value
+    if (!newStart) return
+    setSelectedMonthRange((prev) => {
+      let newEnd = prev.end
+      if (newStart > newEnd) {
+        newEnd = newStart
+      }
+      if (getMonthsCount(newStart, newEnd) > 12) {
+        newEnd = addMonthsToYm(newStart, 11)
+      }
+      return { start: newStart, end: newEnd }
+    })
+  }
+
+  const handleCustomEndMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEnd = e.target.value
+    if (!newEnd) return
+    setSelectedMonthRange((prev) => {
+      let newStart = prev.start
+      if (newEnd < newStart) {
+        newStart = newEnd
+      }
+      if (getMonthsCount(newStart, newEnd) > 12) {
+        newStart = addMonthsToYm(newEnd, -11)
+      }
+      return { start: newStart, end: newEnd }
+    })
+  }
 
   // 级联筛选条件
   const [companyFilter, setCompanyFilter] = useState<string>('all')
@@ -483,6 +520,9 @@ export default function UnitReportPage() {
   // 指标详情弹窗状态
   const [selectedIndicator, setSelectedIndicator] = useState<IndicatorMeta | null>(null)
   const [selectedRowDetail, setSelectedRowDetail] = useState<{ row: UnitIndicatorRow; indicator: IndicatorMeta } | null>(null)
+
+  // 全量呈现 10 大核心单耗与能效管控指标
+  const filteredMetas = INDICATOR_METAS
 
   // 提取企业列表
   const allCompanies = useMemo(() => {
@@ -513,8 +553,39 @@ export default function UnitReportPage() {
       rows = rows.filter((r) => r.unitName === unitFilter || r.unitId === unitFilter)
     }
 
-    return rows
-  }, [companyFilter, unitFilter])
+    // 依据时间维度动态缩放总量指标
+    const periodScale = getPeriodScaleFactor('sum', timeDim, {
+      selectedMonth,
+      selectedMonthRange,
+      monthRange: selectedMonthRange,
+      selectedQuarter,
+      quarter: selectedQuarter,
+      selectedYear,
+      year: selectedYear,
+    })
+
+    return rows.map((r) => ({
+      ...r,
+      totalTce: Number((r.totalTce * periodScale).toFixed(1)),
+      totalCarbon: Number((r.totalCarbon * periodScale).toFixed(1)),
+      waterM3: Math.round(r.waterM3 * periodScale),
+    }))
+  }, [companyFilter, unitFilter, timeDim, selectedMonth, selectedQuarter, selectedYear, selectedMonthRange])
+
+  // 当前时间显示字符串
+  const currentTimeDisplay = useMemo(() => {
+    if (timeDim === 'month') return selectedMonth
+    if (timeDim === 'quarter') return selectedQuarter
+    if (timeDim === 'year') return `${selectedYear}年度`
+    return `${selectedMonthRange.start} ~ ${selectedMonthRange.end}`
+  }, [timeDim, selectedMonth, selectedQuarter, selectedYear, selectedMonthRange])
+
+  // 顶部主表头（由查询条件动态拼接）
+  const reportHeaderTitle = useMemo(() => {
+    const compText = companyFilter === 'all' ? '全集团' : companyFilter
+    const unitText = unitFilter === 'all' ? '全部单位' : unitFilter
+    return `${compText} · ${unitText} · ${currentTimeDisplay} · 单耗报表`
+  }, [companyFilter, unitFilter, currentTimeDisplay])
 
   // 预计算相同公司的 rowSpan 合并信息
   const companyRowSpans = useMemo(() => {
@@ -583,34 +654,38 @@ export default function UnitReportPage() {
       {/* 顶部面包屑与操作栏 */}
       <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2C7CFF] shrink-0">
             <Gauge className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-800">单耗报表 (指标管控十参数)</h1>
+            <h1 className="text-base font-bold text-slate-800">单耗报表</h1>
           </div>
         </div>
 
         {/* 时间维度与导出工具栏 */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* 时间维度切换 */}
-          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* 时间维度统一 (日 / 月 / 季度 / 年 / 自定义，样式参照用能监测) */}
+          <div className="flex items-center gap-1 p-0.5 rounded-lg text-sm font-sans">
             <button
               type="button"
               onClick={() => setTimeDim('month')}
               className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'month'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               )}
             >
-              月度
+              月
             </button>
             <button
               type="button"
               onClick={() => setTimeDim('quarter')}
               className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'quarter'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               )}
             >
               季度
@@ -619,43 +694,49 @@ export default function UnitReportPage() {
               type="button"
               onClick={() => setTimeDim('year')}
               className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'year'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               )}
             >
-              年度
+              年
+            </button>
+            <button
+              type="button"
+              onClick={() => setTimeDim('custom')}
+              className={cn(
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'custom'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              )}
+            >
+              自定义
             </button>
           </div>
 
-          {/* 时间范围选择控件 */}
+          {/* 时间范围选择控件 (随维度自适应切换，样式参照用能监测) */}
           {timeDim === 'month' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs font-mono">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
               <input
                 type="month"
-                value={selectedMonthRange.start}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="起始月份"
-              />
-              <span className="text-slate-400 font-sans">至</span>
-              <input
-                type="month"
-                value={selectedMonthRange.end}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="结束月份"
+                value={selectedMonth}
+                onChange={(e) => e.target.value && setSelectedMonth(e.target.value)}
+                className="bg-transparent border-0 text-slate-800 text-sm focus:outline-none cursor-pointer font-bold"
+                title="选择指定月份"
               />
             </div>
           )}
 
           {timeDim === 'quarter' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
               <select
                 value={selectedQuarter}
                 onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent border-0 text-slate-800 text-sm font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
                 <option value="2026-Q1">2026年 第1季度 (Q1)</option>
                 <option value="2026-Q2">2026年 第2季度 (Q2)</option>
@@ -667,12 +748,12 @@ export default function UnitReportPage() {
           )}
 
           {timeDim === 'year' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent border-0 text-slate-800 text-sm font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
                 <option value="2026">2026 年度</option>
                 <option value="2025">2025 年度</option>
@@ -681,13 +762,28 @@ export default function UnitReportPage() {
             </div>
           )}
 
-          <button
-            onClick={() => alert('正在导出单耗及指标管控明细台账 (Excel/PDF)...')}
-            className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
-          >
-            <Download className="size-3.5" />
-            <span>导出</span>
-          </button>
+          {timeDim === 'custom' && (
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs font-mono">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
+              <input
+                type="month"
+                value={selectedMonthRange.start}
+                onChange={handleCustomStartMonthChange}
+                className="bg-transparent border-0 text-slate-800 text-sm focus:outline-none cursor-pointer font-bold"
+                title="开始月份 (最多选12个月)"
+              />
+              <span className="text-slate-400 font-sans">至</span>
+              <input
+                type="month"
+                value={selectedMonthRange.end}
+                onChange={handleCustomEndMonthChange}
+                className="bg-transparent border-0 text-slate-800 text-sm focus:outline-none cursor-pointer font-bold"
+                title="结束月份 (最多选12个月)"
+              />
+            </div>
+          )}
+
+          <ExportButton onClick={() => alert('正在导出单耗及指标管控明细台账 (Excel/PDF)...')} />
         </div>
       </div>
 
@@ -729,6 +825,19 @@ export default function UnitReportPage() {
           </div>
         </div>
 
+        {/* 动态主表头（由查询条件拼接而成） */}
+        <div className="px-4 py-2.5 bg-blue-50/60 border-b border-blue-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="h-3.5 w-1 rounded-full bg-[#2C7CFF] shrink-0" />
+            <h2 className="text-base font-bold text-slate-800 tracking-wide font-sans">
+              【{reportHeaderTitle}】
+            </h2>
+          </div>
+          <span className="text-[11px] text-slate-500 font-mono">
+            统计周期: {currentTimeDisplay}
+          </span>
+        </div>
+
         {/* 表格区域 */}
         <div className="overflow-x-auto custom-scrollbar">
           {filteredRows.length === 0 ? (
@@ -738,7 +847,7 @@ export default function UnitReportPage() {
           ) : (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50/90 text-slate-700 border-b border-slate-200 font-bold select-none text-[11px]">
+                <tr className="bg-slate-50/90 text-slate-700 border-b border-slate-200 font-bold select-none text-[11px] h-[44px]">
                   {/* 固定左侧前两列 */}
                   <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[110px] text-center border-r border-slate-200/80">
                     企业名称
@@ -746,9 +855,12 @@ export default function UnitReportPage() {
                   <th className="py-2.5 px-3 sticky left-[110px] bg-slate-50 z-10 min-w-[160px] border-r border-slate-200/80">
                     单位名称
                   </th>
+                  <th className="py-2.5 px-3 min-w-[90px] text-center font-mono whitespace-nowrap border-r border-slate-200/80">
+                    时间
+                  </th>
 
-                  {/* 10 个管控指标参数表头（带提示与单位） */}
-                  {INDICATOR_METAS.map((meta) => (
+                  {/* 管控指标参数表头（动态按能源介质筛选） */}
+                  {filteredMetas.map((meta) => (
                     <th
                       key={meta.key}
                       onClick={() => setSelectedIndicator(meta)}
@@ -757,8 +869,8 @@ export default function UnitReportPage() {
                     >
                       <div className="flex flex-col items-end gap-0.5">
                         <div className="flex items-center gap-1">
-                          <span className="group-hover:text-[#1677ff] transition-colors">{meta.name}</span>
-                          <Info className="size-3 text-slate-400 group-hover:text-[#1677ff] shrink-0" />
+                          <span className="group-hover:text-[#2C7CFF] transition-colors">{meta.name}</span>
+                          <Info className="size-3 text-slate-400 group-hover:text-[#2C7CFF] shrink-0" />
                         </div>
                         <span className="text-[10px] font-normal text-slate-400 font-mono">({meta.unit})</span>
                       </div>
@@ -771,7 +883,7 @@ export default function UnitReportPage() {
                 {filteredRows.map((row, idx) => {
                   const span = companyRowSpans[idx]
                   return (
-                    <tr key={row.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <tr key={row.id} className="hover:bg-blue-50/30 transition-colors group h-[44px]">
                       {/* 企业名称单元格 (同企业行跨行合并居中) */}
                       {span > 0 && (
                         <td
@@ -791,63 +903,88 @@ export default function UnitReportPage() {
                         </div>
                       </td>
 
-                      {/* 1. 综合能源消费量 (tce) */}
-                      <td
-                        onClick={() => setSelectedRowDetail({ row, indicator: INDICATOR_METAS[0] })}
-                        className="py-2.5 px-2.5 text-right font-semibold text-[#1677ff] hover:underline cursor-pointer"
-                        title="点击查看综合能耗构成"
-                      >
-                        {row.totalTce.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                      {/* 时间显示单元格 */}
+                      <td className="py-2.5 px-3 font-mono text-center text-slate-600 border-r border-slate-200/80">
+                        {currentTimeDisplay}
                       </td>
+
+                      {/* 1. 综合能源消费量 (tce) */}
+                      {filteredMetas.some((m) => m.key === 'totalTce') && (
+                        <td
+                          onClick={() => setSelectedRowDetail({ row, indicator: INDICATOR_METAS[0] })}
+                          className="py-2.5 px-2.5 text-right font-semibold text-[#2C7CFF] hover:underline cursor-pointer"
+                          title="点击查看综合能耗构成"
+                        >
+                          {row.totalTce.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                        </td>
+                      )}
 
                       {/* 2. 总碳排放量 (tCO2) */}
-                      <td
-                        onClick={() => setSelectedRowDetail({ row, indicator: INDICATOR_METAS[1] })}
-                        className="py-2.5 px-2.5 text-right font-medium text-slate-800 hover:underline cursor-pointer"
-                        title="点击查看碳排放明细"
-                      >
-                        {row.totalCarbon.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
-                      </td>
+                      {filteredMetas.some((m) => m.key === 'totalCarbon') && (
+                        <td
+                          onClick={() => setSelectedRowDetail({ row, indicator: INDICATOR_METAS[1] })}
+                          className="py-2.5 px-2.5 text-right font-medium text-slate-800 hover:underline cursor-pointer"
+                          title="点击查看碳排放明细"
+                        >
+                          {row.totalCarbon.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                        </td>
+                      )}
 
                       {/* 3. 单位能耗碳排放 (tCO2/tce) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-700">
-                        {row.carbonPerTce.toFixed(3)}
-                      </td>
+                      {filteredMetas.some((m) => m.key === 'carbonPerTce') && (
+                        <td className="py-2.5 px-2.5 text-right font-medium text-slate-700">
+                          {row.carbonPerTce.toFixed(3)}
+                        </td>
+                      )}
 
                       {/* 4. 非化石能源消费占比 (%) */}
-                      <td className="py-2.5 px-2.5 text-right font-semibold text-emerald-600">
-                        {row.nonFossilRatio.toFixed(1)}%
-                      </td>
+                      {filteredMetas.some((m) => m.key === 'nonFossilRatio') && (
+                        <td className="py-2.5 px-2.5 text-right font-semibold text-emerald-600">
+                          {row.nonFossilRatio.toFixed(1)}%
+                        </td>
+                      )}
 
                       {/* 5. 非化石电力物理认购占比 (%) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-emerald-700">
-                        {row.physicalGreenRatio.toFixed(1)}%
-                      </td>
+                      {filteredMetas.some((m) => m.key === 'physicalGreenRatio') && (
+                        <td className="py-2.5 px-2.5 text-right font-medium text-emerald-700">
+                          {row.physicalGreenRatio.toFixed(1)}%
+                        </td>
+                      )}
 
                       {/* 6. 单位工业增加值能耗 (tce/万元) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-800">
-                        {row.energyPerNva.toFixed(4)}
-                      </td>
+                      {filteredMetas.some((m) => m.key === 'energyPerNva') && (
+                        <td className="py-2.5 px-2.5 text-right font-medium text-slate-800">
+                          {row.energyPerNva.toFixed(4)}
+                        </td>
+                      )}
 
                       {/* 7. 单位产值能耗 (tce/万元) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-800">
-                        {row.energyPerOutput.toFixed(4)}
-                      </td>
+                      {filteredMetas.some((m) => m.key === 'energyPerOutput') && (
+                        <td className="py-2.5 px-2.5 text-right font-medium text-slate-800">
+                          {row.energyPerOutput.toFixed(4)}
+                        </td>
+                      )}
 
                       {/* 8. 水资源消耗量 (t) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-slate-700">
-                        {row.waterM3.toLocaleString('zh-CN')}
-                      </td>
+                      {filteredMetas.some((m) => m.key === 'waterM3') && (
+                        <td className="py-2.5 px-2.5 text-right font-medium text-slate-700">
+                          {row.waterM3.toLocaleString('zh-CN')}
+                        </td>
+                      )}
 
                       {/* 9. 节能装备应用占比 (%) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-indigo-600">
-                        {row.energySavingEquipRatio.toFixed(1)}%
-                      </td>
+                      {filteredMetas.some((m) => m.key === 'energySavingEquipRatio') && (
+                        <td className="py-2.5 px-2.5 text-right font-medium text-indigo-600">
+                          {row.energySavingEquipRatio.toFixed(1)}%
+                        </td>
+                      )}
 
                       {/* 10. 开展产品碳足迹分析占比 (%) */}
-                      <td className="py-2.5 px-2.5 text-right font-medium text-blue-600">
-                        {row.carbonFootprintAnalysisRatio.toFixed(1)}%
-                      </td>
+                      {filteredMetas.some((m) => m.key === 'carbonFootprintAnalysisRatio') && (
+                        <td className="py-2.5 px-2.5 text-right font-medium text-blue-600">
+                          {row.carbonFootprintAnalysisRatio.toFixed(1)}%
+                        </td>
+                      )}
                     </tr>
                   )
                 })}
@@ -855,50 +992,70 @@ export default function UnitReportPage() {
 
               {/* 汇总统计行 */}
               <tfoot>
-                <tr className="bg-slate-100/90 font-bold border-t-2 border-slate-300 text-slate-900 font-mono text-[11.5px]">
-                  <td colSpan={2} className="py-3 px-3 text-center font-sans font-bold sticky left-0 bg-slate-100 z-10 border-r border-slate-200">
+                <tr className="bg-slate-100/90 font-bold border-t-2 border-slate-300 text-slate-900 font-mono text-[11.5px] h-[44px]">
+                  <td colSpan={3} className="py-3 px-3 text-center font-sans font-bold sticky left-0 bg-slate-100 z-10 border-r border-slate-200">
                     全集团总计汇总 / 集团加权平均
                   </td>
                   {/* 1. 综合能源消费量 (tce) */}
-                  <td className="py-3 px-2.5 text-right text-[#1677ff]">
-                    {totals.totalTce.toLocaleString('zh-CN', { minimumFractionDigits: 1 })}
-                  </td>
+                  {filteredMetas.some((m) => m.key === 'totalTce') && (
+                    <td className="py-3 px-2.5 text-right text-[#2C7CFF]">
+                      {totals.totalTce.toLocaleString('zh-CN', { minimumFractionDigits: 1 })}
+                    </td>
+                  )}
                   {/* 2. 总碳排放量 (tCO2) */}
-                  <td className="py-3 px-2.5 text-right text-slate-900">
-                    {totals.totalCarbon.toLocaleString('zh-CN', { minimumFractionDigits: 1 })}
-                  </td>
+                  {filteredMetas.some((m) => m.key === 'totalCarbon') && (
+                    <td className="py-3 px-2.5 text-right text-slate-900">
+                      {totals.totalCarbon.toLocaleString('zh-CN', { minimumFractionDigits: 1 })}
+                    </td>
+                  )}
                   {/* 3. 单位能耗碳排放 (tCO2/tce) */}
-                  <td className="py-3 px-2.5 text-right text-slate-800">
-                    {totals.carbonPerTce.toFixed(3)}
-                  </td>
+                  {filteredMetas.some((m) => m.key === 'carbonPerTce') && (
+                    <td className="py-3 px-2.5 text-right text-slate-800">
+                      {totals.carbonPerTce.toFixed(3)}
+                    </td>
+                  )}
                   {/* 4. 非化石能源消费占比 (%) */}
-                  <td className="py-3 px-2.5 text-right text-emerald-700">
-                    {totals.nonFossilRatio.toFixed(1)}%
-                  </td>
+                  {filteredMetas.some((m) => m.key === 'nonFossilRatio') && (
+                    <td className="py-3 px-2.5 text-right text-emerald-700">
+                      {totals.nonFossilRatio.toFixed(1)}%
+                    </td>
+                  )}
                   {/* 5. 非化石电力物理认购占比 (%) */}
-                  <td className="py-3 px-2.5 text-right text-emerald-800">
-                    {totals.physicalGreenRatio.toFixed(1)}%
-                  </td>
+                  {filteredMetas.some((m) => m.key === 'physicalGreenRatio') && (
+                    <td className="py-3 px-2.5 text-right text-emerald-800">
+                      {totals.physicalGreenRatio.toFixed(1)}%
+                    </td>
+                  )}
                   {/* 6. 单位工业增加值能耗 (tce/万元) */}
-                  <td className="py-3 px-2.5 text-right text-slate-900">
-                    {totals.energyPerNva.toFixed(4)}
-                  </td>
+                  {filteredMetas.some((m) => m.key === 'energyPerNva') && (
+                    <td className="py-3 px-2.5 text-right text-slate-900">
+                      {totals.energyPerNva.toFixed(4)}
+                    </td>
+                  )}
                   {/* 7. 单位产值能耗 (tce/万元) */}
-                  <td className="py-3 px-2.5 text-right text-slate-900">
-                    {totals.energyPerOutput.toFixed(4)}
-                  </td>
+                  {filteredMetas.some((m) => m.key === 'energyPerOutput') && (
+                    <td className="py-3 px-2.5 text-right text-slate-900">
+                      {totals.energyPerOutput.toFixed(4)}
+                    </td>
+                  )}
                   {/* 8. 水资源消耗量 (t) */}
-                  <td className="py-3 px-2.5 text-right text-slate-800">
-                    {totals.waterM3.toLocaleString('zh-CN')}
-                  </td>
+                  {filteredMetas.some((m) => m.key === 'waterM3') && (
+                    <td className="py-3 px-2.5 text-right text-slate-800">
+                      {totals.waterM3.toLocaleString('zh-CN')}
+                    </td>
+                  )}
                   {/* 9. 节能装备应用占比 (%) */}
-                  <td className="py-3 px-2.5 text-right text-indigo-700">
-                    {totals.energySavingEquipRatio.toFixed(1)}%
-                  </td>
+                  {filteredMetas.some((m) => m.key === 'energySavingEquipRatio') && (
+                    <td className="py-3 px-2.5 text-right text-indigo-700">
+                      {totals.energySavingEquipRatio.toFixed(1)}%
+                    </td>
+                  )}
                   {/* 10. 开展产品碳足迹分析占比 (%) */}
-                  <td className="py-3 px-2.5 text-right text-blue-700">
-                    {totals.carbonFootprintAnalysisRatio.toFixed(1)}%
-                  </td>
+                  {filteredMetas.some((m) => m.key === 'carbonFootprintAnalysisRatio') && (
+                    <td className="py-3 px-2.5 text-right text-blue-700">
+                      {totals.carbonFootprintAnalysisRatio.toFixed(1)}%
+                    </td>
+                  )}
                 </tr>
               </tfoot>
             </table>
@@ -912,7 +1069,7 @@ export default function UnitReportPage() {
           <div className="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full p-5 flex flex-col gap-4 font-sans">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <div className="size-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff]">
+                <div className="size-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2C7CFF]">
                   <Gauge className="size-4" />
                 </div>
                 <div>
@@ -960,7 +1117,7 @@ export default function UnitReportPage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedIndicator(null)}
-                className="px-4 py-1.5 rounded-lg bg-[#1677ff] text-white text-xs font-bold hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-[#2C7CFF] text-white text-xs font-bold hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
               >
                 我知道了
               </button>
@@ -993,7 +1150,7 @@ export default function UnitReportPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-lg bg-blue-50/70 border border-blue-200 flex flex-col gap-1">
                 <span className="text-xs text-blue-700 font-medium">当前统计期数值</span>
-                <span className="text-lg font-bold text-[#1677ff] font-mono">
+                <span className="text-lg font-bold text-[#2C7CFF] font-mono">
                   {String((selectedRowDetail.row as any)[selectedRowDetail.indicator.key])} {selectedRowDetail.indicator.unit}
                 </span>
               </div>
@@ -1015,7 +1172,7 @@ export default function UnitReportPage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedRowDetail(null)}
-                className="px-4 py-1.5 rounded-lg bg-[#1677ff] text-white text-xs font-bold hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-[#2C7CFF] text-white text-xs font-bold hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
               >
                 关闭
               </button>

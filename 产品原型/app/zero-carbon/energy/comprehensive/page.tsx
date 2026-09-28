@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Trophy, Target, BarChart3, Leaf, Zap, DollarSign, Package, TrendingUp } from 'lucide-react'
+import { Trophy, Target, BarChart3, Leaf, Zap, DollarSign, Package, TrendingUp, Building2 } from 'lucide-react'
 import { PageHeader } from '@/components/shared/page-header'
 import { Panel, PanelTitle, DataTable, KpiCard, Badge } from '@/components/shared/primitives'
 import { BarGroup } from '@/components/shared/charts'
@@ -78,15 +78,15 @@ export default function ComprehensivePage() {
       />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="参与对比企业" value={String(rows.length)} unit="家" delta="集团经营单位" icon={Target} />
-        <KpiCard label="综合最优企业" value={best.name} delta={`${best.综合评分} 分`} icon={Trophy} />
-        <KpiCard label="综合落后企业" value={worst.name} delta={`${worst.综合评分} 分`} icon={BarChart3} />
+        <KpiCard label="参与统计企业" value={String(rows.length)} unit="家" delta="集团经营单位" icon={Target} />
+        <KpiCard label="基准能耗单位" value={best.name} delta={`${best.综合评分} 分`} icon={Building2} />
+        <KpiCard label="重点监测单位" value={worst.name} delta={`${worst.综合评分} 分`} icon={BarChart3} />
         <KpiCard label="对比维度" value={String(cols.length)} unit="项" delta={dim} icon={TrendingUp} />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <Panel className="lg:col-span-2">
-          <PanelTitle title="综合对比分析" subtitle={`各企业${dim === '全部维度' ? '多维度' : dim}指标对比（绿=最优 ★，橙=最差 ⚠）`} icon={BarChart3} />
+          <PanelTitle title="综合指标分析" subtitle={`各企业${dim === '全部维度' ? '多维度' : dim}指标统计分布`} icon={BarChart3} />
           <DataTable
             columns={[
               { key: 'name', label: '企业' },
@@ -96,9 +96,7 @@ export default function ComprehensivePage() {
                 align: 'right' as const,
                 render: (r: any) => {
                   const v = r[col.key]
-                  const isBest = v === col.best
-                  const isWorst = v === col.worst
-                  return <span className={cn('font-mono', isBest ? 'text-[var(--success)] font-medium' : isWorst ? 'text-[var(--warning)] font-medium' : 'text-foreground')}>{v}{isBest ? ' ★' : isWorst ? ' ⚠' : ''}</span>
+                  return <span className="font-mono text-slate-800">{v}</span>
                 },
               })),
             ]}
@@ -106,21 +104,21 @@ export default function ComprehensivePage() {
           />
         </Panel>
         <Panel>
-          <PanelTitle title="综合评分排名" subtitle="多指标归一化加权评分（0-100）" icon={Trophy} />
+          <PanelTitle title="综合能碳指数分布" subtitle="多指标归一化综合指数（0-100）" icon={BarChart3} />
           <BarGroup
             data={scored}
-            keys={[{ key: '综合评分', name: '综合评分', color: 'var(--chart-1)' }]}
+            keys={[{ key: '综合评分', name: '综合指数', color: '#2C7CFF' }]}
             nameKey="name"
             height={340}
           />
           <div className="mt-3 grid gap-2 text-sm">
-            <div className="flex items-center justify-between rounded-lg border border-[var(--success)]/30 bg-[var(--success)]/10 px-3 py-2">
-              <span className="flex items-center gap-2 text-foreground"><Trophy className="size-4 text-[var(--success)]" /> 综合最优</span>
-              <span className="font-mono text-[var(--success)]">{best.name}</span>
+            <div className="flex items-center justify-between rounded-lg border border-[#DBE6EE] bg-white px-3 py-2">
+              <span className="flex items-center gap-2 text-slate-800"><Building2 className="size-4 text-[#2C7CFF]" /> 指标基准单位</span>
+              <span className="font-mono text-slate-800 font-medium">{best.name}</span>
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-[var(--warning)]/30 bg-[var(--warning)]/10 px-3 py-2">
-              <span className="flex items-center gap-2 text-foreground"><BarChart3 className="size-4 text-[var(--warning)]" /> 需重点关注</span>
-              <span className="font-mono text-[var(--warning)]">{worst.name}</span>
+            <div className="flex items-center justify-between rounded-lg border border-[#DBE6EE] bg-white px-3 py-2">
+              <span className="flex items-center gap-2 text-slate-800"><BarChart3 className="size-4 text-slate-400" /> 时序跟踪单位</span>
+              <span className="font-mono text-slate-800 font-medium">{worst.name}</span>
             </div>
           </div>
         </Panel>
@@ -128,18 +126,18 @@ export default function ComprehensivePage() {
 
       <div className="mt-4">
         <Panel>
-          <PanelTitle title="维度指标说明" subtitle="各维度指标口径与优劣判定方向" icon={Leaf} />
+          <PanelTitle title="维度指标说明" subtitle="各维度指标定义与技术口径" icon={Leaf} />
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
             {[
-              { dim: '成本', icon: DollarSign, desc: '能源成本越低越好，反映用能经济性' },
-              { dim: '产量', icon: Package, desc: '产品产量反映生产规模，越高越好' },
-              { dim: '排放', icon: Leaf, desc: '碳排放量/碳强度越低越好' },
-              { dim: '绿色能源', icon: Zap, desc: '绿电占比越高越好，反映绿电消纳' },
-              { dim: '零碳工厂', icon: Trophy, desc: '非化石能源消费/电力占比越高越好' },
+              { dim: '成本', icon: DollarSign, desc: '能源综合成本，反映用能经济性' },
+              { dim: '产量', icon: Package, desc: '产品产量反映制造产出规模' },
+              { dim: '排放', icon: Leaf, desc: '碳排放总量与万元产值碳强度' },
+              { dim: '绿色能源', icon: Zap, desc: '直供与自发绿电消纳占比' },
+              { dim: '零碳工厂', icon: Target, desc: '非化石能源消费与清洁电气化比率' },
             ].map((d) => (
-              <div key={d.dim} className="rounded-lg border border-border bg-panel p-3">
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground"><d.icon className="size-4 text-primary" />{d.dim}</div>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{d.desc}</p>
+              <div key={d.dim} className="rounded-lg border border-[#DBE6EE] bg-white p-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-slate-800"><d.icon className="size-4 text-[#2C7CFF]" />{d.dim}</div>
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-500">{d.desc}</p>
               </div>
             ))}
           </div>

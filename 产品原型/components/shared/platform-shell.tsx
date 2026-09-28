@@ -8,7 +8,7 @@ import {
   ChevronDown,
   ChevronRight,
   Sparkles,
-  Search,
+  Globe,
   Globe2,
   Leaf,
   FileText,
@@ -19,9 +19,12 @@ import {
   User,
   HelpCircle,
   TrendingDown,
-  AlertTriangle,
   Check,
   Lightbulb,
+  LogOut,
+  Palette,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import { platformMeta, type PlatformKey } from '@/lib/nav-config'
 import { cn } from '@/lib/utils'
@@ -42,15 +45,61 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // 用户中心下拉框状态与监听（退出登录放置在用户信息下方）
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+  const userDropdownRef = useRef<HTMLDivElement>(null)
+
+  // 皮肤切换下拉框状态与监听
+  const [skinDropdownOpen, setSkinDropdownOpen] = useState(false)
+  const skinDropdownRef = useRef<HTMLDivElement>(null)
+  const [currentSkin, setCurrentSkin] = useState<'light' | 'dark'>('light')
+
+  // 初始化皮肤模式并同步 HTML class 与 localStorage
+  useEffect(() => {
+    try {
+      const savedSkin = localStorage.getItem('tbea-skin') as 'light' | 'dark' | null
+      if (savedSkin === 'dark') {
+        setCurrentSkin('dark')
+        document.documentElement.classList.add('dark')
+      } else {
+        setCurrentSkin('light')
+        document.documentElement.classList.remove('dark')
+      }
+    } catch {
+      // 忽略客户端存储异常
+    }
+  }, [])
+
+  const handleSkinChange = (skin: 'light' | 'dark') => {
+    setCurrentSkin(skin)
+    try {
+      localStorage.setItem('tbea-skin', skin)
+    } catch {}
+    if (skin === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+    setSkinDropdownOpen(false)
+  }
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false)
       }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
+        setUserDropdownOpen(false)
+      }
+      if (skinDropdownRef.current && !skinDropdownRef.current.contains(event.target as Node)) {
+        setSkinDropdownOpen(false)
+      }
     }
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setDropdownOpen(false)
+        setUserDropdownOpen(false)
+        setSkinDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -87,14 +136,14 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
       key: 'zero-carbon' as const,
       name: '零碳园区集控中心',
       shortName: '集控中心',
-      desc: '微电网全景看板 · 47项关键制造工序能效 · 碳核算',
-      href: '/zero-carbon/screen',
+      desc: '微电网全景看板 · 47项关键工序能效 · 碳核算',
+      href: '/zero-carbon/monitor/indicator',
       icon: Globe2,
-      activeColor: 'text-[#1677ff]',
+      activeColor: 'text-[#2C7CFF]',
       activeBg: 'bg-blue-50/90',
       activeBorder: 'border-blue-200',
-      badgeBg: 'bg-blue-100/70 text-[#1677ff]',
-      iconBg: 'bg-blue-100 text-[#1677ff]',
+      badgeBg: 'bg-blue-100/70 text-[#2C7CFF]',
+      iconBg: 'bg-blue-100 text-[#2C7CFF]',
     },
     {
       key: 'carbon-footprint' as const,
@@ -123,13 +172,17 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
     if (currentPath === cleanTarget) return true
 
     // 2. 特殊业务多 Tab 子路由归属规则：
-    // 【用能在线监测】包含「用能监测」(/usage) 与「设备监测」(/equipment) 两个子 Tab
+    // 【用能在线监测】独立匹配
     if (cleanTarget === '/zero-carbon/monitor/online/usage') {
       return (
         currentPath === '/zero-carbon/monitor/online' ||
-        currentPath.startsWith('/zero-carbon/monitor/online/usage') ||
-        currentPath.startsWith('/zero-carbon/monitor/online/equipment')
+        currentPath.startsWith('/zero-carbon/monitor/online/usage')
       )
+    }
+
+    // 【重点用能设备】独立匹配
+    if (cleanTarget === '/zero-carbon/monitor/online/equipment') {
+      return currentPath.startsWith('/zero-carbon/monitor/online/equipment')
     }
 
     // 【工业微电网监测】独立前缀匹配
@@ -181,13 +234,13 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
         reply = '【AI 诊断分析】沈变本部 8 月份真空干燥车间万元产值能耗达到 0.89 tce/万 (标杆 0.60)，超标 +48.3%。经传感器微漏监测诊断：2号真空干燥罐温控疏水阀存在微漏，伴随保温层局部热散失，导致当月额外损耗蒸汽 180 吨 (超标费用约 12.8 万元)。建议：本周末排期更换疏水阀密封组件。'
         tag = '工序异动预警'
       } else if (q.includes('单耗') || q.includes('工厂') || q.includes('最高')) {
-        reply = '【工厂 PK 分析】全集团 21 家制造工厂中，新变超高压公司 8 月份综合单耗最高 (1.58 tce/万kVA)，高于行业标杆 +31.6%，总能耗 1,520 tce，为重点监管单位；衡变本部表现最优 (1.18 tce/万kVA)，为集团低碳制造标杆工厂。'
-        tag = '指标横向PK'
+        reply = '【能耗时序分析】全集团 21 家制造工厂中，新变超高压公司 8 月份综合单耗为 1.58 tce/万kVA，距基准偏差 +31.6%，总能耗 1,520 tce；衡变本部当前为 1.18 tce/万kVA，距基准偏差 -1.8%。'
+        tag = '时序指标分析'
       } else if (q.includes('CBAM') || q.includes('出口') || q.includes('关税')) {
-        reply = '【CBAM 合规评估】针对出口欧盟的 ODFS-334MVA/500kV 变压器 (HS: 8504.23.11)，衡变本部生产批次实测隐含碳强度为 1.18 tCO2/台，低于欧盟基准线 1.35 tCO2/台，预估碳关税为 €0 (享低碳免征优势)，并已支持一键导出标准 XML 申报包。'
+        reply = '【CBAM 合规评估】针对出口欧盟的 ODFS-334MVA/500kV 变压器 (HS: 8504.23.11)，衡变本部生产批次实测隐含碳强度为 1.18 tCO2/台，低于欧盟基准线 1.35 tCO2/台，预估碳关税为 €0，并已支持一键导出标准 XML 申报包。'
         tag = '出海贸易合规'
       } else {
-        reply = `已为您查询关于“${q}”的指标数据：当前全集团 15 园区综合绿电占比为 38.6%，总折标能耗同比下降 4.1%，整体达标态势良好。`
+        reply = `已为您查询关于“${q}”的指标数据：当前全集团 15 园区综合绿电占比为 38.6%，总折标能耗同比 -4.1% ↓，各单元稳定运行。`
         tag = '数据检索'
       }
 
@@ -204,50 +257,120 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#f0f2f5] font-sans antialiased text-slate-800">
-      {/* 1. 左侧特变电工皇家深蓝侧边栏 (100% 全高贯穿最顶到底) */}
+    <div className="flex h-screen w-screen overflow-hidden bg-[#F3F7FB] font-sans antialiased text-slate-800">
+      {/* 1. 左侧特变电工皇家深蓝侧边栏 (260px 固定宽) */}
       <aside
         className={cn(
           'bg-[#0958d9] text-white flex flex-col h-screen shrink-0 transition-all duration-300 z-30 shadow-xl',
-          sidebarOpen ? 'w-56' : 'w-16'
+          sidebarOpen ? 'w-[260px]' : 'w-16'
         )}
       >
-        {/* 顶部特变电工官方 LOGO 品牌栏 */}
-        <div className="h-14 px-3 border-b border-blue-400/20 bg-[#003eb3] flex items-center justify-between shrink-0">
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 overflow-hidden group focus:outline-none"
-            title="特变电工能碳管控平台首页"
-          >
-            <div className="bg-white rounded px-1.5 py-0.5 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-              <img
-                src="/logo.png"
-                alt="TBEA 特变电工"
-                className="h-5 w-auto object-contain"
-                onError={(e) => {
-                  const target = e.currentTarget
-                  target.style.display = 'none'
-                  if (target.parentElement) {
-                    target.parentElement.innerHTML = '<span class="font-bold text-xs text-[#0958d9]">TBEA</span>'
-                  }
-                }}
-              />
-            </div>
-            {sidebarOpen && (
-              <div className="overflow-hidden">
-                <span className="font-extrabold text-xs tracking-wider block text-white whitespace-nowrap">
-                  TBEA 特变电工
+        {/* 顶部特变电工官方 LOGO 品牌栏 + 业务中心选择器 (与官方设计规范图 100% 像素级对齐) */}
+        <div className="px-4 pt-6 pb-5 shrink-0 border-b border-blue-400/20">
+          {sidebarOpen ? (
+            <div className="flex flex-col items-center">
+              {/* 官方纯白矢量 LOGO */}
+              <Link
+                href="/"
+                className="group focus:outline-none transition-transform hover:scale-[1.02]"
+                title="特变电工能碳数字化双中心"
+              >
+                <img
+                  src="/logo-white.png"
+                  alt="TBEA 特变电工"
+                  className="h-[22px] w-auto object-contain mx-auto"
+                />
+              </Link>
+
+              {/* 系统中文大标题 */}
+              <div className="mt-4 text-center">
+                <span className="font-bold text-[18px] tracking-[0.06em] text-white block leading-tight">
+                  {resolvedPlatformKey === 'carbon-footprint' ? '产品碳足迹集采中心' : '零碳园区集控中心'}
                 </span>
-                <span className="text-[9px] text-blue-200 block scale-90 -ml-1 whitespace-nowrap">
-                  装备中国 · 装备世界
+                {/* 系统英文小字 (缩小字号，强制单行显示) */}
+                <span className="text-[8px] font-medium text-white/75 block tracking-[0.1em] uppercase text-center mt-1.5 leading-none whitespace-nowrap">
+                  {resolvedPlatformKey === 'carbon-footprint' ? 'CARBON FOOTPRINT PROCUREMENT CENTER' : 'PARK CENTRALIZED CONTROL CENTER'}
                 </span>
               </div>
-            )}
-          </Link>
+
+              {/* 业务中心切换圆角胶囊下拉菜单 */}
+              <div className="relative w-full mt-5" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen((v) => !v)}
+                  className="flex w-full items-center justify-between rounded-xl border border-white/40 bg-white/10 hover:bg-white/15 active:bg-white/20 px-3.5 py-2.5 text-white transition-all cursor-pointer shadow-xs backdrop-blur-xs select-none"
+                  title="点击切换业务中心"
+                >
+                  <div className="flex items-center gap-2.5 overflow-hidden">
+                    <Globe className="size-5 text-white shrink-0" strokeWidth={1.8} />
+                    <span className="text-[14px] font-medium text-white tracking-wide truncate">
+                      {resolvedPlatformKey === 'carbon-footprint' ? '产品碳足迹集采中心' : '零碳园区集控中心'}
+                    </span>
+                  </div>
+                  <ChevronDown className={cn('size-4 text-white/90 shrink-0 transition-transform duration-200', dropdownOpen && 'rotate-180')} />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-1.5 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xl animate-in fade-in-0 zoom-in-95 text-slate-800">
+                    <div className="px-2.5 py-1 mb-1 border-b border-slate-100 flex items-center justify-between">
+                      <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">切换业务中心</span>
+                      <span className="text-[10px] text-slate-400 font-mono">DUAL CENTER</span>
+                    </div>
+                    {centers.map((center) => {
+                      const isSelected = resolvedPlatformKey === center.key
+                      const CenterIcon = center.icon
+                      return (
+                        <button
+                          key={center.key}
+                          type="button"
+                          onClick={() => {
+                            setDropdownOpen(false)
+                            if (!isSelected) router.push(center.href)
+                          }}
+                          className={cn(
+                            'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs text-left transition-colors cursor-pointer',
+                            isSelected ? 'bg-[#EBF3FF] font-bold text-[#2C7CFF]' : 'text-slate-700 hover:bg-slate-100'
+                          )}
+                        >
+                          <CenterIcon className="size-4 text-[#2C7CFF] shrink-0" />
+                          <span className="font-semibold truncate flex-1">{center.name}</span>
+                          {isSelected && <Check className="size-3.5 text-[#2C7CFF] shrink-0" />}
+                        </button>
+                      )
+                    })}
+                    <div className="border-t border-slate-100 mt-1 pt-1">
+                      <Link
+                        href="/"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                      >
+                        <Globe className="size-4 text-[#2C7CFF]" />
+                        返回总览门户
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <Link href="/" title="特变电工能碳数字化双中心">
+                <Globe className="size-6 text-white hover:text-white/80 transition-colors" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(true)}
+                className="flex size-8 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+                aria-label="展开导航"
+              >
+                <Menu className="size-4" />
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* 菜单列表 */}
-        <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
+        {/* 菜单列表 (文字行高/间距 30px) */}
+        <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {currentPlatform.nav.map((item) => {
             const Icon = item.icon
             const hasChildren = item.children && item.children.length > 0
@@ -263,14 +386,14 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-all group my-0.5',
+                    'flex items-center gap-2.5 px-3 h-[36px] rounded-lg text-sm font-medium transition-all group my-0.5',
                     isActive
-                      ? 'bg-[#1677ff] text-white font-bold shadow-xs'
-                      : 'text-blue-100/90 hover:text-white hover:bg-white/10'
+                      ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                      : 'text-blue-100 dark:text-muted-foreground hover:text-white hover:bg-white/10 dark:hover:bg-accent/40'
                   )}
                   title={!sidebarOpen ? item.title : undefined}
                 >
-                  <Icon className="size-4 shrink-0 text-white/80 group-hover:text-white" />
+                  <Icon className={cn('size-4 shrink-0', isActive ? 'text-primary-foreground' : 'text-white/80 group-hover:text-white')} />
                   {sidebarOpen && <span className="truncate">{item.title}</span>}
                 </Link>
               )
@@ -279,12 +402,13 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             return (
               <div key={item.title} className="space-y-0.5">
                 <button
+                  type="button"
                   onClick={() => toggleSubMenu(item.title)}
                   className={cn(
-                    'w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group my-0.5',
+                    'w-full flex items-center justify-between px-3 h-[36px] rounded-lg text-sm font-medium transition-all group my-0.5 cursor-pointer',
                     isActive
                       ? 'bg-blue-700/60 text-white font-bold'
-                      : 'text-blue-100/90 hover:text-white hover:bg-white/10'
+                      : 'text-blue-100 hover:text-white hover:bg-white/10'
                   )}
                   title={!sidebarOpen ? item.title : undefined}
                 >
@@ -311,13 +435,13 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                           key={sub.href}
                           href={sub.href}
                           className={cn(
-                            'block px-2.5 py-1.5 rounded text-xs transition-colors',
+                            'flex items-center px-2.5 h-[32px] rounded-md text-xs transition-colors',
                             isSubActive
-                              ? 'bg-[#1677ff] text-white font-bold shadow-xs'
-                              : 'text-white/80 hover:text-white hover:bg-white/10'
+                              ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                              : 'text-white/80 dark:text-muted-foreground hover:text-white hover:bg-white/10 dark:hover:bg-accent/40'
                           )}
                         >
-                          {sub.title}
+                          <span className="truncate">{sub.title}</span>
                         </Link>
                       )
                     })}
@@ -341,141 +465,224 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
 
       {/* 2. 右侧主体容器 (flex-col: 顶部主条 + 滚动主内容区) */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-        {/* 右侧顶部白色主导航条 */}
-        <header className="h-14 border-b border-[#e5e7eb] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs z-20 relative">
-          {/* 左侧：折叠按钮 + 下拉框切换双中心 */}
+        {/* 右侧顶部白色主导航条 (z-40 确保顶部浮层天然凌驾于页面内部所有模块之上) */}
+        <header className="h-14 border-b border-[#DBE6EE] bg-white px-4 flex items-center justify-between shrink-0 shadow-xs z-40 relative">
+          {/* 左侧：折叠按钮 + 页面面包屑 */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1.5 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0"
+              className="p-1.5 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer"
               title="折叠/展开侧边栏"
             >
               <Menu className="size-4" />
             </button>
 
-            {/* 🌟 核心双中心下拉切换 Switcher */}
-            <div className="relative" ref={dropdownRef}>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-500">
+                {resolvedPlatformKey === 'carbon-footprint' ? '产品碳足迹集采中心' : '零碳园区集控中心'}
+              </span>
+              <span className="text-slate-300">/</span>
+              <span className="text-xs font-bold text-slate-800">
+                {currentPlatform.nav.find((n) => isNavActive(pathname, n.href))?.title || '业务看板'}
+              </span>
+            </div>
+          </div>
+
+          {/* 右侧工具栏：皮肤选择 + 系统管理 + 用户头像 */}
+          <div className="flex items-center gap-3">
+            {/* 皮肤选择切换按钮与下拉浮层 */}
+            <div className="relative" ref={skinDropdownRef}>
               <button
                 type="button"
-                onClick={() => setDropdownOpen((prev) => !prev)}
+                onClick={() => setSkinDropdownOpen(!skinDropdownOpen)}
                 className={cn(
-                  'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 focus:outline-none cursor-pointer group',
-                  dropdownOpen
-                    ? 'bg-slate-100/90 text-[#1677ff]'
-                    : 'bg-transparent hover:bg-slate-100/80 text-slate-800'
+                  'h-8 w-8 relative rounded-md border border-[#DBE6EE] bg-slate-50 text-slate-600 transition-all hover:text-[#2C7CFF] hover:border-[#2C7CFF]/50 hover:bg-blue-50/50 cursor-pointer flex items-center justify-center shrink-0',
+                  skinDropdownOpen && 'bg-blue-50 border-[#2C7CFF] text-[#2C7CFF] ring-2 ring-[#2C7CFF]/20',
+                  currentSkin === 'dark' && 'text-[#2C7CFF] border-[#2C7CFF]/40'
                 )}
-                title="点击切换业务中心"
+                title="界面皮肤切换 (浅色 / 深色)"
+                aria-label="界面皮肤切换"
               >
-                <div className={cn('size-6 rounded-md flex items-center justify-center shrink-0 transition-transform group-hover:scale-105', currentCenter.iconBg)}>
-                  <CurrentCenterIcon className="size-3.5" />
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-slate-800 group-hover:text-[#1677ff] text-xs sm:text-sm whitespace-nowrap transition-colors">
-                    {currentCenter.name}
-                  </span>
-                </div>
-
-                <ChevronDown
-                  className={cn(
-                    'size-3.5 text-slate-400 ml-0.5 transition-transform duration-200 shrink-0 group-hover:text-slate-600',
-                    dropdownOpen && 'rotate-180 text-[#1677ff]'
-                  )}
-                />
+                <Palette className="size-4" />
               </button>
 
-              {/* 下拉面板 Popover */}
-              {dropdownOpen && (
-                <div className="absolute left-0 top-full mt-1.5 w-72 sm:w-80 bg-white rounded-xl shadow-xl border border-slate-200/90 py-1.5 z-50 animate-in fade-in-0 zoom-in-95 duration-150">
-                  <div className="px-3 py-1.5 mb-1 border-b border-slate-100 flex items-center justify-between">
-                    <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
-                      切换业务中心
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      DUAL CENTER
-                    </span>
+              {skinDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-[#0c1826] p-3 shadow-xl dark:shadow-2xl dark:shadow-black/60 z-50 animate-in fade-in zoom-in-95 duration-150 font-sans text-slate-800 dark:text-slate-100">
+                  <div className="flex items-center gap-1.5 pb-2 mb-2 border-b border-slate-100 dark:border-slate-800/80 text-xs font-bold text-slate-800 dark:text-slate-100">
+                    <Palette className="size-3.5 text-[#2C7CFF] dark:text-cyan-400" />
+                    <span>界面皮肤风格</span>
                   </div>
 
-                  <div className="p-1 space-y-1">
-                    {centers.map((center) => {
-                      const isSelected = resolvedPlatformKey === center.key
-                      const CenterIcon = center.icon
-                      return (
-                        <button
-                          key={center.key}
-                          type="button"
-                          onClick={() => {
-                            setDropdownOpen(false)
-                            if (!isSelected) {
-                              router.push(center.href)
-                            }
-                          }}
-                          className={cn(
-                            'w-full text-left flex items-center gap-3 p-2.5 rounded-lg transition-all text-xs group cursor-pointer',
-                            isSelected
-                              ? cn(center.activeBg, 'border', center.activeBorder, 'shadow-2xs')
-                              : 'hover:bg-slate-50 border border-transparent text-slate-700'
-                          )}
-                        >
-                          <div
-                            className={cn(
-                              'size-8 rounded-lg flex items-center justify-center shrink-0 shadow-2xs transition-transform group-hover:scale-105',
-                              center.iconBg
-                            )}
-                          >
-                            <CenterIcon className="size-4" />
-                          </div>
-
-                          <div className="flex-1 min-w-0 flex items-center justify-between gap-1">
-                            <span
-                              className={cn(
-                                'font-bold text-xs truncate',
-                                isSelected ? center.activeColor : 'text-slate-800'
-                              )}
-                            >
-                              {center.name}
+                  <div className="space-y-2">
+                    {/* 浅色商务版本 */}
+                    <button
+                      type="button"
+                      onClick={() => handleSkinChange('light')}
+                      className={cn(
+                        'w-full flex items-center justify-between p-2.5 rounded-lg border text-left transition-all cursor-pointer group',
+                        currentSkin === 'light'
+                          ? 'border-[#2C7CFF] bg-blue-50/60 ring-1 ring-[#2C7CFF]/30 dark:bg-blue-950/40 dark:border-blue-500'
+                          : 'border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 dark:border-slate-700/70 dark:bg-slate-800/30 dark:hover:border-cyan-500/50 dark:hover:bg-slate-800/90'
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="size-8 rounded-lg bg-white border border-slate-200 dark:bg-slate-800 dark:border-slate-700 flex items-center justify-center shadow-xs text-amber-500 shrink-0">
+                          <Sun className="size-4.5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className={cn(
+                              'text-xs font-bold transition-colors',
+                              currentSkin === 'light'
+                                ? 'text-[#2C7CFF] dark:text-blue-400'
+                                : 'text-slate-800 dark:text-slate-100 group-hover:text-[#2C7CFF] dark:group-hover:text-cyan-300'
+                            )}>
+                              浅色商务
                             </span>
-                            {isSelected && (
-                              <span
-                                className={cn(
-                                  'shrink-0 size-4 rounded-full flex items-center justify-center',
-                                  center.activeColor
-                                )}
-                              >
-                                <Check className="size-3.5" />
-                              </span>
+                            {currentSkin === 'light' && (
+                              <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-[#2C7CFF] text-white">当前</span>
                             )}
                           </div>
-                        </button>
-                      )
-                    })}
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">清新明亮 · 商务办公风格</p>
+                        </div>
+                      </div>
+                      {currentSkin === 'light' && <Check className="size-4 text-[#2C7CFF]" />}
+                    </button>
+
+                    {/* 深色科技版本 */}
+                    <button
+                      type="button"
+                      onClick={() => handleSkinChange('dark')}
+                      className={cn(
+                        'w-full flex items-center justify-between p-2.5 rounded-lg border text-left transition-all cursor-pointer group',
+                        currentSkin === 'dark'
+                          ? 'border-[#2C7CFF] bg-slate-900 text-white ring-1 ring-[#2C7CFF]/50 dark:border-cyan-500 dark:bg-cyan-950/40 dark:ring-cyan-500/40'
+                          : 'border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 dark:border-slate-700/70 dark:bg-slate-800/30 dark:hover:border-cyan-500/50 dark:hover:bg-slate-800/90'
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="size-8 rounded-lg bg-[#0F172A] border border-blue-500/30 flex items-center justify-center shadow-xs text-cyan-400 shrink-0">
+                          <Moon className="size-4.5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className={cn(
+                              'text-xs font-bold transition-colors',
+                              currentSkin === 'dark'
+                                ? 'text-white'
+                                : 'text-slate-800 dark:text-slate-100 group-hover:text-[#2C7CFF] dark:group-hover:text-cyan-300'
+                            )}>
+                              深色科技
+                            </span>
+                            {currentSkin === 'dark' && (
+                              <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-cyan-500 text-slate-950">当前</span>
+                            )}
+                          </div>
+                          <p className={cn(
+                            'text-[11px] mt-0.5',
+                            currentSkin === 'dark' ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'
+                          )}>
+                            科技蓝调 · 集控大屏工业主题
+                          </p>
+                        </div>
+                      </div>
+                      {currentSkin === 'dark' && <Check className="size-4 text-cyan-400" />}
+                    </button>
                   </div>
                 </div>
               )}
             </div>
-          </div>
 
-          {/* 右侧工具栏：用户头像 */}
-          <div className="flex items-center gap-3">
-            {/* 用户头像信息 */}
-            <div className="flex items-center gap-2 pl-1">
-              <div className="size-7 rounded-full bg-[#1677ff] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                管
-              </div>
-              <div className="hidden sm:block text-left">
-                <span className="text-xs font-semibold text-slate-800 block leading-tight">
-                  管理员 (倪总)
-                </span>
-                <span className="text-[10px] text-slate-400 block">
-                  特变电工电装集团
-                </span>
-              </div>
+            <Link
+              href={`/system?from=${encodeURIComponent(pathname)}`}
+              className="h-8 flex items-center gap-1.5 rounded-md border border-[#DBE6EE] dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/40 px-3 text-xs font-medium text-slate-700 dark:text-slate-200 transition-colors hover:border-[#2C7CFF]/50 hover:text-[#2C7CFF] shrink-0"
+            >
+              <Settings className="size-3.5 text-[#2C7CFF]" />
+              系统管理
+            </Link>
+
+            {/* 用户个人信息及下拉操作菜单（退出登录放置在用户信息下方） */}
+            <div className="relative" ref={userDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className={cn(
+                  'flex items-center gap-2 pl-2.5 pr-2 py-1 border-l border-slate-200 dark:border-slate-700/80 rounded-lg transition-colors cursor-pointer text-left group',
+                  userDropdownOpen ? 'bg-slate-100 dark:bg-slate-800/60' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                )}
+                aria-label="用户中心与退出登录"
+              >
+                <div className="size-7 rounded-full bg-[#2C7CFF] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  管
+                </div>
+                <div className="hidden sm:block text-left leading-tight">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 block group-hover:text-[#2C7CFF] transition-colors">
+                    管理员 (倪总)
+                  </span>
+                  <span className="text-[10px] text-slate-400 block">
+                    特变电工电装集团
+                  </span>
+                </div>
+                <ChevronDown className={cn('size-3.5 text-slate-400 transition-transform duration-200', userDropdownOpen && 'rotate-180')} />
+              </button>
+
+              {/* 下拉浮层卡片：明确放置在用户信息正下方 */}
+              {userDropdownOpen && (
+                <div className="absolute right-0 top-full z-50 mt-1.5 w-60 rounded-xl border border-[#DBE6EE] dark:border-slate-700/80 bg-white dark:bg-[#0c1826] p-2 shadow-xl dark:shadow-2xl dark:shadow-black/60 animate-in fade-in-0 zoom-in-95 text-slate-800 dark:text-slate-100">
+                  {/* 用户信息卡片头部 */}
+                  <div className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/70 mb-2">
+                    <div className="size-9 rounded-full bg-[#2C7CFF] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                      管
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">倪总</span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#2C7CFF] dark:text-blue-300 font-medium border border-blue-100 dark:border-blue-800/50">管理员</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 truncate mt-0.5">特变电工电装集团</p>
+                      <p className="text-[10px] font-mono text-slate-400 truncate">tbea_admin</p>
+                    </div>
+                  </div>
+
+                  {/* 快捷操作项 */}
+                  <div className="space-y-0.5">
+                    <Link
+                      href="/"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/80"
+                    >
+                      <Globe className="size-3.5 text-[#2C7CFF]" />
+                      <span>返回总览门户</span>
+                    </Link>
+                    <Link
+                      href={`/system?from=${encodeURIComponent(pathname)}`}
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/80"
+                    >
+                      <Settings className="size-3.5 text-[#2C7CFF]" />
+                      <span>系统后台管理</span>
+                    </Link>
+                  </div>
+
+                  <div className="my-1.5 border-t border-slate-100 dark:border-slate-800" />
+
+                  {/* 🌟 退出登录按钮（明确放置在用户信息下方） */}
+                  <Link
+                    href="/login"
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                  >
+                    <LogOut className="size-3.5" />
+                    <span>退出登录</span>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </header>
 
-        {/* 主内容区 (滚动视口) */}
-        <main className="flex-1 overflow-y-auto p-3.5 md:p-4 bg-[#f0f2f5] relative custom-scrollbar">
+        {/* 主内容区 (滚动视口，统一为规范浅灰蓝 #F3F7FB) */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-[#F3F7FB] relative custom-scrollbar">
           {children}
         </main>
       </div>
@@ -488,7 +695,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
         {isAiOpen && (
           <div className="w-96 sm:w-[420px] h-[520px] bg-white rounded-2xl shadow-2xl border border-slate-200 mb-3 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-200 pointer-events-auto">
             {/* 窗口头部 */}
-            <div className="bg-gradient-to-r from-[#0958d9] to-[#1677ff] p-3.5 text-white flex items-center justify-between shrink-0 shadow-md">
+            <div className="bg-gradient-to-r from-[#0958d9] to-[#2C7CFF] p-3.5 text-white flex items-center justify-between shrink-0 shadow-md">
               <div className="flex items-center gap-2.5">
                 <div className="size-8 rounded-full bg-white/20 flex items-center justify-center">
                   <Sparkles className="size-4.5 text-white animate-pulse" />
@@ -530,7 +737,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                     <span>·</span>
                     <span>{m.time}</span>
                     {m.tag && (
-                      <span className="ml-1 px-1.5 py-0.2 rounded bg-blue-50 text-[#1677ff] border border-blue-200 font-bold">
+                      <span className="ml-1 px-1.5 py-0.2 rounded bg-blue-50 text-[#2C7CFF] border border-blue-200 font-bold">
                         {m.tag}
                       </span>
                     )}
@@ -539,7 +746,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                     className={cn(
                       'p-3 rounded-xl max-w-[90%] leading-relaxed',
                       m.sender === 'user'
-                        ? 'bg-[#1677ff] text-white rounded-br-none shadow-xs'
+                        ? 'bg-[#2C7CFF] text-white rounded-br-none shadow-xs'
                         : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none shadow-xs'
                     )}
                   >
@@ -557,13 +764,13 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
               <div className="flex flex-wrap gap-1.5 text-[10px]">
                 <button
                   onClick={() => handleSendAi('沈变本部真空干燥车间蒸汽超标原因是什么？')}
-                  className="px-2 py-1 rounded bg-slate-100 hover:bg-blue-50 hover:text-[#1677ff] border border-slate-200 transition-colors text-slate-700 text-left truncate max-w-[200px]"
+                  className="px-2 py-1 rounded bg-slate-100 hover:bg-blue-50 hover:text-[#2C7CFF] border border-slate-200 transition-colors text-slate-700 text-left truncate max-w-[200px]"
                 >
                   ⚡ 沈变干燥车间蒸汽超标原因？
                 </button>
                 <button
                   onClick={() => handleSendAi('全集团哪家工厂单位单耗最高，需要重点监管？')}
-                  className="px-2 py-1 rounded bg-slate-100 hover:bg-blue-50 hover:text-[#1677ff] border border-slate-200 transition-colors text-slate-700 text-left truncate max-w-[200px]"
+                  className="px-2 py-1 rounded bg-slate-100 hover:bg-blue-50 hover:text-[#2C7CFF] border border-slate-200 transition-colors text-slate-700 text-left truncate max-w-[200px]"
                 >
                   🏭 哪家工厂单耗最高需监管？
                 </button>
@@ -578,11 +785,11 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
                 onChange={(e) => setAiInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendAi()}
                 placeholder="输入能耗、碳排、CBAM关税或工艺问题..."
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1677ff]"
+                className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#2C7CFF]"
               />
               <button
                 onClick={() => handleSendAi()}
-                className="size-8 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white flex items-center justify-center transition-colors shadow-xs"
+                className="size-8 rounded-lg bg-[#2C7CFF] hover:bg-blue-600 text-white flex items-center justify-center transition-colors shadow-xs"
                 title="发送"
               >
                 <Send className="size-3.5" />
@@ -598,7 +805,7 @@ export function PlatformShell({ children, platformKey, platform }: ShellProps) {
             'pointer-events-auto cursor-pointer flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl transition-all transform hover:scale-105 active:scale-95 group focus:outline-none ring-2 ring-white',
             isAiOpen
               ? 'bg-slate-900 text-white shadow-slate-900/40'
-              : 'bg-gradient-to-r from-[#0958d9] via-[#1677ff] to-[#0284c7] text-white shadow-blue-500/40 hover:shadow-blue-500/60'
+              : 'bg-gradient-to-r from-[#0958d9] via-[#2C7CFF] to-[#0284c7] text-white shadow-blue-500/40 hover:shadow-blue-500/60'
           )}
           title="点击打开特变电工 AI助手"
         >

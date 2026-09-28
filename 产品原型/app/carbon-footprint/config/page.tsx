@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { PageHeader } from '@/components/shared/page-header'
 import { Panel, StatusBadge, DataTable, Badge } from '@/components/shared/primitives'
 import { Tabs } from '@/components/shared/tabs'
 import { accounts, statusColor } from '@/lib/mock-data'
-import { Settings2,  ShieldCheck, ChevronRight, Lock } from 'lucide-react'
+import { ShieldCheck, ChevronRight, Lock } from 'lucide-react'
 
 const classTree = [
   {
@@ -34,13 +33,6 @@ export default function CarbonConfigPage() {
 
   return (
     <div>
-      <PageHeader
-        icon={Settings2}
-        title="系统配置"
-        badge="标准基准与权限配置"
-        desc="系统生命周期评估方法学、分配准则、截断规则与行业基准参数配置"
-      />
-
       <Tabs
         value={tab}
         onChange={setTab}

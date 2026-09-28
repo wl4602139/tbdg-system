@@ -1,374 +1,516 @@
 /* ============================================================
- * 特变电工“双中心” 65+ 项管控指标字典与定义
- * 数据来源：《“双中心”项目能碳管控指标体系V1.4.xlsx》
+ * 电装零碳集控中心 / 产品碳足迹集采中心 管控指标目录
+ * 依据《管控指标明细组》整理，供指标管控、能效分析、下钻使用
  * ============================================================ */
 
-export type IndicatorStatus = '优秀' | '正常' | '异常'
+export type IndicatorStatus = '正常' | '异常' | '优秀'
 
 export type Indicator = {
   id: number
   name: string
-  definition: string
-  formula: string
-  desc: string
-  unit: string
-  center: '集控' | '集采'
-  category: string
-  source: string
-  scope: string
-  freq: string
+  definition: string // 指标定义
+  formula: string // 计算公式（纯文本，安全字符）
+  desc: string // 指标说明
+  unit: string // 指标单位
+  center: '集控' | '集采' // 所属中心
+  category: string // 指标类别
+  source: string // 指标来源
+  scope: string // 覆盖范围
+  freq: string // 统计周期
+  /* 示例监测值（用于指标管控看板与下钻） */
   factory?: string
-  current: number
-  base: number
-  target: number
-  yoyDiff?: number
-  yoyRate?: number
-  momDiff?: number
-  momRate?: number
-  status: IndicatorStatus
-  aiReasoning?: string
+  current?: number
+  base?: number
+  target?: number
+  status?: IndicatorStatus
 }
 
+/* -------------------- 指标类别 / 来源枚举 -------------------- */
+export const indicatorCategories = [
+  '碳排放类',
+  '综合能耗类',
+  '单位产品能耗类',
+  '单位产值能耗类',
+  '关键工序能耗类',
+  '绿电与非化石类',
+  '管理效率类',
+] as const
+
+/* -------------------- 指标目录（集控 + 集采） -------------------- */
 export const indicators: Indicator[] = [
+  // ============ 集采中心 ============
   {
     id: 1,
     name: '产品碳足迹',
-    definition: '引用 GB/T 24067、ISO14067，主要管理摇篮到大门阶段的产品碳足迹值',
-    formula: '实时数据：取产品碳足迹核算值',
-    desc: '来源于本地产品碳足迹追踪及报告系统的产品碳足迹数据',
-    unit: 'tCO2/台套',
+    definition: '引用 GB/T 24067、ISO14067，主要管控摇篮到大门（或到坟墓）的产品碳足迹值',
+    formula: '实时数据，取产品碳足迹核算值',
+    desc: '来源于本地产品碳足迹追踪及报告系统的产品碳足迹数值',
+    unit: 'tCO2/台',
     center: '集采',
-    category: '碳排放',
-    source: '股份要求（应对 CBAM 与绿色招采）',
+    category: '碳排放类',
+    source: '股份管理要求（应对 CBAM）',
     scope: '全产品',
-    freq: '实时/工单',
-    factory: '沈变本部',
+    freq: '实时',
+    factory: '天津变压器厂',
     current: 12.68,
     base: 13.2,
-    target: 12.0,
-    yoyDiff: -0.52,
-    yoyRate: -3.94,
+    target: 12,
     status: '优秀',
-    aiReasoning: '供应链上游铜铝原材料绿色采购比例上升 15%，带动单台碳足迹下降。',
   },
   {
     id: 2,
     name: '开展产品碳足迹分析占比',
     definition: '统计期内开展主要产品碳足迹分析的产品类别数量占主要产品类别总数的比值',
-    formula: 'Rcf = (Ncf / N) * 100%',
-    desc: '产品碳足迹系统提供开展计算的种类明细，从 ERP 获取全部产品明细',
+    formula: 'Rcf = Ncf / N × 100%',
+    desc: 'Ncf: 已开展分析的主要产品类别数；N: 主要产品类别总数',
     unit: '%',
     center: '集采',
-    category: '碳排放',
-    source: '国家级零碳工厂要求',
-    scope: '工厂级',
+    category: '管理效率类',
+    source: '国家级零碳工厂',
+    scope: '全工厂',
     freq: '月度',
-    factory: '沈变本部',
-    current: 65.4,
-    base: 60.0,
-    target: 80.0,
-    yoyDiff: 5.4,
-    yoyRate: 9.0,
+    factory: '衡阳电缆厂',
+    current: 78.5,
+    base: 70,
+    target: 85,
     status: '正常',
   },
+  // ============ 集控中心 · 综合能耗 / 碳排放 ============
   {
     id: 3,
     name: '综合能源消费量',
-    definition: '统计期内组织综合能源消费的总吨标准煤 (tce)',
-    formula: 'E = ∑(Ei * ki)，电力折标系数采用当量值 (0.1229 kgce/kWh)',
-    desc: '涵盖电、天然气、蒸汽、热力、柴油、汽油等所有能源介质',
+    definition: '统计期内组织综合能源消费的总吨标准煤',
+    formula: 'E = Σ (Ei × ki)',
+    desc: '电、天然气、蒸汽、热力、柴油、煤油等各能源折算标准煤。ki 为第 i 种能源折标煤系数',
     unit: 'tce',
     center: '集控',
-    category: '综合能耗',
-    source: '国家级零碳工厂要求',
-    scope: '工厂级',
+    category: '综合能耗类',
+    source: '国家级零碳工厂',
+    scope: '全工厂',
     freq: '月度',
-    factory: '沈变本部',
-    current: 1284.5,
-    base: 1320.0,
-    target: 1250.0,
-    yoyDiff: -35.5,
-    yoyRate: -2.69,
+    factory: '天津变压器厂',
+    current: 12800,
+    base: 13500,
+    target: 12000,
     status: '正常',
-    aiReasoning: '本月错峰用电管理推进顺利，公辅空压机联控节能运行降低损耗 4.2%。',
   },
   {
     id: 4,
     name: '总碳排放量',
-    definition: '指统计期内企业组织产生的二氧化碳总排放量 (tCO2)',
-    formula: 'C = C燃烧 + C过程 + C购入电 - C输出电 + C购入热 - C输出热 - C回收',
-    desc: '重点核算能源活动碳排放，电力排放取省级电网平均排放因子',
+    definition: '统计期内企业组织产生的二氧化碳排放量',
+    formula: 'E总 = E电 + E气 + E汽 + E热 + E油 + E煤',
+    desc: '统计企业生产过程碳排放，回收利用中固碳非常少，本次考虑能源碳排放',
     unit: 'tCO2',
     center: '集控',
-    category: '碳排放',
-    source: '国家级零碳工厂要求',
-    scope: '工厂级',
+    category: '碳排放类',
+    source: '国家级零碳工厂',
+    scope: '全工厂',
     freq: '月度',
-    factory: '沈变本部',
-    current: 3420.8,
-    base: 3600.0,
-    target: 3300.0,
-    yoyDiff: -179.2,
-    yoyRate: -4.98,
-    status: '优秀',
-    aiReasoning: '自建屋顶分布式光伏消纳电量提升 12%，抵消部分市电购电碳排放。',
+    factory: '昌吉线缆厂',
+    current: 8620,
+    base: 8100,
+    target: 7800,
+    status: '异常',
   },
   {
     id: 5,
     name: '单位能耗碳排放',
     definition: '统计期内每消费一吨标准煤产生的二氧化碳排放量',
-    formula: 'I = C / E (电力折标按等价值计算，优先使用省平均发电煤耗)',
-    desc: '分子与分母核算范围保持严格一致',
+    formula: 'I = C / E',
+    desc: 'C: 单位能耗碳排放量（tCO2）；E: 综合能源消耗量（tce）',
     unit: 'tCO2/tce',
     center: '集控',
-    category: '碳排放',
-    source: '国家级零碳工厂要求',
-    scope: '工厂级',
+    category: '碳排放类',
+    source: '国家级零碳工厂',
+    scope: '全工厂',
     freq: '月度',
-    factory: '沈变本部',
-    current: 2.66,
-    base: 2.72,
-    target: 2.55,
-    yoyDiff: -0.06,
-    yoyRate: -2.21,
+    factory: '沈阳开关厂',
+    current: 0.62,
+    base: 0.66,
+    target: 0.6,
     status: '正常',
   },
   {
     id: 6,
     name: '非化石能源消费占比',
     definition: '统计期内非化石能源消费量与综合能源消费量的比值',
-    formula: 'r = (R / E) * 100% (交易绿电、绿证可纳入分子)',
-    desc: '自建分布式绿电 + 外部交易绿电 + 绿证认购',
+    formula: 'r = R / E × 100%',
+    desc: 'R: 各类非化石能源消费量（不含作为原材料的能源）；E: 综合能源消费量',
     unit: '%',
     center: '集控',
-    category: '绿电与非化石',
-    source: '国家级零碳工厂要求',
-    scope: '工厂级',
+    category: '绿电与非化石类',
+    source: '国家级零碳工厂',
+    scope: '全工厂',
     freq: '月度',
-    factory: '沈变本部',
-    current: 38.6,
-    base: 32.0,
-    target: 40.0,
-    yoyDiff: 6.6,
-    yoyRate: 20.63,
-    status: '优秀',
-    aiReasoning: '月度新完成 500 万 kWh 绿电交易结算，非化石消费显著提升。',
+    factory: '衡阳电缆厂',
+    current: 34.6,
+    base: 30,
+    target: 40,
+    status: '正常',
   },
   {
     id: 7,
-    name: '非化石电力物理认定量占比',
-    definition: '具备物理可溯源条件的非化石能源电力消费量占同期总用电量的比值',
-    formula: 'Eui = (Ez / Q) * 100% (交易绿电/绿证不计入分子)',
-    desc: '仅包含厂区自建光伏消纳电量与专线直供可物理溯源绿电',
+    name: '非化石能源电力消费物理认定占比',
+    definition: '统计期内具备物理可溯源条件的非化石电力消费量占总电量的比值',
+    formula: 'Ewl = Ex / Q × 100%',
+    desc: 'Ex: 具备物理溯源条件的非化石电力消费量；Q: 总电量（万kWh）',
     unit: '%',
     center: '集控',
-    category: '绿电与非化石',
-    source: '国家级零碳工厂要求',
-    scope: '工厂级',
+    category: '绿电与非化石类',
+    source: '国家级零碳工厂',
+    scope: '全工厂',
     freq: '月度',
-    factory: '沈变本部',
-    current: 24.8,
-    base: 22.0,
-    target: 30.0,
-    yoyDiff: 2.8,
-    yoyRate: 12.73,
+    factory: '天津变压器厂',
+    current: 28.4,
+    base: 25,
+    target: 35,
     status: '正常',
   },
   {
     id: 8,
     name: '单位工业增加值能耗',
-    definition: '统计期内综合能源消费量与企业工业增加值的比值',
-    formula: 'Enva = E / Gnva (Gnva: 工业增加值，万元)',
-    desc: '月度依据财务数据估算，年度重新统一汇算',
+    definition: '统计期内综合能源消费量与工业增加值的比值',
+    formula: 'Emzw = E / Gmzw',
+    desc: 'E: 综合能源消费量（tce）；Gmzw: 工业增加值（万元），年度重新汇总',
     unit: 'tce/万元',
     center: '集控',
-    category: '单位产值能耗',
-    source: '国家级零碳工厂要求',
-    scope: '工厂级',
-    freq: '月度/年度',
-    factory: '沈变本部',
-    current: 0.142,
-    base: 0.155,
-    target: 0.135,
-    yoyDiff: -0.013,
-    yoyRate: -8.39,
-    status: '优秀',
+    category: '单位产值能耗类',
+    source: '国家级零碳工厂',
+    scope: '全工厂',
+    freq: '月度',
+    factory: '沈阳开关厂',
+    current: 0.38,
+    base: 0.42,
+    target: 0.35,
+    status: '正常',
   },
   {
     id: 9,
     name: '节能装备应用占比',
-    definition: '达到或优于能效国标2级水平的装备额定总功率占纳入范围总功率比例',
-    formula: 'S = (Res / Ets) * 100%',
-    desc: '包括变压器、电动机、工业锅炉、风机、空压机、热泵等',
+    definition: '统计期内达到或优于能效强制国标 2 级水平和重点用能产品设备效先进水平的节能水平的装备累计额定总功率与纳入统计范围装备累计额定总功率的比值',
+    formula: 'S = Ren / Ez × 100%',
+    desc: 'Ren: 达到要求节能水平装备累计额定总功率；Ez: 装备累计额定总功率',
     unit: '%',
     center: '集控',
-    category: '能效与装备',
-    source: '国家级零碳工厂要求',
-    scope: '工厂级',
-    freq: '月度增量',
-    factory: '沈变本部',
-    current: 78.5,
-    base: 72.0,
-    target: 85.0,
-    yoyDiff: 6.5,
-    yoyRate: 9.03,
+    category: '管理效率类',
+    source: '国家级零碳工厂',
+    scope: '全工厂',
+    freq: '月度',
+    factory: '西安互感器厂',
+    current: 82.1,
+    base: 78,
+    target: 88,
     status: '正常',
   },
   {
     id: 10,
     name: '关键能源数据自动采集率',
-    definition: '进出用能单位、次级单位和主要用能设备(≥45kW)能源数据自动采集比例',
-    formula: 'Rp = (Ns / Nl) * 100% (Ns: 有效自动采集表数, Nl: 理论应装表数)',
-    desc: '依据特变电工计量管理标准 TBEA-BA-6.5.2.1.1 考核',
+    definition: '进出用能单位、进出主要次级用能单位和主要用能设备数据自动采集比例',
+    formula: 'Rz = Nz / Nj × 100%',
+    desc: 'Nz: 有效自动采集表计数；Nj: 按标准要求应配置表计数',
     unit: '%',
     center: '集控',
-    category: '能效与装备',
+    category: '管理效率类',
     source: '股份管理要求',
-    scope: '工厂级',
+    scope: '全工厂',
     freq: '月度',
-    factory: '沈变本部',
-    current: 94.2,
-    base: 88.0,
-    target: 95.0,
-    yoyDiff: 6.2,
-    yoyRate: 7.05,
+    factory: '天津变压器厂',
+    current: 91.5,
+    base: 85,
+    target: 95,
     status: '优秀',
   },
   {
     id: 11,
     name: '单位产值能耗',
     definition: '统计期内综合能源消费量与产品产值的比值',
-    formula: 'g = E / G (G: 产品产值，万元)',
-    desc: '变压器产值取经营日报管理系统，线缆产值取大数据平台',
+    formula: 'g = E / G',
+    desc: 'g: 单位产值能耗（tce/万元）；E: 综合能源消费量；G: 产品产值（万元）',
     unit: 'tce/万元',
     center: '集控',
-    category: '单位产值能耗',
+    category: '单位产值能耗类',
     source: '股份管理要求',
-    scope: '工厂级',
+    scope: '全工厂',
     freq: '月度',
-    factory: '沈变本部',
-    current: 0.118,
-    base: 0.125,
-    target: 0.110,
-    yoyDiff: -0.007,
-    yoyRate: -5.6,
+    factory: '衡阳电缆厂',
+    current: 0.42,
+    base: 0.45,
+    target: 0.4,
     status: '正常',
   },
   {
     id: 12,
     name: '单位产品能耗（型号）',
-    definition: '统计期内该产品型号综合能源消费量与产品产量的比值',
-    formula: 'e = E / M (M: 产品产量，万kVA 或 万km*mm²)',
-    desc: '按订单提取产量，关键工序电/蒸汽直接计量，非关键工序按容量分摊',
-    unit: 'tce/万kVA',
+    definition: '统计期内综合能源消费量与产品产量的比值',
+    formula: 'e = E / M',
+    desc: 'e: 单位产品能耗（tce/产品单位）；E: 综合能���消费量；M: 产品产量（型号-产品单位对应关系）',
+    unit: 'tce/产品单位',
     center: '集控',
-    category: '单位产品能耗',
-    source: '国家绿色工厂标准',
-    scope: '产品型号',
+    category: '单位产品能耗类',
+    source: '国家绿色工厂',
+    scope: '全工厂',
     freq: '月度',
-    factory: '沈变本部',
-    current: 1.45,
-    base: 1.30,
-    target: 1.20,
-    yoyDiff: 0.15,
-    yoyRate: 11.54,
+    factory: '天津变压器厂',
+    current: 86.4,
+    base: 82,
+    target: 80,
     status: '异常',
-    aiReasoning: '本月高压干燥工序蒸汽能耗偏高 18%，主要受 2 号真空干燥罐密封圈老化热损影响。',
   },
   {
     id: 13,
     name: '单位产品电耗',
-    definition: '统计期内电能消费量（含公辅）与产品产量的比值',
+    definition: '统计期内电能源消费量（包括公辅设备）与产品产量的比值',
     formula: 'q电 = Q电 / M',
-    desc: '车间电能消耗总量 / 订单合格产品产量',
-    unit: 'kWh/万kVA',
+    desc: 'q电: 单位产品电耗（kWh/产品单位）；Q电: 电能源消费量；M: 产品产量',
+    unit: 'kWh/产品单位',
     center: '集控',
-    category: '单位产品能耗',
+    category: '单位产品能耗类',
     source: '股份管理要求',
-    scope: '产品型号',
+    scope: '公司级',
     freq: '月度',
-    factory: '沈变本部',
-    current: 10420.0,
-    base: 10800.0,
-    target: 10000.0,
-    yoyDiff: -380.0,
-    yoyRate: -3.52,
+    factory: '沈阳开关厂',
+    current: 42.6,
+    base: 45,
+    target: 40,
     status: '正常',
   },
   {
     id: 14,
     name: '单位产品蒸汽消耗',
-    definition: '统计期内蒸汽消费量与产品产量的比值',
+    definition: '统计期内蒸汽能源消费量与产品产量的比值',
     formula: 'q蒸汽 = Q蒸汽 / M',
-    desc: '干燥及固化工序蒸汽消耗量 / 订单产量',
-    unit: 'GJ/万kVA',
+    desc: 'q蒸汽: 单位产品蒸汽消耗（GJ/产品单位）；Q蒸汽: 蒸汽能源消费量；M: 产品产量',
+    unit: 'GJ/产品单位',
     center: '集控',
-    category: '单位产品能耗',
+    category: '单位产品能耗类',
     source: '股份管理要求',
-    scope: '产品型号',
+    scope: '公司级',
     freq: '月度',
-    factory: '沈变本部',
-    current: 4.82,
-    base: 4.20,
-    target: 4.00,
-    yoyDiff: 0.62,
-    yoyRate: 14.76,
+    factory: '天津变压器厂',
+    current: 0.42,
+    base: 0.4,
+    target: 0.38,
     status: '异常',
-    aiReasoning: '干燥保温周期延长，蒸汽管道排水疏水阀出现微漏。',
   },
   {
     id: 15,
+    name: '单位产品天然气消耗',
+    definition: '统计期内天然气能源消费量与产品产量的比值',
+    formula: 'q天然气 = Q天然气 / M',
+    desc: 'q天然气: 单位产品天然气消耗（m3/产品单位）；Q天然气: 天然气能源消费量；M: 产品产量',
+    unit: 'm3/产品单位',
+    center: '集控',
+    category: '单位产品能耗类',
+    source: '股份管理要求',
+    scope: '公司级',
+    freq: '月度',
+    factory: '衡阳电缆厂',
+    current: 3.86,
+    base: 4.1,
+    target: 3.6,
+    status: '正常',
+  },
+  {
+    id: 16,
+    name: '单位产品水耗',
+    definition: '统计期内水能源消费量与产品产量的比值',
+    formula: 'q水 = Q水 / M',
+    desc: 'q水: 单位产品水耗（t/产品单位）；Q水: 水能源消费量；M: 产品产量',
+    unit: 't/产品单位',
+    center: '集控',
+    category: '单位产品能耗类',
+    source: '股份管理要求',
+    scope: '公司级',
+    freq: '月度',
+    factory: '西安互感器厂',
+    current: 156,
+    base: 160,
+    target: 150,
+    status: '正常',
+  },
+  // ============ 关键工序能耗类 ============
+  {
+    id: 17,
     name: '吨铜电耗（线缆-拉丝）',
-    definition: '线缆拉丝工序中每拉1吨铜的耗电量',
-    formula: 'q = Q线-拉丝Cu-电 / M线-拉丝Cu',
-    desc: '采集铜拉丝机设备电表计量 / 耗铜产量',
+    definition: '拉丝工序，拉 1 吨铜耗电量',
+    formula: 'q = Q拉丝电 / M铜',
+    desc: '采集拉丝（铜）设备的电耗，统计对应耗铜量，上送电装集控中心',
     unit: 'kWh/t',
     center: '集控',
-    category: '关键工序能耗',
+    category: '关键工序能耗类',
     source: '电装管理要求',
-    scope: '线缆产业',
+    scope: '线缆（关键工序）',
     freq: '月度',
-    factory: '鲁缆本部',
-    current: 82.4,
-    base: 85.0,
-    target: 80.0,
-    yoyDiff: -2.6,
-    yoyRate: -3.06,
+    factory: '昌吉线缆厂',
+    current: 128,
+    base: 135,
+    target: 120,
+    status: '正常',
+  },
+  {
+    id: 18,
+    name: '吨铝电耗（线缆-拉丝）',
+    definition: '拉丝工序，拉 1 吨铝耗电量',
+    formula: 'q = Q拉丝电 / M铝',
+    desc: '采集拉丝（铝）设备的电耗，统计对应耗铝量，上送电装集控中心',
+    unit: 'kWh/t',
+    center: '集控',
+    category: '关键工序能耗类',
+    source: '电装管理要求',
+    scope: '线缆（关键工序）',
+    freq: '月度',
+    factory: '昌吉线缆厂',
+    current: 96,
+    base: 102,
+    target: 90,
+    status: '正常',
+  },
+  {
+    id: 19,
+    name: '交联（线缆）',
+    definition: '交联工序，单位产量耗电量',
+    formula: 'q = Q交联电 / M线缆',
+    desc: '采集交联设备的电耗，统计对应线缆产量，上送电装集控中心',
+    unit: 'kWh/km',
+    center: '集控',
+    category: '关键工序能耗类',
+    source: '电装管理要求',
+    scope: '线缆（关键工序）',
+    freq: '月度',
+    factory: '昌吉线缆厂',
+    current: 210,
+    base: 225,
+    target: 200,
+    status: '正常',
+  },
+  {
+    id: 20,
+    name: '单位产值能耗（变压器-干燥）',
+    definition: '变压器干燥工序每万元产值综合能耗',
+    formula: 'g = E干燥 / G变压器',
+    desc: '采集干燥设备（含线圈干燥、器身干燥、绝缘件干燥）的电耗、蒸汽消耗量，统计对应变压器产值，上送电装集控中心',
+    unit: 'tce/万元',
+    center: '集控',
+    category: '关键工序能耗类',
+    source: '电装管理要求',
+    scope: '变压器（关键工序）',
+    freq: '月度',
+    factory: '天津变压器厂',
+    current: 0.36,
+    base: 0.4,
+    target: 0.34,
+    status: '正常',
+  },
+  {
+    id: 21,
+    name: '单位产值电耗（变压器-试验）',
+    definition: '变压器试验工序每万元产值电耗',
+    formula: 'q = Q试验电 / G变压器',
+    desc: '采集试验设备的电耗，统计对应变压器产值，上送电装集控中心',
+    unit: 'kWh/万元',
+    center: '集控',
+    category: '关键工序能耗类',
+    source: '电装管理要求',
+    scope: '变压器（关键工序）',
+    freq: '月度',
+    factory: '天津变压器厂',
+    current: 182,
+    base: 195,
+    target: 170,
+    status: '正常',
+  },
+  {
+    id: 22,
+    name: '单位产值电耗（GIS-抽真空）',
+    definition: 'GIS 抽真空工序每万元产值电耗',
+    formula: 'q = Q抽真空电 / G(GIS)',
+    desc: '采集抽真空设备的电耗，统计对应 GIS 产值，上送电装集控中心',
+    unit: 'kWh/万元',
+    center: '集控',
+    category: '关键工序能耗类',
+    source: '电装管理要求',
+    scope: '开关-GIS（关键工序）',
+    freq: '月度',
+    factory: '沈阳开关厂',
+    current: 156,
+    base: 168,
+    target: 150,
+    status: '正常',
+  },
+  {
+    id: 23,
+    name: '单位产量电耗（硅钢铁心-退火）',
+    definition: '生产 1 吨非晶合金铁心、退火工序耗电量',
+    formula: 'q = Q退火电 / M铁心',
+    desc: '采集非晶合金铁心退火工序耗电量，统计对应产品产量，上送电装集控中心',
+    unit: 'kWh/t',
+    center: '集控',
+    category: '关键工序能耗类',
+    source: '电装管理要求',
+    scope: '变压器-铁心（新变昌吉）',
+    freq: '月度',
+    factory: '昌吉线缆厂',
+    current: 620,
+    base: 660,
+    target: 600,
     status: '正常',
   },
 ]
 
-export const periodLabels = ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08']
-
-export const indicatorTone = (status: IndicatorStatus) => {
-  switch (status) {
-    case '优秀':
-      return { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' }
-    case '异常':
-      return { text: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30' }
-    case '正常':
-    default:
-      return { text: 'text-sky-400', bg: 'bg-sky-500/10', border: 'border-sky-500/30' }
-  }
+/* -------------------- 状态色映射（供徽章使用） -------------------- */
+export function indicatorTone(status?: IndicatorStatus): 'ok' | 'warn' | 'danger' | 'info' {
+  if (status === '优秀') return 'ok'
+  if (status === '异常') return 'danger'
+  return 'info'
 }
 
-export const indicatorRawData = (ind: Indicator) => [
-  { item: '指标名称', value: ind.name, note: '系统唯一元数据标识' },
-  { item: '统计周期', value: '2026年8月 (月度)', note: '每月 1 日自动汇总' },
-  { item: '当前计算值', value: `${ind.current} ${ind.unit}`, note: '实际核算结果' },
-  { item: '集团基准值', value: `${ind.base} ${ind.unit}`, note: '特变电工内部基准' },
-  { item: '国家/标杆值', value: `${ind.target} ${ind.unit}`, note: ind.source },
-  { item: '数据源头', value: ind.desc, note: '自动采集 + MES/ERP 对接' },
-  { item: '核算公式', value: ind.formula, note: '可追溯验证' },
-]
+/* -------------------- 指标级别：工厂综合 / 产品整体 / 工序详情 -------------------- */
+export type IndicatorLevel = '工厂综合' | '产品整体' | '工序详情'
+export const indicatorLevels: IndicatorLevel[] = ['工厂综合', '产品整体', '工序详情']
 
-export const indicatorTrend = (ind: Indicator) => [
-  { period: '1月', 实际值: Number((ind.current * 0.96).toFixed(2)), 基准值: ind.base, 标杆值: ind.target },
-  { period: '2月', 实际值: Number((ind.current * 0.94).toFixed(2)), 基准值: ind.base, 标杆值: ind.target },
-  { period: '3月', 实际值: Number((ind.current * 1.02).toFixed(2)), 基准值: ind.base, 标杆值: ind.target },
-  { period: '4月', 实际值: Number((ind.current * 0.98).toFixed(2)), 基准值: ind.base, 标杆值: ind.target },
-  { period: '5月', 实际值: Number((ind.current * 1.05).toFixed(2)), 基准值: ind.base, 标杆值: ind.target },
-  { period: '6月', 实际值: Number((ind.current * 1.01).toFixed(2)), 基准值: ind.base, 标杆值: ind.target },
-  { period: '7月', 实际值: Number((ind.current * 1.03).toFixed(2)), 基准值: ind.base, 标杆值: ind.target },
-  { period: '8月', 实际值: ind.current, 基准值: ind.base, 标杆值: ind.target },
-]
+/* 依据指标类别自主划分到三个级别 */
+export function indicatorLevel(category: string): IndicatorLevel {
+  if (category === '单位产品能耗类') return '产品整体'
+  if (category === '关键工序能耗类') return '工序详情'
+  // 综合能耗类 / 碳排放类 / 绿电与非化石类 / 单位产值能耗类 / 管理效率类
+  return '工厂综合'
+}
+
+/* -------------------- 下钻：原始数据明细 -------------------- */
+export type RawRow = { period: string; molecule: number; denominator: number; value: number; source: string }
+
+/* 依据指标确定性生成原始数据（分子/分母/结果），供下钻展示 */
+export function indicatorRawData(ind: Indicator, periods: string[]): RawRow[] {
+  const base = ind.current ?? 100
+  const src =
+    ind.freq === '实时' ? '系统接入（15分钟）' : ind.category === '关键工序能耗类' ? '工序表计接入' : '系统接入 / 手动录入'
+  return periods.map((p, i) => {
+    const wobble = 1 + (((ind.id * 7 + i * 13) % 11) - 5) / 100 // ±5% 确定性波动
+    const value = +(base * wobble).toFixed(base < 10 ? 2 : base < 100 ? 1 : 0)
+    // 反推一组合理的分子/分母
+    const denominator = +(((ind.id % 5) + 2) * 100 * (1 + i / 20)).toFixed(1)
+    const molecule = +(value * denominator).toFixed(1)
+    return { period: p, molecule, denominator, value, source: src }
+  })
+}
+
+/* -------------------- 下钻：变化曲线数据 -------------------- */
+export function indicatorTrend(ind: Indicator, periods: string[]) {
+  const base = ind.current ?? 100
+  const target = ind.target ?? base * 0.95
+  return periods.map((p, i) => {
+    const wobble = 1 + (((ind.id * 5 + i * 9) % 13) - 6) / 100
+    return {
+      month: p,
+      实际值: +(base * wobble).toFixed(base < 10 ? 2 : base < 100 ? 1 : 0),
+      目标值: +target.toFixed(base < 10 ? 2 : base < 100 ? 1 : 0),
+    }
+  })
+}
+
+/* 常用统计周期标签 */
+export const periodLabels: Record<'month' | 'quarter' | 'year', string[]> = {
+  month: ['1月', '2月', '3月', '4月', '5月', '6月'],
+  quarter: ['Q1', 'Q2', 'Q3', 'Q4'],
+  year: ['2022', '2023', '2024', '2025', '2026'],
+}

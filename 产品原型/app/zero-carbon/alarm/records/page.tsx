@@ -25,7 +25,7 @@ export default function RecordsPage() {
       {/* 顶部 Header */}
       <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2C7CFF] shrink-0">
               <BellRing className="size-5" />
             </div>
             <h1 className="text-base font-bold text-slate-800">告警处理</h1>

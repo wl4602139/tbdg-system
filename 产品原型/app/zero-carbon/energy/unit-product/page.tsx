@@ -21,12 +21,15 @@ import {
   FileSpreadsheet,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Filter,
   Sliders,
   TrendingUp,
   Boxes,
   PieChart as PieChartIcon,
   BarChart3,
+  RotateCcw,
 } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -42,9 +45,77 @@ import {
   LineChart,
   Line,
 } from 'recharts'
+
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
+import { ExportButton } from '@/components/shared/primitives'
 import { StandardOrgTree, type StandardOrgNode } from '@/components/shared/standard-org-tree'
 import { LineTrend } from '@/components/shared/charts'
 import { cn } from '@/lib/utils'
+import {
+  getProductLinesForUnit,
+  PRODUCT_TO_LINES_MAPPING,
+} from '@/lib/product-line-subcategories'
+import { CollapsibleTagBar } from '@/components/shared/collapsible-tag-bar'
+import {
+  getProductMajorsForUnit,
+  getSubcategoriesForMajor,
+  MAJOR_CATEGORY_METRICS,
+} from '@/lib/product-major-categories'
+import { SubcategoryCompositionTable } from '@/components/shared/subcategory-composition-table'
+
+// 🌟 变压器产业 17 大标准产线（严格对齐《01-6 产品分类与产线匹配关系-外发.xlsx》与指标管控看板）
+export const ALL_TRANSFORMER_PRODUCT_LINES = [
+  '高压产线',
+  '超高压产线',
+  '特高压产线',
+  '配变产线（干变）',
+  '配变产线（油变）',
+  '配变产线（中特）',
+  '配变产线（箱变）',
+  'GIS 产线',
+  'GIL 产线',
+  '开关柜产线',
+  '二次产线',
+  '电抗器产线（干式空心）',
+  '套管产线',
+  '互感器产线',
+  '硅钢产线（横剪）',
+  '电容器产线（油浸式）',
+  '电容器产线（干式）',
+]
+
+// 🌟 线缆产业 8 大标准产线（严格对齐《线缆产线分类.xlsx》与指标管控看板）
+export const ALL_CABLE_PRODUCT_LINES = [
+  '高压力缆产线',
+  '中压力缆产线',
+  '低压力缆产线',
+  '导线产线',
+  '布电线产线',
+  '特种电缆产线',
+  '橡套电缆产线',
+  '电气装备电缆产线',
+]
+
+// 🌟 10 大标准产品大类（用于底部明细台账 3 级级联筛选：产品大类 -> 产品中类 -> 产品型号）
+export interface MajorCategoryOption {
+  id: string
+  name: string
+  industry: 'transformer' | 'cable'
+  categoryIds: string[]
+}
+
+export const PRODUCT_MAJOR_OPTIONS: MajorCategoryOption[] = [
+  { id: 'major-tr', name: '变压器', industry: 'transformer', categoryIds: ['cat-mp-tr-high', 'cat-mp-tr-dry', 'cat-mp-tr-oil', 'cat-mp-tr-core'] },
+  { id: 'major-gis', name: '高压组合电器 GIS', industry: 'transformer', categoryIds: ['cat-mp-gis', 'cat-mp-gil'] },
+  { id: 'major-bushing', name: '套管', industry: 'transformer', categoryIds: ['cat-mp-bushing'] },
+  { id: 'major-ct', name: '互感器', industry: 'transformer', categoryIds: ['cat-mp-ct'] },
+  { id: 'major-cap-react', name: '电抗器与电容器', industry: 'transformer', categoryIds: ['cat-mp-capacitor', 'cat-mp-reactor'] },
+  { id: 'major-switchgear', name: '开关柜设备', industry: 'transformer', categoryIds: ['cat-mp-switchgear'] },
+  { id: 'major-cb-high', name: '高压电力电缆', industry: 'cable', categoryIds: ['cat-mp-cb-high'] },
+  { id: 'major-cb-midlow', name: '中低压电力电缆', industry: 'cable', categoryIds: ['cat-mp-cb-midlow'] },
+  { id: 'major-cb-special', name: '特种电缆与橡套电缆', industry: 'cable', categoryIds: ['cat-mp-cb-special'] },
+  { id: 'major-cb-drawing', name: '裸导线与架空导线', industry: 'cable', categoryIds: ['cat-mp-cb-drawing'] },
+]
 
 // 🌟 生产单位产品及关键工序对应表 (基于 0829 需求文档) - 主要产品分类接口定义
 export interface ProductCategoryItem {
@@ -53,6 +124,7 @@ export interface ProductCategoryItem {
   shortName: string
   category: 'transformer' | 'cable'
   groupTag: string // 二级品类分组
+  productLines?: string[]
   producerUnits: string // 生产单位 (如 "沈变本部、衡变本部、湖南电气、特能建、超高压公司")
   producerUnitIds: string[] // 对应的组织树节点 ID 列表，用于左侧组织树智能联动
   keyProcesses: string[] // 涉及关键工序 (如 ["①变压器-高压-干燥", "②变压器-试验"])
@@ -81,7 +153,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: '变压器-高压',
     shortName: '变压器-高压',
     category: 'transformer',
-    groupTag: '主变与大型电力变',
+    groupTag: '高压产线',
+    productLines: ['高压产线', '超高压产线', '特高压产线'],
     producerUnits: '沈变本部、衡变本部、湖南电气、特能建、超高压公司',
     producerUnitIds: ['ws_sb_main', 'ws_hb_main', 'ws_hb_hn', 'ws_hb_tnj', 'ws_xb_uhv', 'comp_sb', 'comp_hb', 'comp_xb'],
     keyProcesses: ['①变压器-高压-干燥', '②变压器-试验'],
@@ -121,7 +194,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: '变压器-中低压-干变',
     shortName: '中低压-干变',
     category: 'transformer',
-    groupTag: '配电及干式变压器',
+    groupTag: '配变产线（干变）',
+    productLines: ['配变产线（干变）', '配变产线（中特）', '配变产线（箱变）'],
     producerUnits: '天变公司、智能电气公司',
     producerUnitIds: ['ws_xb_tb', 'ws_xb_zndq'],
     keyProcesses: ['①变压器-中低压-干变-固化', '②变压器-试验'],
@@ -161,7 +235,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: '变压器-中低压-油变',
     shortName: '中低压-油变',
     category: 'transformer',
-    groupTag: '配电及干式变压器',
+    groupTag: '配变产线（油变）',
+    productLines: ['配变产线（油变）', '配变产线（中特）', '配变产线（箱变）'],
     producerUnits: '京津冀公司',
     producerUnitIds: ['ws_xb_jjj'],
     keyProcesses: ['①变压器-中低压-油变-干燥', '②变压器-试验'],
@@ -201,7 +276,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: '变压器-铁芯',
     shortName: '变压器-铁芯',
     category: 'transformer',
-    groupTag: '变压器核心组部件',
+    groupTag: '硅钢产线（横剪）',
+    productLines: ['硅钢产线（横剪）'],
     producerUnits: '珠峰硅钢',
     producerUnitIds: ['ws_xb_zf'],
     keyProcesses: ['①非晶合金铁心-退火', '②硅钢铁心-纵剪', '③硅钢铁心-中型叠装', '④硅钢铁心-大型叠装'],
@@ -241,7 +317,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: '套管',
     shortName: '套管',
     category: 'transformer',
-    groupTag: '变压器核心组部件',
+    groupTag: '套管产线',
+    productLines: ['套管产线'],
     producerUnits: '和新套管公司',
     producerUnitIds: ['ws_sb_hx'],
     keyProcesses: ['①套管-干燥'],
@@ -281,7 +358,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: '互感器',
     shortName: '互感器',
     category: 'transformer',
-    groupTag: '变压器核心组部件',
+    groupTag: '互感器产线',
+    productLines: ['互感器产线'],
     producerUnits: '康嘉互感器',
     producerUnitIds: ['ws_sb_kj'],
     keyProcesses: ['①互感器-干燥', '②变压器-试验'],
@@ -321,7 +399,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: '中低压开关柜',
     shortName: '中低压开关柜',
     category: 'transformer',
-    groupTag: '配电及开关设备',
+    groupTag: '开关柜产线',
+    productLines: ['开关柜产线', '二次产线'],
     producerUnits: '云集电气、新疆自控',
     producerUnitIds: ['ws_hb_yj', 'ws_hb_xj'],
     keyProcesses: ['①中低压开关柜-钣金加工', '②中低压开关柜-钣金喷涂'],
@@ -361,7 +440,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: 'GIS (气体绝缘金属封闭开关设备)',
     shortName: 'GIS',
     category: 'transformer',
-    groupTag: '配电及开关设备',
+    groupTag: 'GIS 产线',
+    productLines: ['GIS 产线'],
     producerUnits: '云集高压开关',
     producerUnitIds: ['ws_hb_kg'],
     keyProcesses: ['①GIS-抽真空', '②GIS-绝缘件干燥', '③GIS-工频耐压试验', '④GIS-空调恒温除湿'],
@@ -401,7 +481,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: '干式电抗器',
     shortName: '干式电抗器',
     category: 'transformer',
-    groupTag: '电抗与无功补偿设备',
+    groupTag: '电抗器产线（干式空心）',
+    productLines: ['电抗器产线（干式空心）'],
     producerUnits: '合容电气股份',
     producerUnitIds: ['ws_hb_hr'],
     keyProcesses: ['①干式电抗器-固化', '②干式电抗器-试验'],
@@ -441,7 +522,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: '电容器',
     shortName: '电容器',
     category: 'transformer',
-    groupTag: '电抗与无功补偿设备',
+    groupTag: '电容器产线（油浸式）',
+    productLines: ['电容器产线（油浸式）', '电容器产线（干式）'],
     producerUnits: '合容电力设备',
     producerUnitIds: ['ws_hb_hr'],
     keyProcesses: ['①电容器-芯子卷绕', '②电容器-真空浸渍', '③电容器-喷漆', '④电容器-试验'],
@@ -481,7 +563,8 @@ export const TRANSFORMER_CATEGORIES: ProductCategoryItem[] = [
     name: 'GIL (气体绝缘输电线路)',
     shortName: 'GIL',
     category: 'transformer',
-    groupTag: '配电及开关设备',
+    groupTag: 'GIL 产线',
+    productLines: ['GIL 产线'],
     producerUnits: '赛杰爱迪',
     producerUnitIds: ['ws_hb_gil'],
     keyProcesses: ['①GIL-螺旋焊管生产', '②GIL-绝缘子生产', '③GIL-测试'],
@@ -524,7 +607,8 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
     name: '线缆-高压',
     shortName: '线缆-高压',
     category: 'cable',
-    groupTag: '超高压及高压电缆',
+    groupTag: '高压力缆产线',
+    productLines: ['高压力缆产线'],
     producerUnits: '鲁缆本部',
     producerUnitIds: ['ws_ll_main', 'comp_ll'],
     keyProcesses: ['①线缆-高压-交联（干法）', '②线缆-拉丝'],
@@ -564,7 +648,8 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
     name: '线缆-中低压',
     shortName: '线缆-中低压',
     category: 'cable',
-    groupTag: '中低压电力电缆',
+    groupTag: '中低压力缆产线',
+    productLines: ['中压力缆产线', '低压力缆产线'],
     producerUnits: '鲁缆本部、特变电工新疆电缆有限公司、特变电工新疆线缆厂、特变电工（德阳）电缆股份有限公司',
     producerUnitIds: ['ws_ll_main', 'ws_xl_main', 'ws_xl_sub', 'ws_dl_main', 'comp_ll', 'comp_xl', 'comp_dl'],
     keyProcesses: ['①线缆-拉丝', '②线缆-中低压-交联（干法）'],
@@ -604,7 +689,8 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
     name: '线缆-特种电缆',
     shortName: '线缆-特种电缆',
     category: 'cable',
-    groupTag: '新能源与特种电缆',
+    groupTag: '特种电缆产线',
+    productLines: ['特种电缆产线', '橡套电缆产线', '电气装备电缆产线'],
     producerUnits: '曙光公司',
     producerUnitIds: ['ws_ll_sg'],
     keyProcesses: ['①特种绝缘挤出', '②辐照交联', '③耐寒耐扭曲编织铠装'],
@@ -644,7 +730,8 @@ export const CABLE_CATEGORIES: ProductCategoryItem[] = [
     name: '架空导线及铜铝拉丝',
     shortName: '架空导线及拉丝',
     category: 'cable',
-    groupTag: '架空导线与金属加工',
+    groupTag: '导线及布电线产线',
+    productLines: ['导线产线', '布电线产线'],
     producerUnits: '鲁缆、新疆线缆厂、德阳电缆',
     producerUnitIds: ['ws_ll_main', 'ws_xl_sub', 'ws_dl_main'],
     keyProcesses: ['①线缆-拉丝 (单位吨铜电耗/单位吨铝电耗)', '②多股绞线'],
@@ -1309,6 +1396,74 @@ const ALL_PRODUCT_MODELS: ProductModelRecord[] = [
   },
 ]
 
+/**
+ * 🌟 校验产品中类是否匹配组织节点 (严格对齐公司/车间在产品分类与型号管理中的生产归属)
+ */
+function isCategoryMatchedNode(cat: ProductCategoryItem, node: StandardOrgNode | null): boolean {
+  if (
+    !node ||
+    node.id === 'ent_root' ||
+    node.id === 'group_root' ||
+    node.id === 'park_root' ||
+    node.level === 'group'
+  ) {
+    return true
+  }
+  const nodeName = node.name || ''
+  const nodeId = node.id || ''
+
+  // 1. 节点 ID 直接包含
+  if (cat.producerUnitIds && cat.producerUnitIds.includes(nodeId)) {
+    return true
+  }
+
+  // 2. 生产单位名称直接匹配或包含
+  if (cat.producerUnits && (cat.producerUnits.includes(nodeName) || nodeName.includes(cat.producerUnits))) {
+    return true
+  }
+
+  // 3. 经营单位与下级车间智能匹配
+  if (nodeId.includes('sb') || nodeName.includes('沈变')) {
+    return (
+      cat.producerUnits.includes('沈变') ||
+      cat.producerUnits.includes('套管') ||
+      cat.producerUnits.includes('互感器')
+    )
+  }
+  if (nodeId.includes('hb') || nodeName.includes('衡变')) {
+    return (
+      cat.producerUnits.includes('衡变') ||
+      cat.producerUnits.includes('湖南电气') ||
+      cat.producerUnits.includes('特能建') ||
+      cat.producerUnits.includes('云集') ||
+      cat.producerUnits.includes('合容') ||
+      cat.producerUnits.includes('开关') ||
+      cat.producerUnits.includes('赛杰爱迪')
+    )
+  }
+  if (nodeId.includes('xb') || nodeName.includes('新变')) {
+    return (
+      cat.producerUnits.includes('新变') ||
+      cat.producerUnits.includes('超高压') ||
+      cat.producerUnits.includes('天变') ||
+      cat.producerUnits.includes('智能电气') ||
+      cat.producerUnits.includes('京津冀') ||
+      cat.producerUnits.includes('珠峰硅钢')
+    )
+  }
+  if (nodeId.includes('ll') || nodeName.includes('鲁缆')) {
+    return cat.category === 'cable' && (cat.producerUnits.includes('鲁缆') || cat.producerUnits.includes('曙光'))
+  }
+  if (nodeId.includes('xl') || nodeName.includes('新缆') || nodeName.includes('新疆电缆')) {
+    return cat.category === 'cable' && (cat.producerUnits.includes('新疆') || cat.producerUnits.includes('导线'))
+  }
+  if (nodeId.includes('dl') || nodeName.includes('德缆') || nodeName.includes('德阳')) {
+    return cat.category === 'cable' && (cat.producerUnits.includes('德') || cat.producerUnits.includes('特种电缆'))
+  }
+
+  return false
+}
+
 export default function UnitProductPage() {
   const [selectedNode, setSelectedNode] = useState<StandardOrgNode>({
     id: 'ent_root',
@@ -1318,58 +1473,181 @@ export default function UnitProductPage() {
     badge: '全集团',
   })
 
-  // 1. 产业大类选择 (全部 / 变压器 / 线缆)
-  const [category, setCategory] = useState<'transformer' | 'cable'>('transformer')
-  // 🌟 1.1 中间【分类】层级选中状态 ('all' | 分类id)
+  // 🌟 1. 产业大类判定（工厂：根据工厂产业类型；经营单位：根据下级工厂产业类型；集团：显示全部下级产业类型）
+  const activeIndustries = useMemo<('transformer' | 'cable')[]>(() => {
+    // 集团级：拥有全部下级产业类型 (变压器 + 线缆)
+    if (
+      selectedNode.level === 'group' ||
+      selectedNode.id === 'ent_root' ||
+      selectedNode.id === 'group_root' ||
+      selectedNode.id === 'park_root'
+    ) {
+      return ['transformer', 'cable']
+    }
+
+    // 经营单位与工厂级
+    const id = selectedNode.id.toLowerCase()
+    if (
+      id.startsWith('comp_ll') ||
+      id.startsWith('ws_ll') ||
+      id.startsWith('comp_xl') ||
+      id.startsWith('ws_xl') ||
+      id.startsWith('comp_dl') ||
+      id.startsWith('ws_dl') ||
+      selectedNode.name.includes('缆')
+    ) {
+      return ['cable']
+    }
+
+    return ['transformer']
+  }, [selectedNode])
+
+  const isGroupLevel = activeIndustries.length > 1
+  const currentIndustryMode: 'transformer' | 'cable' | 'all' = isGroupLevel ? 'all' : activeIndustries[0]
+
+  // 🌟 中间主要产品分类选中状态 ('all' | cat.id)
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all')
-  // 🌟 1.2 中间【分类】二级分组过滤 ('all' | groupTag)
+  // 🌟 产线/产品分类二级分组过滤 ('all' | 产线名称)
   const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<string>('all')
-  // 🌟 1.3 中间【分类】搜索关键字
   const [categorySearchKw, setCategorySearchKw] = useState<string>('')
-  // 🌟 1.4 中间【分类】排序方式 ('tce_desc' | 'models_desc' | 'yoy_desc')
   const [categorySortBy, setCategorySortBy] = useState<'tce_desc' | 'models_desc' | 'yoy_desc'>('tce_desc')
 
-  // 2. 时间维度 (月度 / 季度 / 年度)
-  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
-  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
-  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
-  const [selectedYear, setSelectedYear] = useState('2026')
-  // 3. 🌟 当前选中的 KPI 卡片能源介质 (默认综合能耗 'kpi-tce'，点击卡片即时联动图表与坐标轴)
-  const [selectedKpiId, setSelectedKpiId] = useState<string>('kpi-tce')
-  // 4. 电压等级过滤 (针对海量型号快捷筛选)
-  const [voltageFilter, setVoltageFilter] = useState<'all' | '500kV级' | '220kV级' | '110kV级' | '35kV级及以下'>('all')
-  // 5. 搜索关键字
-  const [searchKw, setSearchKw] = useState('')
-  // 6. 分页状态 (每页10条)
-  const [currentPage, setCurrentPage] = useState(1)
-  const pageSize = 10
-
-  // 判断当前选中范围的主要产品产业类型 (变压器 / 线缆 / 综合全谱系)
-  const activeIndustry = useMemo(() => {
-    return category
-  }, [category])
-
-  // 🌟 当前大类下的数十种细分产品分类全景库
+  // 🌟 当前产业范围下的主要产品库 (11 项变压器 + 4 项线缆)
   const currentCategories = useMemo(() => {
-    return category === 'transformer' ? TRANSFORMER_CATEGORIES : CABLE_CATEGORIES
-  }, [category])
+    if (currentIndustryMode === 'all') {
+      return [...TRANSFORMER_CATEGORIES, ...CABLE_CATEGORIES]
+    }
+    return currentIndustryMode === 'transformer' ? TRANSFORMER_CATEGORIES : CABLE_CATEGORIES
+  }, [currentIndustryMode])
 
-  // 🌟 提取当前产业大类下的所有二级分组标签 (如 特高压/超高压、中高压电力变、干式与配电变、新能源与特种变)
-  const categoryGroups = useMemo(() => {
-    const groups = Array.from(new Set(currentCategories.map((c) => c.groupTag)))
-    return ['all', ...groups]
-  }, [currentCategories])
+  // 🌟 当前在板块【产品管控指标】中激活选中的产品大类与搜索关键字
+  const [selectedProductLine, setSelectedProductLine] = useState<string>('')
+  const [lineSearchKey, setLineSearchKey] = useState<string>('')
 
-  // 🌟 过滤与排序数十种产品种类
+  // 🌟 当前单位可用的全部 1 级标准产品大类 (严格对齐指标管控页面及系统设置【生产数据维护】中产品类型与型号管理)
+  const availableProductLines = useMemo(() => {
+    return getProductMajorsForUnit(selectedNode?.name || '')
+  }, [selectedNode])
+
+  // 🌟 当前在板块【产品管控指标】中激活选中的产品大类 (若未手动选或不在可用列表中，默认取第 1 个可用大类)
+  const currentProductLine = useMemo(() => {
+    if (selectedProductLine && availableProductLines.includes(selectedProductLine)) {
+      return selectedProductLine
+    }
+    return availableProductLines[0] || null
+  }, [selectedProductLine, availableProductLines])
+
+  // 🌟 对应的当前产品大类下 2 级产品中类原始列表 (严格对齐系统设置【产品类型管理】2级中类)
+  const subcategoriesForCurrentLine = useMemo(() => {
+    if (!currentProductLine) return []
+    return getSubcategoriesForMajor(currentProductLine)
+  }, [currentProductLine])
+
+  // 🌟 产品大类对应的基础能耗指标基准 (提供蒸汽、天然气、水耗基准)
+  const currentLineSpec = useMemo(() => {
+    if (!currentProductLine) return undefined
+    const spec = MAJOR_CATEGORY_METRICS[currentProductLine] || MAJOR_CATEGORY_METRICS['变压器']
+    return {
+      unitSuffix: spec.unitSuffix,
+      energy: { val: spec.energyVal, yoy: spec.yoy },
+      elec: { val: spec.elecVal, yoy: spec.yoy },
+      steam: spec.steamVal ? { val: spec.steamVal, yoy: '-4.8%' } : undefined,
+      gas: spec.gasVal ? { val: spec.gasVal, yoy: '-5.6%' } : undefined,
+      water: spec.waterVal ? { val: spec.waterVal, yoy: '-4.1%' } : undefined,
+    }
+  }, [currentProductLine])
+
+  // 🌟 根据选中的 1 级标准产品大类动态生成 5 大产品管控指标 (单位产品能耗、电耗、蒸汽耗、天然气耗、水耗)
+  const currentProductControlMetrics = useMemo(() => {
+    if (availableProductLines.length === 0 || !currentProductLine) {
+      return []
+    }
+    const spec = MAJOR_CATEGORY_METRICS[currentProductLine] || MAJOR_CATEGORY_METRICS['变压器']
+
+    const metricsList = [
+      {
+        id: 'pm-unit-energy',
+        name: '单位产品能耗',
+        code: 'SEC-PROD-01',
+        category: 'product' as const,
+        unit: `tce/${spec.unitSuffix}`,
+        curVal: spec.energyVal,
+        yoy: spec.yoy,
+        isYoyDown: spec.isYoyDown,
+      },
+      {
+        id: 'pm-unit-electricity',
+        name: '单位产品电耗',
+        code: 'SEC-PROD-02',
+        category: 'product' as const,
+        unit: `kWh/${spec.unitSuffix}`,
+        curVal: spec.elecVal,
+        yoy: spec.yoy,
+        isYoyDown: spec.isYoyDown,
+      },
+    ]
+
+    if (spec.hasSteam && spec.steamVal) {
+      metricsList.push({
+        id: 'pm-unit-steam',
+        name: '单位产品蒸汽耗',
+        code: 'SEC-PROD-03',
+        category: 'product' as const,
+        unit: `GJ/${spec.unitSuffix}`,
+        curVal: spec.steamVal,
+        yoy: '-4.8%',
+        isYoyDown: true,
+      })
+    }
+
+    if (spec.hasGas && spec.gasVal) {
+      metricsList.push({
+        id: 'pm-unit-gas',
+        name: '单位产品天然气耗',
+        code: 'SEC-PROD-04',
+        category: 'product' as const,
+        unit: `m³/${spec.unitSuffix}`,
+        curVal: spec.gasVal,
+        yoy: '-5.6%',
+        isYoyDown: true,
+      })
+    }
+
+    if (spec.hasWater && spec.waterVal) {
+      metricsList.push({
+        id: 'pm-unit-water',
+        name: '单位产品水耗',
+        code: 'SEC-PROD-05',
+        category: 'product' as const,
+        unit: `t/${spec.unitSuffix}`,
+        curVal: spec.waterVal,
+        yoy: '-4.1%',
+        isYoyDown: true,
+      })
+    }
+
+    return metricsList
+  }, [availableProductLines, currentProductLine])
+
+  // 🌟 过滤并排序展示的主要产品分类 (保持原参数：变压器 11 项 / 线缆 4 项)
   const displayedCategories = useMemo(() => {
     return currentCategories
       .filter((cat) => {
-        if (selectedCategoryGroup !== 'all' && cat.groupTag !== selectedCategoryGroup) {
-          return false
+        if (selectedCategoryGroup !== 'all') {
+          const lines = cat.productLines || []
+          if (!lines.includes(selectedCategoryGroup) && cat.groupTag !== selectedCategoryGroup) {
+            return false
+          }
         }
         if (categorySearchKw.trim()) {
           const kw = categorySearchKw.trim().toLowerCase()
-          return cat.name.toLowerCase().includes(kw) || cat.shortName.toLowerCase().includes(kw) || cat.groupTag.toLowerCase().includes(kw)
+          return (
+            cat.name.toLowerCase().includes(kw) ||
+            cat.shortName.toLowerCase().includes(kw) ||
+            cat.groupTag.toLowerCase().includes(kw) ||
+            (cat.productLines && cat.productLines.some((l) => l.toLowerCase().includes(kw))) ||
+            cat.producerUnits.toLowerCase().includes(kw)
+          )
         }
         return true
       })
@@ -1381,254 +1659,382 @@ export default function UnitProductPage() {
       })
   }, [currentCategories, selectedCategoryGroup, categorySearchKw, categorySortBy])
 
-  // 🌟 当前选中的产品分类对象 (若为 'all' 则为 null)
   const activeSelectedCategory = useMemo(() => {
     if (selectedCategoryId === 'all') return null
     return currentCategories.find((c) => c.id === selectedCategoryId) || null
   }, [currentCategories, selectedCategoryId])
 
-  // 当前激活选中的品类，如果 selectedCategoryId === 'all'，默认展示列表第一项作为趋势参考
-  const activeCategoryDetail = useMemo(() => {
-    if (selectedCategoryId !== 'all') {
-      return currentCategories.find((c) => c.id === selectedCategoryId) || currentCategories[0]
+  // 🌟 底部明细台账 3 级级联筛选：产品大类、产品中类、产品型号
+  const [selectedMajorFilter, setSelectedMajorFilter] = useState<string>('all')
+  const [selectedKindFilter, setSelectedKindFilter] = useState<string>('all')
+  const [selectedModelFilter, setSelectedModelFilter] = useState<string>('all')
+
+  // 1. 可选产品大类列表 (根据当前组织树节点与产业模式自动关联约束)
+  const filteredMajorOptions = useMemo(() => {
+    let list = PRODUCT_MAJOR_OPTIONS
+
+    // 受当前产业模式约束 (如果有指定产业)
+    if (currentIndustryMode !== 'all') {
+      list = list.filter((opt) => opt.industry === currentIndustryMode)
     }
-    return displayedCategories[0] || currentCategories[0]
-  }, [currentCategories, selectedCategoryId, displayedCategories])
 
-  // 计算最大综合单耗，用于左侧条形进度百分比
-  const maxCategoryTce = useMemo(() => {
-    return Math.max(...currentCategories.map((c) => c.unitTce), 1)
-  }, [currentCategories])
+    // 集团级或根节点: 显示该产业下的所有大类
+    if (
+      !selectedNode ||
+      selectedNode.id === 'ent_root' ||
+      selectedNode.id === 'group_root' ||
+      selectedNode.id === 'park_root' ||
+      selectedNode.level === 'group'
+    ) {
+      return list
+    }
 
-  // 当大类切换时，自动重置选中的细分类别为全部
+    // 单体公司/工厂/车间级: 严格根据该节点可用的产品大类关联过滤
+    const unitMajors = getProductMajorsForUnit(selectedNode.name || '')
+    if (unitMajors && unitMajors.length > 0) {
+      const filtered = list.filter((opt) =>
+        unitMajors.some(
+          (um) => opt.name === um || opt.name.includes(um) || um.includes(opt.name)
+        )
+      )
+      return filtered.length > 0 ? filtered : list
+    }
+
+    return list
+  }, [selectedNode, currentIndustryMode])
+
+  // 2. 可选产品中类列表 (受当前组织树节点、产品大类与产业模式级联自动关联约束)
+  const allCategoryKinds = useMemo(() => {
+    return [...TRANSFORMER_CATEGORIES, ...CABLE_CATEGORIES]
+  }, [])
+
+  const availableKindOptions = useMemo(() => {
+    let list = allCategoryKinds
+
+    // 1. 产业模式约束
+    if (currentIndustryMode !== 'all') {
+      list = list.filter((c) => c.category === currentIndustryMode)
+    }
+
+    // 2. 组织树节点关联过滤
+    if (
+      selectedNode &&
+      selectedNode.id !== 'ent_root' &&
+      selectedNode.id !== 'group_root' &&
+      selectedNode.id !== 'park_root' &&
+      selectedNode.level !== 'group'
+    ) {
+      const nodeMatched = list.filter((c) => isCategoryMatchedNode(c, selectedNode))
+      if (nodeMatched.length > 0) {
+        list = nodeMatched
+      }
+    }
+
+    // 3. 产品大类下拉过滤约束
+    if (selectedMajorFilter !== 'all') {
+      const major = PRODUCT_MAJOR_OPTIONS.find((m) => m.id === selectedMajorFilter)
+      if (major) {
+        list = list.filter((c) => major.categoryIds.includes(c.id))
+      }
+    }
+
+    return list
+  }, [allCategoryKinds, currentIndustryMode, selectedNode, selectedMajorFilter])
+
+  // 3. 可选产品型号列表 (受大类、中类、组织节点级联约束)
+  const availableModelOptions = useMemo(() => {
+    let list = ALL_PRODUCT_MODELS
+    if (currentIndustryMode !== 'all') {
+      list = list.filter((m) => m.category === currentIndustryMode)
+    }
+    if (selectedMajorFilter !== 'all') {
+      const major = PRODUCT_MAJOR_OPTIONS.find((m) => m.id === selectedMajorFilter)
+      if (major) {
+        list = list.filter((m) => major.categoryIds.includes(m.categoryId || ''))
+      }
+    }
+    if (selectedKindFilter !== 'all') {
+      list = list.filter((m) => m.categoryId === selectedKindFilter)
+    }
+    // 组织树节点过滤
+    if (selectedNode.level === 'company') {
+      const compPrefix = selectedNode.id.replace('comp_', '')
+      list = list.filter(
+        (m) =>
+          m.companyId.startsWith(`ws_${compPrefix}`) ||
+          (compPrefix === 'sb' && (m.companyName.includes('沈变') || m.companyName.includes('套管') || m.companyName.includes('互感器'))) ||
+          (compPrefix === 'hb' && (m.companyName.includes('衡变') || m.companyName.includes('湖南电气') || m.companyName.includes('特能建') || m.companyName.includes('云集') || m.companyName.includes('合容') || m.companyName.includes('开关') || m.companyName.includes('赛杰'))) ||
+          (compPrefix === 'xb' && (m.companyName.includes('新变') || m.companyName.includes('超高压') || m.companyName.includes('天变') || m.companyName.includes('智能电气') || m.companyName.includes('京津冀') || m.companyName.includes('珠峰'))) ||
+          (compPrefix === 'll' && (m.companyName.includes('鲁缆') || m.companyName.includes('曙光') || m.companyName.includes('昭和'))) ||
+          (compPrefix === 'xl' && (m.companyName.includes('新疆') || m.companyName.includes('线缆'))) ||
+          (compPrefix === 'dl' && (m.companyName.includes('德阳') || m.companyName.includes('德缆')))
+      )
+    } else if (selectedNode.level === 'workshop') {
+      list = list.filter((m) => m.companyId === selectedNode.id || m.companyName.includes(selectedNode.name))
+    }
+    return list
+  }, [currentIndustryMode, selectedMajorFilter, selectedKindFilter, selectedNode])
+
+  // 🌟 节点树选择时，下方产品大类、产品中类 根据节点自动关联
   useEffect(() => {
+    const unitMajors = getProductMajorsForUnit(selectedNode?.name || '')
+
+    // 集团级或全集团根节点：大类重置为全部
+    if (
+      !selectedNode ||
+      selectedNode.id === 'ent_root' ||
+      selectedNode.id === 'group_root' ||
+      selectedNode.id === 'park_root' ||
+      selectedNode.level === 'group'
+    ) {
+      setSelectedMajorFilter('all')
+      setSelectedKindFilter('all')
+      setSelectedModelFilter('all')
+      setCurrentPage(1)
+      return
+    }
+
+    // 单体公司/工厂/车间节点：自动选中该节点第 1 个可用的产品大类，并重置产品中类与型号
+    if (unitMajors && unitMajors.length > 0) {
+      const matchedMajor = PRODUCT_MAJOR_OPTIONS.find((opt) =>
+        unitMajors.some((um) => opt.name === um || opt.name.includes(um) || um.includes(opt.name))
+      )
+      if (matchedMajor) {
+        setSelectedMajorFilter(matchedMajor.id)
+      } else {
+        setSelectedMajorFilter('all')
+      }
+    } else {
+      setSelectedMajorFilter('all')
+    }
+
+    setSelectedKindFilter('all')
+    setSelectedModelFilter('all')
+    setCurrentPage(1)
+  }, [selectedNode])
+
+  // 2. 时间维度统一 (月度 / 季度 / 年度 / 自定义)
+  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year' | 'custom'>('month')
+  const [selectedMonth, setSelectedMonth] = useState('2026-08')
+  const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  const [selectedYear, setSelectedYear] = useState('2026')
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+
+  // 计算月份间隔数（包含起止月）
+  const getMonthsCount = (start: string, end: string): number => {
+    if (!start || !end) return 1
+    const [sy, sm] = start.split('-').map(Number)
+    const [ey, em] = end.split('-').map(Number)
+    return (ey - sy) * 12 + (em - sm) + 1
+  }
+
+  // 基于年月增减月数，返回 YYYY-MM
+  const addMonthsToYm = (ym: string, delta: number): string => {
+    const [y, m] = ym.split('-').map(Number)
+    const totalMonths = y * 12 + (m - 1) + delta
+    const newY = Math.floor(totalMonths / 12)
+    const newM = (totalMonths % 12) + 1
+    return `${newY}-${newM < 10 ? '0' + newM : newM}`
+  }
+
+  const handleCustomStartMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const startVal = e.target.value
+    if (!startVal) return
+    setSelectedMonthRange((prev) => {
+      let newStart = startVal
+      let newEnd = prev.end
+      if (newStart > newEnd) {
+        newEnd = newStart
+      }
+      if (getMonthsCount(newStart, newEnd) > 12) {
+        newEnd = addMonthsToYm(newStart, 11)
+      }
+      return { start: newStart, end: newEnd }
+    })
+  }
+
+  const handleCustomEndMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const endVal = e.target.value
+    if (!endVal) return
+    setSelectedMonthRange((prev) => {
+      let newStart = prev.start
+      let newEnd = endVal
+      if (newEnd < newStart) {
+        newStart = newEnd
+      }
+      if (getMonthsCount(newStart, newEnd) > 12) {
+        newEnd = addMonthsToYm(newEnd, -11)
+      }
+      return { start: newStart, end: newEnd }
+    })
+  }
+
+  // 3. 🌟 当前选中的 KPI 卡片能源介质 (默认综合能耗，点击卡片即时联动图表与坐标轴)
+  const [selectedKpiId, setSelectedKpiId] = useState<string>('kpi-tce-all')
+  // 4. 电压等级过滤 (针对海量型号快捷筛选)
+  const [voltageFilter, setVoltageFilter] = useState<'all' | '500kV级' | '220kV级' | '110kV级' | '35kV级及以下'>('all')
+  // 5. 搜索关键字
+  const [searchKw, setSearchKw] = useState('')
+  // 6. 分页状态 (每页10条)
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 10
+
+  // 🌟 组织树选中智能联动：重置筛选，并根据层级校准激活 KPI
+  useEffect(() => {
+    setSelectedMajorFilter('all')
+    setSelectedKindFilter('all')
+    setSelectedModelFilter('all')
     setSelectedCategoryId('all')
     setSelectedCategoryGroup('all')
     setCategorySearchKw('')
+    setSearchKw('')
     setCurrentPage(1)
-  }, [category])
-
-  // 🌟 组织树选中智能联动分类
-  useEffect(() => {
-    if (selectedNode.id === 'ent_root' || selectedNode.id === 'group_root' || selectedNode.id === 'park_root') {
-      return
+    if (isGroupLevel) {
+      setSelectedKpiId('kpi-tce-all')
+    } else if (activeIndustries[0] === 'transformer') {
+      setSelectedKpiId('kpi-tce-trans')
+    } else {
+      setSelectedKpiId('kpi-tce-cable')
     }
-    const nodeName = selectedNode.name
-    const nodeId = selectedNode.id
+  }, [selectedNode.id, isGroupLevel, activeIndustries])
 
-    if (
-      nodeName.includes('缆') ||
-      nodeName.includes('线') ||
-      nodeId.includes('ll') ||
-      nodeId.includes('xl') ||
-      nodeId.includes('dl')
-    ) {
-      setCategory('cable')
-      setCurrentPage(1)
-    } else if (
-      nodeName.includes('变') ||
-      nodeName.includes('套管') ||
-      nodeName.includes('互感器') ||
-      nodeName.includes('开关') ||
-      nodeName.includes('超高压') ||
-      nodeId.includes('sb') ||
-      nodeId.includes('hb') ||
-      nodeId.includes('xb')
-    ) {
-      setCategory('transformer')
-      setCurrentPage(1)
-    }
-  }, [selectedNode])
-
-  // 当产业类型切换时自动校准介质 (如线缆无蒸汽，变压器无氮气)
-  useEffect(() => {
-    if (activeIndustry === 'cable' && selectedKpiId === 'kpi-steam') {
-      setSelectedKpiId('kpi-nitrogen')
-    } else if (activeIndustry === 'transformer' && selectedKpiId === 'kpi-nitrogen') {
-      setSelectedKpiId('kpi-steam')
-    }
-  }, [activeIndustry, selectedKpiId])
-
-  // 🌟 1. 历史趋势数据构建：根据选中的介质 (综合/电/汽/氮/气/水) 与时间颗粒度 (近12个月/近12个季度/近3年)
+  // 🌟 1. 历史趋势数据构建
   const trendChartConfig = useMemo(() => {
     const periodsMonth = ['25-09', '25-10', '25-11', '25-12', '26-01', '26-02', '26-03', '26-04', '26-05', '26-06', '26-07', '26-08']
     const periodsQuarter = ['23-Q4', '24-Q1', '24-Q2', '24-Q3', '24-Q4', '25-Q1', '25-Q2', '25-Q3', '25-Q4', '26-Q1', '26-Q2', '26-Q3']
     const periodsYear = ['2024年度', '2025年度', '2026年(累计)']
 
     const periodList = timeDim === 'month' ? periodsMonth : timeDim === 'quarter' ? periodsQuarter : periodsYear
-    const periodName = timeDim === 'month' ? '近12个月' : timeDim === 'quarter' ? '近12个季度' : '近3年'
     const len = periodList.length
 
-    // 动态生成平滑曲线数据 (支持各能源介质)
     const data = periodList.map((period, idx) => {
       const ratio = 1 - (idx / (len - 1)) * 0.058
-
-      if (selectedKpiId === 'kpi-tce') {
-        // 单位产品综合能耗 (变压器: tce/万kVA; 线缆: tce/km)
-        return {
-          period,
-          变压器单耗: +(5.12 * ratio).toFixed(3),
-          线缆单耗: +(0.442 * ratio).toFixed(3),
-        }
-      } else if (selectedKpiId === 'kpi-elec') {
-        // 单位产品电耗 (变压器: kWh/kVA; 线缆: kWh/km)
-        return {
-          period,
-          变压器单耗: +(0.336 * ratio).toFixed(3),
-          线缆单耗: +(3360 * ratio).toFixed(0),
-        }
-      } else if (selectedKpiId === 'kpi-steam') {
-        // 单位产品蒸汽消耗 (变压器专用: t/万kVA)
-        return {
-          period,
-          变压器单耗: +(1.36 * ratio).toFixed(3),
-        }
-      } else if (selectedKpiId === 'kpi-nitrogen') {
-        // 单位产品氮气消耗 (线缆专用: m³/km)
-        return {
-          period,
-          线缆单耗: +(9.2 * ratio).toFixed(2),
-        }
-      } else if (selectedKpiId === 'kpi-gas') {
-        // 单位产品天然气消耗 (变压器: m³/万kVA; 线缆: m³/km)
-        return {
-          period,
-          变压器单耗: +(17.8 * ratio).toFixed(2),
-          线缆单耗: +(6.6 * ratio).toFixed(2),
-        }
-      } else if (selectedKpiId === 'kpi-water') {
-        // 单位产品水消耗 (变压器: t/万kVA; 线缆: t/km)
-        return {
-          period,
-          变压器单耗: +(9.0 * ratio).toFixed(2),
-          线缆单耗: +(1.48 * ratio).toFixed(2),
-        }
-      }
-
       return {
         period,
-        变压器单耗: +(0.335 * ratio).toFixed(3),
-        线缆单耗: +(1.280 * ratio).toFixed(3),
+        变压器综合单耗: +(5.12 * ratio).toFixed(3),
+        线缆综合单耗: +(0.442 * ratio).toFixed(3),
+        变压器实测电耗: +(0.336 * ratio).toFixed(3),
+        线缆实测电耗: +(3360 * ratio).toFixed(0),
+        变压器蒸汽单耗: +(1.36 * ratio).toFixed(3),
+        线缆液氮单耗: +(9.2 * ratio).toFixed(2),
       }
     })
 
-    return {
-      data,
-      periodName,
-    }
-  }, [timeDim, selectedKpiId])
+    return { data }
+  }, [timeDim])
 
-  // 🌟 2. 坐标轴单位与曲线根据选中的介质和种类动态配置 (参考图片 1)
+  // 🌟 2. 坐标轴与折线根据当前选中的指标和产业范围动态配置
   const chartAxisAndLines = useMemo(() => {
-    const kpiMetaMap: Record<string, { name: string; transUnit: string; cableUnit: string; transLineName: string; cableLineName: string }> = {
-      'kpi-tce': {
-        name: '单位产品综合能耗',
-        transUnit: 'tce/万kVA',
-        cableUnit: 'tce/万km·mm²',
-        transLineName: '变压器综合单耗 (tce/万kVA)',
-        cableLineName: '线缆综合单耗 (tce/万km·mm²)',
-      },
-      'kpi-elec': {
-        name: '单位产品电耗',
-        transUnit: 'kWh/kVA',
-        cableUnit: 'kWh/万km·mm²',
-        transLineName: '变压器实测电耗 (kWh/kVA)',
-        cableLineName: '线缆实测电耗 (kWh/万km·mm²)',
-      },
-      'kpi-steam': {
-        name: '单位产品蒸汽消耗',
-        transUnit: 't/万kVA',
-        cableUnit: 't/万km·mm²',
-        transLineName: '变压器干燥工序蒸汽单耗 (t/万kVA)',
-        cableLineName: '线缆蒸汽单耗 (t/万km·mm²)',
-      },
-      'kpi-nitrogen': {
-        name: '单位产品氮气消耗',
-        transUnit: 'm³/万kVA',
-        cableUnit: 'm³/万km·mm²',
-        transLineName: '变压器氮气单耗',
-        cableLineName: '线缆立塔交联工序氮气单耗 (m³/万km·mm²)',
-      },
-      'kpi-gas': {
-        name: '单位产品天然气消耗',
-        transUnit: 'm³/万kVA',
-        cableUnit: 'm³/万km·mm²',
-        transLineName: '变压器天然气单耗 (m³/万kVA)',
-        cableLineName: '线缆天然气单耗 (m³/万km·mm²)',
-      },
-      'kpi-water': {
-        name: '单位产品水消耗',
-        transUnit: 't/万kVA',
-        cableUnit: 't/万km·mm²',
-        transLineName: '变压器水耗 (t/万kVA)',
-        cableLineName: '线缆水耗 (t/万km·mm²)',
-      },
-    }
-
-    const meta = kpiMetaMap[selectedKpiId] || kpiMetaMap['kpi-tce']
-    const isTransOnly = selectedKpiId === 'kpi-steam'
-    const isCableOnly = selectedKpiId === 'kpi-nitrogen'
-
-    let lines = [
-      { key: '变压器单耗', name: meta.transLineName, color: '#1677ff' },
-      { key: '线缆单耗', name: meta.cableLineName, color: '#8b5cf6' },
-    ]
-    let yUnit = `${meta.transUnit} (变压器) · ${meta.cableUnit} (线缆)`
-
-    if (isTransOnly) {
-      lines = [{ key: '变压器单耗', name: meta.transLineName, color: '#1677ff' }]
-      yUnit = `${meta.transUnit} (变压器)`
-    } else if (isCableOnly) {
-      lines = [{ key: '线缆单耗', name: meta.cableLineName, color: '#8b5cf6' }]
-      yUnit = `${meta.cableUnit} (线缆)`
-    }
-
-    return {
-      name: meta.name,
-      yUnit,
-      transUnit: meta.transUnit,
-      cableUnit: meta.cableUnit,
-      lines,
-    }
-  }, [selectedKpiId])
-
-  // 🌟 3. 产品型号列表过滤 (支持几千条型号检索、分类联动与分页)
-  const filteredModels = useMemo(() => {
-    return ALL_PRODUCT_MODELS.filter((m) => {
-      // 1. 产业大类过滤
-      if (category !== 'all' && m.category !== category) {
-        return false
-      }
-      // 2. 中间【分类】层级联动过滤 (若选中了特定分类，则只保留该分类下的型号)
-      if (selectedCategoryId !== 'all' && m.categoryId !== selectedCategoryId) {
-        return false
-      }
-      // 3. 电压等级过滤
-      if (voltageFilter !== 'all' && m.voltageLevel !== voltageFilter) {
-        return false
-      }
-      // 4. 组织树节点过滤
-      if (selectedNode.level === 'company') {
-        const compPrefix = selectedNode.id.replace('comp_', '')
-        if (compPrefix === 'sb' && !m.companyName.includes('沈变')) return false
-        if (compPrefix === 'hb' && !m.companyName.includes('衡变') && !m.companyName.includes('湖南电气') && !m.companyName.includes('特能建')) return false
-        if (compPrefix === 'xb' && !m.companyName.includes('新变') && !m.companyName.includes('超高压') && !m.companyName.includes('天变') && !m.companyName.includes('智能电气') && !m.companyName.includes('京津冀')) return false
-        if (compPrefix === 'll' && !m.companyName.includes('鲁缆') && !m.companyName.includes('曙光')) return false
-        if (compPrefix === 'xl' && !m.companyName.includes('新疆电缆') && !m.companyName.includes('新疆线缆')) return false
-        if (compPrefix === 'dl' && !m.companyName.includes('德阳')) return false
-      } else if (selectedNode.level === 'workshop') {
-        if (m.companyId !== selectedNode.id) {
-          return false
+    // 1. 集团级 (同时展示变压器与线缆或单项聚焦)
+    if (isGroupLevel) {
+      if (selectedKpiId === 'kpi-elec-trans') {
+        return {
+          title: '单位产品电耗变化趋势',
+          lines: [{ key: '变压器实测电耗', name: '变压器实测电耗 (kWh/kVA)', color: '#2C7CFF' }],
         }
       }
-      // 5. 关键词过滤
-      if (searchKw.trim()) {
-        const kw = searchKw.trim().toLowerCase()
-        return m.modelCode.toLowerCase().includes(kw) || m.modelName.toLowerCase().includes(kw) || m.companyName.toLowerCase().includes(kw)
+      if (selectedKpiId === 'kpi-elec-cable') {
+        return {
+          title: '单位产品电耗变化趋势',
+          lines: [{ key: '线缆实测电耗', name: '线缆实测电耗 (kWh/万km·mm²)', color: '#2C7CFF' }],
+        }
       }
-      return true
-    })
-  }, [selectedNode, category, selectedCategoryId, voltageFilter, searchKw])
+      if (selectedKpiId === 'kpi-steam-trans') {
+        return {
+          title: '单位产品蒸汽消耗量变化趋势',
+          lines: [{ key: '变压器蒸汽单耗', name: '变压器干燥工序蒸汽单耗 (t/万kVA)', color: '#f59e0b' }],
+        }
+      }
+      if (selectedKpiId === 'kpi-nitrogen-cable') {
+        return {
+          title: '单位产品液氮消耗量变化趋势',
+          lines: [{ key: '线缆液氮单耗', name: '线缆立塔交联工序液氮单耗 (m³/万km·mm²)', color: '#0d9488' }],
+        }
+      }
+      if (selectedKpiId === 'kpi-tce-trans') {
+        return {
+          title: '单位产品综合能耗变化趋势',
+          lines: [{ key: '变压器综合单耗', name: '变压器综合单耗 (tce/万kVA)', color: '#2C7CFF' }],
+        }
+      }
+      if (selectedKpiId === 'kpi-tce-cable') {
+        return {
+          title: '单位产品综合能耗变化趋势',
+          lines: [{ key: '线缆综合单耗', name: '线缆综合单耗 (tce/万km·mm²)', color: '#8b5cf6' }],
+        }
+      }
+      // 默认双曲线展示
+      return {
+        title: '单位产品综合能耗变化趋势',
+        lines: [
+          { key: '变压器综合单耗', name: '变压器综合单耗 (tce/万kVA)', color: '#2C7CFF' },
+          { key: '线缆综合单耗', name: '线缆综合单耗 (tce/万km·mm²)', color: '#8b5cf6' },
+        ],
+      }
+    }
+
+    // 2. 变压器单产业 (沈变/衡变/新变 或 变压器工厂)
+    if (activeIndustries[0] === 'transformer') {
+      if (selectedKpiId === 'kpi-elec-trans') {
+        return {
+          title: '单位产品电耗变化趋势',
+          lines: [{ key: '变压器实测电耗', name: '变压器实测电耗 (kWh/kVA)', color: '#2C7CFF' }],
+        }
+      }
+      if (selectedKpiId === 'kpi-steam-trans') {
+        return {
+          title: '单位产品蒸汽消耗量变化趋势',
+          lines: [{ key: '变压器蒸汽单耗', name: '变压器干燥工序蒸汽单耗 (t/万kVA)', color: '#f59e0b' }],
+        }
+      }
+      return {
+        title: '单位产品综合能耗变化趋势',
+        lines: [{ key: '变压器综合单耗', name: '变压器综合单耗 (tce/万kVA)', color: '#2C7CFF' }],
+      }
+    }
+
+    // 3. 线缆单产业 (鲁缆/新缆/德缆 或 线缆工厂)
+    if (selectedKpiId === 'kpi-elec-cable') {
+      return {
+        title: '单位产品电耗变化趋势',
+        lines: [{ key: '线缆实测电耗', name: '线缆实测电耗 (kWh/万km·mm²)', color: '#2C7CFF' }],
+      }
+    }
+    if (selectedKpiId === 'kpi-nitrogen-cable') {
+      return {
+        title: '单位产品液氮消耗量变化趋势',
+        lines: [{ key: '线缆液氮单耗', name: '线缆立塔交联工序液氮单耗 (m³/万km·mm²)', color: '#0d9488' }],
+      }
+    }
+    return {
+      title: '单位产品综合能耗变化趋势',
+      lines: [{ key: '线缆综合单耗', name: '线缆综合单耗 (tce/万km·mm²)', color: '#2C7CFF' }],
+    }
+  }, [isGroupLevel, activeIndustries, selectedKpiId])
+
+  // 🌟 3. 产品型号列表过滤 (叠加分类卡片选中、产线分组、特定型号下拉与文本模糊检索)
+  const filteredModels = useMemo(() => {
+    let list = availableModelOptions
+    if (selectedCategoryId !== 'all') {
+      list = list.filter((m) => m.categoryId === selectedCategoryId)
+    } else if (selectedCategoryGroup !== 'all') {
+      const visibleCatIds = displayedCategories.map((c) => c.id)
+      list = list.filter((m) => visibleCatIds.includes(m.categoryId || ''))
+    }
+    if (selectedModelFilter !== 'all') {
+      list = list.filter((m) => m.id === selectedModelFilter)
+    }
+    if (searchKw.trim()) {
+      const kw = searchKw.trim().toLowerCase()
+      list = list.filter(
+        (m) =>
+          m.modelCode.toLowerCase().includes(kw) ||
+          m.modelName.toLowerCase().includes(kw) ||
+          m.companyName.toLowerCase().includes(kw)
+      )
+    }
+    return list
+  }, [availableModelOptions, selectedCategoryId, selectedCategoryGroup, displayedCategories, selectedModelFilter, searchKw])
 
   // 分页计算
   const totalPages = Math.ceil(filteredModels.length / pageSize) || 1
@@ -1637,145 +2043,73 @@ export default function UnitProductPage() {
     return filteredModels.slice(start, start + pageSize)
   }, [filteredModels, currentPage, pageSize])
 
-  // 🌟 4. 判断下方明细台账对应的能源类型展示模式 (变压器: 电/蒸汽/气/水; 线缆: 电/氮气/气/水; 全部产品: 综合全列)
-  const currentTableMode = useMemo<'transformer' | 'cable'>(() => {
-    return category
-  }, [category])
+  // 🌟 4. 判断下方明细台账对应的能源类型展示模式
+  const currentTableMode = useMemo<'transformer' | 'cable' | 'all'>(() => {
+    return currentIndustryMode
+  }, [currentIndustryMode])
 
-  // 🌟 5. 动态 KPI 卡片 (消耗了啥显示啥)
-  const dynamicEnergyKPIs = useMemo(() => {
-    const isCable = activeIndustry === 'cable'
+  // 🌟 5. 指标卡片参数定义（变压器与线缆严格根据用户规则）
+  // 变压器：单位产品综合能耗、单位产品电耗、单位产品蒸汽消耗量
+  const transformerKPIs = useMemo(() => [
+    {
+      id: 'kpi-tce-trans',
+      name: '单位产品综合能耗',
+      value: '0.485',
+      unit: 'tce/万kVA',
+      diffText: '同比 -2.1% ↓',
+      icon: Factory,
+      colorClass: 'text-[#2C7CFF]',
+    },
+    {
+      id: 'kpi-elec-trans',
+      name: '单位产品电耗',
+      value: '0.317',
+      unit: 'kWh/kVA',
+      diffText: '同比 -1.8% ↓',
+      icon: Zap,
+      colorClass: 'text-blue-700',
+    },
+    {
+      id: 'kpi-steam-trans',
+      name: '单位产品蒸汽消耗量',
+      value: '0.020',
+      unit: 't/万kVA',
+      diffText: '同比 -0.5% ↓',
+      icon: Flame,
+      colorClass: 'text-amber-600',
+    },
+  ], [])
 
-    if (isCable) {
-      // 线缆产业：消耗电力、氮气、天然气、水 (无蒸汽)
-      return [
-        {
-          id: 'kpi-tce',
-          name: '单位产品综合能耗',
-          value: '0.418',
-          unit: 'tce/万km·mm²',
-          diffText: '同比 -5.6% ↓',
-          badge: '综合折标',
-          icon: Factory,
-          colorClass: 'text-[#1677ff]',
-          bgClass: 'bg-blue-50/40 border-blue-200',
-          badgeClass: 'bg-blue-100 text-blue-700',
-        },
-        {
-          id: 'kpi-elec',
-          name: '单位产品电耗',
-          value: '3,180',
-          unit: 'kWh/万km·mm²',
-          diffText: '同比 -5.4% ↓',
-          badge: '电力',
-          icon: Zap,
-          colorClass: 'text-blue-700',
-          bgClass: 'bg-white border-slate-200',
-          badgeClass: 'bg-slate-100 text-slate-700',
-        },
-        {
-          id: 'kpi-nitrogen',
-          name: '单位产品氮气消耗',
-          value: '8.6',
-          unit: 'm³/万km·mm²',
-          diffText: '同比 -6.2% ↓',
-          badge: '氮气',
-          icon: Wind,
-          colorClass: 'text-teal-700',
-          bgClass: 'bg-white border-slate-200',
-          badgeClass: 'bg-teal-50 text-teal-700',
-        },
-        {
-          id: 'kpi-gas',
-          name: '单位产品天然气消耗',
-          value: '6.2',
-          unit: 'm³/万km·mm²',
-          diffText: '同比 -4.5% ↓',
-          badge: '天然气',
-          icon: Flame,
-          colorClass: 'text-amber-700',
-          bgClass: 'bg-white border-slate-200',
-          badgeClass: 'bg-amber-50 text-amber-700',
-        },
-        {
-          id: 'kpi-water',
-          name: '单位产品水消耗',
-          value: '1.4',
-          unit: 't/万km·mm²',
-          diffText: '同比 -3.8% ↓',
-          badge: '新鲜水',
-          icon: Droplets,
-          colorClass: 'text-cyan-700',
-          bgClass: 'bg-white border-slate-200',
-          badgeClass: 'bg-cyan-50 text-cyan-700',
-        },
-      ]
-    }
-
-    // 变压器产业：消耗电力、蒸汽、天然气、水
-    return [
-      {
-        id: 'kpi-tce',
-        name: '单位产品综合能耗',
-        value: '0.485',
-        unit: 'tce/万kVA',
-        diffText: '同比 -5.2% ↓',
-        badge: '综合折标',
-        icon: Factory,
-        colorClass: 'text-[#1677ff]',
-        bgClass: 'bg-blue-50/40 border-blue-200',
-        badgeClass: 'bg-blue-100 text-blue-700',
-      },
-      {
-        id: 'kpi-elec',
-        name: '单位产品电耗',
-        value: '0.317',
-        unit: 'kWh/kVA',
-        diffText: '同比 -5.4% ↓',
-        badge: '电力',
-        icon: Zap,
-        colorClass: 'text-blue-700',
-        bgClass: 'bg-white border-slate-200',
-        badgeClass: 'bg-slate-100 text-slate-700',
-      },
-      {
-        id: 'kpi-steam',
-        name: '单位产品蒸汽消耗',
-        value: '0.020',
-        unit: 't/万kVA',
-        diffText: '同比 -4.8% ↓',
-        badge: '蒸汽',
-        icon: Flame,
-        colorClass: 'text-purple-700',
-        bgClass: 'bg-white border-slate-200',
-        badgeClass: 'bg-purple-50 text-purple-700',
-      },
-      {
-        id: 'kpi-gas',
-        name: '单位产品天然气消耗',
-        value: '0.168',
-        unit: 'm³/万kVA',
-        diffText: '同比 -4.1% ↓',
-        badge: '天然气',
-        icon: Flame,
-        colorClass: 'text-amber-700',
-        bgClass: 'bg-white border-slate-200',
-        badgeClass: 'bg-amber-50 text-amber-700',
-      },
-      {
-        id: 'kpi-water',
-        name: '单位产品水消耗',
-        value: '0.085',
-        unit: 't/万kVA',
-        diffText: '同比 -3.9% ↓',
-        badge: '新鲜水',
-        icon: Droplets,
-        colorClass: 'text-cyan-700',
-        bgClass: 'bg-white border-slate-200',
-        badgeClass: 'bg-cyan-50 text-cyan-700',
-      },
-    ]
-  }, [activeIndustry])
+  // 线缆：单位产品综合能耗、单位产品电耗、单位产品液氮消耗量
+  const cableKPIs = useMemo(() => [
+    {
+      id: 'kpi-tce-cable',
+      name: '单位产品综合能耗',
+      value: '0.418',
+      unit: 'tce/万km·mm²',
+      diffText: '同比 -1.9% ↓',
+      icon: Factory,
+      colorClass: 'text-[#2C7CFF]',
+    },
+    {
+      id: 'kpi-elec-cable',
+      name: '单位产品电耗',
+      value: '3,180',
+      unit: 'kWh/万km·mm²',
+      diffText: '同比 -1.6% ↓',
+      icon: Zap,
+      colorClass: 'text-blue-700',
+    },
+    {
+      id: 'kpi-nitrogen-cable',
+      name: '单位产品液氮消耗量',
+      value: '8.6',
+      unit: 'm³/万km·mm²',
+      diffText: '同比 -0.8% ↓',
+      icon: Wind,
+      colorClass: 'text-teal-700',
+    },
+  ], [])
 
   return (
     <div className="flex gap-3.5 items-start">
@@ -1792,34 +2126,38 @@ export default function UnitProductPage() {
       {/* 🌟 右侧主面板：集团、经营单位及项目公司显示样式保持高度统一一致 */}
       <div className="flex-1 min-w-0 flex flex-col gap-3.5">
         
-        {/* 1. 顶部 Header 与 统一标准时间筛选 */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+        {/* 1. 顶部 Header 与 统一标准时间筛选 (参考用能监测标准高度 p-3.5 完全统一对齐) */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-card p-3.5 rounded-lg border border-[#DBE6EE] dark:border-border shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+            <div className="size-9 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-[#2C7CFF] shrink-0">
               <Factory className="size-5" />
             </div>
-            <h1 className="text-base font-bold text-slate-800">单位产品能耗</h1>
+            <h1 className="text-base font-bold text-slate-800 dark:text-foreground">单位产品能耗</h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* 时间维度统一 (月度 / 季度 / 年度) */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+            {/* 时间维度统一 (月 / 季度 / 年 / 自定义) */}
+            <div className="flex items-center gap-1 p-0.5 rounded-lg text-sm font-sans bg-slate-100 dark:bg-panel border border-slate-200 dark:border-border">
               <button
                 type="button"
                 onClick={() => setTimeDim('month')}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                  timeDim === 'month'
+                    ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white dark:hover:bg-slate-800'
                 )}
               >
-                月度
+                月
               </button>
               <button
                 type="button"
                 onClick={() => setTimeDim('quarter')}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                  timeDim === 'quarter'
+                    ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white dark:hover:bg-slate-800'
                 )}
               >
                 季度
@@ -1828,43 +2166,49 @@ export default function UnitProductPage() {
                 type="button"
                 onClick={() => setTimeDim('year')}
                 className={cn(
-                  'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                  timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                  timeDim === 'year'
+                    ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white dark:hover:bg-slate-800'
                 )}
               >
-                年度
+                年
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimeDim('custom')}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                  timeDim === 'custom'
+                    ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white dark:hover:bg-slate-800'
+                )}
+              >
+                自定义
               </button>
             </div>
 
-            {/* 时间范围选择控件 (随维度自适应切换) */}
+            {/* 时间范围选择控件 (随维度自适应切换，样式与单位产值能耗完全对齐) */}
             {timeDim === 'month' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-2 bg-white dark:bg-panel px-3 h-9 rounded-lg border border-[#DBE6EE] dark:border-border text-sm shadow-xs font-mono">
+                <Calendar className="size-4 text-slate-400 shrink-0" />
                 <input
                   type="month"
-                  value={selectedMonthRange.start}
-                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                  title="起始月份"
-                />
-                <span className="text-slate-400 font-sans">至</span>
-                <input
-                  type="month"
-                  value={selectedMonthRange.end}
-                  onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                  className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                  title="结束月份"
+                  value={selectedMonth}
+                  onChange={(e) => e.target.value && setSelectedMonth(e.target.value)}
+                  className="bg-transparent border-0 text-slate-800 dark:text-foreground text-sm focus:outline-none cursor-pointer font-bold"
+                  title="选择指定月份"
                 />
               </div>
             )}
 
             {timeDim === 'quarter' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-2 bg-white dark:bg-panel px-3 h-9 rounded-lg border border-[#DBE6EE] dark:border-border text-sm shadow-xs">
+                <Calendar className="size-4 text-slate-400 shrink-0" />
                 <select
                   value={selectedQuarter}
                   onChange={(e) => setSelectedQuarter(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                  className="bg-transparent border-0 text-slate-800 dark:text-foreground text-sm font-mono font-medium focus:outline-none cursor-pointer pr-1"
                 >
                   <option value="2026-Q1">2026年 第1季度 (Q1)</option>
                   <option value="2026-Q2">2026年 第2季度 (Q2)</option>
@@ -1876,12 +2220,12 @@ export default function UnitProductPage() {
             )}
 
             {timeDim === 'year' && (
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-                <Calendar className="size-3.5 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-2 bg-white dark:bg-panel px-3 h-9 rounded-lg border border-[#DBE6EE] dark:border-border text-sm shadow-xs">
+                <Calendar className="size-4 text-slate-400 shrink-0" />
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                  className="bg-transparent border-0 text-slate-800 dark:text-foreground text-sm font-mono font-medium focus:outline-none cursor-pointer pr-1"
                 >
                   <option value="2026">2026 年度</option>
                   <option value="2025">2025 年度</option>
@@ -1890,140 +2234,171 @@ export default function UnitProductPage() {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={() => alert(`正在导出【${selectedNode.name}】单位产品能耗分析报表 (Excel)...`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
-            >
-              <Download className="size-3.5" />
-              <span>导出</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 🌟 2. 核心筛选控制栏 (单位产品能耗种类切换 + 搜索框) */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">单位产品能耗:</span>
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 font-sans">
-              <button
-                type="button"
-                onClick={() => {
-                  setCategory('transformer')
-                  setCurrentPage(1)
-                }}
-                className={cn(
-                  'px-3 py-1.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer',
-                  category === 'transformer'
-                    ? 'bg-white text-[#1677ff] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                <Zap className="size-3.5 text-amber-500" />
-                <span>变压器</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setCategory('cable')
-                  setCurrentPage(1)
-                }}
-                className={cn(
-                  'px-3 py-1.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer',
-                  category === 'cable'
-                    ? 'bg-white text-emerald-700 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                )}
-              >
-                <Cable className="size-3.5 text-emerald-600" />
-                <span>线缆</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 max-w-sm">
-            <div className="relative">
-              <input
-                type="text"
-                value={searchKw}
-                onChange={(e) => {
-                  setSearchKw(e.target.value)
-                  setCurrentPage(1)
-                }}
-                placeholder="按产品型号 / 规格模糊搜索..."
-                className="pl-7 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#1677ff] focus:bg-white w-64 transition-colors"
-              />
-              <Search className="size-3.5 text-slate-400 absolute left-2.5 top-2 pointer-events-none" />
-              {searchKw && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchKw('')
-                    setCurrentPage(1)
-                  }}
-                  className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                >
-                  <X className="size-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* 🌟 3. 统计模块：单位产品各类能源消耗看板 (点击卡片即时驱动下方图表联动) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 font-mono text-xs">
-          {dynamicEnergyKPIs.map((kpi) => {
-            const Icon = kpi.icon
-            const isSelected = selectedKpiId === kpi.id
-            return (
-              <div
-                key={kpi.id}
-                onClick={() => setSelectedKpiId(kpi.id)}
-                className={cn(
-                  'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all cursor-pointer select-none relative group',
-                  isSelected
-                    ? 'bg-gradient-to-br from-blue-50/95 via-white to-blue-50/40 border-2 border-[#1677ff] ring-2 ring-[#1677ff]/20 shadow-sm scale-[1.01]'
-                    : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/60'
-                )}
-              >
-                <div className="flex items-center justify-between text-xs text-slate-600 font-sans">
-                  <span className={cn('flex items-center gap-1 font-bold', isSelected ? 'text-[#1677ff]' : 'text-slate-800')}>
-                    <Icon className={cn('size-3.5', isSelected ? 'text-[#1677ff]' : 'text-slate-500')} />
-                    {kpi.name}
-                  </span>
-                </div>
-                <div className={cn('text-xl font-extrabold', isSelected ? 'text-[#1677ff]' : kpi.colorClass)}>
-                  {kpi.value} <span className="text-xs font-normal text-slate-500 font-sans">{kpi.unit}</span>
-                </div>
-                <div className="text-[11px] text-slate-600 pt-1 border-t border-slate-100 font-sans flex justify-between items-center">
-                  <span className="text-emerald-600 font-bold font-mono">{kpi.diffText}</span>
-                </div>
+            {timeDim === 'custom' && (
+              <div className="flex items-center gap-2 bg-white dark:bg-panel px-3 h-9 rounded-lg border border-[#DBE6EE] dark:border-border text-sm shadow-xs font-mono">
+                <Calendar className="size-4 text-slate-400 shrink-0" />
+                <input
+                  type="month"
+                  value={selectedMonthRange.start}
+                  onChange={handleCustomStartMonthChange}
+                  className="bg-transparent border-0 text-slate-800 dark:text-foreground text-sm focus:outline-none cursor-pointer font-bold"
+                  title="开始月份 (最多选12个月)"
+                />
+                <span className="text-slate-400 font-sans">至</span>
+                <input
+                  type="month"
+                  value={selectedMonthRange.end}
+                  onChange={handleCustomEndMonthChange}
+                  className="bg-transparent border-0 text-slate-800 dark:text-foreground text-sm focus:outline-none cursor-pointer font-bold"
+                  title="结束月份 (最多选12个月)"
+                />
               </div>
-            )
-          })}
+            )}
+
+            <ExportButton
+              onClick={() => alert(`正在导出【${selectedNode.name}】单位产品能耗分析报表 (周期: ${timeDim === 'month' ? selectedMonth : timeDim === 'quarter' ? selectedQuarter : timeDim === 'year' ? selectedYear : selectedMonthRange.start + ' 至 ' + selectedMonthRange.end})...`)}
+            />
+          </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* 🌟 3.5. 选定能耗指标近 12 个月变化趋势全景折线图 (参考图片 1：点击上方卡片动态联动) */}
-        {/* ========================================================================= */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-            <div className="flex items-center gap-2">
-              <span className="size-2.5 rounded-full bg-[#1677ff] animate-pulse shrink-0" />
-              <h3 className="text-xs font-bold text-slate-900">
-                【全集团两大核心产品】{chartAxisAndLines.name}变化趋势 ({trendChartConfig.periodName})
-              </h3>
-              {selectedNode.id !== 'ent_root' && (
-                <span className="text-[11px] px-2 py-0.5 rounded bg-blue-50 text-[#1677ff] font-sans font-bold border border-blue-100">
-                  {selectedNode.name}
-                </span>
-              )}
+        {/* 🌟 2. 统计模块：单位产品各类能源消耗看板（根据集团、经营单位和工厂区分展示） */}
+        {isGroupLevel ? (
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3.5">
+            {/* 变压器产业 3 项指标 */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="h-3.5 w-1 rounded-full bg-[#2C7CFF] shrink-0" />
+                <h3 className="text-base font-bold text-slate-800 dark:text-foreground">
+                  变压器产业能耗指标
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-mono text-xs">
+                {transformerKPIs.map((kpi) => {
+                  const Icon = kpi.icon
+                  const isSelected = selectedKpiId === kpi.id || (selectedKpiId === 'kpi-tce-all' && kpi.id === 'kpi-tce-trans')
+                  return (
+                    <div
+                      key={kpi.id}
+                      onClick={() => setSelectedKpiId(selectedKpiId === kpi.id ? 'kpi-tce-all' : kpi.id)}
+                      className={cn(
+                        'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all cursor-pointer select-none relative group',
+                        isSelected
+                          ? 'bg-gradient-to-br from-blue-50/95 via-white to-blue-50/40 dark:from-blue-950/60 dark:via-panel dark:to-blue-950/40 border-2 border-[#2C7CFF] ring-2 ring-[#2C7CFF]/20 shadow-sm scale-[1.01]'
+                          : 'bg-white dark:bg-card border-slate-200 dark:border-border hover:border-blue-300 dark:hover:border-blue-700 hover:bg-slate-50/60 dark:hover:bg-slate-800'
+                      )}
+                    >
+                      <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 font-sans">
+                        <span className={cn('flex items-center gap-1 font-bold', isSelected ? 'text-[#2C7CFF]' : 'text-slate-800 dark:text-foreground')}>
+                          <Icon className={cn('size-3.5', isSelected ? 'text-[#2C7CFF]' : 'text-slate-500')} />
+                          {kpi.name}
+                        </span>
+                      </div>
+                      <div className={cn('text-xl font-extrabold', isSelected ? 'text-[#2C7CFF]' : kpi.colorClass)}>
+                        {kpi.value} <span className="text-xs font-normal text-slate-500 dark:text-muted-foreground font-sans">{kpi.unit}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-600 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-border font-sans flex justify-between items-center">
+                        <span className="text-emerald-600 font-bold font-mono">{kpi.diffText}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
+            {/* 线缆产业 3 项指标 */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="h-3.5 w-1 rounded-full bg-[#2C7CFF] shrink-0" />
+                <h3 className="text-base font-bold text-slate-800 dark:text-foreground">
+                  线缆产业能耗指标
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-mono text-xs">
+                {cableKPIs.map((kpi) => {
+                  const Icon = kpi.icon
+                  const isSelected = selectedKpiId === kpi.id || (selectedKpiId === 'kpi-tce-all' && kpi.id === 'kpi-tce-cable')
+                  return (
+                    <div
+                      key={kpi.id}
+                      onClick={() => setSelectedKpiId(selectedKpiId === kpi.id ? 'kpi-tce-all' : kpi.id)}
+                      className={cn(
+                        'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all cursor-pointer select-none relative group',
+                        isSelected
+                          ? 'bg-gradient-to-br from-blue-50/95 via-white to-blue-50/40 dark:from-blue-950/60 dark:via-panel dark:to-blue-950/40 border-2 border-[#2C7CFF] ring-2 ring-[#2C7CFF]/20 shadow-sm scale-[1.01]'
+                          : 'bg-white dark:bg-card border-slate-200 dark:border-border hover:border-blue-300 dark:hover:border-blue-700 hover:bg-slate-50/60 dark:hover:bg-slate-800'
+                      )}
+                    >
+                      <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 font-sans">
+                        <span className={cn('flex items-center gap-1 font-bold', isSelected ? 'text-[#2C7CFF]' : 'text-slate-800 dark:text-foreground')}>
+                          <Icon className={cn('size-3.5', isSelected ? 'text-[#2C7CFF]' : 'text-slate-500')} />
+                          {kpi.name}
+                        </span>
+                      </div>
+                      <div className={cn('text-xl font-extrabold', isSelected ? 'text-[#2C7CFF]' : kpi.colorClass)}>
+                        {kpi.value} <span className="text-xs font-normal text-slate-500 dark:text-muted-foreground font-sans">{kpi.unit}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-600 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-border font-sans flex justify-between items-center">
+                        <span className="text-emerald-600 font-bold font-mono">{kpi.diffText}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* 经营单位与工厂级：只展示对应产业的 3 张指标卡片 */
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs px-2.5 py-1 rounded-md bg-blue-50/80 text-[#1677ff] font-mono border border-blue-100/80 font-medium">
-                Y轴坐标单位: {chartAxisAndLines.yUnit}
-              </span>
+              <span className="h-3.5 w-1 rounded-full bg-[#2C7CFF] shrink-0" />
+              <h3 className="text-base font-bold text-slate-800 dark:text-foreground">
+                {activeIndustries[0] === 'transformer' ? '变压器产业能耗指标' : '线缆产业能耗指标'}
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 font-mono text-xs">
+              {(activeIndustries[0] === 'transformer' ? transformerKPIs : cableKPIs).map((kpi) => {
+                const Icon = kpi.icon
+                const isSelected = selectedKpiId === kpi.id
+                return (
+                  <div
+                    key={kpi.id}
+                    onClick={() => setSelectedKpiId(kpi.id)}
+                    className={cn(
+                      'p-3.5 rounded-xl border shadow-xs space-y-1.5 transition-all cursor-pointer select-none relative group',
+                      isSelected
+                        ? 'bg-gradient-to-br from-blue-50/95 via-white to-blue-50/40 dark:from-blue-950/60 dark:via-panel dark:to-blue-950/40 border-2 border-[#2C7CFF] ring-2 ring-[#2C7CFF]/20 shadow-sm scale-[1.01]'
+                        : 'bg-white dark:bg-card border-slate-200 dark:border-border hover:border-blue-300 dark:hover:border-blue-700 hover:bg-slate-50/60 dark:hover:bg-slate-800'
+                    )}
+                  >
+                    <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 font-sans">
+                      <span className={cn('flex items-center gap-1 font-bold', isSelected ? 'text-[#2C7CFF]' : 'text-slate-800 dark:text-foreground')}>
+                        <Icon className={cn('size-3.5', isSelected ? 'text-[#2C7CFF]' : 'text-slate-500')} />
+                        {kpi.name}
+                      </span>
+                    </div>
+                    <div className={cn('text-xl font-extrabold', isSelected ? 'text-[#2C7CFF]' : kpi.colorClass)}>
+                      {kpi.value} <span className="text-xs font-normal text-slate-500 dark:text-muted-foreground font-sans">{kpi.unit}</span>
+                    </div>
+                    <div className="text-[11px] text-slate-600 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-border font-sans flex justify-between items-center">
+                      <span className="text-emerald-600 font-bold font-mono">{kpi.diffText}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* 🌟 3. 选定能耗指标近 12 个月变化趋势全景折线图 (点击上方卡片动态联动) */}
+        {/* ========================================================================= */}
+        <div className="bg-white dark:bg-card p-4 rounded-xl border border-slate-200 dark:border-border shadow-xs space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-border pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="h-3.5 w-1 rounded-full bg-[#2C7CFF] shrink-0" />
+              <h3 className="text-base font-bold text-slate-800 dark:text-foreground">
+                {chartAxisAndLines.title}
+              </h3>
             </div>
           </div>
 
@@ -2034,22 +2409,26 @@ export default function UnitProductPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                 <XAxis
                   dataKey="period"
-                  tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'monospace' }}
+                  tick={{ fontSize: 11, fill: 'currentColor', fontFamily: 'monospace' }}
+                  className="text-slate-600 dark:text-slate-300"
                   axisLine={{ stroke: '#cbd5e1' }}
                   tickLine={{ stroke: '#cbd5e1' }}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'monospace' }}
+                  tick={{ fontSize: 11, fill: 'currentColor', fontFamily: 'monospace' }}
+                  className="text-slate-600 dark:text-slate-300"
                   axisLine={{ stroke: '#cbd5e1' }}
                   tickLine={{ stroke: '#cbd5e1' }}
                 />
                 <Tooltip
+                  cursor={{ stroke: 'rgba(56, 189, 248, 0.25)', strokeWidth: 1 }}
                   contentStyle={{
-                    backgroundColor: '#ffffff',
-                    borderColor: '#e2e8f0',
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    borderColor: 'rgba(56, 189, 248, 0.4)',
                     borderRadius: 8,
                     fontSize: 12,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                    color: '#f8fafc',
                   }}
                 />
                 {chartAxisAndLines.lines.map((line) => (
@@ -2069,7 +2448,7 @@ export default function UnitProductPage() {
           </div>
 
           {/* 底部自定义图例与单位说明，完全对齐图1 */}
-          <div className="flex items-center justify-center gap-8 text-xs font-mono pt-2 text-slate-700 border-t border-slate-100 flex-wrap">
+          <div className="flex items-center justify-center gap-8 text-xs font-mono pt-2 text-slate-700 dark:text-slate-300 border-t border-slate-100 dark:border-border flex-wrap">
             {chartAxisAndLines.lines.map((line) => (
               <div key={line.key} className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 font-bold" style={{ color: line.color }}>
@@ -2084,223 +2463,251 @@ export default function UnitProductPage() {
         </div>
 
         {/* ========================================================================= */}
-        {/* 🌟 4. 中间主要产品分类层级 (卡片形式展现分类名称、类型、消耗资源类型等) */}
+        {/* 🌟 4. 产品管控指标 (严格对齐指标管控页面：品类Tag栏 + 5大核心管控卡片 + 产品中类明细表) */}
         {/* ========================================================================= */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-          {/* ① 顶部功能栏：品类标题、品类搜索与排序 (已移除冗余红框信息) */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-2.5">
-            <div className="flex items-center gap-2">
-              <Boxes className="size-4 text-[#1677ff]" />
-              <h3 className="text-xs font-bold text-slate-900">
-                {category === 'transformer' ? '【变压器产业】主要产品分类' : '【线缆产业】主要产品分类'}
-              </h3>
-            </div>
-
-            {/* 右侧：品类检索框与排序选择 */}
-            <div className="flex items-center gap-2 text-xs">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={categorySearchKw}
-                  onChange={(e) => setCategorySearchKw(e.target.value)}
-                  placeholder="按主要产品名称/工序过滤..."
-                  className="pl-7 pr-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#1677ff] focus:bg-white w-48 transition-colors"
+        <div className="bg-white dark:bg-card p-6 rounded-lg border border-[#DBE6EE] dark:border-border shadow-xs space-y-4">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-border pb-2.5">
+            <div className="min-w-0 flex-1 flex items-center gap-2">
+              <span className="h-3.5 w-1 rounded-full bg-[#2C7CFF] shrink-0" />
+              <h2 className="text-base font-bold text-slate-800 dark:text-foreground shrink-0">
+                产品管控指标
+              </h2>
+              {availableProductLines.length > 0 && (
+                <CollapsibleTagBar
+                  items={availableProductLines}
+                  activeItem={currentProductLine}
+                  onSelect={(line) => {
+                    setSelectedProductLine(line)
+                    const matchedMajor = PRODUCT_MAJOR_OPTIONS.find(
+                      (m) => m.name === line || line.includes(m.name) || m.name.includes(line)
+                    )
+                    if (matchedMajor) {
+                      setSelectedMajorFilter(matchedMajor.id)
+                      setSelectedKindFilter('all')
+                      setSelectedModelFilter('all')
+                    }
+                  }}
+                  colorTheme="amber"
                 />
-                <Search className="size-3.5 text-slate-400 absolute left-2 top-1.5 pointer-events-none" />
-                {categorySearchKw && (
+              )}
+            </div>
+          </div>
+
+          {currentProductControlMetrics.length === 0 ? (
+            <div className="py-8 px-4 rounded-xl border border-dashed border-slate-200 dark:border-border bg-amber-50/20 dark:bg-panel flex flex-col items-center justify-center text-center space-y-2">
+              <div className="size-10 rounded-full bg-amber-100 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-700 dark:text-amber-400">
+                <Factory className="size-5 opacity-80" />
+              </div>
+              <div className="space-y-0.5">
+                <h3 className="text-xs font-bold text-slate-800 dark:text-foreground">
+                  {selectedNode.name ? `【${selectedNode.name}】暂未纳管工业产品管控指标` : '暂无产品管控指标'}
+                </h3>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 font-mono">
+              {currentProductControlMetrics.map((pm) => {
+                return (
+                  <div
+                    key={pm.id}
+                    className="p-4 bg-amber-50/30 dark:bg-panel hover:bg-amber-50/80 dark:hover:bg-slate-800/80 rounded-lg border border-amber-200/80 dark:border-border hover:border-amber-300 dark:hover:border-amber-500/50 transition-all cursor-pointer space-y-2 group shadow-2xs"
+                  >
+                    <div className="flex items-center justify-between font-sans">
+                      <span className="text-sm font-medium text-slate-800 dark:text-slate-300 truncate" title={pm.name}>
+                        {pm.name}
+                      </span>
+                    </div>
+
+                    <div className="text-2xl font-bold font-mono text-slate-900 dark:text-foreground group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+                      {pm.curVal} <span className="text-sm font-normal text-slate-500 dark:text-muted-foreground font-sans">{pm.unit}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* 产品中类明细 (对齐指标管控页面：展示各产品中类能耗折标与构成色彩带) */}
+          <div className="pt-2">
+            <SubcategoryCompositionTable
+              hideHeaderTitle
+              currentProductLine={currentProductLine}
+              subcategories={subcategoriesForCurrentLine}
+              lineSpec={currentLineSpec}
+              unitName={selectedNode?.name}
+              searchKey={lineSearchKey}
+              onSearchChange={setLineSearchKey}
+              onSelectMetric={() => {}}
+              className="border-0 p-0 shadow-none bg-transparent space-y-3"
+            />
+          </div>
+        </div>
+
+        {/* 🌟 5. 产品能耗明细 (产品大类、产品中类、产品型号下拉 + 检索) */}
+        <div className="bg-white dark:bg-card rounded-xl border border-slate-200 dark:border-border shadow-xs overflow-hidden">
+          <div className="p-3.5 border-b border-slate-100 dark:border-border flex flex-wrap items-center justify-between bg-slate-50/70 dark:bg-panel gap-3">
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="h-3.5 w-1 rounded-full bg-[#2C7CFF] shrink-0" />
+              <h3 className="text-base font-bold text-slate-800 dark:text-foreground">
+                产品能耗明细
+              </h3>
+              {activeSelectedCategory && (
+                <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded text-xs font-medium">
+                  <span>已联动筛选</span>
                   <button
                     type="button"
-                    onClick={() => setCategorySearchKw('')}
-                    className="absolute right-2 top-1.5 text-slate-400 hover:text-slate-600"
+                    onClick={() => {
+                      setSelectedCategoryId('all')
+                      setCurrentPage(1)
+                    }}
+                    className="text-amber-600 dark:text-amber-400 hover:text-amber-900 cursor-pointer ml-0.5"
+                    title="清除分类联动"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* 🌟 3 级级联下拉 + 快速检索与重置工具栏 (严格契合批注要求) */}
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              {/* 1. 产品大类下拉 */}
+              <div className="flex items-center gap-1.5 bg-white dark:bg-panel px-2.5 h-8 rounded-lg border border-slate-200 dark:border-border text-xs shadow-2xs">
+                <span className="text-slate-400 font-sans text-[11px] shrink-0">产品大类:</span>
+                <select
+                  value={selectedMajorFilter}
+                  onChange={(e) => {
+                    setSelectedMajorFilter(e.target.value)
+                    setSelectedKindFilter('all')
+                    setSelectedModelFilter('all')
+                    setCurrentPage(1)
+                  }}
+                  className="bg-transparent border-0 text-slate-800 dark:text-foreground text-xs font-sans font-medium focus:outline-none cursor-pointer max-w-[130px] truncate"
+                  title="选择产品大类"
+                >
+                  <option value="all">全部产品大类</option>
+                  {filteredMajorOptions.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 2. 产品中类下拉 */}
+              <div className="flex items-center gap-1.5 bg-white dark:bg-panel px-2.5 h-8 rounded-lg border border-slate-200 dark:border-border text-xs shadow-2xs">
+                <span className="text-slate-400 font-sans text-[11px] shrink-0">产品中类:</span>
+                <select
+                  value={selectedKindFilter}
+                  onChange={(e) => {
+                    setSelectedKindFilter(e.target.value)
+                    setSelectedModelFilter('all')
+                    setCurrentPage(1)
+                  }}
+                  className="bg-transparent border-0 text-slate-800 dark:text-foreground text-xs font-sans font-medium focus:outline-none cursor-pointer max-w-[140px] truncate"
+                  title="选择产品中类"
+                >
+                  <option value="all">全部产品中类</option>
+                  {availableKindOptions.map((k) => (
+                    <option key={k.id} value={k.id}>
+                      {k.shortName || k.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 3. 产品型号下拉 */}
+              <div className="flex items-center gap-1.5 bg-white dark:bg-panel px-2.5 h-8 rounded-lg border border-slate-200 dark:border-border text-xs shadow-2xs">
+                <span className="text-slate-400 font-sans text-[11px] shrink-0">产品型号:</span>
+                <select
+                  value={selectedModelFilter}
+                  onChange={(e) => {
+                    setSelectedModelFilter(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  className="bg-transparent border-0 text-slate-800 dark:text-foreground text-xs font-sans font-medium focus:outline-none cursor-pointer max-w-[160px] truncate"
+                  title="选择具体产品型号"
+                >
+                  <option value="all">全部产品型号 ({availableModelOptions.length})</option>
+                  {availableModelOptions.map((m) => (
+                    <option key={m.id} value={m.id} title={`${m.modelCode} - ${m.modelName}`}>
+                      {m.modelCode}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 4. 检索输入框 */}
+              <div className="relative w-48 sm:w-56">
+                <input
+                  type="text"
+                  value={searchKw}
+                  onChange={(e) => {
+                    setSearchKw(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  placeholder="检索型号/规格/编码..."
+                  className="w-full pl-7 pr-7 py-1 bg-white dark:bg-panel border border-slate-200 dark:border-border rounded-lg text-xs font-sans placeholder:text-slate-400 focus:outline-none focus:border-[#2C7CFF] text-slate-800 dark:text-foreground h-8 transition-colors shadow-2xs"
+                />
+                <Search className="size-3.5 text-slate-400 absolute left-2 top-2.5 pointer-events-none" />
+                {searchKw && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchKw('')
+                      setCurrentPage(1)
+                    }}
+                    className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    title="清空搜索"
                   >
                     <X className="size-3.5" />
                   </button>
                 )}
               </div>
 
-              <select
-                value={categorySortBy}
-                onChange={(e) => setCategorySortBy(e.target.value as any)}
-                aria-label="主要产品排序方式"
-                className="py-1 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-sans text-slate-700 focus:outline-none focus:border-[#1677ff] cursor-pointer"
-              >
-                <option value="tce_desc">按综合单耗降序</option>
-                <option value="models_desc">按在产型号数量</option>
-                <option value="yoy_desc">按节能降耗幅度</option>
-              </select>
-            </div>
-          </div>
-
-          {/* ② 品类二级分组 Tabs 药丸 */}
-          <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-slate-400 font-sans text-[11px]">主要产品分组:</span>
-              {categoryGroups.map((grp) => {
-                const isGrpSelected = selectedCategoryGroup === grp
-                const count = grp === 'all'
-                  ? currentCategories.length
-                  : currentCategories.filter((c) => c.groupTag === grp).length
-                return (
-                  <button
-                    key={grp}
-                    type="button"
-                    onClick={() => setSelectedCategoryGroup(grp)}
-                    className={cn(
-                      'px-2.5 py-1 rounded-lg transition-all cursor-pointer font-medium select-none text-xs border flex items-center gap-1',
-                      isGrpSelected
-                        ? 'bg-[#1677ff] text-white font-bold border-blue-600 shadow-xs'
-                        : 'bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-slate-200'
-                    )}
-                  >
-                    <span>{grp === 'all' ? '全部主要产品' : grp}</span>
-                    <span className={cn('text-[10px] px-1 rounded', isGrpSelected ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-600')}>
-                      {count}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-
-            {selectedCategoryId !== 'all' && (
+              {/* 5. 查询按钮 */}
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedCategoryId('all')
                   setCurrentPage(1)
                 }}
-                className="text-xs text-[#1677ff] hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 h-8 rounded-lg bg-[#2C7CFF] hover:bg-blue-600 text-white text-xs font-sans font-medium transition-colors cursor-pointer shrink-0 shadow-2xs"
+                title="按条件查询型号"
               >
-                <span>清除单选 (显示全部主要产品型号)</span>
+                <Search className="size-3.5 text-white" />
+                <span>查询</span>
               </button>
-            )}
-          </div>
 
-          {/* ③ 卡片网格形式展示所有产品分类 (精简信息：分类名称、类型、消耗资源类型、单耗、生产单位) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 pt-1">
-            {displayedCategories.map((cat, idx) => {
-              const isSelected = selectedCategoryId === cat.id
-
-              return (
-                <div
-                  key={cat.id}
-                  onClick={() => {
-                    setSelectedCategoryId(selectedCategoryId === cat.id ? 'all' : cat.id)
-                    setCurrentPage(1)
-                  }}
-                  className={cn(
-                    'rounded-xl border p-3 flex flex-col justify-between transition-all cursor-pointer select-none relative group',
-                    isSelected
-                      ? 'bg-gradient-to-br from-blue-50/90 via-white to-blue-50/30 border-2 border-[#1677ff] ring-2 ring-[#1677ff]/20 shadow-sm scale-[1.01]'
-                      : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/70 hover:shadow-xs'
-                  )}
-                >
-                  {/* 1. 顶部：序号 + 分类名称 + 类型标签 + 选中状态 */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <span className={cn(
-                        'size-5 rounded-md font-mono text-[11px] font-bold flex items-center justify-center shrink-0 transition-colors',
-                        isSelected ? 'bg-[#1677ff] text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-700'
-                      )}>
-                        {String(idx + 1).padStart(2, '0')}
-                      </span>
-                      <h4 className={cn(
-                        'text-xs font-bold truncate leading-tight',
-                        isSelected ? 'text-[#1677ff]' : 'text-slate-900 group-hover:text-[#1677ff]'
-                      )} title={cat.name}>
-                        {cat.name}
-                      </h4>
-                    </div>
-
-                    {isSelected && (
-                      <CheckCircle2 className="size-4 text-[#1677ff] shrink-0 fill-blue-50" />
-                    )}
-                  </div>
-
-                  {/* 2. 中间：消耗资源类型 */}
-                  <div className="flex items-center justify-between text-xs bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100 my-1">
-                    <span className="text-[11px] text-slate-500 font-sans flex items-center gap-1">
-                      <Zap className="size-3 text-amber-500 shrink-0" />
-                      <span>消耗资源类型:</span>
-                    </span>
-                    <span className="font-bold text-amber-700 text-[11px] font-sans">
-                      {cat.energyTypes}
-                    </span>
-                  </div>
-
-                  {/* 3. 底部生产单位与型号数 (简明一行) */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10.5px] text-slate-500 font-sans">
-                    <span className="truncate max-w-[65%]" title={cat.producerUnits}>
-                      🏭 {cat.producerUnits}
-                    </span>
-                    <span className="font-mono text-slate-400 shrink-0">
-                      {cat.modelCount} 款型号
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* 🌟 5. 产品型号单耗明细台账 (根据选择的产品，精准匹配对应的能源消耗类型) */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/70 gap-2">
-            <div className="flex items-center gap-2">
-              <FileSpreadsheet className="size-4 text-slate-700" />
-              <h3 className="text-xs font-bold text-slate-800">
-                {activeSelectedCategory
-                  ? `【${activeSelectedCategory.name}】产品型号单耗明细台账`
-                  : currentTableMode === 'transformer'
-                  ? '【变压器产品全谱系】型号单耗明细台账 (电耗 · 蒸汽耗 · 气水耗)'
-                  : currentTableMode === 'cable'
-                  ? '【线缆产品全谱系】型号单耗明细台账 (电耗 · 氮气耗 · 气水耗)'
-                  : '全集团产品型号单耗明细台账'}
-              </h3>
-            </div>
-
-            <div className="text-xs text-slate-500 font-mono">
-              在产型号总库共 <strong className="text-slate-900">2,840</strong> 种 · 当前筛选展示 <strong className="text-[#1677ff]">{filteredModels.length}</strong> 条型号
-            </div>
-          </div>
-
-          {/* 若选中特定产品分类，显示高亮提示条与重置操作 */}
-          {activeSelectedCategory && (
-            <div className="bg-blue-50/70 border-b border-blue-100 px-3.5 py-2 flex items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2 text-blue-900 flex-wrap">
-                <span className="px-2 py-0.5 rounded bg-blue-600 text-white font-bold text-[11px] shadow-2xs">
-                  已联动过滤
-                </span>
-                <span className="font-bold">【{activeSelectedCategory.name}】</span>
-                <span className="text-slate-500 text-[11px]">({activeSelectedCategory.groupTag})</span>
-                <span className="text-slate-400">|</span>
-                <span className="text-slate-600 text-[11px]">生产单位: {activeSelectedCategory.producerUnits}</span>
-                <span className="text-slate-400">|</span>
-                <span className="text-blue-700 text-[11px]">工序: {activeSelectedCategory.keyProcesses.join(' · ')}</span>
-              </div>
-
+              {/* 6. 重置按钮 */}
               <button
                 type="button"
                 onClick={() => {
+                  setSelectedMajorFilter('all')
+                  setSelectedKindFilter('all')
+                  setSelectedModelFilter('all')
                   setSelectedCategoryId('all')
+                  setSelectedCategoryGroup('all')
+                  setSearchKw('')
                   setCurrentPage(1)
                 }}
-                className="flex items-center gap-1 text-xs text-[#1677ff] hover:text-blue-800 font-bold cursor-pointer hover:underline"
+                className="flex items-center gap-1.5 px-3.5 h-8 rounded-lg bg-slate-100 dark:bg-panel hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-sans font-medium transition-colors cursor-pointer shrink-0 border border-slate-200 dark:border-border"
+                title="重置所有筛选条件"
               >
-                <X className="size-3.5" />
-                <span>清除分类筛选 (显示全谱系)</span>
+                <RotateCcw className="size-3 text-slate-500" />
+                <span>重置</span>
               </button>
             </div>
-          )}
+          </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-mono">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold font-sans">
+                <tr className="bg-slate-50 dark:bg-panel border-b border-slate-200 dark:border-border text-slate-600 dark:text-slate-300 font-semibold font-sans h-[44px]">
                   <th className="py-2.5 px-3">序号</th>
                   <th className="py-2.5 px-3">产品型号规格</th>
                   
                   {/* 单位产品综合能耗 */}
-                  <th className="py-2.5 px-3 text-right text-slate-900 font-bold">
+                  <th className="py-2.5 px-3 text-right text-slate-900 dark:text-foreground font-bold">
                     {currentTableMode === 'transformer'
                       ? '单位产品综合能耗 (tce/万kVA)'
                       : currentTableMode === 'cable'
@@ -2317,17 +2724,17 @@ export default function UnitProductPage() {
                       : '⚡ 单位产品电耗'}
                   </th>
 
-                  {/* 蒸汽消耗 (仅变压器/全部模式显示，线缆完全不显示) */}
+                  {/* 蒸汽消耗量 (仅变压器/全部模式显示，线缆完全不显示) */}
                   {(currentTableMode === 'transformer' || currentTableMode === 'all') && (
                     <th className="py-2.5 px-3 text-right text-purple-700">
-                      💨 单位蒸汽消耗 (t)
+                      💨 单位蒸汽消耗量 (t)
                     </th>
                   )}
 
-                  {/* 氮气消耗 (仅线缆/全部模式显示，变压器完全不显示) */}
+                  {/* 液氮消耗量 (仅线缆/全部模式显示，变压器完全不显示) */}
                   {(currentTableMode === 'cable' || currentTableMode === 'all') && (
                     <th className="py-2.5 px-3 text-right text-teal-700">
-                      💨 单位氮气消耗 (m³)
+                      💨 单位液氮消耗量 (m³)
                     </th>
                   )}
 
@@ -2359,7 +2766,7 @@ export default function UnitProductPage() {
                       </td>
                       
                       {/* 1. 单位产品综合能耗 */}
-                      <td className="py-2.5 px-3 text-right font-extrabold text-[#1677ff]">
+                      <td className="py-2.5 px-3 text-right font-extrabold text-[#2C7CFF]">
                         {m.unitTce}
                       </td>
 
@@ -2419,7 +2826,7 @@ export default function UnitProductPage() {
               <strong className="text-slate-800">
                 {Math.min(currentPage * pageSize, filteredModels.length)}
               </strong>{' '}
-              条 · 共 <strong className="text-[#1677ff]">{filteredModels.length}</strong> 条型号
+              条 · 共 <strong className="text-[#2C7CFF]">{filteredModels.length}</strong> 条型号
             </div>
 
             <div className="flex items-center gap-1 font-mono">

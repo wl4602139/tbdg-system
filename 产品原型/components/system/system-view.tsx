@@ -2,336 +2,344 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import type { LucideIcon } from 'lucide-react'
 import {
   ArrowLeft,
-  UserPlus,
   ShieldCheck,
+  Building2,
+  UserCog,
+  KeyRound,
+  LayoutGrid,
   Boxes,
-  Plug,
   ScrollText,
-  Lock,
-  Plus,
   ChevronRight,
+  ChevronDown,
+  Zap,
+  Flame,
+  Layers,
+  DollarSign,
+  Droplets,
+  Cpu,
+  Database,
+  FolderTree,
+  Sliders,
+  Workflow,
+  Sun,
+  Wrench,
 } from 'lucide-react'
-import { Panel, PanelTitle, Badge, StatusBadge, DataTable } from '@/components/shared/primitives'
-import { Tabs } from '@/components/shared/tabs'
-import { Modal } from '@/components/shared/modal'
-import { Select } from '@/components/shared/select'
-import { accounts, statusColor } from '@/lib/mock-data'
+import { cn } from '@/lib/utils'
+import { OrgSection } from '@/components/system/sections/org-section'
+import { UserSection } from '@/components/system/sections/user-section'
+import { RoleSection } from '@/components/system/sections/role-section'
+import { MenuSection } from '@/components/system/sections/menu-section'
+import { FactorSection } from '@/components/system/sections/factor-section'
+import { PriceSection } from '@/components/system/sections/price-section'
+import { KeyEquipmentSection } from '@/components/system/sections/key-equipment-section'
+import { PvEquipmentSection } from '@/components/system/sections/pv-equipment-section'
+import { ProductTypeSection } from '@/components/system/sections/product-type-section'
+import { ProductModelSection } from '@/components/system/sections/product-model-section'
+import { BasicDataSection } from '@/components/system/sections/basic-data-section'
+import { ProcessSection } from '@/components/system/sections/process-section'
+import { LogSection } from '@/components/system/sections/log-section'
 
-const tabs = [
-  { label: '账号权限', value: 'account' },
-  { label: '数据安全', value: 'security' },
-  { label: '产品品类管理', value: 'catalog' },
-  { label: '接口配置管理', value: 'interface' },
-  { label: '操作审计日志', value: 'audit' },
-]
+type Leaf = { id: string; title: string; icon: LucideIcon }
+type Group = { id: string; title: string; icon: LucideIcon; children?: Leaf[] }
 
-const productTree = [
+/* 系统管理模块功能目录树 */
+const MENU: Group[] = [
   {
-    name: '变压器产业',
+    id: 'access',
+    title: '权限管控',
+    icon: ShieldCheck,
     children: [
-      { name: '干式变压器', children: ['SG10 系列', 'SCB13 系列'] },
-      { name: '油浸式变压器', children: ['S13-M 系列', 'S11 系列'] },
+      { id: 'org', title: '组织管理', icon: Building2 },
+      { id: 'user', title: '用户管理', icon: UserCog },
+      { id: 'role', title: '角色与权限', icon: KeyRound },
+      { id: 'menu', title: '菜单与功能', icon: LayoutGrid },
     ],
   },
   {
-    name: '线缆产业',
+    id: 'factor',
+    title: '能碳基础因子管理',
+    icon: Boxes,
     children: [
-      { name: '中压电缆', children: ['YJV-8.7/15kV', 'YJV22-26/35kV'] },
-      { name: '低压电缆', children: ['YJV-0.6/1kV'] },
+      { id: 'factor-power', title: '电力碳排因子', icon: Zap },
+      { id: 'factor-energy', title: '能源活动碳排因子', icon: Flame },
+      { id: 'factor-coal', title: '折标煤系数库', icon: Layers },
+    ],
+  },
+  { id: 'price', title: '费价模型', icon: DollarSign },
+  {
+    id: 'production-equipment',
+    title: '生产设备维护',
+    icon: Wrench,
+    children: [
+      { id: 'key-equipment', title: '重点用能设备', icon: Cpu },
+      { id: 'pv-equipment', title: '光伏设备管理', icon: Sun },
     ],
   },
   {
-    name: '开关产业',
-    children: [{ name: '高压开关', children: ['ZW32-12', 'LW3-12'] }],
+    id: 'basic-param',
+    title: '生产数据维护',
+    icon: Sliders,
+    children: [
+      { id: 'product-type', title: '产品类型管理', icon: FolderTree },
+      { id: 'product-model', title: '产品型号管理', icon: Cpu },
+      { id: 'basic-data', title: '基础数据管理', icon: Database },
+      { id: 'process', title: '生产工序管理', icon: Workflow },
+    ],
   },
+  { id: 'log', title: '日志管理', icon: ScrollText },
 ]
 
-const auditLog = [
-  { time: '2026-08-17 09:41', user: '张伟', action: '修改碳排因子', target: '电力（华北电网）', ip: '10.20.3.11' },
-  { time: '2026-08-17 09:12', user: '李静', action: '新增账号', target: 'wangqiang', ip: '10.20.4.22' },
-  { time: '2026-08-16 17:30', user: '赵敏', action: '导出碳排放报告', target: '沈阳园区', ip: '10.20.6.7' },
-  { time: '2026-08-16 15:05', user: '张伟', action: '接口配置变更', target: '天津变压器厂 URL', ip: '10.20.3.11' },
-]
-
-const interfaceRows = [
-  { factory: '天津变压器厂', url: 'https://tj.tbea.local/api', auth: 'Token', timeout: '30s', retry: '3 次', status: '在线' },
-  { factory: '衡阳电缆厂', url: 'https://hy.tbea.local/api', auth: 'AppKey', timeout: '20s', retry: '2 次', status: '在线' },
-  { factory: '沈阳开关厂', url: 'https://sy.tbea.local/api', auth: 'Token', timeout: '30s', retry: '3 次', status: '异常' },
-]
-
-export function SystemView() {
-  const [tab, setTab] = useState('account')
-  const [addOpen, setAddOpen] = useState(false)
-  const [role, setRole] = useState('园区管理员')
-
-  return (
-    <div className="tech-grid min-h-screen bg-background">
-      <div className="tech-radial pointer-events-none fixed inset-0" />
-      <div className="relative mx-auto max-w-6xl px-6 py-6">
-        {/* 顶栏 */}
-        <div className="mb-6 flex items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center gap-2 rounded-lg border border-border bg-panel px-3.5 py-2 text-sm text-foreground transition-colors hover:border-primary/50"
-          >
-            <ArrowLeft className="size-4" />
-            返回总览
-          </Link>
-          <div className="flex items-center gap-2 text-sm">
-            <ShieldCheck className="size-5 text-primary" />
-            <h1 className="text-lg font-semibold text-foreground">系统管理</h1>
-            <Badge tone="primary">共性配置 · 两大平台复用</Badge>
-          </div>
-        </div>
-
-        <Tabs tabs={tabs} value={tab} onChange={setTab} className="mb-5" />
-
-        {tab === 'account' && (
-          <Panel>
-            <PanelTitle
-              title="账号权限管理"
-              subtitle="集团 / 园区 / 经营单位三级权限，权限细化至按钮级"
-              icon={UserPlus}
-              action={
-                <button
-                  type="button"
-                  onClick={() => setAddOpen(true)}
-                  className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                >
-                  <Plus className="size-4" />
-                  新增账号
-                </button>
-              }
-            />
-            <DataTable
-              columns={[
-                { key: 'name', label: '姓名' },
-                { key: 'account', label: '账号', className: 'font-mono text-xs' },
-                {
-                  key: 'role',
-                  label: '角色',
-                  render: (r) => <Badge tone="primary">{r.role}</Badge>,
-                },
-                { key: 'scope', label: '数据范围' },
-                {
-                  key: 'status',
-                  label: '状态',
-                  render: (r) => <StatusBadge tone={statusColor(r.status)}>{r.status}</StatusBadge>,
-                },
-                {
-                  key: 'op',
-                  label: '操作',
-                  render: () => (
-                    <div className="flex gap-3 text-xs">
-                      <button className="text-primary hover:underline">编辑</button>
-                      <button className="text-muted-foreground hover:text-foreground">重置密码</button>
-                      <button className="text-[var(--destructive)] hover:underline">停用</button>
-                    </div>
-                  ),
-                },
-              ]}
-              rows={accounts}
-            />
-          </Panel>
-        )}
-
-        {tab === 'security' && (
-          <div className="grid gap-4 md:grid-cols-2">
-            <Panel>
-              <PanelTitle title="数据加密存储" subtitle="敏感数据采用国密算法加密" icon={Lock} />
-              <ul className="flex flex-col gap-3 text-sm">
-                {[
-                  { name: '供应商碳数据', algo: 'SM4', status: '已加密' },
-                  { name: '订单信息', algo: 'SM4', status: '已加密' },
-                  { name: '成本测算数据', algo: 'SM2', status: '已加密' },
-                  { name: '认证证书附件', algo: 'SM4', status: '已加密' },
-                ].map((d) => (
-                  <li key={d.name} className="flex items-center justify-between rounded-lg border border-border bg-panel px-3 py-2.5">
-                    <span className="text-foreground">{d.name}</span>
-                    <div className="flex items-center gap-3">
-                      <Badge>{d.algo}</Badge>
-                      <span className="text-[var(--success)]">{d.status}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-            <Panel>
-              <PanelTitle title="安全策略" subtitle="登录、修改、因子变更均记录审计日志且不可删除" icon={ShieldCheck} />
-              <ul className="flex flex-col gap-3 text-sm">
-                {[
-                  '密码复杂度策略：8 位以上含大小写与数字',
-                  '会话超时：30 分钟无操作自动登出',
-                  '登录失败锁定：连续 5 次锁定 15 分钟',
-                  '审计日志留存：≥ 3 年，不可删除',
-                ].map((s) => (
-                  <li key={s} className="flex items-start gap-2 rounded-lg border border-border bg-panel px-3 py-2.5 text-foreground">
-                    <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-          </div>
-        )}
-
-        {tab === 'catalog' && (
-          <Panel>
-            <PanelTitle
-              title="产品品类管理"
-              subtitle="集团级产业产品分类树：产业 → 产线 → 产品类别 → 型号"
-              icon={Boxes}
-            />
-            <div className="grid gap-4 md:grid-cols-3">
-              {productTree.map((cat) => (
-                <div key={cat.name} className="rounded-lg border border-border bg-panel p-3">
-                  <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-primary">
-                    <span className="size-1.5 rounded-full bg-primary" />
-                    {cat.name}
-                  </p>
-                  <ul className="flex flex-col gap-2">
-                    {cat.children.map((line) => (
-                      <li key={line.name}>
-                        <p className="flex items-center gap-1 text-sm text-foreground">
-                          <ChevronRight className="size-3.5 text-muted-foreground" />
-                          {line.name}
-                        </p>
-                        <ul className="ml-5 mt-1 flex flex-wrap gap-1.5">
-                          {line.children.map((m) => (
-                            <li key={m}>
-                              <span className="rounded border border-border px-1.5 py-0.5 text-[11px] text-muted-foreground">
-                                {m}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </Panel>
-        )}
-
-        {tab === 'interface' && (
-          <Panel>
-            <PanelTitle
-              title="接口配置管理"
-              subtitle="维护各工厂接口访问地址、认证方式、超时与重试策略，支持字段映射与测试连接"
-              icon={Plug}
-            />
-            <DataTable
-              columns={[
-                { key: 'factory', label: '工厂' },
-                { key: 'url', label: '访问地址(URL)', className: 'font-mono text-xs' },
-                { key: 'auth', label: '认证方式', render: (r) => <Badge>{r.auth}</Badge> },
-                { key: 'timeout', label: '超时' },
-                { key: 'retry', label: '重试策略' },
-                {
-                  key: 'status',
-                  label: '连接状态',
-                  render: (r) => (
-                    <span className={r.status === '在线' ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}>
-                      ● {r.status}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'op',
-                  label: '操作',
-                  render: () => (
-                    <div className="flex gap-3 text-xs">
-                      <button className="text-primary hover:underline">字段映射</button>
-                      <button className="text-primary hover:underline">测试连接</button>
-                    </div>
-                  ),
-                },
-              ]}
-              rows={interfaceRows}
-            />
-          </Panel>
-        )}
-
-        {tab === 'audit' && (
-          <Panel>
-            <PanelTitle title="操作审计日志" subtitle="所有登录、数据修改、因子变更等操作均记录，日志不可删除" icon={ScrollText} />
-            <DataTable
-              columns={[
-                { key: 'time', label: '时间', className: 'font-mono text-xs' },
-                { key: 'user', label: '操作人' },
-                { key: 'action', label: '操作类型', render: (r) => <Badge tone="primary">{r.action}</Badge> },
-                { key: 'target', label: '操作对象' },
-                { key: 'ip', label: 'IP 地址', className: 'font-mono text-xs' },
-              ]}
-              rows={auditLog}
-            />
-          </Panel>
-        )}
-      </div>
-
-      {/* 新增账号弹窗 */}
-      <Modal
-        open={addOpen}
-        onClose={() => setAddOpen(false)}
-        title="新增账号"
-        description="填写账号信息并分配角色与数据范围"
-        footer={
-          <>
-            <button
-              onClick={() => setAddOpen(false)}
-              className="rounded-md border border-border px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
-            >
-              取消
-            </button>
-            <button
-              onClick={() => setAddOpen(false)}
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              确认创建
-            </button>
-          </>
-        }
-      >
-        <div className="grid gap-4">
-          <Field label="姓名">
-            <input className={inputCls} placeholder="请输入姓名" />
-          </Field>
-          <Field label="登录账号">
-            <input className={inputCls} placeholder="请输入账号" />
-          </Field>
-          <Field label="角色">
-            <Select
-              className="w-full [&>div]:w-full"
-              value={role}
-              onChange={setRole}
-              options={[
-                { label: '集团管理员', value: '集团管理员' },
-                { label: '园区管理员', value: '园区管理员' },
-                { label: '经营单位', value: '经营单位' },
-                { label: '节能专员', value: '节能专员' },
-              ]}
-            />
-          </Field>
-          <Field label="数据范围">
-            <input className={inputCls} placeholder="如：天津园区 / 衡阳电缆厂" />
-          </Field>
-        </div>
-      </Modal>
-    </div>
-  )
+/* section id → 面包屑 [组, 页] */
+const CRUMB: Record<string, { group: string; page: string }> = {
+  org: { group: '权限管控', page: '组织管理' },
+  user: { group: '权限管控', page: '用户管理' },
+  role: { group: '权限管控', page: '角色与权限' },
+  menu: { group: '权限管控', page: '菜单与功能' },
+  'factor-power': { group: '能碳基础因子管理', page: '电力碳排因子' },
+  'factor-energy': { group: '能碳基础因子管理', page: '能源活动碳排因子' },
+  'factor-coal': { group: '能碳基础因子管理', page: '折标煤系数库' },
+  'price-power': { group: '系统管理', page: '费价模型' },
+  'price-gas': { group: '系统管理', page: '费价模型' },
+  'price-steam': { group: '系统管理', page: '费价模型' },
+  'price-dispatch': { group: '系统管理', page: '费价模型' },
+  price: { group: '系统管理', page: '费价模型' },
+  'key-equipment': { group: '生产设备维护', page: '重点用能设备' },
+  'pv-equipment': { group: '生产设备维护', page: '光伏设备管理' },
+  'product-type': { group: '生产数据维护', page: '产品类型管理' },
+  'product-model': { group: '生产数据维护', page: '产品型号管理' },
+  'basic-data': { group: '生产数据维护', page: '基础数据管理' },
+  process: { group: '生产数据维护', page: '生产工序管理' },
+  log: { group: '系统管理', page: '日志管理' },
 }
 
-const inputCls =
-  'h-9 w-full rounded-md border border-border bg-panel px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground'
+/* 依据来源路径解析返回目标与名称：从哪进来就回哪去 */
+function resolveBack(from: string | null): { href: string; label: string } {
+  const target = from && from.startsWith('/') ? from : '/'
+  if (target.startsWith('/zero-carbon')) return { href: target, label: '返回零碳园区集控中心' }
+  if (target.startsWith('/carbon-footprint')) return { href: target, label: '返回产品碳足迹集采中心' }
+  return { href: target, label: '返回业务总览' }
+}
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+export function SystemView() {
+  const searchParams = useSearchParams()
+  const sectionParam = searchParams.get('section') || searchParams.get('tab')
+  const initialActive = sectionParam
+    ? sectionParam.startsWith('price') || sectionParam === 'tariff'
+      ? 'price'
+      : sectionParam === 'equipment' || sectionParam === 'key-equipment'
+      ? 'key-equipment'
+      : sectionParam === 'pv' || sectionParam === 'pv-equipment' || sectionParam === 'solar-equipment'
+      ? 'pv-equipment'
+      : sectionParam
+    : 'org'
+  const [active, setActive] = useState(initialActive)
+  const [crossFilterParams, setCrossFilterParams] = useState<Record<string, Record<string, string>>>({})
+
+  function handleNavigateSection(section: string, params?: Record<string, string>) {
+    if (params) {
+      setCrossFilterParams((prev) => ({ ...prev, [section]: params }))
+    }
+    if (['key-equipment', 'pv-equipment'].includes(section)) {
+      setExpanded((prev) => (prev.includes('production-equipment') ? prev : [...prev, 'production-equipment']))
+    }
+    if (['product-type', 'product-model', 'basic-data', 'process'].includes(section)) {
+      setExpanded((prev) => (prev.includes('basic-param') ? prev : [...prev, 'basic-param']))
+    }
+    setActive(section)
+  }
+
+  const [expanded, setExpanded] = useState<string[]>(() => {
+    const list = ['access']
+    if (initialActive.startsWith('factor')) list.push('factor')
+    if (['key-equipment', 'pv-equipment'].includes(initialActive)) list.push('production-equipment')
+    if (['product-type', 'product-model', 'basic-data', 'process'].includes(initialActive)) list.push('basic-param')
+    return list
+  })
+  const back = resolveBack(searchParams.get('from'))
+
+  function toggle(id: string) {
+    setExpanded((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
+  }
+
+  const crumb = CRUMB[active] || { group: '系统管理', page: '费价模型' }
+
   return (
-    <label className="grid gap-1.5">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      {children}
-    </label>
+    <div className="flex h-screen w-screen overflow-hidden bg-[#F3F7FB] font-sans antialiased text-slate-800">
+      {/* 左侧功能目录树 (特变电工深蓝侧边栏 260px 固定宽) */}
+      <aside className="sticky top-0 z-20 flex h-screen w-[260px] shrink-0 flex-col border-r border-blue-400/20 bg-[#0958d9] text-white shadow-xl">
+        {/* 模块标识 */}
+        <div className="flex items-center gap-3 border-b border-blue-400/20 px-4 py-4 shrink-0">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/30 bg-white/15 text-white shadow-xs">
+            <ShieldCheck className="size-5 text-white" />
+          </div>
+          <div className="leading-tight overflow-hidden">
+            <p className="text-[15px] font-bold text-white tracking-wide truncate">系统管理</p>
+            <p className="text-[11px] text-blue-100/75 truncate">两大平台共性配置</p>
+          </div>
+        </div>
+
+        {/* 返回业务系统 */}
+        <div className="px-3 py-3 shrink-0">
+          <Link
+            href={back.href}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-3.5 py-2 text-sm font-medium text-white transition-all hover:bg-white/20 active:bg-white/25 shadow-xs cursor-pointer select-none"
+            title={back.label}
+          >
+            <ArrowLeft className="size-4 text-white shrink-0" />
+            <span className="truncate">{back.label}</span>
+          </Link>
+        </div>
+
+        {/* 目录树 */}
+        <nav className="flex-1 overflow-y-auto px-3 pb-4 space-y-1">
+          <ul className="flex flex-col gap-1">
+            {MENU.map((item) => {
+              if (!item.children) {
+                const isActive = active === item.id
+                return (
+                  <li key={item.id}>
+                    <button
+                      type="button"
+                      onClick={() => setActive(item.id)}
+                      className={cn(
+                        'flex w-full items-center gap-2.5 rounded-lg px-3 h-[36px] text-sm font-medium transition-all group my-0.5 cursor-pointer text-left',
+                        isActive
+                          ? 'bg-[#2C7CFF] text-white font-bold shadow-xs'
+                          : 'text-blue-100 hover:text-white hover:bg-white/10',
+                      )}
+                    >
+                      <item.icon className="size-4 shrink-0 text-white/80 group-hover:text-white" />
+                      <span className="flex-1 truncate">{item.title}</span>
+                    </button>
+                  </li>
+                )
+              }
+              const isOpen = expanded.includes(item.id)
+              const groupActive = item.children.some((c) => c.id === active)
+              return (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => toggle(item.id)}
+                    className={cn(
+                      'flex w-full items-center justify-between rounded-lg px-3 h-[36px] text-sm font-medium transition-all group my-0.5 cursor-pointer text-left',
+                      groupActive
+                        ? 'bg-blue-700/60 text-white font-bold'
+                        : 'text-blue-100 hover:text-white hover:bg-white/10',
+                    )}
+                  >
+                    <div className="flex items-center gap-2.5 overflow-hidden">
+                      <item.icon className="size-4 shrink-0 text-white/80 group-hover:text-white" />
+                      <span className="flex-1 font-medium truncate">{item.title}</span>
+                    </div>
+                    <ChevronDown
+                      className={cn(
+                        'size-3.5 text-blue-200 transition-transform duration-200 shrink-0',
+                        !isOpen && '-rotate-90',
+                      )}
+                    />
+                  </button>
+                  {isOpen && (
+                    <ul className="ml-4 pl-2.5 border-l border-blue-400/40 space-y-0.5 py-1">
+                      {item.children.map((c) => {
+                        const childActive = active === c.id
+                        return (
+                          <li key={c.id}>
+                            <button
+                              type="button"
+                              onClick={() => setActive(c.id)}
+                              className={cn(
+                                'flex w-full items-center gap-2 rounded-md px-2.5 h-[32px] text-xs transition-colors cursor-pointer text-left',
+                                childActive
+                                  ? 'bg-[#2C7CFF] text-white font-bold shadow-xs'
+                                  : 'text-white/80 hover:text-white hover:bg-white/10',
+                              )}
+                            >
+                              <c.icon className="size-3.5 shrink-0 opacity-80" />
+                              <span className="truncate">{c.title}</span>
+                            </button>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
+
+        {/* 底部账户 */}
+        <div className="flex items-center gap-2.5 border-t border-blue-400/20 px-4 py-3 bg-[#003eb3]/40 shrink-0">
+          <div className="flex size-8 items-center justify-center rounded-lg border border-white/25 bg-white/15 text-sm font-bold text-white shadow-xs shrink-0">
+            A
+          </div>
+          <div className="leading-tight overflow-hidden">
+            <p className="text-sm font-semibold text-white truncate">Admin</p>
+            <p className="text-[11px] text-blue-200 truncate">集团管理员</p>
+          </div>
+        </div>
+      </aside>
+
+      {/* 主区域 */}
+      <div className="relative flex min-w-0 flex-1 flex-col h-screen overflow-y-auto">
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-white/90 px-6 py-3.5 backdrop-blur-md shrink-0">
+          <div className="flex items-center gap-2 text-sm">
+            <ShieldCheck className="size-4 text-[#2C7CFF]" />
+            <span className="text-slate-500">系统管理</span>
+            <ChevronRight className="size-3.5 text-slate-400" />
+            {crumb.group && crumb.group !== '系统管理' && (
+              <>
+                <span className="text-slate-500">{crumb.group}</span>
+                <ChevronRight className="size-3.5 text-slate-400" />
+              </>
+            )}
+            <span className="font-semibold text-slate-800">{crumb.page}</span>
+          </div>
+        </header>
+
+        <main className="flex-1 p-6 space-y-6">
+          {active === 'org' && <OrgSection />}
+          {active === 'user' && <UserSection />}
+          {active === 'role' && <RoleSection />}
+          {active === 'menu' && <MenuSection />}
+          {active === 'factor-power' && <FactorSection sub="power" />}
+          {active === 'factor-energy' && <FactorSection sub="energy" />}
+          {active === 'factor-coal' && <FactorSection sub="coal" />}
+          {(active === 'price' || active.startsWith('price')) && <PriceSection defaultTab="power" />}
+          {active === 'key-equipment' && <KeyEquipmentSection />}
+          {active === 'pv-equipment' && <PvEquipmentSection />}
+          {active === 'product-type' && (
+            <ProductTypeSection
+              onNavigate={handleNavigateSection}
+              initialParams={crossFilterParams['product-type']}
+            />
+          )}
+          {active === 'product-model' && (
+            <ProductModelSection
+              onNavigate={handleNavigateSection}
+              initialParams={crossFilterParams['product-model']}
+            />
+          )}
+          {active === 'basic-data' && (
+            <BasicDataSection
+              onNavigate={handleNavigateSection}
+              initialParams={crossFilterParams['basic-data']}
+            />
+          )}
+          {active === 'process' && (
+            <ProcessSection
+              onNavigate={handleNavigateSection}
+              initialParams={crossFilterParams['process']}
+            />
+          )}
+          {active === 'log' && <LogSection />}
+        </main>
+      </div>
+    </div>
   )
 }

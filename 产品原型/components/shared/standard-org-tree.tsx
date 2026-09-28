@@ -6,6 +6,7 @@ import {
   ChevronDown,
   Building2,
   Factory,
+  Network,
   Search,
   Maximize2,
   Minimize2,
@@ -33,11 +34,12 @@ export interface StandardOrgNode {
   level: OrgLevel
   badge?: string
   active?: boolean
+  unconnected?: boolean // 🌟 不具备数据接入条件的单位，界面置灰
   children?: StandardOrgNode[]
 }
 
 /**
- * 🏢 企业组织拓扑数据 (6 大一级单位 ➔ 30 个二级单位)
+ * 🏢 企业组织结构数据 (6 大一级单位 ➔ 30 个二级单位)
  */
 export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
   {
@@ -47,99 +49,141 @@ export const ENTERPRISE_TREE_DATA: StandardOrgNode[] = [
     level: 'group',
     badge: '全集团',
     children: [
-      // 1. 沈变公司 (6个二级单位)
+      // 1. 沈变公司 (5个项目公司)
       {
         id: 'comp_sb',
         name: '沈变公司',
         level: 'company',
-        badge: '6单位',
+        badge: '5公司',
         children: [
-          { id: 'ws_sb_main', name: '沈变本部', level: 'workshop', badge: '主体' },
-          { id: 'ws_sb_luna', name: '露娜公司 (特变电工露娜智能)', level: 'workshop', badge: '智能' },
-          { id: 'ws_sb_zh', name: '智慧能源', level: 'workshop', badge: '综合' },
-          { id: 'ws_sb_hx', name: '和新套管公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_sb_kj', name: '康嘉互感器', level: 'workshop', badge: '主体' },
-          { id: 'ws_sb_yn', name: '印能公司', level: 'workshop' },
+          { id: 'ws_sb_main', name: '沈变本部', fullName: '特变电工沈阳变压器集团本部', level: 'workshop', badge: '主体' },
+          { id: 'ws_sb_hx', name: '和新套管', fullName: '特变电工沈变和新高压套管', level: 'workshop', badge: '主体' },
+          { id: 'ws_sb_kj', name: '康嘉互感器', fullName: '沈变康嘉互感器制造部', level: 'workshop', badge: '主体' },
+          { id: 'ws_sb_luna', name: '露娜智造', fullName: '特变电工露娜智能装备制造', level: 'workshop', badge: '主体' },
+          { id: 'ws_sb_yn', name: '印能公司', fullName: '沈变印能电气制造分厂', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
-      // 2. 衡变公司 (11个二级单位)
+      // 2. 衡变公司 (9个项目公司)
       {
         id: 'comp_hb',
         name: '衡变公司',
         level: 'company',
-        badge: '11单位',
+        badge: '9公司',
         children: [
-          { id: 'ws_hb_main', name: '衡变本部', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_nj', name: '南京电研', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_yj', name: '云集电气', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_hn', name: '湖南电气', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_kg', name: '云集高压开关', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_xj', name: '新疆自控', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_sk', name: '上开', level: 'workshop' },
-          { id: 'ws_hb_kbe', name: '柯贝尔', level: 'workshop' },
-          { id: 'ws_hb_tnj', name: '特能建', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_hr', name: '合容电气', level: 'workshop', badge: '主体' },
-          { id: 'ws_hb_gil', name: '赛杰爱迪', level: 'workshop', badge: '主体' },
+          { id: 'ws_hb_main', name: '衡变本部', fullName: '特变电工衡阳变压器本部', level: 'workshop', badge: '主体' },
+          { id: 'ws_hb_nj', name: '南京公司', fullName: '特变电工南京智能电气有限公司', level: 'workshop', badge: '主体' },
+          { id: 'ws_hb_yj', name: '云集电气', fullName: '特变电工云集5G智能成套设备', level: 'workshop', badge: '主体' },
+          { id: 'ws_hb_hn', name: '湖南电气', fullName: '特变电工湖南电气装备制造部', level: 'workshop', badge: '主体' },
+          {
+            id: 'ws_hb_kg',
+            name: '云集高压开关',
+            fullName: '特变电工云集高压开关有限公司',
+            level: 'workshop',
+            badge: '2三级单位',
+            children: [
+              { id: 'ws_hb_kg_yj', name: '云集', fullName: '云集制造基地', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_hb_sk', name: '上开', fullName: '上海开件制造厂', level: 'workshop', badge: '三级单位' },
+            ],
+          },
+          { id: 'ws_hb_xj', name: '新疆自控', fullName: '特变电工新疆自控成套车间', level: 'workshop', badge: '主体' },
+          { id: 'ws_hb_tnj', name: '特缆建', fullName: '特变电工湖南能电建设园区', level: 'workshop', badge: '主体' },
+          {
+            id: 'ws_hb_hr',
+            name: '合容电气',
+            fullName: '特变电工合容电气有限公司',
+            level: 'workshop',
+            badge: '2三级单位',
+            children: [
+              { id: 'ws_hb_kbe', name: '科贝尔', fullName: '科贝尔高压材料基地', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_hb_hr_xa', name: '合容西安基地', fullName: '合容西安智能装备基地', level: 'workshop', badge: '三级单位' },
+            ],
+          },
+          { id: 'ws_hb_gil', name: '事杰爱迪', fullName: '特变电工事杰爱迪GIL公司', level: 'workshop', badge: '主体' },
         ],
       },
-      // 3. 新变厂 (7个二级单位)
+      // 3. 新变厂 (6个项目公司)
       {
         id: 'comp_xb',
         name: '新变厂',
         level: 'company',
-        badge: '7单位',
+        badge: '6公司',
         children: [
-          { id: 'ws_xb_uhv', name: '超高压公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_tb', name: '天变公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_zndq', name: '智能电气公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_jjj', name: '京津冀公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_zf', name: '珠峰硅钢', level: 'workshop', badge: '主体' },
-          { id: 'ws_xb_zhny', name: '智慧能源', level: 'workshop' },
-          { id: 'ws_xb_yl', name: '银利电气', level: 'workshop' },
+          { id: 'ws_xb_uhv', name: '超高压公司', fullName: '特变电工新疆超高压制造中心', level: 'workshop', badge: '主体' },
+          {
+            id: 'ws_xb_tb',
+            name: '天变公司',
+            fullName: '特变电工天津变压器有限公司',
+            level: 'workshop',
+            badge: '5三级单位',
+            children: [
+              { id: 'ws_xb_tb_tj', name: '天变天津基地', fullName: '天变天津生产基地', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_xb_tb_zh', name: '天变智慧能源', fullName: '天变智慧能源制造中心', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_xb_tb_zn', name: '天变智能科技', fullName: '天变智能科技研发制造中心', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_xb_tb_hy', name: '天变衡阳基地', fullName: '天变衡阳干变车间', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_xb_tb_sy', name: '天变沈阳基地', fullName: '天变沈阳特变基地', level: 'workshop', badge: '三级单位' },
+            ],
+          },
+          { id: 'ws_xb_zndq', name: '智能电气', fullName: '特变电工智能电气配变车间', level: 'workshop', badge: '主体' },
+          { id: 'ws_xb_jjj', name: '京津冀科技', fullName: '特变电工京津冀智能科技产业基地', level: 'workshop', badge: '主体' },
+          { id: 'ws_xb_zf', name: '珠峰硅钢', fullName: '珠峰硅钢精密冲剪退火制造部', level: 'workshop', badge: '主体' },
+          { id: 'ws_xb_yl', name: '银利电气', fullName: '特变电工银利智能电气制造厂', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
-      // 4. 鲁缆公司 (4个二级单位)
+      // 4. 鲁缆公司 (1个项目公司 · 3个三级单位)
       {
         id: 'comp_ll',
         name: '鲁缆公司',
         level: 'company',
-        badge: '4单位',
+        badge: '1公司',
         children: [
-          { id: 'ws_ll_main', name: '鲁缆本部', level: 'workshop', badge: '主体' },
-          { id: 'ws_ll_zl', name: '智缆公司', level: 'workshop' },
-          { id: 'ws_ll_sw', name: '昭和公司', level: 'workshop' },
-          { id: 'ws_ll_sg', name: '曙光公司', level: 'workshop', badge: '主体' },
+          {
+            id: 'ws_ll_comp',
+            name: '鲁缆公司',
+            fullName: '特变电工山东鲁能泰山电缆有限公司',
+            level: 'workshop',
+            badge: '3三级单位',
+            children: [
+              { id: 'ws_ll_main', name: '鲁缆本部', fullName: '鲁缆本部高压交联立塔制造部', level: 'workshop', badge: '主体' },
+              { id: 'ws_ll_sw', name: '昭和', fullName: '特变电工昭和高压电缆附件制造厂', level: 'workshop', badge: '三级单位' },
+              { id: 'ws_ll_sg', name: '曙光', fullName: '特变电工曙光特种电缆分厂', level: 'workshop', badge: '未接入', unconnected: true },
+            ],
+          },
         ],
       },
-      // 5. 新缆厂 (2个二级单位)
+      // 5. 新缆厂 (1个项目公司 · 2个三级单位)
       {
         id: 'comp_xl',
         name: '新缆厂',
         level: 'company',
-        badge: '2单位',
+        badge: '1公司',
         children: [
-          { id: 'ws_xl_main', name: '特变电工新疆电缆有限公司', level: 'workshop', badge: '主体' },
-          { id: 'ws_xl_sub', name: '特变电工新疆线缆厂', level: 'workshop', badge: '主体' },
+          {
+            id: 'ws_xl_comp',
+            name: '新缆厂',
+            fullName: '特变电工新疆线缆厂制造总厂',
+            level: 'workshop',
+            badge: '2三级单位',
+            children: [
+              { id: 'ws_xl_sub', name: '新疆线缆厂', fullName: '特变电工新疆特种线缆制造厂', level: 'workshop', badge: '主体' },
+              { id: 'ws_xl_main', name: '新疆电缆', fullName: '特变电工新疆电缆实业公司', level: 'workshop', badge: '主体' },
+            ],
+          },
         ],
       },
-      // 6. 德缆公司 (1个二级单位)
+      // 6. 德缆公司 (1个项目公司 · 无三级单位)
       {
         id: 'comp_dl',
         name: '德缆公司',
         level: 'company',
-        badge: '1单位',
+        badge: '1公司',
         children: [
-          { id: 'ws_dl_main', name: '特变电工（德阳）电缆股份有限公司', level: 'workshop', badge: '主体' },
+          { id: 'ws_dl_main', name: '德缆公司', fullName: '特变电工（德阳）电缆股份有限公司', level: 'workshop', badge: '主体' },
         ],
       },
     ],
   },
 ]
 
-/**
- * 🏞️ 零碳园区拓扑数据 (严格依据官方核定表构建：1级集团 ➔ 2级所属园区 ➔ 3级二级单位)
- * 15 个零碳产业园区 ➔ 包含对应的二级单位（及所属三级单位）
- */
 export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
   {
     id: 'park_root',
@@ -157,7 +201,6 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         badge: '沈阳',
         children: [
           { id: 'park_01_sb', name: '沈变本部', fullName: '沈变本部', level: 'workshop', badge: '主体' },
-          { id: 'park_01_zh', name: '智慧能源', fullName: '智慧能源', level: 'workshop', badge: '主体' },
           { id: 'park_01_hx', name: '和新套管公司', fullName: '和新套管公司', level: 'workshop', badge: '主体' },
           { id: 'park_01_kj', name: '康嘉互感器', fullName: '康嘉互感器', level: 'workshop', badge: '主体' },
         ],
@@ -310,7 +353,7 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         badge: '新泰',
         children: [
           { id: 'park_12_ll', name: '鲁缆本部', fullName: '鲁缆本部', level: 'workshop', badge: '主体' },
-          { id: 'park_12_zl', name: '智缆公司', fullName: '智缆公司', level: 'workshop', badge: '主体' },
+          { id: 'park_12_zl', name: '智缆公司', fullName: '智缆公司', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
       // 13. 特变电工曙光电缆产业园 (1个二级单位)
@@ -321,7 +364,7 @@ export const PARK_ORG_TREE_DATA: StandardOrgNode[] = [
         level: 'park',
         badge: '新泰',
         children: [
-          { id: 'park_13_sg', name: '曙光公司', fullName: '曙光公司', level: 'workshop', badge: '主体' },
+          { id: 'park_13_sg', name: '曙光公司', fullName: '曙光公司', level: 'workshop', badge: '未接入', unconnected: true },
         ],
       },
       // 14. 特变电工新疆电缆产业园 (1个二级单位)
@@ -357,16 +400,19 @@ export const PRODUCT_TRANSFORMER_CABLE_WORKSHOP_IDS = new Set([
   'ws_sb_main',  // 沈变本部 (变压器-高压)
   'ws_hb_main',  // 衡变本部 (变压器-高压)
   'ws_hb_hn',    // 湖南电气 (变压器-高压)
-  'ws_hb_tnj',   // 特能建 (变压器-高压)
+  'ws_hb_tnj',   // 特缆建 (变压器-高压)
   'ws_xb_uhv',   // 超高压公司 (变压器-高压)
   'ws_xb_tb',    // 天变公司 (变压器-中低压-干变)
-  'ws_xb_zndq',  // 智能电气公司 (变压器-中低压-干变)
-  'ws_xb_jjj',   // 京津冀公司 (变压器-中低压-油变)
+  'ws_xb_zndq',  // 智能电气 (变压器-中低压-干变)
+  'ws_xb_jjj',   // 京津冀科技 (变压器-中低压-油变)
   'ws_ll_main',  // 鲁缆本部 (线缆-高压、中低压)
-  'ws_ll_sg',    // 曙光公司 (线缆-特种电缆)
-  'ws_xl_main',  // 特变电工新疆电缆有限公司 (线缆-中低压)
-  'ws_xl_sub',   // 特变电工新疆线缆厂 (线缆-中低压)
-  'ws_dl_main',  // 特变电工（德阳）电缆股份有限公司 (线缆-中低压、高压)
+  'ws_ll_comp',  // 鲁缆公司
+  'ws_ll_sw',    // 昭和 (线缆-高压附件)
+  'ws_ll_sg',    // 曙光 (线缆-特种电缆)
+  'ws_xl_comp',  // 新缆厂
+  'ws_xl_main',  // 新疆电缆 (线缆-中低压)
+  'ws_xl_sub',   // 新疆线缆厂 (线缆-中低压)
+  'ws_dl_main',  // 德缆公司 (线缆-中低压、高压)
 ])
 
 export interface StandardOrgTreeProps {
@@ -375,6 +421,10 @@ export interface StandardOrgTreeProps {
   onSelectNode?: (node: StandardOrgNode) => void
   onSelect?: (node: StandardOrgNode) => void
   treeType?: 'enterprise' | 'park'
+  showTreeTypeSwitch?: boolean
+  onTreeTypeChange?: (type: 'enterprise' | 'park') => void
+  title?: string
+  hideHeader?: boolean
   maxSelectableLevel?: number
   productUnitOnly?: boolean // 仅允许选择生产变压器、线缆的项目公司，其他项目公司置灰不可交互
   className?: string
@@ -386,6 +436,10 @@ export function StandardOrgTree({
   onSelectNode,
   onSelect,
   treeType = 'enterprise',
+  showTreeTypeSwitch = false,
+  onTreeTypeChange,
+  title,
+  hideHeader = false,
   maxSelectableLevel,
   productUnitOnly = false,
   className,
@@ -412,8 +466,11 @@ export function StandardOrgTree({
       comp_ll: true,
       comp_xl: true,
       comp_dl: true,
+      ws_hb_kg: true,
       ws_hb_hr: true,
       ws_xb_tb: true,
+      ws_ll_comp: true,
+      ws_xl_comp: true,
     }
   })
 
@@ -435,11 +492,46 @@ export function StandardOrgTree({
         comp_ll: true,
         comp_xl: true,
         comp_dl: true,
+        ws_hb_kg: true,
         ws_hb_hr: true,
         ws_xb_tb: true,
+        ws_ll_comp: true,
+        ws_xl_comp: true,
       })
     }
   }, [treeType])
+
+  const rawTreeData = treeType === 'park' ? PARK_ORG_TREE_DATA : ENTERPRISE_TREE_DATA
+
+  // 🌟 当 currentSelectedId 变更时，自动展开其所有父级/祖先节点，确保定位高亮节点可见
+  useEffect(() => {
+    if (!currentSelectedId) return
+    const findAncestors = (nodes: StandardOrgNode[], targetId: string, path: string[] = []): string[] | null => {
+      for (const node of nodes) {
+        if (node.id === targetId) return path
+        if (node.children) {
+          const res = findAncestors(node.children, targetId, [...path, node.id])
+          if (res) return res
+        }
+      }
+      return null
+    }
+
+    const ancestors = findAncestors(rawTreeData, currentSelectedId)
+    if (ancestors && ancestors.length > 0) {
+      setCollapsedKeys((prev) => {
+        let changed = false
+        const next = { ...prev }
+        for (const ancId of ancestors) {
+          if (next[ancId]) {
+            next[ancId] = false
+            changed = true
+          }
+        }
+        return changed ? next : prev
+      })
+    }
+  }, [currentSelectedId, rawTreeData])
 
   const toggleCollapse = (id: string) => {
     setCollapsedKeys((prev) => ({
@@ -450,7 +542,10 @@ export function StandardOrgTree({
 
   // 递归过滤
   const filterNode = (node: StandardOrgNode, kw: string): StandardOrgNode | null => {
-    const matches = node.name.toLowerCase().includes(kw) || (node.badge && node.badge.toLowerCase().includes(kw))
+    const matches =
+      node.name.toLowerCase().includes(kw) ||
+      (node.fullName && node.fullName.toLowerCase().includes(kw)) ||
+      (node.badge && node.badge.toLowerCase().includes(kw))
     if (!node.children || node.children.length === 0) {
       return matches ? node : null
     }
@@ -467,8 +562,6 @@ export function StandardOrgTree({
     return null
   }
 
-  const rawTreeData = treeType === 'park' ? PARK_ORG_TREE_DATA : ENTERPRISE_TREE_DATA
-
   const displayData = useMemo(() => {
     const kw = keyword.trim().toLowerCase()
     if (!kw) return rawTreeData
@@ -481,36 +574,54 @@ export function StandardOrgTree({
       const isCollapsed = Boolean(collapsedKeys[node.id])
       const isSelected = node.id === currentSelectedId
       const currentLevelNum = level + 1
+      // 检查节点是否属于未接入单位
+      const isUnconnected = Boolean(node.unconnected)
       // 检查节点是否可交互：若开启 productUnitOnly，项目公司(workshop)若不生产变压器/线缆则置灰禁用
       const isProductUnitDisabled = productUnitOnly && node.level === 'workshop' && !PRODUCT_TRANSFORMER_CABLE_WORKSHOP_IDS.has(node.id)
-      const isSelectable = (!maxSelectableLevel || currentLevelNum <= maxSelectableLevel) && !isProductUnitDisabled
+      // 🌟 用户需求：园区选项下关联项目公司正常显示但无法选中
+      const isParkCompanyDisabled = treeType === 'park' && node.level === 'workshop'
+      const isSelectable = (!maxSelectableLevel || currentLevelNum <= maxSelectableLevel) && !isProductUnitDisabled && !isUnconnected && !isParkCompanyDisabled
 
       return (
-        <div key={node.id} className="relative select-none text-[12px]">
-          {/* 节点行 */}
+        <div key={node.id} className="relative select-none text-sm">
+          {/* 节点行 (固定 30px 高度) */}
           <div
             onClick={() => {
-              if (isSelectable) {
+              if (isSelectable && !isUnconnected && !isParkCompanyDisabled) {
                 handleSelect(node)
               }
             }}
             className={cn(
-              'flex items-center gap-1.5 py-1 px-1.5 rounded transition-colors relative group',
-              isProductUnitDisabled
+              'flex items-center gap-1.5 h-[30px] px-2 rounded-lg text-sm transition-colors relative group',
+              isUnconnected
+                ? 'opacity-35 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none bg-transparent hover:bg-transparent'
+                : isParkCompanyDisabled
+                ? 'opacity-60 text-slate-400 cursor-not-allowed select-none hover:bg-transparent'
+                : isProductUnitDisabled
                 ? 'opacity-40 text-slate-400 cursor-not-allowed select-none bg-slate-50/50'
                 : isSelectable
                 ? 'cursor-pointer'
                 : 'cursor-default',
-              isSelected && !isProductUnitDisabled
-                ? 'bg-[#e6f4ff] text-[#1677ff] font-semibold shadow-2xs'
-                : !isProductUnitDisabled && isSelectable
-                  ? 'hover:bg-slate-100/80 text-slate-700'
-                  : !isProductUnitDisabled
-                  ? 'text-slate-500 hover:bg-slate-50'
+              isSelected && !isProductUnitDisabled && !isUnconnected && !isParkCompanyDisabled
+                ? 'bg-[#EBF3FF] dark:bg-primary/20 text-[#2C7CFF] dark:text-primary font-semibold shadow-xs'
+                : !isProductUnitDisabled && !isUnconnected && !isParkCompanyDisabled && isSelectable
+                  ? 'hover:bg-slate-100/80 dark:hover:bg-accent/40 text-slate-700 dark:text-foreground'
+                  : !isProductUnitDisabled && !isUnconnected && !isParkCompanyDisabled
+                  ? 'text-slate-400 hover:bg-slate-50 dark:hover:bg-panel'
                   : ''
             )}
             style={{ paddingLeft: `${level * 14 + 6}px` }}
-            title={isProductUnitDisabled ? `${node.name} (非变压器/线缆生产单位 · 不参与产品单耗核算)` : !isSelectable ? `${node.name} (仅供结构展示)` : (node.fullName || node.name)}
+            title={
+              isUnconnected
+                ? `${node.name} (暂不具备数据接入条件 · 不允许选择)`
+                : isParkCompanyDisabled
+                ? `${node.name} (园区关联公司 · 仅供结构参考不可直接选中)`
+                : isProductUnitDisabled
+                ? `${node.name} (非变压器/线缆生产单位 · 不参与产品单耗核算)`
+                : !isSelectable
+                ? `${node.name} (仅供结构展示)`
+                : (node.fullName || node.name)
+            }
           >
             {/* 折叠箭头 */}
             {hasChildren ? (
@@ -520,7 +631,7 @@ export function StandardOrgTree({
                   e.stopPropagation()
                   toggleCollapse(node.id)
                 }}
-                className="size-4 flex items-center justify-center text-slate-400 hover:text-slate-700 shrink-0 cursor-pointer"
+                className="size-4 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 shrink-0 cursor-pointer"
               >
                 {isCollapsed ? (
                   <ChevronRight className="size-3.5" />
@@ -530,25 +641,26 @@ export function StandardOrgTree({
               </button>
             ) : (
               <span className="size-4 shrink-0 flex items-center justify-center">
-                <span className="size-1 rounded-full bg-slate-300" />
+                <span className="size-1 rounded-full bg-slate-300 dark:bg-border" />
               </span>
             )}
 
             {/* 节点图标 */}
-            {node.level === 'group' && <Building2 className="size-3.5 text-[#1677ff] shrink-0" />}
-            {node.level === 'park' && <Trees className="size-3.5 text-emerald-600 shrink-0" />}
-            {node.level === 'company' && <Building2 className="size-3.5 text-amber-500 shrink-0" />}
-            {node.level === 'workshop' && <Factory className="size-3.5 text-slate-400 shrink-0" />}
+            {node.level === 'group' && <Building2 className="size-3.5 text-[#2C7CFF] dark:text-primary shrink-0" />}
+            {node.level === 'park' && <Trees className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
+            {node.level === 'company' && <Building2 className="size-3.5 text-amber-500 dark:text-amber-400 shrink-0" />}
+            {node.level === 'workshop' && <Network className={cn('size-3.5 shrink-0', isUnconnected ? 'opacity-35 text-slate-400 dark:text-slate-500' : 'text-slate-400 dark:text-muted-foreground')} />}
 
             {/* 节点名称 */}
-            <span className="truncate flex-1" title={node.fullName || node.name}>
-              {node.name}
+            <span className={cn('truncate flex-1', isUnconnected ? 'text-slate-400 dark:text-slate-500 font-normal' : '')} title={node.fullName || node.name}>
+              {node.name.replace(/\s*\(.*?\)/g, '')}
             </span>
+            
           </div>
 
-          {/* 子节点容器 (带 Ant Design 风格垂直导线) */}
+          {/* 子节点容器 */}
           {hasChildren && !isCollapsed && (
-            <div className="relative border-l border-slate-200/80 ml-3.5 my-0.5">
+            <div className="relative border-l border-slate-200/80 dark:border-border ml-3.5 my-0.5">
               {renderTreeNodes(node.children!, level + 1)}
             </div>
           )}
@@ -560,43 +672,72 @@ export function StandardOrgTree({
   return (
     <aside
       className={cn(
-        'w-[270px] min-w-[270px] max-w-[270px] shrink-0 bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-84px)] sticky top-0 overflow-hidden',
+        'w-[270px] min-w-[270px] max-w-[270px] shrink-0 bg-white dark:bg-card rounded-lg border border-[#DBE6EE] dark:border-border shadow-xs flex flex-col h-[calc(100vh-84px)] sticky top-0 overflow-hidden',
         className
       )}
     >
-      {/* 1. 顶部 Header 与 快捷操作 */}
-      <div className="p-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-          {treeType === 'park' ? (
-            <>
-              <Trees className="size-4 text-emerald-600" />
-              <span>园区拓扑图</span>
-            </>
-          ) : (
-            <>
-              <Building2 className="size-4 text-[#1677ff]" />
-              <span>企业组织拓扑 (6大单位)</span>
-            </>
-          )}
+      {/* 0. 组织 / 园区 视角切换 Tab (纯粹无冗余自述标题，与标准截面 100% 对齐) */}
+      {showTreeTypeSwitch && (
+        <div className="p-2 border-b border-slate-100 dark:border-border bg-white dark:bg-card shrink-0">
+          <div className="grid grid-cols-2 gap-1 bg-slate-100 dark:bg-panel p-0.5 rounded-lg text-xs font-medium border border-transparent dark:border-border">
+            <button
+              type="button"
+              onClick={() => onTreeTypeChange?.('enterprise')}
+              className={cn(
+                'py-1 rounded-md transition-all cursor-pointer text-center select-none',
+                treeType === 'enterprise'
+                  ? 'bg-white dark:bg-primary text-[#2C7CFF] dark:text-primary-foreground font-bold shadow-xs'
+                  : 'text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground'
+              )}
+            >
+              组织
+            </button>
+            <button
+              type="button"
+              onClick={() => onTreeTypeChange?.('park')}
+              className={cn(
+                'py-1 rounded-md transition-all cursor-pointer text-center select-none',
+                treeType === 'park'
+                  ? 'bg-white dark:bg-primary text-[#2C7CFF] dark:text-primary-foreground font-bold shadow-xs'
+                  : 'text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground'
+              )}
+            >
+              园区
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* 1. 顶部 Header (仅当显式传入自定义 title 时展示) */}
+      {!hideHeader && title && (
+        <div className="p-3 border-b border-slate-100 dark:border-border flex items-center justify-between shrink-0 bg-slate-50/50 dark:bg-panel">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-foreground">
+            {treeType === 'park' ? (
+              <Trees className="size-4 text-emerald-600 dark:text-emerald-400" />
+            ) : (
+              <Building2 className="size-4 text-[#2C7CFF] dark:text-primary" />
+            )}
+            <span>{title}</span>
+          </div>
+        </div>
+      )}
 
       {/* 2. 搜索框 */}
-      <div className="p-2 border-b border-slate-100 bg-white shrink-0">
+      <div className="p-2 border-b border-slate-100 dark:border-border bg-white dark:bg-card shrink-0">
         <div className="relative">
           <Search className="size-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder={treeType === 'park' ? '搜索产业园 / 厂区 / 微电网...' : '搜索单位 / 车间 / 工序...'}
-            className="w-full pl-8 pr-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1677ff] focus:bg-white transition-all placeholder:text-slate-400"
+            placeholder="请输入搜索关键词"
+            className="w-full pl-8 pr-2.5 h-9 text-xs bg-panel border border-[#E2E8F0] dark:border-border rounded-lg text-slate-700 dark:text-foreground focus:outline-none focus:border-primary placeholder:text-slate-400 transition-all"
           />
         </div>
       </div>
 
       {/* 3. 树节点滚动主体 */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-0.5 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
         {displayData.length > 0 ? (
           renderTreeNodes(displayData)
         ) : (
@@ -607,4 +748,150 @@ export function StandardOrgTree({
       </div>
     </aside>
   )
+}
+
+/**
+ * 🏭 国家级零碳工厂对标单位 ➔ 标准组织架构拓扑树节点权威映射字典 (21 家直报工厂)
+ */
+export const BENCHMARK_FACTORY_TO_ORG_NODE: Record<
+  string,
+  { id: string; name: string; fullName: string; level: OrgLevel; badge?: string }
+> = {
+  'fac-01': { id: 'ws_xb_zf', name: '珠峰硅钢', fullName: '珠峰硅钢精密冲剪退火制造部', level: 'workshop', badge: '主体' },
+  'fac-02': { id: 'ws_sb_hx', name: '和新套管', fullName: '特变电工沈变和新高压套管', level: 'workshop', badge: '主体' },
+  'fac-03': { id: 'ws_xb_uhv', name: '超高压公司', fullName: '特变电工新疆超高压制造中心', level: 'workshop', badge: '主体' },
+  'fac-04': { id: 'ws_sb_kj', name: '康嘉互感器', fullName: '沈变康嘉互感器制造部', level: 'workshop', badge: '主体' },
+  'fac-05': { id: 'ws_sb_main', name: '沈变本部', fullName: '特变电工沈阳变压器集团本部', level: 'workshop', badge: '主体' },
+  'fac-06': { id: 'ws_xb_zndq', name: '智能电气', fullName: '特变电工智能电气配变车间', level: 'workshop', badge: '主体' },
+  'fac-07': { id: 'ws_hb_main', name: '衡变本部', fullName: '特变电工衡阳变压器本部', level: 'workshop', badge: '主体' },
+  'fac-08': { id: 'ws_hb_tnj', name: '特缆建', fullName: '特变电工湖南能电建设园区', level: 'workshop', badge: '主体' },
+  'fac-09': { id: 'ws_hb_hn', name: '湖南电气', fullName: '特变电工湖南电气装备制造部', level: 'workshop', badge: '主体' },
+  'fac-10': { id: 'ws_hb_yj', name: '云集电气', fullName: '特变电工云集5G智能成套设备', level: 'workshop', badge: '主体' },
+  'fac-11': { id: 'ws_hb_kg', name: '云集高压开关', fullName: '特变电工云集高压开关有限公司', level: 'workshop', badge: '2三级单位' },
+  'fac-12': { id: 'ws_xb_tb', name: '天变公司', fullName: '特变电工天津变压器有限公司', level: 'workshop', badge: '5三级单位' },
+  'fac-13': { id: 'ws_xb_jjj', name: '京津冀科技', fullName: '特变电工京津冀智能科技产业基地', level: 'workshop', badge: '主体' },
+  'fac-14': { id: 'ws_sb_luna', name: '露娜智造', fullName: '特变电工露娜智能装备制造', level: 'workshop', badge: '主体' },
+  'fac-15': { id: 'ws_hb_nj', name: '南京公司', fullName: '特变电工南京智能电气有限公司', level: 'workshop', badge: '主体' },
+  'fac-16': { id: 'ws_hb_xj', name: '新疆自控', fullName: '特变电工新疆自控成套车间', level: 'workshop', badge: '主体' },
+  'fac-17': { id: 'ws_hb_hr', name: '合容电气', fullName: '特变电工合容电气有限公司', level: 'workshop', badge: '2三级单位' },
+  'fac-18': { id: 'ws_hb_gil', name: '事杰爱迪', fullName: '特变电工事杰爱迪GIL公司', level: 'workshop', badge: '主体' },
+  'fac-19': { id: 'ws_xl_main', name: '新疆电缆', fullName: '特变电工新疆电缆实业公司', level: 'workshop', badge: '主体' },
+  'fac-20': { id: 'ws_ll_main', name: '鲁缆本部', fullName: '鲁缆本部高压交联立塔制造部', level: 'workshop', badge: '主体' },
+  'fac-21': { id: 'ws_dl_main', name: '德缆公司', fullName: '特变电工（德阳）电缆股份有限公司', level: 'workshop', badge: '主体' },
+}
+
+export function findOrgNodeById(nodes: StandardOrgNode[], targetId: string): StandardOrgNode | null {
+  for (const node of nodes) {
+    if (node.id === targetId) return node
+    if (node.children) {
+      const found = findOrgNodeById(node.children, targetId)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+export function findOrgNodeByKeyword(nodes: StandardOrgNode[], keyword: string): StandardOrgNode | null {
+  if (!keyword) return null
+  const kw = keyword.trim().toLowerCase()
+  for (const node of nodes) {
+    if (
+      node.name.toLowerCase() === kw ||
+      (node.fullName && node.fullName.toLowerCase() === kw) ||
+      node.name.toLowerCase().includes(kw) ||
+      (node.fullName && node.fullName.toLowerCase().includes(kw))
+    ) {
+      return node
+    }
+    if (node.children) {
+      const found = findOrgNodeByKeyword(node.children, keyword)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+/**
+ * 🌟 从路由查询参数智能解析出标准组织架构节点
+ */
+export function resolveOrgNodeFromParams(params: {
+  factoryId?: string | null
+  nodeId?: string | null
+  factoryName?: string | null
+  companyName?: string | null
+}): StandardOrgNode | null {
+  const { factoryId, nodeId, factoryName, companyName } = params
+
+  // 1. 优先按国家级零碳工厂 ID 匹配标准组织节点
+  if (factoryId && BENCHMARK_FACTORY_TO_ORG_NODE[factoryId]) {
+    const mapped = BENCHMARK_FACTORY_TO_ORG_NODE[factoryId]
+    const inTree = findOrgNodeById(ENTERPRISE_TREE_DATA, mapped.id)
+    return inTree || mapped
+  }
+
+  // 2. 按组织节点 ID 匹配
+  if (nodeId) {
+    const found = findOrgNodeById(ENTERPRISE_TREE_DATA, nodeId)
+    if (found) return found
+  }
+
+  // 3. 按工厂全称/简称匹配
+  if (factoryName) {
+    // 检查映射表中的名字/全称
+    for (const [, item] of Object.entries(BENCHMARK_FACTORY_TO_ORG_NODE)) {
+      if (
+        item.name === factoryName ||
+        item.fullName === factoryName ||
+        factoryName.includes(item.name) ||
+        (item.fullName && factoryName.includes(item.fullName))
+      ) {
+        const inTree = findOrgNodeById(ENTERPRISE_TREE_DATA, item.id)
+        return inTree || item
+      }
+    }
+    // 检查树中节点
+    const inTree = findOrgNodeByKeyword(ENTERPRISE_TREE_DATA, factoryName)
+    if (inTree) return inTree
+
+    // 特殊别名/关键字容错匹配
+    const aliasRules: Array<[string, string]> = [
+      ['珠峰', 'ws_xb_zf'],
+      ['和新', 'ws_sb_hx'],
+      ['超高压', 'ws_xb_uhv'],
+      ['康嘉', 'ws_sb_kj'],
+      ['沈变本部', 'ws_sb_main'],
+      ['智能电气', 'ws_xb_zndq'],
+      ['衡变本部', 'ws_hb_main'],
+      ['特能建', 'ws_hb_tnj'],
+      ['特缆建', 'ws_hb_tnj'],
+      ['湖南电气', 'ws_hb_hn'],
+      ['云集电气', 'ws_hb_yj'],
+      ['云集高压', 'ws_hb_kg'],
+      ['天变', 'ws_xb_tb'],
+      ['京津冀', 'ws_xb_jjj'],
+      ['露娜', 'ws_sb_luna'],
+      ['南京', 'ws_hb_nj'],
+      ['新疆自控', 'ws_hb_xj'],
+      ['合容', 'ws_hb_hr'],
+      ['赛杰', 'ws_hb_gil'],
+      ['事杰', 'ws_hb_gil'],
+      ['新疆电缆', 'ws_xl_main'],
+      ['鲁缆', 'ws_ll_main'],
+      ['德缆', 'ws_dl_main'],
+    ]
+    for (const [kw, targetId] of aliasRules) {
+      if (factoryName.includes(kw)) {
+        const found = findOrgNodeById(ENTERPRISE_TREE_DATA, targetId)
+        if (found) return found
+      }
+    }
+  }
+
+  // 4. 按所属公司名称匹配
+  if (companyName) {
+    const compNode = findOrgNodeByKeyword(ENTERPRISE_TREE_DATA, companyName)
+    if (compNode) return compNode
+  }
+
+  return null
 }

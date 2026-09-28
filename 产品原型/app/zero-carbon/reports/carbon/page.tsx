@@ -7,6 +7,8 @@ import {
   Globe2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ExportButton } from '@/components/shared/primitives'
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 
 interface CarbonRow {
   id: string
@@ -53,20 +55,7 @@ const ALL_CARBON_ROWS: CarbonRow[] = [
     netEmission: 7326.0,
     yoy: '-5.8%',
   },
-  {
-    id: 'SB-03',
-    unitId: 'ws_sb_zh',
-    unitName: '智慧能源',
-    company: '沈变公司',
-    fossilCombustion: 155.0,
-    processEmission: 40.0,
-    gridElecEmission: 3876.0,
-    steamEmission: 104.5,
-    pvGreenDeduct: -140.0,
-    ccerDeduct: -40.0,
-    netEmission: 3995.5,
-    yoy: '-4.9%',
-  },
+
   {
     id: 'SB-04',
     unitId: 'ws_sb_hx',
@@ -276,11 +265,63 @@ const ALL_CARBON_ROWS: CarbonRow[] = [
 ]
 
 export default function CarbonReportPage() {
-  // 时间维度与范围
-  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
-  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+  // 时间维度: 'month' | 'quarter' | 'year' | 'custom' (默认月度)
+  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year' | 'custom'>('month')
+  // 指定单月选择 (默认 2026-08)
+  const [selectedMonth, setSelectedMonth] = useState('2026-08')
+  // 指定季度选择 (默认 2026-Q3)
   const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  // 指定年度选择 (默认 2026)
   const [selectedYear, setSelectedYear] = useState('2026')
+  // 自定义月度区间 (最多选择12个月)
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+
+  // 计算月份间隔数（包含起止月）
+  const getMonthsCount = (start: string, end: string): number => {
+    if (!start || !end) return 1
+    const [sy, sm] = start.split('-').map(Number)
+    const [ey, em] = end.split('-').map(Number)
+    return (ey - sy) * 12 + (em - sm) + 1
+  }
+
+  // 基于年月增减月数，返回 YYYY-MM
+  const addMonthsToYm = (ym: string, delta: number): string => {
+    const [y, m] = ym.split('-').map(Number)
+    const totalMonths = y * 12 + (m - 1) + delta
+    const newY = Math.floor(totalMonths / 12)
+    const newM = (totalMonths % 12) + 1
+    return `${newY}-${newM < 10 ? '0' + newM : newM}`
+  }
+
+  const handleCustomStartMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newStart = e.target.value
+    if (!newStart) return
+    setSelectedMonthRange((prev) => {
+      let newEnd = prev.end
+      if (newStart > newEnd) {
+        newEnd = newStart
+      }
+      if (getMonthsCount(newStart, newEnd) > 12) {
+        newEnd = addMonthsToYm(newStart, 11)
+      }
+      return { start: newStart, end: newEnd }
+    })
+  }
+
+  const handleCustomEndMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEnd = e.target.value
+    if (!newEnd) return
+    setSelectedMonthRange((prev) => {
+      let newStart = prev.start
+      if (newEnd < newStart) {
+        newStart = newEnd
+      }
+      if (getMonthsCount(newStart, newEnd) > 12) {
+        newStart = addMonthsToYm(newEnd, -11)
+      }
+      return { start: newStart, end: newEnd }
+    })
+  }
 
   const [companyFilter, setCompanyFilter] = useState<string>('all')
   const [unitFilter, setUnitFilter] = useState<string>('all')
@@ -314,8 +355,28 @@ export default function CarbonReportPage() {
       rows = rows.filter((r) => r.unitName === unitFilter || r.unitId === unitFilter)
     }
 
-    return rows
-  }, [companyFilter, unitFilter])
+    // 依据时间维度动态缩放碳排总量
+    const periodScale = getPeriodScaleFactor('sum', timeDim, {
+      selectedMonth,
+      selectedMonthRange,
+      monthRange: selectedMonthRange,
+      selectedQuarter,
+      quarter: selectedQuarter,
+      selectedYear,
+      year: selectedYear,
+    })
+
+    return rows.map((r) => ({
+      ...r,
+      fossilCombustion: Number((r.fossilCombustion * periodScale).toFixed(1)),
+      processEmission: Number((r.processEmission * periodScale).toFixed(1)),
+      gridElecEmission: Number((r.gridElecEmission * periodScale).toFixed(1)),
+      steamEmission: Number((r.steamEmission * periodScale).toFixed(1)),
+      pvGreenDeduct: Number((r.pvGreenDeduct * periodScale).toFixed(1)),
+      ccerDeduct: Number((r.ccerDeduct * periodScale).toFixed(1)),
+      netEmission: Number((r.netEmission * periodScale).toFixed(1)),
+    }))
+  }, [companyFilter, unitFilter, timeDim, selectedMonth, selectedQuarter, selectedYear, selectedMonthRange])
 
   // 预计算相同公司的 rowSpan 合并信息
   const companyRowSpans = useMemo(() => {
@@ -364,7 +425,7 @@ export default function CarbonReportPage() {
       {/* 顶部面包屑与操作栏 */}
       <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2C7CFF] shrink-0">
             <Globe2 className="size-5" />
           </div>
           <div>
@@ -373,25 +434,29 @@ export default function CarbonReportPage() {
         </div>
 
         {/* 工具栏 */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* 时间维度切换 */}
-          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* 时间维度统一 (日 / 月 / 季度 / 年 / 自定义，样式参照用能监测) */}
+          <div className="flex items-center gap-1 p-0.5 rounded-lg text-sm font-sans">
             <button
               type="button"
               onClick={() => setTimeDim('month')}
               className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'month'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               )}
             >
-              月度
+              月
             </button>
             <button
               type="button"
               onClick={() => setTimeDim('quarter')}
               className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'quarter'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               )}
             >
               季度
@@ -400,43 +465,49 @@ export default function CarbonReportPage() {
               type="button"
               onClick={() => setTimeDim('year')}
               className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'year'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               )}
             >
-              年度
+              年
+            </button>
+            <button
+              type="button"
+              onClick={() => setTimeDim('custom')}
+              className={cn(
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'custom'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              )}
+            >
+              自定义
             </button>
           </div>
 
-          {/* 时间范围选择控件 */}
+          {/* 时间范围选择控件 (随维度自适应切换，样式参照用能监测) */}
           {timeDim === 'month' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs font-mono">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
               <input
                 type="month"
-                value={selectedMonthRange.start}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="起始月份"
-              />
-              <span className="text-slate-400 font-sans">至</span>
-              <input
-                type="month"
-                value={selectedMonthRange.end}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="结束月份"
+                value={selectedMonth}
+                onChange={(e) => e.target.value && setSelectedMonth(e.target.value)}
+                className="bg-transparent border-0 text-slate-800 text-sm focus:outline-none cursor-pointer font-bold"
+                title="选择指定月份"
               />
             </div>
           )}
 
           {timeDim === 'quarter' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
               <select
                 value={selectedQuarter}
                 onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent border-0 text-slate-800 text-sm font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
                 <option value="2026-Q1">2026年 第1季度 (Q1)</option>
                 <option value="2026-Q2">2026年 第2季度 (Q2)</option>
@@ -448,12 +519,12 @@ export default function CarbonReportPage() {
           )}
 
           {timeDim === 'year' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent border-0 text-slate-800 text-sm font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
                 <option value="2026">2026 年度</option>
                 <option value="2025">2025 年度</option>
@@ -462,13 +533,28 @@ export default function CarbonReportPage() {
             </div>
           )}
 
-          <button
-            onClick={() => alert('正在导出碳排履约核算报表 (Excel/PDF)...')}
-            className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
-          >
-            <Download className="size-3.5" />
-            <span>导出</span>
-          </button>
+          {timeDim === 'custom' && (
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs font-mono">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
+              <input
+                type="month"
+                value={selectedMonthRange.start}
+                onChange={handleCustomStartMonthChange}
+                className="bg-transparent border-0 text-slate-800 text-sm focus:outline-none cursor-pointer font-bold"
+                title="开始月份 (最多选12个月)"
+              />
+              <span className="text-slate-400 font-sans">至</span>
+              <input
+                type="month"
+                value={selectedMonthRange.end}
+                onChange={handleCustomEndMonthChange}
+                className="bg-transparent border-0 text-slate-800 text-sm focus:outline-none cursor-pointer font-bold"
+                title="结束月份 (最多选12个月)"
+              />
+            </div>
+          )}
+
+          <ExportButton onClick={() => alert('正在导出碳排履约核算报表 (Excel/PDF)...')} />
         </div>
       </div>
 
@@ -525,7 +611,7 @@ export default function CarbonReportPage() {
           ) : (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
+                <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none h-[44px]">
                   <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[130px]">企业名称</th>
                   <th className="py-2.5 px-3 min-w-[150px]">单位名称</th>
                   <th className="py-2.5 px-3 text-right">化石燃料燃烧 (tCO₂)</th>
@@ -537,14 +623,14 @@ export default function CarbonReportPage() {
                   <th className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/50">
                     净碳排放总量 (tCO₂)
                   </th>
-                  <th className="py-2.5 px-3 text-center">同比变动</th>
+                  <th className="py-2.5 px-3 text-center">同比</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
                 {filteredRows.map((r, idx) => {
                   const span = companyRowSpans[idx]
                   return (
-                    <tr key={r.id} className="hover:bg-blue-50/40 transition-colors">
+                    <tr key={r.id} className="hover:bg-blue-50/40 transition-colors h-[44px]">
                       {span > 0 && (
                         <td
                           rowSpan={span}
@@ -587,7 +673,7 @@ export default function CarbonReportPage() {
               </tbody>
               {/* 汇总行 */}
               <tfoot>
-                <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
+                <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300 h-[44px]">
                   <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans" colSpan={2}>
                     全集团总碳排汇总
                   </td>

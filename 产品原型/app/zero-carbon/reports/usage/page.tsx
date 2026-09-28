@@ -7,7 +7,9 @@ import {
   FileSpreadsheet,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ExportButton } from '@/components/shared/primitives'
 import { SearchableUnitSelect } from '@/components/shared/searchable-unit-select'
+import { getPeriodScaleFactor } from '@/components/shared/time-dimension-engine'
 
 // 🌟 依据【用能在线监测】统一的能源介质字段模型
 interface UsageRow {
@@ -44,7 +46,7 @@ const ALL_USAGE_ROWS: UsageRow[] = [
     waterM3: 4.82,
     steamT: 420.0,
     oilLiter: 680,
-    liquidNitrogenT: 6.5,
+    liquidNitrogenT: 0,
     totalTce: 7154.2,
     yoy: '-6.4%',
     mom: '-1.5%',
@@ -62,29 +64,12 @@ const ALL_USAGE_ROWS: UsageRow[] = [
     waterM3: 2.95,
     steamT: 185.0,
     oilLiter: 390,
-    liquidNitrogenT: 4.2,
+    liquidNitrogenT: 0,
     totalTce: 1620.5,
     yoy: '-5.8%',
     mom: '-1.2%',
   },
-  {
-    id: 'SB-03',
-    unitId: 'ws_sb_zh',
-    unitName: '智慧能源',
-    company: '沈变公司',
-    totalElec: 280.0,
-    gridElec: 160.0,
-    solarElec: 120.0,
-    greenElecRatio: 42.9,
-    gasM3: 8.5,
-    waterM3: 1.20,
-    steamT: 95.0,
-    oilLiter: 180,
-    liquidNitrogenT: 1.8,
-    totalTce: 890.3,
-    yoy: '-4.9%',
-    mom: '-0.8%',
-  },
+
   {
     id: 'SB-04',
     unitId: 'ws_sb_hx',
@@ -98,7 +83,7 @@ const ALL_USAGE_ROWS: UsageRow[] = [
     waterM3: 0.95,
     steamT: 80.0,
     oilLiter: 150,
-    liquidNitrogenT: 1.5,
+    liquidNitrogenT: 0,
     totalTce: 710.2,
     yoy: '-5.2%',
     mom: '-1.0%',
@@ -116,7 +101,7 @@ const ALL_USAGE_ROWS: UsageRow[] = [
     waterM3: 0.72,
     steamT: 45.0,
     oilLiter: 110,
-    liquidNitrogenT: 1.1,
+    liquidNitrogenT: 0,
     totalTce: 479.0,
     yoy: '-4.5%',
     mom: '-0.6%',
@@ -134,7 +119,7 @@ const ALL_USAGE_ROWS: UsageRow[] = [
     waterM3: 0.55,
     steamT: 30.0,
     oilLiter: 90,
-    liquidNitrogenT: 0.8,
+    liquidNitrogenT: 0,
     totalTce: 360.4,
     yoy: '-3.9%',
     mom: '-0.4%',
@@ -154,7 +139,7 @@ const ALL_USAGE_ROWS: UsageRow[] = [
     waterM3: 4.26,
     steamT: 390.0,
     oilLiter: 580,
-    liquidNitrogenT: 5.8,
+    liquidNitrogenT: 0,
     totalTce: 6240.6,
     yoy: '-5.9%',
     mom: '-1.1%',
@@ -172,7 +157,7 @@ const ALL_USAGE_ROWS: UsageRow[] = [
     waterM3: 1.85,
     steamT: 180.0,
     oilLiter: 240,
-    liquidNitrogenT: 2.4,
+    liquidNitrogenT: 0,
     totalTce: 2304.2,
     yoy: '-5.0%',
     mom: '-0.5%',
@@ -190,7 +175,7 @@ const ALL_USAGE_ROWS: UsageRow[] = [
     waterM3: 1.05,
     steamT: 120.0,
     oilLiter: 130,
-    liquidNitrogenT: 1.4,
+    liquidNitrogenT: 0,
     totalTce: 1395.8,
     yoy: '-5.4%',
     mom: '-0.9%',
@@ -210,7 +195,7 @@ const ALL_USAGE_ROWS: UsageRow[] = [
     waterM3: 5.60,
     steamT: 460.0,
     oilLiter: 750,
-    liquidNitrogenT: 7.2,
+    liquidNitrogenT: 0,
     totalTce: 5150.2,
     yoy: '-5.5%',
     mom: '-0.8%',
@@ -228,7 +213,7 @@ const ALL_USAGE_ROWS: UsageRow[] = [
     waterM3: 2.65,
     steamT: 280.0,
     oilLiter: 360,
-    liquidNitrogenT: 3.5,
+    liquidNitrogenT: 0,
     totalTce: 3610.1,
     yoy: '-5.3%',
     mom: '-1.0%',
@@ -350,11 +335,63 @@ const ALL_USAGE_ROWS: UsageRow[] = [
 ]
 
 export default function UsageReportPage() {
-  // 时间维度与范围
-  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year'>('month')
-  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+  // 时间维度: 'month' | 'quarter' | 'year' | 'custom' (默认月度)
+  const [timeDim, setTimeDim] = useState<'month' | 'quarter' | 'year' | 'custom'>('month')
+  // 指定单月选择 (默认 2026-08)
+  const [selectedMonth, setSelectedMonth] = useState('2026-08')
+  // 指定季度选择 (默认 2026-Q3)
   const [selectedQuarter, setSelectedQuarter] = useState('2026-Q3')
+  // 指定年度选择 (默认 2026)
   const [selectedYear, setSelectedYear] = useState('2026')
+  // 自定义月度区间 (最多选择12个月)
+  const [selectedMonthRange, setSelectedMonthRange] = useState({ start: '2026-01', end: '2026-08' })
+
+  // 计算月份间隔数（包含起止月）
+  const getMonthsCount = (start: string, end: string): number => {
+    if (!start || !end) return 1
+    const [sy, sm] = start.split('-').map(Number)
+    const [ey, em] = end.split('-').map(Number)
+    return (ey - sy) * 12 + (em - sm) + 1
+  }
+
+  // 基于年月增减月数，返回 YYYY-MM
+  const addMonthsToYm = (ym: string, delta: number): string => {
+    const [y, m] = ym.split('-').map(Number)
+    const totalMonths = y * 12 + (m - 1) + delta
+    const newY = Math.floor(totalMonths / 12)
+    const newM = (totalMonths % 12) + 1
+    return `${newY}-${newM < 10 ? '0' + newM : newM}`
+  }
+
+  const handleCustomStartMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newStart = e.target.value
+    if (!newStart) return
+    setSelectedMonthRange((prev) => {
+      let newEnd = prev.end
+      if (newStart > newEnd) {
+        newEnd = newStart
+      }
+      if (getMonthsCount(newStart, newEnd) > 12) {
+        newEnd = addMonthsToYm(newStart, 11)
+      }
+      return { start: newStart, end: newEnd }
+    })
+  }
+
+  const handleCustomEndMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEnd = e.target.value
+    if (!newEnd) return
+    setSelectedMonthRange((prev) => {
+      let newStart = prev.start
+      if (newEnd < newStart) {
+        newStart = newEnd
+      }
+      if (getMonthsCount(newStart, newEnd) > 12) {
+        newStart = addMonthsToYm(newEnd, -11)
+      }
+      return { start: newStart, end: newEnd }
+    })
+  }
 
   const [companyFilter, setCompanyFilter] = useState<string>('all')
   const [unitFilter, setUnitFilter] = useState<string>('all')
@@ -389,8 +426,69 @@ export default function UsageReportPage() {
       rows = rows.filter((r) => r.unitName === unitFilter || r.unitId === unitFilter)
     }
 
-    return rows
-  }, [companyFilter, unitFilter])
+    // 依据时间维度动态缩放累计用能总量
+    const periodScale = getPeriodScaleFactor('sum', timeDim, {
+      selectedMonth,
+      selectedMonthRange,
+      monthRange: selectedMonthRange,
+      selectedQuarter,
+      quarter: selectedQuarter,
+      selectedYear,
+      year: selectedYear,
+    })
+
+    return rows.map((r) => {
+      const totalElec = Number((r.totalElec * periodScale).toFixed(1))
+      const gridElec = Number((r.gridElec * periodScale).toFixed(1))
+      const solarElec = Number((r.solarElec * periodScale).toFixed(1))
+      const greenElecRatio = totalElec > 0 ? Number(((solarElec / totalElec) * 100).toFixed(1)) : r.greenElecRatio
+      const gasM3 = Number((r.gasM3 * periodScale).toFixed(1))
+      const waterM3 = Number((r.waterM3 * periodScale).toFixed(2))
+      const steamT = Number((r.steamT * periodScale).toFixed(1))
+      const oilLiter = Math.round(r.oilLiter * periodScale)
+      const liquidNitrogenT = Number((r.liquidNitrogenT * periodScale).toFixed(1))
+      const totalTce = Number((r.totalTce * periodScale).toFixed(1))
+
+      return {
+        ...r,
+        totalElec,
+        gridElec,
+        solarElec,
+        greenElecRatio,
+        gasM3,
+        waterM3,
+        steamT,
+        oilLiter,
+        liquidNitrogenT,
+        totalTce,
+      }
+    })
+  }, [companyFilter, unitFilter, timeDim, selectedMonth, selectedQuarter, selectedYear, selectedMonthRange])
+
+  // 当前时间显示字符串
+  const currentTimeDisplay = useMemo(() => {
+    if (timeDim === 'month') return selectedMonth
+    if (timeDim === 'quarter') return selectedQuarter
+    if (timeDim === 'year') return `${selectedYear}年度`
+    return `${selectedMonthRange.start} ~ ${selectedMonthRange.end}`
+  }, [timeDim, selectedMonth, selectedQuarter, selectedYear, selectedMonthRange])
+
+  // 顶部主表头（由查询条件动态拼接）
+  const reportHeaderTitle = useMemo(() => {
+    const compText = companyFilter === 'all' ? '全集团' : companyFilter
+    const unitText = unitFilter === 'all' ? '全部单位' : unitFilter
+    const medMap: Record<string, string> = {
+      all: '全部能源介质',
+      elec: '电力消费',
+      gas: '天然气',
+      water: '工业用水',
+      steam: '外购蒸汽',
+      oil: '柴油/油耗',
+      nitrogen: '液氮消耗',
+    }
+    const medText = medMap[mediumFilter] || '全部能源介质'
+    return `${compText} · ${unitText} · ${medText} · ${currentTimeDisplay} · 用能统计报表`
+  }, [companyFilter, unitFilter, mediumFilter, currentTimeDisplay])
 
   // 预计算相同公司的 rowSpan 合并信息
   const companyRowSpans = useMemo(() => {
@@ -445,7 +543,7 @@ export default function UsageReportPage() {
       {/* 顶部面包屑与操作栏 */}
       <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2C7CFF] shrink-0">
             <FileSpreadsheet className="size-5" />
           </div>
           <div>
@@ -454,25 +552,29 @@ export default function UsageReportPage() {
         </div>
 
         {/* 工具栏 */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* 时间维度切换 */}
-          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* 时间维度统一 (日 / 月 / 季度 / 年 / 自定义，样式参照用能监测) */}
+          <div className="flex items-center gap-1 p-0.5 rounded-lg text-sm font-sans">
             <button
               type="button"
               onClick={() => setTimeDim('month')}
               className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'month' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'month'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               )}
             >
-              月度
+              月
             </button>
             <button
               type="button"
               onClick={() => setTimeDim('quarter')}
               className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'quarter' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'quarter'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               )}
             >
               季度
@@ -481,43 +583,49 @@ export default function UsageReportPage() {
               type="button"
               onClick={() => setTimeDim('year')}
               className={cn(
-                'px-3 py-1 rounded-md font-medium transition-all cursor-pointer select-none',
-                timeDim === 'year' ? 'font-bold bg-white text-[#1677ff] shadow-xs' : 'text-slate-600 hover:text-slate-900',
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'year'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               )}
             >
-              年度
+              年
+            </button>
+            <button
+              type="button"
+              onClick={() => setTimeDim('custom')}
+              className={cn(
+                'px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer select-none text-sm',
+                timeDim === 'custom'
+                  ? 'font-bold bg-[#2C7CFF] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              )}
+            >
+              自定义
             </button>
           </div>
 
-          {/* 时间范围选择控件 */}
+          {/* 时间范围选择控件 (随维度自适应切换，样式参照用能监测) */}
           {timeDim === 'month' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs font-mono">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs font-mono">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
               <input
                 type="month"
-                value={selectedMonthRange.start}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, start: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="起始月份"
-              />
-              <span className="text-slate-400 font-sans">至</span>
-              <input
-                type="month"
-                value={selectedMonthRange.end}
-                onChange={(e) => setSelectedMonthRange((prev) => ({ ...prev, end: e.target.value }))}
-                className="bg-transparent border-0 text-slate-700 text-xs focus:outline-none cursor-pointer"
-                title="结束月份"
+                value={selectedMonth}
+                onChange={(e) => e.target.value && setSelectedMonth(e.target.value)}
+                className="bg-transparent border-0 text-slate-800 text-sm focus:outline-none cursor-pointer font-bold"
+                title="选择指定月份"
               />
             </div>
           )}
 
           {timeDim === 'quarter' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
               <select
                 value={selectedQuarter}
                 onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent border-0 text-slate-800 text-sm font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
                 <option value="2026-Q1">2026年 第1季度 (Q1)</option>
                 <option value="2026-Q2">2026年 第2季度 (Q2)</option>
@@ -529,12 +637,12 @@ export default function UsageReportPage() {
           )}
 
           {timeDim === 'year' && (
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
-              <Calendar className="size-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-transparent border-0 text-slate-700 text-xs font-mono font-medium focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent border-0 text-slate-800 text-sm font-mono font-medium focus:outline-none cursor-pointer pr-1"
               >
                 <option value="2026">2026 年度</option>
                 <option value="2025">2025 年度</option>
@@ -543,13 +651,28 @@ export default function UsageReportPage() {
             </div>
           )}
 
-          <button
-            onClick={() => alert('正在导出用能报表 (Excel/PDF)...')}
-            className="h-8 px-3 rounded-lg bg-[#1677ff] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-blue-600 shadow-xs transition-colors cursor-pointer"
-          >
-            <Download className="size-3.5" />
-            <span>导出</span>
-          </button>
+          {timeDim === 'custom' && (
+            <div className="flex items-center gap-2 bg-white px-3 h-9 rounded-lg border border-[#DBE6EE] text-sm shadow-xs font-mono">
+              <Calendar className="size-4 text-slate-400 shrink-0" />
+              <input
+                type="month"
+                value={selectedMonthRange.start}
+                onChange={handleCustomStartMonthChange}
+                className="bg-transparent border-0 text-slate-800 text-sm focus:outline-none cursor-pointer font-bold"
+                title="开始月份 (最多选12个月)"
+              />
+              <span className="text-slate-400 font-sans">至</span>
+              <input
+                type="month"
+                value={selectedMonthRange.end}
+                onChange={handleCustomEndMonthChange}
+                className="bg-transparent border-0 text-slate-800 text-sm focus:outline-none cursor-pointer font-bold"
+                title="结束月份 (最多选12个月)"
+              />
+            </div>
+          )}
+
+          <ExportButton onClick={() => alert('正在导出用能报表 (Excel/PDF)...')} />
         </div>
       </div>
 
@@ -609,6 +732,19 @@ export default function UsageReportPage() {
           </div>
         </div>
 
+        {/* 动态主表头（由查询条件拼接而成） */}
+        <div className="px-4 py-2.5 bg-blue-50/60 border-b border-blue-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="h-3.5 w-1 rounded-full bg-[#2C7CFF] shrink-0" />
+            <h2 className="text-base font-bold text-slate-800 tracking-wide font-sans">
+              【{reportHeaderTitle}】
+            </h2>
+          </div>
+          <span className="text-[11px] text-slate-500 font-mono">
+            统计周期: {currentTimeDisplay}
+          </span>
+        </div>
+
         {/* 表格区域 */}
         <div className="overflow-x-auto custom-scrollbar">
           {filteredRows.length === 0 ? (
@@ -618,9 +754,10 @@ export default function UsageReportPage() {
           ) : (
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none">
+                  <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold select-none h-[44px]">
                     <th className="py-2.5 px-3 sticky left-0 bg-slate-50 z-10 min-w-[130px]">企业名称</th>
                     <th className="py-2.5 px-3 min-w-[150px]">单位名称</th>
+                    <th className="py-2.5 px-3 min-w-[90px] text-center font-mono whitespace-nowrap">时间</th>
                     {(mediumFilter === 'all' || mediumFilter === 'elec') && (
                       <>
                         <th className="py-2.5 px-3 text-right">总用电量 (万kWh)</th>
@@ -647,15 +784,13 @@ export default function UsageReportPage() {
                     <th className="py-2.5 px-3 text-right font-bold text-slate-900 bg-blue-50/40">
                       综合能耗 (tce)
                     </th>
-                    <th className="py-2.5 px-3 text-center">同比变动</th>
-                    <th className="py-2.5 px-3 text-center">环比变动</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700 font-mono text-[11.5px]">
                   {filteredRows.map((r, idx) => {
                     const span = companyRowSpans[idx]
                     return (
-                      <tr key={r.id} className="hover:bg-blue-50/40 transition-colors">
+                      <tr key={r.id} className="hover:bg-blue-50/40 transition-colors h-[44px]">
                         {span > 0 && (
                           <td
                             rowSpan={span}
@@ -668,6 +803,9 @@ export default function UsageReportPage() {
                         )}
                         <td className="py-2.5 px-3 font-sans font-semibold text-slate-900 border-b border-slate-100">
                           {r.unitName}
+                        </td>
+                        <td className="py-2.5 px-3 font-mono text-center text-slate-600 border-b border-slate-100">
+                          {currentTimeDisplay}
                         </td>
                       {(mediumFilter === 'all' || mediumFilter === 'elec') && (
                         <>
@@ -707,25 +845,19 @@ export default function UsageReportPage() {
                       )}
                       {(mediumFilter === 'all' || mediumFilter === 'nitrogen') && (
                         <td className="py-2.5 px-3 text-right tabular-nums">
-                          {r.liquidNitrogenT.toFixed(1)}
+                          {r.liquidNitrogenT > 0 ? r.liquidNitrogenT.toFixed(1) : '--'}
                         </td>
                       )}
                       <td className="py-2.5 px-3 text-right font-bold text-blue-700 bg-blue-50/40 tabular-nums">
                         {r.totalTce.toLocaleString('en-US', { minimumFractionDigits: 1 })}
-                      </td>
-                      <td className="py-2.5 px-3 text-center text-emerald-600 font-bold">
-                        {r.yoy}
-                      </td>
-                      <td className="py-2.5 px-3 text-center text-slate-600">
-                        {r.mom}
                       </td>
                     </tr>
                   )})}
                 </tbody>
                 {/* 汇总行 */}
                 <tfoot>
-                  <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
-                    <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans" colSpan={2}>
+                  <tr className="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300 h-[44px]">
+                    <td className="py-2.5 px-3 sticky left-0 bg-slate-100 font-sans" colSpan={3}>
                       全集团总计汇总
                     </td>
                     {(mediumFilter === 'all' || mediumFilter === 'elec') && (
@@ -772,8 +904,6 @@ export default function UsageReportPage() {
                     <td className="py-2.5 px-3 text-right font-mono text-blue-700 bg-blue-100/60 tabular-nums">
                       {totals.totalTce.toLocaleString('en-US', { minimumFractionDigits: 1 })}
                     </td>
-                    <td className="py-2.5 px-3 text-center text-emerald-700">-5.8%</td>
-                    <td className="py-2.5 px-3 text-center text-slate-700">-1.0%</td>
                   </tr>
                 </tfoot>
               </table>

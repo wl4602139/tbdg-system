@@ -190,8 +190,8 @@ const PERMISSION_TREE_DATA: PermissionTreeNode[] = [
         title: '单位产值能耗',
         code: 'MENU_UNIT_OUT',
         actions: [
-          { id: 'out_view', label: '万元产值单耗看板', code: 'unit:out:view' },
-          { id: 'out_yoy', label: '产值单耗同比环比分析', code: 'unit:out:yoy' },
+          { id: 'out_view', label: '万元产值能耗看板', code: 'unit:out:view' },
+          { id: 'out_yoy', label: '万元产值能耗同比分析', code: 'unit:out:yoy' },
         ],
       },
       {
@@ -233,7 +233,7 @@ const PERMISSION_TREE_DATA: PermissionTreeNode[] = [
       },
       {
         id: 'menu_project_benefit',
-        title: '项目效益评估',
+        title: '项目运行评估',
         code: 'MENU_BENEFIT',
         actions: [
           { id: 'proj_eval', label: '实时减碳效益核算', code: 'proj:benefit:calc' },
@@ -280,7 +280,7 @@ const PERMISSION_TREE_DATA: PermissionTreeNode[] = [
         title: '单耗报表',
         code: 'MENU_REP_UNIT',
         actions: [
-          { id: 'rep_unit', label: '查阅单位产品/产值单耗报表', code: 'rep:unit:view' },
+          { id: 'rep_unit', label: '查阅单位产品/万元产值能耗报表', code: 'rep:unit:view' },
           { id: 'rep_unit_exp', label: '导出单耗报表 Excel', code: 'rep:unit:export' },
         ],
       },
@@ -339,7 +339,7 @@ const PERMISSION_TREE_DATA: PermissionTreeNode[] = [
       },
       {
         id: 'menu_cfg_entry',
-        title: '数据录入',
+        title: '企业基础信息',
         code: 'MENU_CFG_ENTRY',
         actions: [
           { id: 'cfg_entry', label: '非电介质月度实物量填报', code: 'cfg:entry:medium' },
@@ -417,7 +417,6 @@ const INITIAL_ORG_COMPANIES: CompanyTopologyNode[] = [
     workshops: [
       { id: 'ws_sb_main', name: '沈变本部', code: 'WS_SB_MAIN', badge: '主体', status: '在线', meters: 120, lead: '刘海波', craftDesc: '1000kV特高压变压器装配、干燥窑炉与绝缘试验' },
       { id: 'ws_sb_luna', name: '露娜智能制造', code: 'WS_SB_LUNA', badge: '智能', status: '在线', meters: 45, lead: '张晓明', craftDesc: '智能化数字装配车间与微网动力配电' },
-      { id: 'ws_sb_zh', name: '智慧能源中心', code: 'WS_SB_ZH', badge: '综合', status: '在线', meters: 52, lead: '李晨', craftDesc: '分布式光伏屋顶、储能电站与主变热力泵房' },
       { id: 'ws_sb_hx', name: '和新套管公司', code: 'WS_SB_HX', badge: '主体', status: '在线', meters: 40, lead: '王鹏', craftDesc: '特高压胶浸纸电容式套管卷制与真空固化' },
       { id: 'ws_sb_kj', name: '康嘉互感器', code: 'WS_SB_KJ', badge: '主体', status: '在线', meters: 35, lead: '赵宇', craftDesc: '气体绝缘互感器 GIS 装配与高压试验' },
       { id: 'ws_sb_yn', name: '印能制造分厂', code: 'WS_SB_YN', badge: '制造', status: '在线', meters: 28, lead: '孙强', craftDesc: '高密度绝缘纸板热压、层压木及印制电路' },
@@ -465,7 +464,6 @@ const INITIAL_ORG_COMPANIES: CompanyTopologyNode[] = [
       { id: 'ws_xb_zndq', name: '智能电气公司', code: 'WS_XB_ZNDQ', badge: '主体', status: '在线', meters: 48, lead: '丁亮', craftDesc: '新能源储能一体化升压变集成工位' },
       { id: 'ws_xb_jjj', name: '京津冀公司', code: 'WS_XB_JJJ', badge: '主体', status: '在线', meters: 36, lead: '薛涛', craftDesc: '华北区域试验与智慧运维中心' },
       { id: 'ws_xb_zf', name: '珠峰硅钢', code: 'WS_XB_ZF', badge: '主体', status: '在线', meters: 50, lead: '袁帅', craftDesc: '高磁感取向硅钢纵剪与横剪自动化' },
-      { id: 'ws_xb_zhny', name: '智慧能源', code: 'WS_XB_ZHNY', badge: '综合', status: '在线', meters: 35, lead: '严冬', craftDesc: '源网荷储微电网及地源热泵站' },
       { id: 'ws_xb_yl', name: '银利电气', code: 'WS_XB_YL', badge: '制造', status: '在线', meters: 26, lead: '顾磊', craftDesc: '换位导线与电磁线高温漆包工序' },
     ],
   },
@@ -1254,9 +1252,9 @@ export default function AccountPermissionPage() {
               className="cursor-pointer text-slate-700 hover:opacity-80 flex items-center justify-center"
             >
               {isAllChecked ? (
-                <CheckSquare className="size-4 text-[#1677ff]" />
+                <CheckSquare className="size-4 text-[#2C7CFF]" />
               ) : isIndeterminate ? (
-                <MinusSquare className="size-4 text-[#1677ff]" />
+                <MinusSquare className="size-4 text-[#2C7CFF]" />
               ) : (
                 <Square className="size-4 text-slate-300 group-hover:text-slate-400" />
               )}
@@ -1264,7 +1262,7 @@ export default function AccountPermissionPage() {
 
             {/* 图标 */}
             {depth === 0 ? (
-              <Folder className={cn('size-4', isAllChecked ? 'text-[#1677ff]' : 'text-slate-500')} />
+              <Folder className={cn('size-4', isAllChecked ? 'text-[#2C7CFF]' : 'text-slate-500')} />
             ) : (
               <FolderOpen className={cn('size-3.5', isAllChecked ? 'text-blue-500' : 'text-slate-400')} />
             )}
@@ -1294,7 +1292,7 @@ export default function AccountPermissionPage() {
               className={cn(
                 'px-1.5 py-0.5 rounded text-[10px]',
                 isAllChecked
-                  ? 'bg-blue-100 text-[#1677ff] font-bold'
+                  ? 'bg-blue-100 text-[#2C7CFF] font-bold'
                   : checkedCount > 0
                   ? 'bg-blue-50 text-blue-700'
                   : 'bg-slate-100 text-slate-400'
@@ -1328,11 +1326,11 @@ export default function AccountPermissionPage() {
                       )}
                     >
                       {isActChecked ? (
-                        <CheckSquare className="size-3.5 text-[#1677ff] shrink-0" />
+                        <CheckSquare className="size-3.5 text-[#2C7CFF] shrink-0" />
                       ) : (
                         <Square className="size-3.5 text-slate-300 shrink-0" />
                       )}
-                      <Key className={cn('size-3 shrink-0', isActChecked ? 'text-[#1677ff]' : 'text-slate-400')} />
+                      <Key className={cn('size-3 shrink-0', isActChecked ? 'text-[#2C7CFF]' : 'text-slate-400')} />
                       <span className="truncate flex-1">{act.label}</span>
                       {act.code && (
                         <span className="text-[9px] font-mono text-slate-400 bg-slate-100 px-1 rounded shrink-0">
@@ -1355,14 +1353,11 @@ export default function AccountPermissionPage() {
       {/* 顶部 Header */}
       <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2C7CFF] shrink-0">
             <Users className="size-5" />
           </div>
           <div>
             <h1 className="text-base font-bold text-slate-800">账号权限管理</h1>
-            <p className="text-xs text-slate-500 font-sans">
-              基于特变电工集团组织架构实现统一账号、预设与自定义角色、功能菜单树与园区/工厂数据范围细粒度权限管控
-            </p>
           </div>
         </div>
 
@@ -1373,7 +1368,7 @@ export default function AccountPermissionPage() {
               setEditingUser(null)
               setUserModalOpen(true)
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2C7CFF] hover:bg-blue-600 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors"
           >
             <UserPlus className="size-3.5" />
             <span>新增账号</span>
@@ -1413,7 +1408,7 @@ export default function AccountPermissionPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'users'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
+              ? 'bg-blue-50 text-[#2C7CFF] font-bold border border-blue-200 shadow-2xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           )}
         >
@@ -1427,7 +1422,7 @@ export default function AccountPermissionPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'roles'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
+              ? 'bg-blue-50 text-[#2C7CFF] font-bold border border-blue-200 shadow-2xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           )}
         >
@@ -1441,7 +1436,7 @@ export default function AccountPermissionPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'scope'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
+              ? 'bg-blue-50 text-[#2C7CFF] font-bold border border-blue-200 shadow-2xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           )}
         >
@@ -1455,7 +1450,7 @@ export default function AccountPermissionPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'org'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
+              ? 'bg-blue-50 text-[#2C7CFF] font-bold border border-blue-200 shadow-2xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           )}
         >
@@ -1479,14 +1474,14 @@ export default function AccountPermissionPage() {
                   placeholder="搜索姓名、工号、账号或部门..."
                   value={searchKw}
                   onChange={(e) => setSearchKw(e.target.value)}
-                  className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs w-64 focus:bg-white focus:outline-none focus:border-[#1677ff]"
+                  className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs w-64 focus:bg-white focus:outline-none focus:border-[#2C7CFF]"
                 />
               </div>
 
               <select
                 value={filterCompany}
                 onChange={(e) => setFilterCompany(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-[#1677ff]"
+                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-[#2C7CFF]"
               >
                 <option value="all">全部所属公司</option>
                 <option value="电装集团">电装集团总部</option>
@@ -1500,7 +1495,7 @@ export default function AccountPermissionPage() {
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-[#1677ff]"
+                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-[#2C7CFF]"
               >
                 <option value="all">全部角色类型</option>
                 {roles.map((r) => (
@@ -1513,7 +1508,7 @@ export default function AccountPermissionPage() {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-[#1677ff]"
+                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-[#2C7CFF]"
               >
                 <option value="all">全部状态</option>
                 <option value="启用">正常启用</option>
@@ -1522,7 +1517,7 @@ export default function AccountPermissionPage() {
             </div>
 
             <div className="text-xs text-slate-500 font-mono">
-              共查询到 <strong className="text-[#1677ff] font-bold">{filteredUsers.length}</strong> 位人员账号
+              共查询到 <strong className="text-[#2C7CFF] font-bold">{filteredUsers.length}</strong> 位人员账号
             </div>
           </div>
 
@@ -1530,7 +1525,7 @@ export default function AccountPermissionPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold h-[44px]">
                   <th className="py-2.5 px-3">人员姓名 / 工号</th>
                   <th className="py-2.5 px-3">登录账号</th>
                   <th className="py-2.5 px-3">所属公司与部门</th>
@@ -1543,10 +1538,10 @@ export default function AccountPermissionPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-blue-50/40 transition-colors">
+                  <tr key={user.id} className="hover:bg-blue-50/40 transition-colors h-[44px]">
                     <td className="py-3 px-3">
                       <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                        <div className="size-6 rounded-full bg-blue-100 text-[#1677ff] font-mono text-[11px] font-bold flex items-center justify-center">
+                        <div className="size-6 rounded-full bg-blue-100 text-[#2C7CFF] font-mono text-[11px] font-bold flex items-center justify-center">
                           {user.name.slice(0, 1)}
                         </div>
                         <span>{user.name}</span>
@@ -1609,7 +1604,7 @@ export default function AccountPermissionPage() {
                             setEditingUser(user)
                             setUserModalOpen(true)
                           }}
-                          className="text-[#1677ff] hover:underline font-medium cursor-pointer"
+                          className="text-[#2C7CFF] hover:underline font-medium cursor-pointer"
                         >
                           编辑
                         </button>
@@ -1655,13 +1650,13 @@ export default function AccountPermissionPage() {
           <div className="lg:col-span-4 bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                <ShieldCheck className="size-4 text-[#1677ff]" />
+                <ShieldCheck className="size-4 text-[#2C7CFF]" />
                 角色模型清单 ({roles.length})
               </h3>
               <button
                 type="button"
                 onClick={() => setRoleModalOpen(true)}
-                className="text-xs text-[#1677ff] font-bold hover:underline cursor-pointer"
+                className="text-xs text-[#2C7CFF] font-bold hover:underline cursor-pointer"
               >
                 + 新增角色
               </button>
@@ -1675,7 +1670,7 @@ export default function AccountPermissionPage() {
                   className={cn(
                     'p-3 rounded-lg border text-xs cursor-pointer transition-all space-y-1.5',
                     selectedRoleId === r.id
-                      ? 'bg-blue-50/70 border-[#1677ff] ring-2 ring-blue-100 shadow-xs'
+                      ? 'bg-blue-50/70 border-[#2C7CFF] ring-2 ring-blue-100 shadow-xs'
                       : 'bg-white border-slate-200 hover:border-slate-300'
                   )}
                 >
@@ -1702,17 +1697,15 @@ export default function AccountPermissionPage() {
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <FolderTree className="size-4 text-[#1677ff]" />
+                  <FolderTree className="size-4 text-[#2C7CFF]" />
                   <span>【{selectedRole.name}】功能菜单与按钮权限树</span>
-                  <span className="text-xs font-mono text-slate-400 font-normal">({selectedRole.code})</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">{selectedRole.desc}</p>
               </div>
 
               <button
                 type="button"
                 onClick={() => showToast(`已成功保存并下发角色【${selectedRole.name}】的全新权限树配置！`)}
-                className="px-4 py-1.5 bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer transition-colors"
+                className="px-4 py-1.5 bg-[#2C7CFF] hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer transition-colors"
               >
                 保存权限设定
               </button>
@@ -1728,7 +1721,7 @@ export default function AccountPermissionPage() {
                   placeholder="搜索菜单或权限项名称..."
                   value={treeSearchKw}
                   onChange={(e) => setTreeSearchKw(e.target.value)}
-                  className="pl-8 pr-3 py-1 bg-white border border-slate-200 rounded-lg text-xs w-60 focus:outline-none focus:border-[#1677ff]"
+                  className="pl-8 pr-3 py-1 bg-white border border-slate-200 rounded-lg text-xs w-60 focus:outline-none focus:border-[#2C7CFF]"
                 />
               </div>
 
@@ -1753,7 +1746,7 @@ export default function AccountPermissionPage() {
                 <button
                   type="button"
                   onClick={handleSelectAllPermissions}
-                  className="text-[#1677ff] hover:underline px-2 py-0.5 cursor-pointer"
+                  className="text-[#2C7CFF] hover:underline px-2 py-0.5 cursor-pointer"
                 >
                   全选全部
                 </button>
@@ -1783,18 +1776,15 @@ export default function AccountPermissionPage() {
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-4">
           <div className="border-b border-slate-100 pb-3">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <SlidersHorizontal className="size-4 text-[#1677ff]" />
+              <SlidersHorizontal className="size-4 text-[#2C7CFF]" />
               各角色在特变电工 6 大直属制造公司的数据访问范围矩阵
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              根据集团分级风控规则，保障各工厂核心工艺数据、财务产值与单耗指标的隔离与授权穿透
-            </p>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold h-[44px]">
                   <th className="py-2.5 px-3">角色名称</th>
                   {orgCompanies.map((c) => (
                     <th key={c.id} className="py-2.5 px-3">
@@ -1804,33 +1794,33 @@ export default function AccountPermissionPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
-                <tr>
+                <tr className="h-[44px]">
                   <td className="py-3 px-3 font-bold text-slate-900">集团超级管理员</td>
                   {orgCompanies.map((c) => (
                     <td key={c.id} className="py-3 px-3 text-emerald-600 font-medium">全量读写 · 审计</td>
                   ))}
                 </tr>
-                <tr>
+                <tr className="h-[44px]">
                   <td className="py-3 px-3 font-bold text-slate-900">集团能碳总监</td>
                   {orgCompanies.map((c) => (
                     <td key={c.id} className="py-3 px-3 text-blue-600 font-medium">全量查看 · 报表审批</td>
                   ))}
                 </tr>
-                <tr>
+                <tr className="h-[44px]">
                   <td className="py-3 px-3 font-bold text-slate-900">园区能管主管</td>
                   <td className="py-3 px-3 text-blue-700 font-bold bg-blue-50/50">沈变辖区读写</td>
                   {orgCompanies.slice(1).map((c) => (
                     <td key={c.id} className="py-3 px-3 text-slate-400">无权限</td>
                   ))}
                 </tr>
-                <tr>
+                <tr className="h-[44px]">
                   <td className="py-3 px-3 font-bold text-slate-900">工厂能耗申报员</td>
                   <td className="py-3 px-3 text-amber-700 font-medium bg-amber-50/40">沈变本部数据填报</td>
                   {orgCompanies.slice(1).map((c) => (
                     <td key={c.id} className="py-3 px-3 text-slate-400">无权限</td>
                   ))}
                 </tr>
-                <tr>
+                <tr className="h-[44px]">
                   <td className="py-3 px-3 font-bold text-slate-900">审计合规专员</td>
                   {orgCompanies.map((c) => (
                     <td key={c.id} className="py-3 px-3 text-slate-600 font-medium">只读留痕</td>
@@ -1873,12 +1863,12 @@ export default function AccountPermissionPage() {
                   className={cn(
                     'flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer group',
                     selectedNodeModal?.type === 'group'
-                      ? 'bg-blue-50/80 border-[#1677ff] ring-2 ring-blue-100 shadow-2xs font-bold text-blue-900'
+                      ? 'bg-blue-50/80 border-[#2C7CFF] ring-2 ring-blue-100 shadow-2xs font-bold text-blue-900'
                       : 'bg-slate-50/80 border-slate-200 text-slate-800 hover:bg-slate-100'
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <Building2 className="size-4 text-[#1677ff]" />
+                    <Building2 className="size-4 text-[#2C7CFF]" />
                     <span className="font-bold">特变电工（电装集团）总部</span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -1894,7 +1884,7 @@ export default function AccountPermissionPage() {
                         setOrgModalTarget(null)
                         setOrgModalOpen(true)
                       }}
-                      className="hidden group-hover:flex items-center gap-0.5 p-1 rounded hover:bg-blue-200 text-[#1677ff] text-[10px] font-bold cursor-pointer"
+                      className="hidden group-hover:flex items-center gap-0.5 p-1 rounded hover:bg-blue-200 text-[#2C7CFF] text-[10px] font-bold cursor-pointer"
                     >
                       <Plus className="size-3" />
                       <span>新增公司</span>
@@ -1932,7 +1922,7 @@ export default function AccountPermissionPage() {
                             >
                               {isExpanded ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
                             </button>
-                            <Folder className="size-3.5 text-[#1677ff] shrink-0" />
+                            <Folder className="size-3.5 text-[#2C7CFF] shrink-0" />
                             <span className="font-semibold truncate">{comp.name}</span>
                             <span className="text-[10px] text-slate-400 font-mono">({comp.province.slice(0, 2)})</span>
                           </div>
@@ -1957,7 +1947,7 @@ export default function AccountPermissionPage() {
                                   setOrgModalTarget(null)
                                   setOrgModalOpen(true)
                                 }}
-                                className="p-1 rounded hover:bg-blue-100 text-[#1677ff] cursor-pointer"
+                                className="p-1 rounded hover:bg-blue-100 text-[#2C7CFF] cursor-pointer"
                               >
                                 <Plus className="size-3" />
                               </button>
@@ -2010,12 +2000,12 @@ export default function AccountPermissionPage() {
                                   className={cn(
                                     'flex items-center justify-between py-1 px-2 rounded-md transition-all cursor-pointer text-[11px] group/ws',
                                     isWsSelected
-                                      ? 'bg-blue-100/70 text-[#1677ff] font-bold shadow-2xs'
+                                      ? 'bg-blue-100/70 text-[#2C7CFF] font-bold shadow-2xs'
                                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                                   )}
                                 >
                                   <div className="flex items-center gap-1.5 truncate flex-1">
-                                    <Factory className={cn('size-3 shrink-0', isWsSelected ? 'text-[#1677ff]' : 'text-slate-400')} />
+                                    <Factory className={cn('size-3 shrink-0', isWsSelected ? 'text-[#2C7CFF]' : 'text-slate-400')} />
                                     <span className="truncate">{ws.name}</span>
                                   </div>
 
@@ -2035,7 +2025,7 @@ export default function AccountPermissionPage() {
                                           setOrgModalTarget(ws)
                                           setOrgModalOpen(true)
                                         }}
-                                        className="p-0.5 rounded hover:bg-blue-200 text-[#1677ff] cursor-pointer"
+                                        className="p-0.5 rounded hover:bg-blue-200 text-[#2C7CFF] cursor-pointer"
                                       >
                                         <Edit className="size-2.5" />
                                       </button>
@@ -2076,7 +2066,7 @@ export default function AccountPermissionPage() {
                   {/* 头部标题与层级 + 操作工具 */}
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
                     <div className="flex items-center gap-2.5">
-                      <div className="size-9 rounded-xl bg-blue-50 border border-blue-200 text-[#1677ff] flex items-center justify-center font-bold">
+                      <div className="size-9 rounded-xl bg-blue-50 border border-blue-200 text-[#2C7CFF] flex items-center justify-center font-bold">
                         {selectedNodeModal.type === 'group' ? (
                           <Building2 className="size-5" />
                         ) : selectedNodeModal.type === 'company' ? (
@@ -2098,7 +2088,7 @@ export default function AccountPermissionPage() {
                         className={cn(
                           'px-2.5 py-1 rounded-full text-[11px] font-bold',
                           selectedNodeModal.type === 'group'
-                            ? 'bg-blue-100 text-[#1677ff]'
+                            ? 'bg-blue-100 text-[#2C7CFF]'
                             : selectedNodeModal.type === 'company'
                             ? 'bg-purple-100 text-purple-700'
                             : 'bg-emerald-100 text-emerald-700'
@@ -2122,7 +2112,7 @@ export default function AccountPermissionPage() {
                               setOrgModalTarget(null)
                               setOrgModalOpen(true)
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#1677ff] border border-blue-200 hover:bg-blue-100 font-bold cursor-pointer transition-colors"
+                            className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#2C7CFF] border border-blue-200 hover:bg-blue-100 font-bold cursor-pointer transition-colors"
                           >
                             + 添加车间
                           </button>
@@ -2198,7 +2188,7 @@ export default function AccountPermissionPage() {
 
                     <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
                       <span className="text-slate-500 text-[11px]">在线遥测测点规模</span>
-                      <div className="font-bold font-mono text-[#1677ff] text-sm">
+                      <div className="font-bold font-mono text-[#2C7CFF] text-sm">
                         {selectedNodeModal.data.meters || selectedNodeModal.data.meterCount || 1680}{' '}
                         <span className="text-xs font-normal text-slate-500">个点位</span>
                       </div>
@@ -2229,7 +2219,7 @@ export default function AccountPermissionPage() {
                     </div>
                     <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
                       <span className="text-slate-500">数据范围隔离模式：</span>
-                      <span className="font-bold text-[#1677ff]">
+                      <span className="font-bold text-[#2C7CFF]">
                         {selectedNodeModal.type === 'group'
                           ? '全集团 (跨公司穿透)'
                           : selectedNodeModal.type === 'company'
@@ -2252,7 +2242,7 @@ export default function AccountPermissionPage() {
                             setOrgModalTarget(null)
                             setOrgModalOpen(true)
                           }}
-                          className="text-[#1677ff] hover:underline font-bold cursor-pointer text-xs"
+                          className="text-[#2C7CFF] hover:underline font-bold cursor-pointer text-xs"
                         >
                           + 添加车间
                         </button>
@@ -2268,7 +2258,7 @@ export default function AccountPermissionPage() {
                               <div className="text-[10px] text-slate-400 font-mono">管辖: {w.lead}</div>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] bg-blue-50 text-[#1677ff] px-1.5 py-0.5 rounded font-mono">
+                              <span className="text-[10px] bg-blue-50 text-[#2C7CFF] px-1.5 py-0.5 rounded font-mono">
                                 {w.meters} 测点
                               </span>
                               <button
@@ -2309,7 +2299,7 @@ export default function AccountPermissionPage() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <FolderTree className="size-4 text-[#1677ff]" />
+                <FolderTree className="size-4 text-[#2C7CFF]" />
                 {orgModalMode === 'add_company' && '新增直属制造公司'}
                 {orgModalMode === 'edit_company' && '编辑直属制造公司档案'}
                 {orgModalMode === 'add_workshop' && '新增基层车间工序'}
@@ -2336,7 +2326,7 @@ export default function AccountPermissionPage() {
                         required
                         defaultValue={orgModalTarget?.name || ''}
                         placeholder="如：天津特变电工公司"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
 
@@ -2347,7 +2337,7 @@ export default function AccountPermissionPage() {
                         required
                         defaultValue={orgModalTarget?.code || `COMP_TB_${Math.floor(10 + Math.random() * 90)}`}
                         placeholder="如：COMP_TJ_07"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
                   </div>
@@ -2362,7 +2352,7 @@ export default function AccountPermissionPage() {
                         required
                         defaultValue={orgModalTarget?.province || '天津市'}
                         placeholder="如：天津市"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
                     <div className="space-y-1">
@@ -2372,7 +2362,7 @@ export default function AccountPermissionPage() {
                         required
                         defaultValue={orgModalTarget?.city || '武清区京滨工业园'}
                         placeholder="如：武清区京滨工业园"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
                   </div>
@@ -2385,7 +2375,7 @@ export default function AccountPermissionPage() {
                         required
                         defaultValue={orgModalTarget?.manager || '李明'}
                         placeholder="如：李明"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
                     <div className="space-y-1">
@@ -2393,7 +2383,7 @@ export default function AccountPermissionPage() {
                       <input
                         name="managerPhone"
                         defaultValue={orgModalTarget?.managerPhone || '138****6688'}
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
                     <div className="space-y-1">
@@ -2402,7 +2392,7 @@ export default function AccountPermissionPage() {
                         name="meterCount"
                         type="number"
                         defaultValue={orgModalTarget?.meterCount || 100}
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
                   </div>
@@ -2418,7 +2408,7 @@ export default function AccountPermissionPage() {
                       <select
                         name="parentCompanyId"
                         defaultValue={orgModalParentCompanyId}
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                       >
                         {orgCompanies.map((c) => (
                           <option key={c.id} value={c.id}>
@@ -2437,7 +2427,7 @@ export default function AccountPermissionPage() {
                         required
                         defaultValue={orgModalTarget?.name || ''}
                         placeholder="如：超高压换流变智能装配车间"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
 
@@ -2448,7 +2438,7 @@ export default function AccountPermissionPage() {
                         required
                         defaultValue={orgModalTarget?.code || `WS_${Date.now().toString().slice(-4)}`}
                         placeholder="如：WS_TJ_MAIN"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
                   </div>
@@ -2459,7 +2449,7 @@ export default function AccountPermissionPage() {
                       <select
                         name="badge"
                         defaultValue={orgModalTarget?.badge || '主体'}
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                       >
                         <option value="主体">主体制造</option>
                         <option value="智能">智能产线</option>
@@ -2475,7 +2465,7 @@ export default function AccountPermissionPage() {
                         required
                         defaultValue={orgModalTarget?.lead || '张强'}
                         placeholder="如：张强"
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
 
@@ -2485,7 +2475,7 @@ export default function AccountPermissionPage() {
                         name="meters"
                         type="number"
                         defaultValue={orgModalTarget?.meters || 35}
-                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                       />
                     </div>
                   </div>
@@ -2497,7 +2487,7 @@ export default function AccountPermissionPage() {
                       rows={2}
                       defaultValue={orgModalTarget?.craftDesc || '特高压变压器装配、全自动真空干燥窑炉与绝缘油加注试验'}
                       placeholder="描述该车间主要工序的重点用能介质（如高温热风、大功率干燥、立塔挤出等）..."
-                      className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                      className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                     />
                   </div>
                 </>
@@ -2513,7 +2503,7 @@ export default function AccountPermissionPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg bg-[#2C7CFF] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
                 >
                   确认保存
                 </button>
@@ -2574,7 +2564,7 @@ export default function AccountPermissionPage() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <UserPlus className="size-4 text-[#1677ff]" />
+                <UserPlus className="size-4 text-[#2C7CFF]" />
                 {editingUser ? '编辑人员账号与权限' : '新增人员账号'}
               </h3>
               <button
@@ -2595,7 +2585,7 @@ export default function AccountPermissionPage() {
                     required
                     defaultValue={editingUser?.name || ''}
                     placeholder="如：李明"
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                   />
                 </div>
 
@@ -2605,7 +2595,7 @@ export default function AccountPermissionPage() {
                     name="workNo"
                     required
                     defaultValue={editingUser?.workNo || `TB-${Math.floor(10000 + Math.random() * 90000)}`}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                   />
                 </div>
               </div>
@@ -2618,7 +2608,7 @@ export default function AccountPermissionPage() {
                   required
                   defaultValue={editingUser?.account || ''}
                   placeholder="如：liming@tbea.com"
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                 />
               </div>
 
@@ -2628,7 +2618,7 @@ export default function AccountPermissionPage() {
                   <select
                     name="company"
                     defaultValue={editingUser?.company || orgCompanies[0]?.name || '沈变公司'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                   >
                     <option value="电装集团总部">电装集团总部</option>
                     {orgCompanies.map((c) => (
@@ -2645,7 +2635,7 @@ export default function AccountPermissionPage() {
                     name="dept"
                     required
                     defaultValue={editingUser?.dept || '超高压变压器制造部'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                   />
                 </div>
               </div>
@@ -2655,7 +2645,7 @@ export default function AccountPermissionPage() {
                 <select
                   name="roleId"
                   defaultValue={editingUser?.roleId || 'role_park_mgr'}
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                 >
                   {roles.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -2670,7 +2660,7 @@ export default function AccountPermissionPage() {
                 <select
                   name="dataScopeType"
                   defaultValue={editingUser?.dataScopeType || 'company'}
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                 >
                   <option value="all">全集团 (可查阅全部直属公司及下属工厂)</option>
                   <option value="company">本直属公司 (仅本公司及辖区内全部车间)</option>
@@ -2684,7 +2674,7 @@ export default function AccountPermissionPage() {
                   <input
                     name="phone"
                     defaultValue={editingUser?.phone || '13800000000'}
-                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                   />
                 </div>
                 <div className="space-y-1">
@@ -2707,7 +2697,7 @@ export default function AccountPermissionPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg bg-[#2C7CFF] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
                 >
                   确认保存
                 </button>
@@ -2748,7 +2738,7 @@ export default function AccountPermissionPage() {
                   <input
                     value={newPwdVal}
                     onChange={(e) => setNewPwdVal(e.target.value)}
-                    className="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                   />
                   <button
                     type="button"
@@ -2778,7 +2768,7 @@ export default function AccountPermissionPage() {
                     showToast(`已成功为【${pwdTargetUser.name}】重置密码为：${newPwdVal}`)
                     setPwdModalOpen(false)
                   }}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg bg-[#2C7CFF] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
                 >
                   确认重置
                 </button>
@@ -2840,7 +2830,7 @@ export default function AccountPermissionPage() {
                   name="roleName"
                   required
                   placeholder="如：绿电交易核算专员"
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                 />
               </div>
 
@@ -2850,7 +2840,7 @@ export default function AccountPermissionPage() {
                   name="roleCode"
                   required
                   placeholder="如：ROLE_GREEN_POWER_TRADER"
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                 />
               </div>
 
@@ -2860,7 +2850,7 @@ export default function AccountPermissionPage() {
                   name="desc"
                   rows={3}
                   placeholder="描述该角色的业务范围、可操作的子系统模块与职责边界..."
-                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                 />
               </div>
 

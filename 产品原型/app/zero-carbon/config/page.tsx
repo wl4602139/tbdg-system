@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
 export default function Page() {
-  redirect('/zero-carbon/config/factor')
+  redirect('/zero-carbon/config/entry')
 }

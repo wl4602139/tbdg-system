@@ -53,7 +53,6 @@ const ORG_TREE_COMPANIES: OrgTopologyCompany[] = [
     workshops: [
       { id: 'ws_sb_main', name: '沈变本部', badge: '主体' },
       { id: 'ws_sb_luna', name: '露娜智能制造', badge: '智能' },
-      { id: 'ws_sb_zh', name: '智慧能源中心', badge: '综合' },
       { id: 'ws_sb_hx', name: '和新套管公司', badge: '主体' },
       { id: 'ws_sb_kj', name: '康嘉互感器', badge: '主体' },
       { id: 'ws_sb_yn', name: '印能制造分厂', badge: '制造' },
@@ -87,7 +86,6 @@ const ORG_TREE_COMPANIES: OrgTopologyCompany[] = [
       { id: 'ws_xb_zndq', name: '智能电气公司', badge: '主体' },
       { id: 'ws_xb_jjj', name: '京津冀公司', badge: '主体' },
       { id: 'ws_xb_zf', name: '珠峰硅钢', badge: '主体' },
-      { id: 'ws_xb_zhny', name: '智慧能源', badge: '综合' },
       { id: 'ws_xb_yl', name: '银利电气', badge: '制造' },
     ],
   },
@@ -387,14 +385,11 @@ export default function InterfaceConfigPage() {
       {/* 顶部 Header */}
       <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1677ff] shrink-0">
+          <div className="size-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2C7CFF] shrink-0">
             <Plug className="size-5" />
           </div>
           <div>
             <h1 className="text-base font-bold text-slate-800">接口配置管理</h1>
-            <p className="text-xs text-slate-500 font-sans">
-              维护各直属制造单位 SCADA / MES / EMS / IoT 子系统连接参数、字段映射转换规则、连通性探测与变更审计日志
-            </p>
           </div>
         </div>
 
@@ -407,7 +402,7 @@ export default function InterfaceConfigPage() {
               setTreeSelectOpen(false)
               setEditIfModalOpen(true)
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2C7CFF] hover:bg-blue-600 text-white font-semibold text-xs cursor-pointer shadow-xs transition-colors"
           >
             <Plus className="size-3.5" />
             <span>接入新子系统接口</span>
@@ -444,7 +439,7 @@ export default function InterfaceConfigPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'interfaces'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
+              ? 'bg-blue-50 text-[#2C7CFF] font-bold border border-blue-200 shadow-2xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           )}
         >
@@ -458,7 +453,7 @@ export default function InterfaceConfigPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'mapping'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
+              ? 'bg-blue-50 text-[#2C7CFF] font-bold border border-blue-200 shadow-2xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           )}
         >
@@ -472,7 +467,7 @@ export default function InterfaceConfigPage() {
           className={cn(
             'flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer select-none',
             activeTab === 'audit'
-              ? 'bg-blue-50 text-[#1677ff] font-bold border border-blue-200 shadow-2xs'
+              ? 'bg-blue-50 text-[#2C7CFF] font-bold border border-blue-200 shadow-2xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           )}
         >
@@ -489,7 +484,7 @@ export default function InterfaceConfigPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold h-[44px]">
                   <th className="py-2.5 px-3">所属单位 / 接入工厂</th>
                   <th className="py-2.5 px-3">接口访问地址 (URL)</th>
                   <th className="py-2.5 px-3">通信协议</th>
@@ -503,7 +498,7 @@ export default function InterfaceConfigPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {interfaces.map((item) => (
-                  <tr key={item.id} className="hover:bg-blue-50/40 transition-colors">
+                  <tr key={item.id} className="hover:bg-blue-50/40 transition-colors h-[44px]">
                     <td className="py-3 px-3">
                       <div className="font-bold text-slate-900">{item.factory}</div>
                     </td>
@@ -553,7 +548,7 @@ export default function InterfaceConfigPage() {
                             setSelectedIf(item)
                             setMappingDrawerOpen(true)
                           }}
-                          className="text-[#1677ff] hover:underline font-medium cursor-pointer"
+                          className="text-[#2C7CFF] hover:underline font-medium cursor-pointer"
                         >
                           字段映射 ({item.fieldCount})
                         </button>
@@ -596,18 +591,15 @@ export default function InterfaceConfigPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
             <div>
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <ArrowRightLeft className="size-4 text-[#1677ff]" />
+                <ArrowRightLeft className="size-4 text-[#2C7CFF]" />
                 工厂侧原始数据字段 ➔ 平台标准统一字段映射与单位换算
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                支持在数据接收时自动完成计量单位换算（如 GJ 换算为吨、Nm³ 标准方修正、万度折算等）
-              </p>
             </div>
 
             <button
               type="button"
               onClick={() => showToast('已成功保存并重新编译字段映射转换规则！')}
-              className="px-3.5 py-1.5 bg-[#1677ff] hover:bg-blue-600 text-white font-bold text-xs rounded-lg shadow-xs cursor-pointer"
+              className="px-3.5 py-1.5 bg-[#2C7CFF] hover:bg-blue-600 text-white font-bold text-xs rounded-lg shadow-xs cursor-pointer"
             >
               保存映射规则
             </button>
@@ -616,7 +608,7 @@ export default function InterfaceConfigPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold h-[44px]">
                   <th className="py-2.5 px-3">工厂原始数据项 / 采集单位</th>
                   <th className="py-2.5 px-3">平台标准指标项 / 目标单位</th>
                   <th className="py-2.5 px-3">单位换算 / 转换公式</th>
@@ -626,14 +618,14 @@ export default function InterfaceConfigPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {mappings.map((row) => (
-                  <tr key={row.id} className="hover:bg-blue-50/30 transition-colors">
+                  <tr key={row.id} className="hover:bg-blue-50/30 transition-colors h-[44px]">
                     <td className="py-3 px-3">
                       <div className="font-bold text-slate-900">{row.sourceFieldName}</div>
                       <span className="text-[10px] bg-slate-100 text-slate-600 px-1 rounded font-mono mt-0.5 inline-block">{row.sourceUnit}</span>
                     </td>
                     <td className="py-3 px-3">
                       <div className="font-bold text-slate-900">{row.targetFieldName}</div>
-                      <span className="text-[10px] bg-blue-100 text-[#1677ff] px-1 rounded font-mono mt-0.5 inline-block">{row.targetUnit}</span>
+                      <span className="text-[10px] bg-blue-100 text-[#2C7CFF] px-1 rounded font-mono mt-0.5 inline-block">{row.targetUnit}</span>
                     </td>
                     <td className="py-3 px-3 font-mono text-purple-700 font-bold">
                       <span className="bg-purple-50 px-2 py-0.5 rounded border border-purple-200/60 inline-block">{row.transformRule}</span>
@@ -661,18 +653,15 @@ export default function InterfaceConfigPage() {
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-4">
           <div className="pb-3 border-b border-slate-100">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <History className="size-4 text-[#1677ff]" />
+              <History className="size-4 text-[#2C7CFF]" />
               子系统接口参数变更与操作留痕审计
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              记录所有接口 URL、协议、认证密钥轮转、字段映射变动的操作人与 IP，不可篡改
-            </p>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold h-[44px]">
                   <th className="py-2.5 px-3">时间</th>
                   <th className="py-2.5 px-3">操作人</th>
                   <th className="py-2.5 px-3">操作类型</th>
@@ -682,11 +671,11 @@ export default function InterfaceConfigPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {INITIAL_LOGS.map((log) => (
-                  <tr key={log.id} className="hover:bg-blue-50/30 transition-colors">
+                  <tr key={log.id} className="hover:bg-blue-50/30 transition-colors h-[44px]">
                     <td className="py-3 px-3 font-mono text-slate-500">{log.time}</td>
                     <td className="py-3 px-3 font-bold text-slate-900">{log.user}</td>
                     <td className="py-3 px-3">
-                      <span className="bg-blue-50 text-[#1677ff] border border-blue-200 px-2 py-0.5 rounded text-[11px] font-medium">
+                      <span className="bg-blue-50 text-[#2C7CFF] border border-blue-200 px-2 py-0.5 rounded text-[11px] font-medium">
                         {log.action}
                       </span>
                     </td>
@@ -753,7 +742,7 @@ export default function InterfaceConfigPage() {
                 <button
                   type="button"
                   onClick={() => setTestModalOpen(false)}
-                  className="px-4 py-1.5 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg bg-[#2C7CFF] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer"
                 >
                   关闭
                 </button>
@@ -771,7 +760,7 @@ export default function InterfaceConfigPage() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full overflow-hidden animate-in fade-in zoom-in-95">
             <div className="px-6 py-4.5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <Settings className="size-4 text-[#1677ff]" />
+                <Settings className="size-4 text-[#2C7CFF]" />
                 {editingIf ? '编辑子系统接口连接参数' : '接入新子系统接口'}
               </h3>
               <button
@@ -800,10 +789,10 @@ export default function InterfaceConfigPage() {
                   <button
                     type="button"
                     onClick={() => setTreeSelectOpen(!treeSelectOpen)}
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs flex items-center justify-between text-left focus:outline-none focus:border-[#1677ff] cursor-pointer transition-all hover:border-slate-300"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs flex items-center justify-between text-left focus:outline-none focus:border-[#2C7CFF] cursor-pointer transition-all hover:border-slate-300"
                   >
                     <div className="flex items-center gap-1.5 truncate">
-                      <Factory className="size-3.5 text-[#1677ff] shrink-0" />
+                      <Factory className="size-3.5 text-[#2C7CFF] shrink-0" />
                       <span className="font-bold text-slate-800 truncate">{selectedFactoryVal}</span>
                     </div>
                     <ChevronDown className={cn("size-3.5 text-slate-400 shrink-0 transition-transform", treeSelectOpen && "rotate-180")} />
@@ -820,7 +809,7 @@ export default function InterfaceConfigPage() {
                           placeholder="搜索公司或车间..."
                           value={treeSelectSearch}
                           onChange={(e) => setTreeSelectSearch(e.target.value)}
-                          className="w-full pl-7 pr-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] focus:outline-none focus:border-[#1677ff]"
+                          className="w-full pl-7 pr-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] focus:outline-none focus:border-[#2C7CFF]"
                         />
                       </div>
 
@@ -868,7 +857,7 @@ export default function InterfaceConfigPage() {
                                   >
                                     {isCompExpanded ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
                                   </button>
-                                  <Folder className="size-3.5 text-[#1677ff]" />
+                                  <Folder className="size-3.5 text-[#2C7CFF]" />
                                   <span>{comp.name}</span>
                                   <span className="text-[10px] text-slate-400 font-mono font-normal">({comp.province})</span>
                                 </div>
@@ -893,12 +882,12 @@ export default function InterfaceConfigPage() {
                                         className={cn(
                                           "flex items-center justify-between py-1 px-2 rounded-lg cursor-pointer text-[11px] transition-colors",
                                           isSelected
-                                            ? "bg-blue-50 text-[#1677ff] font-bold"
+                                            ? "bg-blue-50 text-[#2C7CFF] font-bold"
                                             : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                                         )}
                                       >
                                         <div className="flex items-center gap-1.5">
-                                          <Factory className={cn("size-3", isSelected ? "text-[#1677ff]" : "text-slate-400")} />
+                                          <Factory className={cn("size-3", isSelected ? "text-[#2C7CFF]" : "text-slate-400")} />
                                           <span>{ws.name}</span>
                                         </div>
                                         <span className="text-[9px] bg-slate-100 text-slate-500 px-1 rounded font-mono">
@@ -921,7 +910,7 @@ export default function InterfaceConfigPage() {
                   <label className="text-slate-700 font-medium">系统类型 *</label>
                   <select
                     defaultValue={editingIf?.systemType || 'SCADA'}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                   >
                     <option value="SCADA">SCADA 自动化监控</option>
                     <option value="MES">MES 生产执行系统</option>
@@ -937,7 +926,7 @@ export default function InterfaceConfigPage() {
                 <input
                   defaultValue={editingIf?.url || 'https://api.factory.tbea.local/v1/metrics'}
                   required
-                  className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                  className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                 />
               </div>
 
@@ -946,7 +935,7 @@ export default function InterfaceConfigPage() {
                   <label className="text-slate-700 font-medium">通信协议 *</label>
                   <select
                     defaultValue={editingIf?.protocol || 'RESTful API'}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                   >
                     <option value="RESTful API">RESTful API (HTTPS/JSON)</option>
                     <option value="MQTT">MQTT 消息流 (TCP/SSL)</option>
@@ -960,7 +949,7 @@ export default function InterfaceConfigPage() {
                   <label className="text-slate-700 font-medium">认证方式 *</label>
                   <select
                     defaultValue={editingIf?.authType || 'Bearer Token'}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                   >
                     <option value="Bearer Token">Bearer Token</option>
                     <option value="AppKey & AppSecret">AppKey & AppSecret</option>
@@ -977,7 +966,7 @@ export default function InterfaceConfigPage() {
                   <input
                     type="number"
                     defaultValue={editingIf?.timeoutSec || 15}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                   />
                 </div>
 
@@ -986,7 +975,7 @@ export default function InterfaceConfigPage() {
                   <input
                     type="number"
                     defaultValue={editingIf?.retryCount || 3}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#2C7CFF]"
                   />
                 </div>
 
@@ -994,7 +983,7 @@ export default function InterfaceConfigPage() {
                   <label className="text-slate-700 font-medium">重试策略</label>
                   <select
                     defaultValue={editingIf?.retryStrategy || '指数退避'}
-                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#1677ff]"
+                    className="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#2C7CFF]"
                   >
                     <option value="指数退避">指数退避 (推荐)</option>
                     <option value="线性重试">线性重试</option>
@@ -1013,7 +1002,7 @@ export default function InterfaceConfigPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-[#1677ff] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
+                  className="px-5 py-2 rounded-lg bg-[#2C7CFF] hover:bg-blue-600 text-white text-xs font-bold shadow-xs cursor-pointer transition-colors"
                 >
                   确认保存
                 </button>
@@ -1032,10 +1021,9 @@ export default function InterfaceConfigPage() {
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                  <ArrowRightLeft className="size-4 text-[#1677ff]" />
+                  <ArrowRightLeft className="size-4 text-[#2C7CFF]" />
                   【{selectedIf.factory}】字段映射规则
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">{selectedIf.systemName}</p>
               </div>
               <button
                 type="button"
@@ -1052,7 +1040,7 @@ export default function InterfaceConfigPage() {
                 <button
                   type="button"
                   onClick={() => showToast('已添加新字段映射规则')}
-                  className="text-xs text-[#1677ff] font-bold hover:underline cursor-pointer"
+                  className="text-xs text-[#2C7CFF] font-bold hover:underline cursor-pointer"
                 >
                   + 添加映射字段
                 </button>
@@ -1064,7 +1052,7 @@ export default function InterfaceConfigPage() {
                     <div className="flex items-center justify-between">
                       <span className="font-mono font-bold text-slate-800">{m.sourceField} ({m.sourceFieldName})</span>
                       <span className="text-slate-400">➔</span>
-                      <span className="font-mono font-bold text-[#1677ff]">{m.targetField} ({m.targetFieldName})</span>
+                      <span className="font-mono font-bold text-[#2C7CFF]">{m.targetField} ({m.targetFieldName})</span>
                     </div>
                     <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200/60 font-mono">
                       <span>转换公式: <strong className="text-purple-700">{m.transformRule}</strong></span>
@@ -1079,7 +1067,7 @@ export default function InterfaceConfigPage() {
               <button
                 type="button"
                 onClick={() => setMappingDrawerOpen(false)}
-                className="px-4 py-1.5 bg-[#1677ff] hover:bg-blue-600 text-white rounded-lg font-bold text-xs shadow-xs cursor-pointer"
+                className="px-4 py-1.5 bg-[#2C7CFF] hover:bg-blue-600 text-white rounded-lg font-bold text-xs shadow-xs cursor-pointer"
               >
                 完成
               </button>

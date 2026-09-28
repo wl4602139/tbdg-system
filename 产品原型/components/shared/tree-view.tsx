@@ -188,7 +188,7 @@ export function TreeView({
           className={cn(
             'group relative flex min-h-[28px] cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 transition-all duration-150',
             isSelected
-              ? 'bg-[#e6f4ff] font-semibold text-[#1677ff] shadow-xs'
+              ? 'bg-[#e6f4ff] font-semibold text-[#2C7CFF] shadow-xs'
               : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900'
           )}
           style={{ paddingLeft: `${depth * 18 + 6}px` }}
@@ -215,7 +215,7 @@ export function TreeView({
           >
             {hasChildren ? (
               <ChevronRight
-                className={cn('size-3.5 transition-transform duration-150', open && 'rotate-90 text-[#1677ff]')}
+                className={cn('size-3.5 transition-transform duration-150', open && 'rotate-90 text-[#2C7CFF]')}
               />
             ) : (
               <span className="size-1.5 rounded-full bg-slate-300" />
@@ -226,7 +226,7 @@ export function TreeView({
           {node.icon !== undefined ? (
             <span className="flex shrink-0 items-center justify-center text-xs">{node.icon}</span>
           ) : hasChildren ? (
-            <span className="flex shrink-0 items-center text-[#1677ff]">
+            <span className="flex shrink-0 items-center text-[#2C7CFF]">
               {open ? <FolderOpen className="size-3.5" /> : <Folder className="size-3.5" />}
             </span>
           ) : null}
@@ -272,20 +272,22 @@ export function TreeView({
       {/* 头部标题与控制栏 */}
       {(headerTitle || showControls) && (
         <div className="flex items-center justify-between px-3 py-2.5 bg-slate-50/80 border-b border-slate-200 shrink-0">
-          <div className="flex items-center gap-1.5 overflow-hidden">
-            <Layers className="size-3.5 text-[#1677ff] shrink-0" />
-            <span className="text-xs font-bold text-slate-800 truncate">{headerTitle || '组织拓扑树'}</span>
-            {headerSubtitle && (
-              <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">{headerSubtitle}</span>
-            )}
-          </div>
+          {headerTitle && (
+            <div className="flex items-center gap-1.5 overflow-hidden">
+              <Layers className="size-3.5 text-[#2C7CFF] shrink-0" />
+              <span className="text-xs font-bold text-slate-800 truncate">{headerTitle}</span>
+              {headerSubtitle && (
+                <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">{headerSubtitle}</span>
+              )}
+            </div>
+          )}
 
           {showControls && (
             <div className="flex items-center gap-1 shrink-0 text-[11px]">
               <button
                 type="button"
                 onClick={handleExpandAll}
-                className="px-1.5 py-0.5 rounded text-slate-500 hover:text-[#1677ff] hover:bg-slate-100 transition-colors flex items-center gap-0.5"
+                className="px-1.5 py-0.5 rounded text-slate-500 hover:text-[#2C7CFF] hover:bg-slate-100 transition-colors flex items-center gap-0.5"
                 title="全部展开"
               >
                 <PlusSquare className="size-3" />
@@ -295,7 +297,7 @@ export function TreeView({
               <button
                 type="button"
                 onClick={handleCollapseAll}
-                className="px-1.5 py-0.5 rounded text-slate-500 hover:text-[#1677ff] hover:bg-slate-100 transition-colors flex items-center gap-0.5"
+                className="px-1.5 py-0.5 rounded text-slate-500 hover:text-[#2C7CFF] hover:bg-slate-100 transition-colors flex items-center gap-0.5"
                 title="全部折叠"
               >
                 <MinusSquare className="size-3" />
@@ -316,7 +318,7 @@ export function TreeView({
               value={searchKw}
               onChange={(e) => setSearchKw(e.target.value)}
               placeholder={searchPlaceholder}
-              className="w-full bg-slate-50 border border-slate-200 rounded-md py-1.5 pl-8 pr-7 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-[#1677ff] focus:outline-none transition-all"
+              className="w-full bg-slate-50 border border-slate-200 rounded-md py-1.5 pl-8 pr-7 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-[#2C7CFF] focus:outline-none transition-all"
             />
             {searchKw && (
               <button
@@ -378,7 +380,7 @@ export function OrgTopologyTree({
 
       let iconNode: ReactNode = '🏭'
       if (isGroup) {
-        iconNode = <Building2 className="size-3.5 text-[#1677ff]" />
+        iconNode = <Building2 className="size-3.5 text-[#2C7CFF]" />
       } else if (isIndustry) {
         iconNode = <Layers className={cn('size-3.5', node.industry === 'cable' ? 'text-emerald-600' : 'text-blue-500')} />
       } else if (isCompany) {

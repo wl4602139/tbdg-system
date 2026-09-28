@@ -53,7 +53,7 @@
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
 
   /* 特变电工官方企业蓝与现代明亮工业底色 (TBEA Official Energy Management System Style) */
-  --background: #f0f2f5;          /* 经典浅灰蓝底色 */
+  --background: #F3F7FB;          /* 清爽柔和浅灰蓝底色 */
   --foreground: #1f2937;          /* 高对比度主文本深色 */
 
   --panel: #ffffff;
@@ -66,7 +66,7 @@
   --popover-foreground: #1f2937;
 
   /* 特变企业主色与业务语义色 */
-  --primary: #1677ff;             /* TBEA 标志性皇家科技蓝 */
+  --primary: #2C7CFF;             /* TBEA 标志性科技蓝 */
   --primary-foreground: #ffffff;
 
   --secondary: #f1f5f9;
@@ -75,27 +75,43 @@
   --muted: #f8fafc;
   --muted-foreground: #64748b;
 
-  --accent: #e6f4ff;             /* 选中浅蓝底色 */
-  --accent-foreground: #0958d9;
+  --accent: #EBF3FF;             /* 选中浅蓝底色 */
+  --accent-foreground: #2C7CFF;
 
-  --destructive: #f5222d;         /* 警报红 */
-  --success: #52c41a;             /* 低碳翡翠绿 / 达标绿 */
-  --warning: #fa8c16;             /* 预警橙 */
+  --destructive: #FF6536;         /* 警报红/尖 */
+  --success: #00D492;             /* 低碳翡翠绿 / 达标绿 */
+  --warning: #FFBA00;             /* 预警橙 / 峰 */
 
-  --border: #e2e8f0;             /* 清晰干净的 1px 分割线 */
-  --input: #d9d9d9;
-  --ring: rgba(22, 119, 255, 0.4);
+  --border: #DBE6EE;             /* 精细浅蓝灰边框 */
+  --input: #E2E8F0;
+  --ring: rgba(44, 124, 255, 0.4);
   --grid-line: #f1f5f9;
 
-  --chart-1: #1677ff;             /* 电力/主负荷 - TBEA蓝 */
-  --chart-2: #52c41a;             /* 绿电/光伏 - 清新绿 */
-  --chart-3: #fa8c16;             /* 储能/天然气 - 暖橙 */
-  --chart-4: #13c2c2;             /* 工业水 - 湖蓝 */
-  --chart-5: #722ed1;             /* 蒸汽/压缩空气 - 优雅紫 */
+  /* 8 大能源介质官方标准色 */
+  --color-electricity: #2C7CFF;   /* 总用电量 */
+  --color-grid: #41C0FF;          /* 市电量 */
+  --color-green-power: #00D492;   /* 直供绿电量 */
+  --color-water: #10C4CE;         /* 水资源 */
+  --color-gas: #FF6536;           /* 天然气 */
+  --color-steam: #FFBA00;         /* 蒸汽 */
+  --color-diesel: #8E73ED;        /* 油消耗 */
+  --color-nitrogen: #4F39F6;      /* 液氮 */
+
+  /* TOU 4 段分时电量官方标准色 */
+  --color-tou-sharp: #FF6536;     /* 尖 */
+  --color-tou-peak: #FFBA00;      /* 峰 */
+  --color-tou-flat: #2C7CFF;      /* 平 */
+  --color-tou-valley: #10C4CE;    /* 谷 */
+
+  --chart-1: #2C7CFF;             /* 电力/主负荷 - TBEA蓝 */
+  --chart-2: #00D492;             /* 绿电/光伏 - 清新绿 */
+  --chart-3: #FFBA00;             /* 储能/天然气 - 暖橙 */
+  --chart-4: #10C4CE;             /* 工业水 - 湖蓝 */
+  --chart-5: #8E73ED;             /* 蒸汽/油消耗 - 优雅紫 */
 
   --sidebar: #0958d9;             /* 左侧经典深蓝背景 */
   --sidebar-foreground: #ffffff;
-  --sidebar-accent: #1677ff;
+  --sidebar-accent: #2C7CFF;
   --sidebar-border: rgba(255, 255, 255, 0.12);
 }
 
@@ -142,3 +158,739 @@
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ============================================================ */
+/* 🌟 特变电工能碳数字化双中心 · 深色科技蓝皮肤规范 (Dark Tech-Blue Theme) */
+/* 严格与 3000 原生深色版本 100% 完整对齐 (OKLCH 高精色彩与 44px 科技网格) */
+/* ============================================================ */
+
+.dark {
+  color-scheme: dark;
+  --radius: 0.5rem;
+
+  /* Deep tech-blue base (与 3000 原生深色版本 100% 完全对齐) */
+  --background: oklch(0.16 0.03 250);
+  --foreground: oklch(0.92 0.02 240);
+
+  --panel: oklch(0.22 0.035 250 / 65%);
+  --panel-foreground: oklch(0.92 0.02 240);
+
+  --card: oklch(0.23 0.035 250 / 70%);
+  --card-foreground: oklch(0.92 0.02 240);
+
+  --popover: oklch(0.2 0.035 252);
+  --popover-foreground: oklch(0.92 0.02 240);
+
+  /* Cyan-blue brand accent */
+  --primary: oklch(0.72 0.15 220);
+  --primary-foreground: oklch(0.14 0.03 250);
+
+  --secondary: oklch(0.28 0.04 250);
+  --secondary-foreground: oklch(0.9 0.02 240);
+
+  --muted: oklch(0.26 0.03 250);
+  --muted-foreground: oklch(0.68 0.03 235);
+
+  --accent: oklch(0.32 0.06 235);
+  --accent-foreground: oklch(0.95 0.02 230);
+
+  --destructive: oklch(0.62 0.2 20);
+  --success: oklch(0.72 0.16 155);
+  --warning: oklch(0.78 0.15 75);
+
+  --border: oklch(0.72 0.12 220 / 18%);
+  --input: oklch(0.72 0.12 220 / 22%);
+  --ring: oklch(0.72 0.15 220 / 60%);
+  --grid-line: oklch(0.72 0.12 220 / 10%);
+
+  --chart-1: oklch(0.72 0.15 220);
+  --chart-2: oklch(0.72 0.16 155);
+  --chart-3: oklch(0.78 0.15 75);
+  --chart-4: oklch(0.68 0.15 300);
+  --chart-5: oklch(0.65 0.18 20);
+
+  --sidebar: oklch(0.18 0.03 252 / 80%);
+  --sidebar-foreground: oklch(0.85 0.02 240);
+  --sidebar-accent: oklch(0.32 0.07 225);
+  --sidebar-border: oklch(0.72 0.12 220 / 14%);
+}
+
+/* 3000 原生科技网格与质感光流扩展 */
+.dark .tech-grid,
+.dark body,
+.dark .bg-\[\#F3F7FB\] {
+  background-color: var(--background) !important;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) !important;
+  background-size: 44px 44px !important;
+  color: var(--foreground) !important;
+}
+
+.dark .tech-radial {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, oklch(0.4 0.12 225 / 45%), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 100% 100%, oklch(0.35 0.1 260 / 35%), transparent 70%) !important;
+}
+
+.dark .glow-border {
+  box-shadow: 0 0 0 1px var(--border), 0 0 24px -8px oklch(0.72 0.15 220 / 40%) !important;
+}
+
+.dark .text-glow {
+  text-shadow: 0 0 24px oklch(0.72 0.2 220 / 55%) !important;
+}
+
+/* 深色模式下的顶栏主容器 */
+.dark header {
+  background-color: oklch(0.16 0.03 250 / 85%) !important;
+  border-color: var(--border) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* 深色模式下的左侧主侧边栏 */
+.dark aside {
+  background-color: var(--sidebar) !important;
+  border-color: var(--sidebar-border) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.dark aside .bg-\[\#003eb3\]\/60 {
+  background-color: var(--sidebar) !important;
+  border-color: var(--sidebar-border) !important;
+}
+
+.dark aside .text-blue-100,
+.dark aside .text-blue-200 {
+  color: var(--sidebar-foreground) !important;
+}
+
+.dark aside .border-blue-400\/40,
+.dark aside .border-blue-400\/20 {
+  border-color: var(--sidebar-border) !important;
+}
+
+.dark aside a.bg-\[\#2C7CFF\],
+.dark aside a.bg-primary {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+}
+
+.dark aside button.bg-blue-700\/60 {
+  background-color: oklch(0.32 0.07 225 / 40%) !important;
+  color: var(--primary) !important;
+}
+
+/* 深色模式下的全局白底面板与卡片 (完全对齐 3000 毛玻璃深蓝卡片) */
+.dark .bg-white,
+.dark .tbea-card {
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground) !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 1px 0 0 oklch(0.8 0.1 220 / 8%) inset !important;
+}
+
+.dark .tbea-card:hover,
+.dark .bg-white.hover\:border-\[\#2C7CFF\]:hover {
+  border-color: oklch(0.72 0.15 220 / 50%) !important;
+  box-shadow: 0 0 20px -6px oklch(0.72 0.15 220 / 30%) !important;
+}
+
+/* 次级与弱底容器 */
+.dark .bg-slate-50,
+.dark .bg-slate-50\/90,
+.dark .bg-slate-50\/80,
+.dark .bg-slate-50\/70,
+.dark .bg-slate-50\/60,
+.dark .bg-slate-50\/50,
+.dark .bg-slate-50\/40,
+.dark .bg-slate-50\/30,
+.dark .bg-slate-50\/20,
+.dark .bg-slate-50\/10,
+.dark .bg-slate-100,
+.dark .bg-slate-100\/90,
+.dark .bg-slate-100\/80,
+.dark .bg-slate-100\/70,
+.dark .bg-slate-100\/50,
+.dark .bg-\[\#fafbfc\] {
+  background-color: var(--panel) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* 🌟 深色模式悬停背景防护：防止 hover:bg-slate-50 / hover:bg-slate-100 等在深色下呈现刺眼亮白底导致文字对比度失效 */
+.dark .hover\:bg-slate-50:not([class*="dark:hover:bg-"]):hover,
+.dark .hover\:bg-slate-100:not([class*="dark:hover:bg-"]):hover,
+.dark .hover\:bg-gray-50:not([class*="dark:hover:bg-"]):hover,
+.dark .hover\:bg-gray-100:not([class*="dark:hover:bg-"]):hover,
+.dark .hover\:bg-blue-50:not([class*="dark:hover:bg-"]):hover,
+.dark .hover\:bg-blue-50\/50:not([class*="dark:hover:bg-"]):hover,
+.dark .hover\:bg-rose-50:not([class*="dark:hover:bg-"]):hover {
+  background-color: oklch(0.28 0.04 250 / 80%) !important;
+}
+
+/* 统一边框线 */
+.dark .border-slate-200,
+.dark .border-slate-100,
+.dark .border-slate-200\/80,
+.dark .border-slate-300,
+.dark .border-\[\#DBE6EE\],
+.dark .border-\[\#E2E8F0\] {
+  border-color: var(--border) !important;
+}
+
+/* 文本层级严格对齐 3000 */
+.dark .text-slate-950,
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-gray-900,
+.dark .text-gray-800 {
+  color: var(--foreground) !important;
+}
+
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-gray-600,
+.dark .text-gray-500 {
+  color: var(--muted-foreground) !important;
+}
+
+.dark .text-slate-400,
+.dark .text-slate-300,
+.dark .text-gray-400 {
+  color: oklch(0.55 0.03 240) !important;
+}
+
+/* 科技蓝主色在深色下升维为发光青蓝 */
+.dark .text-\[\#2C7CFF\],
+.dark .text-blue-600,
+.dark .text-blue-500 {
+  color: var(--primary) !important;
+}
+
+/* 工作区主操作按钮与实心 Tab 严格保留特变科技蓝 #2C7CFF 与纯白文字，对齐 3000 规范 */
+.dark button.bg-\[\#2C7CFF\]:not(aside button),
+.dark .bg-\[\#2C7CFF\].text-white:not(aside *),
+.dark a.bg-\[\#2C7CFF\]:not(aside a) {
+  background-color: #2C7CFF !important;
+  color: #ffffff !important;
+}
+
+.dark button.bg-\[\#2C7CFF\]:not(aside button):hover,
+.dark a.bg-\[\#2C7CFF\]:not(aside a):hover {
+  background-color: #1f6be8 !important;
+}
+
+.dark button.bg-\[\#2C7CFF\]:not(aside button) svg,
+.dark .bg-\[\#2C7CFF\].text-white:not(aside *) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.dark .border-\[\#2C7CFF\] {
+  border-color: var(--primary) !important;
+}
+
+/* 实时监控与项目运行评估 模块切换 Tab 激活高亮 (100% 对齐图 2 样式) */
+.tbea-tab-cyan-active {
+  background-color: #ffffff !important;
+  color: #2C7CFF !important;
+}
+.dark .tbea-tab-cyan-active,
+.dark button.tbea-tab-cyan-active {
+  background-color: #00B9E5 !important;
+  color: #0d1a28 !important;
+}
+.dark .tbea-tab-cyan-active span,
+.dark button.tbea-tab-cyan-active span {
+  color: #0d1a28 !important;
+}
+/* 更多项目浮层面板强制不透明与深度阴影 (彻底避免透光与被遮挡) */
+.tbea-popover-panel {
+  background-color: #ffffff !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+}
+.dark .tbea-popover-panel {
+  background-color: #0c1826 !important;
+  border-color: #1e3b56 !important;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(30, 59, 86, 0.7) !important;
+}
+
+/* 激活选中胶囊、Header 图标容器与 8 大能源介质高亮容器深色适配 (完全对齐 3000 微透高质感科技色块) */
+.dark .bg-blue-50,
+.dark .bg-blue-50\/90,
+.dark .bg-blue-50\/80,
+.dark .bg-blue-50\/70,
+.dark .bg-blue-50\/60,
+.dark .bg-blue-50\/50,
+.dark .bg-blue-50\/40,
+.dark .bg-blue-50\/30,
+.dark .bg-blue-50\/20,
+.dark .bg-blue-50\/10,
+.dark .bg-\[\#e6f4ff\],
+.dark .bg-\[\#EBF3FF\] {
+  background-color: rgba(44, 124, 255, 0.15) !important;
+  color: var(--primary) !important;
+}
+
+.dark .bg-sky-50,
+.dark .bg-sky-50\/90,
+.dark .bg-sky-50\/80,
+.dark .bg-sky-50\/70,
+.dark .bg-sky-50\/60,
+.dark .bg-sky-50\/50,
+.dark .bg-sky-50\/40,
+.dark .bg-sky-50\/30 {
+  background-color: rgba(65, 192, 255, 0.15) !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-emerald-50\/90,
+.dark .bg-emerald-50\/80,
+.dark .bg-emerald-50\/70,
+.dark .bg-emerald-50\/60,
+.dark .bg-emerald-50\/50,
+.dark .bg-emerald-50\/40,
+.dark .bg-emerald-50\/30 {
+  background-color: rgba(0, 212, 146, 0.15) !important;
+}
+
+.dark .bg-cyan-50,
+.dark .bg-cyan-50\/90,
+.dark .bg-cyan-50\/80,
+.dark .bg-cyan-50\/70,
+.dark .bg-cyan-50\/60,
+.dark .bg-cyan-50\/50,
+.dark .bg-cyan-50\/40,
+.dark .bg-cyan-50\/30 {
+  background-color: rgba(16, 196, 206, 0.15) !important;
+}
+
+.dark .bg-orange-50,
+.dark .bg-orange-50\/90,
+.dark .bg-orange-50\/80,
+.dark .bg-orange-50\/70,
+.dark .bg-orange-50\/60,
+.dark .bg-orange-50\/50,
+.dark .bg-orange-50\/40,
+.dark .bg-orange-50\/30 {
+  background-color: rgba(255, 101, 54, 0.15) !important;
+}
+
+.dark .bg-amber-50,
+.dark .bg-amber-50\/90,
+.dark .bg-amber-50\/80,
+.dark .bg-amber-50\/70,
+.dark .bg-amber-50\/60,
+.dark .bg-amber-50\/50,
+.dark .bg-amber-50\/40,
+.dark .bg-amber-50\/30,
+.dark .bg-amber-50\/20,
+.dark .bg-amber-100 {
+  background-color: rgba(255, 186, 0, 0.15) !important;
+}
+
+.dark .bg-purple-50,
+.dark .bg-purple-50\/90,
+.dark .bg-purple-50\/80,
+.dark .bg-purple-50\/70,
+.dark .bg-purple-50\/60,
+.dark .bg-purple-50\/50,
+.dark .bg-purple-50\/40,
+.dark .bg-purple-50\/30 {
+  background-color: rgba(142, 115, 237, 0.15) !important;
+}
+
+.dark .bg-indigo-50,
+.dark .bg-indigo-50\/90,
+.dark .bg-indigo-50\/80,
+.dark .bg-indigo-50\/70,
+.dark .bg-indigo-50\/60,
+.dark .bg-indigo-50\/50,
+.dark .bg-indigo-50\/40,
+.dark .bg-indigo-50\/30 {
+  background-color: rgba(79, 57, 246, 0.15) !important;
+}
+
+.dark .text-orange-900,
+.dark .text-orange-800,
+.dark .text-orange-700 {
+  color: #FF6536 !important;
+}
+
+.dark .text-amber-900,
+.dark .text-amber-800,
+.dark .text-amber-700 {
+  color: #FFBA00 !important;
+}
+
+.dark .text-cyan-900,
+.dark .text-cyan-800,
+.dark .text-cyan-700 {
+  color: #10C4CE !important;
+}
+
+.dark .text-blue-900,
+.dark .text-blue-800,
+.dark .text-blue-700 {
+  color: var(--primary) !important;
+}
+
+.dark .text-emerald-900,
+.dark .text-emerald-800,
+.dark .text-emerald-700 {
+  color: #00D492 !important;
+}
+
+.dark .text-purple-900,
+.dark .text-purple-800,
+.dark .text-purple-700 {
+  color: #8E73ED !important;
+}
+
+.dark .text-indigo-900,
+.dark .text-indigo-800,
+.dark .text-indigo-700 {
+  color: #4F39F6 !important;
+}
+
+.dark .bg-blue-100,
+.dark .bg-blue-100\/70,
+.dark .bg-blue-100\/60,
+.dark .bg-blue-100\/50,
+.dark .bg-blue-500\/10 {
+  background-color: oklch(0.72 0.15 220 / 20%) !important;
+  color: var(--primary) !important;
+}
+
+.dark .border-blue-200,
+.dark .border-blue-100,
+.dark .border-blue-300,
+.dark .border-blue-200\/80,
+.dark .border-indigo-200,
+.dark .border-indigo-100,
+.dark .border-purple-200,
+.dark .border-purple-100,
+.dark .border-emerald-200,
+.dark .border-emerald-100,
+.dark .border-sky-200,
+.dark .border-sky-100,
+.dark .border-cyan-200,
+.dark .border-cyan-100 {
+  border-color: oklch(0.72 0.12 220 / 25%) !important;
+}
+
+.dark .ring-blue-300,
+.dark .ring-blue-300\/80,
+.dark .ring-blue-300\/60 {
+  --tw-ring-color: oklch(0.72 0.15 220 / 40%) !important;
+}
+
+.dark .ring-\[\#2C7CFF\]\/20,
+.dark .ring-\[\#41C0FF\]\/20,
+.dark .ring-\[\#00D492\]\/20,
+.dark .ring-\[\#10C4CE\]\/20,
+.dark .ring-\[\#FF6536\]\/20,
+.dark .ring-\[\#FFBA00\]\/20,
+.dark .ring-\[\#8E73ED\]\/20,
+.dark .ring-\[\#4F39F6\]\/20 {
+  --tw-ring-color: oklch(0.72 0.15 220 / 40%) !important;
+}
+
+.dark .border-amber-200\/80,
+.dark .border-amber-200 {
+  border-color: oklch(0.78 0.15 75 / 25%) !important;
+}
+
+/* 输入控件与下拉框 */
+.dark input,
+.dark select {
+  background-color: oklch(0.20 0.035 250 / 80%) !important;
+  border-color: var(--input) !important;
+  color: var(--foreground) !important;
+}
+
+.dark input::placeholder {
+  color: var(--muted-foreground) !important;
+}
+
+/* 表格悬浮与斑马纹 */
+.dark tr:hover,
+.dark tr.hover\:bg-amber-50\/40:hover,
+.dark tr.hover\:bg-blue-50\/40:hover,
+.dark tr.hover\:bg-slate-50\/60:hover {
+  background-color: oklch(0.72 0.15 220 / 8%) !important;
+}
+
+/* 浮层卡片与弹窗 */
+.dark .shadow-xl,
+.dark .shadow-2xl,
+.dark [role="dialog"],
+.dark .popover-content {
+  background-color: var(--popover) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+/* 深色模式滚动条对齐 3000 */
+.dark ::-webkit-scrollbar-thumb {
+  background: oklch(0.72 0.12 220 / 25%) !important;
+  border-radius: 8px !important;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.72 0.15 220 / 45%) !important;
+}
+
+/* 图表与数据可视化深色网格与提示框适配 */
+.dark .recharts-cartesian-grid line,
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: var(--grid-line) !important;
+}
+
+.dark .recharts-text,
+.dark .recharts-cartesian-axis-tick text,
+.dark .recharts-cartesian-axis-tick tspan,
+.dark .recharts-cartesian-axis-tick-value {
+  fill: #cbd5e1 !important;
+}
+
+.dark .recharts-cartesian-axis line,
+.dark .recharts-cartesian-axis-line {
+  stroke: var(--border) !important;
+}
+
+.dark .recharts-bar-labels text,
+.dark .recharts-bar-label text {
+  fill: #f1f5f9 !important;
+}
+
+.dark .recharts-legend-wrapper text,
+.dark .recharts-legend-item-text {
+  color: var(--foreground) !important;
+  fill: var(--foreground) !important;
+}
+
+.dark .recharts-default-tooltip {
+  background-color: var(--popover) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark .recharts-tooltip-item {
+  color: var(--foreground) !important;
+}
+
+/* 全局图表游标规范：彻底消除 Recharts 默认 #ccc 描边与灰白实体遮挡 (符合 tbea-industrial-design 规范 6) */
+.dark .recharts-tooltip-cursor {
+  fill: rgba(56, 189, 248, 0.08) !important;
+  stroke: rgba(56, 189, 248, 0.25) !important;
+}
+
+.dark .recharts-rectangle.recharts-tooltip-cursor,
+.dark path.recharts-tooltip-cursor,
+.dark rect.recharts-tooltip-cursor {
+  fill: rgba(56, 189, 248, 0.08) !important;
+  stroke: transparent !important;
+}
+
+:root .recharts-tooltip-cursor {
+  fill: rgba(0, 0, 0, 0.04);
+  stroke: rgba(0, 0, 0, 0.1);
+}
+
+:root .recharts-rectangle.recharts-tooltip-cursor,
+:root path.recharts-tooltip-cursor,
+:root rect.recharts-tooltip-cursor {
+  fill: rgba(0, 0, 0, 0.04);
+  stroke: transparent;
+}
+
+/* 门户总览页全景深色对齐 3000 */
+.dark .bg-gradient-to-b.from-\[\#f8fafc\] {
+  background: var(--background) !important;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) !important;
+  background-size: 44px 44px !important;
+}
+
+.dark header.bg-\[\#003eb3\]\/95 {
+  background-color: oklch(0.16 0.03 250 / 80%) !important;
+  border-color: var(--border) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.dark footer.bg-white\/90 {
+  background-color: var(--sidebar) !important;
+  border-color: var(--sidebar-border) !important;
+  color: var(--muted-foreground) !important;
+}
+
+.dark .bg-white\/90 {
+  background-color: var(--panel) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+.dark .bg-white\/95 {
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+}
+
+/* 深色模式渐变卡片白底阻断 (防止 via-white / to-white 渲染为亮白刺眼色块) */
+.dark .via-white {
+  --tw-gradient-via: var(--card) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--card), var(--tw-gradient-to) !important;
+}
+
+.dark .to-white {
+  --tw-gradient-to: var(--card) !important;
+}
+
+.dark [class*="from-blue-50"][class*="via-white"] {
+  background: var(--card) !important;
+  background-image: linear-gradient(135deg, color-mix(in oklch, var(--primary) 12%, var(--card)), var(--card)) !important;
+}
+
+.dark [class*="from-emerald-50"][class*="via-white"] {
+  background: var(--card) !important;
+  background-image: linear-gradient(135deg, color-mix(in oklch, #10b981 12%, var(--card)), var(--card)) !important;
+}
+
+.dark [class*="from-purple-50"][class*="via-white"] {
+  background: var(--card) !important;
+  background-image: linear-gradient(135deg, color-mix(in oklch, #a855f7 12%, var(--card)), var(--card)) !important;
+}
+
+/* =========================================================================
+   深色模式工业高密表格全局防御体系 (Table Dark Mode Standards)
+   确保全系统所有表格在深色模式下保持高对比度、清晰边框与柔和悬停效果
+   ========================================================================= */
+
+/* 表头背景与文字 */
+.dark table thead,
+.dark table thead tr,
+.dark table thead.bg-slate-50,
+.dark table thead.bg-slate-100,
+.dark table thead.bg-\[\#f8fafc\],
+.dark table thead.bg-\[\#F3F7FB\],
+.dark table thead.bg-slate-50\/80,
+.dark table thead.bg-slate-50\/90,
+.dark table thead tr.bg-slate-50,
+.dark table thead tr.bg-slate-100,
+.dark table thead tr.bg-slate-50\/70,
+.dark table thead tr.bg-slate-50\/80,
+.dark table thead tr.bg-slate-50\/90,
+.dark table thead tr.bg-\[\#F3F7FB\] {
+  background-color: var(--panel) !important;
+}
+
+.dark table thead th {
+  border-color: var(--border) !important;
+  color: var(--muted-foreground) !important;
+}
+
+.dark table thead th.text-slate-800,
+.dark table thead th.text-slate-700,
+.dark table thead th .text-slate-800,
+.dark table thead th .text-slate-700 {
+  color: var(--foreground) !important;
+}
+
+/* 冻结列 (Sticky columns) 与吸顶表头 (Sticky thead) 暗黑防白块 */
+.dark table thead th[class*="sticky"],
+.dark table thead th.sticky {
+  background-color: var(--panel) !important;
+  border-color: var(--border) !important;
+}
+
+.dark table tbody td[class*="sticky"],
+.dark table tbody td.sticky {
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground) !important;
+  box-shadow: none !important;
+}
+
+.dark table tbody tr:hover td[class*="sticky"],
+.dark table tbody tr:hover td.sticky {
+  background-color: oklch(0.72 0.15 220 / 12%) !important;
+}
+
+/* 表格主体背景、分割线与悬停态 */
+.dark table tbody {
+  border-color: var(--border) !important;
+}
+
+.dark table tbody.divide-slate-100,
+.dark table tbody.divide-slate-200,
+.dark table tbody.divide-\[\#f1f5f9\],
+.dark table tbody.divide-\[\#DBE6EE\],
+.dark table tbody.divide-\[\#DBE6EE\]\/60 {
+  border-color: color-mix(in oklch, var(--border) 60%, transparent) !important;
+}
+
+.dark table tbody tr {
+  border-color: color-mix(in oklch, var(--border) 60%, transparent) !important;
+}
+
+.dark table tbody tr.bg-white,
+.dark table tbody td.bg-white,
+.dark table tbody td.bg-slate-50\/40,
+.dark table tbody td.bg-slate-50\/50,
+.dark table tbody td.bg-slate-50\/60,
+.dark table tbody td.bg-slate-50\/70,
+.dark table tbody td.bg-slate-50\/80,
+.dark table tbody td.bg-slate-50\/90,
+.dark table tbody td.bg-slate-50 {
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+}
+
+.dark table tbody tr:hover,
+.dark table tbody tr.hover\:bg-blue-50\/30:hover,
+.dark table tbody tr.hover\:bg-blue-50\/40:hover,
+.dark table tbody tr.hover\:bg-blue-50\/50:hover,
+.dark table tbody tr.hover\:bg-slate-50:hover,
+.dark table tbody tr.hover\:bg-slate-50\/60:hover,
+.dark table tbody tr.hover\:bg-slate-50\/80:hover,
+.dark table tbody tr.hover\:bg-emerald-50\/30:hover,
+.dark table tbody tr.hover\:bg-emerald-50\/40:hover,
+.dark table tbody tr.hover\:bg-amber-50\/30:hover {
+  background-color: oklch(0.72 0.15 220 / 8%) !important;
+}
+
+/* 单元格字体对比度保护 */
+.dark table tbody td.text-slate-900,
+.dark table tbody td.text-slate-800,
+.dark table tbody td .text-slate-900,
+.dark table tbody td .text-slate-800 {
+  color: var(--foreground) !important;
+}
+
+.dark table tbody td.text-slate-600,
+.dark table tbody td .text-slate-600 {
+  color: var(--foreground) !important;
+}
+
+.dark table tbody td.text-slate-500,
+.dark table tbody td.text-slate-400,
+.dark table tbody td .text-slate-500,
+.dark table tbody td .text-slate-400 {
+  color: var(--muted-foreground) !important;
+}
+
+/* 表格外部容器边框保护 */
+.dark .border-\[\#DBE6EE\],
+.dark .border-\[\#E2E8F0\] {
+  border-color: var(--border) !important;
+}
+
+
+

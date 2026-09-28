@@ -91,10 +91,10 @@ export function SearchableUnitSelect({
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          'h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-800 shadow-2xs',
+          'h-9 px-3 rounded-lg border border-[#E2E8F0] bg-white text-xs font-medium text-slate-800 shadow-2xs',
           'flex items-center justify-between gap-2 min-w-[200px] max-w-[260px] text-left transition-colors cursor-pointer select-none',
-          'hover:border-blue-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200',
-          open && 'border-blue-500 ring-1 ring-blue-200',
+          'hover:border-[#2C7CFF]/50 focus:outline-none focus:border-[#2C7CFF] focus:ring-1 focus:ring-[#2C7CFF]/20',
+          open && 'border-[#2C7CFF] ring-1 ring-[#2C7CFF]/20',
           disabled && 'opacity-60 cursor-not-allowed bg-slate-50',
         )}
       >
@@ -102,13 +102,13 @@ export function SearchableUnitSelect({
           {currentLabel}
         </span>
         <ChevronDown
-          className={cn('size-3.5 text-slate-400 shrink-0 transition-transform duration-200', open && 'rotate-180 text-blue-500')}
+          className={cn('size-3.5 text-slate-400 shrink-0 transition-transform duration-200', open && 'rotate-180 text-[#2C7CFF]')}
         />
       </button>
 
       {/* 下拉面板 */}
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 min-w-[280px] max-w-[340px] rounded-xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10 overflow-hidden animate-in fade-in-50 zoom-in-95 duration-100 flex flex-col">
+        <div className="absolute left-0 top-full mt-1 z-50 min-w-[280px] max-w-[340px] rounded-lg border border-[#DBE6EE] bg-white shadow-xl shadow-slate-900/10 overflow-hidden animate-in fade-in-50 zoom-in-95 duration-100 flex flex-col">
           {/* 🌟 顶部模糊匹配搜索框 */}
           <div className="p-2 border-b border-slate-100 bg-slate-50/80 sticky top-0 z-10">
             <div className="relative flex items-center">
@@ -119,7 +119,7 @@ export function SearchableUnitSelect({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="输入单位名称模糊搜索..."
-                className="h-7 w-full rounded-md border border-slate-200 bg-white pl-8 pr-7 text-xs text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none shadow-2xs"
+                className="h-8 w-full rounded-md border border-[#E2E8F0] bg-white pl-8 pr-7 text-xs text-slate-800 placeholder:text-slate-400 focus:border-[#2C7CFF] focus:outline-none shadow-2xs"
               />
               {query && (
                 <button
@@ -146,12 +146,12 @@ export function SearchableUnitSelect({
               className={cn(
                 'w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer mb-0.5',
                 value === 'all' || !value
-                  ? 'bg-blue-50 text-[#1677ff] font-bold'
+                  ? 'bg-blue-50 text-[#2C7CFF] font-bold'
                   : 'text-slate-700 hover:bg-slate-100 font-medium',
               )}
             >
               <span>全部所属单位</span>
-              {(value === 'all' || !value) && <Check className="size-3.5 text-[#1677ff] shrink-0" />}
+              {(value === 'all' || !value) && <Check className="size-3.5 text-[#2C7CFF] shrink-0" />}
             </button>
 
             {/* 匹配的单位列表 */}
@@ -170,7 +170,7 @@ export function SearchableUnitSelect({
                     className={cn(
                       'w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer group',
                       isSelected
-                        ? 'bg-blue-50 text-[#1677ff] font-bold'
+                        ? 'bg-blue-50 text-[#2C7CFF] font-bold'
                         : 'text-slate-700 hover:bg-slate-100 font-medium',
                     )}
                   >
@@ -182,7 +182,7 @@ export function SearchableUnitSelect({
                         {opt.company}
                       </span>
                     )}
-                    {isSelected && <Check className="size-3.5 text-[#1677ff] shrink-0 ml-1" />}
+                    {isSelected && <Check className="size-3.5 text-[#2C7CFF] shrink-0 ml-1" />}
                   </button>
                 )
               })

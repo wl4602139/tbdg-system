@@ -123,15 +123,9 @@ export default function AIAssistantPage() {
             <Bot className="size-5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-foreground flex items-center gap-2">
+            <h1 className="text-base font-bold text-foreground">
               特变电工能碳大模型智能问数助手
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30 font-mono font-semibold">
-                AI Agent
-              </span>
             </h1>
-            <p className="text-xs text-muted-foreground">
-              基于大模型与 65 项能碳指标体系，支持自然语言问数、智能归因诊断与深层页面直达
-            </p>
           </div>
         </div>
       </div>
